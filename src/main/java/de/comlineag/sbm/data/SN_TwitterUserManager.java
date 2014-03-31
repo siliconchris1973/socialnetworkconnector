@@ -1,0 +1,41 @@
+package de.comlineag.sbm.data;
+
+import java.util.List;
+import twitter4j.User;
+
+/**
+ * 
+ * @author Christian Guenther
+ * @category Handler
+ * 
+ * @description implementation of the twitter user manager. This handler is used to save a new user or update
+ * 				an existing user 
+ *  
+ */
+public class SN_TwitterUserManager extends SN_ElementManager<SN_TwitterUser> {
+	/*
+	 * 
+	 * Die nachfolgenden Elemente des Users sollen weiter verarbeitet und gespeichert werden
+	 *				
+	 *	key="cl_userID" 					value="id"
+	 *	key="cl_userName" 					value="name"
+	 *	key="cl_userScreenName" 			value="screen_name"
+	 * 	key="cl_userLocation" 				value="location"
+	 *	key="cl_userFollower" 				value="followers_count"
+	 * 	key="cl_userFriends" 				value="friends_count"
+	 * 	key="cl_userPostingsCount"			value="statuses_count"
+	 *	key="cl_userFavoritesCount"			value="favourites_count"
+	 *	key="cl_userListsAndGroupsCount"	value="listed_count" 
+	 *	key="cl_userLang" 					value="lang"
+	 */
+		
+	
+	public SN_TwitterUserManager() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public void save(List<SN_TwitterUser> users){
+	}
+	
+	
+}
