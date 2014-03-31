@@ -37,15 +37,12 @@ public class SN_TwitterUserManager extends SN_ElementManager<SN_TwitterUser> {
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	public SN_TwitterUserManager() {
-		// log the startup message
-		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
-		
 		// TODO Auto-generated constructor stub
 	}
 	
 	public void save(List<SN_TwitterUser> users){
 		// log the startup message
-		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+		logger.debug("method save from class " + getClass().getName() + " called");
 				
 	}
 	

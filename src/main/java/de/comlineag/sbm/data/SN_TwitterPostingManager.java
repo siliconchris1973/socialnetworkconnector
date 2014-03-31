@@ -42,17 +42,14 @@ public class SN_TwitterPostingManager extends SN_ElementManager<SN_TwitterPostin
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
-	public SN_TwitterPostingManager() {
-		// log the startup message
-		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
-				
+	public SN_TwitterPostingManager() {		
 		// TODO Auto-generated constructor stub
 	}
 	
 	@Override
 	public void save(List<SN_TwitterPosting> posting){
 		// log the startup message
-		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+		logger.debug("method save from class " + getClass().getName() + " called");
 
 	}	
 }

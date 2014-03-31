@@ -36,17 +36,25 @@ public class SN_TwitterPosting{
 	public SN_TwitterPosting(JSONObject jsonObject){
 		
 		// log the startup message
-		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
-				
+		logger.debug("new tweet created within class " + getClass().getName());
+					
+		
 		setId((Long)jsonObject.get("id"));
 		setpTime((String)jsonObject.get("created_at"));
 		setText((String)jsonObject.get("text"));		 
 		setpClient((String)jsonObject.get("source"));
 		setpTruncated((Boolean)jsonObject.get("truncated"));
-		setpInReplyTo((Long)jsonObject.get("in_reply_to_status_id"));
-		setpInReplyToUser((Long)jsonObject.get("in_reply_to_user_id"));
-		setpInReplyToUserScreenName((String)jsonObject.get("in_reply_to_screen_name"));
-		setpGeoLocation((String)jsonObject.get("coordinates"));
+		
+		if (jsonObject.get("in_reply_to_status_id") != null)
+			setpInReplyTo((Long)jsonObject.get("in_reply_to_status_id"));
+		if (jsonObject.get("in_reply_to_user_id") != null)
+			setpInReplyToUser((Long)jsonObject.get("in_reply_to_user_id"));
+		if (jsonObject.get("in_reply_to_screen_name") != null)
+			setpInReplyToUserScreenName((String)jsonObject.get("in_reply_to_screen_name"));
+		
+		//if (jsonObject.get("coordinates") != null)
+		//	setpGeoLocation((String)jsonObject.get("coordinates"));
+		
 		//setpPlace((List)jsonObject.get("place"));
 		setpLang((String)jsonObject.get("lang"));
 		//setpHashtags((List)jsonObject.get("hashtags"));
@@ -88,13 +96,13 @@ public class SN_TwitterPosting{
 	public long getpInReplyTo() {
 		return pInReplyTo;
 	}
-	public void setpInReplyTo(long pInReplyTo) {
+	public void setpInReplyTo(Long pInReplyTo) {
 		this.pInReplyTo = pInReplyTo;
 	}
 	public long getpInReplyToUser() {
 		return pInReplyToUser;
 	}
-	public void setpInReplyToUser(long pInReplyToUser) {
+	public void setpInReplyToUser(Long pInReplyToUser) {
 		this.pInReplyToUser = pInReplyToUser;
 	}
 	public String getpInReplyToUserScreenName() {

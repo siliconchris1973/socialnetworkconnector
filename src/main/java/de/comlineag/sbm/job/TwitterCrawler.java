@@ -2,6 +2,7 @@ package de.comlineag.sbm.job;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.NestedIOException;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -13,7 +14,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import com.google.common.collect.Lists;
-
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;
@@ -39,7 +39,7 @@ import de.comlineag.sbm.data.*;
 public class TwitterCrawler implements Job{
 
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
-	
+
 	// Set up your blocking queues: Be sure to size these properly based on expected TPS of your stream
 	private BlockingQueue<String> msgQueue;
 	//private BlockingQueue<Event> eventQueue;
@@ -50,9 +50,8 @@ public class TwitterCrawler implements Job{
 	private int numProcessingThreads;
 	
 	public TwitterCrawler() {
-		// log the startup message
-		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
-				
+		System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "DEBUG");
+		
 		// Define message and event queue
 		msgQueue = new LinkedBlockingQueue<String>(100000);
 		//eventQueue = new LinkedBlockingQueue<Event>(1000);
@@ -68,7 +67,7 @@ public class TwitterCrawler implements Job{
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// log the startup message
-		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+		logger.debug("method execute from class " + getClass().getName() + " called");
 				
 		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 
@@ -110,7 +109,6 @@ public class TwitterCrawler implements Job{
 	      	logger.debug("New Tweet " + msg);
 	      	
 	      	// hier kommt demnaechst der SAVE the Tweet
-	      	
 	      	post.save(msg);
 	    }
 	    

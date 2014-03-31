@@ -29,18 +29,22 @@ public class SN_TwitterUser {
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
 	public SN_TwitterUser(JSONObject jsonObject){
-		// log the startup message
-		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
-		
 		setId((Long)jsonObject.get("id"));
 		setUsername((String)jsonObject.get("name"));
 		setScreenName((String)jsonObject.get("screen_name"));
 		//setLocation((List)jsonObject.get("location"));
-		setFollowersCount((Long)jsonObject.get("followers_count"));
-		setFriendsCount((Long)jsonObject.get("friends_count"));
-		setPostingsCount((Long)jsonObject.get("statuses_count"));
-		setFavoritesCount((Long)jsonObject.get("favorites_count"));
-		setListsAndGrooupsCount((Long)jsonObject.get("listed_count"));
+		
+		if (jsonObject.get("followers_count") != null)
+			setFollowersCount((Long)jsonObject.get("followers_count"));
+		if (jsonObject.get("friends_count") != null)
+			setFriendsCount((Long)jsonObject.get("friends_count"));
+		if (jsonObject.get("statuses_count") != null)
+			setPostingsCount((Long)jsonObject.get("statuses_count"));
+		if (jsonObject.get("favorites_count") != null)
+			setFavoritesCount((Long)jsonObject.get("favorites_count"));
+		if (jsonObject.get("listed_count") != null)
+			setListsAndGrooupsCount((Long)jsonObject.get("listed_count"));
+		
 		setLang((String)jsonObject.get("lang"));
 	}
 

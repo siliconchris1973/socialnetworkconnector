@@ -23,16 +23,13 @@ public class SN_TwitterManager extends SN_Manager {
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	public SN_TwitterManager() {
-		// log the startup message
-		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
-		
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	protected void bigParser(String strTweet){
 		// log the startup message
-		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+		logger.debug("method bigParser from class " + getClass().getName() + " called");
 				
 		// macht ein JSon Decode aus dem uebergebenen String
 		// TODO: How to decode the map and seperate Tweets from Users and Retweets and URLs and so on

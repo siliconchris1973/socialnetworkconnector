@@ -25,7 +25,7 @@ public class SN_RawFileWriter extends File {
 		super(pathname);
 		// TODO Auto-generated constructor stub
 		// log the startup message
-		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+		logger.debug("constructor of class " + getClass().getName() + " called with " + pathname);
 				
 	}
 
@@ -33,20 +33,20 @@ public class SN_RawFileWriter extends File {
 		super(uri);
 		// TODO Auto-generated constructor stub
 		// log the startup message
-		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+		logger.debug("constructor of class " + getClass().getName() + " called with " + uri);
 	}
 
 	public SN_RawFileWriter(String parent, String child) {
 		super(parent, child);
 		// TODO Auto-generated constructor stub
 		// log the startup message
-		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+		logger.debug("constructor of class " + getClass().getName() + " called with " + parent + " and " + child);
 	}
 
 	public SN_RawFileWriter(File parent, String child) {
 		super(parent, child);
 		// TODO Auto-generated constructor stub
 		// log the startup message
-		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+		logger.debug("constructor of class " + getClass().getName() + " called with " + parent.toString() + " and " + child);
 	}
 }

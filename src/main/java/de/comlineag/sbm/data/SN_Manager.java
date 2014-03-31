@@ -24,7 +24,7 @@ public abstract class SN_Manager {
 	
 	public final void save(String strPosting){
 		// log the startup message
-		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+		logger.debug("method save from class " + getClass().getName() + " called");
 				
 		if(strPosting != null)
 			bigParser(strPosting);
