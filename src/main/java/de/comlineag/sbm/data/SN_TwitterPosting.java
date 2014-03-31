@@ -3,6 +3,8 @@ package de.comlineag.sbm.data;
 import java.util.List;
 
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -14,6 +16,9 @@ import org.json.simple.JSONObject;
  *				nachfolgende Klassen und Methoden auf diesem Datentyp operieren koennen und somit typsafe sind
  */
 public class SN_TwitterPosting{
+		
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	
 	private long id;
 	private String text;
 	private String pTime;
@@ -29,6 +34,10 @@ public class SN_TwitterPosting{
 	private List<?> pSymbols;
 
 	public SN_TwitterPosting(JSONObject jsonObject){
+		
+		// log the startup message
+		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+				
 		setId((Long)jsonObject.get("id"));
 		setpTime((String)jsonObject.get("created_at"));
 		setText((String)jsonObject.get("text"));		 

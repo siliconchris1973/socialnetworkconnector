@@ -1,6 +1,10 @@
 package de.comlineag.sbm.data;
 
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import twitter4j.User;
 
 /**
@@ -13,6 +17,7 @@ import twitter4j.User;
  *  
  */
 public class SN_TwitterUserManager extends SN_ElementManager<SN_TwitterUser> {
+	
 	/*
 	 * 
 	 * Die nachfolgenden Elemente des Users sollen weiter verarbeitet und gespeichert werden
@@ -28,13 +33,20 @@ public class SN_TwitterUserManager extends SN_ElementManager<SN_TwitterUser> {
 	 *	key="cl_userListsAndGroupsCount"	value="listed_count" 
 	 *	key="cl_userLang" 					value="lang"
 	 */
-		
+	
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	public SN_TwitterUserManager() {
+		// log the startup message
+		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+		
 		// TODO Auto-generated constructor stub
 	}
 	
 	public void save(List<SN_TwitterUser> users){
+		// log the startup message
+		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+				
 	}
 	
 	

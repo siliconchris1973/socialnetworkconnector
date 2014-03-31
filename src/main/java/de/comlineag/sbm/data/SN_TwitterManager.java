@@ -2,7 +2,9 @@ package de.comlineag.sbm.data;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -18,14 +20,20 @@ import org.json.simple.parser.ParseException;
  */
 public class SN_TwitterManager extends SN_Manager {
 
-	private final Logger logger = Logger.getLogger(getClass().getName());
-
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	
 	public SN_TwitterManager() {
+		// log the startup message
+		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+		
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	protected void bigParser(String strTweet){
+		// log the startup message
+		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+				
 		// macht ein JSon Decode aus dem uebergebenen String
 		// TODO: How to decode the map and seperate Tweets from Users and Retweets and URLs and so on
 		JSONParser parser = new JSONParser();
@@ -48,7 +56,7 @@ public class SN_TwitterManager extends SN_Manager {
 
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
-			logger.warning(e.toString());
+			logger.error(e.toString());
 		}
 
 		SN_TwitterPostingManager post = new SN_TwitterPostingManager();

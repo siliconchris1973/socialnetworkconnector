@@ -3,6 +3,9 @@ package de.comlineag.sbm.data;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import twitter4j.TweetEntity;
 import twitter4j.api.TweetsResources;
 
@@ -36,12 +39,20 @@ public class SN_TwitterPostingManager extends SN_ElementManager<SN_TwitterPostin
 	 * key="cl_postSymbols" 			value="symbols" 			
 	 * 
 	 */
+	
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	
 	public SN_TwitterPostingManager() {
+		// log the startup message
+		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+				
 		// TODO Auto-generated constructor stub
 	}
 	
 	@Override
 	public void save(List<SN_TwitterPosting> posting){
-	
+		// log the startup message
+		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+
 	}	
 }

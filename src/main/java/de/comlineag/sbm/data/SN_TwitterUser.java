@@ -3,6 +3,8 @@ package de.comlineag.sbm.data;
 import java.util.List;
 
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -23,8 +25,13 @@ public class SN_TwitterUser {
 	private long favoritesCount;
 	private long listsAndGrooupsCount;
 	private String lang;
+	
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
 	public SN_TwitterUser(JSONObject jsonObject){
+		// log the startup message
+		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+		
 		setId((Long)jsonObject.get("id"));
 		setUsername((String)jsonObject.get("name"));
 		setScreenName((String)jsonObject.get("screen_name"));

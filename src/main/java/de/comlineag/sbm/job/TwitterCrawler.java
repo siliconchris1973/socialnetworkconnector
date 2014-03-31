@@ -1,6 +1,7 @@
 package de.comlineag.sbm.job;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -37,10 +38,8 @@ import de.comlineag.sbm.data.*;
  */
 public class TwitterCrawler implements Job{
 
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
-	
-	//private Client hosebirdClient;
 	// Set up your blocking queues: Be sure to size these properly based on expected TPS of your stream
 	private BlockingQueue<String> msgQueue;
 	//private BlockingQueue<Event> eventQueue;
@@ -51,6 +50,9 @@ public class TwitterCrawler implements Job{
 	private int numProcessingThreads;
 	
 	public TwitterCrawler() {
+		// log the startup message
+		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+				
 		// Define message and event queue
 		msgQueue = new LinkedBlockingQueue<String>(100000);
 		//eventQueue = new LinkedBlockingQueue<Event>(1000);
@@ -65,6 +67,9 @@ public class TwitterCrawler implements Job{
 	}
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		// log the startup message
+		logger.debug("method " + getClass().getEnclosingMethod().getName() + " save from class " + getClass().getName() + " called");
+				
 		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 
 	    //endpoint.trackTerms(Lists.newArrayList("SocialBrandMonitor4HANA", "SocialBrandMonitor"));
@@ -100,9 +105,9 @@ public class TwitterCrawler implements Job{
 	    	try {
 	    		msg = msgQueue.take();
 	    	} catch (InterruptedException e) {
-	    	  	logger.warning(e.toString());
+	    	  	logger.error(e.toString());
 	    	}
-	      	logger.info("New Tweet " + msg);
+	      	logger.debug("New Tweet " + msg);
 	      	
 	      	// hier kommt demnaechst der SAVE the Tweet
 	      	
