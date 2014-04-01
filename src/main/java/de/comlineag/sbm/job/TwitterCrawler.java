@@ -2,7 +2,6 @@ package de.comlineag.sbm.job;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.NestedIOException;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -111,7 +110,7 @@ public class TwitterCrawler implements Job{
 	    	}
 	      	logger.info("New Tweet " + msg);
 	      	
-	      	// hier kommt demnaechst der SAVE the Tweet
+	      	// Jede einzelne Message wird nun an den Parser TwitterParser (abgeleitet von GenericParser) uebergeben
 	      	post.process(msg);
 	    }
 	    
