@@ -25,7 +25,7 @@ public class DT_TwitterUser {
 	private long favoritesCount;
 	private long listsAndGrooupsCount;
 	private String lang;
-	
+		
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
 	public DT_TwitterUser(JSONObject jsonObject){
