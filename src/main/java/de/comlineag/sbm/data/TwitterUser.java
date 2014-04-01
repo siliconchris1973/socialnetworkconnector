@@ -30,7 +30,7 @@ public final class TwitterUser {
 	
 	private long id;
 	private String username;
-	private String screenName;
+	private String screen_name;
 	private List<?> location;
 	private long followers_count;
 	private long friends_count;
@@ -49,7 +49,7 @@ public final class TwitterUser {
 		// so I can check on initialized or not initialized values for the posting
 		id = 0;
 		username = null;
-		screenName = null;
+		screen_name = null;
 		location = null;
 		followers_count = 0;
 		friends_count = 0;
@@ -93,10 +93,10 @@ public final class TwitterUser {
 		this.username = username;
 	}
 	public String getScreenName() {
-		return screenName;
+		return screen_name;
 	}
 	public void setScreenName(String screenName) {
-		this.screenName = screenName;
+		this.screen_name = screenName;
 	}
 	public List<?> getLocation() {
 		return location;

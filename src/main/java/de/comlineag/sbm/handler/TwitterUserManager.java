@@ -13,7 +13,7 @@ import de.comlineag.sbm.data.*;
  * @author Christian Guenther
  * @category Handler
  * 
- * @description Implementation of the twitter user manager - extends ElementManager. 
+ * @description Implementation of the twitter user manager - extends GenericDataManager. 
  * 				This handler is used to save a new user or update an existing one.
  * 				TwitterUserManager is called after a posting with all relevant information
  * 				about the user (posting user as well as mentioned users) is decoded by TwitterParser. 
@@ -32,7 +32,7 @@ import de.comlineag.sbm.data.*;
  *				"listed_count" 		Long
  *				"lang"				String
  */
-public final class TwitterUserManager extends ElementManager<TwitterUser> {
+public final class TwitterUserManager extends GenericDataManager<TwitterUser> {
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import twitter4j.TweetEntity;
 import twitter4j.api.TweetsResources;
+
 import de.comlineag.sbm.data.*;
 
 
@@ -16,14 +17,14 @@ import de.comlineag.sbm.data.*;
  * @author		Christian Guenther
  * @category	Handler
  *
- * @description	Implementation of the twitter posting manager - extends ElementManager 
+ * @description	Implementation of the twitter posting manager - extends GenericDataManager 
  * 				This handler is used to save a new tweet or update an existing one.
  * 				TwitterPostingManager is called after a posting with all relevant information
  * 				about the posting (the original as well as the retweeted one) is decoded by TwitterParser.
  * 				
  * 
- * @param		none
- * 
+ * @param		<TwitterPosting>
+ * 				
  * 				"id"						Long 
  * 				"created_at" 				String
  * 				"text" 						String
@@ -38,13 +39,17 @@ import de.comlineag.sbm.data.*;
  * 				"hashtags" 					List
  * 				"symbols" 					List
  */
-public final class TwitterPostingManager extends ElementManager<TwitterPosting> {
-	
+public final class TwitterPostingManager extends GenericDataManager<TwitterPosting> {
+		
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+		
+	//TODO: FIX ENUM
+	//sourceSocialNetwork = new SocialNetworks("TW");
 	
 	public TwitterPostingManager() {		
 		// TODO Auto-generated constructor stub
 		logger.debug("constructor of class" + getClass().getName() + " called");
+		
 	}
 	
 	@Override
