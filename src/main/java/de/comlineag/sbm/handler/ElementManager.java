@@ -1,4 +1,4 @@
-package de.comlineag.sbm.data;
+package de.comlineag.sbm.handler;
 
 import java.util.List;
 
