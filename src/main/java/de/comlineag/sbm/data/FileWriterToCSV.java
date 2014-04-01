@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  * @category Handler
  *
  */
-public class SN_RawFileWriter extends File {
+public class FileWriterToCSV extends File {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
@@ -21,7 +21,7 @@ public class SN_RawFileWriter extends File {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public SN_RawFileWriter(String pathname) {
+	public FileWriterToCSV(String pathname) {
 		super(pathname);
 		// TODO Auto-generated constructor stub
 		// log the startup message
@@ -29,21 +29,21 @@ public class SN_RawFileWriter extends File {
 				
 	}
 
-	public SN_RawFileWriter(URI uri) {
+	public FileWriterToCSV(URI uri) {
 		super(uri);
 		// TODO Auto-generated constructor stub
 		// log the startup message
 		logger.debug("constructor of class " + getClass().getName() + " called with " + uri);
 	}
 
-	public SN_RawFileWriter(String parent, String child) {
+	public FileWriterToCSV(String parent, String child) {
 		super(parent, child);
 		// TODO Auto-generated constructor stub
 		// log the startup message
 		logger.debug("constructor of class " + getClass().getName() + " called with " + parent + " and " + child);
 	}
 
-	public SN_RawFileWriter(File parent, String child) {
+	public FileWriterToCSV(File parent, String child) {
 		super(parent, child);
 		// TODO Auto-generated constructor stub
 		// log the startup message

@@ -15,12 +15,12 @@ import twitter4j.api.TweetsResources;
  * @author		Christian Guenther
  * @category	Handler
  *
- * @description	Extends SN_ElementManager for the actual Posting(s). 
- * 				SN_TwitterPostingManager is called after a posting with all relevant information
+ * @description	Extends ElementManager for the actual Posting(s). 
+ * 				TwitterPostingManager is called after a posting with all relevant information
  * 				is decoded by 
  * 
  */
-public class SN_TwitterPostingManager extends SN_ElementManager<SN_TwitterPosting> {
+public class TwitterPostingManager extends ElementManager<DT_TwitterPosting> {
 	/*
 	 * Die nachfolgenden Elemente des Tweets sollen weiter verarbeitet und gespeichert werden
 	 * 
@@ -42,14 +42,14 @@ public class SN_TwitterPostingManager extends SN_ElementManager<SN_TwitterPostin
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
-	public SN_TwitterPostingManager() {		
+	public TwitterPostingManager() {		
 		// TODO Auto-generated constructor stub
 	}
 	
 	@Override
-	public void save(List<SN_TwitterPosting> posting){
+	public void save(List<DT_TwitterPosting> posting){
 		// log the startup message
 		logger.debug("method save from class " + getClass().getName() + " called");
-
+		// TODO: implement save interface either to file, db or the like
 	}	
 }

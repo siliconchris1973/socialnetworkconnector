@@ -43,7 +43,7 @@ public class TwitterCrawler implements Job{
 	// Set up your blocking queues: Be sure to size these properly based on expected TPS of your stream
 	private BlockingQueue<String> msgQueue;
 	//private BlockingQueue<Event> eventQueue;
-	private SN_TwitterManager post;
+	private TwitterParser post;
 	
 	// Set up the executor service to distribute the actual tasks 
 	private ExecutorService service;
@@ -58,7 +58,7 @@ public class TwitterCrawler implements Job{
 		//eventQueue = new LinkedBlockingQueue<Event>(1000);
 		
 		// instantiiere den Manager fuer das Twitter-Posting-Objekt als Ableitung von Posting
-		post = new SN_TwitterManager();
+		post = new TwitterParser();
 		
 		// Create an executor service which will spawn threads to do the actual work of 
 		// parsing the incoming messages and calling the listeners on each message
@@ -76,8 +76,8 @@ public class TwitterCrawler implements Job{
 		endpoint.trackTerms(Lists.newArrayList("SAP", "ERP", "BW", "BO", "CRM", "SCM", "SRM", "IDM",
 												"NetWeaver", "ABAP", "HANA", "Business Objects",
 												"Business Warehouse", "Customer Relationship Management",
-												"Supply Chain Management", "Supplier Relatoinship Management",
-												"Identity Managemrnt"));
+												"Supply Chain Management", "Supplier Relationship Management",
+												"Identity Management"));
 	    
 	    Authentication sn_Auth = new OAuth1(
 	    		(String)arg0.getJobDetail().getJobDataMap().get("consumerKey")
@@ -107,7 +107,7 @@ public class TwitterCrawler implements Job{
 	    	} catch (InterruptedException e) {
 	    	  	logger.error(e.toString());
 	    	}
-	      	logger.debug("New Tweet " + msg);
+	      	logger.info("New Tweet " + msg);
 	      	
 	      	// hier kommt demnaechst der SAVE the Tweet
 	      	post.save(msg);

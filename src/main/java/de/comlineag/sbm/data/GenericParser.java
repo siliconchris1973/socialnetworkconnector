@@ -8,15 +8,15 @@ import org.slf4j.LoggerFactory;
  * @author 		Christian Guenther
  * @category 	Handler
  * 
- * @description	SN_Manager ist die abstrakte Basisklasse fuer Parser der einzelnen sozialen Netzwerke
- * 				SN_Manager implementiert die save-Methode und stellt die abstrakte Methode bigParser bereit
+ * @description	GenericParser ist die abstrakte Basisklasse fuer Parser der einzelnen sozialen Netzwerke
+ * 				GenericParser implementiert die save-Methode und stellt die abstrakte Methode bigParser bereit
  *
  */
-public abstract class SN_Manager {
+public abstract class GenericParser {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
-	protected SN_Manager() {
+	protected GenericParser() {
 		// TODO Auto-generated constructor stub
 	}
 	

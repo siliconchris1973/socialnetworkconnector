@@ -15,16 +15,14 @@ import org.json.simple.parser.ParseException;
  * @author 		Christian Guenther
  * @category 	Handler
  *
- * @description	SN_TwitterManager implementiert den Parser zur Dekodierung der Twitter postings
+ * @description	TwitterParser implementiert den Parser zur Dekodierung der Twitter postings
  *  
  */
-public class SN_TwitterManager extends SN_Manager {
+public class TwitterParser extends GenericParser {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
-	public SN_TwitterManager() {
-		// TODO Auto-generated constructor stub
-	}
+	public TwitterParser() {}
 
 	@Override
 	protected void bigParser(String strTweet){
@@ -34,21 +32,21 @@ public class SN_TwitterManager extends SN_Manager {
 		// macht ein JSon Decode aus dem uebergebenen String
 		// TODO: How to decode the map and seperate Tweets from Users and Retweets and URLs and so on
 		JSONParser parser = new JSONParser();
-		List<SN_TwitterPosting> postings =  new ArrayList<SN_TwitterPosting>();
-		List<SN_TwitterUser> users = new ArrayList<SN_TwitterUser>();
+		List<DT_TwitterPosting> postings =  new ArrayList<DT_TwitterPosting>();
+		List<DT_TwitterUser> users = new ArrayList<DT_TwitterUser>();
 		
 		try {
 			JSONObject jsonTweetResource = (JSONObject) parser.parse(strTweet);
-			SN_TwitterPosting posting = new SN_TwitterPosting(jsonTweetResource);
+			DT_TwitterPosting posting = new DT_TwitterPosting(jsonTweetResource);
 			postings.add(posting);
 
 			JSONObject jsonUser = (JSONObject) jsonTweetResource.get("user");
-			SN_TwitterUser user = new SN_TwitterUser(jsonUser);
+			DT_TwitterUser user = new DT_TwitterUser(jsonUser);
 			users.add(user);
 
 			JSONObject jsonReTweeted = (JSONObject) jsonTweetResource.get("retweeted_status");
 			if(jsonReTweeted != null){
-				postings.add(new SN_TwitterPosting(jsonReTweeted));
+				postings.add(new DT_TwitterPosting(jsonReTweeted));
 			}
 
 		} catch (ParseException e) {
@@ -56,11 +54,11 @@ public class SN_TwitterManager extends SN_Manager {
 			logger.error(e.toString());
 		}
 
-		SN_TwitterPostingManager post = new SN_TwitterPostingManager();
+		TwitterPostingManager post = new TwitterPostingManager();
 		post.save(postings); // hier Key fuer Tweets uebergeben
 
 
-		SN_TwitterUserManager user = new SN_TwitterUserManager();
+		TwitterUserManager user = new TwitterUserManager();
 		user.save(users); // hier key fuer User uebergeben
 	}
 
