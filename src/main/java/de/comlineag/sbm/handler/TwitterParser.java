@@ -1,5 +1,5 @@
 package de.comlineag.sbm.handler;
-import de.comlineag.sbm.data.*;
+import de.comlineag.sbm.handler.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,16 +39,16 @@ public final class TwitterParser extends GenericParser {
 		
 		try {
 			JSONObject jsonTweetResource = (JSONObject) parser.parse(strTweet);
-			TwitterPostingData posting = new TwitterPostingData(jsonTweetResource);
+			TwitterPosting posting = new TwitterPosting(jsonTweetResource);
 			postings.add(posting);
 
 			JSONObject jsonUser = (JSONObject) jsonTweetResource.get("user");
-			TwitterUserData user = new TwitterUserData(jsonUser);
+			TwitterUser user = new TwitterUser(jsonUser);
 			users.add(user);
 
 			JSONObject jsonReTweeted = (JSONObject) jsonTweetResource.get("retweeted_status");
 			if(jsonReTweeted != null){
-				postings.add(new TwitterPostingData(jsonReTweeted));
+//				postings.add(new TwitterPostingData(jsonReTweeted));
 			}
 
 		} catch (ParseException e) {
@@ -56,14 +56,22 @@ public final class TwitterParser extends GenericParser {
 			logger.error(e.toString());
 		}
 
-		TwitterPosting post = new TwitterPosting();
+for (int ii = 0; ii <= postings.size(); ii++){
+	TwitterPosting post = (TwitterPosting) postings.get(ii);
+	post.save(); // hier Key fuer Tweets uebergeben
+	
+}
+//		TwitterPosting post = new TwitterPosting();
 //		post.save(postings); // hier Key fuer Tweets uebergeben
-		post.save(); // hier Key fuer Tweets uebergeben
 
-
-		TwitterUser user = new TwitterUser();
+for (int ii = 0; ii <= users.size(); ii++){
+	TwitterUser user = (TwitterUser) users.get(ii);
+	user.save(); // hier key fuer User uebergeben
+	
+}
+//		TwitterUser user = new TwitterUser();
 //		user.save(users); // hier key fuer User uebergeben
-		user.save(); // hier key fuer User uebergeben
+
 	}
 
 }
