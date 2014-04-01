@@ -17,7 +17,7 @@ import de.comlineag.sbm.data.*;
  * 				an existing user 
  *  
  */
-public class TwitterUserManager extends ElementManager<DT_TwitterUser> {
+public class TwitterUserManager extends ElementManager<TwitterUser> {
 	
 	/*
 	 * 
@@ -42,7 +42,7 @@ public class TwitterUserManager extends ElementManager<DT_TwitterUser> {
 		logger.debug("constructor of class" + getClass().getName() + " called");
 	}
 	
-	public void save(List<DT_TwitterUser> users){
+	public void save(List<TwitterUser> users){
 		// log the startup message
 		logger.debug("method save from class " + getClass().getName() + " called");
 				

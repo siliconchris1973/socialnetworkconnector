@@ -34,7 +34,7 @@ public class TwitterParser extends GenericParser {
 		// TODO: How to decode the map and seperate Tweets from Users and Retweets and URLs and so on
 		JSONParser parser = new JSONParser();
 		List<DT_TwitterPosting> postings =  new ArrayList<DT_TwitterPosting>();
-		List<DT_TwitterUser> users = new ArrayList<DT_TwitterUser>();
+		List<TwitterUser> users = new ArrayList<TwitterUser>();
 		
 		try {
 			JSONObject jsonTweetResource = (JSONObject) parser.parse(strTweet);
@@ -42,7 +42,7 @@ public class TwitterParser extends GenericParser {
 			postings.add(posting);
 
 			JSONObject jsonUser = (JSONObject) jsonTweetResource.get("user");
-			DT_TwitterUser user = new DT_TwitterUser(jsonUser);
+			TwitterUser user = new TwitterUser(jsonUser);
 			users.add(user);
 
 			JSONObject jsonReTweeted = (JSONObject) jsonTweetResource.get("retweeted_status");

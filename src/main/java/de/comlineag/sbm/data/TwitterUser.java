@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  *
  * @description describes all elements needed for the representation of a twitter user
  */
-public class DT_TwitterUser {
+public class TwitterUser {
 	
 	private long id;
 	private String username;
@@ -28,7 +28,7 @@ public class DT_TwitterUser {
 		
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
-	public DT_TwitterUser(JSONObject jsonObject){
+	public TwitterUser(JSONObject jsonObject){
 		
 		logger.debug("constructor of class" + getClass().getName() + " called");
 		
