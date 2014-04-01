@@ -29,6 +29,9 @@ public class DT_TwitterUser {
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
 	public DT_TwitterUser(JSONObject jsonObject){
+		
+		logger.debug("constructor of class" + getClass().getName() + " called");
+		
 		setId((Long)jsonObject.get("id"));
 		setUsername((String)jsonObject.get("name"));
 		setScreenName((String)jsonObject.get("screen_name"));

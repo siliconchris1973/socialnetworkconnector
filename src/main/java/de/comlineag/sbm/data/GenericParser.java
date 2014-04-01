@@ -18,16 +18,17 @@ public abstract class GenericParser {
 	
 	protected GenericParser() {
 		// TODO Auto-generated constructor stub
+		logger.debug("constructor of class" + getClass().getName() + " called");
 	}
 	
-	protected abstract void bigParser(String strPosting);
+	protected abstract void parse(String strPosting);
 	
-	public final void save(String strPosting){
+	public final void process(String strPosting){
 		// log the startup message
-		logger.debug("method save from class " + getClass().getName() + " called");
+		logger.debug("method process from class " + getClass().getName() + " called");
 				
 		if(strPosting != null)
-			bigParser(strPosting);
+			parse(strPosting);
 	}
 
 }

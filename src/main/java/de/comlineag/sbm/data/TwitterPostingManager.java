@@ -44,6 +44,7 @@ public class TwitterPostingManager extends ElementManager<DT_TwitterPosting> {
 	
 	public TwitterPostingManager() {		
 		// TODO Auto-generated constructor stub
+		logger.debug("constructor of class" + getClass().getName() + " called");
 	}
 	
 	@Override

@@ -38,6 +38,7 @@ public class TwitterUserManager extends ElementManager<DT_TwitterUser> {
 	
 	public TwitterUserManager() {
 		// TODO Auto-generated constructor stub
+		logger.debug("constructor of class" + getClass().getName() + " called");
 	}
 	
 	public void save(List<DT_TwitterUser> users){

@@ -50,6 +50,8 @@ public class TwitterCrawler implements Job{
 	private int numProcessingThreads;
 	
 	public TwitterCrawler() {
+		logger.debug("constructor of class" + getClass().getName() + " called");
+		
 		//System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "DEBUG");
 		//System.setProperty(org.slf4j.impl.SimpleLogger.WARN_LEVEL_STRING_KEY, "DEBUG");
 		
@@ -110,7 +112,7 @@ public class TwitterCrawler implements Job{
 	      	logger.info("New Tweet " + msg);
 	      	
 	      	// hier kommt demnaechst der SAVE the Tweet
-	      	post.save(msg);
+	      	post.process(msg);
 	    }
 	    
 	    client.stop();

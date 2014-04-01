@@ -25,7 +25,7 @@ public class TwitterParser extends GenericParser {
 	public TwitterParser() {}
 
 	@Override
-	protected void bigParser(String strTweet){
+	protected void parse(String strTweet){
 		// log the startup message
 		logger.debug("method bigParser from class " + getClass().getName() + " called");
 				
