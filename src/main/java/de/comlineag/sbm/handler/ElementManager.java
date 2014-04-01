@@ -10,7 +10,7 @@ import java.util.List;
  * @description	ElementManager ist die abstrakte Basisklasse fuer die Handler 
  * 				der Elemente (Posts und User) der einzelnen sozialen Netzwerke
  * 
- * @param <T>
+ * @param		<T>
  * 
  */
 public abstract class ElementManager <T>   {

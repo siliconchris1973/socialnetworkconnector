@@ -1,15 +1,16 @@
 package de.comlineag.sbm.handler;
+import de.comlineag.sbm.data.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import de.comlineag.sbm.data.*;
 
 /**
  * 
@@ -19,7 +20,7 @@ import de.comlineag.sbm.data.*;
  * @description	TwitterParser implementiert den Parser zur Dekodierung der Twitter postings
  *  
  */
-public class TwitterParser extends GenericParser {
+public final class TwitterParser extends GenericParser {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	

@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  * @category	Handler
  *
  */
-public class FileWriterToCSV extends File {
+public final class FileWriterToCSV extends File {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
