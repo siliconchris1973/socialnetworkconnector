@@ -50,8 +50,8 @@ public class TwitterCrawler implements Job{
 	private int numProcessingThreads;
 	
 	public TwitterCrawler() {
-		System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "DEBUG");
-		System.setProperty(org.slf4j.impl.SimpleLogger.WARN_LEVEL_STRING_KEY, "DEBUG");
+		//System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "DEBUG");
+		//System.setProperty(org.slf4j.impl.SimpleLogger.WARN_LEVEL_STRING_KEY, "DEBUG");
 		
 		// Define message and event queue
 		msgQueue = new LinkedBlockingQueue<String>(100000);
