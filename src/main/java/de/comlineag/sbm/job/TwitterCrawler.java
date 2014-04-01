@@ -1,7 +1,7 @@
 package de.comlineag.sbm.job;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.*;
+//import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,8 +37,9 @@ import de.comlineag.sbm.handler.*;
  *
  */
 public class TwitterCrawler extends GenericCrawler implements Job{
-
-	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	
+//	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	// Set up your blocking queues: Be sure to size these properly based on expected TPS of your stream
 	private BlockingQueue<String> msgQueue;

@@ -22,6 +22,38 @@
     - This is a sample configuration for log4j.
     - It simply just logs everything into a single log file.
     - Note, that you can use properties for value substitution.
+  -->
+
+
+  <appender name="console" class="org.apache.log4j.ConsoleAppender"> 
+    <param name="Target" value="System.out"/> 
+    <layout class="org.apache.log4j.PatternLayout"> 
+      <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> 
+    </layout> 
+  </appender> 
+
+  <root> 
+    <priority value ="debug" /> 
+    <appender-ref ref="console" /> 
+  </root>
+
+<!-- 
+ <appender name="MeinAppender" class="org.apache.log4j.DailyRollingFileAppender">
+    <param name="datePattern" value="'.'yyyy-MM-dd_HH-mm" />
+    <param name="file" value="logs/MeineLogDatei.log" />
+    <param name="Append" value="true" />
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%d{ISO8601} %-5p [%t] %c: %m%n" />
+    </layout>
+  </appender>
+
+  <root>
+    <priority value="DEBUG" />
+    <appender-ref ref="MeinAppender" />
+  </root>
+ -->
+ 
+<!-- 
   
   <appender name="CORE" class="org.apache.log4j.FileAppender">
     <param name="File"   value="${org.apache.cocoon.work.directory}/cocoon-logs/log4j.log" />
@@ -47,6 +79,6 @@
     <priority value="DEBUG"/>
     <appender-ref ref="console"/>
   </root>
--->
 
+ -->
 </log4j:configuration>

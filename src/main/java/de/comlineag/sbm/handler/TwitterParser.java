@@ -36,12 +36,13 @@ public final class TwitterParser extends GenericParser {
 		JSONParser parser = new JSONParser();
 		List<TwitterPosting> postings =  new ArrayList<TwitterPosting>();
 		List<TwitterUser> users = new ArrayList<TwitterUser>();
+		logger.debug("HIHO hier ist der Osterhase");
 		
 		try {
 			JSONObject jsonTweetResource = (JSONObject) parser.parse(strTweet);
 			TwitterPosting posting = new TwitterPosting(jsonTweetResource);
 			postings.add(posting);
-
+logger.error("DIES ist ein Fehler");
 			JSONObject jsonUser = (JSONObject) jsonTweetResource.get("user");
 			TwitterUser user = new TwitterUser(jsonUser);
 			users.add(user);
