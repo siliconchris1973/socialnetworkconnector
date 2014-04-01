@@ -1,4 +1,4 @@
-package de.comlineag.sbm.data;
+package de.comlineag.sbm.handler;
 
 import java.io.File;
 import java.net.URI;
@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * @author Christian Guenther
- * @category Handler
+ * @author		Christian Guenther
+ * @category	Handler
  *
  */
 public class FileWriterToCSV extends File {

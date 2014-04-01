@@ -23,7 +23,7 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 
-import de.comlineag.sbm.data.*;
+import de.comlineag.sbm.handler.*;
 
 
 /**

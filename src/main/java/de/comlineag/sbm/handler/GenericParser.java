@@ -1,4 +1,4 @@
-package de.comlineag.sbm.data;
+package de.comlineag.sbm.handler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

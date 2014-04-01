@@ -1,4 +1,4 @@
-package de.comlineag.sbm.data;
+package de.comlineag.sbm.handler;
 
 import java.util.List;
 import java.util.Map;
@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import twitter4j.TweetEntity;
 import twitter4j.api.TweetsResources;
+import de.comlineag.sbm.data.*;
 
 
 /**
