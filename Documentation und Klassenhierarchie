@@ -8,7 +8,7 @@ Architektur:
 		
 	
 	___ Handler ___
-	SN_Manager
+	GenericParser
 		x	Abstract class 
 		x	provides parser
 		x
@@ -16,25 +16,25 @@ Architektur:
 		x							x
 		x							x
 		x							x
-	SN_TwitterManager			SN_xxxManager
+	TwitterParser				FacebookParser
 			Implementation				Implementation
 			of the parser				of the parser 
-			for Twitter					for XXX
+			for Twitter					for Facebook
 		
-	SN_ElementManager
+	ElementManager
 		x	Abstract class 
-		x
+		x	to handle elements
 		x
 		xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 		x							x
 		x							x
 		x							x
-	SN_TwitterUserManager		SN_TwitterPostingManager
+	TwitterUserManager			TwitterPostingManager
 			Implementation 				Implementation
 			für Twitter-User 			für Twitter-Posts
 	
 	
 	___ Data types ___
-	SN_TwitterUser				SN_TwitterPosting
+	DT_TwitterUser				DT_TwitterPosting
 			Data typ of a				Data type of a
 			Twitter User				Twitter Posting
