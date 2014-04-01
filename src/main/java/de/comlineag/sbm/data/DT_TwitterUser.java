@@ -26,6 +26,15 @@ public class DT_TwitterUser {
 	private long listsAndGrooupsCount;
 	private String lang;
 	
+	private String ml_variable_dreck_git;
+	
+	public String getMl_variable_dreck_git() {
+		return ml_variable_dreck_git;
+	}
+
+	public void setMl_variable_dreck_git(String ml_variable_dreck_git) {
+		this.ml_variable_dreck_git = ml_variable_dreck_git;
+	}
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
 	public DT_TwitterUser(JSONObject jsonObject){
