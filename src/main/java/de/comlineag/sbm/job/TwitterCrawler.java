@@ -3,9 +3,10 @@ package de.comlineag.sbm.job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.quartz.Job;
@@ -35,7 +36,7 @@ import de.comlineag.sbm.handler.*;
  * 				as they are created on the network.
  *
  */
-public class TwitterCrawler implements Job{
+public class TwitterCrawler extends GenericCrawler implements Job{
 
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
