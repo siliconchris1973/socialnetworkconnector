@@ -17,5 +17,7 @@ public abstract class ElementManager <T>   {
 	
 	public ElementManager(){}
 	
-	public abstract void save(List<T> objLists);
+	public abstract void save();
+	
+	
 }
