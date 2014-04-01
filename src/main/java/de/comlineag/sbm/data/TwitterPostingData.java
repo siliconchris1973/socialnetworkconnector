@@ -12,51 +12,92 @@ import org.slf4j.LoggerFactory;
  * @author 		Christian Guenther
  * @category 	data type
  *
- * @description Die Klasse DT_TwitterPosting stellt den notwendigen Datentyp TwitterPosting bereit, damit
- *				nachfolgende Klassen und Methoden auf diesem Datentyp operieren koennen und somit typsafe sind
+ * @description Describes a single twitter posting with all relevant informations.
+ * 				The class shall be used to make all methods handling a twitter posting type save.
+ * 
+ * @param		<JSonObject>
+ * 				"id"						Long 
+ * 				"created_at" 				String
+ * 				"text" 						String
+ * 				"source" 					String
+ * 				"truncated" 				Boolean
+ * 				"in_reply_to_status_id"		Long
+ * 				"in_reply_to_user_id" 		Long
+ * 				"in_reply_to_screen_name"	String
+ * 				"coordinates" 				List
+ * 				"place" 					List
+ * 				"lang" 						String
+ * 				"hashtags" 					List
+ * 				"symbols" 					List
  */
+<<<<<<< HEAD:src/main/java/de/comlineag/sbm/data/TwitterPostingData.java
 public class TwitterPostingData{
+=======
+public final class TwitterPosting{
+>>>>>>> 5feb78f3e2b7bb14c47d1197df99fa3b3809b15c:src/main/java/de/comlineag/sbm/data/TwitterPosting.java
 		
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	private long id;
 	private String text;
-	private String pTime;
-	private String pClient;
-	private Boolean pTruncated;
-	private long pInReplyTo;
-	private long pInReplyToUser;
-	private String pInReplyToUserScreenName;
-	private String pGeoLocation;
-	private List<?> pPlace;
-	private String pLang;
-	private List<?> pHashtags;
-	private List<?> pSymbols;
+	private String time;
+	private String posted_from_client;
+	private Boolean truncated;
+	private long in_reply_to_post;
+	private long in_reply_to_user;
+	private String in_reply_to_user_screen_name;
+	private String coordinates;
+	private List<?> place;
+	private String lang;
+	private List<?> hashtags;
+	private List<?> symbols;
 
+<<<<<<< HEAD:src/main/java/de/comlineag/sbm/data/TwitterPostingData.java
 	public TwitterPostingData(JSONObject jsonObject){
 		
 		// log the startup message
 		logger.info("new tweet created within class " + getClass().getName());
 					
+=======
+	public TwitterPosting(JSONObject jsonObject){
+		// log the startup message
+		logger.debug("new tweet created within class " + getClass().getName());
+		
+		// setting everything to 0 or null default value. 
+		// so I can check on initialized or not initialized values for the posting
+		id = 0;
+		text = null;
+		time = null;
+		posted_from_client = null;
+		truncated = null;
+		in_reply_to_post = 0;
+		in_reply_to_user = 0;
+		in_reply_to_user_screen_name = null;
+		coordinates = null;
+		place = null;
+		lang = null;
+		hashtags = null;
+		symbols = null;
+>>>>>>> 5feb78f3e2b7bb14c47d1197df99fa3b3809b15c:src/main/java/de/comlineag/sbm/data/TwitterPosting.java
 		
 		setId((Long)jsonObject.get("id"));
-		setpTime((String)jsonObject.get("created_at"));
+		setTime((String)jsonObject.get("created_at"));
 		setText((String)jsonObject.get("text"));		 
-		setpClient((String)jsonObject.get("source"));
-		setpTruncated((Boolean)jsonObject.get("truncated"));
+		setClient((String)jsonObject.get("source"));
+		setTruncated((Boolean)jsonObject.get("truncated"));
 		
 		if (jsonObject.get("in_reply_to_status_id") != null)
-			setpInReplyTo((Long)jsonObject.get("in_reply_to_status_id"));
+			setInReplyTo((Long)jsonObject.get("in_reply_to_status_id"));
 		if (jsonObject.get("in_reply_to_user_id") != null)
-			setpInReplyToUser((Long)jsonObject.get("in_reply_to_user_id"));
+			setInReplyToUser((Long)jsonObject.get("in_reply_to_user_id"));
 		if (jsonObject.get("in_reply_to_screen_name") != null)
-			setpInReplyToUserScreenName((String)jsonObject.get("in_reply_to_screen_name"));
+			setInReplyToUserScreenName((String)jsonObject.get("in_reply_to_screen_name"));
 		
 		//if (jsonObject.get("coordinates") != null)
 		//	setpGeoLocation((String)jsonObject.get("coordinates"));
 		
 		//setpPlace((List)jsonObject.get("place"));
-		setpLang((String)jsonObject.get("lang"));
+		setLang((String)jsonObject.get("lang"));
 		//setpHashtags((List)jsonObject.get("hashtags"));
 		//setpSymbols((List)jsonObject.get("symbols"));
 		//TODO: implement the List setters for Place, Hashtags and Symbols
@@ -75,70 +116,70 @@ public class TwitterPostingData{
 	public void setText(String text) {
 		this.text = text;
 	}
-	public String getpTime() {
-		return pTime;
+	public String getTime() {
+		return time;
 	}
-	public void setpTime(String pTime) {
-		this.pTime = pTime;
+	public void setTime(String postTime) {
+		this.time = postTime;
 	}
-	public String getpClient() {
-		return pClient;
+	public String getClient() {
+		return posted_from_client;
 	}
-	public void setpClient(String pClient) {
-		this.pClient = pClient;
+	public void setClient(String postClient) {
+		this.posted_from_client = postClient;
 	}
-	public Boolean getpTruncated() {
-		return pTruncated;
+	public Boolean getTruncated() {
+		return truncated;
 	}
-	public void setpTruncated(Boolean pTruncated) {
-		this.pTruncated = pTruncated;
+	public void setTruncated(Boolean isTruncated) {
+		this.truncated = isTruncated;
 	}
-	public long getpInReplyTo() {
-		return pInReplyTo;
+	public long getInReplyTo() {
+		return in_reply_to_post;
 	}
-	public void setpInReplyTo(Long pInReplyTo) {
-		this.pInReplyTo = pInReplyTo;
+	public void setInReplyTo(Long inReplyTo) {
+		this.in_reply_to_post = inReplyTo;
 	}
-	public long getpInReplyToUser() {
-		return pInReplyToUser;
+	public long getInReplyToUser() {
+		return in_reply_to_user;
 	}
-	public void setpInReplyToUser(Long pInReplyToUser) {
-		this.pInReplyToUser = pInReplyToUser;
+	public void setInReplyToUser(Long inReplyToUser) {
+		this.in_reply_to_user = inReplyToUser;
 	}
-	public String getpInReplyToUserScreenName() {
-		return pInReplyToUserScreenName;
+	public String getInReplyToUserScreenName() {
+		return in_reply_to_user_screen_name;
 	}
-	public void setpInReplyToUserScreenName(String pInReplyToUserScreenName) {
-		this.pInReplyToUserScreenName = pInReplyToUserScreenName;
+	public void setInReplyToUserScreenName(String inReplyToUserScreenName) {
+		this.in_reply_to_user_screen_name = inReplyToUserScreenName;
 	}
-	public String getpGeoLocation() {
-		return pGeoLocation;
+	public String getCoordinates() {
+		return coordinates;
 	}
-	public void setpGeoLocation(String pGeoLocation) {
-		this.pGeoLocation = pGeoLocation;
+	public void setCoordinates(String coordinates) {
+		this.coordinates = coordinates;
 	}
-	public List<?> getpPlace() {
-		return pPlace;
+	public List<?> getPlace() {
+		return place;
 	}
-	public void setpPlace(List<?> pPlace) {
-		this.pPlace = pPlace;
+	public void setPlace(List<?> place) {
+		this.place = place;
 	}
-	public String getpLang() {
-		return pLang;
+	public String getLang() {
+		return lang;
 	}
-	public void setpLang(String pLang) {
-		this.pLang = pLang;
+	public void setLang(String lang) {
+		this.lang = lang;
 	}
-	public List<?> getpHashtags() {
-		return pHashtags;
+	public List<?> getHashtags() {
+		return hashtags;
 	}
-	public void setpHashtags(List<?> pHashtags) {
-		this.pHashtags = pHashtags;
+	public void setHashtags(List<?> hashtags) {
+		this.hashtags = hashtags;
 	}
-	public List<?> getpSymbols() {
-		return pSymbols;
+	public List<?> getSymbols() {
+		return symbols;
 	}
-	public void setpSymbols(List<?> pSymbols) {
-		this.pSymbols = pSymbols;
+	public void setSymbols(List<?> symbols) {
+		this.symbols = symbols;
 	}
 }

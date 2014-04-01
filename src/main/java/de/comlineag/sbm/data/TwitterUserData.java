@@ -8,29 +8,66 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author Christian Guenther
- * @category data type
+ * @author 		Christian Guenther
+ * @category 	data type
  *
- * @description describes all elements needed for the representation of a twitter user
+ * @description Describes a single twitter user with all relevant informations.
+ * 				The class shall be used to make all methods handling a twitter user type save.
+ * 
+ * @param		<JSonObject>
+ *				"id"						Long
+ *				"name"						String
+ *				"screen_name"				String
+ * 				"location"					List
+ *				"followers_count"			Long
+ * 				"friends_count"				Long
+ * 				"statuses_count"			Long
+ *				"favourites_count"			Long
+ *				"lists_and_groups_count" 	Long
+ *				"lang"						String 
  */
+<<<<<<< HEAD:src/main/java/de/comlineag/sbm/data/TwitterUserData.java
 public class TwitterUserData {
+=======
+public final class TwitterUser {
+>>>>>>> 5feb78f3e2b7bb14c47d1197df99fa3b3809b15c:src/main/java/de/comlineag/sbm/data/TwitterUser.java
 	
 	private long id;
 	private String username;
-	private String screenName;
+	private String screen_name;
 	private List<?> location;
-	private long followersCount;
-	private long friendsCount;
-	private long postingsCount;
-	private long favoritesCount;
-	private long listsAndGrooupsCount;
+	private long followers_count;
+	private long friends_count;
+	private long postings_count;
+	private long favorites_count;
+	private long lists_and_groups_count;
 	private String lang;
 		
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
+<<<<<<< HEAD:src/main/java/de/comlineag/sbm/data/TwitterUserData.java
 	public TwitterUserData(JSONObject jsonObject){
 		
+=======
+	public TwitterUser(JSONObject jsonObject){
+		// log the startup message
+>>>>>>> 5feb78f3e2b7bb14c47d1197df99fa3b3809b15c:src/main/java/de/comlineag/sbm/data/TwitterUser.java
 		logger.debug("constructor of class" + getClass().getName() + " called");
+		
+		// setting everything to 0 or null default value. 
+		// so I can check on initialized or not initialized values for the posting
+		id = 0;
+		username = null;
+		screen_name = null;
+		location = null;
+		followers_count = 0;
+		friends_count = 0;
+		postings_count = 0;
+		favorites_count = 0;
+		lists_and_groups_count = 0;
+		lang = null;
+		
+		
 		
 		setId((Long)jsonObject.get("id"));
 		setUsername((String)jsonObject.get("name"));
@@ -45,8 +82,8 @@ public class TwitterUserData {
 			setPostingsCount((Long)jsonObject.get("statuses_count"));
 		if (jsonObject.get("favorites_count") != null)
 			setFavoritesCount((Long)jsonObject.get("favorites_count"));
-		if (jsonObject.get("listed_count") != null)
-			setListsAndGrooupsCount((Long)jsonObject.get("listed_count"));
+		if (jsonObject.get("lists_and_groups_count") != null)
+			setListsAndGroupsCount((Long)jsonObject.get("lists_and_groups_count"));
 		
 		setLang((String)jsonObject.get("lang"));
 	}
@@ -65,10 +102,10 @@ public class TwitterUserData {
 		this.username = username;
 	}
 	public String getScreenName() {
-		return screenName;
+		return screen_name;
 	}
 	public void setScreenName(String screenName) {
-		this.screenName = screenName;
+		this.screen_name = screenName;
 	}
 	public List<?> getLocation() {
 		return location;
@@ -77,34 +114,34 @@ public class TwitterUserData {
 		this.location = location;
 	}
 	public long getFollowersCount() {
-		return followersCount;
+		return followers_count;
 	}
 	public void setFollowersCount(long followersCount) {
-		this.followersCount = followersCount;
+		this.followers_count = followersCount;
 	}
 	public long getFriendsCount() {
-		return friendsCount;
+		return friends_count;
 	}
 	public void setFriendsCount(long friendsCount) {
-		this.friendsCount = friendsCount;
+		this.friends_count = friendsCount;
 	}
 	public long getPostingsCount() {
-		return postingsCount;
+		return postings_count;
 	}
 	public void setPostingsCount(long postingsCount) {
-		this.postingsCount = postingsCount;
+		this.postings_count = postingsCount;
 	}
 	public long getFavoritesCount() {
-		return favoritesCount;
+		return favorites_count;
 	}
 	public void setFavoritesCount(long favoritesCount) {
-		this.favoritesCount = favoritesCount;
+		this.favorites_count = favoritesCount;
 	}
 	public long getListsAndGrooupsCount() {
-		return listsAndGrooupsCount;
+		return lists_and_groups_count;
 	}
-	public void setListsAndGrooupsCount(long listsAndGrooupsCount) {
-		this.listsAndGrooupsCount = listsAndGrooupsCount;
+	public void setListsAndGroupsCount(long listsAndGroupsCount) {
+		this.lists_and_groups_count = listsAndGroupsCount;
 	}
 	public String getLang() {
 		return lang;
