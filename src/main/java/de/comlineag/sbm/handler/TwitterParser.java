@@ -1,15 +1,16 @@
 package de.comlineag.sbm.handler;
+import de.comlineag.sbm.data.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import de.comlineag.sbm.data.*;
 
 /**
  * 
@@ -19,7 +20,7 @@ import de.comlineag.sbm.data.*;
  * @description	TwitterParser implementiert den Parser zur Dekodierung der Twitter postings
  *  
  */
-public class TwitterParser extends GenericParser {
+public final class TwitterParser extends GenericParser {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
@@ -38,16 +39,16 @@ public class TwitterParser extends GenericParser {
 		
 		try {
 			JSONObject jsonTweetResource = (JSONObject) parser.parse(strTweet);
-			TwitterPosting posting = new TwitterPosting(jsonTweetResource);
+			TwitterPostingData posting = new TwitterPostingData(jsonTweetResource);
 			postings.add(posting);
 
 			JSONObject jsonUser = (JSONObject) jsonTweetResource.get("user");
-			TwitterUser user = new TwitterUser(jsonUser);
+			TwitterUserData user = new TwitterUserData(jsonUser);
 			users.add(user);
 
 			JSONObject jsonReTweeted = (JSONObject) jsonTweetResource.get("retweeted_status");
 			if(jsonReTweeted != null){
-				postings.add(new TwitterPosting(jsonReTweeted));
+				postings.add(new TwitterPostingData(jsonReTweeted));
 			}
 
 		} catch (ParseException e) {
@@ -55,12 +56,12 @@ public class TwitterParser extends GenericParser {
 			logger.error(e.toString());
 		}
 
-		TwitterPostingManager post = new TwitterPostingManager();
+		TwitterPosting post = new TwitterPosting();
 //		post.save(postings); // hier Key fuer Tweets uebergeben
 		post.save(); // hier Key fuer Tweets uebergeben
 
 
-		TwitterUserManager user = new TwitterUserManager();
+		TwitterUser user = new TwitterUser();
 //		user.save(users); // hier key fuer User uebergeben
 		user.save(); // hier key fuer User uebergeben
 	}

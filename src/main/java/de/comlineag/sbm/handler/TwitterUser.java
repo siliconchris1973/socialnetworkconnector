@@ -2,6 +2,7 @@ package de.comlineag.sbm.handler;
 
 import java.util.List;
 
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,7 @@ import de.comlineag.sbm.data.*;
  * 				an existing user 
  *  
  */
-public class TwitterUserManager extends ElementManager<TwitterUser> {
+public class TwitterUser extends ElementManager<TwitterUserData> {
 	
 	/*
 	 * 
@@ -34,12 +35,14 @@ public class TwitterUserManager extends ElementManager<TwitterUser> {
 	 *	key="cl_userListsAndGroupsCount"	value="listed_count" 
 	 *	key="cl_userLang" 					value="lang"
 	 */
+	private TwitterUserData data;
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
-	public TwitterUserManager() {
+	public TwitterUser(JSONObject jsonObject) {
 		// TODO Auto-generated constructor stub
 		logger.debug("constructor of class" + getClass().getName() + " called");
+		data = new TwitterUserData(jsonObject);
 	}
 	
 //	public void save(List<TwitterUser> users){

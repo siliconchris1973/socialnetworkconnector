@@ -3,6 +3,7 @@ package de.comlineag.sbm.handler;
 import java.util.List;
 import java.util.Map;
 
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +22,7 @@ import de.comlineag.sbm.data.*;
  * 				is decoded by 
  * 
  */
-public class TwitterPostingManager extends ElementManager<TwitterPosting> {
+public class TwitterPosting extends ElementManager<TwitterPostingData> {
 	/*
 	 * Die nachfolgenden Elemente des Tweets sollen weiter verarbeitet und gespeichert werden
 	 * 
@@ -40,12 +41,14 @@ public class TwitterPostingManager extends ElementManager<TwitterPosting> {
 	 * key="cl_postSymbols" 			value="symbols" 			
 	 * 
 	 */
+	private TwitterPostingData data;
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
-	public TwitterPostingManager() {		
+	public TwitterPosting(JSONObject jsonObject) {		
 		// TODO Auto-generated constructor stub
 		logger.debug("constructor of class" + getClass().getName() + " called");
+		data = new TwitterPostingData(jsonObject);
 	}
 	
 	@Override
