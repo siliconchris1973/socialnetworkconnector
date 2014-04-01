@@ -42,7 +42,8 @@ public class TwitterUserManager extends ElementManager<TwitterUser> {
 		logger.debug("constructor of class" + getClass().getName() + " called");
 	}
 	
-	public void save(List<TwitterUser> users){
+//	public void save(List<TwitterUser> users){
+	public void save(){
 		// log the startup message
 		logger.debug("method save from class " + getClass().getName() + " called");
 				

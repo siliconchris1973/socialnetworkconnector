@@ -56,11 +56,13 @@ public class TwitterParser extends GenericParser {
 		}
 
 		TwitterPostingManager post = new TwitterPostingManager();
-		post.save(postings); // hier Key fuer Tweets uebergeben
+//		post.save(postings); // hier Key fuer Tweets uebergeben
+		post.save(); // hier Key fuer Tweets uebergeben
 
 
 		TwitterUserManager user = new TwitterUserManager();
-		user.save(users); // hier key fuer User uebergeben
+//		user.save(users); // hier key fuer User uebergeben
+		user.save(); // hier key fuer User uebergeben
 	}
 
 }

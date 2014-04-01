@@ -49,7 +49,8 @@ public class TwitterPostingManager extends ElementManager<TwitterPosting> {
 	}
 	
 	@Override
-	public void save(List<TwitterPosting> posting){
+//	public void save(List<TwitterPosting> posting){
+	public void save(){
 		// log the startup message
 		logger.debug("method save from class " + getClass().getName() + " called");
 		// TODO: implement save interface either to file, db or the like
