@@ -98,6 +98,7 @@ public class TwitterCrawler extends GenericCrawler implements Job{
 
 	    // Establish a connection
 	    client.connect();
+	    logger.info("Client connected");
 	    
 	    // Do whatever needs to be done with messages
 	    for (int msgRead = 0; msgRead < 1000; msgRead++) {
@@ -113,6 +114,7 @@ public class TwitterCrawler extends GenericCrawler implements Job{
 	      	
 	      	// Jede einzelne Message wird nun an den Parser TwitterParser (abgeleitet von GenericParser) uebergeben
 	      	post.process(msg);
+	      	logger.info("TWEETY IST AUS!!!!!!!!");
 	    }
 	    
 	    client.stop();

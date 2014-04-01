@@ -29,7 +29,7 @@ public final class TwitterParser extends GenericParser {
 	@Override
 	protected void parse(String strTweet){
 		// log the startup message
-		logger.debug("method bigParser from class " + getClass().getName() + " called");
+		logger.info("method parse from class " + getClass().getName() + " called");
 				
 		// macht ein JSon Decode aus dem uebergebenen String
 		// TODO: How to decode the map and seperate Tweets from Users and Retweets and URLs and so on
@@ -56,7 +56,7 @@ public final class TwitterParser extends GenericParser {
 			logger.error(e.toString());
 		}
 
-for (int ii = 0; ii <= postings.size(); ii++){
+for (int ii = 0; ii < postings.size(); ii++){
 	TwitterPosting post = (TwitterPosting) postings.get(ii);
 	post.save(); // hier Key fuer Tweets uebergeben
 	
@@ -64,7 +64,7 @@ for (int ii = 0; ii <= postings.size(); ii++){
 //		TwitterPosting post = new TwitterPosting();
 //		post.save(postings); // hier Key fuer Tweets uebergeben
 
-for (int ii = 0; ii <= users.size(); ii++){
+for (int ii = 0; ii < users.size(); ii++){
 	TwitterUser user = (TwitterUser) users.get(ii);
 	user.save(); // hier key fuer User uebergeben
 	

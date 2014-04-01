@@ -48,7 +48,7 @@ public class TwitterUser extends GenericDataManager<TwitterUserData> {
 //	public void save(List<TwitterUser> users){
 	public void save(){
 		// log the startup message
-		logger.warn("method save from class " + getClass().getName() + " called");
+		logger.info("method save from class " + getClass().getName() + " called");
 				
 	}
 	

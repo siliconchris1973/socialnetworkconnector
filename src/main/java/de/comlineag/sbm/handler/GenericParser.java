@@ -25,7 +25,7 @@ public abstract class GenericParser {
 	
 	public final void process(String strPosting){
 		// log the startup message
-		logger.debug("method process from class " + getClass().getName() + " called");
+		logger.info("method process from class " + getClass().getName() + " called");
 				
 		if(strPosting != null)
 			parse(strPosting);

@@ -36,7 +36,7 @@ public class TwitterPostingData{
 	public TwitterPostingData(JSONObject jsonObject){
 		
 		// log the startup message
-		logger.debug("new tweet created within class " + getClass().getName());
+		logger.info("new tweet created within class " + getClass().getName());
 					
 		
 		setId((Long)jsonObject.get("id"));
