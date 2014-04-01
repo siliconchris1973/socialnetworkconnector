@@ -1,7 +1,6 @@
 /**
  * @author 		Christian Guenther
- * @category	Handler
- *
- * @description	All handler for the social networks
+ * 
+ * @description	contains all handler for the social networks used to parse postings, users and the like
  */
 package de.comlineag.sbm.handler;
