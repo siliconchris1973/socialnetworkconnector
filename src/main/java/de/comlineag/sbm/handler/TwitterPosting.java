@@ -22,7 +22,7 @@ import de.comlineag.sbm.data.*;
  * 				is decoded by 
  * 
  */
-public class TwitterPosting extends ElementManager<TwitterPostingData> {
+public class TwitterPosting extends GenericDataManager<TwitterPostingData> {
 	/*
 	 * Die nachfolgenden Elemente des Tweets sollen weiter verarbeitet und gespeichert werden
 	 * 

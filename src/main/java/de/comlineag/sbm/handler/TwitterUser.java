@@ -18,7 +18,7 @@ import de.comlineag.sbm.data.*;
  * 				an existing user 
  *  
  */
-public class TwitterUser extends ElementManager<TwitterUserData> {
+public class TwitterUser extends GenericDataManager<TwitterUserData> {
 	
 	/*
 	 * 
