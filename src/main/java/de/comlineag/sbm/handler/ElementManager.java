@@ -18,4 +18,5 @@ public abstract class ElementManager <T>   {
 	public ElementManager(){}
 	
 	public abstract void save();
+	
 }
