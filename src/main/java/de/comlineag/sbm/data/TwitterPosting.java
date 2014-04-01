@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * @description Die Klasse DT_TwitterPosting stellt den notwendigen Datentyp TwitterPosting bereit, damit
  *				nachfolgende Klassen und Methoden auf diesem Datentyp operieren koennen und somit typsafe sind
  */
-public class DT_TwitterPosting{
+public class TwitterPosting{
 		
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
@@ -33,7 +33,7 @@ public class DT_TwitterPosting{
 	private List<?> pHashtags;
 	private List<?> pSymbols;
 
-	public DT_TwitterPosting(JSONObject jsonObject){
+	public TwitterPosting(JSONObject jsonObject){
 		
 		// log the startup message
 		logger.debug("new tweet created within class " + getClass().getName());

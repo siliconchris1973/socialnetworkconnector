@@ -21,7 +21,7 @@ import de.comlineag.sbm.data.*;
  * 				is decoded by 
  * 
  */
-public class TwitterPostingManager extends ElementManager<DT_TwitterPosting> {
+public class TwitterPostingManager extends ElementManager<TwitterPosting> {
 	/*
 	 * Die nachfolgenden Elemente des Tweets sollen weiter verarbeitet und gespeichert werden
 	 * 
@@ -49,7 +49,7 @@ public class TwitterPostingManager extends ElementManager<DT_TwitterPosting> {
 	}
 	
 	@Override
-	public void save(List<DT_TwitterPosting> posting){
+	public void save(List<TwitterPosting> posting){
 		// log the startup message
 		logger.debug("method save from class " + getClass().getName() + " called");
 		// TODO: implement save interface either to file, db or the like
