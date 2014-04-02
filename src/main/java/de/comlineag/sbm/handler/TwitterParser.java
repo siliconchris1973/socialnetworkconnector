@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> FETCH_HEAD
 package de.comlineag.sbm.handler;
 
 import de.comlineag.sbm.data.*;
@@ -39,13 +43,17 @@ public final class TwitterParser extends GenericParser {
 		logger.debug("HIHO hier ist der Osterhase");
 		
 		try {
+			// zuerst suchen wir uns die posts (tweets) 
 			JSONObject jsonTweetResource = (JSONObject) parser.parse(strTweet);
-			TwitterPosting posting = new TwitterPosting(jsonTweetResource);
-			postings.add(posting);
-logger.error("DIES ist ein Fehler");
+			TwitterPostingData posting = new TwitterPostingData(jsonTweetResource);
+			//postings.add(posting);
+			
+			logger.error("DIES ist ein Fehler");
+			
+			// und dann die user
 			JSONObject jsonUser = (JSONObject) jsonTweetResource.get("user");
-			TwitterUser user = new TwitterUser(jsonUser);
-			users.add(user);
+			TwitterUserData user = new TwitterUserData(jsonUser);
+			//users.add(user);
 
 			JSONObject jsonReTweeted = (JSONObject) jsonTweetResource.get("retweeted_status");
 			if(jsonReTweeted != null){
@@ -57,6 +65,7 @@ logger.error("DIES ist ein Fehler");
 			logger.error(e.toString());
 		}
 
+<<<<<<< HEAD
 for (int ii = 0; ii < postings.size(); ii++){
 	TwitterPosting post = (TwitterPosting) postings.get(ii);
 	post.save(); // hier Key fuer Tweets uebergeben
@@ -72,6 +81,23 @@ for (int ii = 0; ii < users.size(); ii++){
 }
 //		TwitterUser user = new TwitterUser();
 //		user.save(users); // hier key fuer User uebergeben
+=======
+		for (int ii = 0; ii < postings.size(); ii++){
+			TwitterPosting post = (TwitterPosting) postings.get(ii);
+			post.save(); // hier Key fuer Tweets uebergeben
+			
+		}
+		//		TwitterPosting post = new TwitterPosting();
+		//		post.save(postings); // hier Key fuer Tweets uebergeben
+
+		for (int ii = 0; ii < users.size(); ii++){
+			TwitterUser user = (TwitterUser) users.get(ii);
+			user.save(); // hier key fuer User uebergeben
+			
+		}
+		//		TwitterUser user = new TwitterUser();
+		//		user.save(users); // hier key fuer User uebergeben
+>>>>>>> FETCH_HEAD
 
 	}
 
