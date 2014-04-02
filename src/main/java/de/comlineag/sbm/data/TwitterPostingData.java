@@ -3,9 +3,7 @@ package de.comlineag.sbm.data;
 import java.util.List;
 
 import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.apache.log4j.*;
 
 /**
  *
@@ -17,6 +15,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @param		<JSonObject>
  * 				"id"						Long 
+ * 				"sn_id"						String
  * 				"created_at" 				String
  * 				"text" 						String
  * 				"source" 					String
@@ -33,9 +32,10 @@ import org.slf4j.LoggerFactory;
 
 public final class TwitterPostingData{
 		
-	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	private long id;
+	private String sn_id;
 	private String text;
 	private String time;
 	private String posted_from_client;
@@ -52,11 +52,14 @@ public final class TwitterPostingData{
 	public TwitterPostingData(JSONObject jsonObject){
 		
 		// log the startup message
-		logger.info("new tweet created within class " + getClass().getName());
+		logger.debug("creating new tweet within class " + getClass().getName());
 					
 		// setting everything to 0 or null default value. 
 		// so I can check on initialized or not initialized values for the posting
 		id = 0;
+		// ACHTUNG, wenn die Klasse fuer Facebook u.a. kopiert wird,
+		// daa muss dieses Value natuerlich umgesetzt werden
+		sn_id = SocialNetworks.TWITTER.toString();
 		text = null;
 		time = null;
 		posted_from_client = null;
@@ -69,6 +72,8 @@ public final class TwitterPostingData{
 		lang = null;
 		hashtags = null;
 		symbols = null;
+		
+		
 		
 		setId((Long)jsonObject.get("id"));
 		setTime((String)jsonObject.get("created_at"));
@@ -99,6 +104,12 @@ public final class TwitterPostingData{
 	}
 	public void setId(long id) {
 		this.id = id;
+	}
+	public String getSnId() {
+		return sn_id;
+	}
+	public void setSnId(String sn_id) {
+		this.sn_id = sn_id;
 	}
 	public String getText() {
 		return text;

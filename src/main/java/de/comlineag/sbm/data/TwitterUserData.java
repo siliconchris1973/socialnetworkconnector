@@ -3,8 +3,8 @@ package de.comlineag.sbm.data;
 import java.util.List;
 
 import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.*;
+
 
 /**
  *
@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @param		<JSonObject>
  *				"id"						Long
+ *				"sn_id"						String
  *				"name"						String
  *				"screen_name"				String
  * 				"location"					List
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
 public final class TwitterUserData {
 	
 	private long id;
+	private String sn_id;
 	private String username;
 	private String screen_name;
 	private List<?> location;
@@ -40,15 +42,18 @@ public final class TwitterUserData {
 	private long lists_and_groups_count;
 	private String lang;
 		
-	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	public TwitterUserData(JSONObject jsonObject){
 		// log the startup message
-		logger.debug("constructor of class" + getClass().getName() + " called");
+		logger.debug("creating new user within class " + getClass().getName());
 		
 		// setting everything to 0 or null default value. 
 		// so I can check on initialized or not initialized values for the posting
 		id = 0;
+		// ACHTUNG, wenn die Klasse fuer Facebook u.a. kopiert wird,
+		// daa muss dieses Value natuerlich umgesetzt werden
+		sn_id = SocialNetworks.TWITTER.toString();
 		username = null;
 		screen_name = null;
 		location = null;
@@ -86,6 +91,12 @@ public final class TwitterUserData {
 	}
 	public void setId(long id) {
 		this.id = id;
+	}
+	public String getSnId() {
+		return sn_id;
+	}
+	public void setSnId(String sn_id) {
+		this.sn_id = sn_id;
 	}
 	public String getUsername() {
 		return username;

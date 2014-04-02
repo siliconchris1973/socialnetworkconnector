@@ -3,8 +3,7 @@ package de.comlineag.sbm.handler;
 import java.util.List;
 
 import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.*;
 
 import twitter4j.User;
 import de.comlineag.sbm.data.*;
@@ -52,7 +51,7 @@ public class TwitterUser extends GenericDataManager<TwitterUserData> {
 	 */
 	private TwitterUserData data;
 	
-	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	public TwitterUser(JSONObject jsonObject) {
 		// TODO Auto-generated constructor stub

@@ -1,7 +1,5 @@
 package de.comlineag.sbm.handler;
 
-import java.util.List;
-
 import de.comlineag.sbm.data.SocialNetworks;
 
 /**

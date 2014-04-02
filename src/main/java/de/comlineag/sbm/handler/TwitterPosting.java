@@ -4,8 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.*;
 
 import twitter4j.TweetEntity;
 import twitter4j.api.TweetsResources;
@@ -62,7 +61,7 @@ public class TwitterPosting extends GenericDataManager<TwitterPostingData> {
 	 */
 	private TwitterPostingData data;
 	
-	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	private final Logger logger = Logger.getLogger(getClass().getName());
 		
 	//TODO: FIX ENUM
 	//sourceSocialNetwork = new SocialNetworks("TW");

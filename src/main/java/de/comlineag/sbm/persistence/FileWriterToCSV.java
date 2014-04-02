@@ -3,8 +3,7 @@ package de.comlineag.sbm.persistence;
 import java.io.File;
 import java.net.URI;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.*;
 
 /**
  * 
@@ -14,7 +13,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class FileWriterToCSV extends File {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	/**
 	 * 
