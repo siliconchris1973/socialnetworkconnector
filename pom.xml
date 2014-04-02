@@ -48,11 +48,6 @@
   </build>
 
   <dependencies>
-    <!--dependency>
-      <groupId>com.comline.sbm</groupId>
-      <artifactId>[the artifact id of the block to be mounted]</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
-    </dependency-->
     <dependency>
     	<groupId>org.springframework</groupId>
     	<artifactId>spring-core</artifactId>
@@ -78,24 +73,11 @@
     	<artifactId>quartz</artifactId>
     	<version>2.2.1</version>
     </dependency>
-
-<dependency>
-	<groupId>log4j</groupId>
-	<artifactId>log4j</artifactId>
-	<version>1.2.17</version>
-</dependency>
-            
-<!-- 	<dependency>
-    	<groupId>org.slf4j</groupId>
-    	<artifactId>slf4j-api</artifactId>
-    	<version>1.7.6</version>
-    </dependency>
-    <dependency>
-    	<groupId>org.slf4j</groupId>
-    	<artifactId>slf4j-simple</artifactId>
-    	<version>1.7.6</version>
-    </dependency>
-     -->
+	<dependency>
+		<groupId>log4j</groupId>
+		<artifactId>log4j</artifactId>
+		<version>1.2.17</version>
+	</dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>hbc-core</artifactId> <!-- or hbc-twitter4j -->

@@ -1,4 +1,8 @@
-test von Dima10
+SocialNetworkConnector
 
-test magnus 2
+The Social Network Connector is part of the Social Brand Monitor.
+It is used to monitor and crawl social networks like twitter, Facebook et. al.
+
+t.b.c.
+
 
