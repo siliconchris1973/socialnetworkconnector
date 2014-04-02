@@ -1,0 +1,40 @@
+Der Social Network Connector dient der Abfrage von Posts (Tweets, Postings oder ähnliches) in sozialen Netzwerken.
+
+Architektur:
+
+	TwitterCrawler		- 	connects to Twitter and retrieves posts as they are created
+							which posts are retrieved can be configured (currently only during compile time)
+							by a list of TrackTerms.
+		
+	
+	___ Handler ___
+	GenericParser
+		x	Abstract class 
+		x	provides parser
+		x
+		xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+		x							x
+		x							x
+		x							x
+	TwitterParser				FacebookParser
+			Implementation				Implementation
+			of the parser				of the parser 
+			for Twitter					for Facebook
+		
+	ElementManager
+		x	Abstract class 
+		x	to handle elements
+		x
+		xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+		x							x
+		x							x
+		x							x
+	TwitterUserManager			TwitterPostingManager
+			Implementation 				Implementation
+			für Twitter-User 			für Twitter-Posts
+	
+	
+	___ Data types ___
+	DT_TwitterUser				DT_TwitterPosting
+			Data typ of a				Data type of a
+			Twitter User				Twitter Posting
