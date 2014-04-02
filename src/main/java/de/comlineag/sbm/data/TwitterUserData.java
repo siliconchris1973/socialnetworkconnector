@@ -26,11 +26,8 @@ import org.slf4j.LoggerFactory;
  *				"lists_and_groups_count" 	Long
  *				"lang"						String 
  */
-<<<<<<< HEAD:src/main/java/de/comlineag/sbm/data/TwitterUserData.java
-public class TwitterUserData {
-=======
-public final class TwitterUser {
->>>>>>> 5feb78f3e2b7bb14c47d1197df99fa3b3809b15c:src/main/java/de/comlineag/sbm/data/TwitterUser.java
+
+public final class TwitterUserData {
 	
 	private long id;
 	private String username;
@@ -45,13 +42,8 @@ public final class TwitterUser {
 		
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
-<<<<<<< HEAD:src/main/java/de/comlineag/sbm/data/TwitterUserData.java
 	public TwitterUserData(JSONObject jsonObject){
-		
-=======
-	public TwitterUser(JSONObject jsonObject){
 		// log the startup message
->>>>>>> 5feb78f3e2b7bb14c47d1197df99fa3b3809b15c:src/main/java/de/comlineag/sbm/data/TwitterUser.java
 		logger.debug("constructor of class" + getClass().getName() + " called");
 		
 		// setting everything to 0 or null default value. 

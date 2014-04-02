@@ -40,7 +40,7 @@ import de.comlineag.sbm.data.*;
  * 				"hashtags" 					List
  * 				"symbols" 					List
  */
-<<<<<<< HEAD:src/main/java/de/comlineag/sbm/handler/TwitterPosting.java
+
 public class TwitterPosting extends GenericDataManager<TwitterPostingData> {
 	/*
 	 * Die nachfolgenden Elemente des Tweets sollen weiter verarbeitet und gespeichert werden
@@ -62,10 +62,6 @@ public class TwitterPosting extends GenericDataManager<TwitterPostingData> {
 	 */
 	private TwitterPostingData data;
 	
-=======
-public final class TwitterPostingManager extends GenericDataManager<TwitterPosting> {
-		
->>>>>>> 5feb78f3e2b7bb14c47d1197df99fa3b3809b15c:src/main/java/de/comlineag/sbm/handler/TwitterPostingManager.java
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 		
 	//TODO: FIX ENUM
@@ -73,13 +69,9 @@ public final class TwitterPostingManager extends GenericDataManager<TwitterPosti
 	
 	public TwitterPosting(JSONObject jsonObject) {		
 		// TODO Auto-generated constructor stub
-<<<<<<< HEAD:src/main/java/de/comlineag/sbm/handler/TwitterPosting.java
 		logger.info("constructor of class" + getClass().getName() + " called");
 		data = new TwitterPostingData(jsonObject);
-=======
-		logger.debug("constructor of class" + getClass().getName() + " called");
-		
->>>>>>> 5feb78f3e2b7bb14c47d1197df99fa3b3809b15c:src/main/java/de/comlineag/sbm/handler/TwitterPostingManager.java
+
 	}
 	
 	@Override

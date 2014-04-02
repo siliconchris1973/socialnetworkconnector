@@ -33,7 +33,6 @@ import de.comlineag.sbm.data.*;
  *				"listed_count" 		Long
  *				"lang"				String
  */
-<<<<<<< HEAD:src/main/java/de/comlineag/sbm/handler/TwitterUser.java
 public class TwitterUser extends GenericDataManager<TwitterUserData> {
 	
 	/*
@@ -52,9 +51,6 @@ public class TwitterUser extends GenericDataManager<TwitterUserData> {
 	 *	key="cl_userLang" 					value="lang"
 	 */
 	private TwitterUserData data;
-=======
-public final class TwitterUserManager extends GenericDataManager<TwitterUser> {
->>>>>>> 5feb78f3e2b7bb14c47d1197df99fa3b3809b15c:src/main/java/de/comlineag/sbm/handler/TwitterUserManager.java
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
@@ -64,7 +60,7 @@ public final class TwitterUserManager extends GenericDataManager<TwitterUser> {
 		data = new TwitterUserData(jsonObject);
 	}
 	
-//	public void save(List<TwitterUser> users){
+	//	public void save(List<TwitterUser> users){
 	public void save(){
 		// log the startup message
 		logger.warn("method save from class " + getClass().getName() + " called");

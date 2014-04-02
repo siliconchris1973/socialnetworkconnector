@@ -30,11 +30,8 @@ import org.slf4j.LoggerFactory;
  * 				"hashtags" 					List
  * 				"symbols" 					List
  */
-<<<<<<< HEAD:src/main/java/de/comlineag/sbm/data/TwitterPostingData.java
-public class TwitterPostingData{
-=======
-public final class TwitterPosting{
->>>>>>> 5feb78f3e2b7bb14c47d1197df99fa3b3809b15c:src/main/java/de/comlineag/sbm/data/TwitterPosting.java
+
+public final class TwitterPostingData{
 		
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
@@ -52,17 +49,11 @@ public final class TwitterPosting{
 	private List<?> hashtags;
 	private List<?> symbols;
 
-<<<<<<< HEAD:src/main/java/de/comlineag/sbm/data/TwitterPostingData.java
 	public TwitterPostingData(JSONObject jsonObject){
 		
 		// log the startup message
 		logger.info("new tweet created within class " + getClass().getName());
 					
-=======
-	public TwitterPosting(JSONObject jsonObject){
-		// log the startup message
-		logger.debug("new tweet created within class " + getClass().getName());
-		
 		// setting everything to 0 or null default value. 
 		// so I can check on initialized or not initialized values for the posting
 		id = 0;
@@ -78,7 +69,6 @@ public final class TwitterPosting{
 		lang = null;
 		hashtags = null;
 		symbols = null;
->>>>>>> 5feb78f3e2b7bb14c47d1197df99fa3b3809b15c:src/main/java/de/comlineag/sbm/data/TwitterPosting.java
 		
 		setId((Long)jsonObject.get("id"));
 		setTime((String)jsonObject.get("created_at"));
