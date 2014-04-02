@@ -57,7 +57,8 @@ public final class TwitterParser extends GenericParser {
 
 			JSONObject jsonReTweeted = (JSONObject) jsonTweetResource.get("retweeted_status");
 			if(jsonReTweeted != null){
-//				postings.add(new TwitterPostingData(jsonReTweeted));
+				// warum machen wir hier nix?
+				//				postings.add(new TwitterPostingData(jsonReTweeted));
 			}
 
 		} catch (ParseException e) {
