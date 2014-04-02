@@ -24,7 +24,6 @@
     - Note, that you can use properties for value substitution.
   -->
 
-
   <appender name="console" class="org.apache.log4j.ConsoleAppender"> 
     <param name="Target" value="System.out"/> 
     <layout class="org.apache.log4j.PatternLayout"> 
@@ -33,7 +32,12 @@
   </appender>
 
   <root> 
-    <priority value ="debug" /> 
+    <priority value ="error" /> 
     <appender-ref ref="console" /> 
   </root>
+
+  <logger name = "de.comlineag.sbm">
+  	<level value = "debug"></level>
+  </logger>
+
 </log4j:configuration>
