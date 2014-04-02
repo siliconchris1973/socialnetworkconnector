@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> FETCH_HEAD
 package de.comlineag.sbm.handler;
 
 import de.comlineag.sbm.data.*;
@@ -66,41 +62,17 @@ public final class TwitterParser extends GenericParser {
 			logger.error(e.toString());
 		}
 
-<<<<<<< HEAD
-for (int ii = 0; ii < postings.size(); ii++){
-	TwitterPosting post = (TwitterPosting) postings.get(ii);
-	post.save(); // hier Key fuer Tweets uebergeben
-	
-}
-//		TwitterPosting post = new TwitterPosting();
-//		post.save(postings); // hier Key fuer Tweets uebergeben
-
-for (int ii = 0; ii < users.size(); ii++){
-	TwitterUser user = (TwitterUser) users.get(ii);
-	user.save(); // hier key fuer User uebergeben
-	
-}
-//		TwitterUser user = new TwitterUser();
-//		user.save(users); // hier key fuer User uebergeben
-=======
 		for (int ii = 0; ii < postings.size(); ii++){
 			TwitterPosting post = (TwitterPosting) postings.get(ii);
 			post.save(); // hier Key fuer Tweets uebergeben
 			
 		}
-		//		TwitterPosting post = new TwitterPosting();
-		//		post.save(postings); // hier Key fuer Tweets uebergeben
 
 		for (int ii = 0; ii < users.size(); ii++){
 			TwitterUser user = (TwitterUser) users.get(ii);
 			user.save(); // hier key fuer User uebergeben
 			
 		}
-		//		TwitterUser user = new TwitterUser();
-		//		user.save(users); // hier key fuer User uebergeben
->>>>>>> FETCH_HEAD
-
 	}
-
 }
 
