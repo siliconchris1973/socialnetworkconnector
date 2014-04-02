@@ -1,7 +1,6 @@
 package de.comlineag.sbm.job;
 
 import org.apache.log4j.*;
-//import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
