@@ -21,7 +21,7 @@ public class HANAPersistence extends GenericPersistenceManager {
 		// ODataConsumer c = builder.build();
 
 		ODataConsumer.Builder builder = ODataConsumer.newBuilder("http://192.168.131.30:8000/comline/sbm/services/saveUser.xsodata");
-		builder.setClientBehaviors(new BasicAuthenticationBehavior("MLEINEMANN", "ABCCCC"));
+		builder.setClientBehaviors(new BasicAuthenticationBehavior("CGUENTHER", "gaga3n+M"));
 		userService = builder.build();
 		logger.debug("HANAPersistence userService created");
 
