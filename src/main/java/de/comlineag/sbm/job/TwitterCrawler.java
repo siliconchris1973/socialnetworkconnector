@@ -69,28 +69,22 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// log the startup message
-		logger.debug("method execute from class " + getClass().getName()
-				+ " called");
+		logger.debug("method execute from class " + getClass().getName() + " called");
 
 		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 
 		// endpoint.trackTerms(Lists.newArrayList("SocialBrandMonitor4HANA",
 		// "SocialBrandMonitor"));
-		endpoint.trackTerms(Lists.newArrayList("SAP", "ERP", "BW", "BO", "CRM",
-				"SCM", "SRM", "IDM", "NetWeaver", "ABAP", "HANA",
-				"Business Objects", "Business Warehouse",
-				"Customer Relationship Management", "Supply Chain Management",
+		endpoint.trackTerms(Lists.newArrayList("SAP", "ERP", "BW", "BO", "CRM", "SCM", "SRM", "IDM", "NetWeaver", "ABAP", "HANA",
+				"Business Objects", "Business Warehouse", "Customer Relationship Management", "Supply Chain Management",
 				"Supplier Relationship Management", "Identity Management"));
 
-		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail()
-				.getJobDataMap().get("consumerKey"), (String) arg0
-				.getJobDetail().getJobDataMap().get("consumerSecret"),
-				(String) arg0.getJobDetail().getJobDataMap().get("token"),
-				(String) arg0.getJobDetail().getJobDataMap().get("tokenSecret"));
+		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get("consumerKey"), (String) arg0.getJobDetail()
+				.getJobDataMap().get("consumerSecret"), (String) arg0.getJobDetail().getJobDataMap().get("token"), (String) arg0
+				.getJobDetail().getJobDataMap().get("tokenSecret"));
 
 		// Create a new BasicClient. By default gzip is enabled.
-		Client client = new ClientBuilder().hosts(Constants.STREAM_HOST)
-				.endpoint(endpoint).authentication(sn_Auth)
+		Client client = new ClientBuilder().hosts(Constants.STREAM_HOST).endpoint(endpoint).authentication(sn_Auth)
 				.processor(new StringDelimitedProcessor(msgQueue)).build();
 
 		// Establish a connection

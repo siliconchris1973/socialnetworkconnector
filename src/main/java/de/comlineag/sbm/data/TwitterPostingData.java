@@ -1,7 +1,5 @@
 package de.comlineag.sbm.data;
 
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
@@ -34,24 +32,9 @@ import org.json.simple.JSONObject;
  * 
  */
 
-public final class TwitterPostingData {
+public final class TwitterPostingData extends PostData {
 
 	private final Logger logger = Logger.getLogger(getClass().getName());
-
-	private long id; // ID from Twitter
-	private String sn_id;
-	private String text;
-	private String time;
-	private String posted_from_client;
-	private Boolean truncated;
-	private long in_reply_to_post;
-	private long in_reply_to_user;
-	private String in_reply_to_user_screen_name;
-	private String coordinates;
-	private List<?> place;
-	private String lang;
-	private List<?> hashtags;
-	private List<?> symbols;
 
 	public TwitterPostingData(JSONObject jsonObject) {
 
@@ -102,116 +85,4 @@ public final class TwitterPostingData {
 		// TODO: implement the List setters for Place, Hashtags and Symbols
 	}
 
-	// getter and setter
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	public String getSnId() {
-		return sn_id;
-	}
-
-	public void setSnId(String sn_id) {
-		this.sn_id = sn_id;
-	}
-
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	public String getTime() {
-		return time;
-	}
-
-	public void setTime(String postTime) {
-		this.time = postTime;
-	}
-
-	public String getClient() {
-		return posted_from_client;
-	}
-
-	public void setClient(String postClient) {
-		this.posted_from_client = postClient;
-	}
-
-	public Boolean getTruncated() {
-		return truncated;
-	}
-
-	public void setTruncated(Boolean isTruncated) {
-		this.truncated = isTruncated;
-	}
-
-	public long getInReplyTo() {
-		return in_reply_to_post;
-	}
-
-	public void setInReplyTo(Long inReplyTo) {
-		this.in_reply_to_post = inReplyTo;
-	}
-
-	public long getInReplyToUser() {
-		return in_reply_to_user;
-	}
-
-	public void setInReplyToUser(Long inReplyToUser) {
-		this.in_reply_to_user = inReplyToUser;
-	}
-
-	public String getInReplyToUserScreenName() {
-		return in_reply_to_user_screen_name;
-	}
-
-	public void setInReplyToUserScreenName(String inReplyToUserScreenName) {
-		this.in_reply_to_user_screen_name = inReplyToUserScreenName;
-	}
-
-	public String getCoordinates() {
-		return coordinates;
-	}
-
-	public void setCoordinates(String coordinates) {
-		this.coordinates = coordinates;
-	}
-
-	public List<?> getPlace() {
-		return place;
-	}
-
-	public void setPlace(List<?> place) {
-		this.place = place;
-	}
-
-	public String getLang() {
-		return lang;
-	}
-
-	public void setLang(String lang) {
-		this.lang = lang;
-	}
-
-	public List<?> getHashtags() {
-		return hashtags;
-	}
-
-	public void setHashtags(List<?> hashtags) {
-		this.hashtags = hashtags;
-	}
-
-	public List<?> getSymbols() {
-		return symbols;
-	}
-
-	public void setSymbols(List<?> symbols) {
-		this.symbols = symbols;
-	}
 }

@@ -6,7 +6,18 @@ import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
 import org.odata4j.edm.EdmDataServices;
 import org.odata4j.edm.EdmEntitySet;
 
-public class HANAPersistence extends GenericPersistenceManager {
+import de.comlineag.sbm.data.PostData;
+import de.comlineag.sbm.data.UserData;
+
+public class HANAPersistence implements IPersistenceManager {
+	// Servicelocation
+	private String host;
+	private String location;
+	private String serviceUserEndpoint;
+	private String servicePostEndpoint;
+	// Credentials
+	private String user;
+	private String pass;
 
 	private ODataConsumer userService;
 	private final Logger logger = Logger.getLogger(getClass().getName());
@@ -27,8 +38,7 @@ public class HANAPersistence extends GenericPersistenceManager {
 
 	}
 
-	@Override
-	public void saveUsers() {
+	public void saveUsers(UserData userData) {
 		// TODO Auto-generated method stub
 		logger.debug("HANAPersistence saveUsers called");
 
@@ -49,10 +59,57 @@ public class HANAPersistence extends GenericPersistenceManager {
 
 	}
 
-	@Override
-	public void savePosts() {
+	public void savePosts(PostData postData) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
+	public String getServiceUserEndpoint() {
+		return serviceUserEndpoint;
+	}
+
+	public void setServiceUserEndpoint(String serviceUserEndpoint) {
+		this.serviceUserEndpoint = serviceUserEndpoint;
+	}
+
+	public String getServicePostEndpoint() {
+		return servicePostEndpoint;
+	}
+
+	public void setServicePostEndpoint(String servicePostEndpoint) {
+		this.servicePostEndpoint = servicePostEndpoint;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getPass() {
+		return pass;
+	}
+
+	public void setPass(String pass) {
+		this.pass = pass;
 	}
 
 }

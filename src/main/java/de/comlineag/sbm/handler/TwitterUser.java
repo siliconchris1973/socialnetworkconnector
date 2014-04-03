@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
 import de.comlineag.sbm.data.TwitterUserData;
-import de.comlineag.sbm.persistence.HANAPersistence;
 
 /**
  * 
@@ -24,6 +23,7 @@ import de.comlineag.sbm.persistence.HANAPersistence;
  *            "followers_count" Long "friends_count" Long "statuses_count" Long
  *            "favourites_count" Long "listed_count" Long "lang" String
  */
+
 public class TwitterUser extends GenericDataManager<TwitterUserData> {
 
 	/*
@@ -53,8 +53,7 @@ public class TwitterUser extends GenericDataManager<TwitterUserData> {
 	public void save() {
 		// log the startup message
 		logger.debug("method save from class " + getClass().getName() + " called");
-		HANAPersistence hana = new HANAPersistence();
-		hana.saveUsers();
+		persistenceManager.saveUsers(data);
 	}
 
 }

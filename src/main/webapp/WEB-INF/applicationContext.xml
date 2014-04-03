@@ -61,9 +61,11 @@
 	<context:annotation-config />
 
 	<context:component-scan base-package="de.comlineag.sbm.job" />
+	<context:component-scan base-package="de.comlineag.sbm.handler" />
 
 	<tx:annotation-driven />	
 	 
+	 <bean id="contextApplicationContextProvider" class="de.comlineag.sbm.persistence.ApplicationContextProvider"></bean>
 	 <bean name="TwitterCrawlerDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.sbm.job.TwitterCrawler" />
 		<property name="jobDataAsMap">
@@ -89,6 +91,16 @@
 		<property name="repeatInterval" value="6000" />
 	</bean>
 	 
+	 <bean id="persistenceManager" class="de.comlineag.sbm.persistence.HANAPersistence">
+		<property name="host" value="198.199.122.131" />
+		<property name="location" value="/da/dort/iwo" />
+		<property name="serviceUserEndpoint" value="user.xsodata" />
+		<property name="servicePostEndpoint" value="post.xsodata" />
+		<property name="user" value="user" />
+		<property name="pass" value="pass" />
+	</bean>
+	
+	
 
 	<!-- <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="appSendJobDetail" />
