@@ -64,6 +64,7 @@ public class TwitterPosting extends GenericDataManager<TwitterPostingData> {
 	public void save() {
 		// log the startup message
 		logger.info("method save from class " + getClass().getName() + " called");
+		persistenceManager.savePosts(data);
 		// TODO: implement save interface either to file, db or the like
 	}
 }

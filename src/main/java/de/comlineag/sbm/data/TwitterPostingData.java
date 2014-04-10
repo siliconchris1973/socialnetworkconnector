@@ -63,6 +63,10 @@ public final class TwitterPostingData extends PostData {
 		symbols = null;
 
 		setId((Long) jsonObject.get("id"));
+
+		JSONObject user = (JSONObject) jsonObject.get("user");
+		setUserId((Long) user.get("id"));
+
 		setTime((String) jsonObject.get("created_at"));
 		setText((String) jsonObject.get("text"));
 		setClient((String) jsonObject.get("source"));

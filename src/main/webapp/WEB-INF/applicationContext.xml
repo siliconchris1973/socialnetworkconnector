@@ -92,12 +92,14 @@
 	</bean>
 	 
 	 <bean id="persistenceManager" class="de.comlineag.sbm.persistence.HANAPersistence">
-		<property name="host" value="198.199.122.131" />
-		<property name="location" value="/da/dort/iwo" />
-		<property name="serviceUserEndpoint" value="user.xsodata" />
-		<property name="servicePostEndpoint" value="post.xsodata" />
-		<property name="user" value="user" />
-		<property name="pass" value="pass" />
+		<property name="host" value="192.168.131.30" />
+		<property name="port" value="8000" />
+		<property name="protocol" value="http" />
+		<property name="location" value="/comline/sbm/services" />
+		<property name="serviceUserEndpoint" value="saveUser.xsodata" />
+		<property name="servicePostEndpoint" value="savePost.xsodata" />
+		<property name="user" value="U0JNX0VYVA==" />
+		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
 	</bean>
 	
 	

@@ -85,21 +85,38 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 
 		// Create a new BasicClient. By default gzip is enabled.
 		Client client = new ClientBuilder().hosts(Constants.STREAM_HOST).endpoint(endpoint).authentication(sn_Auth)
-				.processor(new StringDelimitedProcessor(msgQueue)).build();
+				.processor(new StringDelimitedProcessor(msgQueue)).connectionTimeout(1000).build();
 
 		// Establish a connection
-		client.connect();
-		logger.info("Client connected");
+		try {
+			client.connect();
+			logger.info("Client connected");
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+
+		logger.debug("Client ist da");
+
+		/*
+		 * if (msgQueue.isEmpty()) {
+		 * logger.debug("Keine Tweets in Queue");
+		 * return;
+		 * }
+		 */
 
 		// Do whatever needs to be done with messages
 		for (int msgRead = 0; msgRead < 1000; msgRead++) {
-
+			logger.debug("Counter msgRead " + msgRead);
 			String msg;
 			msg = "";
 			try {
+				logger.debug("hole Message");
+
 				msg = msgQueue.take();
 			} catch (InterruptedException e) {
-				logger.error(e.toString());
+				logger.error("msg Loop Interrupted " + e.getMessage());
+			} catch (Exception ee) {
+				logger.error("msg Loop Exc " + ee.getMessage());
 			}
 			logger.debug("New Tweet " + msg);
 
@@ -107,7 +124,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			// (abgeleitet von GenericParser) uebergeben
 			post.process(msg);
 		}
-
+		logger.debug("Crawler ENDE");
 		client.stop();
 	}
 }

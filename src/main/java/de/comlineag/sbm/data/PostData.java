@@ -6,6 +6,9 @@ public class PostData {
 
 	protected long id; // ID from Twitter
 	protected String sn_id;
+
+	protected long userId;
+
 	protected String text;
 	protected String time;
 	protected String posted_from_client;
@@ -131,4 +134,13 @@ public class PostData {
 	public void setSymbols(List<?> symbols) {
 		this.symbols = symbols;
 	}
+
+	public long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(long userId) {
+		this.userId = userId;
+	}
+
 }

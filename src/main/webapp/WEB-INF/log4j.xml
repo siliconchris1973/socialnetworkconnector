@@ -37,7 +37,18 @@
   </root>
 
   <logger name = "de.comlineag.sbm">
+  	<level value = "info"></level>
+  </logger>
+  <logger name = "de.comlineag.sbm.persistence">
   	<level value = "debug"></level>
   </logger>
 
+  <logger name = "com.twitter">
+  	<level value = "error"></level>
+  </logger>
+  
+  <logger name = "org.apache.http">
+  	<level value = "error"></level>
+  </logger>
+  
 </log4j:configuration>
