@@ -37,12 +37,21 @@
   </root>
 
   <logger name = "de.comlineag.sbm">
+  	<level value = "warn"></level>
+  </logger>
+  <!-- -->
+  <logger name = "de.comlineag.sbm.persistence">
   	<level value = "info"></level>
   </logger>
-  <logger name = "de.comlineag.sbm.persistence">
+  <!--   -->  
+  <logger name = "de.comlineag.sbm.data.TwitterPostingData">
+  	<level value = "info"></level>
+  </logger>
+  <!-- 
+  <logger name = "de.comlineag.sbm.job.TwitterCrawler">
   	<level value = "debug"></level>
   </logger>
-
+  -->
   <logger name = "com.twitter">
   	<level value = "error"></level>
   </logger>

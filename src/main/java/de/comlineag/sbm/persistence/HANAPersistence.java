@@ -11,6 +11,15 @@ import org.odata4j.edm.EdmDataServices;
 import de.comlineag.sbm.data.PostData;
 import de.comlineag.sbm.data.UserData;
 
+/**
+ * 
+ * @author Magnus Leinemann
+ * @category Connector Class
+ * 
+ * @description handles the connectivity to SAP HANA Systems
+ * @version 1.0
+ * 
+ */
 public class HANAPersistence implements IPersistenceManager {
 
 	// Servicelocation
@@ -33,50 +42,76 @@ public class HANAPersistence implements IPersistenceManager {
 		logger.debug("HANAPersistence called");
 	}
 
+	/**
+	 * Speichern der Post auf HANA mit folgenden Servicedaten:
+	 * 
+	 * <Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"/>
+	 * <Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"/>
+	 * <Property Name="user_id" Type="Edm.String" MaxLength="20"/>
+	 * <Property Name="timestamp" Type="Edm.DateTime"/>
+	 * <Property Name="postLang" Type="Edm.String" MaxLength="64"/>
+	 * <Property Name="text" Type="Edm.String" DefaultValue="" MaxLength="1024"/>
+	 * <Property Name="geoLocation_longitude" Type="Edm.String" MaxLength="40"/>
+	 * <Property Name="geoLocation_latitude" Type="Edm.String" MaxLength="40"/>
+	 * <Property Name="client" Type="Edm.String" MaxLength="2048"/>
+	 * <Property Name="truncated" Type="Edm.Byte" DefaultValue="0"/>
+	 * <Property Name="inReplyTo" Type="Edm.String" MaxLength="20"/>
+	 * <Property Name="inReplyToUserID" Type="Edm.String" MaxLength="20"/>
+	 * <Property Name="inReplyToScreenName" Type="Edm.String" MaxLength="128"/>
+	 * <Property Name="placeID" Type="Edm.String" MaxLength="16"/>
+	 * <Property Name="plName" Type="Edm.String" MaxLength="256"/>
+	 * <Property Name="plCountry" Type="Edm.String" MaxLength="128"/>
+	 * <Property Name="plAround_longitude" Type="Edm.String" MaxLength="40"/>
+	 * <Property Name="plAround_latitude" Type="Edm.String" MaxLength="40"/>
+	 * 
+	 */
 	public void savePosts(PostData postData) {
 		// TODO Auto-generated method stub
 		logger.debug("HANAPersistence savePosts called");
+		int truncated;
+		truncated = (postData.getTruncated()) ? 0 : 1;
 
 		try {
 			if (postService == null)
 				prepareConnections();
+			if (postData.getLang().equalsIgnoreCase("de") || postData.getLang().equalsIgnoreCase("en")) {
 
-			OEntity newpost = postService.createEntity("post")
-					.properties(OProperties.string("sn_id", postData.getSnId()))
-					.properties(OProperties.string("post_id", new String(new Long(postData.getId()).toString())))
-					.properties(OProperties.string("user_id", new String(new Long(postData.getUserId()).toString())))
-					// .properties(OProperties.datetime("timestamp", new LocalDateTime(postData.getTime())))
-					.properties(OProperties.string("lang", postData.getLang()))
-					.properties(OProperties.string("text", postData.getText()))
-					.execute();
+				// logger.debug("Setze Timestamp " + postData.getTimestamp().toString());
 
-			/*
-			 * <Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"/>
-			 * <Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"/>
-			 * <Property Name="user_id" Type="Edm.String" MaxLength="20"/>
-			 * <Property Name="timestamp" Type="Edm.DateTime"/>
-			 * <Property Name="lang" Type="Edm.String" MaxLength="64"/>
-			 * <Property Name="text" Type="Edm.String" MaxLength="1024"/>
-			 * <Property Name="geoLocation.longitude" Type="Edm.String" MaxLength="40"/>
-			 * <Property Name="geoLocation.latitude" Type="Edm.String" MaxLength="40"/>
-			 * <Property Name="client" Type="Edm.String" MaxLength="2048"/>
-			 * <Property Name="truncated" Type="Edm.Int32"/>
-			 * <Property Name="inReplyTo" Type="Edm.String" MaxLength="20"/>
-			 * <Property Name="inReplyToUserID" Type="Edm.String" MaxLength="20"/>
-			 * <Property Name="inReplyToScreenName" Type="Edm.String" MaxLength="128"/>
-			 * <Property Name="placeID" Type="Edm.String" MaxLength="16"/>
-			 * <Property Name="plName" Type="Edm.String" MaxLength="256"/>
-			 * <Property Name="plCountry" Type="Edm.String" MaxLength="128"/>
-			 * <Property Name="plAround.longitude" Type="Edm.String" MaxLength="40"/>
-			 * <Property Name="plAround.latitude" Type="Edm.String" MaxLength="40"/>
-			 */
+				OEntity newPost = postService.createEntity("post")
+						.properties(OProperties.string("sn_id", postData.getSnId()))
+						.properties(OProperties.string("post_id", new String(new Long(postData.getId()).toString())))
+						.properties(OProperties.string("user_id", new String(new Long(postData.getUserId()).toString())))
+						.properties(OProperties.datetime("timestamp", postData.getTimestamp()))
+						.properties(OProperties.string("postLang", postData.getLang()))
+						.properties(OProperties.string("text", postData.getText()))
+						.properties(OProperties.string("geoLocation_longitude", postData.getGeoLongitude()))
+						.properties(OProperties.string("geoLocation_latitude", postData.getGeoLatitude()))
+						.properties(OProperties.string("client", postData.getClient()))
+						.properties(OProperties.int32("truncated", new Integer(truncated)))
+
+						.properties(OProperties.int64("inReplyTo", postData.getInReplyTo()))
+						.properties(OProperties.int64("inReplyToUserID", postData.getInReplyToUser()))
+						.properties(OProperties.string("inReplyToScreenName", postData.getInReplyToUserScreenName()))
+						// .properties(OProperties.string("placeID", postData.getLocation()))
+						// .properties(OProperties.string("plName", "Client"))
+						// .properties(OProperties.string("plCountry", "Client"))
+						// .properties(OProperties.string("plAround_longitude", "Client"))
+						// .properties(OProperties.string("plAround_latitude", "Client"))
+
+						.execute();
+
+				/*
+				 */
+
+				logger.info("neuer Post " + newPost.getEntityKey().toKeyString());
+
+			}
 
 		} catch (NoBase64EncryptedValue e) {
 			logger.error(e.getMessage(), e);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
-			logger.error(e.getMessage());
+			logger.error("Failure in savePost " + e.getMessage(), e);
 		}
 
 	}
@@ -93,10 +128,10 @@ public class HANAPersistence implements IPersistenceManager {
 			OEntity newUser = userService.createEntity("user")
 					.properties(OProperties.string("sn_id", userData.getSnId()))
 					.properties(OProperties.string("user_id", new String(new Long(userData.getId()).toString())))
-					.properties(OProperties.string("name", userData.getUsername()))
+					.properties(OProperties.string("userName", userData.getUsername()))
 
 					.properties(OProperties.string("nickName", userData.getScreenName()))
-					.properties(OProperties.string("lang", userData.getLang()))
+					.properties(OProperties.string("userLang", userData.getLang()))
 					.properties(OProperties.string("location", "default location")) // userData.getLocation().get(0).toString()))
 
 					.properties(OProperties.int32("follower", new Integer((int) userData.getFollowersCount())))
@@ -107,14 +142,28 @@ public class HANAPersistence implements IPersistenceManager {
 
 					.execute();
 
-			logger.debug("neuer User " + newUser.getEntityKey().toKeyString());
+			/*
+			 * {name = "sn_id"; sqlType = NVARCHAR; nullable = false; length = 2;},
+			 * {name = "user_id"; sqlType = NVARCHAR; nullable = false; length = 20;},
+			 * {name = "userName"; sqlType = NVARCHAR; nullable = true; length = 128;},
+			 * {name = "nickName"; sqlType = NVARCHAR; nullable = true; length = 128;},
+			 * {name = "userLang"; sqlType = NVARCHAR; nullable = true; length = 64;},
+			 * {name = "location"; sqlType = NVARCHAR; nullable = true; length = 1024;},
+			 * {name = "follower"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
+			 * {name = "friends"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
+			 * {name = "postingsCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
+			 * {name = "favoritesCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
+			 * {name = "listsAndGroupsCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";}
+			 */
+
+			logger.info("neuer User " + newUser.getEntityKey().toKeyString());
 
 		} catch (NoBase64EncryptedValue e) {
 			logger.error(e.getMessage(), e);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			// e.printStackTrace();
-			logger.error(e.getMessage());
+			logger.error("Failure in saveUser" + e.getMessage());
 		}
 	}
 

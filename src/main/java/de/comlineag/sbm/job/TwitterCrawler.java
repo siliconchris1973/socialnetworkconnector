@@ -77,7 +77,17 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		// "SocialBrandMonitor"));
 		endpoint.trackTerms(Lists.newArrayList("SAP", "ERP", "BW", "BO", "CRM", "SCM", "SRM", "IDM", "NetWeaver", "ABAP", "HANA",
 				"Business Objects", "Business Warehouse", "Customer Relationship Management", "Supply Chain Management",
-				"Supplier Relationship Management", "Identity Management"));
+				"Supplier Relationship Management", "Identity Management", "Social Brand Monitor"));
+
+		// Spracheingrenzung da ggf Salat, selbst EN schwierig daher mal nur DE im Moment
+		endpoint.languages(Lists.newArrayList("de", "en")); // "en",
+		// ArrayList<Long> user = new ArrayList<Long>();
+		// user.add(2412281046L);
+		// endpoint.followings(user);
+
+		// endpoint.locations(Lists.newArrayList("England", "USA"));
+
+		// logger.debug("call for Endpoint POST: " + endpoint.getPostParamString());
 
 		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get("consumerKey"), (String) arg0.getJobDetail()
 				.getJobDataMap().get("consumerSecret"), (String) arg0.getJobDetail().getJobDataMap().get("token"), (String) arg0

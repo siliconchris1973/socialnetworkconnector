@@ -2,25 +2,104 @@ package de.comlineag.sbm.data;
 
 import java.util.List;
 
+import org.geojson.GeoJsonObject;
+import org.joda.time.LocalDateTime;
+
+/**
+ * 
+ * @author Magnus Leinemann
+ * 
+ * @category Data Class
+ * 
+ * @description Data Class representing a Post from the OData Service
+ * @version 1.0
+ * 
+ */
+
 public class PostData {
 
-	protected long id; // ID from Twitter
+	/**
+	 * SocialNetworkID e.g. TW, FB
+	 * <Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"/>
+	 */
 	protected String sn_id;
 
+	/**
+	 * the ID of the current Post in the Social Network
+	 * <Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"/>
+	 */
+	protected long id; // ID from Twitter
+
+	/**
+	 * User ID from the Network
+	 * <Property Name="user_id" Type="Edm.String" MaxLength="20"/>
+	 */
 	protected long userId;
 
+	/**
+	 * post Text
+	 * <Property Name="text" Type="Edm.String" DefaultValue="" MaxLength="1024"/>
+	 */
 	protected String text;
+
+	/**
+	 * Language of post
+	 * <Property Name="postLang" Type="Edm.String" MaxLength="64"/>
+	 */
+	protected String lang;
+
+	/**
+	 * Timestamp
+	 * <Property Name="timestamp" Type="Edm.DateTime"/>
+	 */
 	protected String time;
+	protected LocalDateTime timestamp;
+
+	/**
+	 * used Client for posting
+	 * <Property Name="client" Type="Edm.String" MaxLength="2048"/>
+	 */
 	protected String posted_from_client;
+
+	/**
+	 * <Property Name="truncated" Type="Edm.Byte" DefaultValue="0"/>
+	 */
 	protected Boolean truncated;
+
+	/**
+	 * Metadata for post replies
+	 * <Property Name="inReplyTo" Type="Edm.String" MaxLength="20"/>
+	 * <Property Name="inReplyToUserID" Type="Edm.String" MaxLength="20"/>
+	 * <Property Name="inReplyToScreenName" Type="Edm.String" MaxLength="128"/>
+	 */
 	protected long in_reply_to_post;
 	protected long in_reply_to_user;
 	protected String in_reply_to_user_screen_name;
-	protected String coordinates;
-	protected List<?> place;
-	protected String lang;
+
+	/**
+	 * Coordinates
+	 * <Property Name="geoLocation_longitude" Type="Edm.String" MaxLength="40"/>
+	 * <Property Name="geoLocation_latitude" Type="Edm.String" MaxLength="40"/>
+	 * <Property Name="placeID" Type="Edm.String" MaxLength="16"/>
+	 * <Property Name="plName" Type="Edm.String" MaxLength="256"/>
+	 * <Property Name="plCountry" Type="Edm.String" MaxLength="128"/>
+	 */
+	protected GeoJsonObject place; // GEO Info aus Stream
+	protected String geoLongitude;
+	protected String geoLatitude;
+	protected String geoPlaceId;
+	protected String geoPlaceName;
+	protected String geoPlaceCountry;
+
+	/**
+	 * <Property Name="plAround_longitude" Type="Edm.String" MaxLength="40"/>
+	 * <Property Name="plAround_latitude" Type="Edm.String" MaxLength="40"/>
+	 */
+
 	protected List<?> hashtags;
 	protected List<?> symbols;
+
+	protected String coordinates; // obsolet
 
 	// getter and setter
 	public long getId() {
@@ -103,20 +182,12 @@ public class PostData {
 		this.coordinates = coordinates;
 	}
 
-	public List<?> getPlace() {
+	public GeoJsonObject getPlace() {
 		return place;
 	}
 
-	public void setPlace(List<?> place) {
+	public void setPlace(GeoJsonObject place) {
 		this.place = place;
-	}
-
-	public String getLang() {
-		return lang;
-	}
-
-	public void setLang(String lang) {
-		this.lang = lang;
 	}
 
 	public List<?> getHashtags() {
@@ -141,6 +212,62 @@ public class PostData {
 
 	public void setUserId(long userId) {
 		this.userId = userId;
+	}
+
+	public String getLang() {
+		return lang;
+	}
+
+	public void setLang(String lang) {
+		this.lang = lang;
+	}
+
+	public LocalDateTime getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(LocalDateTime timestamp) {
+		this.timestamp = timestamp;
+	}
+
+	public String getGeoLongitude() {
+		return geoLongitude;
+	}
+
+	public void setGeoLongitude(String geoLongitude) {
+		this.geoLongitude = geoLongitude;
+	}
+
+	public String getGeoLatitude() {
+		return geoLatitude;
+	}
+
+	public void setGeoLatitude(String geoLatitude) {
+		this.geoLatitude = geoLatitude;
+	}
+
+	public String getGeoPlaceId() {
+		return geoPlaceId;
+	}
+
+	public void setGeoPlaceId(String geoPlaceId) {
+		this.geoPlaceId = geoPlaceId;
+	}
+
+	public String getGeoPlaceName() {
+		return geoPlaceName;
+	}
+
+	public void setGeoPlaceName(String geoPlaceName) {
+		this.geoPlaceName = geoPlaceName;
+	}
+
+	public String getGeoPlaceCountry() {
+		return geoPlaceCountry;
+	}
+
+	public void setGeoPlaceCountry(String geoPlaceCountry) {
+		this.geoPlaceCountry = geoPlaceCountry;
 	}
 
 }

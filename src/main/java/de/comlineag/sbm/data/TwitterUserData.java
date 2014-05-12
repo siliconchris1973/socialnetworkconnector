@@ -30,6 +30,11 @@ public final class TwitterUserData extends UserData {
 
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
+	/**
+	 * Constructor, based on the JSONObject sent from Twitter the Data Object is prepared
+	 * 
+	 * @param jsonObject
+	 */
 	public TwitterUserData(JSONObject jsonObject) {
 		// log the startup message
 		logger.debug("creating new user within class " + getClass().getName());
@@ -54,7 +59,7 @@ public final class TwitterUserData extends UserData {
 		setId((Long) jsonObject.get("id"));
 		setUsername((String) jsonObject.get("name"));
 		setScreenName((String) jsonObject.get("screen_name"));
-		// setLocation((List)jsonObject.get("location"));
+		setLocation((String) jsonObject.get("location"));
 
 		if (jsonObject.get("followers_count") != null)
 			setFollowersCount((Long) jsonObject.get("followers_count"));

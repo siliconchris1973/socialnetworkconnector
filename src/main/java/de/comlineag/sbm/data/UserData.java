@@ -1,14 +1,20 @@
 package de.comlineag.sbm.data;
 
-import java.util.List;
-
+/**
+ * 
+ * @author Magnus Leinemann
+ * 
+ * @category Data Class
+ * @description the User Data Representation for the OData Service
+ * @version 1.0
+ */
 public class UserData {
 
 	protected long id;
 	protected String sn_id;
 	protected String username;
 	protected String screen_name;
-	protected List<?> location;
+	protected String location;
 	protected long followers_count;
 	protected long friends_count;
 	protected long postings_count;
@@ -49,11 +55,11 @@ public class UserData {
 		this.screen_name = screenName;
 	}
 
-	public List<?> getLocation() {
+	public String getLocation() {
 		return location;
 	}
 
-	public void setLocation(List<?> location) {
+	public void setLocation(String location) {
 		this.location = location;
 	}
 

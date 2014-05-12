@@ -19,6 +19,12 @@ public enum SocialNetworks {
 		this.value = value;
 	}
 
+	/**
+	 * access method for the ID
+	 * 
+	 * @return current ID of Social Network
+	 * 
+	 */
 	public String getValue() {
 		return value;
 	}
