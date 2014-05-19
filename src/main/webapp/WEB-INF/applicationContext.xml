@@ -91,6 +91,8 @@
 		<property name="repeatInterval" value="6000" />
 	</bean>
 	 
+	<!-- this was the original bean for the hana persistence
+		change it so that I may use my local neo4j database system
 	 <bean id="persistenceManager" class="de.comlineag.sbm.persistence.HANAPersistence">
 		<property name="host" value="192.168.131.30" />
 		<property name="port" value="8000" />
@@ -100,6 +102,14 @@
 		<property name="servicePostEndpoint" value="savePost.xsodata" />
 		<property name="user" value="U0JNX0VYVA==" />
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
+	</bean>
+	-->
+	
+	 <bean id="persistenceManager" class="de.comlineag.sbm.persistence.Neo4JPersistence">
+		<property name="host" value="localhost" />
+		<property name="port" value="7474" />
+		<property name="protocol" value="http" />
+		<property name="location" value="/db/data" />
 	</bean>
 	
 	
@@ -120,7 +130,9 @@
 		</property>
 
 		<property name="waitForJobsToCompleteOnShutdown">
-			<value>true</value>
+			<!-- changed value from true to false
+				<value>true</value> -->
+			<value>false</value>
 		</property>
 
 

@@ -27,7 +27,7 @@ public class DataHelper {
 	/**
 	 * create a timestamp for the OData Service Interface from the social media timestamp
 	 * 
-	 * as each network is expected to act a little bit different, the snId is sent to decide which algorith is used.
+	 * as each network is expected to act a little bit different, the snId is sent to decide which algorithm is used.
 	 * Implemented is the algorithm for Twitter
 	 * 
 	 * all other types return the current timestamp
@@ -40,7 +40,7 @@ public class DataHelper {
 	 */
 	public static LocalDateTime prepareLocalDateTime(String _timestamp, String _snId) {
 
-		// Datumsformatierung für den Formatter
+		// Datumsformatierung fuer den Formatter
 		String snPattern = "";
 		Locale snLocale = Locale.getDefault();
 
@@ -48,13 +48,13 @@ public class DataHelper {
 
 			if (_snId.equalsIgnoreCase(SocialNetworks.TWITTER.getValue())) {
 				snPattern = "EEE MMM d H:m:s Z yyyy";
-				// Formatter unbedingt mit USA da sonst die englischen Bezeichner nicht aufgelöst werden, evtl. auch EN/UK
+				// Formatter unbedingt mit USA da sonst die englischen Bezeichner nicht aufgeloest werden, evtl. auch EN/UK
 				snLocale = Locale.US;
 			} else {
 				logger.warn("unsupported System " + _snId);
 			}
 
-			// Übersetzen der Daten:
+			// uebersetzen der Daten:
 			DateTimeFormatter formatter =
 					DateTimeFormat.forPattern(snPattern).withLocale(snLocale);
 

@@ -30,28 +30,46 @@
       <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> 
     </layout>
   </appender>
+  <appender name="file" class="org.apache.log4j.FileAppender"> 
+    <param name="File" value="./logs/comlineag-loggerSBM.log"/>
+    <!-- <param name="Threshold" value="WARN"/>  -->
+    <layout class="org.apache.log4j.PatternLayout"> 
+<!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/>  -->      
+	<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n"/>     
+    </layout>
+  </appender>
+  <appender name="fileP" class="org.apache.log4j.FileAppender"> 
+    <param name="File" value="./logs/comlineag-loggerSBM_Persistence.log"/>
+    <!-- <param name="Threshold" value="WARN"/> --> 
+    <layout class="org.apache.log4j.PatternLayout"> 
+	<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n"/>     
+      <!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> -->
+    </layout>
+  </appender>
 
   <root> 
     <priority value ="error" /> 
-    <appender-ref ref="console" /> 
+  <!--  <appender-ref ref="console" />  -->  
+  <appender-ref ref="file" />      
   </root>
 
   <logger name = "de.comlineag.sbm">
   	<level value = "warn"></level>
   </logger>
-  <!-- -->
   <logger name = "de.comlineag.sbm.persistence">
-  	<level value = "info"></level>
+  	<level value = "debug"></level>
+    <appender-ref ref="fileP" />      
   </logger>
   <!--   -->  
   <logger name = "de.comlineag.sbm.data.TwitterPostingData">
-  	<level value = "info"></level>
+  	<level value = "warn"></level>
   </logger>
-  <!-- 
+  <!-- -->
   <logger name = "de.comlineag.sbm.job.TwitterCrawler">
-  	<level value = "debug"></level>
+  	<level value = "warn"></level>
+	<appender-ref ref="file" />     
   </logger>
-  -->
+  <!--   -->-->
   <logger name = "com.twitter">
   	<level value = "error"></level>
   </logger>

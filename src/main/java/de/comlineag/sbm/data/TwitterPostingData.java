@@ -69,16 +69,16 @@ public final class TwitterPostingData extends PostData {
 		JSONObject user = (JSONObject) jsonObject.get("user");
 		setUserId((Long) user.get("id"));
 
-		// für Debugging der Nachrichten in den verschiedenen Fällen
+		// fuer Debugging der Nachrichten in den verschiedenen Faellen
 		String tUser = new String(new Long(getUserId()).toString());
 		if (tUser.contains("2412281046"))
 			logger.debug("Post von mir in Json: " + jsonObject);
-		// END Debugging für Nachrichtenausgaben
+		// END Debugging fuer Nachrichtenausgaben
 
 		// Sprache
 		setLang((String) jsonObject.get("lang"));
 
-		// Timestamp als String und dann als Objekt für den oDATA Call
+		// Timestamp als String und dann als Objekt fuer den oDATA Call
 		setTime((String) jsonObject.get("created_at"));
 		setTimestamp(DataHelper.prepareLocalDateTime(getTime(), getSnId()));
 
@@ -88,7 +88,7 @@ public final class TwitterPostingData extends PostData {
 		// Metadaten zum Post:
 		// von wo erzeugt:
 		setClient((String) jsonObject.get("source"));
-		// Flag gekürzt....was auch immer damit dann passieren wird...
+		// Flag gekuerzt....was auch immer damit dann passieren wird...
 		setTruncated((Boolean) jsonObject.get("truncated"));
 
 		// Information zu Reply
@@ -99,15 +99,16 @@ public final class TwitterPostingData extends PostData {
 		if (jsonObject.get("in_reply_to_screen_name") != null)
 			setInReplyToUserScreenName((String) jsonObject.get("in_reply_to_screen_name"));
 
-		// Geodaten des Posts - es gibt coordinates und place, place wird gefüllt wenn bspw. im Web ein Ort für den Tweet angegeben wird:
+		// Geodaten des Posts - es gibt coordinates und place, place wird gefuellt wenn bspw. im Web ein Ort fuer den Tweet angegeben wird:
 		if (jsonObject.get("coordinates") != null)
 			logger.debug("Found Coordinates " + jsonObject.get("coordinates").toString());
+		
 		/**
 		 * Struktur der Coordinates:
 		 * {"type":"Point","coordinates":[-90.06779631,29.95202616]}
-		 * zufällig entdeckt (kein eigener Post!), der Spassvogel befindet sich wohl am Südpol (-90)
+		 * zufaellig entdeckt (kein eigener Post!), der Spassvogel befindet sich wohl am Suedpol (-90)
 		 * 
-		 * damit vielleicht besser möglich den Kram zu verarbeiten?
+		 * damit vielleicht besser moeglich den Kram zu verarbeiten?
 		 * http://docs.geotools.org/latest/userguide/faq.html
 		 * 
 		 * mein Tweet mit Ortsangabe JSON siehe unten hatte in place die Daten
@@ -159,7 +160,8 @@ public final class TwitterPostingData extends PostData {
 	}
 
 	/**
-	 * Die Twitter API liefert einen JSON-Eintrag "place" der die "bounding_box" enthält. Darin ist bisher immer ein Polygon aufgetreten.
+	 * Die Twitter API liefert einen JSON-Eintrag "place" der die "bounding_box" enthaelt. 
+	 * Darin ist bisher immer ein Polygon aufgetreten.
 	 * Hier ein Datenbeispiel:
 	 * 
 	 * "place":{
@@ -177,18 +179,19 @@ public final class TwitterPostingData extends PostData {
 	 * 
 	 * "place_type":"admin",
 	 * "contained_within":[],
-	 * "name":"Fürstenfeldbruck",
+	 * "name":"Fuerstenfeldbruck",
 	 * "attributes":{},
 	 * "country_code":"DE",
 	 * "url":"https:\/\/api.twitter.com\/1.1\/geo\/id\/2ecc0df58a30d37b.json",
 	 * "country":"Deutschland",
-	 * "full_name":"Fürstenfeldbruck, Bayern"
+	 * "full_name":"Fuerstenfeldbruck, Bayern"
 	 * },
 	 * 
 	 * Weitere Infos hier: http://www.geojson.org/geojson-spec.html#polygon
 	 * 
-	 * Diese Methode übernimmt den JSON String aus einer "bounding_box" und generiert zunächst ein
-	 * allgemeines GeoJsonObject welches in der place Variable hinterlegt wird. Dann wird aus den Koordinaten ermittelt wo der Mittelpunkt
+	 * Diese Methode uebernimmt den JSON String aus einer "bounding_box" und generiert zunuechst ein
+	 * allgemeines GeoJsonObject welches in der place Variable hinterlegt wird. Dann wird aus den 
+	 * Koordinaten ermittelt wo der Mittelpunkt
 	 * liegt.
 	 * 
 	 * @param _b_box
@@ -207,12 +210,12 @@ public final class TwitterPostingData extends PostData {
 			setPlace(geoObject);
 			logger.debug("place initialisiert");
 
-			// welche Info haben wir denn im Objekt verfügbar, damit dann den Mittelpunkt berechnen
+			// welche Info haben wir denn im Objekt verfuegbar, damit dann den Mittelpunkt berechnen
 			if (geoObject instanceof Polygon) {
 				/*
 				 * Fall 1: Polygon
 				 * beinhaltet eine List der Koordinaten, diese ist eine 2-stufige Liste (Outer, Inner)
-				 * Es wird über die Liste geschleift und die Longitude/Latitude Mittelwerte gebildet
+				 * Es wird ueber die Liste geschleift und die Longitude/Latitude Mittelwerte gebildet
 				 */
 				Polygon geoOPolygon = (Polygon) geoObject;
 				List<LngLatAlt> coords = geoOPolygon.getCoordinates().get(0);
@@ -228,7 +231,7 @@ public final class TwitterPostingData extends PostData {
 			} else if (geoObject instanceof Point) {
 				/*
 				 * Fall 2: Punkt
-				 * Für einen Punkt muss nur aus den Koordinaten abgelesen werden
+				 * Fuer einen Punkt muss nur aus den Koordinaten abgelesen werden
 				 */
 				Point geoOPoint = (Point) geoObject;
 				rootCoordLat = geoOPoint.getCoordinates().getLatitude();
@@ -238,7 +241,7 @@ public final class TwitterPostingData extends PostData {
 				/*
 				 * Fall 3: Linie
 				 * beinhaltet eine List der Koordinaten, diese ist aber 1-stufig im Gegensatz zum Polygon
-				 * Es wird über die Liste geschleift und die Longitude/Latitude Mittelwerte gebildet
+				 * Es wird ueber die Liste geschleift und die Longitude/Latitude Mittelwerte gebildet
 				 */
 				LineString geoOLine = (LineString) geoObject;
 				List<LngLatAlt> coords = geoOLine.getCoordinates();
@@ -277,7 +280,7 @@ public final class TwitterPostingData extends PostData {
 	}
 
 	/**
-	 * Setter für 0.00/0.00 damit da dann immer was drin steht und die OData Aufbereitung da einen Eintrag finden kann
+	 * Setter fuer 0.00/0.00 damit da dann immer was drin steht und die OData Aufbereitung da einen Eintrag finden kann
 	 */
 	private void setGeoDefault() {
 		setGeoLatitude("0.00");

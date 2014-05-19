@@ -26,6 +26,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
+	<display-name>Social Brand Monitor - Crawler</display-name>
+
   <!-- Servlet Filters ================================================ -->
 
  
@@ -36,11 +38,11 @@
 	</context-param>
  	<listener>
 		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
-	</listener> 
+	</listener>
   <!--
     - Declare Spring context listener which sets up the Spring Application Context
     -->
-  <listener>
+   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
 
@@ -49,13 +51,12 @@
     - to support Springs and Cocoon custom bean scopes like the request scope or the
     - session scope.
     -->
- <!--  <listener>
+   <listener>
     <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
-  </listener> -->
+  </listener> 
 
   <!-- Servlet Configuration ========================================== -->
 
-  
 
   <!-- URL space mappings ============================================= -->
   

@@ -1,6 +1,11 @@
 package de.comlineag.sbm.persistence;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.log4j.Logger;
 import org.odata4j.consumer.ODataConsumer;
 import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
@@ -13,20 +18,21 @@ import de.comlineag.sbm.data.UserData;
 
 /**
  * 
- * @author Magnus Leinemann
+ * @author Christian Guenther
  * @category Connector Class
  * 
- * @description handles the connectivity to SAP HANA Systems
+ * @description handles the connectivity to the Neo4J Graph Database
  * @version 1.0
  * 
  */
-public class HANAPersistence implements IPersistenceManager {
+public class Neo4JPersistence implements IPersistenceManager {
 
 	// Servicelocation
 	private String host;
 	private String port;
 	private String protocol;
 	private String location;
+	
 	private String serviceUserEndpoint;
 	private String servicePostEndpoint;
 	// Credentials
@@ -35,15 +41,110 @@ public class HANAPersistence implements IPersistenceManager {
 
 	private static ODataConsumer userService;
 	private static ODataConsumer postService;
-
+	
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
-	public HANAPersistence() {
-		logger.debug("HANAPersistence called");
+	public Neo4JPersistence() {
+		logger.debug("Neo4JPersistence called");
+	}
+	
+	private void prepareConnections() throws NoBase64EncryptedValue {
+
+		logger.debug("Starte prepareConnection");
+		
+		String baseLocation = new String(this.protocol + "://" + this.host + ":" + this.port + this.location);
+		
+		logger.debug("Neo4JPersistence Services connected");
+
 	}
 
 	/**
-	 * Speichern der Post auf HANA mit folgenden Servicedaten:
+	 * @description Entschluesselt Werte aus der Konfig fuer die Connection
+	 * 
+	 * @param param
+	 *            der Wert der entschluesselt werden soll
+	 * @return Klartext
+	 * 
+	 */
+	private String decryptValue(String param) throws NoBase64EncryptedValue {
+
+		// byte-Array kommt vom Decoder zurueck und kann dann in String uebernommen und zurueckgegeben werden
+		byte[] base64Array;
+
+		// Validierung das auch ein verschluesselter Wert da angekommen ist
+		if (Base64.isBase64(param)) {
+			base64Array = Base64.decodeBase64(param.getBytes());
+		} else {
+			throw new NoBase64EncryptedValue("Parameter " + param + " ist nicht Base64-verschluesselt");
+		}
+		// konvertiere in String
+		return new String(base64Array);
+
+	}
+	
+	/**
+	 * @description returns the server status
+	 * @return
+	 */
+	public int getServerStatus(){
+	    int status = 500;
+	    try{
+	    	//SERVER_ROOT_URI should resolve to http://localhost:7474 on a standard local system
+	        String url = this.protocol + "://" + this.host + ":" + this.port;
+	        HttpClient client = new HttpClient();
+	        GetMethod mGet =   new GetMethod(url);
+	        status = client.executeMethod(mGet);
+	        mGet.releaseConnection( );
+	    }catch(Exception e){
+	    	logger.error("Exception in connection to neo4j server " + this.protocol + "://" + this.host + ":" + this.port, e); 
+	    	System.out.println("Exception in connecting to neo4j : " + e);
+	    }
+	 
+	    return status;
+	}
+	
+	public String createNode(){
+        String output = null;
+        String location = null;
+        try{
+        	String nodePointUrl = this.protocol + "://" + this.host + ":" + this.port + this.location + "/node";
+            HttpClient client = new HttpClient();
+            PostMethod mPost = new PostMethod(nodePointUrl);
+ 
+            /**
+             * set headers
+             */
+            Header mtHeader = new Header();
+            mtHeader.setName("content-type");
+            mtHeader.setValue("application/json");
+            mtHeader.setName("accept");
+            mtHeader.setValue("application/json");
+            mPost.addRequestHeader(mtHeader);
+ 
+            /**
+             * set json payload
+             */
+            StringRequestEntity requestEntity = new StringRequestEntity("{}",
+                                                                        "application/json",
+                                                                        "UTF-8");
+            mPost.setRequestEntity(requestEntity);
+            int status = client.executeMethod(mPost);
+            output = mPost.getResponseBodyAsString( );
+            Header locationHeader =  mPost.getResponseHeader("location");
+            location = locationHeader.getValue();
+            mPost.releaseConnection( );
+            
+            logger.info("status = " + status + " / location = " + location + " / output = " + output);
+        }catch(Exception e){
+        	logger.error("Exception in creating node in neo4j", e);
+        	System.out.println("Exception in creating node in neo4j : " + e);
+        }
+ 
+        return location;
+    }
+	
+	/**
+	 * Speichern der Post im Greaphen mit folgenden Servicedaten:
 	 * 
 	 * <Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"/>
 	 * <Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"/>
@@ -67,7 +168,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 */
 	public void savePosts(PostData postData) {
 		// TODO Auto-generated method stub
-		logger.debug("HANAPersistence savePosts called");
+		logger.debug("Neo4JPersistence savePosts called");
 		int truncated;
 		truncated = (postData.getTruncated()) ? 0 : 1;
 
@@ -118,7 +219,7 @@ public class HANAPersistence implements IPersistenceManager {
 
 	public void saveUsers(UserData userData) {
 		// TODO Auto-generated method stub
-		logger.debug("HANAPersistence saveUsers called");
+		logger.debug("Neo4JPersistence saveUsers called");
 		EdmDataServices serviceMeta;
 
 		try {
@@ -166,57 +267,7 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("Failure in saveUser" + e.getMessage());
 		}
 	}
-
-	private void prepareConnections() throws NoBase64EncryptedValue {
-
-		logger.debug("Starte prepareConnection");
-
-		String _user = decryptValue(this.user);
-		String _pw = decryptValue(this.pass);
-		// logger.debug("b64 USER: " + _user);
-		// logger.debug("b64 PASS: " + _pw);
-
-		BasicAuthenticationBehavior bAuth = new BasicAuthenticationBehavior(_user, _pw);
-		String baseLocation = new String("http://" + this.host + ":" + this.port + this.location);
-		String userURI = new String(baseLocation + "/" + this.serviceUserEndpoint);
-		String postURI = new String(baseLocation + "/" + this.servicePostEndpoint);
-
-		ODataConsumer.Builder builder = ODataConsumer.newBuilder(userURI);
-		builder.setClientBehaviors(bAuth);
-		userService = builder.build();
-
-		builder = ODataConsumer.newBuilder(postURI);
-		builder.setClientBehaviors(bAuth);
-		postService = builder.build();
-
-		logger.debug("HANAPersistence Services connected");
-
-	}
-
-	/**
-	 * Entschluesselt Werte aus der Konfig fuer die Connection
-	 * 
-	 * @param param
-	 *            der Wert der entschluesselt werden soll
-	 * @return Klartext
-	 * 
-	 */
-	private String decryptValue(String param) throws NoBase64EncryptedValue {
-
-		// byte-Array kommt vom Decoder zurueck und kann dann in String uebernommen und zurueckgegeben werden
-		byte[] base64Array;
-
-		// Validierung das auch ein verschluesselter Wert da angekommen ist
-		if (Base64.isBase64(param)) {
-			base64Array = Base64.decodeBase64(param.getBytes());
-		} else {
-			throw new NoBase64EncryptedValue("Parameter " + param + " ist nicht Base64-verschluesselt");
-		}
-		// konvertiere in String
-		return new String(base64Array);
-
-	}
-
+	
 	public String getHost() {
 		return host;
 	}

@@ -17,14 +17,23 @@ import de.comlineag.sbm.data.TwitterPostingData;
  *              original as well as the retweeted one) is decoded by
  *              TwitterParser.
  * 
+ * 				The data type twitter posting consists of these elements
+ *	            	id						Long 
+ *					created_at				String 
+ *					text					String 
+ *					source					String
+ *            		truncated				Boolean 
+ *            		in_reply_to_status_id	Long
+ *            		in_reply_to_user_id		Long 
+ *            		in_reply_to_screen_name	String
+ *            		coordinates				List 
+ *            		place					List 
+ *            		lang					String 
+ *            		hashtags				List
+ *            		symbols					List
  * 
  * @param <TwitterPosting>
  * 
- *            "id" Long "created_at" String "text" String "source" String
- *            "truncated" Boolean "in_reply_to_status_id" Long
- *            "in_reply_to_user_id" Long "in_reply_to_screen_name" String
- *            "coordinates" List "place" List "lang" String "hashtags" List
- *            "symbols" List
  */
 
 public class TwitterPosting extends GenericDataManager<TwitterPostingData> {

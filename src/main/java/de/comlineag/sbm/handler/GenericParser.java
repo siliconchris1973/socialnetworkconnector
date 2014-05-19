@@ -8,25 +8,38 @@ import org.apache.log4j.Logger;
  * @category Parser
  * 
  * @description GenericParser ist die abstrakte Basisklasse fuer Parser der
- *              einzelnen sozialen Netzwerke GenericParser implementiert die
- *              save-Methode und stellt die abstrakte Methode bigParser bereit
+ *              einzelnen sozialen Netzwerke.
+ *              GenericParser definiert die process-Methode - uebergibt im wesentlichen ein neues 
+ *              posting als String an die (in den abgeleiteten Klassen) zu Implementierende
+ *              parse Methode 
  * 
  */
 public abstract class GenericParser {
-
+	
 	private final Logger logger = Logger.getLogger(getClass().getName());
-
+	
 	protected GenericParser() {
 		// TODO Auto-generated constructor stub
 		logger.debug("constructor of class" + getClass().getName() + " called");
 	}
-
+	
+	/**
+	 * @name parse
+	 * @param strPosting
+	 * @description abstrakte deklaration der Parsing Methode
+	 */
 	protected abstract void parse(String strPosting);
-
+	
+	/**
+	 * @name process
+	 * @param strPosting
+	 * @description Implementierung der process-Methode. Uebergibt ein Posting als String an
+	 * 				die Methode parse
+	 */
 	public final void process(String strPosting) {
 		// log the startup message
 		logger.debug("method process from class " + getClass().getName() + " called");
-
+		
 		if (strPosting != null)
 			parse(strPosting);
 	}

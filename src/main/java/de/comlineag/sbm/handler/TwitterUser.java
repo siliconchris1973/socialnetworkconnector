@@ -15,13 +15,21 @@ import de.comlineag.sbm.data.TwitterUserData;
  *              update an existing one. TwitterUserManager is called after a
  *              posting with all relevant information about the user (posting
  *              user as well as mentioned users) is decoded by TwitterParser.
- * 
+ * 				
+ * 				The data type twitter user consists of these elements
+ *            		id 					Long 
+ *            		name 				String 
+ *            		screen_name 		String 
+ *            		location 			List
+ *            		followers_count		Long 
+ *            		friends_count 		Long 
+ *            		statuses_count 		Long
+ *            		favourites_count	Long 
+ *            		listed_count		Long 
+ *            		lang				String
  * 
  * @param none
  * 
- *            "id" Long "name" String "screen_name" String "location" List
- *            "followers_count" Long "friends_count" Long "statuses_count" Long
- *            "favourites_count" Long "listed_count" Long "lang" String
  */
 
 public class TwitterUser extends GenericDataManager<TwitterUserData> {
