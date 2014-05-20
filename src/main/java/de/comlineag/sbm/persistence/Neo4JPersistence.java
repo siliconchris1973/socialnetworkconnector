@@ -13,6 +13,7 @@ import org.odata4j.core.OEntity;
 import org.odata4j.core.OProperties;
 import org.odata4j.edm.EdmDataServices;
 
+import scala.util.parsing.json.JSON;
 import de.comlineag.sbm.data.PostData;
 import de.comlineag.sbm.data.UserData;
 
@@ -49,13 +50,26 @@ public class Neo4JPersistence implements IPersistenceManager {
 	}
 	
 	private void prepareConnections() throws NoBase64EncryptedValue {
-
+		
 		logger.debug("Starte prepareConnection");
 		
-		String baseLocation = new String(this.protocol + "://" + this.host + ":" + this.port + this.location);
-		
+		//SERVER_ROOT_URI should resolve to http://localhost:7474 on a standard local system
+		//String baseLocation = new String(this.protocol + "://" + this.host + ":" + this.port + this.location);
+		String url = this.protocol + "://" + this.host + ":" + this.port;
+        int status = 500;
+	    
+        try {
+	        HttpClient client = new HttpClient();
+	        GetMethod mGet =   new GetMethod(url);
+	        status = client.executeMethod(mGet);
+	        //mGet.releaseConnection( );
+	    } catch(Exception e) {
+	    	logger.error("Exception in connection to neo4j server " + this.protocol + "://" + this.host + ":" + this.port, e); 
+	    	System.out.println("Exception in connecting to neo4j : " + e);
+	    }
+        
 		logger.debug("Neo4JPersistence Services connected");
-
+		
 	}
 
 	/**
@@ -103,45 +117,6 @@ public class Neo4JPersistence implements IPersistenceManager {
 	    return status;
 	}
 	
-	public String createNode(){
-        String output = null;
-        String location = null;
-        try{
-        	String nodePointUrl = this.protocol + "://" + this.host + ":" + this.port + this.location + "/node";
-            HttpClient client = new HttpClient();
-            PostMethod mPost = new PostMethod(nodePointUrl);
- 
-            /**
-             * set headers
-             */
-            Header mtHeader = new Header();
-            mtHeader.setName("content-type");
-            mtHeader.setValue("application/json");
-            mtHeader.setName("accept");
-            mtHeader.setValue("application/json");
-            mPost.addRequestHeader(mtHeader);
- 
-            /**
-             * set json payload
-             */
-            StringRequestEntity requestEntity = new StringRequestEntity("{}",
-                                                                        "application/json",
-                                                                        "UTF-8");
-            mPost.setRequestEntity(requestEntity);
-            int status = client.executeMethod(mPost);
-            output = mPost.getResponseBodyAsString( );
-            Header locationHeader =  mPost.getResponseHeader("location");
-            location = locationHeader.getValue();
-            mPost.releaseConnection( );
-            
-            logger.info("status = " + status + " / location = " + location + " / output = " + output);
-        }catch(Exception e){
-        	logger.error("Exception in creating node in neo4j", e);
-        	System.out.println("Exception in creating node in neo4j : " + e);
-        }
- 
-        return location;
-    }
 	
 	/**
 	 * Speichern der Post im Greaphen mit folgenden Servicedaten:
@@ -167,107 +142,92 @@ public class Neo4JPersistence implements IPersistenceManager {
 	 * 
 	 */
 	public void savePosts(PostData postData) {
-		// TODO Auto-generated method stub
-		logger.debug("Neo4JPersistence savePosts called");
-		int truncated;
-		truncated = (postData.getTruncated()) ? 0 : 1;
-
+		logger.debug("Neo4JPersistence :: savePosts called");
+		
 		try {
-			if (postService == null)
-				prepareConnections();
+			// we only store posts in german and english at the moment
 			if (postData.getLang().equalsIgnoreCase("de") || postData.getLang().equalsIgnoreCase("en")) {
-
-				// logger.debug("Setze Timestamp " + postData.getTimestamp().toString());
-
-				OEntity newPost = postService.createEntity("post")
-						.properties(OProperties.string("sn_id", postData.getSnId()))
-						.properties(OProperties.string("post_id", new String(new Long(postData.getId()).toString())))
-						.properties(OProperties.string("user_id", new String(new Long(postData.getUserId()).toString())))
-						.properties(OProperties.datetime("timestamp", postData.getTimestamp()))
-						.properties(OProperties.string("postLang", postData.getLang()))
-						.properties(OProperties.string("text", postData.getText()))
-						.properties(OProperties.string("geoLocation_longitude", postData.getGeoLongitude()))
-						.properties(OProperties.string("geoLocation_latitude", postData.getGeoLatitude()))
-						.properties(OProperties.string("client", postData.getClient()))
-						.properties(OProperties.int32("truncated", new Integer(truncated)))
-
-						.properties(OProperties.int64("inReplyTo", postData.getInReplyTo()))
-						.properties(OProperties.int64("inReplyToUserID", postData.getInReplyToUser()))
-						.properties(OProperties.string("inReplyToScreenName", postData.getInReplyToUserScreenName()))
-						// .properties(OProperties.string("placeID", postData.getLocation()))
-						// .properties(OProperties.string("plName", "Client"))
-						// .properties(OProperties.string("plCountry", "Client"))
-						// .properties(OProperties.string("plAround_longitude", "Client"))
-						// .properties(OProperties.string("plAround_latitude", "Client"))
-
-						.execute();
-
-				/*
+				
+				String output = null;
+				String location = null;
+				String nodePointUrl = this.protocol + "://" + this.host + ":" + this.port + this.location + "/node";
+				HttpClient client = new HttpClient();
+				PostMethod mPost = new PostMethod(nodePointUrl);
+				
+				/**
+				 * set headers
 				 */
-
-				logger.info("neuer Post " + newPost.getEntityKey().toKeyString());
-
+				Header mtHeader = new Header();
+				mtHeader.setName("content-type");
+				mtHeader.setValue("application/json");
+				mtHeader.setName("accept");
+				mtHeader.setValue("application/json");
+				mPost.addRequestHeader(mtHeader);
+		            
+				/**
+				 * set json payload
+				 */
+				StringRequestEntity requestEntity = new StringRequestEntity(postData.toString(),
+		                                                                        "application/json",
+		                                                                        "UTF-8");
+				mPost.setRequestEntity(requestEntity);
+				int status = client.executeMethod(mPost);
+				output = mPost.getResponseBodyAsString( );
+				Header locationHeader =  mPost.getResponseHeader("location");
+				location = locationHeader.getValue();
+				mPost.releaseConnection( );
+		            
+				logger.info("status = " + status + " / location = " + location + " / output = " + output);
 			}
-
-		} catch (NoBase64EncryptedValue e) {
-			logger.error(e.getMessage(), e);
-		} catch (Exception e) {
-			logger.error("Failure in savePost " + e.getMessage(), e);
+		} catch(Exception e) {
+			logger.error("Exception in creating node in neo4j", e);
+		    System.out.println("Exception in creating node in neo4j : " + e);
 		}
-
 	}
 
 	public void saveUsers(UserData userData) {
-		// TODO Auto-generated method stub
 		logger.debug("Neo4JPersistence saveUsers called");
-		EdmDataServices serviceMeta;
-
+		
 		try {
-			if (userService == null)
-				prepareConnections();
-
-			OEntity newUser = userService.createEntity("user")
-					.properties(OProperties.string("sn_id", userData.getSnId()))
-					.properties(OProperties.string("user_id", new String(new Long(userData.getId()).toString())))
-					.properties(OProperties.string("userName", userData.getUsername()))
-
-					.properties(OProperties.string("nickName", userData.getScreenName()))
-					.properties(OProperties.string("userLang", userData.getLang()))
-					.properties(OProperties.string("location", "default location")) // userData.getLocation().get(0).toString()))
-
-					.properties(OProperties.int32("follower", new Integer((int) userData.getFollowersCount())))
-					.properties(OProperties.int32("friends", new Integer((int) userData.getFriendsCount())))
-					.properties(OProperties.int32("postingsCount", new Integer((int) userData.getPostingsCount())))
-					.properties(OProperties.int32("favoritesCount", new Integer((int) userData.getFavoritesCount())))
-					.properties(OProperties.int32("listsAndGroupsCount", new Integer((int) userData.getListsAndGrooupsCount())))
-
-					.execute();
-
-			/*
-			 * {name = "sn_id"; sqlType = NVARCHAR; nullable = false; length = 2;},
-			 * {name = "user_id"; sqlType = NVARCHAR; nullable = false; length = 20;},
-			 * {name = "userName"; sqlType = NVARCHAR; nullable = true; length = 128;},
-			 * {name = "nickName"; sqlType = NVARCHAR; nullable = true; length = 128;},
-			 * {name = "userLang"; sqlType = NVARCHAR; nullable = true; length = 64;},
-			 * {name = "location"; sqlType = NVARCHAR; nullable = true; length = 1024;},
-			 * {name = "follower"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
-			 * {name = "friends"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
-			 * {name = "postingsCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
-			 * {name = "favoritesCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
-			 * {name = "listsAndGroupsCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";}
+			String output = null;
+			String location = null;
+			String nodePointUrl = this.protocol + "://" + this.host + ":" + this.port + this.location + "/node";
+			HttpClient client = new HttpClient();
+			PostMethod mPost = new PostMethod(nodePointUrl);
+			
+			/**
+			 * set headers
 			 */
+			Header mtHeader = new Header();
+			mtHeader.setName("content-type");
+			mtHeader.setValue("application/json");
+			mtHeader.setName("accept");
+			mtHeader.setValue("application/json");
+			mPost.addRequestHeader(mtHeader);
+	            
+			/**
+			 * set json payload
+			 */
+			StringRequestEntity requestEntity = new StringRequestEntity(userData.toString(),
+	                                                                        "application/json",
+	                                                                        "UTF-8");
+			mPost.setRequestEntity(requestEntity);
+			int status = client.executeMethod(mPost);
+			output = mPost.getResponseBodyAsString( );
+			Header locationHeader =  mPost.getResponseHeader("location");
+			location = locationHeader.getValue();
+			mPost.releaseConnection( );
+	            
+			logger.info("status = " + status + " / location = " + location + " / output = " + output);
 
-			logger.info("neuer User " + newUser.getEntityKey().toKeyString());
-
-		} catch (NoBase64EncryptedValue e) {
-			logger.error(e.getMessage(), e);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
 			logger.error("Failure in saveUser" + e.getMessage());
+			System.out.println("Exception in creating node in neo4j : " + e);
 		}
 	}
 	
+	
+	// standard getter and setter
 	public String getHost() {
 		return host;
 	}
