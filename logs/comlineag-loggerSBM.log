@@ -63,3 +63,5 @@ Caused by: org.springframework.beans.NotWritablePropertyException: Invalid prope
 	at org.springframework.beans.AbstractPropertyAccessor.setPropertyValues(AbstractPropertyAccessor.java:62)
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyPropertyValues(AbstractAutowireCapableBeanFactory.java:1489)
 	... 54 more
+2014-05-20 13:04:00 DEBUG Neo4JPersistence - Neo4JPersistence called
+2014-05-20 13:07:52 DEBUG Neo4JPersistence - Neo4JPersistence called

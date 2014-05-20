@@ -34,10 +34,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	// Credentials
 	private String user;
 	private String pass;
-
-	private static ODataConsumer userService;
-	private static ODataConsumer postService;
-
+	
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	public Neo4JPersistence() {
@@ -180,8 +177,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	}
 
 	public void saveUsers(UserData userData) {
-		logger.debug("Neo4JPersistence saveUsers called");
-
+		logger.debug("Neo4JPersistence :: saveUsers called");
 		try {
 			String output = null;
 			String location = null;
