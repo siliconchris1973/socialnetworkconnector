@@ -39,11 +39,12 @@ public class Neo4JPersistence implements IPersistenceManager {
 
 	public Neo4JPersistence() {
 		logger.debug("Neo4JPersistence called");
+		prepareConnection();
 	}
 
-	private void prepareConnections() throws NoBase64EncryptedValue {
+	private void prepareConnection() {
 
-		logger.debug("Starte prepareConnection");
+		logger.debug("Neo4jPersistence :: Starte prepareConnection");
 
 		//SERVER_ROOT_URI should resolve to http://localhost:7474 on a standard local system
 		//String baseLocation = new String(this.protocol + "://" + this.host + ":" + this.port + this.location);
@@ -60,7 +61,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	    	System.out.println("Exception in connecting to neo4j : " + e);
 	    }
 
-		logger.debug("Neo4JPersistence Services connected");
+		logger.debug("Neo4JPersistence :: Services connected");
 
 	}
 
