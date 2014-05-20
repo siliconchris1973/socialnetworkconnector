@@ -12,13 +12,13 @@ import de.comlineag.sbm.data.PostData;
 import de.comlineag.sbm.data.UserData;
 
 /**
- * 
+ *
  * @author Magnus Leinemann
  * @category Connector Class
- * 
+ *
  * @description handles the connectivity to SAP HANA Systems
  * @version 1.0
- * 
+ *
  */
 public class HANAPersistence implements IPersistenceManager {
 
@@ -44,7 +44,7 @@ public class HANAPersistence implements IPersistenceManager {
 
 	/**
 	 * Speichern der Post auf HANA mit folgenden Servicedaten:
-	 * 
+	 *
 	 * <Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"/>
 	 * <Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"/>
 	 * <Property Name="user_id" Type="Edm.String" MaxLength="20"/>
@@ -63,7 +63,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * <Property Name="plCountry" Type="Edm.String" MaxLength="128"/>
 	 * <Property Name="plAround_longitude" Type="Edm.String" MaxLength="40"/>
 	 * <Property Name="plAround_latitude" Type="Edm.String" MaxLength="40"/>
-	 * 
+	 *
 	 */
 	public void savePosts(PostData postData) {
 		// TODO Auto-generated method stub
@@ -195,11 +195,11 @@ public class HANAPersistence implements IPersistenceManager {
 
 	/**
 	 * Entschluesselt Werte aus der Konfig fuer die Connection
-	 * 
+	 *
 	 * @param param
 	 *            der Wert der entschluesselt werden soll
 	 * @return Klartext
-	 * 
+	 *
 	 */
 	private String decryptValue(String param) throws NoBase64EncryptedValue {
 
@@ -207,9 +207,9 @@ public class HANAPersistence implements IPersistenceManager {
 		byte[] base64Array;
 
 		// Validierung das auch ein verschluesselter Wert da angekommen ist
-		if (Base64.isBase64(param)) {
+		try {
 			base64Array = Base64.decodeBase64(param.getBytes());
-		} else {
+		} catch (Exception e) {
 			throw new NoBase64EncryptedValue("Parameter " + param + " ist nicht Base64-verschluesselt");
 		}
 		// konvertiere in String
