@@ -178,7 +178,6 @@ public class Neo4JPersistence implements IPersistenceManager {
 
 	public void saveUsers(UserData userData) {
 		logger.debug("Neo4JPersistence :: saveUsers called");
-
 		try {
 			String output = null;
 			String location = null;
