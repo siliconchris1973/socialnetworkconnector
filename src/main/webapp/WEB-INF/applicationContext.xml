@@ -106,9 +106,9 @@
 	-->
 	
 	 <bean id="persistenceManager" class="de.comlineag.sbm.persistence.Neo4JPersistence">
+		<property name="protocol" value="http" />
 		<property name="host" value="localhost" />
 		<property name="port" value="7474" />
-		<property name="protocol" value="http" />
 		<property name="location" value="/db/data" />
 	</bean>
 	

@@ -7,7 +7,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.log4j.Logger;
-import org.odata4j.consumer.ODataConsumer;
+//import org.odata4j.consumer.ODataConsumer;
 
 import de.comlineag.sbm.data.PostData;
 import de.comlineag.sbm.data.UserData;
@@ -35,34 +35,42 @@ public class Neo4JPersistence implements IPersistenceManager {
 	private String user;
 	private String pass;
 	
+	private int connectionStatus = 0;
+	
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	public Neo4JPersistence() {
-		logger.debug("Neo4JPersistence called");
-		prepareConnection();
+		logger.debug("class initialized");
+		
+		if (connectionStatus == 0){
+			connectionStatus = prepareConnection();
+			logger.debug("connection status code is " + connectionStatus);
+		}
 	}
 
-	private void prepareConnection() {
+	private int prepareConnection() {
 
-		logger.debug("Neo4jPersistence :: Starte prepareConnection");
+		logger.debug("Starte prepareConnection");
 
 		//SERVER_ROOT_URI should resolve to http://localhost:7474 on a standard local system
 		//String baseLocation = new String(this.protocol + "://" + this.host + ":" + this.port + this.location);
 		String url = this.protocol + "://" + this.host + ":" + this.port;
         int status = 500;
-
+        
+        logger.debug("working with " + url);
+        
         try {
 	        HttpClient client = new HttpClient();
-	        GetMethod mGet =   new GetMethod(url);
+	        GetMethod mGet = new GetMethod(url);
 	        status = client.executeMethod(mGet);
-	        //mGet.releaseConnection( );
 	    } catch(Exception e) {
 	    	logger.error("Exception in connection to neo4j server " + this.protocol + "://" + this.host + ":" + this.port, e);
-	    	System.out.println("Exception in connecting to neo4j : " + e);
+	    	System.out.println("Exception in connecting to neo4j sewrver " + url + " : " + e);
 	    }
 
-		logger.debug("Neo4JPersistence :: Services connected");
-
+		logger.debug("Services connected, return code" + status);
+		
+		return status;
 	}
 
 	/**
@@ -93,17 +101,22 @@ public class Neo4JPersistence implements IPersistenceManager {
 	 * @return
 	 */
 	public int getServerStatus(){
-	    int status = 500;
-	    try{
-	    	//SERVER_ROOT_URI should resolve to http://localhost:7474 on a standard local system
-	        String url = this.protocol + "://" + this.host + ":" + this.port;
+		logger.debug("getServerStatus called");
+
+		//SERVER_ROOT_URI should resolve to http://localhost:7474 on a standard local system
+        String url = this.protocol + "://" + this.host + ":" + this.port;
+		int status = 500;
+        
+        logger.debug("working with " + url);
+	    
+        try{
 	        HttpClient client = new HttpClient();
 	        GetMethod mGet =   new GetMethod(url);
 	        status = client.executeMethod(mGet);
 	        mGet.releaseConnection( );
 	    }catch(Exception e){
 	    	logger.error("Exception in connection to neo4j server " + this.protocol + "://" + this.host + ":" + this.port, e);
-	    	System.out.println("Exception in connecting to neo4j : " + e);
+	    	System.out.println("Exception in connecting to neo4j " + url + " : " + e);
 	    }
 
 	    return status;
@@ -134,18 +147,20 @@ public class Neo4JPersistence implements IPersistenceManager {
 	 *
 	 */
 	public void savePosts(PostData postData) {
-		logger.debug("Neo4JPersistence :: savePosts called");
-
+		logger.debug("savePosts called");
+		
 		try {
 			// we only store posts in german and english at the moment
 			if (postData.getLang().equalsIgnoreCase("de") || postData.getLang().equalsIgnoreCase("en")) {
-
+				
 				String output = null;
-				String location = null;
+				String locationHead = null;
 				String nodePointUrl = this.protocol + "://" + this.host + ":" + this.port + this.location + "/node";
 				HttpClient client = new HttpClient();
 				PostMethod mPost = new PostMethod(nodePointUrl);
-
+				
+				logger.debug("working with " + nodePointUrl);
+				
 				/**
 				 * set headers
 				 */
@@ -155,7 +170,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 				mtHeader.setName("accept");
 				mtHeader.setValue("application/json");
 				mPost.addRequestHeader(mtHeader);
-
+				
 				/**
 				 * set json payload
 				 */
@@ -166,26 +181,28 @@ public class Neo4JPersistence implements IPersistenceManager {
 				int status = client.executeMethod(mPost);
 				output = mPost.getResponseBodyAsString( );
 				Header locationHeader =  mPost.getResponseHeader("location");
-				location = locationHeader.getValue();
+				locationHead = locationHeader.getValue();
 				mPost.releaseConnection( );
-
-				logger.info("status = " + status + " / location = " + location + " / output = " + output);
+				
+				logger.info("status = " + status + " / location = " + locationHead + " / output = " + output);
 			}
 		} catch(Exception e) {
-			logger.error("Exception in creating node in neo4j", e);
-		    System.out.println("Exception in creating node in neo4j : " + e);
+			logger.error("Exception in creating node for post (id " + postData.getSnId() + ") in neo4j " + e.getMessage());
+		    System.out.println("Exception in creating node for post in neo4j : " + e);
 		}
 	}
 
 	public void saveUsers(UserData userData) {
-		logger.debug("Neo4JPersistence :: saveUsers called");
+		logger.debug("saveUsers called");
 		try {
 			String output = null;
-			String location = null;
+			String locationHead = null;
 			String nodePointUrl = this.protocol + "://" + this.host + ":" + this.port + this.location + "/node";
 			HttpClient client = new HttpClient();
 			PostMethod mPost = new PostMethod(nodePointUrl);
-
+			
+			logger.debug("working with " + nodePointUrl);
+			
 			/**
 			 * set headers
 			 */
@@ -202,18 +219,19 @@ public class Neo4JPersistence implements IPersistenceManager {
 			StringRequestEntity requestEntity = new StringRequestEntity(userData.toString(),
 	                                                                        "application/json",
 	                                                                        "UTF-8");
+			
 			mPost.setRequestEntity(requestEntity);
 			int status = client.executeMethod(mPost);
 			output = mPost.getResponseBodyAsString( );
-			Header locationHeader =  mPost.getResponseHeader("location");
-			location = locationHeader.getValue();
+			Header locationHeader = mPost.getResponseHeader("location");
+			locationHead = locationHeader.getValue();
 			mPost.releaseConnection( );
 
-			logger.info("status = " + status + " / location = " + location + " / output = " + output);
+			logger.info("status = " + status + " / location = " + locationHead + " / output = " + output);
 
 		} catch (Exception e) {
-			logger.error("Failure in saveUser" + e.getMessage());
-			System.out.println("Exception in creating node in neo4j : " + e);
+			logger.error("Exception in creating node for user (id " + userData.getSnId() + ") in neo4j " + e.getMessage());
+			System.out.println("Exception in creating node for user in neo4j : " + e);
 		}
 	}
 
