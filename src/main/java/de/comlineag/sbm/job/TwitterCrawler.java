@@ -49,8 +49,6 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	private int numProcessingThreads;
 
 	public TwitterCrawler() {
-		logger.debug("constructor of class" + getClass().getName() + " called");
-
 		// Define message and event queue
 		msgQueue = new LinkedBlockingQueue<String>(100000);
 		// eventQueue = new LinkedBlockingQueue<Event>(1000);
@@ -69,16 +67,16 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// log the startup message
-		logger.debug("method execute from class " + getClass().getName() + " called");
-
+		logger.debug(">>>>>>>>>> Job TwitterCrawler executed <<<<<<<<<<");
+		
 		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
-
+		
 		// endpoint.trackTerms(Lists.newArrayList("SocialBrandMonitor4HANA",
 		// "SocialBrandMonitor"));
-		endpoint.trackTerms(Lists.newArrayList("SAP", "ERP", "BW", "BO", "CRM", "SCM", "SRM", "IDM", "NetWeaver", "ABAP", "HANA",
+		endpoint.trackTerms(Lists.newArrayList("SAP", "ERP", "SAP BW", "BO", "CRM", "SCM", "SRM", "IDM", "NetWeaver", "ABAP", "HANA",
 				"Business Objects", "Business Warehouse", "Customer Relationship Management", "Supply Chain Management",
 				"Supplier Relationship Management", "Identity Management", "Social Brand Monitor"));
-
+		
 		// Spracheingrenzung da ggf Salat, selbst EN schwierig daher mal nur DE im Moment
 		endpoint.languages(Lists.newArrayList("de", "en")); // "en",
 		// ArrayList<Long> user = new ArrayList<Long>();
@@ -100,33 +98,22 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		// Establish a connection
 		try {
 			client.connect();
-			logger.info("Client connected");
+			logger.info("Twitter-Client connected");
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
-
-		logger.debug("Client ist da");
-
-		/*
-		 * if (msgQueue.isEmpty()) {
-		 * logger.debug("Keine Tweets in Queue");
-		 * return;
-		 * }
-		 */
-
+		
 		// Do whatever needs to be done with messages
 		for (int msgRead = 0; msgRead < 1000; msgRead++) {
 			logger.debug("Counter msgRead " + msgRead);
 			String msg;
 			msg = "";
 			try {
-				logger.debug("hole Message");
-
 				msg = msgQueue.take();
 			} catch (InterruptedException e) {
-				logger.error("msg Loop Interrupted " + e.getMessage());
+				logger.error("Message loop interrupted " + e.getMessage());
 			} catch (Exception ee) {
-				logger.error("msg Loop Exc " + ee.getMessage());
+				logger.error("Exception in message loop " + ee.getMessage());
 			}
 			logger.debug("New Tweet " + msg);
 

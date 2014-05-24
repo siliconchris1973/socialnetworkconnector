@@ -57,7 +57,7 @@ public final class TwitterPostingData extends PostData {
 	public TwitterPostingData(JSONObject jsonObject) {
 
 		// log the startup message
-		logger.debug("creating new tweet within class " + getClass().getName());
+		logger.debug("constructing new tweet " + jsonObject.get("id") + " from twitter json-response");
 
 		// alles auf Null und die SocialNetworkID schon mal parken
 		initialize();
@@ -71,8 +71,8 @@ public final class TwitterPostingData extends PostData {
 
 		// fuer Debugging der Nachrichten in den verschiedenen Faellen
 		String tUser = new String(new Long(getUserId()).toString());
-		if (tUser.contains("2412281046"))
-			logger.debug("Post von mir in Json: " + jsonObject);
+		if (tUser.contains("754994"))
+			logger.debug("Post von siliconchris in Json: " + jsonObject);
 		// END Debugging fuer Nachrichtenausgaben
 
 		// Sprache

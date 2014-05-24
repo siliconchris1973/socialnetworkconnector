@@ -62,11 +62,11 @@
   </logger>
   <!--   -->  
   <logger name = "de.comlineag.sbm.data.TwitterPostingData">
-  	<level value = "warn"></level>
+  	<level value = "info"></level>
   </logger>
   <!-- -->
   <logger name = "de.comlineag.sbm.job.TwitterCrawler">
-  	<level value = "warn"></level>
+  	<level value = "info"></level>
 	<appender-ref ref="file" />     
   </logger>
   <!--   -->-->

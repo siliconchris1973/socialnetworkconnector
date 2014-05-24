@@ -44,7 +44,7 @@ public final class TwitterUserData extends UserData {
 		// posting
 		id = 0;
 		// ACHTUNG, wenn die Klasse fuer Facebook u.a. kopiert wird,
-		// daa muss dieses Value natuerlich umgesetzt werden
+		// dann muss dieses Value natuerlich umgesetzt werden
 		sn_id = SocialNetworks.TWITTER.getValue();
 		username = null;
 		screen_name = null;
