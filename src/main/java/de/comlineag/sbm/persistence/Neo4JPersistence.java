@@ -71,7 +71,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 		int status = HttpStatus.SC_NO_CONTENT;
 		String statusText = HttpStatus.getStatusText(status);
 		String okOrNotOk = HttpStatusCodes.valueOf(statusText).toString();
-        logger.debug("value of okOrNotOk is" + okOrNotOk );		
+        logger.debug("current value (before connection) of okOrNotOk is " + okOrNotOk );		
         
         try {
 	        HttpClient client = new HttpClient();

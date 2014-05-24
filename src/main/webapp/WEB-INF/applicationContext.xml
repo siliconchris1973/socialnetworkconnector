@@ -84,15 +84,23 @@
 		<property name="jobDetail" ref="TwitterCrawlerDetail" />
 		<!-- 1 second delay after startup -->
 		<property name="startDelay" value="1000" />
-		<!-- repeat the job every 50 (5000) seconds
-			changed to every 5 minutes 300000 
-			changed to every minute 60000 
+		<!-- repeat the job every 
+					5000 	- 50 seconds
+					6000	- 1 minutes 
+					300000	- 5 minutes
 		-->
-		<property name="repeatInterval" value="6000" />
+		<property name="repeatInterval" value="300000" />
 	</bean>
+	
+	<!-- <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="appSendJobDetail" />
+		run every morning at 6 AM
+		<property name="cronExpression" value="0 0 6 * * ?" />
+	</bean> -->
+	
 	 
-	<!-- this was the original bean for the hana persistence
-		change it so that I may use my local neo4j database system
+	<!-- this is the bean for the hana persistence -->
+	<!--
 	 <bean id="persistenceManager" class="de.comlineag.sbm.persistence.HANAPersistence">
 		<property name="host" value="192.168.131.30" />
 		<property name="port" value="8000" />
@@ -104,7 +112,7 @@
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
 	</bean>
 	-->
-	
+	<!-- this is the bean for the neo4j persistence -->
 	 <bean id="persistenceManager" class="de.comlineag.sbm.persistence.Neo4JPersistence">
 		<property name="protocol" value="http" />
 		<property name="host" value="localhost" />
@@ -113,13 +121,6 @@
 	</bean>
 	
 	
-
-	<!-- <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
-		<property name="jobDetail" ref="appSendJobDetail" />
-		run every morning at 6 AM
-		<property name="cronExpression" value="0 0 6 * * ?" />
-	</bean> -->
-
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 	<property name="autoStartup">
 			<value>true</value>
