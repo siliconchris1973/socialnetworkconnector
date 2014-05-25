@@ -1,0 +1,54 @@
+<!-- trackConfiguration.xsd (inside package org/springframework/samples/xml) -->
+
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.comlineag.de/schema/trackconfiguration"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    targetNamespace="http://www.comlineag.de/schema/trackconfiguration"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
+
+   <xsd:import namespace="http://www.springframework.org/schema/beans"/>
+
+   <xsd:element name="tracklocation">
+      <xsd:complexType>
+         <xsd:complexContent>
+            <xsd:extension base="beans:identifiedType">
+               <xsd:attribute name="longitude" type="xsd:long" use="required"/>
+               <xsd:attribute name="latitude" type="xsd:long" use="required"/>
+            </xsd:extension>
+         </xsd:complexContent>
+      </xsd:complexType>
+   </xsd:element>
+
+   <xsd:element name="trackuser">
+      <xsd:simpleType>
+         <xsd:simpleContent>
+            <xsd:extension base="beans:identifiedType">
+               <xsd:attribute name="userid" type="xsd:long" use="required"/>
+            </xsd:extension>
+         </xsd:complexContent>
+      </xsd:complexType>
+   </xsd:element>
+
+   <xsd:element name="trackterm">
+      <xsd:simpleType>
+         <xsd:simpleContent>
+            <xsd:extension base="beans:identifiedType">
+               <xsd:attribute name="term" type="xsd:string" use="required"/>
+            </xsd:extension>
+         </xsd:complexContent>
+      </xsd:complexType>
+   </xsd:element>
+
+   <xsd:element name="tracklang">
+      <xsd:simpleType>
+         <xsd:simpleContent>
+            <xsd:extension base="beans:identifiedType">
+               <xsd:attribute name="languagecode" type="xsd:string" use="required"/>
+            </xsd:extension>
+         </xsd:complexContent>
+      </xsd:complexType>
+   </xsd:element>
+
+</xsd:schema>

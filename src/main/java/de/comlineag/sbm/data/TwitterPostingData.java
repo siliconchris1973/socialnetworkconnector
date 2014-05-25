@@ -69,12 +69,14 @@ public final class TwitterPostingData extends PostData {
 		JSONObject user = (JSONObject) jsonObject.get("user");
 		setUserId((Long) user.get("id"));
 
+		/*
 		// fuer Debugging der Nachrichten in den verschiedenen Faellen
 		String tUser = new String(new Long(getUserId()).toString());
 		if (tUser.contains("754994"))
 			logger.debug("Post von siliconchris in Json: " + jsonObject);
 		// END Debugging fuer Nachrichtenausgaben
-
+		*/
+		
 		// Sprache
 		setLang((String) jsonObject.get("lang"));
 

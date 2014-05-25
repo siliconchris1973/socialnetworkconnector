@@ -162,7 +162,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 			if (postData.getLang().equalsIgnoreCase("de") || postData.getLang().equalsIgnoreCase("en")) {
 				String output = null;
 				String locationHead = null;
-				String nodePointUrl = this.protocol + "://" + this.host + ":" + this.port + this.location + "/node";
+				//String nodePointUrl = this.protocol + "://" + this.host + ":" + this.port + this.location + "/node";
 				HttpClient client = new HttpClient();
 				PostMethod mPost = new PostMethod(nodePointUrl);
 				
@@ -248,7 +248,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 		try {
 			String output = null;
 			String locationHead = null;
-			String nodePointUrl = this.protocol + "://" + this.host + ":" + this.port + this.location + "/node";
+			//String nodePointUrl = this.protocol + "://" + this.host + ":" + this.port + this.location + "/node";
 			HttpClient client = new HttpClient();
 			PostMethod mPost = new PostMethod(nodePointUrl);
 			
@@ -289,6 +289,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 			 */
 			JSONObject u = new JSONObject();
 			
+			//TODO check if there is a more elegant way of creating the payload for the json object 
 			u.put("sn_id", userData.getSnId());
 			u.put("user_id", userData.getId());
 			u.put("userName", userData.getUsername());

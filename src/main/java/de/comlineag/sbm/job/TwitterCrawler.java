@@ -1,21 +1,19 @@
 package de.comlineag.sbm.job;
 
+import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.log4j.Logger;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.apache.log4j.Logger;
 
-import com.google.common.collect.Lists;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;
 import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
-//import com.twitter.hbc.core.event.Event;
+import com.twitter.hbc.core.event.Event;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
@@ -41,51 +39,111 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	// Set up your blocking queues: Be sure to size these properly based on
 	// expected TPS of your stream
 	private BlockingQueue<String> msgQueue;
-	// private BlockingQueue<Event> eventQueue;
+	private BlockingQueue<Event> eventQueue;
 	private TwitterParser post;
-
-	// Set up the executor service to distribute the actual tasks
-	private ExecutorService service;
-	private int numProcessingThreads;
-
+	
+	//TODO these need to come from applicationContext.xml configuration file
+	private boolean restrictToTrackterms = true;
+	private boolean restrictToLanguages = true;
+	private boolean restrictToUsers = false;
+	private boolean restrictToLocations = false; // locations does not yet work
+	
+	// this string is used to compose all the little debug messages rom the different restriction possibilities
+	// on the posts, like terms, languages and the like. it is only used in debugging afterwords.
+	private String bigLogMessage;
+	
 	public TwitterCrawler() {
+		
 		// Define message and event queue
 		msgQueue = new LinkedBlockingQueue<String>(100000);
-		// eventQueue = new LinkedBlockingQueue<Event>(1000);
-
-		// instantiiere den Manager fuer das Twitter-Posting-Objekt als
-		// Ableitung von Posting
+		eventQueue = new LinkedBlockingQueue<Event>(1000);
+				
+		// instantiate the Twitter-Posting-Manager
 		post = new TwitterParser();
-
-		// Create an executor service which will spawn threads to do the actual
-		// work of
-		// parsing the incoming messages and calling the listeners on each
-		// message
-		numProcessingThreads = 4;
-		service = Executors.newFixedThreadPool(numProcessingThreads);
+		
+		logger.debug("new twitter parser instantiated - getting restrictions on what to track");
+		// TODO check what about multithreading and executor services
+		/*
+		// Set up the executor service to distribute the actual tasks
+		final int numProcessingThreads = 4;
+		// Create an executor service which will spawn threads to do the actual work
+		// of parsing the incoming messages and calling the listeners on each message
+		ExecutorService service = Executors.newFixedThreadPool(numProcessingThreads);
+		 */
 	}
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// log the startup message
-		logger.debug(">>>>>>>>>> Job TwitterCrawler executed <<<<<<<<<<");
+		logger.debug("Twitter-Crawler START");
 		
 		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 		
-		// endpoint.trackTerms(Lists.newArrayList("SocialBrandMonitor4HANA",
-		// "SocialBrandMonitor"));
-		endpoint.trackTerms(Lists.newArrayList("SAP", "ERP", "SAP BW", "BO", "CRM", "SCM", "SRM", "IDM", "NetWeaver", "ABAP", "HANA",
-				"Business Objects", "Business Warehouse", "Customer Relationship Management", "Supply Chain Management",
-				"Supplier Relationship Management", "Identity Management", "Social Brand Monitor"));
+		// possible restrictions
+		if (restrictToTrackterms) {
+			//TODO the trackterms need to go in a configuration file or a database
+			String[] ttTerms = {"SAP", "ERP", "SAP BW", "BO", "CRM", "SCM", "SRM", "IDM", 
+								"NetWeaver", "ABAP", "HANA", "Business Objects", 
+								"Business Warehouse", "Customer Relationship Management", 
+								"Supply Chain Management", "Supplier Relationship Management", 
+								"Identity Management", "Social Brand Monitor",
+								"Social Activity Analyzer"};
+			
+			ArrayList<String> tTerms = new ArrayList<String>();
+			for (int i = 0 ; i < ttTerms.length ; i++) {
+				tTerms.add(ttTerms[i]);
+			}
+			endpoint.trackTerms(tTerms);
+						
+			// endpoint.trackTerms(Lists.newArrayList("SocialBrandMonitor4HANA", "SocialBrandMonitor"));
+			/*
+			endpoint.trackTerms(Lists.newArrayList(
+													"SAP", "ERP", "SAP BW", "BO", "CRM", "SCM", "SRM", "IDM", 
+													"NetWeaver", "ABAP", "HANA", "Business Objects", 
+													"Business Warehouse", "Customer Relationship Management", 
+													"Supply Chain Management", "Supplier Relationship Management", 
+													"Identity Management", "Social Brand Monitor",
+													"Social Activity Analyzer"
+													)
+								);
+			*/
+			bigLogMessage += "restricted to terms: " + tTerms.toString() + " ";
+		}
 		
-		// Spracheingrenzung da ggf Salat, selbst EN schwierig daher mal nur DE im Moment
-		endpoint.languages(Lists.newArrayList("de", "en")); // "en",
-		// ArrayList<Long> user = new ArrayList<Long>();
-		// user.add(2412281046L);
-		// endpoint.followings(user);
-
-		// endpoint.locations(Lists.newArrayList("England", "USA"));
-
-		// logger.debug("call for Endpoint POST: " + endpoint.getPostParamString());
+		// Restrict tracked messages to english and german
+		if (restrictToLanguages) {
+			ArrayList<String> langs = new ArrayList<String>();
+			langs.add("de");
+			langs.add("en");
+			
+			endpoint.languages(langs);
+			bigLogMessage += "restricted to languages: " + langs.toString() + " ";
+		}
+		
+		// Restrict the tracked messages to specific users
+		if (restrictToUsers) {
+			ArrayList<Long> users = new ArrayList<Long>();
+			users.add(754994L);			// Christian Guenther
+			users.add(2412281046L);		// Magnus Leinemann
+			
+			endpoint.followings(users);
+			bigLogMessage += "restricted on user: " + users.toString() + " ";
+		}
+		
+		// Restrict the tracked messages to specific locations
+		if (restrictToLocations) {
+			
+			// TODO check how to work with locations in hbc twitter api 
+			
+			ArrayList<String> locs = new ArrayList<String>(); 
+			locs.add("Germany");
+			locs.add("USA");
+			
+			//endpoint.locations(locs);
+			
+			bigLogMessage += "restricted on locations: " + locs.toString() + " (NOT IMPLEMENTED) ";
+		}
+		
+		logger.debug("call for Endpoint POST: " + endpoint.getPostParamString() + " /// " + bigLogMessage);
 
 		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get("consumerKey"), (String) arg0.getJobDetail()
 				.getJobDataMap().get("consumerSecret"), (String) arg0.getJobDetail().getJobDataMap().get("token"), (String) arg0
@@ -98,16 +156,14 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		// Establish a connection
 		try {
 			client.connect();
-			logger.info("Twitter-Client connected");
+			logger.debug("Twitter-Client connected");
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 		
 		// Do whatever needs to be done with messages
 		for (int msgRead = 0; msgRead < 1000; msgRead++) {
-			logger.debug("Counter msgRead " + msgRead);
-			String msg;
-			msg = "";
+			String msg = "";
 			try {
 				msg = msgQueue.take();
 			} catch (InterruptedException e) {
@@ -121,7 +177,8 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			// (abgeleitet von GenericParser) uebergeben
 			post.process(msg);
 		}
-		logger.debug("Crawler ENDE");
+		
+		logger.debug("Twitter-Crawler END");
 		client.stop();
 	}
 }
