@@ -41,13 +41,12 @@ public class Neo4JPersistence implements IPersistenceManager {
 	private String pass;
 	
 	private final Logger logger = Logger.getLogger(getClass().getName());
-	private final Neo4JErrorHandling error = new Neo4JErrorHandling();
+	private Neo4JErrorHandling error = new Neo4JErrorHandling();
 	
 	public Neo4JPersistence() {
 		// initialize the necessary variables from applicationContext.xml for server connection
 		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
 		nodePointUrl = dbServerUrl + this.location + "/node";
-		
 	}
 	
 	
@@ -87,7 +86,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 			String locationHead = null;
 			HttpClient client = new HttpClient();
 			PostMethod mPost = new PostMethod(nodePointUrl);
-	
+			
 			// set header
 			Header mtHeader = new Header();
 			mtHeader.setName("content-type");

@@ -2,3 +2,6 @@
 /logs
 *.swp
 *.log
+/.settings
+.classpath
+/bin
