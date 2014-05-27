@@ -3,14 +3,13 @@ package de.comlineag.sbm.persistence;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
-import de.comlineag.sbm.data.HttpStatusCodes;
+import de.comlineag.sbm.data.HttpStatusCode;
 import de.comlineag.sbm.data.PostData;
 import de.comlineag.sbm.data.UserData;
 
@@ -30,27 +29,27 @@ public class Neo4JPersistence implements IPersistenceManager {
 	private String port;
 	private String protocol;
 	private String location;
-	
+
 	private String dbServerUrl;
 	private String nodePointUrl;
-	
+
 	private String serviceUserEndpoint;
 	private String servicePostEndpoint;
 	// Credentials
 	private String user;
 	private String pass;
-	
+
 	private final Logger logger = Logger.getLogger(getClass().getName());
-	private final Neo4JErrorHandling error = new Neo4JErrorHandling();
-	
+//	private final Neo4JErrorHandling error = new Neo4JErrorHandling();
+
 	public Neo4JPersistence() {
 		// initialize the necessary variables from applicationContext.xml for server connection
 		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
 		nodePointUrl = dbServerUrl + this.location + "/node";
-		
+
 	}
-	
-	
+
+
 	/**
 	 * Speichern der Post im Greaphen mit folgenden Servicedaten:
 	 *
@@ -74,20 +73,21 @@ public class Neo4JPersistence implements IPersistenceManager {
 	 * <Property Name="plAround_latitude" Type="Edm.String" MaxLength="40"/>
 	 *
 	 */
+	@Override
 	public void savePosts(PostData postData) {
 		// we only store posts in german and english at the moment
 		if (postData.getLang().equalsIgnoreCase("de") || postData.getLang().equalsIgnoreCase("en")) {
 			dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
 			nodePointUrl = dbServerUrl + this.location + "/node";
-			
+
 			logger.debug("savePosts for post-id " + postData.getId() + " called - working with " + nodePointUrl);
-			
+
 			//prepareConnection();
 			String output = null;
 			String locationHead = null;
 			HttpClient client = new HttpClient();
 			PostMethod mPost = new PostMethod(nodePointUrl);
-	
+
 			// set header
 			Header mtHeader = new Header();
 			mtHeader.setName("content-type");
@@ -95,26 +95,19 @@ public class Neo4JPersistence implements IPersistenceManager {
 			mtHeader.setName("accept");
 			mtHeader.setValue("application/json");
 			mPost.addRequestHeader(mtHeader);
-			
+
 			logger.debug("this is the header for savePosts() " + mtHeader.toString());
-			
-			// initialize http connection status
-			int status = HttpStatus.SC_NO_CONTENT;
-			String statusText = HttpStatus.getStatusText(status).replaceAll(" ", "_").toUpperCase();
-			String okOrNotOk = HttpStatusCodes.valueOf(statusText).toString();
-			String httpErrorText = error.returnHttpErrorText(statusText); //error.returnHttpErrorText(statusText.replaceAll(" ", "_").toUpperCase());  // will be populated by an error object from Neo4JErrorHandling
-			
-			logger.debug("status: " + status + " statusText: " + statusText + " okOrNotOk: " + okOrNotOk + " httpErrorText: " + httpErrorText);
-			
+
+
 			// first step, save post itself
 			try {
 				logger.info("Creating node at " + nodePointUrl + " for post (ID " + postData.getId() + " / text (first 20 chars) " + postData.getText().substring(0, 20) + ")");
-				
+
 				/**
 				 * set json payload
 				 */
 				JSONObject p = new JSONObject();
-				
+
 				p.put("sn_id", postData.getSnId());
 				p.put("post_id", postData.getId());
 				//	p.put("user_id", postData.getUserId()); // will be realized via graph connection
@@ -126,7 +119,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 				// p.put("inReplyTo", postData.getInReplyTo()); // will be realized via graph connection
 				// p.put("inReplyToUserID", postData.getInReplyToUser()); // will be realized via graph connection
 				// p.put("inReplyToScreenName", postData.getInReplyToUserScreenName());
-				
+
 				// TODO implement geo location
 				//p.put("geoLocation_longitude", postData.getGeoLongitude());
 				//p.put("geoLocation_latitude", postData.getGeoLatitude());
@@ -135,42 +128,40 @@ public class Neo4JPersistence implements IPersistenceManager {
 				//p.put("plCountry", postData.getGeoPlaceCountry());
 				//p.put("plAround_longitude", "00 00 00 00 00");
 				//p.put("plAround_latitude", "00 00 00 00 00");
-				
+
 				logger.trace("about to insert the following data in the graph: " + p.toString());
-				
+
 				StringRequestEntity requestEntity = new StringRequestEntity(p.toString(),
 		                                                                        "application/json",
 		                                                                        "UTF-8");
 				mPost.setRequestEntity(requestEntity);
-				status = client.executeMethod(mPost);
-				statusText = HttpStatus.getStatusText(status).replaceAll(" ", "_").toUpperCase();
-				httpErrorText = error.returnHttpErrorText(statusText);
-		        okOrNotOk = HttpStatusCodes.valueOf(statusText).toString();
-		        
-		        logger.debug("Status is " + status + " / statusText is " + statusText + " / okOrNotOk is " + okOrNotOk);
-		        
+				int status = client.executeMethod(mPost);
+				HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(status);
+
+				logger.debug("Status is " + statusCode + "/ Ok is " + statusCode.isOk());
+
 				output = mPost.getResponseBodyAsString( );
 				Header locationHeader =  mPost.getResponseHeader("location");
 				locationHead = locationHeader.getValue();
 				mPost.releaseConnection( );
-				
+
 				// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
-				if (okOrNotOk == "NOK"){
-					logger.error(httpErrorText);
+				if (!statusCode.isOk()){
+					logger.error(Neo4JErrorHandling.getHttpErrorText(statusCode.getErrorCode()));
 				} else {
 					logger.info("node for post " + postData.getId() + " created at location " + location + " in the graph");
 				}
-				
+
 				logger.debug("status = " + status + " / location = " + locationHead + " / output = " + output);
-		
+
 			} catch(Exception e) {
-				logger.error(httpErrorText + " ==> creating node for post (ID " + postData.getId() + " / text (first 20 chars) " + postData.getText().substring(0, 20) + ") " + e.getMessage());
+				logger.error("Creating node for post (ID " + postData.getId() + " / text (first 20 chars) " + postData.getText().substring(0, 20) + ") " + e.getMessage());
 			}
-		
+
 		/* second step establish connections between nodes
 		try {
 			logger.debug("Creating connection between nodes at " + nodePointUrl + " for post (ID " + postData.getId() + ") and user (ID " + postData.getUserId() + ") in neo4j");
-			
+
 			StringRequestEntity connectEntity = new StringRequestEntity("",
 	                                                                        "application/json",
 	                                                                        "UTF-8");
@@ -178,44 +169,45 @@ public class Neo4JPersistence implements IPersistenceManager {
 			status = client.executeMethod(mPost);
 			statusText = HttpStatus.getStatusText(status).replaceAll(" ", "_").toUpperCase();
 			httpErrorText = error.returnHttpErrorText(statusText);
-	        okOrNotOk = HttpStatusCodes.valueOf(statusText).toString();
-	        
+	        okOrNotOk = HttpStatusCode.valueOf(statusText).toString();
+
 	        logger.debug("Status is " + status + " / statusText is " + statusText + " / okOrNotOk is " + okOrNotOk);
-	        
+
 			output = mPost.getResponseBodyAsString( );
 			Header locationHeader =  mPost.getResponseHeader("location");
 			locationHead = locationHeader.getValue();
 			mPost.releaseConnection( );
-			
+
 			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
 			if (okOrNotOk == "NOK"){
 				logger.error(httpErrorText);
 			} else {
 				logger.info("connection between nodes for post " + postData.getId() + " and user " + postData.getUserId() + " created");
 			}
-			
+
 			logger.debug("status = " + status + " / location = " + locationHead + " / output = " + output);
-	
+
 		} catch(Exception e) {
 			logger.error(httpErrorText + " ==> creating connection between nodes for post (ID " + postData.getId() + ") and user (" + postData.getUserId() + ") in neo4j " + e.getMessage());
 		}
 		*/
-			
+
 		} // end if - check on languages
 	}
 
+	@Override
 	public void saveUsers(UserData userData) {
 		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
 		nodePointUrl = dbServerUrl + this.location + "/node";
-		
+
 		logger.debug("saveUsers called for user-id " + userData.getId() + " - working with " + nodePointUrl);
-		
+
 		//prepareConnection();
 		String output = null;
 		String locationHead = null;
 		HttpClient client = new HttpClient();
 		PostMethod mPost = new PostMethod(nodePointUrl);
-		
+
 		/**
 		 * set headers
 		 */
@@ -225,19 +217,12 @@ public class Neo4JPersistence implements IPersistenceManager {
 		mtHeader.setName("accept");
 		mtHeader.setValue("application/json");
 		mPost.addRequestHeader(mtHeader);
-		
+
 		logger.debug("this is the header for saveUsers() " + mtHeader.toString());
-		
-		// status handling
-		int status = HttpStatus.SC_NO_CONTENT;
-		String statusText = HttpStatus.getStatusText(status).replaceAll(" ", "_").toUpperCase();
-		String okOrNotOk = HttpStatusCodes.valueOf(statusText).toString();
-		String httpErrorText = error.returnHttpErrorText(statusText);
-		
-		
+
 		try {
 			logger.info("Creating node at " + nodePointUrl + " for user (ID " + userData.getId() + " / screenname " + userData.getScreenName() + ")");
-			
+
 			/**
 			 * set json payload
 			 */
@@ -255,8 +240,8 @@ public class Neo4JPersistence implements IPersistenceManager {
 			 * {name = "listsAndGroupsCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";}
 			 */
 			JSONObject u = new JSONObject();
-			
-			//TODO check if there is a more elegant way of creating the payload for the json object 
+
+			//TODO check if there is a more elegant way of creating the payload for the json object
 			u.put("sn_id", userData.getSnId());
 			u.put("user_id", userData.getId());
 			u.put("userName", userData.getUsername());
@@ -268,85 +253,83 @@ public class Neo4JPersistence implements IPersistenceManager {
 			u.put("postingsCount", userData.getPostingsCount());
 			u.put("favoritesCount", userData.getFavoritesCount());
 			u.put("listsAndGroupsCount", userData.getListsAndGrooupsCount());
-			
+
 			logger.debug("about to insert the following data in the graph: " + u.toString());
-			
+
 			StringRequestEntity requestEntity = new StringRequestEntity(u.toString(),
 	                                                                        "application/json",
 	                                                                        "UTF-8");
-			
+
 			mPost.setRequestEntity(requestEntity);
-			status = client.executeMethod(mPost);
-			statusText = HttpStatus.getStatusText(status).replaceAll(" ", "_").toUpperCase();
-			httpErrorText = error.returnHttpErrorText(statusText);
-	        okOrNotOk = HttpStatusCodes.valueOf(statusText).toString();
-	        
-	        logger.debug("Status is " + status + " / statusText is " + statusText + " / okOrNotOk is " + okOrNotOk);
-	        
+			int status = client.executeMethod(mPost);
+			HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(status);
+
+			logger.debug("Status is " + statusCode + "/ Ok is " + statusCode.isOk());
+
 			output = mPost.getResponseBodyAsString( );
 			Header locationHeader = mPost.getResponseHeader("location");
 			locationHead = locationHeader.getValue();
 			mPost.releaseConnection( );
-			
+
 			// in case everything is fine, neo4j should return 200. any other case needs to be investigated
-			if (okOrNotOk == "NOK"){
-				logger.error(httpErrorText);
+			if (!statusCode.isOk()){
+				logger.error(Neo4JErrorHandling.getHttpErrorText(statusCode.getErrorCode()));
 			} else {
 				logger.info("node for user " + userData.getScreenName() + " created at location " + location + " in the graph");
 			}
-			
+
 			logger.debug("status = " + status + " / location = " + locationHead + " / output = " + output);
-			
-			
+
+
 		} catch (Exception e) {
-			logger.error(httpErrorText + " ==>  creating node for user (ID " + userData.getId() + " / name " + userData.getScreenName() + ") " + e.getMessage());
+			logger.error("Creating node for user (ID " + userData.getId() + " / name " + userData.getScreenName() + ") " + e.getMessage());
 		}
 	}
 
 	/**
-	 * @description create an edge between two nodes in the graph 
+	 * @description create an edge between two nodes in the graph
 	 * 				with the given attribute (connectType) and the direction
 	 * 				being either from left to right (that is node1 --> node2)
 	 * 				or right to left (that is node1 <-- node2)
-	 * 
+	 *
 	 * @param nodeId1
 	 * @param nodeId2
 	 * @param relationshipType
 	 * @param direction LeftToRight or RightToLeft
 	 */
 	private void createEdge(Long nodeId1, Long nodeId2, String relationshipType, String direction){
-		
-		assert direction == "LeftToRight" || direction == "RightToLeft" : "Direction must either be LeftToRight or RightToLeft"; 
-		
+
+		assert direction == "LeftToRight" || direction == "RightToLeft" : "Direction must either be LeftToRight or RightToLeft";
+
 		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
 		nodePointUrl = dbServerUrl + this.location + "/node";
-		
+
 		logger.debug("createEdge called with ID1 " + nodeId1 + " and ID2 " + nodeId2 + ", edge type " + relationshipType + " and direction " + direction + " - working with " + dbServerUrl);
-		
+
 		// neo4j queries can be represented as ascii art
 		String asciiArt;
 		asciiArt = "(Node) - [r:RelationshipType] -> (Node)";
-		
+
 		asciiArt = "(" + nodeId1 + ")";
 		if (direction == "LeftToRight") {
-			asciiArt += " - [r:" + relationshipType + "] -> ";		
+			asciiArt += " - [r:" + relationshipType + "] -> ";
 		} else {
-			asciiArt += " <- [r:" + relationshipType + "] - ";	
+			asciiArt += " <- [r:" + relationshipType + "] - ";
 		}
 		asciiArt += "(" + nodeId2 + ")";
 		logger.debug("this is the asciiArt command " + asciiArt);
-		
+
 		// but of course we use cypher for that
 		String cypher;
 		cypher = "";
 		logger.debug("this is the cypher query " + cypher);
-		
+
 		//prepareConnection();
 		String output = null;
 		String locationHead = null;
 		HttpClient client = new HttpClient();
 		PostMethod mPost = new PostMethod(nodePointUrl);
-		
+
 		// set header
 		Header mtHeader = new Header();
 		mtHeader.setName("content-type");
@@ -354,15 +337,9 @@ public class Neo4JPersistence implements IPersistenceManager {
 		mtHeader.setName("accept");
 		mtHeader.setValue("application/json");
 		mPost.addRequestHeader(mtHeader);
-		
+
 		logger.debug("this is the header " + mtHeader.toString());
-		
-		// initialize http connection status
-		int status = HttpStatus.SC_NO_CONTENT;
-		String statusText = HttpStatus.getStatusText(status).replaceAll(" ", "_").toUpperCase();
-		String okOrNotOk = HttpStatusCodes.valueOf(statusText).toString();
-		String httpErrorText = error.returnHttpErrorText(statusText);
-		
+
 		// establish connections between nodes
 		try {
 			logger.info("creating connection " + asciiArt);
@@ -370,68 +347,66 @@ public class Neo4JPersistence implements IPersistenceManager {
 	                                                                        "application/json",
 	                                                                        "UTF-8");
 			mPost.setRequestEntity(connectEntity);
-			status = client.executeMethod(mPost);
-			statusText = HttpStatus.getStatusText(status).replaceAll(" ", "_").toUpperCase();
-			httpErrorText = error.returnHttpErrorText(statusText);
-	        okOrNotOk = HttpStatusCodes.valueOf(statusText).toString();
-			
-	        logger.debug("Status is " + status + " / statusText is " + statusText + " / okOrNotOk is " + okOrNotOk);
-	        
+			int status = client.executeMethod(mPost);
+			HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(status);
+
+			logger.debug("Status is " + statusCode + "/ Ok is " + statusCode.isOk());
+
 			output = mPost.getResponseBodyAsString( );
 			Header locationHeader =  mPost.getResponseHeader("location");
 			locationHead = locationHeader.getValue();
 			mPost.releaseConnection( );
-			
+
 			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
-			if (okOrNotOk == "NOK"){
-				logger.error(httpErrorText);
+			if (statusCode.isOk()){
+				logger.error(Neo4JErrorHandling.getHttpErrorText(statusCode.getErrorCode()));
 			} else {
 				logger.info("connection between node 1 " + nodeId1 + " and node 2 " + nodeId2 + " created");
 			}
-			
+
 			logger.debug("status = " + status + " / location = " + locationHead + " / output = " + output);
-	
+
 		} catch(Exception e) {
-			logger.error(httpErrorText + " ==> creating connection between node 1 (ID " + nodeId1 + ") and node 2 (" + nodeId2 + ") in neo4j " + e.getMessage());
+			logger.error("Creating connection between node 1 (ID " + nodeId1 + ") and node 2 (" + nodeId2 + ") in neo4j " + e.getMessage());
 		}
 	}
-	
-	
+
+
 	private Long findNode(String name){
 		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
 		nodePointUrl = dbServerUrl + this.location; // + "/node";
-		
+
 		logger.debug(" - working with " + dbServerUrl);
-		
+
 		// this is what we'll return upon successful find
 		Long graphNodeId = -1L;
-				
+
 		// neo4j queries can be represented as ascii art
 		String asciiArt = "";
 		asciiArt = "(Node) - [r:RelationshipType] -> (Node)";
 		/*
 		asciiArt = "(" + nodeId1 + ")";
 		if (direction == "leftToRight") {
-			asciiArt += " - [r:" + edgeType + "] -> ";		
+			asciiArt += " - [r:" + edgeType + "] -> ";
 		} else {
-			asciiArt += " <- [r:" + edgeType + "] - ";	
+			asciiArt += " <- [r:" + edgeType + "] - ";
 		}
 		asciiArt += "(" + nodeId2 + ")";
 		*/
 		logger.debug("this is the asciiArt command " + asciiArt);
-		
-		
+
+
 		// but of course we use cypher for that
 		String cypher;
 		cypher = "";
 		logger.debug("this is the cypher query " + cypher);
-		
+
 		//prepareConnection();
 		String output = null;
 		String locationHead = null;
 		HttpClient client = new HttpClient();
 		PostMethod mPost = new PostMethod(nodePointUrl);
-		
+
 		// set header
 		Header mtHeader = new Header();
 		mtHeader.setName("content-type");
@@ -439,56 +414,47 @@ public class Neo4JPersistence implements IPersistenceManager {
 		mtHeader.setName("accept");
 		mtHeader.setValue("application/json");
 		mPost.addRequestHeader(mtHeader);
-		
+
 		logger.debug("this is the header " + mtHeader.toString());
-		
-		// initialize http connection status
-		int status = HttpStatus.SC_NO_CONTENT;
-		String statusText = HttpStatus.getStatusText(status).replaceAll(" ", "_").toUpperCase();
-		String okOrNotOk = HttpStatusCodes.valueOf(statusText).toString();
-		String httpErrorText = error.returnHttpErrorText(statusText);
-		
-		
+
 		// execute search
 		try {
 			StringRequestEntity connectEntity = new StringRequestEntity(cypher,
 	                                                                        "application/json",
 	                                                                        "UTF-8");
 			mPost.setRequestEntity(connectEntity);
-			status = client.executeMethod(mPost);
-			statusText = HttpStatus.getStatusText(status).replaceAll(" ", "_").toUpperCase();
-			httpErrorText = error.returnHttpErrorText(statusText);
-	        okOrNotOk = HttpStatusCodes.valueOf(statusText).toString();
-	        
-	        logger.debug("Status is " + status + " / statusText is " + statusText + " / okOrNotOk is " + okOrNotOk);
-	        
+			int status = client.executeMethod(mPost);
+			HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(status);
+
+			logger.debug("Status is " + statusCode + "/ Ok is " + statusCode.isOk());
+
 			output = mPost.getResponseBodyAsString( );
 			Header locationHeader =  mPost.getResponseHeader("location");
 			locationHead = locationHeader.getValue();
 			mPost.releaseConnection( );
-			
+
 			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
-			if (okOrNotOk == "NOK"){
-				logger.error(httpErrorText);
+			if (!statusCode.isOk()){
+				logger.error(Neo4JErrorHandling.getHttpErrorText(statusCode.getErrorCode()));
 			} else {
 				logger.info("found the node");
 			}
-			
+
 			logger.debug("status = " + status + " / location = " + locationHead + " / output = " + output);
-	
+
 		} catch(Exception e) {
-			logger.error(httpErrorText + " ==> searching data in the graph " + e.getMessage());
+			logger.error("Searching data in the graph " + e.getMessage());
 		}
-		
+
 		return graphNodeId;
 	}
-	
+
 	private String generateJsonRelationship(String endNodeURL,
             								String relationshipType,
             								String ... jsonAttributes
             								) {
 		StringBuilder sb = new StringBuilder();
-		
+
 		/* this is how the json-string for a relationship should look like
 		{
 			"extensions" : {},
@@ -501,7 +467,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 			"data" : {}
 		}
 		*/
-		
+
 		/*
 			sb.append("{ to : ");
 			sb.append(endNodeURL);
@@ -525,82 +491,70 @@ public class Neo4JPersistence implements IPersistenceManager {
 			sb.append(" }");
 			return sb.toString();
 	}
-	
-	
+
+
 	/**
 	 * @obsolete
 	 * @description opens a connection to the REST-API of the neo4j graph-db server
 	 */
-	private int prepareConnection() {
+	private HttpStatusCode prepareConnection() {
 		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
 		nodePointUrl = dbServerUrl + this.location + "/node";
-		
+
 		logger.debug("preparing connection " + dbServerUrl);
-		
-		// initialize the return value and whether this is acceptable or not. 
-		int status = HttpStatus.SC_NO_CONTENT;
-		String statusText = HttpStatus.getStatusText(status).replaceAll(" ", "_").toUpperCase();
-		String okOrNotOk = HttpStatusCodes.valueOf(statusText).toString();
-		String httpErrorText = error.returnHttpErrorText(statusText);
-        logger.debug("current value (before connection) of okOrNotOk is " + okOrNotOk );		
-        
+
+		// initialize the return value and whether this is acceptable or not.
+
+		HttpStatusCode statusCode = HttpStatusCode.UNKNOWN;
+
         try {
 	        HttpClient client = new HttpClient();
 	        GetMethod mGet = new GetMethod(dbServerUrl);
-	        status = client.executeMethod(mGet);
-	        statusText = HttpStatus.getStatusText(status).replaceAll(" ", "_").toUpperCase();
-	        httpErrorText = error.returnHttpErrorText(statusText);
-	        okOrNotOk = HttpStatusCodes.valueOf(statusText).toString();
+	        int status = client.executeMethod(mGet);
+			statusCode = HttpStatusCode.getHttpStatusCode(status);
+
+			logger.debug("Status is " + statusCode + "/ Ok is " + statusCode.isOk());
+
 	        mGet.releaseConnection();
 	    } catch(Exception e) {
-	    	logger.error(httpErrorText + " ", e);
+	    	logger.error(e);
 	    }
-        
-        if (okOrNotOk == "NOK"){
-        	logger.warn(httpErrorText);
-        } else {
-        	logger.debug("Connected, return code " + status + " (" + HttpStatus.getStatusText(status) + ")");
-        }
-        
-		return status;
+
+
+		return statusCode;
 	}
-	
+
 	/**
 	 * @description returns the server status
 	 */
-	public int getServerStatus(){
+	public HttpStatusCode getServerStatus(){
 		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
 		nodePointUrl = dbServerUrl + this.location + "/node";
-		
+
 		logger.debug("Querying server status for " + dbServerUrl);
 
-		// initialize the return value and whether this is acceptable or not. 
-		int status = HttpStatus.SC_NO_CONTENT;
-		String statusText = HttpStatus.getStatusText(status).replaceAll(" ", "_").toUpperCase();
-		String httpErrorText = error.returnHttpErrorText(statusText);
-		String okOrNotOk = HttpStatusCodes.valueOf(statusText).toString();
-        
+		// initialize the return value and whether this is acceptable or not.
+
+		HttpStatusCode status = HttpStatusCode.UNKNOWN;
+
         try{
 	        HttpClient client = new HttpClient();
 	        GetMethod mGet =   new GetMethod(dbServerUrl);
-	        status = client.executeMethod(mGet);
-	        statusText = HttpStatus.getStatusText(status).replaceAll(" ", "_").toUpperCase();
-	        httpErrorText = error.returnHttpErrorText(statusText);
-	        okOrNotOk = HttpStatusCodes.valueOf(statusText).toString();
+	        status = HttpStatusCode.getHttpStatusCode(client.executeMethod(mGet));
 	        mGet.releaseConnection();
 	    }catch(Exception e){
-	    	logger.error(httpErrorText + " ", e);
+	    	logger.error(e);
 	    }
-        
-        if (okOrNotOk == "NOK"){
-        	logger.warn(httpErrorText);
+
+        if (!status.isOk()){
+        	logger.warn(Neo4JErrorHandling.getHttpErrorText(status.getErrorCode()));
         } else {
-        	logger.debug("Return code " + status + " (" + HttpStatus.getStatusText(status) + ") everything should be fine");
+        	logger.debug("Return code " + status + " (" + status.getErrorCode() + ") everything should be fine");
         }
-        
+
 	    return status;
 	}
-	
+
 	/**
 	 * @description Entschluesselt Werte aus der Konfig fuer die Connection
 	 *
@@ -623,7 +577,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 		// konvertiere in String
 		return new String(base64Array);
 	}
-	
+
 	// standard getter and setter
 	public String getHost() {
 		return host;
