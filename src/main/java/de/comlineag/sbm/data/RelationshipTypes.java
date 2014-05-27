@@ -7,21 +7,24 @@ package de.comlineag.sbm.data;
  * 				the enum contains a static for the field within the twitter/facebook etc. data object
  * 				and a corresponding attribute for the edge within the graph
  * 				
- * 				ENUM Static				attribute		cypher as ascii art
+ * 				ENUM Static				attribute		cypher as ascii art example
  * 				---------------------------------------------------------------------------
- * 				IN_REPLY_TO_STATUS		replied on		(u:John) -[replied on]-> (p:Post-ID)
- * 				IN_REPLY_TO_USER		replied to		(u:John) -[replied to]-> (u:Jane) 
- * 				USER_MENTIONS			mentioned		(u:John) -[mentioned]-> (u:Jane)
- * 				RETWEETED				retweeted		(u:John) -[retweeted]-> (p:Post-ID)
- * 				FAVORITED				favorited		(u:John) -[favorited]-> (p:Post ID)
+ * 				IN_REPLY_TO_STATUS		REPLIED_ON		(u:User-ID) -[REPLIED_ON]-> (p:Post-ID)
+ * 				IN_REPLY_TO_USER		REPLIED_TO		(u:User-ID) -[REPLIED_TO]-> (u:User-ID) 
+ * 				USER_MENTIONS			MENTIONED		(u:User-ID) -[MENTIONED]-> (u:User-ID)
+ * 				RETWEETED				RETWEETED		(u:User-ID) -[RETWEETED]-> (p:Post-ID)
+ * 				FAVORITED				FAVORITED		(p:User-ID) -[FAVORITED]-> (u:Post-ID)
+ * 				FOLLOWS					FOLLOWS			(u:User-ID) -[FOLLOWS]-> (u:User-ID)
  *
  */
 public enum RelationshipTypes {
-	IN_REPLY_TO_STATUS("replied on"),
-	IN_REPLY_TO_USER("replied to"),
-	USER_MENTIONS("mentioned"),
-	RETWEETED("retweeted"),
-	FAVORITED("favorited");
+	IN_REPLY_TO_STATUS("REPLIED_ON"),
+	IN_REPLY_TO_USER("REPLIED_TO"),
+	USER_MENTIONS("MENTIONED"),
+	RETWEETED("RETWEETED"),
+	FAVORITED("FAVORITED"),
+	FOLLOWS("FOLLOWS");
+	
 
 	private final String value;
 	

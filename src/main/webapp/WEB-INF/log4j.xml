@@ -90,52 +90,46 @@
 		</layout>
 	</appender>
 	
-	
-	<root> 
-		<priority value ="error" /> 
-		<!--  <appender-ref ref="console" />  -->  
-		<appender-ref ref="file" />      
-	</root>
-
-	<!-- not fitting in any other category --> 	
+	<!-- not fitting in any other category -->  	
 	<logger name = "de.comlineag.sbm">
 		<level value = "debug"></level>
+		<appender-ref ref="console"/>
 	</logger>
 	
-	<!-- persistence logging --> 
+	<!-- persistence logging  
 	<logger name = "de.comlineag.sbm.persistence">
 		<level value = "debug"></level>
 		<appender-ref ref="fileP" />      
 	</logger>
-	
-	<!-- twitter posting data logging -->
+	-->
+	<!-- twitter posting data logging 
 	<logger name = "de.comlineag.sbm.data.TwitterPostingData">
 		<level value = "debug"></level>
 		<appender-ref ref="fileC" />     
 	</logger>
-	
-	<!-- twitter crawler logging -->
+	-->
+	<!-- twitter crawler logging 
 	<logger name = "de.comlineag.sbm.job.TwitterCrawler">
 		<level value = "debug"></level>
 		<appender-ref ref="fileC" />     
 	</logger>
-	
-	<!-- twitter api(?) logging -->
+	-->
+	<!-- twitter api(?) logging 
 	<logger name = "com.twitter">
 		<level value = "info"></level>
 		<appender-ref ref="fileT" />     
 	</logger>
-	
-	<!-- facebook api(?) logging -->
+	-->
+	<!-- facebook api(?) logging 
 	<logger name = "com.facebook">
 		<level value = "info"></level>
 		<appender-ref ref="fileF" />     
 	</logger>
-	
-	<!-- http logging -->
+	-->
+	<!-- http logging 
 	<logger name = "org.apache.http">
 		<level value = "info"></level>
 		<appender-ref ref="fileH" />     
 	</logger>
-
+ 	-->
 </log4j:configuration>

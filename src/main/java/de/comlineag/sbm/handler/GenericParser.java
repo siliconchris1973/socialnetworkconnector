@@ -1,6 +1,6 @@
 package de.comlineag.sbm.handler;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
 /**
  * 
@@ -16,12 +16,9 @@ import org.apache.log4j.Logger;
  */
 public abstract class GenericParser {
 	
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	//private final Logger logger = Logger.getLogger(getClass().getName());
 	
-	protected GenericParser() {
-		// TODO Auto-generated constructor stub
-		logger.debug("constructor of class" + getClass().getName() + " called");
-	}
+	protected GenericParser() {}
 	
 	/**
 	 * @name parse
@@ -37,9 +34,6 @@ public abstract class GenericParser {
 	 * 				die Methode parse
 	 */
 	public final void process(String strPosting) {
-		// log the startup message
-		logger.debug("method process from class " + getClass().getName() + " called");
-		
 		if (strPosting != null)
 			parse(strPosting);
 	}

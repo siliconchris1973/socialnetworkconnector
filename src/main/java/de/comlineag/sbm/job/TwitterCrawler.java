@@ -50,7 +50,8 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	
 	// this string is used to compose all the little debug messages rom the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwords.
-	private String bigLogMessage;
+	private String bigLogMessage = "";
+	private String smallLogMessage = "";
 	
 	public TwitterCrawler() {
 		
@@ -61,7 +62,6 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		// instantiate the Twitter-Posting-Manager
 		post = new TwitterParser();
 		
-		logger.debug("new twitter parser instantiated - getting restrictions on what to track");
 		// TODO check what about multithreading and executor services
 		/*
 		// Set up the executor service to distribute the actual tasks
@@ -107,6 +107,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 								);
 			*/
 			bigLogMessage += "restricted to terms: " + tTerms.toString() + " ";
+			smallLogMessage += "specific terms ";
 		}
 		
 		// Restrict tracked messages to english and german
@@ -117,6 +118,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			
 			endpoint.languages(langs);
 			bigLogMessage += "restricted to languages: " + langs.toString() + " ";
+			smallLogMessage += "specific languages ";
 		}
 		
 		// Restrict the tracked messages to specific users
@@ -127,6 +129,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			
 			endpoint.followings(users);
 			bigLogMessage += "restricted on user: " + users.toString() + " ";
+			smallLogMessage += "specific users ";
 		}
 		
 		// Restrict the tracked messages to specific locations
@@ -141,9 +144,10 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			//endpoint.locations(locs);
 			
 			bigLogMessage += "restricted on locations: " + locs.toString() + " (NOT IMPLEMENTED) ";
+			smallLogMessage += "specific locations ";
 		}
-		
-		logger.debug("call for Endpoint POST: " + endpoint.getPostParamString() + " /// " + bigLogMessage);
+		logger.debug("new twitter parser instantiated - restricted to track " + smallLogMessage);
+		logger.trace("call for Endpoint POST: " + endpoint.getPostParamString() + " /// " + bigLogMessage);
 
 		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get("consumerKey"), (String) arg0.getJobDetail()
 				.getJobDataMap().get("consumerSecret"), (String) arg0.getJobDetail().getJobDataMap().get("token"), (String) arg0
@@ -156,7 +160,6 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		// Establish a connection
 		try {
 			client.connect();
-			logger.debug("Twitter-Client connected");
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -171,7 +174,8 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			} catch (Exception ee) {
 				logger.error("Exception in message loop " + ee.getMessage());
 			}
-			logger.debug("New Tweet " + msg);
+			logger.info("New Tweet tracked from " + msg.substring(15, 45) + "...");
+			logger.trace("complete tweet: " + msg );
 
 			// Jede einzelne Message wird nun an den Parser TwitterParser
 			// (abgeleitet von GenericParser) uebergeben

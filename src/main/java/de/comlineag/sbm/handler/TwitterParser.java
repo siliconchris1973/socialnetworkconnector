@@ -21,8 +21,7 @@ public final class TwitterParser extends GenericParser {
 
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
-	public TwitterParser() {
-	}
+	public TwitterParser() {}
 
 	@Override
 	protected void parse(String strTweet) {
@@ -72,5 +71,6 @@ public final class TwitterParser extends GenericParser {
 			user.save(); // hier key fuer User uebergeben
 			
 		}
+		logger.debug("Parser END");
 	}
 }

@@ -1,6 +1,6 @@
 package de.comlineag.sbm.handler;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
 import de.comlineag.sbm.data.TwitterUserData;
@@ -49,18 +49,14 @@ public class TwitterUser extends GenericDataManager<TwitterUserData> {
 	 */
 	private TwitterUserData data;
 
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	//private final Logger logger = Logger.getLogger(getClass().getName());
 
 	public TwitterUser(JSONObject jsonObject) {
-		// TODO Auto-generated constructor stub
-		logger.debug("constructor of class" + getClass().getName() + " called");
 		data = new TwitterUserData(jsonObject);
 	}
 
 	// public void save(List<TwitterUser> users){
 	public void save() {
-		// log the startup message
-		logger.debug("method save from class " + getClass().getName() + " called");
 		persistenceManager.saveUsers(data);
 	}
 

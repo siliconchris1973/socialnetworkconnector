@@ -57,8 +57,9 @@ public final class TwitterPostingData extends PostData {
 	public TwitterPostingData(JSONObject jsonObject) {
 
 		// log the startup message
-		logger.debug("constructing new tweet " + jsonObject.get("id") + " from twitter json-response");
-
+		logger.debug("constructing new subset of data of tweet (ID: " + jsonObject.get("id") + ") from twitter post-object");
+		logger.trace("  working on " + jsonObject.toString());
+		
 		// alles auf Null und die SocialNetworkID schon mal parken
 		initialize();
 
@@ -103,7 +104,7 @@ public final class TwitterPostingData extends PostData {
 
 		// Geodaten des Posts - es gibt coordinates und place, place wird gefuellt wenn bspw. im Web ein Ort fuer den Tweet angegeben wird:
 		if (jsonObject.get("coordinates") != null)
-			logger.debug("Found Coordinates " + jsonObject.get("coordinates").toString());
+			logger.debug("Found Coordinates " + jsonObject.get("coordinates").toString() + "");
 		
 		/**
 		 * Struktur der Coordinates:
@@ -210,7 +211,7 @@ public final class TwitterPostingData extends PostData {
 			// generelles GeoJson in der place-Variable ablegen:
 			geoObject = new ObjectMapper().readValue(_b_box.toString().getBytes(), GeoJsonObject.class);
 			setPlace(geoObject);
-			logger.debug("place initialisiert");
+			logger.debug("geo information place initialized");
 
 			// welche Info haben wir denn im Objekt verfuegbar, damit dann den Mittelpunkt berechnen
 			if (geoObject instanceof Polygon) {
@@ -263,7 +264,7 @@ public final class TwitterPostingData extends PostData {
 			setGeoLatitude(new Double(rootCoordLat).toString());
 			setGeoLongitude(new Double(rootCoordLon).toString());
 
-			logger.debug("Post Koordinate Mittelpunkt " + rootCoordLat + " / " + rootCoordLon);
+			logger.debug("Posting coordinates: " + rootCoordLat + " / " + rootCoordLon);
 
 			setGeoPlaceName(_b_box.get("name").toString());
 			setGeoPlaceCountry(_b_box.get("country").toString());

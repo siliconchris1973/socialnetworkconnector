@@ -36,9 +36,9 @@ public final class TwitterUserData extends UserData {
 	 * @param jsonObject
 	 */
 	public TwitterUserData(JSONObject jsonObject) {
-		// log the startup message
-		logger.debug("creating new user within class " + getClass().getName());
-
+		logger.debug("constructing new subset of data of user (ID: " + jsonObject.get("id") + ") from twitter user-object");
+		logger.trace("  working on " + jsonObject.toString());
+		
 		// setting everything to 0 or null default value.
 		// so I can check on initialized or not initialized values for the
 		// posting
@@ -55,7 +55,7 @@ public final class TwitterUserData extends UserData {
 		favorites_count = 0;
 		lists_and_groups_count = 0;
 		lang = null;
-
+		
 		setId((Long) jsonObject.get("id"));
 		setUsername((String) jsonObject.get("name"));
 		setScreenName((String) jsonObject.get("screen_name"));
@@ -74,5 +74,4 @@ public final class TwitterUserData extends UserData {
 
 		setLang((String) jsonObject.get("lang"));
 	}
-
 }

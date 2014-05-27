@@ -1,6 +1,6 @@
 package de.comlineag.sbm.handler;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
 import de.comlineag.sbm.data.TwitterPostingData;
@@ -54,7 +54,7 @@ public class TwitterPosting extends GenericDataManager<TwitterPostingData> {
 
 	private TwitterPostingData data;
 
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	//private final Logger logger = Logger.getLogger(getClass().getName());
 
 	/**
 	 * Baut aus dem JSON String ein TwitterPostingData Objekt
@@ -64,13 +64,11 @@ public class TwitterPosting extends GenericDataManager<TwitterPostingData> {
 	public TwitterPosting(JSONObject jsonObject) {
 		// TODO Auto-generated constructor stub
 		data = new TwitterPostingData(jsonObject);
-
 	}
 
 	@Override
 	// public void save(List<TwitterPosting> posting){
 	public void save() {
 		persistenceManager.savePosts(data);
-		// TODO: implement save interface either to file, db or the like
 	}
 }
