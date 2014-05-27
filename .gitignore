@@ -4,4 +4,7 @@
 *.log
 /.settings
 .classpath
+<<<<<<< HEAD
 /bin
+=======
+>>>>>>> FETCH_HEAD
