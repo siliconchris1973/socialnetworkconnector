@@ -27,7 +27,7 @@ public final class TwitterParser extends GenericParser {
 	@Override
 	protected void parse(String strTweet) {
 		// log the startup message
-		logger.debug("method parse from class " + getClass().getName() + " called");
+		logger.debug("parser START");
 
 		// macht ein JSon Decode aus dem uebergebenen String
 		// TODO: How to decode the map and seperate Tweets from Users and
@@ -46,7 +46,8 @@ public final class TwitterParser extends GenericParser {
 			JSONObject jsonUser = (JSONObject) jsonTweetResource.get("user");
 			TwitterUser user = new TwitterUser(jsonUser);
 			users.add(user);
-
+			
+			//TODO implement retweeted
 			JSONObject jsonReTweeted = (JSONObject) jsonTweetResource.get("retweeted_status");
 			if (jsonReTweeted != null) {
 				// warum machen wir hier nix?
@@ -58,18 +59,18 @@ public final class TwitterParser extends GenericParser {
 			// TODO Auto-generated catch block
 			logger.trace(e.getMessage(), e);
 		}
-
+		
 		for (int ii = 0; ii < postings.size(); ii++) {
 			// TwitterPosting post = (TwitterPosting) postings.get(ii);
 			TwitterPosting post = (TwitterPosting) postings.get(ii);
 			post.save(); // hier Key fuer Tweets uebergeben
-
+			
 		}
-
+		
 		for (int ii = 0; ii < users.size(); ii++) {
 			TwitterUser user = (TwitterUser) users.get(ii);
 			user.save(); // hier key fuer User uebergeben
-
+			
 		}
 	}
 }

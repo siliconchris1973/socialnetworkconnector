@@ -63,7 +63,6 @@ public class TwitterPosting extends GenericDataManager<TwitterPostingData> {
 	 */
 	public TwitterPosting(JSONObject jsonObject) {
 		// TODO Auto-generated constructor stub
-		logger.debug("constructor of class" + getClass().getName() + " called");
 		data = new TwitterPostingData(jsonObject);
 
 	}
@@ -71,8 +70,6 @@ public class TwitterPosting extends GenericDataManager<TwitterPostingData> {
 	@Override
 	// public void save(List<TwitterPosting> posting){
 	public void save() {
-		// log the startup message
-		logger.info("method save from class " + getClass().getName() + " called");
 		persistenceManager.savePosts(data);
 		// TODO: implement save interface either to file, db or the like
 	}
