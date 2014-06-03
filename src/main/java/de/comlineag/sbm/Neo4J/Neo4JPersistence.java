@@ -16,6 +16,7 @@ import org.json.simple.JSONObject;
 import de.comlineag.sbm.data.HttpStatusCode;
 import de.comlineag.sbm.data.PostData;
 import de.comlineag.sbm.data.RelationshipTypes;
+import de.comlineag.sbm.data.SN_DATA_TYPE;
 import de.comlineag.sbm.data.UserData;
 import de.comlineag.sbm.persistence.HttpErrorHandling;
 import de.comlineag.sbm.persistence.IPersistenceManager;
@@ -53,18 +54,20 @@ public class Neo4JPersistence implements IPersistenceManager {
 	private String user;
 	private String pass;
 
-	// contains ID and position of a node within the graph - used as the target of a relation (edge between nodes)
+	// contains ID and position of a node within the graph - used as the target of a relationship (edge between nodes)
 	private String toNodeLocationUri;
 	private Long toNodeId;
 
-	// contains ID and position of a node within the graph - used as the origin of a relation (edge between nodes)
+	// contains ID and position of a node within the graph - used as the origin of a relationship (edge between nodes)
 	private String fromNodeLocationUri;
 	private Long fromNodeId;
 	
 	// extension to the URI of a node to store relationships
 	private final String relationshipLocation = "/relationships";
 	
-	// if set snc will automatically create a connection between a user and the post with type AUTHORED
+	// if set SNC will automatically create connections between nodes
+	// for example: if a new post and a new user is passed, SNC will automatically create the 
+	// 				relationship of type authored between these two nodes.
 	private static final boolean AUTO_CREATE_EDGE = true;
 	
 	// setup the logging
@@ -77,6 +80,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void savePosts(PostData postData) {
 		// we only store posts in german and english at the moment
@@ -106,15 +110,14 @@ public class Neo4JPersistence implements IPersistenceManager {
 			// set json payload
 			JSONObject p = new JSONObject();
 			
-			p.put("type", "Posting");										// Property Name="Type" Type="Edm.String" Nullable="false" MaxLength="7"		--> Fixed value Posting
+			p.put("type", SN_DATA_TYPE.POSTING.toString());					// Property Name="Type" Type="Edm.String" Nullable="false" MaxLength="7"		--> Fixed value Posting
 			p.put("sn_id", postData.getSnId());								// Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"		--> Fixed value TW
 			p.put("post_id", postData.getId());								// Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"
-			//TODO How to sent timestamp to neo4j							this one IS problematic
-			//p.put("timestamp", postData.getTimestamp()); 					// Property Name="timestamp" Type="Edm.DateTime"
+			p.put("timestamp", "\"" + postData.getTimestamp() + "\""); 		// Property Name="timestamp" Type="Edm.DateTime"
 			p.put("postLang", postData.getLang());							// Property Name="postLang" Type="Edm.String" MaxLength="64"
 			p.put("text", postData.getText().toString());					// Property Name="text" Type="Edm.String" DefaultValue="" MaxLength="1024"
 			p.put("truncated", postData.getTruncated());					// Property Name="truncated" Type="Edm.Byte" DefaultValue="0"					--> true or false
-			// p.put("client", postData.getClient()); 						// OBSOLETE Name="client" Type="Edm.String" MaxLength="2048"
+			p.put("client", postData.getClient()); 							// OBSOLETE Name="client" Type="Edm.String" MaxLength="2048"
 			
 			// TODO check implementation of geo location
 			if (postData.getGeoLongitude() != null) 
@@ -147,7 +150,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 				createRelationship(fromNodeLocationUri, toNodeLocationUri, RelationshipTypes.IN_REPLY_TO_USER, null);
 			}
 			*/
-			logger.debug("about to insert the following data in the graph: " + p.toString());
+			logger.trace("about to insert the following data in the graph: " + p.toString());
 			
 			try{
 				StringRequestEntity requestEntity = new StringRequestEntity(p.toString(),
@@ -185,6 +188,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 		} // end if - check on languages
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void saveUsers(UserData userData) {
 		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
@@ -209,9 +213,8 @@ public class Neo4JPersistence implements IPersistenceManager {
 		
 		// set json payload 
 		JSONObject u = new JSONObject();
-
-		//TODO check if there is a more elegant way of creating the payload for the json object
-		u.put("type", "User");
+		
+		u.put("type", SN_DATA_TYPE.USER.toString());
 		u.put("sn_id", userData.getSnId());									// {name = "sn_id"; sqlType = NVARCHAR; nullable = false; length = 2;},
 		u.put("user_id", userData.getId());									// {name = "user_id"; sqlType = NVARCHAR; nullable = false; length = 20;},
 		u.put("userName", userData.getUsername());							// {name = "userName"; sqlType = NVARCHAR; nullable = true; length = 128;},
@@ -223,10 +226,8 @@ public class Neo4JPersistence implements IPersistenceManager {
 		u.put("postingsCount", userData.getPostingsCount());				// {name = "postingsCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
 		u.put("favoritesCount", userData.getFavoritesCount());				// {name = "favoritesCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
 		u.put("listsAndGroupsCount", userData.getListsAndGrooupsCount());	// {name = "listsAndGroupsCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";}
-		// TODO add field db_entry with timestamp on creation time
-		//u.put("db_entry", )
-
-		logger.debug("about to insert the following data in the graph: " + u.toString());
+		
+		logger.trace("about to insert the following data in the graph: " + u.toString());
 		
 		try {
 			StringRequestEntity requestEntity = new StringRequestEntity(u.toString(),
@@ -307,6 +308,8 @@ public class Neo4JPersistence implements IPersistenceManager {
 				
 				r = r +" }";
 		
+		logger.trace("About to use the following string to create the relationship: " + r);
+				
 		StringRequestEntity requestEntity = null;
 		try {
 			requestEntity = new StringRequestEntity(r.toString(),
@@ -326,7 +329,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 			if (!statusCode.isOk()){
 				logger.error(HttpErrorHandling.getHttpErrorText(statusCode.getErrorCode()));
 			} else {
-				logger.info(HttpErrorHandling.getHttpErrorText(statusCode.getErrorCode()) + " :: connection between node " + fromNodeId + " and node " + toNodeId + " created");
+				logger.info("SUCCESS :: connection between node " + fromNodeId + " and node " + toNodeId + " created");
 				
 				output = mPost.getResponseBodyAsString();
 				Header locationHeader =  mPost.getResponseHeader("location");
@@ -361,89 +364,6 @@ public class Neo4JPersistence implements IPersistenceManager {
 		return Long.parseLong(nodeIdAsString);
 	}
 	
-	
-	/**
-	 * @obsolete
-	 * @param endNodeURL
-	 * @param relationshipType
-	 * @param jsonAttributes
-	 * @return
-	 */
-	private String generateJsonRelationship(String endNodeURL,
-            								String relationshipType,
-            								String ... jsonAttributes
-            								) {
-		StringBuilder sb = new StringBuilder();
-
-		/* this is how the json-string for a relationship should look like
-		{
-			"extensions" : {},
-			"start" : "http://localhost:7474/db/data/node/133",
-			"property" : "http://localhost:7474/db/data/relationship/56/properties/{key}",
-			"self" : "http://localhost:7474/db/data/relationship/56",
-			"properties" : "http://localhost:7474/db/data/relationship/56/properties",
-			"type" : "know",
-			"end" : "http://localhost:7474/db/data/node/132",
-			"data" : {}
-		}
-		*/
-
-		/*
-			sb.append("{ to : ");
-			sb.append(endNodeURL);
-			sb.append("");
-
-			sb.append("" + relationshipType + " : ");
-			sb.append(relationshipType);
-		 */
-			if(jsonAttributes == null || jsonAttributes.length < 1) {
-				sb.append("");
-			} else {
-				sb.append(", " + "data" + " : ");
-				for(int i = 0; i < jsonAttributes.length; i++) {
-					sb.append(jsonAttributes[i]);
-					if(i < jsonAttributes.length -1) { // Miss off the final comma
-						sb.append(", ");
-					}
-				}
-			}
-
-			sb.append(" }");
-			return sb.toString();
-	}
-
-
-	/**
-	 * @obsolete
-	 * @description opens a connection to the REST-API of the neo4j graph-db server
-	 */
-	private HttpStatusCode prepareConnection() {
-		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
-		nodePointUrl = dbServerUrl + this.location + "/node";
-
-		// initialize the return value and whether this is acceptable or not.
-		HttpStatusCode statusCode = HttpStatusCode.UNKNOWN;
-
-        try {
-	        HttpClient client = new HttpClient();
-	        GetMethod mGet = new GetMethod(dbServerUrl);
-	        int status = client.executeMethod(mGet);
-			statusCode = HttpStatusCode.getHttpStatusCode(status);
-			
-			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
-			if (!statusCode.isOk()){
-				logger.error(HttpErrorHandling.getHttpErrorText(statusCode.getErrorCode()));
-			}
-						
-	        mGet.releaseConnection();
-	    } catch(Exception e) {
-	    	logger.error(e);
-	    }
-
-
-		return statusCode;
-	}
-
 	/**
 	 * @description returns the server status
 	 */
@@ -470,14 +390,6 @@ public class Neo4JPersistence implements IPersistenceManager {
 	    	logger.error(e);
 	    }
         
-        /*
-        if (!status.isOk()){
-        	logger.warn(HttpErrorHandling.getHttpErrorText(status.getErrorCode()));
-        } else {
-        	logger.debug("Return code " + status + " (" + status.getErrorCode() + ") everything should be fine");
-        }
-		*/
-        
 	    return status;
 	}
 
@@ -489,6 +401,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	 * @return Klartext
 	 *
 	 */
+	@SuppressWarnings("unused")
 	private String decryptValue(String param) throws NoBase64EncryptedValue {
 
 		// byte-Array kommt vom Decoder zurueck und kann dann in String uebernommen und zurueckgegeben werden
@@ -507,6 +420,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	/**
 	 * @description deletes all graph-db files on file system, thus essentially wiping out the entire DB
 	 */
+	@SuppressWarnings("unused")
 	private void clearDbPath() {
         try { deleteRecursively( new File( DB_PATH) ); }
         catch ( IOException e ) { throw new RuntimeException( e ); }
@@ -519,57 +433,56 @@ public class Neo4JPersistence implements IPersistenceManager {
 	public void setHost(String host) {
 		this.host = host;
 	}
-
+	
 	public String getLocation() {
 		return location;
 	}
 	public void setLocation(String location) {
 		this.location = location;
 	}
-
+	
 	public String getServiceUserEndpoint() {
 		return serviceUserEndpoint;
 	}
 	public void setServiceUserEndpoint(String serviceUserEndpoint) {
 		this.serviceUserEndpoint = serviceUserEndpoint;
 	}
-
+	
 	public String getServicePostEndpoint() {
 		return servicePostEndpoint;
 	}
 	public void setServicePostEndpoint(String servicePostEndpoint) {
 		this.servicePostEndpoint = servicePostEndpoint;
 	}
-
+	
 	public String getUser() {
 		return user;
 	}
 	public void setUser(String user) {
 		this.user = user;
 	}
-
+	
 	public String getPass() {
 		return pass;
 	}
 	public void setPass(String pass) {
 		this.pass = pass;
 	}
-
+	
 	public String getPort() {
 		return port;
 	}
 	public void setPort(String port) {
 		this.port = port;
 	}
-
+	
 	public String getProtocol() {
 		return protocol;
 	}
 	public void setProtocol(String protocol) {
 		this.protocol = protocol;
 	}
-
-
+	
 	public String getDB_PATH() {
 		return DB_PATH;
 	}

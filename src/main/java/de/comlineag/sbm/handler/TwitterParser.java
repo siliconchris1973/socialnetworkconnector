@@ -29,8 +29,6 @@ public final class TwitterParser extends GenericParser {
 		logger.debug("parser START");
 
 		// macht ein JSon Decode aus dem uebergebenen String
-		// TODO: How to decode the map and seperate Tweets from Users and
-		// Retweets and URLs and so on
 		JSONParser parser = new JSONParser();
 		List<TwitterPosting> postings = new ArrayList<TwitterPosting>();
 		List<TwitterUser> users = new ArrayList<TwitterUser>();
@@ -46,21 +44,18 @@ public final class TwitterParser extends GenericParser {
 			TwitterUser user = new TwitterUser(jsonUser);
 			users.add(user);
 			
-			//TODO implement retweeted
+			// zum schluss noch etwaige retweeted messages
+			//TODO check if retweeted REALLY is added
 			JSONObject jsonReTweeted = (JSONObject) jsonTweetResource.get("retweeted_status");
 			if (jsonReTweeted != null) {
-				// warum machen wir hier nix?
-				// weil noch nicht fertig
-				// postings.add(new TwitterPostingData(jsonReTweeted));
+				postings.add(new TwitterPosting(jsonReTweeted));
 			}
 
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			logger.trace(e.getMessage(), e);
+			logger.error("EXCEPTION :: " + e.getMessage() + " " + e);
 		}
 		
 		for (int ii = 0; ii < postings.size(); ii++) {
-			// TwitterPosting post = (TwitterPosting) postings.get(ii);
 			TwitterPosting post = (TwitterPosting) postings.get(ii);
 			post.save();
 		}

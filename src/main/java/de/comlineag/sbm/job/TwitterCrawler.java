@@ -39,6 +39,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	// Set up your blocking queues: Be sure to size these properly based on
 	// expected TPS of your stream
 	private BlockingQueue<String> msgQueue;
+	@SuppressWarnings("unused")
 	private BlockingQueue<Event> eventQueue;
 	private TwitterParser post;
 	
@@ -48,8 +49,8 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	private boolean restrictToUsers = false;
 	private boolean restrictToLocations = false; // locations does not yet work
 	
-	// this string is used to compose all the little debug messages rom the different restriction possibilities
-	// on the posts, like terms, languages and the like. it is only used in debugging afterwords.
+	// this string is used to compose all the little debug messages from the different restriction possibilities
+	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
 	private String bigLogMessage = "";
 	private String smallLogMessage = "";
 	
@@ -93,19 +94,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				tTerms.add(ttTerms[i]);
 			}
 			endpoint.trackTerms(tTerms);
-						
-			// endpoint.trackTerms(Lists.newArrayList("SocialBrandMonitor4HANA", "SocialBrandMonitor"));
-			/*
-			endpoint.trackTerms(Lists.newArrayList(
-													"SAP", "ERP", "SAP BW", "BO", "CRM", "SCM", "SRM", "IDM", 
-													"NetWeaver", "ABAP", "HANA", "Business Objects", 
-													"Business Warehouse", "Customer Relationship Management", 
-													"Supply Chain Management", "Supplier Relationship Management", 
-													"Identity Management", "Social Brand Monitor",
-													"Social Activity Analyzer"
-													)
-								);
-			*/
+			
 			bigLogMessage += "restricted to terms: " + tTerms.toString() + " ";
 			smallLogMessage += "specific terms ";
 		}
@@ -136,7 +125,6 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		if (restrictToLocations) {
 			
 			// TODO check how to work with locations in hbc twitter api 
-			
 			ArrayList<String> locs = new ArrayList<String>(); 
 			locs.add("Germany");
 			locs.add("USA");
@@ -146,6 +134,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			bigLogMessage += "restricted on locations: " + locs.toString() + " (NOT IMPLEMENTED) ";
 			smallLogMessage += "specific locations ";
 		}
+		
 		logger.debug("new twitter parser instantiated - restricted to track " + smallLogMessage);
 		logger.trace("call for Endpoint POST: " + endpoint.getPostParamString() + " /// " + bigLogMessage);
 
@@ -170,9 +159,9 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			try {
 				msg = msgQueue.take();
 			} catch (InterruptedException e) {
-				logger.error("Message loop interrupted " + e.getMessage());
+				logger.error("ERROR :: Message loop interrupted " + e.getMessage());
 			} catch (Exception ee) {
-				logger.error("Exception in message loop " + ee.getMessage());
+				logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
 			}
 			logger.info("New Tweet tracked from " + msg.substring(15, 45) + "...");
 			logger.trace("complete tweet: " + msg );

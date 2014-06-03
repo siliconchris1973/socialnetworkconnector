@@ -11,7 +11,7 @@ import org.apache.commons.httpclient.HttpStatus;
  * 				or if it is bad, as in Rejected, Bad Request etc.
  */
 public enum HttpStatusCode {
-	UNKNOWN (-1, false),
+	UNKNOWN 						(-1, false),
 	ACCEPTED						(HttpStatus.SC_ACCEPTED, true),			// 202
 	BAD_GATEWAY						(HttpStatus.SC_BAD_GATEWAY, false), 		// 502
 	BAD_REQUEST						(HttpStatus.SC_BAD_REQUEST, false), 		// 400
