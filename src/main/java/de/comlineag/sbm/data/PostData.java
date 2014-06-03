@@ -98,78 +98,70 @@ public class PostData {
 
 	protected List<?> hashtags;
 	protected List<?> symbols;
-
+	protected List<?> mentions;
+	
 	protected String coordinates; // obsolet
-
+	
 	// getter and setter
 	public long getId() {
 		return id;
 	}
-
 	public void setId(long id) {
 		this.id = id;
 	}
-
+	
 	public String getSnId() {
 		return sn_id;
 	}
-
 	public void setSnId(String sn_id) {
 		this.sn_id = sn_id;
 	}
-
+	
 	public String getText() {
 		return text;
 	}
-
 	public void setText(String text) {
 		this.text = text;
 	}
-
+	
 	public String getTime() {
 		return time;
 	}
-
 	public void setTime(String postTime) {
 		this.time = postTime;
 	}
-
+	
 	public String getClient() {
 		return posted_from_client;
 	}
-
 	public void setClient(String postClient) {
 		this.posted_from_client = postClient;
 	}
-
+	
 	public Boolean getTruncated() {
 		return truncated;
 	}
-
 	public void setTruncated(Boolean isTruncated) {
 		this.truncated = isTruncated;
 	}
-
+	
 	public long getInReplyTo() {
 		return in_reply_to_post;
 	}
-
 	public void setInReplyTo(Long inReplyTo) {
 		this.in_reply_to_post = inReplyTo;
 	}
-
+	
 	public long getInReplyToUser() {
 		return in_reply_to_user;
 	}
-
 	public void setInReplyToUser(Long inReplyToUser) {
 		this.in_reply_to_user = inReplyToUser;
 	}
-
+	
 	public String getInReplyToUserScreenName() {
 		return in_reply_to_user_screen_name;
 	}
-
 	public void setInReplyToUserScreenName(String inReplyToUserScreenName) {
 		this.in_reply_to_user_screen_name = inReplyToUserScreenName;
 	}
@@ -177,7 +169,6 @@ public class PostData {
 	public String getCoordinates() {
 		return coordinates;
 	}
-
 	public void setCoordinates(String coordinates) {
 		this.coordinates = coordinates;
 	}
@@ -185,7 +176,6 @@ public class PostData {
 	public GeoJsonObject getPlace() {
 		return place;
 	}
-
 	public void setPlace(GeoJsonObject place) {
 		this.place = place;
 	}
@@ -193,7 +183,6 @@ public class PostData {
 	public List<?> getHashtags() {
 		return hashtags;
 	}
-
 	public void setHashtags(List<?> hashtags) {
 		this.hashtags = hashtags;
 	}
@@ -201,15 +190,20 @@ public class PostData {
 	public List<?> getSymbols() {
 		return symbols;
 	}
-
 	public void setSymbols(List<?> symbols) {
 		this.symbols = symbols;
 	}
 
+	public List<?> getMentions() {
+		return symbols;
+	}
+	public void setMentions(List<?> mentions) {
+		this.mentions = mentions;
+	}
+	
 	public long getUserId() {
 		return userId;
 	}
-
 	public void setUserId(long userId) {
 		this.userId = userId;
 	}
@@ -217,7 +211,6 @@ public class PostData {
 	public String getLang() {
 		return lang;
 	}
-
 	public void setLang(String lang) {
 		this.lang = lang;
 	}
@@ -225,7 +218,6 @@ public class PostData {
 	public LocalDateTime getTimestamp() {
 		return timestamp;
 	}
-
 	public void setTimestamp(LocalDateTime timestamp) {
 		this.timestamp = timestamp;
 	}
@@ -233,7 +225,6 @@ public class PostData {
 	public String getGeoLongitude() {
 		return geoLongitude;
 	}
-
 	public void setGeoLongitude(String geoLongitude) {
 		this.geoLongitude = geoLongitude;
 	}
@@ -241,7 +232,6 @@ public class PostData {
 	public String getGeoLatitude() {
 		return geoLatitude;
 	}
-
 	public void setGeoLatitude(String geoLatitude) {
 		this.geoLatitude = geoLatitude;
 	}
@@ -249,7 +239,6 @@ public class PostData {
 	public String getGeoPlaceId() {
 		return geoPlaceId;
 	}
-
 	public void setGeoPlaceId(String geoPlaceId) {
 		this.geoPlaceId = geoPlaceId;
 	}
@@ -257,7 +246,6 @@ public class PostData {
 	public String getGeoPlaceName() {
 		return geoPlaceName;
 	}
-
 	public void setGeoPlaceName(String geoPlaceName) {
 		this.geoPlaceName = geoPlaceName;
 	}
@@ -265,9 +253,7 @@ public class PostData {
 	public String getGeoPlaceCountry() {
 		return geoPlaceCountry;
 	}
-
 	public void setGeoPlaceCountry(String geoPlaceCountry) {
 		this.geoPlaceCountry = geoPlaceCountry;
 	}
-
 }

@@ -1,6 +1,8 @@
 package de.comlineag.sbm.data;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -40,6 +42,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *            "lang" String
  *            "hashtags" List
  *            "symbols" List
+ *            "mentions" List
  * 
  * 
  */
@@ -69,14 +72,12 @@ public final class TwitterPostingData extends PostData {
 		// User ID
 		JSONObject user = (JSONObject) jsonObject.get("user");
 		setUserId((Long) user.get("id"));
-
-		/*
+		
 		// fuer Debugging der Nachrichten in den verschiedenen Faellen
-		String tUser = new String(new Long(getUserId()).toString());
-		if (tUser.contains("754994"))
-			logger.debug("Post von siliconchris in Json: " + jsonObject);
+		//String tUser = new String(new Long(getUserId()).toString());
+		//if (tUser.contains("754994"))
+		//	logger.trace("Post von siliconchris in Json: " + jsonObject);
 		// END Debugging fuer Nachrichtenausgaben
-		*/
 		
 		// Sprache
 		setLang((String) jsonObject.get("lang"));
@@ -115,23 +116,68 @@ public final class TwitterPostingData extends PostData {
 		 * http://docs.geotools.org/latest/userguide/faq.html
 		 * 
 		 * mein Tweet mit Ortsangabe JSON siehe unten hatte in place die Daten
-		 */
+		 
+		 // TODO implement proper geo handling - this currently kills the parser
 		if (jsonObject.get("place") != null) {
-			// logger.debug("Place gefunden " + jsonObject.get("place"));
+			logger.trace("Found place " + jsonObject.get("place"));
 			JSONObject place = (JSONObject) jsonObject.get("place");
 
 			setGeoPlaceId(place.get("id").toString());
 			preparePostGeoData((JSONObject) place.get("bounding_box"));
 
 		}
-
-		// Hashtag and Symbols not implemented yet
-		// setpHashtags((List)jsonObject.get("hashtags"));
-		// setpSymbols((List)jsonObject.get("symbols"));
-		// URL und user_mentions sind noch vorhanden
-		// TODO: implement the List setters for Place, Hashtags and Symbols
+		*/
+		
+		/**
+		 * Structure of Hashtag and Symbols - not yet implemented
+		 * 
+		 * "entities": {
+		 * 		"trends":[],
+		 * 		"symbols":[],
+		 * 		"urls":[],
+		 * 		"hashtags":[{
+		 * 			"text":"SocialBrandMonitor",
+		 * 			"indices":[20,39]}],
+		 * 		"user_mentions":[]
+		 * 	}
+		 * 
+		 */
+		// TODO implement proper handling of hashtags, symbols and mentions - this currently kills the parser
+		//setHashtags((List<?>)jsonObject.get("hashtags"));
+		//setSymbols((List<?>)jsonObject.get("symbols"));
+		//setMentions((List<?>)jsonObject.get("user_mentions"));
 	}
-
+	
+	
+	public void setMentions(List<?> listOfMentions) {
+		// TODO Implement proper algorithm to deal with user mentions
+		logger.trace("List of mentioned users received, creating something different from it");
+		Iterator<?> itr = listOfMentions.iterator();
+		while(itr.hasNext()){
+			logger.trace("found user " + itr.next());
+		}
+	}
+	
+	public void setSymbols(List<?> listOfSymbols) {
+		// TODO Implement proper algorithm to deal with symbols
+		logger.trace("List of symbols received, creating something different from it");
+		Iterator<?> itr = listOfSymbols.iterator();
+		while(itr.hasNext()){
+			logger.trace("found symbol " + itr.next());
+		}
+	}
+	
+	public void setHashtags(List<?> listOfHashtags) {
+		// TODO Implement proper algorithm to deal with hashtags
+		logger.trace("List of Hashtags received, creating something different from it");
+		Iterator<?> itr = listOfHashtags.iterator();
+		while(itr.hasNext()){
+			logger.trace("found hashtag " + itr.next());
+		}
+	}
+	
+	
+	
 	/**
 	 * setup the Object with NULL
 	 */
@@ -159,7 +205,7 @@ public final class TwitterPostingData extends PostData {
 		lang = null;
 		hashtags = null;
 		symbols = null;
-
+		mentions = null;
 	}
 
 	/**

@@ -46,7 +46,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	//TODO these need to come from applicationContext.xml configuration file
 	private boolean restrictToTrackterms = true;
 	private boolean restrictToLanguages = true;
-	private boolean restrictToUsers = false;
+	private boolean restrictToUsers = true;
 	private boolean restrictToLocations = false; // locations does not yet work
 	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
@@ -82,20 +82,22 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		// possible restrictions
 		if (restrictToTrackterms) {
 			//TODO the trackterms need to go in a configuration file or a database
+			/*
 			String[] ttTerms = {"SAP", "ERP", "SAP BW", "BO", "CRM", "SCM", "SRM", "IDM", 
 								"NetWeaver", "ABAP", "HANA", "Business Objects", 
 								"Business Warehouse", "Customer Relationship Management", 
 								"Supply Chain Management", "Supplier Relationship Management", 
 								"Identity Management", "Social Brand Monitor",
 								"Social Activity Analyzer"};
-			
+			*/
+			String[] ttTerms = {"SocialActivityAnalyzer", "SocialNetworkAnalyzer", "SocialBrandMonitor", "SocialNetworkConnector"};
 			ArrayList<String> tTerms = new ArrayList<String>();
 			for (int i = 0 ; i < ttTerms.length ; i++) {
 				tTerms.add(ttTerms[i]);
 			}
 			endpoint.trackTerms(tTerms);
 			
-			bigLogMessage += "restricted to terms: " + tTerms.toString() + " ";
+			bigLogMessage += "\n                       restricted to terms: " + tTerms.toString() + "\n";
 			smallLogMessage += "specific terms ";
 		}
 		
@@ -106,7 +108,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			langs.add("en");
 			
 			endpoint.languages(langs);
-			bigLogMessage += "restricted to languages: " + langs.toString() + " ";
+			bigLogMessage += "                       restricted to languages: " + langs.toString() + "\n";
 			smallLogMessage += "specific languages ";
 		}
 		
@@ -117,7 +119,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			users.add(2412281046L);		// Magnus Leinemann
 			
 			endpoint.followings(users);
-			bigLogMessage += "restricted on user: " + users.toString() + " ";
+			bigLogMessage += "                       restricted on user: " + users.toString() + "\n";
 			smallLogMessage += "specific users ";
 		}
 		
@@ -131,12 +133,13 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			
 			//endpoint.locations(locs);
 			
-			bigLogMessage += "restricted on locations: " + locs.toString() + " (NOT IMPLEMENTED) ";
+			bigLogMessage += "                       restricted on locations: " + locs.toString() + " (NOT IMPLEMENTED)";
 			smallLogMessage += "specific locations ";
 		}
 		
 		logger.debug("new twitter parser instantiated - restricted to track " + smallLogMessage);
-		logger.trace("call for Endpoint POST: " + endpoint.getPostParamString() + " /// " + bigLogMessage);
+		logger.trace("call for Endpoint POST: " + endpoint.getPostParamString() 
+					+ bigLogMessage);
 
 		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get("consumerKey"), (String) arg0.getJobDetail()
 				.getJobDataMap().get("consumerSecret"), (String) arg0.getJobDetail().getJobDataMap().get("token"), (String) arg0

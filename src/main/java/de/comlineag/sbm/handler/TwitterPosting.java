@@ -31,6 +31,7 @@ import de.comlineag.sbm.data.TwitterPostingData;
  *            		lang					String 
  *            		hashtags				List
  *            		symbols					List
+ *            		user_mentions			List
  * 
  * @param <TwitterPosting>
  * 
@@ -41,15 +42,20 @@ public class TwitterPosting extends GenericDataManager<TwitterPostingData> {
 	 * Die nachfolgenden Elemente des Tweets sollen weiter verarbeitet und
 	 * gespeichert werden
 	 * 
-	 * key="cl_postID" value="id" key="cl_postTime" value="created_at"
-	 * key="cl_posting" value="text" key="cl_postClient" value="source"
-	 * key="cl_postTruncated" value="truncated" key="cl_postInReplyTo"
-	 * value="in_reply_to_status_id" key="cl_postInReplyToUserID"
-	 * value="in_reply_to_user_id" key="cl_postInReplyToScreenName"
-	 * value="in_reply_to_screen_name" key="cl_postGeoLocation"
-	 * value="coordinates" key="cl_postPlace" value="place" key="cl_postLang"
-	 * value="lang" key="cl_postHashtags" value="hashtags" key="cl_postSymbols"
-	 * value="symbols"
+	 * key="cl_postID" 					value="id" 
+	 * key="cl_postTime" 				value="created_at"
+	 * key="cl_posting" 				value="text" 
+	 * key="cl_postClient" 				value="source"
+	 * key="cl_postTruncated" 			value="truncated" 
+	 * key="cl_postInReplyTo" 			value="in_reply_to_status_id" 
+	 * key="cl_postInReplyToUserID" 	value="in_reply_to_user_id" 
+	 * key="cl_postInReplyToScreenName"	value="in_reply_to_screen_name" 
+	 * key="cl_postGeoLocation"			value="coordinates" 
+	 * key="cl_postPlace"				value="place" 
+	 * key="cl_postLang" 				value="lang" 
+	 * key="cl_postHashtags" 			value="hashtags" 
+	 * key="cl_postSymbols" 			value="symbols"
+	 * key="cl_userMentions" 			value="mentions"
 	 */
 
 	private TwitterPostingData data;
@@ -62,7 +68,6 @@ public class TwitterPosting extends GenericDataManager<TwitterPostingData> {
 	 * @param jsonObject
 	 */
 	public TwitterPosting(JSONObject jsonObject) {
-		// TODO Auto-generated constructor stub
 		data = new TwitterPostingData(jsonObject);
 	}
 

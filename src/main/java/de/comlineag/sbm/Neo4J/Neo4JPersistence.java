@@ -16,7 +16,7 @@ import org.json.simple.JSONObject;
 import de.comlineag.sbm.data.HttpStatusCode;
 import de.comlineag.sbm.data.PostData;
 import de.comlineag.sbm.data.RelationshipTypes;
-import de.comlineag.sbm.data.SN_DATA_TYPE;
+import de.comlineag.sbm.data.SocialNetworkEntryTypes;
 import de.comlineag.sbm.data.UserData;
 import de.comlineag.sbm.persistence.HttpErrorHandling;
 import de.comlineag.sbm.persistence.IPersistenceManager;
@@ -110,7 +110,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 			// set json payload
 			JSONObject p = new JSONObject();
 			
-			p.put("type", SN_DATA_TYPE.POSTING.toString());					// Property Name="Type" Type="Edm.String" Nullable="false" MaxLength="7"		--> Fixed value Posting
+			p.put("type", SocialNetworkEntryTypes.POSTING.toString());					// Property Name="Type" Type="Edm.String" Nullable="false" MaxLength="7"		--> Fixed value Posting
 			p.put("sn_id", postData.getSnId());								// Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"		--> Fixed value TW
 			p.put("post_id", postData.getId());								// Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"
 			p.put("timestamp", "\"" + postData.getTimestamp() + "\""); 		// Property Name="timestamp" Type="Edm.DateTime"
@@ -214,7 +214,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 		// set json payload 
 		JSONObject u = new JSONObject();
 		
-		u.put("type", SN_DATA_TYPE.USER.toString());
+		u.put("type", SocialNetworkEntryTypes.USER.toString());
 		u.put("sn_id", userData.getSnId());									// {name = "sn_id"; sqlType = NVARCHAR; nullable = false; length = 2;},
 		u.put("user_id", userData.getId());									// {name = "user_id"; sqlType = NVARCHAR; nullable = false; length = 20;},
 		u.put("userName", userData.getUsername());							// {name = "userName"; sqlType = NVARCHAR; nullable = true; length = 128;},
