@@ -12,13 +12,14 @@ import org.neo4j.graphdb.RelationshipType;
  * 				
  * 				ENUM Static				attribute		cypher as ascii art example
  * 				---------------------------------------------------------------------------
- * 				IN_REPLY_TO_STATUS		REPLIED_ON		(u:User-ID) -[REPLIED_ON]-> (p:Post-ID)
- * 				IN_REPLY_TO_USER		REPLIED_TO		(u:User-ID) -[REPLIED_TO]-> (u:User-ID) 
- * 				USER_MENTIONS			MENTIONED		(u:User-ID) -[MENTIONED]-> (u:User-ID)
+ * 				IN_REPLY_TO_STATUS		REPLIED_ON		(p:Post-ID) -[REPLIED_ON]-> (p:Post-ID)
+ * 				IN_REPLY_TO_USER		REPLIED_TO		(p:Post-ID) -[REPLIED_TO]-> (u:User-ID) 
+ * 				USER_MENTIONS			MENTIONED		(p:Post-ID) -[MENTIONED]-> (u:User-ID)
  * 				RETWEETED				RETWEETED		(u:User-ID) -[RETWEETED]-> (p:Post-ID)
- * 				FAVORITED				FAVORITED		(p:User-ID) -[FAVORITED]-> (u:Post-ID)
+ * 				FAVORITED				FAVORITED		(u:User-ID) -[FAVORITED]-> (p:Post-ID)
  * 				FOLLOWS					FOLLOWS			(u:User-ID) -[FOLLOWS]-> (u:User-ID)
  * 				AUTHORED				AUTHORED		(u:User-ID) -[AUTHORED]-> (p:Post-ID)
+ * 				
  *
  */
 public enum RelationshipTypes implements RelationshipType { //implements {@link RelationshipType} {
@@ -28,7 +29,8 @@ public enum RelationshipTypes implements RelationshipType { //implements {@link 
 	RETWEETED("RETWEETED"),
 	FAVORITED("FAVORITED"),
 	FOLLOWS("FOLLOWS"),
-	AUTHORED("AUTHORED");
+	AUTHORED("AUTHORED"),
+	MENTIONED("MENTIONED");
 
 	private final String value;
 	
