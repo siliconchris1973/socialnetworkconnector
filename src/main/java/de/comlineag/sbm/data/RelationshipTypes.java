@@ -1,5 +1,8 @@
 package de.comlineag.sbm.data;
 
+import org.neo4j.graphdb.RelationshipType;
+
+
 /**
  * 
  * @author Christian Guenther
@@ -15,16 +18,17 @@ package de.comlineag.sbm.data;
  * 				RETWEETED				RETWEETED		(u:User-ID) -[RETWEETED]-> (p:Post-ID)
  * 				FAVORITED				FAVORITED		(p:User-ID) -[FAVORITED]-> (u:Post-ID)
  * 				FOLLOWS					FOLLOWS			(u:User-ID) -[FOLLOWS]-> (u:User-ID)
+ * 				AUTHORED				AUTHORED		(u:User-ID) -[AUTHORED]-> (p:Post-ID)
  *
  */
-public enum RelationshipTypes {
+public enum RelationshipTypes implements RelationshipType { //implements {@link RelationshipType} {
 	IN_REPLY_TO_STATUS("REPLIED_ON"),
 	IN_REPLY_TO_USER("REPLIED_TO"),
 	USER_MENTIONS("MENTIONED"),
 	RETWEETED("RETWEETED"),
 	FAVORITED("FAVORITED"),
-	FOLLOWS("FOLLOWS");
-	
+	FOLLOWS("FOLLOWS"),
+	AUTHORED("AUTHORED");
 
 	private final String value;
 	

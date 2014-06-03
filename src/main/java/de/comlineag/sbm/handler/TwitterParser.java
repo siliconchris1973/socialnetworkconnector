@@ -36,7 +36,7 @@ public final class TwitterParser extends GenericParser {
 		List<TwitterUser> users = new ArrayList<TwitterUser>();
 
 		try {
-			// zuerst suchen wir uns den posts (tweets)
+			// zuerst suchen wir uns den post (tweet)
 			JSONObject jsonTweetResource = (JSONObject) parser.parse(strTweet);
 			TwitterPosting posting = new TwitterPosting(jsonTweetResource);
 			postings.add(posting);
@@ -62,14 +62,12 @@ public final class TwitterParser extends GenericParser {
 		for (int ii = 0; ii < postings.size(); ii++) {
 			// TwitterPosting post = (TwitterPosting) postings.get(ii);
 			TwitterPosting post = (TwitterPosting) postings.get(ii);
-			post.save(); // hier Key fuer Tweets uebergeben
-			
+			post.save();
 		}
 		
 		for (int ii = 0; ii < users.size(); ii++) {
 			TwitterUser user = (TwitterUser) users.get(ii);
-			user.save(); // hier key fuer User uebergeben
-			
+			user.save();
 		}
 		logger.debug("Parser END");
 	}

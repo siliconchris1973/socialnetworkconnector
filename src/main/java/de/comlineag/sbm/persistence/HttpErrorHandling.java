@@ -63,6 +63,9 @@ public class HttpErrorHandling { // extends Exception {
 		case HttpStatus.SC_METHOD_FAILURE:
 			return inputString.toUpperCase().replaceAll(" ", "_")
 					+ " :: the invoked method failed, for unknown reasons";
+		case HttpStatus.SC_MOVED_TEMPORARILY:
+			return inputString.toUpperCase().replaceAll(" ", "_")
+					+ " :: look, the object you requested is not here, ok? So could you please be so kind and also just move on?";
 		case HttpStatus.SC_METHOD_NOT_ALLOWED:
 			return inputString.toUpperCase().replaceAll(" ", "_")
 					+ " :: whoa, wait a minute - you are not allowed to do that on my server";

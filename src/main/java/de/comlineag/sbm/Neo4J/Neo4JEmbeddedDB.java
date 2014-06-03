@@ -1,4 +1,4 @@
-package de.comlineag.sbm.persistence;
+package de.comlineag.sbm.Neo4J;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -17,6 +17,9 @@ import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.jmx.impl.ManagementData;
 import org.neo4j.jmx.impl.Neo4jMBean;
 
+import de.comlineag.sbm.data.RelationshipTypes;
+import de.comlineag.sbm.data.UserData;
+
 /**
  * 
  * @author Christian Guenther
@@ -26,7 +29,6 @@ import org.neo4j.jmx.impl.Neo4jMBean;
 public class Neo4JEmbeddedDB extends Neo4jMBean {
 	
 	private static String DB_PATH = "/usr/local/var/neo4jembedded";
-	private static String EMAIL_DOMAIN = "@comlineag.de";
 	
 	protected Neo4JEmbeddedDB(ManagementData management, String[] extraNaming)
 			throws NotCompliantMBeanException {
@@ -63,64 +65,22 @@ public class Neo4JEmbeddedDB extends Neo4jMBean {
 		}
 	}
 	
-	private void createTestUsers(GraphDatabaseService graphdb) {
+	private void saveUser(UserData userData, GraphDatabaseService graphdb) {
 		try ( Transaction tx = graphdb.beginTx() ) {
 		    Label label = DynamicLabel.label( "User" );
 
-		    // Create some users
-		    for ( int id = 0; id < 100; id++ ) {
-		        Node userNode = graphdb.createNode( label );
-		        userNode.setProperty( "username", "user" + id + EMAIL_DOMAIN );
-		    }
-		    System.out.println( "Users created" );
+		    
+		    
 		    tx.success();
 		}
 	}
 	
-	// find a user in the graph:  User      e.g. 45
-	private void findUser(String nodeLabel, int who, GraphDatabaseService graphdb) {
-		Label label = DynamicLabel.label( nodeLabel );
-		
-		int idToFind = who;
-		String nameToFind = "user" + idToFind + EMAIL_DOMAIN;
-		
-		try ( Transaction tx = graphdb.beginTx() )
-		{
-		    try ( ResourceIterator<Node> users =
-		            graphdb.findNodesByLabelAndProperty( label, "username", nameToFind ).iterator() ) {
-		        ArrayList<Node> userNodes = new ArrayList<>();
-		        while ( users.hasNext() ) {
-		            userNodes.add( users.next() );
-		        }
-
-		        for ( Node node : userNodes ) {
-		            System.out.println( "The username of user " + idToFind + " is " + node.getProperty( "username" ) );
-		        }
-		    }
-		}
-	}
 	
-	// update username
-	private void updateUsername(String nodeLabel, int who, GraphDatabaseService graphdb){
+	private void deleteUser(String nodeLabel, String userName, GraphDatabaseService graphdb){
 		try ( Transaction tx = graphdb.beginTx() ) {
 		    Label label = DynamicLabel.label( nodeLabel );
-		    int idToFind = who;
-		    String nameToFind = "user" + idToFind + EMAIL_DOMAIN;
-
-		    for ( Node node : graphdb.findNodesByLabelAndProperty( label, "username", nameToFind ) ) {
-		        node.setProperty( "username", "user" + ( idToFind + 1 ) + EMAIL_DOMAIN );
-		    }
-		    tx.success();
-		}
-	}
-	
-	private void deleteUser(String nodeLabel, int who, GraphDatabaseService graphdb){
-		try ( Transaction tx = graphdb.beginTx() ) {
-		    Label label = DynamicLabel.label( nodeLabel );
-		    int idToFind = who;
-		    String nameToFind = "user" + idToFind + EMAIL_DOMAIN;
-
-		    for ( Node node : graphdb.findNodesByLabelAndProperty( label, "username", nameToFind ) ) {
+		    
+		    for ( Node node : graphdb.findNodesByLabelAndProperty( label, "username", userName ) ) {
 		        node.delete();
 		    }
 		    tx.success();
@@ -130,6 +90,7 @@ public class Neo4JEmbeddedDB extends Neo4jMBean {
 	private void dropIndex(String nodeLabel, GraphDatabaseService graphdb){
 		try ( Transaction tx = graphdb.beginTx() ) {
 		    Label label = DynamicLabel.label( nodeLabel );
+		    
 		    for ( IndexDefinition indexDefinition : graphdb.schema()
 		            .getIndexes( label ) ) {
 		        
@@ -139,5 +100,24 @@ public class Neo4JEmbeddedDB extends Neo4jMBean {
 
 		    tx.success();
 		}
+	}
+	
+	private void createRelationship(String postNodeUri, String userNodeUri, RelationshipTypes relationshipType, GraphDatabaseService graphdb){
+		
+		String relationAttributes = "{ \"" + relationshipType.toString() + "\" : \"at\" : \"2014\" }";
+        
+		/*
+		// TODO make registering a relationship work
+		String relationShipURI = graphdb.addRelationship(userNodeUri,
+                                                            postNodeUri,
+                                                            //relationshipType,
+                                                            relationAttributes);
+		*/
+		try ( Transaction tx = graphdb.beginTx() ) {
+			
+		
+			tx.success();
+		}
+		
 	}
 }

@@ -66,7 +66,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 *
 	 */
 	public void savePosts(PostData postData) {
-		// TODO Auto-generated method stub
+		// TODO check if that really conforms to OO programming paradigm, feels kind o' wrong to me!
 		logger.debug("HANAPersistence savePosts called");
 		int truncated;
 		truncated = (postData.getTruncated()) ? 0 : 1;
@@ -100,10 +100,7 @@ public class HANAPersistence implements IPersistenceManager {
 						// .properties(OProperties.string("plAround_latitude", "Client"))
 
 						.execute();
-
-				/*
-				 */
-
+				
 				logger.info("neuer Post " + newPost.getEntityKey().toKeyString());
 
 			}

@@ -113,11 +113,12 @@
 	</bean>
 	-->
 	<!-- this is the bean for the neo4j persistence -->
-	 <bean id="persistenceManager" class="de.comlineag.sbm.persistence.Neo4JPersistence">
+	 <bean id="persistenceManager" class="de.comlineag.sbm.Neo4J.Neo4JPersistence">
 		<property name="protocol" value="http" />
 		<property name="host" value="localhost" />
 		<property name="port" value="7474" />
 		<property name="location" value="/db/data" />
+		<property name="DB_PATH" value="/db/data" />
 	</bean>
 	
 	
