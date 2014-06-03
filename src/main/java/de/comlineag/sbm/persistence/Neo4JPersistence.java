@@ -1,4 +1,4 @@
-package de.comlineag.sbm.Neo4J;
+package de.comlineag.sbm.persistence;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,9 +18,6 @@ import de.comlineag.sbm.data.PostData;
 import de.comlineag.sbm.data.RelationshipTypes;
 import de.comlineag.sbm.data.SocialNetworkEntryTypes;
 import de.comlineag.sbm.data.UserData;
-import de.comlineag.sbm.persistence.HttpErrorHandling;
-import de.comlineag.sbm.persistence.IPersistenceManager;
-import de.comlineag.sbm.persistence.NoBase64EncryptedValue;
 import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
 
 
