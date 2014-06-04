@@ -1,27 +1,8 @@
-package de.comlineag.sbm.persistence;
+package de.comlineag.sbm.data;
 
 import org.apache.commons.httpclient.HttpStatus;
 
-public class HttpErrorHandling { // extends Exception {
-//	private final Logger logger = Logger.getLogger(getClass().getName());
-
-	/**
-	 * Error handling for graph actions
-	 */
-	//private static final long serialVersionUID = 4751739156910409082L;
-//	private String httpErrorText;
-
-	//	public String returnHttpErrorText(HttpStatusCode inputString) {
-//	public HttpErrorHandling(String inputString){
-//		httpErrorText = setHttpErrorText(inputString);
-//	}
-
-
-//	public HttpErrorHandling(){}
-
-//	public String getHttpErrorText() {
-//		return httpErrorText;
-//	}
+public class HttpErrorMessages { // extends Exception {
 	
 	// simple static text function to return funny messages on http errors
 	public static String getHttpErrorText(int errorCode){

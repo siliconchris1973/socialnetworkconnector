@@ -9,10 +9,14 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
+import de.comlineag.sbm.Neo4J.Relationship;
+import de.comlineag.sbm.Neo4J.TraversalDescription;
+import de.comlineag.sbm.data.HttpErrorMessages;
 import de.comlineag.sbm.data.HttpStatusCode;
 import de.comlineag.sbm.data.PostData;
 import de.comlineag.sbm.data.RelationshipTypes;
@@ -28,7 +32,7 @@ import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
  *
  * @description handles the connectivity to the Neo4J Graph Database 
  * 				and saves posts, users and connections in the graph
- * @version 1.0
+ * @version 1.1
  *
  */
 public class Neo4JPersistence implements IPersistenceManager {
@@ -60,12 +64,15 @@ public class Neo4JPersistence implements IPersistenceManager {
 	private Long fromNodeId;
 	
 	// extension to the URI of a node to store relationships
-	private final String relationshipLocation = "/relationships";
+	private static final String relationshipLocation = "/relationships";
+	// extension of the URI of the graph db for cypher queries
+	private static final String cypherEndpoint = "/cypher";
 	
 	// if set SNC will automatically create connections between nodes
 	// for example: if a new post and a new user is passed, SNC will automatically create the 
 	// 				relationship of type authored between these two nodes.
 	private static final boolean AUTO_CREATE_EDGE = true;
+	
 	
 	// setup the logging
 	private final Logger logger = Logger.getLogger(getClass().getName());
@@ -107,7 +114,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 			// set json payload
 			JSONObject p = new JSONObject();
 			
-			p.put("type", SocialNetworkEntryTypes.POSTING.toString());					// Property Name="Type" Type="Edm.String" Nullable="false" MaxLength="7"		--> Fixed value Posting
+			p.put("type", SocialNetworkEntryTypes.POSTING.toString());		// Property Name="Type" Type="Edm.String" Nullable="false" MaxLength="7"		--> Fixed value Posting
 			p.put("sn_id", postData.getSnId());								// Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"		--> Fixed value TW
 			p.put("post_id", postData.getId());								// Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"
 			p.put("timestamp", "\"" + postData.getTimestamp() + "\""); 		// Property Name="timestamp" Type="Edm.DateTime"
@@ -160,7 +167,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 				
 				// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
 				if (!statusCode.isOk()){
-					logger.error(HttpErrorHandling.getHttpErrorText(statusCode.getErrorCode()));
+					logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
 				} else {
 					logger.info("SUCCESS :: node for post " + postData.getId() + " successfully created");
 					
@@ -193,78 +200,81 @@ public class Neo4JPersistence implements IPersistenceManager {
 
 		logger.trace("saveUsers called for user-id " + userData.getId() + " - working with " + nodePointUrl);
 		
-		//prepareConnection();
-		String output = null;
-		HttpClient client = new HttpClient();
-		PostMethod mPost = new PostMethod(nodePointUrl);
-
-		// set headers
-		Header mtHeader = new Header();
-		mtHeader.setName("content-type");
-		mtHeader.setValue("application/json");
-		mtHeader.setName("accept");
-		mtHeader.setValue("application/json");
-		mPost.addRequestHeader(mtHeader);
-				
-		logger.debug("Creating node for user (ID " + userData.getId() + " / screenname " + userData.getScreenName() + ") at " + nodePointUrl);
+		// check if the user already exists and if so, DO NOT add him/her a second time, but only create a relationship
+		fromNodeLocationUri = findNodeByValue("user_id", userData.getId());
+		fromNodeLocationUri = "http://localhost:7474/db/data/node/1";
+		fromNodeId = getNodeIdFromLocation(fromNodeLocationUri);
 		
-		// set json payload 
-		JSONObject u = new JSONObject();
-		
-		u.put("type", SocialNetworkEntryTypes.USER.toString());
-		u.put("sn_id", userData.getSnId());									// {name = "sn_id"; sqlType = NVARCHAR; nullable = false; length = 2;},
-		u.put("user_id", userData.getId());									// {name = "user_id"; sqlType = NVARCHAR; nullable = false; length = 20;},
-		u.put("userName", userData.getUsername());							// {name = "userName"; sqlType = NVARCHAR; nullable = true; length = 128;},
-		u.put("nickName", userData.getScreenName());						// {name = "nickName"; sqlType = NVARCHAR; nullable = true; length = 128;},
-		u.put("userLang", userData.getLang());								// {name = "userLang"; sqlType = NVARCHAR; nullable = true; length = 64;},
-		u.put("location", userData.getLocation());							// {name = "location"; sqlType = NVARCHAR; nullable = true; length = 1024;},
-		u.put("follower", userData.getFollowersCount());					// {name = "follower"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
-		u.put("friends", userData.getFriendsCount());						// {name = "friends"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
-		u.put("postingsCount", userData.getPostingsCount());				// {name = "postingsCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
-		u.put("favoritesCount", userData.getFavoritesCount());				// {name = "favoritesCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
-		u.put("listsAndGroupsCount", userData.getListsAndGrooupsCount());	// {name = "listsAndGroupsCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";}
-		
-		logger.trace("about to insert the following data in the graph: " + u.toString());
-		
-		try {
-			StringRequestEntity requestEntity = new StringRequestEntity(u.toString(),
-                    													"application/json",
-                    													"UTF-8");
-
-			mPost.setRequestEntity(requestEntity);
-			int status = client.executeMethod(mPost);
-			HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(status);
+		if (fromNodeLocationUri == null) { 
+			// user does NOT exist, create it
+			//prepareConnection();
+			String output = null;
+			HttpClient client = new HttpClient();
+			PostMethod mPost = new PostMethod(nodePointUrl);
+	
+			// set headers
+			Header mtHeader = new Header();
+			mtHeader.setName("content-type");
+			mtHeader.setValue("application/json");
+			mtHeader.setName("accept");
+			mtHeader.setValue("application/json");
+			mPost.addRequestHeader(mtHeader);
+					
+			logger.debug("Creating node for user (ID " + userData.getId() + " / screenname " + userData.getScreenName() + ") at " + nodePointUrl);
 			
-			// in case everything is fine, neo4j should return 200. any other case needs to be investigated
-			if (!statusCode.isOk()){
-				logger.error(HttpErrorHandling.getHttpErrorText(statusCode.getErrorCode()));
-			} else {
-				logger.info("SUCCESS :: node for user " + userData.getScreenName() + " successfully created");
+			// set json payload 
+			JSONObject u = new JSONObject();
+			
+			u.put("type", SocialNetworkEntryTypes.USER.toString());
+			u.put("sn_id", userData.getSnId());									// {name = "sn_id"; sqlType = NVARCHAR; nullable = false; length = 2;},
+			u.put("user_id", userData.getId());									// {name = "user_id"; sqlType = NVARCHAR; nullable = false; length = 20;},
+			u.put("userName", userData.getUsername());							// {name = "userName"; sqlType = NVARCHAR; nullable = true; length = 128;},
+			u.put("nickName", userData.getScreenName());						// {name = "nickName"; sqlType = NVARCHAR; nullable = true; length = 128;},
+			u.put("userLang", userData.getLang());								// {name = "userLang"; sqlType = NVARCHAR; nullable = true; length = 64;},
+			u.put("location", userData.getLocation());							// {name = "location"; sqlType = NVARCHAR; nullable = true; length = 1024;},
+			u.put("follower", userData.getFollowersCount());					// {name = "follower"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
+			u.put("friends", userData.getFriendsCount());						// {name = "friends"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
+			u.put("postingsCount", userData.getPostingsCount());				// {name = "postingsCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
+			u.put("favoritesCount", userData.getFavoritesCount());				// {name = "favoritesCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
+			u.put("listsAndGroupsCount", userData.getListsAndGrooupsCount());	// {name = "listsAndGroupsCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";}
+			
+			logger.trace("about to insert the following data in the graph: " + u.toString());
+			
+			try {
+				StringRequestEntity requestEntity = new StringRequestEntity(u.toString(),
+	                    													"application/json",
+	                    													"UTF-8");
+	
+				mPost.setRequestEntity(requestEntity);
+				int status = client.executeMethod(mPost);
+				HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(status);
 				
-				output = mPost.getResponseBodyAsString( );
-				Header locationHeader = mPost.getResponseHeader("location");
-				
-				fromNodeLocationUri = locationHeader.getValue();
-				fromNodeId = getNodeIdFromLocation(fromNodeLocationUri);
-				logger.debug(mPost.getStatusText() + " node " + fromNodeId + " at location " + fromNodeLocationUri + " in the graph");
-				logger.trace("locationHeader = " + locationHeader + " \n output = " + output);
-				
-				mPost.releaseConnection();
+				// in case everything is fine, neo4j should return 200. any other case needs to be investigated
+				if (!statusCode.isOk()){
+					logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
+				} else {
+					logger.info("SUCCESS :: node for user " + userData.getScreenName() + " successfully created");
+					
+					output = mPost.getResponseBodyAsString( );
+					Header locationHeader = mPost.getResponseHeader("location");
+					
+					fromNodeLocationUri = locationHeader.getValue();
+					fromNodeId = getNodeIdFromLocation(fromNodeLocationUri);
+					logger.debug(mPost.getStatusText() + " node " + fromNodeId + " at location " + fromNodeLocationUri + " in the graph");
+					logger.trace("locationHeader = " + locationHeader + " \n output = " + output);
+					
+					mPost.releaseConnection();
+				}
+			} catch (Exception e) {
+				logger.error("EXCEPTION :: failed to create node for user (ID " + userData.getId() + " / name " + userData.getScreenName() + ") " + e.getMessage());
 			}
-		} catch (Exception e) {
-			logger.error("EXCEPTION :: failed to create node for user (ID " + userData.getId() + " / name " + userData.getScreenName() + ") " + e.getMessage());
 		}
 		
-		// now, after we created the node - lets find it. This is simply a test
-		if (fromNodeId != null && fromNodeLocationUri != null)
-			logger.trace("the node id of the post is: " + fromNodeId + " stored at location " + fromNodeLocationUri + " in the graph");	
-	
-		// now that we have a post and a user in the graph-db lets create the relationship
+		// now that we have a post and a user (either new or already stored) in the graph-db lets create the relationship
 		if (AUTO_CREATE_EDGE) 
 			// create a relationship between User   and Post           of type AUTHORED            with no additional data
 			createRelationship(fromNodeLocationUri, toNodeLocationUri, RelationshipTypes.AUTHORED, null);
 	}
-
 	
 	
 	/**
@@ -279,7 +289,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	private void createRelationship(String fromNodeUri, String toNodeUri, RelationshipTypes relationshipType, String additionalData){ //, UserData userData, PostData postData){
 		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
 		
-		logger.debug("Creating relationship from node " + toNodeUri + " to node " + fromNodeUri + " as relationship type " + relationshipType);
+		logger.debug("Creating relationship from node " + fromNodeUri + " to node " + toNodeUri + " with relationship type " + relationshipType);
 		
 		//prepareConnection();
 		String output = null;
@@ -324,7 +334,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 			
 			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
 			if (!statusCode.isOk()){
-				logger.error(HttpErrorHandling.getHttpErrorText(statusCode.getErrorCode()));
+				logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
 			} else {
 				logger.info("SUCCESS :: connection between node " + fromNodeId + " and node " + toNodeId + " created");
 				
@@ -335,7 +345,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 				logger.trace("status = " + status + " / location = " + locationHeader.getValue() + " / output = " + output);
 			}
 		} catch(Exception e) {
-			logger.error("EXCEPTION :: Creating connection of type " + relationshipType + " between node ( " + fromNodeUri + ") and node (" + toNodeUri + ") in neo4j " + e.getMessage());
+			logger.error("EXCEPTION :: Creating connection of type " + relationshipType + " between node ( " + fromNodeUri + ") and node (" + toNodeUri + ")  " + e.getMessage());
 		}
 	}
 	
@@ -362,6 +372,238 @@ public class Neo4JPersistence implements IPersistenceManager {
 	}
 	
 	/**
+	 * @description accepts a field name and an id (as long) and returns the nodeLocationUri (if this object exists) or null
+	 * @param string
+	 * @param id
+	 * @return
+	 */
+	private String findNodeByValue(String field, long id) {
+		
+		String output = null;
+		HttpClient client = new HttpClient();
+		PostMethod mPost = new PostMethod(nodePointUrl + cypherEndpoint);
+
+		// set header
+		Header mtHeader = new Header();
+		mtHeader.setName("content-type");
+		mtHeader.setValue("application/json");
+		mtHeader.setName("accept");
+		mtHeader.setValue("application/json");
+		mPost.addRequestHeader(mtHeader);
+		
+		// this cryptic string is passed along as part of a StringRequestEntity 
+		/*
+		 * 
+		 	{
+			  "query" : "MATCH (x {name: {startName}})-[r]-(friend) WHERE friend.name = {name} RETURN TYPE(r)",
+			  "params" : {
+			    "startName" : "I",
+			    "name" : "you"
+			  }
+			}
+			{ "query" : "MATCH (x {name: 'I'})-[r]->(n) RETURN type(r), n.name, n.age", "params" : {} }
+			{ "query" : "MATCH (x { user_id : 754994 }) -[r]->(n) RETURN type(r), n.name","params" : {} }
+			{ "query" : "MATCH (x { user_id : '754994' }) RETURN x","params" : {} }
+		 */
+		String r = "{ "
+				//+ "\"query\" : \"MATCH\" (x { \"" + field + "\" : \"" + id + "\" }) \"RETURN\" (x)"
+				+ "\"query\" : \"MATCH\" (x { \"" + field + "\" : " + id + ", \"type\":\"User\"}) \"RETURN\" (x)"
+				//{"user_id":754994,"type":"User"
+				//+ "MATCH (x { " + field + " : " + id + " }) RETURN (x)"
+				//+ "\"params\" : {}"
+				 +" }";
+		
+		logger.trace("About to use the following string to query for the node: " + r);
+				
+		StringRequestEntity requestEntity = null;
+		try {
+			requestEntity = new StringRequestEntity(r.toString(),
+													"application/json",
+													"UTF-8");
+		} catch (UnsupportedEncodingException e1) {
+			logger.error("EXCEPTION :: malformed StringRequestEntity " + e1.getMessage());
+			e1.printStackTrace();
+		}
+		
+		try {	
+			mPost.setRequestEntity(requestEntity);
+			int status = client.executeMethod(mPost);
+			HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(status);
+			
+			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
+			if (!statusCode.isOk()){
+				logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
+			} else {
+				output = mPost.getResponseBodyAsString();
+				Header locationHeader =  mPost.getResponseHeader("location");
+				mPost.releaseConnection( );
+				
+				logger.trace("status = " + status + " / location = " + locationHeader.getValue() + " / output = " + output);
+				
+				return locationHeader.getValue();
+			}
+		} catch(Exception e) {
+			logger.error("EXCEPTION :: searching the graph for node " + e.getMessage());
+		}
+		
+		return null;
+	}
+	
+	/**
+     * @description Adds property to a node whose url is passed
+     * @param nodeURI - URI of node to which the property is to be added
+     * @param propertyName - name of property which we want to add
+     * @param propertyValue - Value of above property
+     */
+    public void addProperty(String nodeURI,
+                            String propertyName,
+                            String propertyValue){
+        String output = null;
+
+        try{
+            String nodePointUrl = nodeURI + "/properties/" + propertyName;
+            HttpClient client = new HttpClient();
+            PutMethod mPut = new PutMethod(nodePointUrl);
+
+            /**
+             * set headers
+             */
+            Header mtHeader = new Header();
+            mtHeader.setName("content-type");
+            mtHeader.setValue("application/json");
+            mtHeader.setName("accept");
+            mtHeader.setValue("application/json");
+            mPut.addRequestHeader(mtHeader);
+
+            /**
+             * set json payload
+             */
+            String jsonString = "\"" + propertyValue + "\"";
+            StringRequestEntity requestEntity = new StringRequestEntity(jsonString,
+                                                                        "application/json",
+                                                                        "UTF-8");
+            mPut.setRequestEntity(requestEntity);
+            int status = client.executeMethod(mPut);
+            output = mPut.getResponseBodyAsString( );
+
+            mPut.releaseConnection( );
+            logger.trace("status = " + status + " /  output = " + output);
+			
+        }catch(Exception e){
+             logger.error("EXVCEPTION :: adding the property " + propertyName + " to the node: " + e);
+        }
+    }
+    
+    
+    /**
+     * @description adds property to a created relationship
+     * @param relationshipUri
+     * @param propertyName
+     * @param propertyValue
+     */
+    private void addPropertyToRelation( String relationshipUri,
+                                        String propertyName,
+                                        String propertyValue ){
+
+        String output = null;
+
+        try{
+            String relPropUrl = relationshipUri + "/properties";
+            HttpClient client = new HttpClient();
+            PutMethod mPut = new PutMethod(relPropUrl);
+
+            /**
+             * set headers
+             */
+            Header mtHeader = new Header();
+            mtHeader.setName("content-type");
+            mtHeader.setValue("application/json");
+            mtHeader.setName("accept");
+            mtHeader.setValue("application/json");
+            mPut.addRequestHeader(mtHeader);
+
+            /**
+             * set json payload
+             */
+            String jsonString = toJsonNameValuePairCollection(propertyName,propertyValue );
+            StringRequestEntity requestEntity = new StringRequestEntity(jsonString,
+                                                                        "application/json",
+                                                                        "UTF-8");
+            mPut.setRequestEntity(requestEntity);
+            int status = client.executeMethod(mPut);
+            output = mPut.getResponseBodyAsString( );
+
+            mPut.releaseConnection( );
+            logger.trace("status = " + status + " /  output = " + output);
+        }catch(Exception e){
+             logger.error("EXCEPTION :: adding the property " + propertyName + " to the relationship: " + e);
+        }
+    }
+    
+    /**
+     * @description generates json payload to be passed to relationship property web service
+     * @param name
+     * @param value
+     * @return
+     */
+    private String toJsonNameValuePairCollection(String name, String value) {
+        return String.format("{ \"%s\" : \"%s\" }", name, value);
+    }
+    
+    
+    /**
+     * @description Performs traversal from a source node
+     * @param nodeURI
+     * @param relationShip - relationship used for traversal
+     * @return
+     */
+    public String searchDatabase(String nodeURI, String relationShip){
+        String output = null;
+
+        try{
+            TraversalDescription t = new TraversalDescription();
+            t.setOrder( TraversalDescription.DEPTH_FIRST );
+            t.setUniqueness( TraversalDescription.NODE );
+            t.setMaxDepth( 10 );
+            t.setReturnFilter( TraversalDescription.ALL );
+            t.setRelationships( new Relationship( relationShip, Relationship.OUT ) );
+            
+            logger.debug("Traversal is " + t.toString());
+            HttpClient client = new HttpClient();
+            PostMethod mPost = new PostMethod(nodeURI+"/traverse/node");
+
+
+            /**
+             * set headers
+             */
+            Header mtHeader = new Header();
+            mtHeader.setName("content-type");
+            mtHeader.setValue("application/json");
+            mtHeader.setName("accept");
+            mtHeader.setValue("application/json");
+            mPost.addRequestHeader(mtHeader);
+
+            /**
+             * set json payload
+             */
+            StringRequestEntity requestEntity = new StringRequestEntity(t.toJson(),
+                                                                        "application/json",
+                                                                        "UTF-8");
+            mPost.setRequestEntity(requestEntity);
+            int satus = client.executeMethod(mPost);
+            output = mPost.getResponseBodyAsString( );
+            mPost.releaseConnection( );
+            System.out.println("status : " + satus);
+            System.out.println("output : " + output);
+        }catch(Exception e){
+             System.out.println("Exception in creating node in neo4j : " + e);
+        }
+
+        return output;
+    }
+    
+    
+	/**
 	 * @description returns the server status
 	 */
 	public HttpStatusCode getServerStatus(){
@@ -377,7 +619,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	        status = HttpStatusCode.getHttpStatusCode(client.executeMethod(mGet));
 	        
 	        if (!status.isOk()){
-	        	logger.warn(HttpErrorHandling.getHttpErrorText(status.getErrorCode()));
+	        	logger.warn(HttpErrorMessages.getHttpErrorText(status.getErrorCode()));
 	        } else {
 	        	logger.debug("Return code " + status + " (" + status.getErrorCode() + ") everything should be fine");
 	        }
