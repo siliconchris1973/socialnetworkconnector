@@ -14,8 +14,8 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
-import de.comlineag.sbm.Neo4J.Relationship;
-import de.comlineag.sbm.Neo4J.TraversalDescription;
+import de.comlineag.sbm.Neo4J.Relation;
+import de.comlineag.sbm.Neo4J.TraversalDefinition;
 import de.comlineag.sbm.data.HttpErrorMessages;
 import de.comlineag.sbm.data.HttpStatusCode;
 import de.comlineag.sbm.data.PostData;
@@ -201,7 +201,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 		logger.trace("saveUsers called for user-id " + userData.getId() + " - working with " + nodePointUrl);
 		
 		// check if the user already exists and if so, DO NOT add him/her a second time, but only create a relationship
-		fromNodeLocationUri = findNodeByValue("user_id", userData.getId());
+		fromNodeLocationUri = findNodeByIdAndType("user_id", userData.getId(), "User");
 		fromNodeLocationUri = "http://localhost:7474/db/data/node/1";
 		fromNodeId = getNodeIdFromLocation(fromNodeLocationUri);
 		
@@ -377,11 +377,11 @@ public class Neo4JPersistence implements IPersistenceManager {
 	 * @param id
 	 * @return
 	 */
-	private String findNodeByValue(String field, long id) {
+	private String findNodeByIdAndType(String field, long id, String type) {
 		
 		String output = null;
 		HttpClient client = new HttpClient();
-		PostMethod mPost = new PostMethod(nodePointUrl + cypherEndpoint);
+		PostMethod mPost = new PostMethod(nodePointUrl); // + cypherEndpoint);
 
 		// set header
 		Header mtHeader = new Header();
@@ -392,26 +392,11 @@ public class Neo4JPersistence implements IPersistenceManager {
 		mPost.addRequestHeader(mtHeader);
 		
 		// this cryptic string is passed along as part of a StringRequestEntity 
-		/*
-		 * 
-		 	{
-			  "query" : "MATCH (x {name: {startName}})-[r]-(friend) WHERE friend.name = {name} RETURN TYPE(r)",
-			  "params" : {
-			    "startName" : "I",
-			    "name" : "you"
-			  }
-			}
-			{ "query" : "MATCH (x {name: 'I'})-[r]->(n) RETURN type(r), n.name, n.age", "params" : {} }
-			{ "query" : "MATCH (x { user_id : 754994 }) -[r]->(n) RETURN type(r), n.name","params" : {} }
-			{ "query" : "MATCH (x { user_id : '754994' }) RETURN x","params" : {} }
-		 */
-		String r = "{ "
-				//+ "\"query\" : \"MATCH\" (x { \"" + field + "\" : \"" + id + "\" }) \"RETURN\" (x)"
-				+ "\"query\" : \"MATCH\" (x { \"" + field + "\" : " + id + ", \"type\":\"User\"}) \"RETURN\" (x)"
-				//{"user_id":754994,"type":"User"
-				//+ "MATCH (x { " + field + " : " + id + " }) RETURN (x)"
+		String r = "{ \"query\" : "
+				//+ "MATCH (n {" + field + " : " + id + ", type : \"" + type + "\" }) RETURN n"
+				+ "MATCH (n {" + field + " : " + id + "}) RETURN n"
 				//+ "\"params\" : {}"
-				 +" }";
+				+" }";
 		
 		logger.trace("About to use the following string to query for the node: " + r);
 				
@@ -429,6 +414,8 @@ public class Neo4JPersistence implements IPersistenceManager {
 			mPost.setRequestEntity(requestEntity);
 			int status = client.executeMethod(mPost);
 			HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(status);
+			
+			logger.trace("status is " + status);
 			
 			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
 			if (!statusCode.isOk()){
@@ -561,12 +548,12 @@ public class Neo4JPersistence implements IPersistenceManager {
         String output = null;
 
         try{
-            TraversalDescription t = new TraversalDescription();
-            t.setOrder( TraversalDescription.DEPTH_FIRST );
-            t.setUniqueness( TraversalDescription.NODE );
+            TraversalDefinition t = new TraversalDefinition();
+            t.setOrder( TraversalDefinition.DEPTH_FIRST );
+            t.setUniqueness( TraversalDefinition.NODE );
             t.setMaxDepth( 10 );
-            t.setReturnFilter( TraversalDescription.ALL );
-            t.setRelationships( new Relationship( relationShip, Relationship.OUT ) );
+            t.setReturnFilter( TraversalDefinition.ALL );
+            t.setRelationships( new Relation( relationShip, Relation.OUT ) );
             
             logger.debug("Traversal is " + t.toString());
             HttpClient client = new HttpClient();
