@@ -1,11 +1,27 @@
 package de.comlineag.sbm.job;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
+
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.apache.commons.httpclient.util.HttpURLConnection;
 import org.apache.log4j.Logger;
 
+import de.comlineag.sbm.data.HttpStatusCode;
 import de.comlineag.sbm.handler.LithiumParser;
 
 /**
@@ -24,12 +40,15 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
+	// Set up your blocking queues: Be sure to size these properly based on
+	// expected TPS of your stream
+	private BlockingQueue<String> msgQueue;
 	private LithiumParser post;
 	
 	//TODO these need to come from applicationContext.xml configuration file
 	private boolean restrictToTrackterms = true;
 	private boolean restrictToLanguages = true;
-	private boolean restrictToUsers = true;
+	private boolean restrictToUsers = false;
 	private boolean restrictToLocations = false; // locations does not yet work
 	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
@@ -41,10 +60,15 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	String _user = "cmral";
 	String _passwd = "123Test123";
 	
-	String REST_API_LOC = "http://community.lithium.com/community-name/restapi/vc";
-	String DEVELOPER_URL = "http://community.lithium.com/t5/Developer-Network/ct-p/Developer";
+	private static final String SERVER_URL = "http://community.lithium.com";
+	private static final String REST_API_LOC = "/community-name/restapi/vc";
+	private static final String REST_API_URL = SERVER_URL + REST_API_LOC;
+	private static final String DEVELOPER_URL = "http://community.lithium.com/t5/Developer-Network/ct-p/Developer";
 	
 	public LithiumCrawler() {
+		
+		// Define message and event queue
+		msgQueue = new LinkedBlockingQueue<String>(100000);
 				
 		// instantiate the Lithium-Posting-Manager
 		post = new LithiumParser();
@@ -59,9 +83,103 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		 */
 	}
 
+	/**
+	 * 
+	 * @description connects to an http endpoint
+	 */
+	private void connect(){
+		//TODO write code
+	}
+	
+	/**
+	 * @description connects to the url and posts some Key Value pairs
+	 * @param urlStr
+	 * @param paramName
+	 * @param paramVal
+	 * @return
+	 * @throws Exception
+	 */
+	public static String httpPost(String urlStr, String[] paramName, String[] paramVal) throws Exception {
+		URL url = new URL(urlStr);
+		HttpURLConnection conn =
+				(HttpURLConnection) url.openConnection();
+		conn.setRequestMethod("POST");
+		conn.setDoOutput(true);
+		conn.setDoInput(true);
+		conn.setUseCaches(false);
+		conn.setAllowUserInteraction(false);
+		conn.setRequestProperty("Content-Type",
+								"application/x-www-form-urlencoded");
+
+		// Create the form content
+		OutputStream out = conn.getOutputStream();
+		Writer writer = new OutputStreamWriter(out, "UTF-8");
+		for (int i = 0; i < paramName.length; i++) {
+			writer.write(paramName[i]);
+			writer.write("=");
+			writer.write(URLEncoder.encode(paramVal[i], "UTF-8"));
+			writer.write("&");
+		}
+		writer.close();
+		out.close();
+		
+		HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
+		
+		if (!statusCode.isOk()) {
+			throw new IOException(conn.getResponseMessage());
+		}
+		
+		// Buffer the result into a string
+		BufferedReader rd = new BufferedReader(
+			new InputStreamReader(conn.getInputStream()));
+		StringBuilder sb = new StringBuilder();
+		String line;
+		while ((line = rd.readLine()) != null) {
+			sb.append(line);
+		}
+		rd.close();
+		
+		conn.disconnect();
+		return sb.toString();
+	}
+	
+	/**
+	 * @description connects to the given url
+	 * @param urlStr
+	 * @return
+	 * @throws IOException
+	 */
+	public static String httpGet(String urlStr) throws IOException {
+		URL url = new URL(urlStr);
+		HttpURLConnection conn =
+				(HttpURLConnection) url.openConnection();
+		
+		HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
+		
+		if (!statusCode.isOk()) {
+			throw new IOException(conn.getResponseMessage());
+		}
+		
+		// Buffer the result into a string
+		BufferedReader rd = new BufferedReader(
+				new InputStreamReader(conn.getInputStream()));
+		StringBuilder sb = new StringBuilder();
+		String line;
+		while ((line = rd.readLine()) != null) {
+			sb.append(line);
+		}
+		rd.close();
+		
+		conn.disconnect();
+		return sb.toString();
+	}
+	
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// log the startup message
 		logger.debug("Lithium-Crawler START");
+		
+		logger.trace("setting up the rest endpoint with ");
+		
 		
 		// possible restrictions
 		if (restrictToTrackterms) {
@@ -80,7 +198,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			for (int i = 0 ; i < ttTerms.length ; i++) {
 				tTerms.add(ttTerms[i]);
 			}
-			
 			
 			bigLogMessage += "\n                       restricted to terms: " + tTerms.toString() + "\n";
 			smallLogMessage += "specific terms ";
@@ -152,7 +269,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			String msg = "";
 			try {
 				// TODO check hwo to take the messages from client
-				//msg = msgQueue.take();
+				msg = msgQueue.take();
 			} catch (InterruptedException e) {
 				logger.error("ERROR :: Message loop interrupted " + e.getMessage());
 			} catch (Exception ee) {
