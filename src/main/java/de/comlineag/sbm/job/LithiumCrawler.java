@@ -1,47 +1,30 @@
 package de.comlineag.sbm.job;
 
 import java.util.ArrayList;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.apache.log4j.Logger;
 
-import com.twitter.hbc.ClientBuilder;
-import com.twitter.hbc.core.Client;
-import com.twitter.hbc.core.Constants;
-import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
-import com.twitter.hbc.core.event.Event;
-import com.twitter.hbc.core.processor.StringDelimitedProcessor;
-import com.twitter.hbc.httpclient.auth.Authentication;
-import com.twitter.hbc.httpclient.auth.OAuth1;
-
-import de.comlineag.sbm.handler.TwitterParser;
+import de.comlineag.sbm.handler.LithiumParser;
 
 /**
  * 
  * @author Christian Guenther
  * @category Handler
  * 
- * @description this is the actual crawler of the twitter network. It is
+ * @description this is the actual crawler of the lithium network. It is
  *              implemented as a job and, upon execution, will connect to the
- *              twitter api to grab new tweets as they are created on the
+ *              lithium api to grab new posts as they are created on the
  *              network.
  * 
  */
-public class TwitterCrawler extends GenericCrawler implements Job {
+public class LithiumCrawler extends GenericCrawler implements Job {
 
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
-	// Set up your blocking queues: Be sure to size these properly based on
-	// expected TPS of your stream
-	private BlockingQueue<String> msgQueue;
-	@SuppressWarnings("unused")
-	private BlockingQueue<Event> eventQueue;
-	private TwitterParser post;
+	private LithiumParser post;
 	
 	//TODO these need to come from applicationContext.xml configuration file
 	private boolean restrictToTrackterms = true;
@@ -54,14 +37,17 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	private String bigLogMessage = "";
 	private String smallLogMessage = "";
 	
-	public TwitterCrawler() {
-		
-		// Define message and event queue
-		msgQueue = new LinkedBlockingQueue<String>(100000);
-		eventQueue = new LinkedBlockingQueue<Event>(1000);
+	// some static vars for the lithium crawler
+	String _user = "cmral";
+	String _passwd = "123Test123";
+	
+	String REST_API_LOC = "http://community.lithium.com/community-name/restapi/vc";
+	String DEVELOPER_URL = "http://community.lithium.com/t5/Developer-Network/ct-p/Developer";
+	
+	public LithiumCrawler() {
 				
-		// instantiate the Twitter-Posting-Manager
-		post = new TwitterParser();
+		// instantiate the Lithium-Posting-Manager
+		post = new LithiumParser();
 		
 		// TODO check what about multithreading and executor services
 		/*
@@ -75,12 +61,11 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// log the startup message
-		logger.debug("Twitter-Crawler START");
-		
-		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
+		logger.debug("Lithium-Crawler START");
 		
 		// possible restrictions
 		if (restrictToTrackterms) {
+			//TODO check how to track specific terms
 			//TODO the trackterms need to go in a configuration file or a database
 			
 			String[] ttTerms = {"SAP", "ERP", "SAP BW", "BO", "CRM", "SCM", "SRM", "IDM", 
@@ -95,7 +80,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			for (int i = 0 ; i < ttTerms.length ; i++) {
 				tTerms.add(ttTerms[i]);
 			}
-			endpoint.trackTerms(tTerms);
+			
 			
 			bigLogMessage += "\n                       restricted to terms: " + tTerms.toString() + "\n";
 			smallLogMessage += "specific terms ";
@@ -107,7 +92,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			langs.add("de");
 			langs.add("en");
 			
-			endpoint.languages(langs);
+			//endpoint.languages(langs);
 			bigLogMessage += "                       restricted to languages: " + langs.toString() + "\n";
 			smallLogMessage += "specific languages ";
 		}
@@ -118,7 +103,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			users.add(754994L);			// Christian Guenther
 			users.add(2412281046L);		// Magnus Leinemann
 			
-			endpoint.followings(users);
+			//endpoint.followings(users);
 			bigLogMessage += "                       restricted on user: " + users.toString() + "\n";
 			smallLogMessage += "specific users ";
 		}
@@ -126,7 +111,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		// Restrict the tracked messages to specific locations
 		if (restrictToLocations) {
 			
-			// TODO check how to work with locations in hbc twitter api 
+			// TODO check how to work with locations in hbc lithium api 
 			ArrayList<String> locs = new ArrayList<String>(); 
 			locs.add("Germany");
 			locs.add("USA");
@@ -137,15 +122,20 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			smallLogMessage += "specific locations ";
 		}
 		
-		logger.debug("new twitter parser instantiated - restricted to track " + smallLogMessage);
-		logger.trace("call for Endpoint POST: " + endpoint.getPostParamString() 
+		logger.debug("new lithium parser instantiated - restricted to track " + smallLogMessage);
+		logger.trace("call for Endpoint POST: " //+ endpoint.getPostParamString() 
 					+ bigLogMessage);
-
+		
+		//TODO implement authentication against lithium network
+		/*
 		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get("consumerKey"), (String) arg0.getJobDetail()
 				.getJobDataMap().get("consumerSecret"), (String) arg0.getJobDetail().getJobDataMap().get("token"), (String) arg0
 				.getJobDetail().getJobDataMap().get("tokenSecret"));
-
+		*/
+		
+		// TODO implement lithium connection handler
 		// Create a new BasicClient. By default gzip is enabled.
+		/*
 		Client client = new ClientBuilder().hosts(Constants.STREAM_HOST).endpoint(endpoint).authentication(sn_Auth)
 				.processor(new StringDelimitedProcessor(msgQueue)).connectionTimeout(1000).build();
 
@@ -155,26 +145,29 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
+		*/
 		
 		// Do whatever needs to be done with messages
 		for (int msgRead = 0; msgRead < 1000; msgRead++) {
 			String msg = "";
 			try {
-				msg = msgQueue.take();
+				// TODO check hwo to take the messages from client
+				//msg = msgQueue.take();
 			} catch (InterruptedException e) {
 				logger.error("ERROR :: Message loop interrupted " + e.getMessage());
 			} catch (Exception ee) {
 				logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
 			}
-			logger.info("New Tweet tracked from " + msg.substring(15, 45) + "...");
-			logger.trace("complete tweet: " + msg );
+			logger.info("New Post tracked from " + msg.substring(15, 45) + "...");
+			logger.trace("complete post: " + msg );
 
-			// Jede einzelne Message wird nun an den Parser TwitterParser
+			// Jede einzelne Message wird nun an den Parser LithiumParser
 			// (abgeleitet von GenericParser) uebergeben
 			post.process(msg);
 		}
 		
-		logger.debug("Twitter-Crawler END");
-		client.stop();
+		logger.debug("Lithium-Crawler END");
+		// TODO check if we need to stop the client
+		//client.stop();
 	}
 }

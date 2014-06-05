@@ -6,11 +6,12 @@ package de.comlineag.sbm.data;
  *
  */
 public enum SocialNetworkEntryTypes {
-	UNKNOWN 		("Unknown", false),
-	POSTING			("Posting", true),
-	USER			("User", true),
-	ADVERTISEMENT	("Advertisement", false),
-	APP				("App", false);
+	UNKNOWN 		("Unknown"	, false),
+	POSTING			("Post"		, true),
+	USER			("User"		, true),
+	BLOG			("Blog"		, false),
+	ADVERTISEMENT	("Ad"		, false),
+	APP				("App"		, false);
 	
 	private final String value;
 	private final boolean name;
@@ -18,7 +19,6 @@ public enum SocialNetworkEntryTypes {
 	private SocialNetworkEntryTypes(String value, boolean name) {
 		this.value = value;
 		this.name = name;
-
 	}
 
 	public boolean isOk() {

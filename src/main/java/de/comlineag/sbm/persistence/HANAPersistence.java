@@ -6,18 +6,18 @@ import org.odata4j.consumer.ODataConsumer;
 import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OProperties;
-import org.odata4j.edm.EdmDataServices;
+//import org.odata4j.edm.EdmDataServices;
 
 import de.comlineag.sbm.data.PostData;
 import de.comlineag.sbm.data.UserData;
 
 /**
  *
- * @author Magnus Leinemann
+ * @author Magnus Leinemann, Christian Guenther
  * @category Connector Class
  *
- * @description handles the connectivity to SAP HANA Systems
- * @version 1.0
+ * @description handles the connectivity to SAP HANA Systems and saves posts and users in the DB
+ * @version 1.1
  *
  */
 public class HANAPersistence implements IPersistenceManager {
@@ -66,8 +66,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 *
 	 */
 	public void savePosts(PostData postData) {
-		// TODO check if that really conforms to OO programming paradigm, feels kind o' wrong to me!
-		logger.debug("HANAPersistence savePosts called");
+		logger.debug("savePosts called for post with id " + postData.getId());
 		int truncated;
 		truncated = (postData.getTruncated()) ? 0 : 1;
 
@@ -76,7 +75,7 @@ public class HANAPersistence implements IPersistenceManager {
 				prepareConnections();
 			if (postData.getLang().equalsIgnoreCase("de") || postData.getLang().equalsIgnoreCase("en")) {
 
-				// logger.debug("Setze Timestamp " + postData.getTimestamp().toString());
+				logger.trace("Setting timestamp " + postData.getTimestamp().toString());
 
 				OEntity newPost = postService.createEntity("post")
 						.properties(OProperties.string("sn_id", postData.getSnId()))
@@ -101,22 +100,21 @@ public class HANAPersistence implements IPersistenceManager {
 
 						.execute();
 				
-				logger.info("neuer Post " + newPost.getEntityKey().toKeyString());
+				logger.info("New post " + newPost.getEntityKey().toKeyString());
 
 			}
 
 		} catch (NoBase64EncryptedValue e) {
 			logger.error(e.getMessage(), e);
 		} catch (Exception e) {
-			logger.error("Failure in savePost " + e.getMessage(), e);
+			logger.error("EXCEPTION :: Failure in savePost " + e.getLocalizedMessage(), e);
 		}
 
 	}
 
 	public void saveUsers(UserData userData) {
-		// TODO Auto-generated method stub
-		logger.debug("HANAPersistence saveUsers called");
-		EdmDataServices serviceMeta;
+		logger.debug("saveUsers called for user " + userData.getScreenName());
+		//EdmDataServices serviceMeta;
 
 		try {
 			if (userService == null)
@@ -153,20 +151,18 @@ public class HANAPersistence implements IPersistenceManager {
 			 * {name = "listsAndGroupsCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";}
 			 */
 
-			logger.info("neuer User " + newUser.getEntityKey().toKeyString());
+			logger.info("New user " + newUser.getEntityKey().toKeyString());
 
 		} catch (NoBase64EncryptedValue e) {
 			logger.error(e.getMessage(), e);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
-			logger.error("Failure in saveUser" + e.getMessage());
+			logger.error("EXCEPTION :: Failure in saveUser: " + e.getLocalizedMessage(), e);
 		}
 	}
 
 	private void prepareConnections() throws NoBase64EncryptedValue {
 
-		logger.debug("Starte prepareConnection");
+		logger.debug("Start prepareConnection");
 
 		String _user = decryptValue(this.user);
 		String _pw = decryptValue(this.pass);
@@ -200,18 +196,16 @@ public class HANAPersistence implements IPersistenceManager {
 	 */
 	private String decryptValue(String param) throws NoBase64EncryptedValue {
 
-		// byte-Array kommt vom Decoder zurueck und kann dann in String uebernommen und zurueckgegeben werden
+		// the decode returns a byte-Array - this is converted in a string and returned
 		byte[] base64Array;
 
-		// Validierung das auch ein verschluesselter Wert da angekommen ist
+		// Check that the returned string is correctly coded as bas64
 		try {
 			base64Array = Base64.decodeBase64(param.getBytes());
 		} catch (Exception e) {
-			throw new NoBase64EncryptedValue("Parameter " + param + " ist nicht Base64-verschluesselt");
+			throw new NoBase64EncryptedValue("EXCEPTION :: Parameter " + param + " not Base64-encrypted: " + e.getLocalizedMessage());
 		}
-		// konvertiere in String
 		return new String(base64Array);
-
 	}
 
 	public String getHost() {

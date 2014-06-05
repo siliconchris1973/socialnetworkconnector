@@ -12,6 +12,6 @@ public class HANAConnectionFailed extends Exception {
 	}
 
 	public HANAConnectionFailed(String locationURI, String user) {
-		super("Connection failed for " + locationURI + " with User " + user);
+		super("ERROR :: Connection failed for " + locationURI + " with User " + user);
 	}
 }

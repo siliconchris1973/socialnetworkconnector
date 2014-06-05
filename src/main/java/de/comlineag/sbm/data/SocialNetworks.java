@@ -2,7 +2,7 @@ package de.comlineag.sbm.data;
 
 /**
  * 
- * @author Christian Guenther, Magnus Leinemann
+ * @author Christian Guenther
  * @category data enumeration
  * 
  * @description contains an enumeration with shortcuts referencing the social networks
@@ -10,20 +10,22 @@ package de.comlineag.sbm.data;
  * 
  */
 public enum SocialNetworks {
-	TWITTER("TW"), 
-	FACBOOKk("FB"), 
-	GOOGLE("GO"), 
-	LINKEDIN("LI"), 
-	XING("XI"), 
-	STREAMWORK("SW"), 
-	INSTAGRAM("IN"),
-	FOURSQUARE("FO"),
-	FINANZFORUM("FF");
+	TWITTER		("TW", "Tweet"), 
+	FACBOOKk	("FB", "Post"), 
+	GOOGLE		("G+", "Post"), 
+	LINKEDIN	("LI", "Post"), 
+	XING		("XI", "Post"), 
+	STREAMWORK	("SW", "Post"), 
+	INSTAGRAM	("IN", "Message"),
+	FOURSQUARE	("FS", "Post"),
+	LITHIUM		("LT", "Post");
 
 	private final String value;
+	private final String type;
 
-	private SocialNetworks(final String value) {
+	private SocialNetworks(final String value, final String type) {
 		this.value = value;
+		this.type = type;
 	}
 
 	/**
@@ -36,6 +38,10 @@ public enum SocialNetworks {
 		return value;
 	}
 
+	public String getType() {
+		return type;
+	}
+	
 	@Override
 	public String toString() {
 		return getValue();
