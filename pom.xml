@@ -25,7 +25,7 @@
 
   <groupId>com.comline.sbm</groupId>
   <artifactId>SocialNetWorkConnector</artifactId>
-  <version>0.1.2-SNAPSHOT</version>
+  <version>0.1.3-SNAPSHOT</version>
 
   <build>
     <plugins>
