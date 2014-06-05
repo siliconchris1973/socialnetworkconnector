@@ -100,7 +100,7 @@
 	
 	 
 	<!-- this is the bean for the hana persistence -->
-	<!--
+	
 	 <bean id="persistenceManager" class="de.comlineag.sbm.persistence.HANAPersistence">
 		<property name="host" value="192.168.131.30" />
 		<property name="port" value="8000" />
@@ -111,8 +111,9 @@
 		<property name="user" value="U0JNX0VYVA==" />
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
 	</bean>
-	-->
+	
 	<!-- this is the bean for the neo4j persistence -->
+	<!--
 	 <bean id="persistenceManager" class="de.comlineag.sbm.persistence.Neo4JPersistence">
 		<property name="protocol" value="http" />
 		<property name="host" value="localhost" />
@@ -120,7 +121,7 @@
 		<property name="location" value="/db/data" />
 		<property name="DB_PATH" value="/db/data" />
 	</bean>
-	
+	-->
 	
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 	<property name="autoStartup">
