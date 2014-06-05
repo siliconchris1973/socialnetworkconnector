@@ -64,10 +64,16 @@ public class Neo4JPersistence implements IPersistenceManager {
 	private Long fromNodeId;
 	
 	// extension to the URI of a node to store relationships
-	private static final String relationshipLocation = "/relationships";
+	private static final String RELATIONSHIP_LOC = "/relationships";
 	// extension of the URI of the graph db for cypher queries
-	private static final String cypherEndpoint = "/cypher";
-	
+	private static final String CYPHERENDPOINT_LOC = "/cypher";
+	// extension of the URI to a node
+	private static final String NODE_LOC = "/node";
+	// extension of the URI for Properties
+	private static final String PROPERTY_LOC = "/properties";
+	// extension to the URI for the label of a node
+	private static final String LABEL_LOC = "/labels";
+		
 	// if set SNC will automatically create connections between nodes
 	// for example: if a new post and a new user is passed, SNC will automatically create the 
 	// 				relationship of type authored between these two nodes.
@@ -90,7 +96,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 		// we only store posts in german and english at the moment
 		if (postData.getLang().equalsIgnoreCase("de") || postData.getLang().equalsIgnoreCase("en")) {
 			dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
-			nodePointUrl = dbServerUrl + this.location + "/node";
+			nodePointUrl = dbServerUrl + this.location + NODE_LOC;
 
 			logger.trace("savePosts for post-id " + postData.getId() + " called - working with " + nodePointUrl);
 			
@@ -114,7 +120,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 			// set json payload
 			JSONObject p = new JSONObject();
 			
-			p.put("type", SocialNetworkEntryTypes.POSTING.toString());		// Property Name="Type" Type="Edm.String" Nullable="false" MaxLength="7"		--> Fixed value Posting
+			//p.put("type", SocialNetworkEntryTypes.POSTING.toString());	// --> Fixed value Posting -- will be done with a label
 			p.put("sn_id", postData.getSnId());								// Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"		--> Fixed value TW
 			p.put("post_id", postData.getId());								// Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"
 			p.put("timestamp", "\"" + postData.getTimestamp() + "\""); 		// Property Name="timestamp" Type="Edm.DateTime"
@@ -176,19 +182,14 @@ public class Neo4JPersistence implements IPersistenceManager {
 					
 					toNodeLocationUri = locationHeader.getValue();
 					toNodeId = getNodeIdFromLocation(toNodeLocationUri);
-					logger.debug(mPost.getStatusText() + " node " + toNodeId + " at location " + toNodeLocationUri + " in the graph");
 					logger.trace("locationHeader = " + locationHeader + " \n output = " + output);
 
 					mPost.releaseConnection();
+					addLabelToNode(toNodeLocationUri, "User");
 				}
 			} catch(Exception e) {
 				logger.error("EXCEPTION :: failed to create node for post (ID " + postData.getId() + ") " + e.getMessage());
 			}
-			
-			// now, after we created the node - lets find it. This is simply a test
-			if (toNodeId != null && toNodeLocationUri != null)
-				logger.trace("the node id of the post is: " + toNodeId + " stored at location " + toNodeLocationUri + " in the graph");
-			
 		} // end if - check on languages
 	}
 
@@ -196,13 +197,14 @@ public class Neo4JPersistence implements IPersistenceManager {
 	@Override
 	public void saveUsers(UserData userData) {
 		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
-		nodePointUrl = dbServerUrl + this.location + "/node";
+		nodePointUrl = dbServerUrl + this.location + NODE_LOC;
 
 		logger.trace("saveUsers called for user-id " + userData.getId() + " - working with " + nodePointUrl);
 		
 		// check if the user already exists and if so, DO NOT add him/her a second time, but only create a relationship
-		fromNodeLocationUri = findNodeByIdAndType("user_id", userData.getId(), "User");
-		fromNodeLocationUri = "http://localhost:7474/db/data/node/1";
+		fromNodeLocationUri = findNodeByIdAndLabel("user_id", userData.getId(), "User");
+		logger.trace("the search for the user returned " + fromNodeLocationUri);
+		fromNodeLocationUri = nodePointUrl + "/1";
 		fromNodeId = getNodeIdFromLocation(fromNodeLocationUri);
 		
 		if (fromNodeLocationUri == null) { 
@@ -225,7 +227,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 			// set json payload 
 			JSONObject u = new JSONObject();
 			
-			u.put("type", SocialNetworkEntryTypes.USER.toString());
+			//u.put("type", SocialNetworkEntryTypes.USER.toString());			// -- will be done with a label  
 			u.put("sn_id", userData.getSnId());									// {name = "sn_id"; sqlType = NVARCHAR; nullable = false; length = 2;},
 			u.put("user_id", userData.getId());									// {name = "user_id"; sqlType = NVARCHAR; nullable = false; length = 20;},
 			u.put("userName", userData.getUsername());							// {name = "userName"; sqlType = NVARCHAR; nullable = true; length = 128;},
@@ -260,10 +262,11 @@ public class Neo4JPersistence implements IPersistenceManager {
 					
 					fromNodeLocationUri = locationHeader.getValue();
 					fromNodeId = getNodeIdFromLocation(fromNodeLocationUri);
-					logger.debug(mPost.getStatusText() + " node " + fromNodeId + " at location " + fromNodeLocationUri + " in the graph");
 					logger.trace("locationHeader = " + locationHeader + " \n output = " + output);
 					
 					mPost.releaseConnection();
+					
+					addLabelToNode(fromNodeLocationUri, "User");
 				}
 			} catch (Exception e) {
 				logger.error("EXCEPTION :: failed to create node for user (ID " + userData.getId() + " / name " + userData.getScreenName() + ") " + e.getMessage());
@@ -294,7 +297,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 		//prepareConnection();
 		String output = null;
 		HttpClient client = new HttpClient();
-		PostMethod mPost = new PostMethod(fromNodeUri + relationshipLocation);
+		PostMethod mPost = new PostMethod(fromNodeUri + RELATIONSHIP_LOC);
 
 		// set header
 		Header mtHeader = new Header();
@@ -342,7 +345,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 				Header locationHeader =  mPost.getResponseHeader("location");
 				mPost.releaseConnection( );
 				
-				logger.trace("status = " + status + " / location = " + locationHeader.getValue() + " / output = " + output);
+				logger.trace("status = " + status + " / location = " + locationHeader.getValue() + " \n output = " + output);
 			}
 		} catch(Exception e) {
 			logger.error("EXCEPTION :: Creating connection of type " + relationshipType + " between node ( " + fromNodeUri + ") and node (" + toNodeUri + ")  " + e.getMessage());
@@ -377,11 +380,11 @@ public class Neo4JPersistence implements IPersistenceManager {
 	 * @param id
 	 * @return
 	 */
-	private String findNodeByIdAndType(String field, long id, String type) {
+	private String findNodeByIdAndLabel(String field, long id, String label) {
 		
 		String output = null;
 		HttpClient client = new HttpClient();
-		PostMethod mPost = new PostMethod(nodePointUrl); // + cypherEndpoint);
+		PostMethod mPost = new PostMethod(nodePointUrl); // + CYPHERENDPOINT_LOC);
 
 		// set header
 		Header mtHeader = new Header();
@@ -394,7 +397,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 		// this cryptic string is passed along as part of a StringRequestEntity 
 		String r = "{ \"query\" : "
 				//+ "MATCH (n {" + field + " : " + id + ", type : \"" + type + "\" }) RETURN n"
-				+ "MATCH (n {" + field + " : " + id + "}) RETURN n"
+				+ "MATCH (n:"+label+" {" + field + " : " + id + "}) RETURN n"
 				//+ "\"params\" : {}"
 				+" }";
 		
@@ -415,7 +418,63 @@ public class Neo4JPersistence implements IPersistenceManager {
 			int status = client.executeMethod(mPost);
 			HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(status);
 			
-			logger.trace("status is " + status);
+			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
+			if (!statusCode.isOk()){
+				logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
+			} else {
+				output = mPost.getResponseBodyAsString();
+				Header locationHeader =  mPost.getResponseHeader("location");
+				mPost.releaseConnection( );
+				
+				logger.debug("SUCCESS :: found the node at location " + locationHeader.getValue());
+				logger.trace("status = " + status + " / location = " + locationHeader.getValue() + " \n output = " + output);
+				
+				return locationHeader.getValue();
+			}
+		} catch(Exception e) {
+			logger.error("EXCEPTION :: searching the graph for node " + e.getMessage());
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * @description add label to a node
+	 * 
+	 */
+	public void addLabelToNode(String nodeUri, String label){
+
+		String output = null;
+		HttpClient client = new HttpClient();
+		PostMethod mPost = new PostMethod(nodeUri + LABEL_LOC);
+
+		// set header
+		Header mtHeader = new Header();
+		mtHeader.setName("content-type");
+		mtHeader.setValue("application/json");
+		mtHeader.setName("accept");
+		mtHeader.setValue("application/json");
+		mPost.addRequestHeader(mtHeader);
+		
+		// this cryptic string is passed along as part of a StringRequestEntity 
+		String r = "{ Label : " + label + " }";
+		
+		logger.trace("About to use the following string to add the label " + label + " to the node " + nodeUri + LABEL_LOC + ": " + r);
+				
+		StringRequestEntity requestEntity = null;
+		try {
+			requestEntity = new StringRequestEntity(r.toString(),
+													"application/json",
+													"UTF-8");
+		} catch (UnsupportedEncodingException e1) {
+			logger.error("EXCEPTION :: malformed StringRequestEntity " + e1.getMessage());
+			e1.printStackTrace();
+		}
+		
+		try {	
+			mPost.setRequestEntity(requestEntity);
+			int status = client.executeMethod(mPost);
+			HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(status);
 			
 			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
 			if (!statusCode.isOk()){
@@ -425,15 +484,12 @@ public class Neo4JPersistence implements IPersistenceManager {
 				Header locationHeader =  mPost.getResponseHeader("location");
 				mPost.releaseConnection( );
 				
-				logger.trace("status = " + status + " / location = " + locationHeader.getValue() + " / output = " + output);
-				
-				return locationHeader.getValue();
+				logger.info("SUCCESS :: added label " + label + " to the node " + nodeUri + LABEL_LOC);
+				logger.trace("status = " + status + " / location = " + locationHeader.getValue() + " \n output = " + output);
 			}
 		} catch(Exception e) {
-			logger.error("EXCEPTION :: searching the graph for node " + e.getMessage());
+			logger.error("EXCEPTION :: adding label to the node: " + e.getMessage());
 		}
-		
-		return null;
 	}
 	
 	/**
@@ -448,7 +504,7 @@ public class Neo4JPersistence implements IPersistenceManager {
         String output = null;
 
         try{
-            String nodePointUrl = nodeURI + "/properties/" + propertyName;
+            String nodePointUrl = nodeURI + PROPERTY_LOC + propertyName;
             HttpClient client = new HttpClient();
             PutMethod mPut = new PutMethod(nodePointUrl);
 
@@ -474,7 +530,7 @@ public class Neo4JPersistence implements IPersistenceManager {
             output = mPut.getResponseBodyAsString( );
 
             mPut.releaseConnection( );
-            logger.trace("status = " + status + " /  output = " + output);
+            logger.trace("status = " + status + " / output = " + output);
 			
         }catch(Exception e){
              logger.error("EXVCEPTION :: adding the property " + propertyName + " to the node: " + e);
@@ -495,7 +551,7 @@ public class Neo4JPersistence implements IPersistenceManager {
         String output = null;
 
         try{
-            String relPropUrl = relationshipUri + "/properties";
+            String relPropUrl = relationshipUri + PROPERTY_LOC;
             HttpClient client = new HttpClient();
             PutMethod mPut = new PutMethod(relPropUrl);
 
@@ -521,7 +577,7 @@ public class Neo4JPersistence implements IPersistenceManager {
             output = mPut.getResponseBodyAsString( );
 
             mPut.releaseConnection( );
-            logger.trace("status = " + status + " /  output = " + output);
+            logger.trace("status = " + status + " / output = " + output);
         }catch(Exception e){
              logger.error("EXCEPTION :: adding the property " + propertyName + " to the relationship: " + e);
         }
@@ -577,11 +633,10 @@ public class Neo4JPersistence implements IPersistenceManager {
                                                                         "application/json",
                                                                         "UTF-8");
             mPost.setRequestEntity(requestEntity);
-            int satus = client.executeMethod(mPost);
+            int status = client.executeMethod(mPost);
             output = mPost.getResponseBodyAsString( );
             mPost.releaseConnection( );
-            System.out.println("status : " + satus);
-            System.out.println("output : " + output);
+            logger.debug("status : " + status + " / output : " + output);
         }catch(Exception e){
              System.out.println("Exception in creating node in neo4j : " + e);
         }
@@ -595,7 +650,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	 */
 	public HttpStatusCode getServerStatus(){
 		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
-		nodePointUrl = dbServerUrl + this.location + "/node";
+		nodePointUrl = dbServerUrl + this.location + NODE_LOC;
 
 		// initialize the return value and whether this is acceptable or not.
 		HttpStatusCode status = HttpStatusCode.UNKNOWN;
