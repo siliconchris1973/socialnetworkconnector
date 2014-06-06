@@ -157,7 +157,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		try {
 			client.connect();
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.error("EXCEPTION :: connecting to " + Constants.STREAM_HOST + " failed: " + e.getMessage(), e);
 		}
 		
 		// Do whatever needs to be done with messages

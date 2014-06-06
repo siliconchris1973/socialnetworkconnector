@@ -1,17 +1,26 @@
 package de.comlineag.sbm.job;
 
+import java.beans.XMLDecoder;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 
 import javax.net.ssl.HttpsURLConnection;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
@@ -22,6 +31,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.apache.commons.httpclient.util.HttpURLConnection;
 import org.apache.log4j.Logger;
+import org.apache.lucene.document.Document;
 
 import de.comlineag.sbm.data.HttpErrorMessages;
 import de.comlineag.sbm.data.HttpStatusCode;
@@ -173,7 +183,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		
 		logger.trace("setting up the rest endpoint at " + REST_API_URL + " with user " + _user);
 		
-		
 		// setup restrictions on what to track
 		// TODO check why these won't be fetched from applicationContext.xml
 		final boolean restrictToTrackterms = true;	//(boolean) arg0.getJobDetail().getJobDataMap().get("restrictToTrackterms");
@@ -250,7 +259,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			
 			URL url = new URL(REST_API_URL);
 			HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-			int timeout = conn.getConnectTimeout();
 			
 			HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
 			
@@ -259,31 +267,39 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			} else {
 				logger.debug("connection established " + statusCode);
 			}	
-		
-			// Buffer the result into a string
-			BufferedReader rd = new BufferedReader(
-					new InputStreamReader(conn.getInputStream()));
-			StringBuilder sb = new StringBuilder();
-			String line;
-			while ((line = rd.readLine()) != null) {
-				sb.append(line);
-			}
-			rd.close();
+			
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			org.w3c.dom.Document doc = builder.parse(conn.getInputStream());
+
+			TransformerFactory factory1 = TransformerFactory.newInstance();
+			Transformer xform = factory1.newTransformer();
+
+			// that is the default xform; use a stylesheet to get a real one
+			logger.debug("This is the returnString from connection to " + url + ": ");
+			xform.transform(new DOMSource(doc), new StreamResult(System.out));
+			
+			//TODO: PUT RESULT OF xfomr transform in BlockingQueue msgQueue so that messages can be parsed
+			//xform.transform(doc, outputTarget);
 			
 			conn.disconnect();
 			
-			logger.debug("This is the returnString from connection to " + url + ": " + sb.toString());
+			
+			
 		} catch (UnknownHostException e1) {
 			logger.error("EXCEPTION :: could not connect to " + REST_API_URL + ". Host not found");
 		} catch (SocketTimeoutException e2) {
 			logger.error("EXCEPTION :: timeout connecting to " + REST_API_URL);
+		} catch (MalformedURLException e3) {
+			logger.error("EXCEPTION :: malformed url " + e3);
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: " + e.toString());
 		}
 		
 		
+		
 		// Do whatever needs to be done with messages 
-		/*
+		
 		for (int msgRead = 0; msgRead < 1000; msgRead++) {
 			String msg = "";
 			try {
@@ -301,7 +317,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			// (abgeleitet von GenericParser) uebergeben
 			post.process(msg);
 		}
-		*/
+		
 		
 		logger.debug("Lithium-Crawler END");
 		
