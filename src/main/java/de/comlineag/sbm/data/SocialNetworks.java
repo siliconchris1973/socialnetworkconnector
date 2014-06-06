@@ -11,7 +11,7 @@ package de.comlineag.sbm.data;
  */
 public enum SocialNetworks {
 	TWITTER		("TW", "Tweet"), 
-	FACBOOKk	("FB", "Post"), 
+	FACEBOOK	("FB", "Post"), 
 	GOOGLE		("G+", "Post"), 
 	LINKEDIN	("LI", "Post"), 
 	XING		("XI", "Post"), 

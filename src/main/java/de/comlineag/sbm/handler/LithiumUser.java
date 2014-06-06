@@ -9,13 +9,13 @@ import de.comlineag.sbm.data.LithiumUserData;
  * @author Christian Guenther
  * @category Handler
  * 
- * @description Implementation of the twitter user manager - extends
+ * @description Implementation of the lithium user manager - extends
  *              GenericDataManager. This handler is used to save a new user or
  *              update an existing one. LithiumUserManager is called after a
  *              posting with all relevant information about the user (posting
  *              user as well as mentioned users) is decoded by LithiumParser.
  * 				
- * 				The data type twitter user consists of these elements
+ * 				The data type lithium user consists of these elements
  *            		id 					Long 
  *            		name 				String 
  *            		screen_name 		String 

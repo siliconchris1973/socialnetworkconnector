@@ -43,12 +43,6 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	private BlockingQueue<Event> eventQueue;
 	private TwitterParser post;
 	
-	//TODO these need to come from applicationContext.xml configuration file
-	private boolean restrictToTrackterms = true;
-	private boolean restrictToLanguages = true;
-	private boolean restrictToUsers = true;
-	private boolean restrictToLocations = false; // locations does not yet work
-	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
 	private String bigLogMessage = "";
@@ -76,6 +70,14 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// log the startup message
 		logger.debug("Twitter-Crawler START");
+		
+		
+		// setup restrictions on what to track
+		// TODO check why these won't be fetched from applicationContext.xml
+		final boolean restrictToTrackterms = true;	//(boolean) arg0.getJobDetail().getJobDataMap().get("restrictToTrackterms");
+		final boolean restrictToLanguages = true;	//(boolean) arg0.getJobDetail().getJobDataMap().get("restrictToLanguages");
+		final boolean restrictToUsers = false;		//(boolean) arg0.getJobDetail().getJobDataMap().get("restrictToUsers");
+		final boolean restrictToLocations = false;	//(boolean) arg0.getJobDetail().getJobDataMap().get("restrictToLocations"); // locations does not yet work
 		
 		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 		

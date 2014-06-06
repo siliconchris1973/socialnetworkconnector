@@ -13,8 +13,9 @@ import org.json.simple.parser.ParseException;
  * @author Christian Guenther
  * @category Handler
  * 
- * @description TwitterParser implementiert den Parser zur Dekodierung der
- *              Twitter postings
+ * @description TwitterParser implementation of the parser for tweets
+ * 				calls specific classes for posting and user for every object
+ * 				and finally calls the persistence manager to store the objects
  * 
  */
 public final class TwitterParser extends GenericParser {

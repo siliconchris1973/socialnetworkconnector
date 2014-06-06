@@ -65,8 +65,10 @@
 
 	<tx:annotation-driven />	
 	 
-	 <bean id="contextApplicationContextProvider" class="de.comlineag.sbm.persistence.ApplicationContextProvider"></bean>
-	 <bean name="TwitterCrawlerDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+	<bean id="contextApplicationContextProvider" class="de.comlineag.sbm.persistence.ApplicationContextProvider"></bean>
+	
+	<!-- Twitter Crawler -->
+	<bean name="TwitterCrawlerDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.sbm.job.TwitterCrawler" />
 		<property name="jobDataAsMap">
 			<map>
@@ -75,22 +77,118 @@
 				<entry key="consumerSecret" value="xzqH6lLWnXLvlHJooNDaCDXlzJzv976JcWt8y2eyHBk" />
 				<entry key="token" value="754994-KDec8qJBwEggHwHQ9XO0X7QBx1VCOZwgbgtpYiibWjl" />
 				<entry key="tokenSecret" value="qm1dqrJas8Lf2ANU8Lx470TkcUSndWLwvJ1I2huZKvJrc" />
+				
+				<entry key="restrictToTrackterms" value="true" />
+				<entry key="restrictToLanguages" value="true" />
+				<entry key="restrictToUsers" value="false" />
+				<entry key="restrictToLocations" value="false" />
 			</map>
 		</property>
 		<property name="durability" value="true" />
 	</bean>
-	 
-	 <bean id="TwitterCrawlerTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+	<bean id="TwitterCrawlerTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
 		<property name="jobDetail" ref="TwitterCrawlerDetail" />
 		<!-- 1 second delay after startup -->
 		<property name="startDelay" value="1000" />
 		<!-- repeat the job every 
 					5000 	- 50 seconds
 					6000	- 1 minutes 
-					300000	- 5 minutes
+					15000	- 2,5 minutes (round about)
+					30000	- 5 minutes
 		-->
-		<property name="repeatInterval" value="300000" />
+		<property name="repeatInterval" value="30000" />
 	</bean>
+	
+	<!-- Lithium Crawler -->
+	<bean name="LithiumCrawlerDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="de.comlineag.sbm.job.LithiumCrawler" />
+		<property name="jobDataAsMap">
+			<map>
+				<!-- These are security tokens -->
+				<entry key="consumerKey" value="" />
+				<entry key="consumerSecret" value="" />
+				<entry key="token" value="" />
+				<entry key="tokenSecret" value="" />
+				
+				<!-- login settings -->
+				<entry key="user" value="cmral" />
+				<entry key="passwd" value="123Test123" />
+				
+				<!-- with these entries the url to the communities' rest api is generated -->
+				<entry key="PROTOCOL" value = "https" />
+				<entry key="PORT" value = "443" />
+				<entry key="SERVER_URL" value="wissen.cortalconsors.de" />
+				<entry key="COMMUNITY_NAME" value="" />
+				<entry key="REST_API_LOC" value="/restapi/vc" />
+				<entry key="USERS_LOC" value="/users" />
+				<entry key="CATEGORY_LOC" value="/categories" />
+				
+				<!-- restrictions on what to track -->
+				<entry key="restrictToTrackterms" value="true" />
+				<entry key="restrictToLanguages" value="true" />
+				<entry key="restrictToUsers" value="false" />
+				<entry key="restrictToLocations" value="false" />
+			</map>
+		</property>
+		<property name="durability" value="true" />
+	</bean>
+	<bean id="LithiumCrawlerTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="LithiumCrawlerDetail" />
+		<!-- 1 second delay after startup -->
+		<property name="startDelay" value="1000" />
+		<!-- repeat the job every 
+					5000 	- 50 seconds
+					6000	- 1 minutes 
+					15000	- 2,5 minutes (round about)
+					30000	- 5 minutes
+		-->
+		<property name="repeatInterval" value="150000" />
+	</bean>
+	
+	<!-- Facebook Crawler NOT YET IMPLEMENTED -->
+	<bean name="FacebookCrawlerDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="de.comlineag.sbm.job.FacebookCrawler" />
+		<property name="jobDataAsMap">
+			<map>
+				<!-- These are security tokens -->
+				<entry key="consumerKey" value="" />
+				<entry key="consumerSecret" value="" />
+				<entry key="token" value="" />
+				<entry key="tokenSecret" value="" />
+				
+				<!-- login settings -->
+				<entry key="user" value="" />
+				<entry key="passwd" value="" />
+				
+				<!-- with these entries the url to the rest api and graph engine is generated -->
+				<entry key="PROTOCOL" value = "https" />
+				<entry key="PORT" value = "443" />
+				<entry key="SERVER_URL" value="http://facebook.com" />
+				<entry key="GRAPH_ENDPOINT" value="/graph" />
+				<entry key="REST_API_LOC" value="/restapi/" />
+				
+				<!-- restrictions on what to track -->
+				<entry key="restrictToTrackterms" value="true" />
+				<entry key="restrictToLanguages" value="true" />
+				<entry key="restrictToUsers" value="false" />
+				<entry key="restrictToLocations" value="false" />
+			</map>
+		</property>
+		<property name="durability" value="true" />
+	</bean>
+	<bean id="FacebookCrawlerTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="FacebookCrawlerDetail" />
+		<!-- 1 second delay after startup -->
+		<property name="startDelay" value="1000" />
+		<!-- repeat the job every 
+					5000 	- 50 seconds
+					6000	- 1 minutes 
+					15000	- 2,5 minutes (round about)
+					30000	- 5 minutes
+		-->
+		<property name="repeatInterval" value="150000" />
+	</bean>
+	
 	
 	<!-- <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="appSendJobDetail" />
@@ -148,7 +246,8 @@
 		</property>
 		<property name="triggers">
 			<list>
-				<ref bean="TwitterCrawlerTrigger"/>
+				<!-- <ref bean="TwitterCrawlerTrigger"/>  -->
+				<ref bean="LithiumCrawlerTrigger"/>
 			</list>
 		</property>
 	</bean>

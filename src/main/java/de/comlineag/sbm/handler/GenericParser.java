@@ -1,7 +1,5 @@
 package de.comlineag.sbm.handler;
 
-//import org.apache.log4j.Logger;
-
 /**
  * 
  * @author Christian Guenther
@@ -23,19 +21,21 @@ public abstract class GenericParser {
 	/**
 	 * @name parse
 	 * @param strPosting
-	 * @description abstrakte deklaration der Parsing Methode
+	 * @description abstract declaration of the parse method
+	 * 				implementation is specific to the network
 	 */
 	protected abstract void parse(String strPosting);
 	
 	/**
 	 * @name process
 	 * @param strPosting
-	 * @description Implementierung der process-Methode. Uebergibt ein Posting als String an
-	 * 				die Methode parse
+	 * @description passes the given string (containing a message, post, tweet etc.) to the parse method
+	 * 
 	 */
 	public final void process(String strPosting) {
-		if (strPosting != null)
-			parse(strPosting);
+		assert (strPosting != null) : "ERROR :: cannot parse empty string";
+		
+		parse(strPosting);
 	}
 
 }

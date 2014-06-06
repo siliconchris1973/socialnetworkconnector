@@ -6,14 +6,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
 
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -21,6 +21,7 @@ import org.quartz.JobExecutionException;
 import org.apache.commons.httpclient.util.HttpURLConnection;
 import org.apache.log4j.Logger;
 
+import de.comlineag.sbm.data.HttpErrorMessages;
 import de.comlineag.sbm.data.HttpStatusCode;
 import de.comlineag.sbm.handler.LithiumParser;
 
@@ -31,8 +32,7 @@ import de.comlineag.sbm.handler.LithiumParser;
  * 
  * @description this is the actual crawler of the lithium network. It is
  *              implemented as a job and, upon execution, will connect to the
- *              lithium api to grab new posts as they are created on the
- *              network.
+ *              lithium rest api to fetch posts and users
  * 
  */
 public class LithiumCrawler extends GenericCrawler implements Job {
@@ -45,64 +45,41 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	private BlockingQueue<String> msgQueue;
 	private LithiumParser post;
 	
-	//TODO these need to come from applicationContext.xml configuration file
-	private boolean restrictToTrackterms = true;
-	private boolean restrictToLanguages = true;
-	private boolean restrictToUsers = false;
-	private boolean restrictToLocations = false; // locations does not yet work
-	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
 	private String bigLogMessage = "";
 	private String smallLogMessage = "";
 	
-	// some static vars for the lithium crawler
-	String _user = "cmral";
-	String _passwd = "123Test123";
-	
-	private static final String SERVER_URL = "http://community.lithium.com";
-	private static final String REST_API_LOC = "/community-name/restapi/vc";
-	private static final String REST_API_URL = SERVER_URL + REST_API_LOC;
-	private static final String DEVELOPER_URL = "http://community.lithium.com/t5/Developer-Network/ct-p/Developer";
-	
 	public LithiumCrawler() {
-		
+		logger.trace("Instantiated LithiumCrawler Class");
 		// Define message and event queue
 		msgQueue = new LinkedBlockingQueue<String>(100000);
 				
 		// instantiate the Lithium-Posting-Manager
 		post = new LithiumParser();
-		
-		// TODO check what about multithreading and executor services
-		/*
-		// Set up the executor service to distribute the actual tasks
-		final int numProcessingThreads = 4;
-		// Create an executor service which will spawn threads to do the actual work
-		// of parsing the incoming messages and calling the listeners on each message
-		ExecutorService service = Executors.newFixedThreadPool(numProcessingThreads);
-		 */
 	}
 
-	/**
-	 * 
-	 * @description connects to an http endpoint
-	 */
-	private void connect(){
-		//TODO write code
-	}
 	
 	/**
-	 * @description connects to the url and posts some Key Value pairs
+	 * @description connects to the url and posts some Key Value pairs to the endpoint
 	 * @param urlStr
 	 * @param paramName
 	 * @param paramVal
 	 * @return
 	 * @throws Exception
 	 */
-	public static String httpPost(String urlStr, String[] paramName, String[] paramVal) throws Exception {
-		URL url = new URL(urlStr);
+	public String httpPost(URL url, String[] paramName, String[] paramVal) throws Exception {
 		HttpURLConnection conn =
 				(HttpURLConnection) url.openConnection();
+
+		HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
+		
+		if (!statusCode.isOk()){
+			throw new IOException("EXCEPTION :: "+HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode())+" could not connect to " + url.toString() + " " + conn.getResponseMessage());
+		} else {
+			logger.info("connection established " + statusCode);
+		}
+
 		conn.setRequestMethod("POST");
 		conn.setDoOutput(true);
 		conn.setDoInput(true);
@@ -123,10 +100,10 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		writer.close();
 		out.close();
 		
-		HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
+		HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
 		
 		if (!statusCode.isOk()) {
-			throw new IOException(conn.getResponseMessage());
+			throw new IOException("EXCEPTION :: could not post to " + url.toString() + " " + conn.getResponseMessage());
 		}
 		
 		// Buffer the result into a string
@@ -149,16 +126,19 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	 * @return
 	 * @throws IOException
 	 */
-	public static String httpGet(String urlStr) throws IOException {
-		URL url = new URL(urlStr);
+	public String httpGet(URL url) throws IOException {
+		logger.trace("initiating url connection now...");
+		
 		HttpURLConnection conn =
 				(HttpURLConnection) url.openConnection();
 		
 		HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
 		
-		if (!statusCode.isOk()) {
-			throw new IOException(conn.getResponseMessage());
-		}
+		if (!statusCode.isOk()){
+			throw new IOException("EXCEPTION :: "+HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode())+" could not connect to " + url.toString() + " " + conn.getResponseMessage());
+		} else {
+			logger.info("connection established " + statusCode);
+		}	
 		
 		// Buffer the result into a string
 		BufferedReader rd = new BufferedReader(
@@ -178,8 +158,26 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		// log the startup message
 		logger.debug("Lithium-Crawler START");
 		
-		logger.trace("setting up the rest endpoint with ");
+		// some static vars for the lithium crawler
+		final String _user = (String) arg0.getJobDetail().getJobDataMap().get("user");
+		final String _passwd =  (String) arg0.getJobDetail().getJobDataMap().get("passwd");
 		
+		final String PROTOCOL = (String) arg0.getJobDetail().getJobDataMap().get("PROTOCOL");
+		final String SERVER_URL = (String) arg0.getJobDetail().getJobDataMap().get("SERVER_URL");
+		final String PORT = (String) arg0.getJobDetail().getJobDataMap().get("PORT");
+		final String COMMUNITY_NAME = (String) arg0.getJobDetail().getJobDataMap().get("COMMUNITY_NAME");
+		final String REST_API_LOC = (String) arg0.getJobDetail().getJobDataMap().get("REST_API_LOC");
+		final String REST_API_URL = PROTOCOL + "://" + SERVER_URL + ":" + PORT + COMMUNITY_NAME + REST_API_LOC;
+		
+		logger.trace("setting up the rest endpoint at " + REST_API_URL + " with user " + _user);
+		
+		
+		// setup restrictions on what to track
+		// TODO check why these won't be fetched from applicationContext.xml
+		final boolean restrictToTrackterms = true;	//(boolean) arg0.getJobDetail().getJobDataMap().get("restrictToTrackterms");
+		final boolean restrictToLanguages = true;	//(boolean) arg0.getJobDetail().getJobDataMap().get("restrictToLanguages");
+		final boolean restrictToUsers = false;		//(boolean) arg0.getJobDetail().getJobDataMap().get("restrictToUsers");
+		final boolean restrictToLocations = false;	//(boolean) arg0.getJobDetail().getJobDataMap().get("restrictToLocations"); // locations does not yet work
 		
 		// possible restrictions
 		if (restrictToTrackterms) {
@@ -240,7 +238,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		}
 		
 		logger.debug("new lithium parser instantiated - restricted to track " + smallLogMessage);
-		logger.trace("call for Endpoint POST: " //+ endpoint.getPostParamString() 
+		logger.trace("call for Endpoint GET: " //+ endpoint.getPostParamString() 
 					+ bigLogMessage);
 		
 		//TODO implement authentication against lithium network
@@ -251,20 +249,24 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		*/
 		
 		// TODO implement lithium connection handler
-		// Create a new BasicClient. By default gzip is enabled.
-		/*
-		Client client = new ClientBuilder().hosts(Constants.STREAM_HOST).endpoint(endpoint).authentication(sn_Auth)
-				.processor(new StringDelimitedProcessor(msgQueue)).connectionTimeout(1000).build();
-
-		// Establish a connection
+		URL url = null;
+		String returnString = null;
 		try {
-			client.connect();
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			url = new URL(REST_API_URL);
+		} catch (MalformedURLException e) {
+			logger.error("EXCEPTION :: malfromed url received " + REST_API_URL + ": " + e);
 		}
-		*/
 		
-		// Do whatever needs to be done with messages
+		try {
+			returnString = httpGet(url);
+		} catch (IOException e1) {
+			logger.error("EXCEPTION :: Could not connect to " + REST_API_URL + ": " + e1);
+		}
+		
+		logger.debug("This is the returnString of httpGet to " + url + ": " + returnString);
+		
+		// Do whatever needs to be done with messages 
+		/*
 		for (int msgRead = 0; msgRead < 1000; msgRead++) {
 			String msg = "";
 			try {
@@ -282,9 +284,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			// (abgeleitet von GenericParser) uebergeben
 			post.process(msg);
 		}
+		*/
 		
 		logger.debug("Lithium-Crawler END");
-		// TODO check if we need to stop the client
-		//client.stop();
+		
 	}
 }

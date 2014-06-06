@@ -38,7 +38,7 @@ import de.comlineag.sbm.data.LithiumPostingData;
 
 public class LithiumPosting extends GenericDataManager<LithiumPostingData> {
 	/*
-	 * Die nachfolgenden Elemente des Tweets sollen weiter verarbeitet und
+	 * Die nachfolgenden Elemente des Posts sollen weiter verarbeitet und
 	 * gespeichert werden
 	 * 
 	 * key="cl_postID" 					value="id" 
