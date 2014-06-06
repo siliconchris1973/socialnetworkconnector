@@ -279,6 +279,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			logger.debug("This is the returnString from connection to " + url + ": ");
 			xform.transform(new DOMSource(doc), new StreamResult(System.out));
 			
+			
 			//TODO: PUT RESULT OF xfomr transform in BlockingQueue msgQueue so that messages can be parsed
 			//xform.transform(doc, outputTarget);
 			
