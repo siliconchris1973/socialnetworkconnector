@@ -6,14 +6,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.SocketTimeoutException;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.net.UnknownHostException;
-
-import javax.net.ssl.HttpsURLConnection;
-
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -23,21 +21,22 @@ import org.quartz.JobExecutionException;
 import org.apache.commons.httpclient.util.HttpURLConnection;
 import org.apache.log4j.Logger;
 
-import de.comlineag.sbm.data.HttpErrorMessages;
 import de.comlineag.sbm.data.HttpStatusCode;
-import de.comlineag.sbm.handler.LithiumParser;
+import de.comlineag.sbm.handler.FacebookParser;
+
+// TODO !!!!! IMPLEMENT THE FaceBookCrawler !!!!!!
 
 /**
  * 
  * @author Christian Guenther
  * @category Handler
  * 
- * @description this is the actual crawler of the lithium network. It is
+ * @description this is the actual crawler of the facebook network. It is
  *              implemented as a job and, upon execution, will connect to the
- *              lithium rest api to fetch posts and users
+ *              facebook rest api to fetch posts and users
  * 
  */
-public class LithiumCrawler extends GenericCrawler implements Job {
+public class FacebookCrawler extends GenericCrawler implements Job {
 
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
@@ -45,22 +44,29 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	// Set up your blocking queues: Be sure to size these properly based on
 	// expected TPS of your stream
 	private BlockingQueue<String> msgQueue;
-	private LithiumParser post;
+	private FacebookParser post;
 	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
 	private String bigLogMessage = "";
 	private String smallLogMessage = "";
 	
-	public LithiumCrawler() {
-		logger.trace("Instantiated LithiumCrawler Class");
+	public FacebookCrawler() {
+		
 		// Define message and event queue
 		msgQueue = new LinkedBlockingQueue<String>(100000);
 				
-		// instantiate the Lithium-Posting-Manager
-		post = new LithiumParser();
+		// instantiate the Facebook-Posting-Manager
+		post = new FacebookParser();
 	}
 
+	/**
+	 * 
+	 * @description connects to an http endpoint
+	 */
+	private void connect(){
+		//TODO write code to connect to facebook
+	}
 	
 	/**
 	 * @description connects to the url and posts some Key Value pairs to the endpoint
@@ -70,18 +76,10 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	 * @return
 	 * @throws Exception
 	 */
-	public String httpPost(URL url, String[] paramName, String[] paramVal) throws Exception {
+	public static String httpPost(String urlStr, String[] paramName, String[] paramVal) throws Exception {
+		URL url = new URL(urlStr);
 		HttpURLConnection conn =
 				(HttpURLConnection) url.openConnection();
-
-		HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
-		
-		if (!statusCode.isOk()){
-			throw new IOException("EXCEPTION :: "+HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode())+" could not connect to " + url.toString() + " " + conn.getResponseMessage());
-		} else {
-			logger.info("connection established " + statusCode);
-		}
-
 		conn.setRequestMethod("POST");
 		conn.setDoOutput(true);
 		conn.setDoInput(true);
@@ -102,10 +100,10 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		writer.close();
 		out.close();
 		
-		HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
+		HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
 		
 		if (!statusCode.isOk()) {
-			throw new IOException("EXCEPTION :: could not post to " + url.toString() + " " + conn.getResponseMessage());
+			throw new IOException(conn.getResponseMessage());
 		}
 		
 		// Buffer the result into a string
@@ -128,19 +126,16 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	 * @return
 	 * @throws IOException
 	 */
-	public String httpGet(URL url) throws IOException {
-		logger.trace("initiating url connection now...");
-		
+	public static String httpGet(String urlStr) throws IOException {
+		URL url = new URL(urlStr);
 		HttpURLConnection conn =
 				(HttpURLConnection) url.openConnection();
 		
 		HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
 		
-		if (!statusCode.isOk()){
-			throw new IOException("EXCEPTION :: "+HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode())+" could not connect to " + url.toString() + " " + conn.getResponseMessage());
-		} else {
-			logger.info("connection established " + statusCode);
-		}	
+		if (!statusCode.isOk()) {
+			throw new IOException(conn.getResponseMessage());
+		}
 		
 		// Buffer the result into a string
 		BufferedReader rd = new BufferedReader(
@@ -158,9 +153,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// log the startup message
-		logger.debug("Lithium-Crawler START");
+		logger.debug("Facebook-Crawler START");
 		
-		// some static vars for the lithium crawler
+		// some static vars for the facebook crawler
 		final String _user = (String) arg0.getJobDetail().getJobDataMap().get("user");
 		final String _passwd =  (String) arg0.getJobDetail().getJobDataMap().get("passwd");
 		
@@ -185,6 +180,15 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		if (restrictToTrackterms) {
 			//TODO check how to track specific terms
 			//TODO the trackterms need to go in a configuration file or a database
+			
+			/*
+			String[] ttTerms = {"SAP", "ERP", "SAP BW", "BO", "CRM", "SCM", "SRM", "IDM", 
+								"NetWeaver", "ABAP", "HANA", "Business Objects", 
+								"Business Warehouse", "Customer Relationship Management", 
+								"Supply Chain Management", "Supplier Relationship Management", 
+								"Identity Management", "Social Brand Monitor",
+								"Social Activity Analyzer"};
+			*/
 			
 			String[] ttTerms = {"Tagesgeld", "Trading", "Depot", "Girokonto", "Wertpapier", "Kreditkarte", "HBCI"};
 			
@@ -223,7 +227,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		// Restrict the tracked messages to specific locations
 		if (restrictToLocations) {
 			
-			// TODO check how to work with locations in hbc lithium api 
+			// TODO check how to work with locations in hbc facebook api 
 			ArrayList<String> locs = new ArrayList<String>(); 
 			locs.add("Germany");
 			locs.add("USA");
@@ -234,53 +238,36 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			smallLogMessage += "specific locations ";
 		}
 		
-		logger.debug("new lithium parser instantiated - restricted to track " + smallLogMessage);
-		logger.trace("call for Endpoint GET: " //+ endpoint.getPostParamString() 
+		logger.debug("new facebook parser instantiated - restricted to track " + smallLogMessage);
+		logger.trace("call for Endpoint POST: " //+ endpoint.getPostParamString() 
 					+ bigLogMessage);
 		
-		//TODO implement authentication against lithium network
+		//TODO implement authentication against facebook network
 		/*
 		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get("consumerKey"), (String) arg0.getJobDetail()
 				.getJobDataMap().get("consumerSecret"), (String) arg0.getJobDetail().getJobDataMap().get("token"), (String) arg0
 				.getJobDetail().getJobDataMap().get("tokenSecret"));
 		*/
 		
+		// TODO implement facebook connection handler
+		/*
 		try {
-			logger.trace("initiating ssl-connection to " + REST_API_URL);
-			
-			URL url = new URL(REST_API_URL);
-			HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-			int timeout = conn.getConnectTimeout();
-			
-			HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
-			
-			if (!statusCode.isOk()){
-				logger.error("EXCEPTION :: "+HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode())+" could not connect to " + url.toString() + " " + conn.getResponseMessage());
-			} else {
-				logger.debug("connection established " + statusCode);
-			}	
-		
-			// Buffer the result into a string
-			BufferedReader rd = new BufferedReader(
-					new InputStreamReader(conn.getInputStream()));
-			StringBuilder sb = new StringBuilder();
-			String line;
-			while ((line = rd.readLine()) != null) {
-				sb.append(line);
-			}
-			rd.close();
-			
-			conn.disconnect();
-			
-			logger.debug("This is the returnString from connection to " + url + ": " + sb.toString());
-		} catch (UnknownHostException e1) {
-			logger.error("EXCEPTION :: could not connect to " + REST_API_URL + ". Host not found");
-		} catch (SocketTimeoutException e2) {
-			logger.error("EXCEPTION :: timeout connecting to " + REST_API_URL);
-		} catch (Exception e) {
-			logger.error("EXCEPTION :: " + e.toString());
+			httpGet(REST_API_URL);
+		} catch (IOException e1) {
+			logger.error("EXCEPTION :: Could not connect to " + REST_API_URL + ": " + e1);
 		}
+		*/
 		
+		URL url;
+		URLConnection con;
+		try {
+			url = new URL(REST_API_URL);
+			con = url.openConnection();
+		} catch (MalformedURLException e1) {
+			logger.error("EXCEPTION :: the url " + REST_API_URL + " is malformed: " + e1);
+		} catch (IOException e2){
+			logger.error("EXCEPTION :: Could not connect to " + REST_API_URL + ": " + e2);
+		}
 		
 		// Do whatever needs to be done with messages 
 		/*
@@ -297,13 +284,13 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			logger.info("New Post tracked from " + msg.substring(15, 45) + "...");
 			logger.trace("complete post: " + msg );
 
-			// Jede einzelne Message wird nun an den Parser LithiumParser
+			// Jede einzelne Message wird nun an den Parser FacebookParser
 			// (abgeleitet von GenericParser) uebergeben
 			post.process(msg);
 		}
 		*/
 		
-		logger.debug("Lithium-Crawler END");
+		logger.debug("Facebook-Crawler END");
 		
 	}
 }

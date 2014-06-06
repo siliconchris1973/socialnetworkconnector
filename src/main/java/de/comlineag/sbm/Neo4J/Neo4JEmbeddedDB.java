@@ -33,8 +33,6 @@ public class Neo4JEmbeddedDB extends Neo4jMBean {
 	protected Neo4JEmbeddedDB(ManagementData management, String[] extraNaming)
 			throws NotCompliantMBeanException {
 		super(management, extraNaming);
-		// TODO Auto-generated constructor stub
-		
 	}
 
 	private void createDB(){

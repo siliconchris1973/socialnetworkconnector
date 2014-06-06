@@ -84,13 +84,15 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		// possible restrictions
 		if (restrictToTrackterms) {
 			//TODO the trackterms need to go in a configuration file or a database
-			
+			/*
 			String[] ttTerms = {"SAP", "ERP", "SAP BW", "BO", "CRM", "SCM", "SRM", "IDM", 
 								"NetWeaver", "ABAP", "HANA", "Business Objects", 
 								"Business Warehouse", "Customer Relationship Management", 
 								"Supply Chain Management", "Supplier Relationship Management", 
 								"Identity Management", "Social Brand Monitor",
 								"Social Activity Analyzer"};
+			*/
+			String[] ttTerms = {"Tagesgeld", "Trading", "Depot", "Girokonto", "Wertpapier", "Kreditkarte", "HBCI"};
 			
 			//String[] ttTerms = {"SocialActivityAnalyzer", "SocialNetworkAnalyzer", "SocialBrandMonitor", "SocialNetworkConnector"};
 			ArrayList<String> tTerms = new ArrayList<String>();

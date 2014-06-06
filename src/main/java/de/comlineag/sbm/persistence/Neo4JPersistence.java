@@ -20,7 +20,6 @@ import de.comlineag.sbm.data.HttpErrorMessages;
 import de.comlineag.sbm.data.HttpStatusCode;
 import de.comlineag.sbm.data.PostData;
 import de.comlineag.sbm.data.RelationshipTypes;
-import de.comlineag.sbm.data.SocialNetworkEntryTypes;
 import de.comlineag.sbm.data.UserData;
 import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
 
@@ -66,7 +65,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	// extension to the URI of a node to store relationships
 	private static final String RELATIONSHIP_LOC = "/relationships";
 	// extension of the URI of the graph db for cypher queries
-	private static final String CYPHERENDPOINT_LOC = "/cypher";
+	//private static final String CYPHERENDPOINT_LOC = "/cypher";
 	// extension of the URI to a node
 	private static final String NODE_LOC = "/node";
 	// extension of the URI for Properties
@@ -204,7 +203,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 		// check if the user already exists and if so, DO NOT add him/her a second time, but only create a relationship
 		fromNodeLocationUri = findNodeByIdAndLabel("user_id", userData.getId(), "User");
 		logger.trace("the search for the user returned " + fromNodeLocationUri);
-		fromNodeLocationUri = nodePointUrl + "/1";
+		fromNodeLocationUri = nodePointUrl + "1";
 		fromNodeId = getNodeIdFromLocation(fromNodeLocationUri);
 		
 		if (fromNodeLocationUri == null) { 
@@ -543,7 +542,7 @@ public class Neo4JPersistence implements IPersistenceManager {
      * @param relationshipUri
      * @param propertyName
      * @param propertyValue
-     */
+     
     private void addPropertyToRelation( String relationshipUri,
                                         String propertyName,
                                         String propertyValue ){
@@ -554,20 +553,16 @@ public class Neo4JPersistence implements IPersistenceManager {
             String relPropUrl = relationshipUri + PROPERTY_LOC;
             HttpClient client = new HttpClient();
             PutMethod mPut = new PutMethod(relPropUrl);
-
-            /**
-             * set headers
-             */
+            
+            // set headers
             Header mtHeader = new Header();
             mtHeader.setName("content-type");
             mtHeader.setValue("application/json");
             mtHeader.setName("accept");
             mtHeader.setValue("application/json");
             mPut.addRequestHeader(mtHeader);
-
-            /**
-             * set json payload
-             */
+            
+            // set json payload
             String jsonString = toJsonNameValuePairCollection(propertyName,propertyValue );
             StringRequestEntity requestEntity = new StringRequestEntity(jsonString,
                                                                         "application/json",
@@ -582,17 +577,18 @@ public class Neo4JPersistence implements IPersistenceManager {
              logger.error("EXCEPTION :: adding the property " + propertyName + " to the relationship: " + e);
         }
     }
+    */
     
     /**
      * @description generates json payload to be passed to relationship property web service
      * @param name
      * @param value
      * @return
-     */
+     
     private String toJsonNameValuePairCollection(String name, String value) {
         return String.format("{ \"%s\" : \"%s\" }", name, value);
     }
-    
+    */
     
     /**
      * @description Performs traversal from a source node

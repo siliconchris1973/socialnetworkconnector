@@ -2,16 +2,21 @@ package de.comlineag.sbm.data;
 
 /**
  * @description contains a enum with types of data in a social network and whether or not this type should be tracked
- * @author chris
+ * @author Christian Guenther
  *
  */
 public enum SocialNetworkEntryTypes {
 	UNKNOWN 		("Unknown"	, false),
 	POSTING			("Post"		, true),
+	POST			("Post"		, true),
 	USER			("User"		, true),
 	BLOG			("Blog"		, false),
 	ADVERTISEMENT	("Ad"		, false),
-	APP				("App"		, false);
+	APP				("App"		, false),
+	GAME			("Game"		, false),
+	FORUM			("Forum"	, true),
+	WIKI			("Wiki"		, false);
+	
 	
 	private final String value;
 	private final boolean name;

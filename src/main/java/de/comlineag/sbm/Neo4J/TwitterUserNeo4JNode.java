@@ -24,6 +24,7 @@ public class TwitterUserNeo4JNode extends Neo4JNodeObject {
 		super(json, graphdb);
 	}
 
+	@SuppressWarnings("unchecked")
 	private JSONObject createUserData(UserData userData){
 		
 		// set json payload 
