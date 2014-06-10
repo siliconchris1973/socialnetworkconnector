@@ -30,21 +30,19 @@ public final class LithiumUserData extends UserData {
 
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
+	public LithiumUserData() {}
+	
 	/**
 	 * Constructor, based on the JSONObject sent from Lithium the Data Object is prepared
 	 * 
 	 * @param jsonObject
 	 */
+	//TODO Check if lithium sends a JSON Object or an aml 
 	public LithiumUserData(JSONObject jsonObject) {
 		logger.debug("constructing new subset of data of user (ID: " + jsonObject.get("id") + ") from lithium user-object");
 		logger.trace("  working on " + jsonObject.toString());
 		
-		// setting everything to 0 or null default value.
-		// so I can check on initialized or not initialized values for the
-		// posting
 		id = 0;
-		// ACHTUNG, wenn die Klasse fuer Facebook u.a. kopiert wird,
-		// dann muss dieses Value natuerlich umgesetzt werden
 		sn_id = SocialNetworks.LITHIUM.getValue();
 		username = null;
 		screen_name = null;

@@ -27,7 +27,7 @@ public final class TwitterParser extends GenericParser {
 	@Override
 	protected void parse(String strTweet) {
 		// log the startup message
-		logger.debug("parser START");
+		logger.debug("Twitter parser START");
 
 		// macht ein JSon Decode aus dem uebergebenen String
 		JSONParser parser = new JSONParser();
@@ -65,6 +65,6 @@ public final class TwitterParser extends GenericParser {
 			TwitterUser user = (TwitterUser) users.get(ii);
 			user.save();
 		}
-		logger.debug("Parser END");
+		logger.debug("Twitter parser END");
 	}
 }

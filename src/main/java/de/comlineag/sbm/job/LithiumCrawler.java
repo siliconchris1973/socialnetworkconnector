@@ -1,41 +1,39 @@
 package de.comlineag.sbm.job;
 
-import java.beans.XMLDecoder;
-import java.io.BufferedInputStream;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.net.UnknownHostException;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.stream.StreamSource;
 
-import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.util.HttpURLConnection;
 import org.apache.log4j.Logger;
-import org.apache.lucene.document.Document;
 
 import de.comlineag.sbm.data.HttpErrorMessages;
 import de.comlineag.sbm.data.HttpStatusCode;
 import de.comlineag.sbm.handler.LithiumParser;
+import de.comlineag.sbm.persistence.NoBase64EncryptedValue;
 
 /**
  * 
@@ -59,7 +57,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
-	private String bigLogMessage = "";
 	private String smallLogMessage = "";
 	
 	public LithiumCrawler() {
@@ -71,6 +68,171 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		post = new LithiumParser();
 	}
 
+	
+	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		// log the startup message
+		logger.debug("Lithium-Crawler START");
+		
+		// some static vars for the lithium crawler taken from applicationContext.xml
+		final String PROTOCOL = (String) arg0.getJobDetail().getJobDataMap().get("PROTOCOL");
+		final String SERVER_URL = (String) arg0.getJobDetail().getJobDataMap().get("SERVER_URL");
+		final String PORT = (String) arg0.getJobDetail().getJobDataMap().get("PORT");
+		final String REST_API_LOC = (String) arg0.getJobDetail().getJobDataMap().get("REST_API_LOC");
+		final String REST_API_URL = PROTOCOL + "://" + SERVER_URL + ":" + PORT + REST_API_LOC;
+		// authentication to lithium
+		String _user = null;
+		String _passwd = null;
+		try {
+			_user = decryptValue((String) arg0.getJobDetail().getJobDataMap().get("user"));
+			_passwd = decryptValue((String) arg0.getJobDetail().getJobDataMap().get("passwd"));
+		} catch (NoBase64EncryptedValue e4) {
+			logger.error("EXCEPTION :: value for user or passwd is NOT base64 encrypted " + e4.toString());
+		}
+		
+		logger.trace("setting up the rest endpoint at " + REST_API_URL + " with user " + _user);
+		
+		
+		// setup restrictions on what to get from lithium - also says where to look
+		String[] tSites = {"/Girokonto-Zahlungsverkehr/bd-p/Girokonto-Zahlungsverkehr",
+							"/Sparen-Anlegen/bd-p/Sparen-und-Anlegen",
+							"/Wertpapierhandel/bd-p/Wertpapierhandel",
+							"/Finanzieren/bd-p/Finanzieren",
+							"/Sonstige-Themen/bd-p/Sonstige-Themen"};
+		smallLogMessage += "specific Sites ";
+		
+		String[] tTerms = {"Tagesgeld", "Trading", "Depot", "Girokonto", "Wertpapier", "Kreditkarte", "HBCI"};
+		smallLogMessage += "specific terms ";
+		
+		String[] tLangs = {"de", "en"};
+		smallLogMessage += "specific languages ";
+		
+		logger.debug("new lithium parser instantiated - restricted to track " + smallLogMessage);
+		
+		
+		//TODO implement authentication against lithium network
+		/*
+		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get("consumerKey"), 
+											(String) arg0.getJobDetail().getJobDataMap().get("consumerSecret"), 
+											(String) arg0.getJobDetail().getJobDataMap().get("token"), 
+											(String) arg0.getJobDetail().getJobDataMap().get("tokenSecret"));
+		*/
+		
+		// this is the connection object and the status - I need this outside the try catch clause
+		HttpsURLConnection conn = null;
+		HttpStatusCode statusCode = null;
+		String xmlEntry = "error";
+		
+		try {
+			//for (int i = 0; i < tSites.length; i++){
+			
+			String tURL = REST_API_URL + "/messages"; //+ "/Girokonto-Zahlungsverkehr/bd-p/Girokonto-Zahlungsverkehr";
+			//String mURL = REST_API_URL + 
+			
+			logger.trace("initiating ssl-connection to " + tURL);
+			
+			URL url = new URL(tURL);
+			conn = (HttpsURLConnection) url.openConnection();
+			
+			statusCode = HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
+			
+			if (!statusCode.isOk()){
+				if (statusCode == HttpStatusCode.FORBIDDEN){
+					//TODO implement proper authorization handling
+					logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
+				} else {
+					logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode())+" could not connect to " + tURL.toString() + " " + conn.getResponseMessage());
+				}
+			} else {
+				logger.debug("connection established (status is " + statusCode + ") now checking returned xml");
+			}	
+			
+			// CODE to simply output XML content
+			/*
+			XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			InputSource inputSource = new InputSource(in);
+			String inputLine;
+			while ((inputLine = in.readLine()) != null) 
+				logger.trace(inputLine.toString());
+			in.close();
+			*/
+			
+			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+			XMLStreamReader stax = inputFactory.createXMLStreamReader(new StreamSource(conn.getInputStream()));
+			StringBuffer    sb = new StringBuffer();
+			int             state = 0;
+			
+			while(stax.hasNext()) {
+				stax.next();
+				String  name = ( stax.hasName() ) ? stax.getName().getLocalPart().trim() : null;
+				String  text = ( stax.hasText() ) ? stax.getText().trim() : null;
+				logger.trace("name: " + name + " / text: " + text);
+				if (name == xmlEntry) {
+					logger.debug("Found error element in XML response");
+				}
+				
+				boolean b1 = stax.hasName() && name.equals( "response" );   // <ParentElem>
+				boolean b2 = stax.hasName() && name.equals( xmlEntry );   	// <ChildElem>
+				boolean b3 = stax.hasText() && text.equals( "message" );   	// <FindText>
+				boolean b4 = stax.hasName() && name.equals( "" );   		// <DataElem>
+				if( b1 && stax.isStartElement() ) 				state = 1;  // <ParentElem>
+				if( b1 && stax.isEndElement()   ) 				state = 0;
+				
+				if( state == 1 && b2 && stax.isStartElement() ) state = 2;	// <ChildElem>
+				if( state == 2 && b2 && stax.isEndElement()   ) state = 1;
+				if( state == 2 && b3 ) 							state = 3;	// <FindText>
+				if( state == 3 && b4 && stax.isStartElement() ) state = 4;	// <DataElem>
+				if( state == 4 && b4 && stax.isEndElement()   ) break;
+				if( state == 4 && stax.hasText() ) sb.append( stax.getText() ); // gesuchtes Ergebnis
+			}
+			logger.trace("stax content " + sb );
+			
+			conn.disconnect();
+			
+		} catch (Exception e) {
+			logger.error("EXCEPTION :: during rest call to lithium " + e.toString());
+		}
+		
+		/*
+		// Do whatever needs to be done with messages 
+		for (int msgRead = 0; msgRead < 1000; msgRead++) {
+			String msg = "";
+			try {
+				// TODO check hwo to take the messages from client
+				msg = msgQueue.take();
+			} catch (InterruptedException e) {
+				logger.error("ERROR :: Message loop interrupted " + e.getMessage());
+			} catch (Exception ee) {
+				logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
+			}
+			logger.info("New Post tracked from " + msg.substring(15, 45) + "...");
+			logger.trace("complete post: " + msg );
+
+			// Jede einzelne Message wird nun an den Parser LithiumParser
+			// (abgeleitet von GenericParser) uebergeben
+			post.process(msg);
+		}
+		*/
+		
+		logger.debug("Lithium-Crawler END");
+	}
+	
+	
+	// some useful functions
+	/**
+	 * 
+	 */
+	private void basicAuthentication(){ 
+		Authenticator.setDefault( new Authenticator() {
+			@Override protected PasswordAuthentication getPasswordAuthentication() {
+				System.out.printf( "url=%s, host=%s, ip=%s, port=%s%n",
+	                       getRequestingURL(), getRequestingHost(),
+	                       getRequestingSite(), getRequestingPort() );
+				
+				return new PasswordAuthentication( "user", "abc".toCharArray() );
+			}
+		});
+	}
 	
 	/**
 	 * @description connects to the url and posts some Key Value pairs to the endpoint
@@ -133,7 +295,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	}
 	
 	/**
-	 * @description connects to the given url
+	 * @description connects to the given url using the GET method
 	 * @param urlStr
 	 * @return
 	 * @throws IOException
@@ -165,162 +327,28 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		conn.disconnect();
 		return sb.toString();
 	}
-	
-	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		// log the startup message
-		logger.debug("Lithium-Crawler START");
-		
-		// some static vars for the lithium crawler
-		final String _user = (String) arg0.getJobDetail().getJobDataMap().get("user");
-		final String _passwd =  (String) arg0.getJobDetail().getJobDataMap().get("passwd");
-		
-		final String PROTOCOL = (String) arg0.getJobDetail().getJobDataMap().get("PROTOCOL");
-		final String SERVER_URL = (String) arg0.getJobDetail().getJobDataMap().get("SERVER_URL");
-		final String PORT = (String) arg0.getJobDetail().getJobDataMap().get("PORT");
-		final String COMMUNITY_NAME = (String) arg0.getJobDetail().getJobDataMap().get("COMMUNITY_NAME");
-		final String REST_API_LOC = (String) arg0.getJobDetail().getJobDataMap().get("REST_API_LOC");
-		final String REST_API_URL = PROTOCOL + "://" + SERVER_URL + ":" + PORT + COMMUNITY_NAME + REST_API_LOC;
-		
-		logger.trace("setting up the rest endpoint at " + REST_API_URL + " with user " + _user);
-		
-		// setup restrictions on what to track
-		// TODO check why these won't be fetched from applicationContext.xml
-		final boolean restrictToTrackterms = true;	//(boolean) arg0.getJobDetail().getJobDataMap().get("restrictToTrackterms");
-		final boolean restrictToLanguages = true;	//(boolean) arg0.getJobDetail().getJobDataMap().get("restrictToLanguages");
-		final boolean restrictToUsers = false;		//(boolean) arg0.getJobDetail().getJobDataMap().get("restrictToUsers");
-		final boolean restrictToLocations = false;	//(boolean) arg0.getJobDetail().getJobDataMap().get("restrictToLocations"); // locations does not yet work
-		
-		// possible restrictions
-		if (restrictToTrackterms) {
-			//TODO check how to track specific terms
-			//TODO the trackterms need to go in a configuration file or a database
-			
-			String[] ttTerms = {"Tagesgeld", "Trading", "Depot", "Girokonto", "Wertpapier", "Kreditkarte", "HBCI"};
-			
-			//String[] ttTerms = {"SocialActivityAnalyzer", "SocialNetworkAnalyzer", "SocialBrandMonitor", "SocialNetworkConnector"};
-			ArrayList<String> tTerms = new ArrayList<String>();
-			for (int i = 0 ; i < ttTerms.length ; i++) {
-				tTerms.add(ttTerms[i]);
-			}
-			
-			bigLogMessage += "\n                       restricted to terms: " + tTerms.toString() + "\n";
-			smallLogMessage += "specific terms ";
-		}
-		
-		// Restrict tracked messages to english and german
-		if (restrictToLanguages) {
-			ArrayList<String> langs = new ArrayList<String>();
-			langs.add("de");
-			langs.add("en");
-			
-			//endpoint.languages(langs);
-			bigLogMessage += "                       restricted to languages: " + langs.toString() + "\n";
-			smallLogMessage += "specific languages ";
-		}
-		
-		// Restrict the tracked messages to specific users
-		if (restrictToUsers) {
-			ArrayList<Long> users = new ArrayList<Long>();
-			users.add(754994L);			// Christian Guenther
-			users.add(2412281046L);		// Magnus Leinemann
-			
-			//endpoint.followings(users);
-			bigLogMessage += "                       restricted on user: " + users.toString() + "\n";
-			smallLogMessage += "specific users ";
-		}
-		
-		// Restrict the tracked messages to specific locations
-		if (restrictToLocations) {
-			
-			// TODO check how to work with locations in hbc lithium api 
-			ArrayList<String> locs = new ArrayList<String>(); 
-			locs.add("Germany");
-			locs.add("USA");
-			
-			//endpoint.locations(locs);
-			
-			bigLogMessage += "                       restricted on locations: " + locs.toString() + " (NOT IMPLEMENTED)";
-			smallLogMessage += "specific locations ";
-		}
-		
-		logger.debug("new lithium parser instantiated - restricted to track " + smallLogMessage);
-		logger.trace("call for Endpoint GET: " //+ endpoint.getPostParamString() 
-					+ bigLogMessage);
-		
-		//TODO implement authentication against lithium network
-		/*
-		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get("consumerKey"), (String) arg0.getJobDetail()
-				.getJobDataMap().get("consumerSecret"), (String) arg0.getJobDetail().getJobDataMap().get("token"), (String) arg0
-				.getJobDetail().getJobDataMap().get("tokenSecret"));
-		*/
-		
+
+	/**
+	 * @description Entschluesselt Werte aus der Konfig fuer die Connection
+	 *
+	 * @param param
+	 *            der Wert der entschluesselt werden soll
+	 * @return Klartext
+	 *
+	 */
+	@SuppressWarnings("unused")
+	private String decryptValue(String param) throws NoBase64EncryptedValue {
+
+		// byte-Array kommt vom Decoder zurueck und kann dann in String uebernommen und zurueckgegeben werden
+		byte[] base64Array;
+
+		// Validierung das auch ein verschluesselter Wert da angekommen ist
 		try {
-			logger.trace("initiating ssl-connection to " + REST_API_URL);
-			
-			URL url = new URL(REST_API_URL);
-			HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-			
-			HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
-			
-			if (!statusCode.isOk()){
-				logger.error("EXCEPTION :: "+HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode())+" could not connect to " + url.toString() + " " + conn.getResponseMessage());
-			} else {
-				logger.debug("connection established " + statusCode);
-			}	
-			
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			org.w3c.dom.Document doc = builder.parse(conn.getInputStream());
-
-			TransformerFactory factory1 = TransformerFactory.newInstance();
-			Transformer xform = factory1.newTransformer();
-
-			// that is the default xform; use a stylesheet to get a real one
-			logger.debug("This is the returnString from connection to " + url + ": ");
-			xform.transform(new DOMSource(doc), new StreamResult(System.out));
-			
-			
-			//TODO: PUT RESULT OF xfomr transform in BlockingQueue msgQueue so that messages can be parsed
-			//xform.transform(doc, outputTarget);
-			
-			conn.disconnect();
-			
-			
-			
-		} catch (UnknownHostException e1) {
-			logger.error("EXCEPTION :: could not connect to " + REST_API_URL + ". Host not found");
-		} catch (SocketTimeoutException e2) {
-			logger.error("EXCEPTION :: timeout connecting to " + REST_API_URL);
-		} catch (MalformedURLException e3) {
-			logger.error("EXCEPTION :: malformed url " + e3);
+			base64Array = Base64.decodeBase64(param.getBytes());
 		} catch (Exception e) {
-			logger.error("EXCEPTION :: " + e.toString());
+			throw new NoBase64EncryptedValue("Parameter " + param + " ist nicht Base64-verschluesselt");
 		}
-		
-		
-		
-		// Do whatever needs to be done with messages 
-		
-		for (int msgRead = 0; msgRead < 1000; msgRead++) {
-			String msg = "";
-			try {
-				// TODO check hwo to take the messages from client
-				msg = msgQueue.take();
-			} catch (InterruptedException e) {
-				logger.error("ERROR :: Message loop interrupted " + e.getMessage());
-			} catch (Exception ee) {
-				logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
-			}
-			logger.info("New Post tracked from " + msg.substring(15, 45) + "...");
-			logger.trace("complete post: " + msg );
-
-			// Jede einzelne Message wird nun an den Parser LithiumParser
-			// (abgeleitet von GenericParser) uebergeben
-			post.process(msg);
-		}
-		
-		
-		logger.debug("Lithium-Crawler END");
-		
+		// konvertiere in String
+		return new String(base64Array);
 	}
 }

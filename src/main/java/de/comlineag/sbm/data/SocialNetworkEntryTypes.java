@@ -6,11 +6,13 @@ package de.comlineag.sbm.data;
  *
  */
 public enum SocialNetworkEntryTypes {
+	// attention: looks like this will be handled by trackterms from applicationContext.xml 
+	// because there it can be configured individually for each crawler
 	UNKNOWN 		("Unknown"	, false),
 	POSTING			("Post"		, true),
 	POST			("Post"		, true),
 	USER			("User"		, true),
-	BLOG			("Blog"		, false),
+	BLOG			("Blog"		, true),
 	ADVERTISEMENT	("Ad"		, false),
 	APP				("App"		, false),
 	GAME			("Game"		, false),

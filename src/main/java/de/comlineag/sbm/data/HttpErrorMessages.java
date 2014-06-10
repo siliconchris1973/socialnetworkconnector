@@ -68,6 +68,9 @@ public class HttpErrorMessages { // extends Exception {
 		case HttpStatus.SC_NOT_FOUND:
 			return inputString.toUpperCase().replaceAll(" ", "_")
 					+ " :: the requested object could not be found. To be absolutely clear: This is NOT my fault. Please recheck your query!";
+		case HttpStatus.SC_NOT_IMPLEMENTED:
+			return inputString.toUpperCase().replaceAll(" ", "_")
+					+ " :: the path you gave me, leads to nowhere. Please recheck your query!";
 		case HttpStatus.SC_REQUEST_TOO_LONG:
 			return inputString.toUpperCase().replaceAll(" ", "_")
 					+ " :: could you phrase your request in a shorter way?";

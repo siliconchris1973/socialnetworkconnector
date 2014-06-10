@@ -27,7 +27,7 @@ public final class FacebookParser extends GenericParser {
 	@Override
 	protected void parse(String strPost) {
 		// log the startup message
-		logger.debug("parser START");
+		logger.debug("Facebook parser START");
 
 		// macht ein JSon Decode aus dem uebergebenen String
 		JSONParser parser = new JSONParser();
@@ -65,6 +65,6 @@ public final class FacebookParser extends GenericParser {
 			FacebookUser user = (FacebookUser) users.get(ii);
 			user.save();
 		}
-		logger.debug("Parser END");
+		logger.debug("Facebook parser END");
 	}
 }

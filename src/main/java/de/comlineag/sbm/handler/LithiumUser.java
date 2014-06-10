@@ -1,7 +1,6 @@
 package de.comlineag.sbm.handler;
 
 import org.json.simple.JSONObject;
-
 import de.comlineag.sbm.data.LithiumUserData;
 
 /**
@@ -33,27 +32,13 @@ import de.comlineag.sbm.data.LithiumUserData;
 
 public class LithiumUser extends GenericDataManager<LithiumUserData> {
 
-	/*
-	 * 
-	 * Die nachfolgenden Elemente des Users sollen weiter verarbeitet und
-	 * gespeichert werden
-	 * 
-	 * key="cl_userID" value="id" key="cl_userName" value="name"
-	 * key="cl_userScreenName" value="screen_name" key="cl_userLocation"
-	 * value="location" key="cl_userFollower" value="followers_count"
-	 * key="cl_userFriends" value="friends_count" key="cl_userPostingsCount"
-	 * value="statuses_count" key="cl_userFavoritesCount"
-	 * value="favourites_count" key="cl_userListsAndGroupsCount"
-	 * value="listed_count" key="cl_userLang" value="lang"
-	 */
 	private LithiumUserData data;
 
 	//private final Logger logger = Logger.getLogger(getClass().getName());
-
 	public LithiumUser(JSONObject jsonObject) {
 		data = new LithiumUserData(jsonObject);
 	}
-
+	
 	// public void save(List<LithiumUser> users){
 	public void save() {
 		persistenceManager.saveUsers(data);

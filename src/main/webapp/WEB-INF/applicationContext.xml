@@ -73,15 +73,24 @@
 		<property name="jobDataAsMap">
 			<map>
 				<!-- These are the security tokens for the twitter API -->
-				<entry key="consumerKey" value="zlGuAavBH2T23hIm57l8WA" />
-				<entry key="consumerSecret" value="xzqH6lLWnXLvlHJooNDaCDXlzJzv976JcWt8y2eyHBk" />
-				<entry key="token" value="754994-KDec8qJBwEggHwHQ9XO0X7QBx1VCOZwgbgtpYiibWjl" />
-				<entry key="tokenSecret" value="qm1dqrJas8Lf2ANU8Lx470TkcUSndWLwvJ1I2huZKvJrc" />
+				<entry key="consumerKey"			value="zlGuAavBH2T23hIm57l8WA" />
+				<entry key="consumerSecret"			value="xzqH6lLWnXLvlHJooNDaCDXlzJzv976JcWt8y2eyHBk" />
+				<entry key="token"					value="754994-KDec8qJBwEggHwHQ9XO0X7QBx1VCOZwgbgtpYiibWjl" />
+				<entry key="tokenSecret"			value="qm1dqrJas8Lf2ANU8Lx470TkcUSndWLwvJ1I2huZKvJrc" />
 				
-				<entry key="restrictToTrackterms" value="true" />
-				<entry key="restrictToLanguages" value="true" />
-				<entry key="restrictToUsers" value="false" />
-				<entry key="restrictToLocations" value="false" />
+				<!-- entries for server protocol and location are taken from constants from the hbc twitter api -->
+				
+				<!-- these are NOT used for Twitter -->
+				<entry key="restrictToBlogs"		value="false" />
+				<entry key="restrictToBoards"		value="false" />
+				<entry key="restrictToCommunities"	value="false" />
+				<entry key="restrictToGroups"		value="false" />
+				<entry key="restrictToSites"		value="false" />
+				<!-- but these ARE used -->
+				<entry key="restrictToTrackterms"	value="true" />
+				<entry key="restrictToLanguages"	value="true" />
+				<entry key="restrictToUsers"		value="false" />
+				<entry key="restrictToLocations"	value="false" />
 			</map>
 		</property>
 		<property name="durability" value="true" />
@@ -105,29 +114,32 @@
 		<property name="jobDataAsMap">
 			<map>
 				<!-- These are security tokens -->
-				<entry key="consumerKey" value="" />
-				<entry key="consumerSecret" value="" />
-				<entry key="token" value="" />
-				<entry key="tokenSecret" value="" />
+				<entry key="consumerKey"			value="" />
+				<entry key="consumerSecret"			value="" />
+				<entry key="token"					value="" />
+				<entry key="tokenSecret"			value="" />
 				
-				<!-- login settings -->
-				<entry key="user" value="cmral" />
-				<entry key="passwd" value="123Test123" />
+				<!-- login settings - are encrypted using base64 -->
+				<entry key="user"					value="Y21yYWw=" />
+				<entry key="passwd"					value="MTIzVGVzdDEyMw==" />
 				
 				<!-- with these entries the url to the communities' rest api is generated -->
-				<entry key="PROTOCOL" value = "https" />
-				<entry key="PORT" value = "443" />
-				<entry key="SERVER_URL" value="wissen.cortalconsors.de" />
-				<entry key="COMMUNITY_NAME" value="" />
-				<entry key="REST_API_LOC" value="/restapi/vc" />
-				<entry key="USERS_LOC" value="/users" />
-				<entry key="CATEGORY_LOC" value="/categories" />
+				<entry key="PROTOCOL"				value="https" />
+				<entry key="PORT"					value="443" />
+				<entry key="SERVER_URL"				value="wissen.cortalconsors.de" />
+				<entry key="REST_API_LOC"			value="/restapi/vc" />
 				
 				<!-- restrictions on what to track -->
-				<entry key="restrictToTrackterms" value="true" />
-				<entry key="restrictToLanguages" value="true" />
-				<entry key="restrictToUsers" value="false" />
-				<entry key="restrictToLocations" value="false" />
+				<entry key="restrictToBlogs"		value="false" />
+				<entry key="restrictToBoards"		value="false" />
+				<entry key="restrictToCommunities"	value="true" />
+				<entry key="restrictToGroups"		value="false" />
+				<entry key="restrictToSites"		value="false" />
+				<entry key="restrictToWikis"		value="false" />
+				<entry key="restrictToTrackterms"	value="true" />
+				<entry key="restrictToLanguages"	value="true" />
+				<entry key="restrictToUsers"		value="false" />
+				<entry key="restrictToLocations"	value="false" />
 			</map>
 		</property>
 		<property name="durability" value="true" />
@@ -151,27 +163,32 @@
 		<property name="jobDataAsMap">
 			<map>
 				<!-- These are security tokens -->
-				<entry key="consumerKey" value="" />
-				<entry key="consumerSecret" value="" />
-				<entry key="token" value="" />
-				<entry key="tokenSecret" value="" />
+				<entry key="consumerKey"			value="" />
+				<entry key="consumerSecret"			value="" />
+				<entry key="token"					value="" />
+				<entry key="tokenSecret"			value="" />
 				
 				<!-- login settings -->
-				<entry key="user" value="" />
-				<entry key="passwd" value="" />
+				<entry key="user" 					value="" />
+				<entry key="passwd" 				value="" />
 				
 				<!-- with these entries the url to the rest api and graph engine is generated -->
-				<entry key="PROTOCOL" value = "https" />
-				<entry key="PORT" value = "443" />
-				<entry key="SERVER_URL" value="http://facebook.com" />
-				<entry key="GRAPH_ENDPOINT" value="/graph" />
-				<entry key="REST_API_LOC" value="/restapi/" />
+				<entry key="PROTOCOL"				value="https" />
+				<entry key="PORT"					value="443" />
+				<entry key="SERVER_URL"				value="facebook.com" />
+				<entry key="GRAPH_ENDPOINT"			value="/graph" />
+				<entry key="REST_API_LOC"			value="/restapi/" />
 				
 				<!-- restrictions on what to track -->
-				<entry key="restrictToTrackterms" value="true" />
-				<entry key="restrictToLanguages" value="true" />
-				<entry key="restrictToUsers" value="false" />
-				<entry key="restrictToLocations" value="false" />
+				<entry key="restrictToBlogs"		value="false" />
+				<entry key="restrictToBoards"		value="false" />
+				<entry key="restrictToCommunities"	value="false" />
+				<entry key="restrictToGroups"		value="false" />
+				<entry key="restrictToSites"		value="false" />
+				<entry key="restrictToTrackterms"	value="true" />
+				<entry key="restrictToLanguages"	value="true" />
+				<entry key="restrictToUsers"		value="false" />
+				<entry key="restrictToLocations"	value="false" />
 			</map>
 		</property>
 		<property name="durability" value="true" />

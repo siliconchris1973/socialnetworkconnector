@@ -31,6 +31,7 @@ public enum HttpStatusCode {
 	NO_CONTENT						(HttpStatus.SC_NO_CONTENT, false), 		// 204
 	NOT_ACCEPTABLE					(HttpStatus.SC_NOT_ACCEPTABLE, false), 		// 406
 	NOT_FOUND						(HttpStatus.SC_NOT_FOUND, false),		// 404
+	NOT_IMPLEMENTED					(HttpStatus.SC_NOT_IMPLEMENTED, false),		// 501
 	OK								(HttpStatus.SC_OK, true), 		// 200
 	REQUEST_TOO_LONG				(HttpStatus.SC_REQUEST_TOO_LONG, false), 		// 413
 	REQUEST_TIMEOUT					(HttpStatus.SC_REQUEST_TIMEOUT, false), 		// 408

@@ -145,9 +145,10 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		logger.trace("call for Endpoint POST: " + endpoint.getPostParamString() 
 					+ bigLogMessage);
 
-		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get("consumerKey"), (String) arg0.getJobDetail()
-				.getJobDataMap().get("consumerSecret"), (String) arg0.getJobDetail().getJobDataMap().get("token"), (String) arg0
-				.getJobDetail().getJobDataMap().get("tokenSecret"));
+		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get("consumerKey"), 
+											(String) arg0.getJobDetail().getJobDataMap().get("consumerSecret"), 
+											(String) arg0.getJobDetail().getJobDataMap().get("token"), 
+											(String) arg0.getJobDetail().getJobDataMap().get("tokenSecret"));
 
 		// Create a new BasicClient. By default gzip is enabled.
 		Client client = new ClientBuilder().hosts(Constants.STREAM_HOST).endpoint(endpoint).authentication(sn_Auth)
