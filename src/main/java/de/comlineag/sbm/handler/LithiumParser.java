@@ -1,9 +1,9 @@
 package de.comlineag.sbm.handler;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-
 
 import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
@@ -14,6 +14,8 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import de.comlineag.sbm.data.LithiumUserData;
+import de.comlineag.sbm.data.LithiumPostingData;
+import de.comlineag.sbm.data.LithiumErrorData;
 
 /**
  * 
@@ -41,10 +43,7 @@ public final class LithiumParser extends DefaultHandler { //GenericParser {
 	
 	public LithiumParser() {}
 
-	public LithiumParser(Object content) {
-		// TODO Auto-generated constructor stub
-		parse(content.toString());
-	}
+	public LithiumParser(Object content) {}
 
 	
 	// ---- SAX DefaultHandler methods ----
@@ -125,28 +124,15 @@ public final class LithiumParser extends DefaultHandler { //GenericParser {
 	}
 	
 	//@Override
-	protected void parse(String strPost) {
+	//protected void parse(String strPost) {
+	protected void parse(InputStream is) {
 		// log the startup message
 		logger.debug("Lithium parser START");
-
-		XMLReader xmlReader;
-		try {
-			xmlReader = XMLReaderFactory.createXMLReader();
-			InputSource inputSource = new InputSource(strPost);
-			
-			xmlReader.parse(strPost);
-		} catch (SAXException | IOException e1) {
-			logger.error("EXCEPTION :: " + e1.getStackTrace());
-		} 
-
 		
-		logger.trace("this is the content of the input source " + strPost.toString());
-	    
-		//xmlReader.setContentHandler(new PersonenContentHandler());
-		
-		
+		logger.trace("this is what I got from you " + is.toString());
 		
 		/* ALTER Parser
+		logger.trace("this is the content of the input source " + strPost.toString());
 		// macht ein JSon Decode aus dem uebergebenen String
 		JSONParser parser = new JSONParser();
 		List<LithiumPosting> postings = new ArrayList<LithiumPosting>();

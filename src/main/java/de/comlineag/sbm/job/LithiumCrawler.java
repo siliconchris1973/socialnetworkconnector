@@ -144,6 +144,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				logger.debug("connection established (status is " + statusCode + ") now checking returned xml");
 			}	
 			
+			
+			
 			// CODE to simply output XML content
 			/*
 			XMLReader xmlReader = XMLReaderFactory.createXMLReader();
@@ -190,15 +192,15 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			
 			// CODE to parse response with SAX 
 			try {
-			      // Use an instance of ourselves as the SAX event handler
+			      // Use an instance of LithiumParser as the SAX event handler
 			      DefaultHandler handler = new LithiumParser();
 			      // Parse the input with the default (non-validating) parser
 			      SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
 			      saxParser.parse( conn.getInputStream(), handler );
 			      System.exit( 0 );
-			    } catch( Throwable t ) {
-			      t.printStackTrace();
-			      System.exit( 2 );
+			    } catch( Exception e ) {
+			    	logger.error("EXCEPTION :: " + e.getStackTrace().toString());
+			    	System.exit( 2 );
 			    }
 			
 			conn.disconnect();
