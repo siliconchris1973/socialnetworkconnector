@@ -133,7 +133,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			
 			if (!statusCode.isOk()){
 				if (statusCode == HttpStatusCode.FORBIDDEN){
-					//TODO implement proper authorization handling
+					// TODO implement proper authorization handling
 					logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
 				} else {
 					logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode())+" could not connect to " + tURL.toString() + " " + conn.getResponseMessage());
@@ -142,26 +142,15 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				logger.debug("connection established (status is " + statusCode + ") now checking returned xml");
 			}	
 			
-			//Create the parser instance
+			// Create the parser instance
 	        LithiumParser parser = new LithiumParser();
 	 
-	        //Parse the file
-	        ArrayList<?> errors = parser.parseXml(conn.getInputStream());
+	        // Parse the input stream
+	        // TODO check how to make this so, that we do not need to know whether this is a message, posting or error
+	        ArrayList<?> errors = parser.parseErrorXml(conn.getInputStream());
 	 
-	        //Verify the result
+	        // Verify the result
 	        System.out.println(errors);
-			
-			// CODE to simply output XML content
-			/*
-			XMLReader xmlReader = XMLReaderFactory.createXMLReader();
-			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			InputSource inputSource = new InputSource(in);
-			String inputLine;
-			while ((inputLine = in.readLine()) != null) 
-				logger.trace(inputLine.toString());
-			in.close();
-			*/
-			
 			
 			conn.disconnect();
 			

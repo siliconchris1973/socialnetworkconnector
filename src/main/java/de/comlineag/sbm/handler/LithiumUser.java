@@ -12,8 +12,8 @@ import de.comlineag.sbm.data.LithiumUserData;
 
 /**
  * 
- * @author Christian Guenther
- * @category Handler
+ * @author 		Christian Guenther
+ * @category 	Handler
  * 
  * @description Implementation of the lithium user manager - extends
  *              GenericDataManager. This handler is used to save a new user or
@@ -43,7 +43,7 @@ public class LithiumUser extends DefaultHandler { //GenericDataManager<LithiumUs
 	
 	public LithiumUser() {}
 	
-	/*
+	/* ORIGINAL CODE
 	private LithiumUserData data;
 
 	//private final Logger logger = Logger.getLogger(getClass().getName());
@@ -59,13 +59,13 @@ public class LithiumUser extends DefaultHandler { //GenericDataManager<LithiumUs
 	
 	// SAX CODE
 	// This is the list which shall be populated while parsing the XML.
-	private ArrayList userList = new ArrayList();
+	private ArrayList<LithiumUserData> userList = new ArrayList<LithiumUserData>();
 	
 	// As we read any XML element we will push that in this stack
-	private Stack elementStack = new Stack();
+	private Stack<String> elementStack = new Stack<String>();
 	
 	// As we complete one user block in XML, we will push the User instance in userList
-	private Stack objectStack = new Stack();
+	private Stack<LithiumUserData> objectStack = new Stack<LithiumUserData>();
 	
 	public void startDocument() throws SAXException {
 		logger.trace("start of the document   : ");
@@ -76,6 +76,8 @@ public class LithiumUser extends DefaultHandler { //GenericDataManager<LithiumUs
 	}
 	
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+		logger.trace("new " + localName + "-element to push on userList stack " + uri);
+		
 		//Push it in element stack    
 		this.elementStack.push(qName);
 
@@ -94,13 +96,14 @@ public class LithiumUser extends DefaultHandler { //GenericDataManager<LithiumUs
 	}
 
 	public void endElement(String uri, String localName, String qName) throws SAXException {
+		logger.trace("endElement for " + qName + " found");
 		
 		//Remove last added  element
 		this.elementStack.pop();
 		
 		//User instance has been constructed so pop it from object stack and push in userList
 		if ("user".equals(qName)) {
-			LithiumUserData object = (LithiumUserData) this.objectStack.pop();
+			LithiumUserData object = this.objectStack.pop();
 			this.userList.add(object);
 		}
 	}
@@ -115,21 +118,21 @@ public class LithiumUser extends DefaultHandler { //GenericDataManager<LithiumUs
 
 		//handle the value based on to which element it belongs
 		if ("screenname".equals(currentElement())) {
-			LithiumUserData user = (LithiumUserData) this.objectStack.peek();
+			LithiumUserData user = this.objectStack.peek();
 			user.setScreenName(value);
 		} else if ("username".equals(currentElement())) {
-			LithiumUserData user = (LithiumUserData) this.objectStack.peek();
+			LithiumUserData user = this.objectStack.peek();
 			user.setUsername(value);
 		}
 	}
 
-	//Utility method for getting the current element in processing
+	// Utility method for getting the current element in processing
 	private String currentElement() {
-		return (String) this.elementStack.peek();
+		return this.elementStack.peek();
 	}
 
-	//Accessor for userList object
-	public ArrayList getUsers() {
+	// Accessor for userList object
+	public ArrayList<LithiumUserData> getUsers() {
 		return userList;
 	}
 	

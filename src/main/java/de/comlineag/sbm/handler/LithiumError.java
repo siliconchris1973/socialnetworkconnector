@@ -35,11 +35,11 @@ public class LithiumError extends DefaultHandler {
 	private Stack<LithiumErrorData> objectStack = new Stack<LithiumErrorData>();
 	
 	public void startDocument() throws SAXException {
-		logger.trace("start of the document   : ");
+		logger.trace("start of the xml input stream   : ");
 	}
 
 	public void endDocument() throws SAXException {
-		logger.trace("end of the document     : ");
+		logger.trace("end of the xml input stream     : ");
 	}
 	
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
@@ -48,7 +48,7 @@ public class LithiumError extends DefaultHandler {
 		this.elementStack.push(qName);
 
 		// If this is start of 'error' element then prepare a new Error instance and push it in object stack
-		if ("response status".equals(qName)) {
+		if ("error".equals(qName)) {
 			// New Error instance
 			LithiumErrorData error = new LithiumErrorData();
 			
@@ -62,12 +62,12 @@ public class LithiumError extends DefaultHandler {
 	}
 
 	public void endElement(String uri, String localName, String qName) throws SAXException {
-		logger.trace("endElement called");
+		logger.trace("endElement for " + qName + " found");
 		// Remove last added element
 		this.elementStack.pop();
 		
 		// Error instance has been constructed so pop it from object stack and push in errorList
-		if ("response status".equals(qName)) {
+		if ("response".equals(qName)) {
 			LithiumErrorData object = this.objectStack.pop();
 			this.errorList.add(object);
 		}

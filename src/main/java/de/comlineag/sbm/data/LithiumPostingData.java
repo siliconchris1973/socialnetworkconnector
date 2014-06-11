@@ -19,8 +19,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * 
- * @author Christian Guenther
- * @category data type
+ * @author 		Christian Guenther
+ * @category 	data type
  * 
  * @description Describes a single lithium posting with all relevant informations. 
  * 				The class shall be used to make all methods handling a lithium posting type save.
@@ -49,6 +49,8 @@ public final class LithiumPostingData extends PostData {
 
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
+	public LithiumPostingData(){}
+	
 	/**
 	 * Constructor, based on the JSONObject sent from Lithium the Data Object is prepared
 	 * 

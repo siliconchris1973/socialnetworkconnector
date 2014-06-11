@@ -36,16 +36,18 @@ public final class LithiumParser extends GenericParser {
 
 	@Override
 	protected void parse(String strPosting) {
-		// THIS ONE IS NOT NEEDED
+		// THIS ONE IS NOT NEEDED as we work with an input stream
 	}
 
 	@Override
 	protected void parse(InputStream is) {
-		// this parse method is used for the Lithium community 
-		
+		// this parse method is NOT used for the Lithium community
+		// as of this moment we need a parse method which returns data
+		// and the GenericParser class does not permit this
 	}
 	
-	public ArrayList<LithiumErrorData> parseXml(InputStream in) {
+	public ArrayList<LithiumErrorData> parseErrorXml(InputStream in) {
+		// this parse method is used by the crawler. It checks for errors in the returned XML
 		logger.debug("Lithium parser START");
 		
 		// Create a empty link of Errors initially
@@ -60,13 +62,13 @@ public final class LithiumParser extends GenericParser {
 			// Register handler with parser
 			parser.setContentHandler(handler);
 			
-			//Create an input source from the XML input stream
+			// Create an input source from the XML input stream
 			InputSource source = new InputSource(in);
 			
-			//parse the document
+			// parse the document
 			parser.parse(source);
 			
-			//populate the parsed users list in above created empty list; You can return from here also.
+			// populate the parsed list in above created empty list; You can return from here also.
 			errors = handler.getErrors();
 			
 		} catch (SAXException e) {
@@ -79,6 +81,7 @@ public final class LithiumParser extends GenericParser {
 		
 		return errors;
 	}
+	
 	
 	/* This is the original parse method
 	//@Override
