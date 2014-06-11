@@ -2,16 +2,12 @@ package de.comlineag.sbm.handler;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
-import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import de.comlineag.sbm.data.LithiumUserData;
@@ -49,7 +45,7 @@ public final class LithiumParser extends GenericParser {
 		
 	}
 	
-	public ArrayList parseXml(InputStream in) {
+	public ArrayList<LithiumErrorData> parseXml(InputStream in) {
 		logger.debug("Lithium parser START");
 		
 		// Create a empty link of Errors initially
@@ -74,9 +70,9 @@ public final class LithiumParser extends GenericParser {
 			errors = handler.getErrors();
 			
 		} catch (SAXException e) {
-			logger.error("EXCEPTION :: " + e.getStackTrace().toString());
+			logger.error("EXCEPTION :: SAXException " + e.getStackTrace().toString());
 		} catch (IOException e) {
-			logger.error("EXCEPTION :: " + e.getStackTrace().toString());
+			logger.error("EXCEPTION :: IOException " + e.getStackTrace().toString());
 		} finally {}
 	
 		logger.debug("Lithium parser END");

@@ -26,13 +26,13 @@ public class LithiumError extends DefaultHandler {
 	public LithiumError() {}
 
 	// This is the list which shall be populated while parsing the XML.
-	private ArrayList errorList = new ArrayList();
+	private ArrayList<LithiumErrorData> errorList = new ArrayList<LithiumErrorData>();
 	
 	// As we read any XML element we will push that in this stack
-	private Stack elementStack = new Stack();
+	private Stack<String> elementStack = new Stack<String>();
 	
 	// As we complete one error block in XML, we will push the Error instance in errorList
-	private Stack objectStack = new Stack();
+	private Stack<LithiumErrorData> objectStack = new Stack<LithiumErrorData>();
 	
 	public void startDocument() throws SAXException {
 		logger.trace("start of the document   : ");
@@ -43,7 +43,7 @@ public class LithiumError extends DefaultHandler {
 	}
 	
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		logger.trace("new element " + localName + "(" + qName + ") with " + attributes + " to push on errorList stack " + uri);
+		logger.trace("new " + localName + "-element to push on errorList stack " + uri);
 		// Push it in element stack    
 		this.elementStack.push(qName);
 
@@ -68,7 +68,7 @@ public class LithiumError extends DefaultHandler {
 		
 		// Error instance has been constructed so pop it from object stack and push in errorList
 		if ("response status".equals(qName)) {
-			LithiumErrorData object = (LithiumErrorData) this.objectStack.pop();
+			LithiumErrorData object = this.objectStack.pop();
 			this.errorList.add(object);
 		}
 	}
@@ -83,21 +83,21 @@ public class LithiumError extends DefaultHandler {
 
 		// handle the value based on to which element it belongs
 		if ("error code".equals(currentElement())) {
-			LithiumErrorData error = (LithiumErrorData) this.objectStack.peek();
+			LithiumErrorData error = this.objectStack.peek();
 			error.setErrorCode(value);
 		} else if ("message".equals(currentElement())) {
-			LithiumErrorData error = (LithiumErrorData) this.objectStack.peek();
+			LithiumErrorData error = this.objectStack.peek();
 			error.setMessage(value);
 		}
 	}
 
 	// Utility method for getting the current element in processing
 	private String currentElement() {
-		return (String) this.elementStack.peek();
+		return this.elementStack.peek();
 	}
 
 	// Accessor for errorList object
-	public ArrayList getErrors() {
+	public ArrayList<LithiumErrorData> getErrors() {
 		return errorList;
 	}
 }

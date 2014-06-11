@@ -15,8 +15,6 @@ import java.net.URLEncoder;
 import javax.net.ssl.HttpsURLConnection;
 
 import java.util.ArrayList;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -45,25 +43,27 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
-	
+	/*
 	// Set up your blocking queues: Be sure to size these properly based on
 	// expected TPS of your stream
 	private BlockingQueue<String> msgQueue;
 	private LithiumParser post;
-	
+	*/
 	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
-	private String smallLogMessage = "";
+	//private String smallLogMessage = "";
 	
 	
 	public LithiumCrawler() {
 		logger.trace("Instantiated LithiumCrawler Class");
+		/*
 		// Define message and event queue
 		msgQueue = new LinkedBlockingQueue<String>(100000);
 				
 		// instantiate the Lithium-Posting-Manager
 		post = new LithiumParser();
+		*/
 	}
 
 	
@@ -77,6 +77,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		final String PORT = (String) arg0.getJobDetail().getJobDataMap().get("PORT");
 		final String REST_API_LOC = (String) arg0.getJobDetail().getJobDataMap().get("REST_API_LOC");
 		final String REST_API_URL = PROTOCOL + "://" + SERVER_URL + ":" + PORT + REST_API_LOC;
+		
 		// authentication to lithium
 		String _user = null;
 		String _passwd = null;
@@ -89,7 +90,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		
 		logger.trace("setting up the rest endpoint at " + REST_API_URL + " with user " + _user);
 		
-		
+		/*
 		// setup restrictions on what to get from lithium - also says where to look
 		String[] tSites = {"/Girokonto-Zahlungsverkehr/bd-p/Girokonto-Zahlungsverkehr",
 							"/Sparen-Anlegen/bd-p/Sparen-und-Anlegen",
@@ -105,7 +106,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		smallLogMessage += "specific languages ";
 		
 		logger.debug("new lithium parser instantiated - restricted to track " + smallLogMessage);
-		
+		*/
 		
 		//TODO implement authentication against lithium network
 		/*
@@ -145,7 +146,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	        LithiumParser parser = new LithiumParser();
 	 
 	        //Parse the file
-	        ArrayList errors = parser.parseXml(conn.getInputStream());
+	        ArrayList<?> errors = parser.parseXml(conn.getInputStream());
 	 
 	        //Verify the result
 	        System.out.println(errors);
@@ -195,16 +196,21 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	
 	// some useful functions
 	/**
+	 * @param 		user
+	 * @param 		pwd
+	 * @returns 	new password authentication against web resource
+	 * 
+	 * @description	this method shall commit basic authentication against a web resource
 	 * 
 	 */
-	private void basicAuthentication(){ 
+	private void basicAuthentication(String user, String pwd){ 
 		Authenticator.setDefault( new Authenticator() {
 			@Override protected PasswordAuthentication getPasswordAuthentication() {
 				System.out.printf( "url=%s, host=%s, ip=%s, port=%s%n",
 	                       getRequestingURL(), getRequestingHost(),
 	                       getRequestingSite(), getRequestingPort() );
 				
-				return new PasswordAuthentication( "user", "abc".toCharArray() );
+				return new PasswordAuthentication( "user", "pwd???".toCharArray() );
 			}
 		});
 	}
