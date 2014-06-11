@@ -1,5 +1,6 @@
 package de.comlineag.sbm.handler;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,5 +67,10 @@ public final class TwitterParser extends GenericParser {
 			user.save();
 		}
 		logger.debug("Twitter parser END");
+	}
+
+	@Override
+	protected void parse(InputStream is) {
+		// THIS ONE IS NOT USED
 	}
 }

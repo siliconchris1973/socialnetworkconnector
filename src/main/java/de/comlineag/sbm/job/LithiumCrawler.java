@@ -13,16 +13,14 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
+import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.xml.sax.helpers.DefaultHandler;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.util.HttpURLConnection;
 import org.apache.log4j.Logger;
@@ -120,7 +118,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		// this is the connection object and the status - I need this outside the try catch clause
 		HttpsURLConnection conn = null;
 		HttpStatusCode statusCode = null;
-		String xmlEntry = "error code";
 		
 		try {
 			String tURL = REST_API_URL + "/messages"; //+ "/Girokonto-Zahlungsverkehr/bd-p/Girokonto-Zahlungsverkehr";
@@ -144,7 +141,14 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				logger.debug("connection established (status is " + statusCode + ") now checking returned xml");
 			}	
 			
-			
+			//Create the parser instance
+	        LithiumParser parser = new LithiumParser();
+	 
+	        //Parse the file
+	        ArrayList errors = parser.parseXml(conn.getInputStream());
+	 
+	        //Verify the result
+	        System.out.println(errors);
 			
 			// CODE to simply output XML content
 			/*
@@ -157,51 +161,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			in.close();
 			*/
 			
-			// CODE to parse through responses with STAX
-			/*
-			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-			XMLStreamReader stax = inputFactory.createXMLStreamReader(new StreamSource(conn.getInputStream()));
-			StringBuffer    sb = new StringBuffer();
-			int             state = 0;
-			
-			while(stax.hasNext()) {
-				stax.next();
-				String  name = ( stax.hasName() ) ? stax.getName().getLocalPart().trim() : null;
-				String  text = ( stax.hasText() ) ? stax.getText().trim() : null;
-				logger.trace("name: " + name + " / text: " + text);
-				if (name == xmlEntry) {
-					logger.debug("Found error element in XML response");
-				}
-				
-				boolean b1 = stax.hasName() && name.equals( "response" );   // <ParentElem>
-				boolean b2 = stax.hasName() && name.equals( xmlEntry );   	// <ChildElem>
-				boolean b3 = stax.hasText() && text.equals( "message" );   	// <FindText>
-				boolean b4 = stax.hasName() && name.equals( "" );   		// <DataElem>
-				if( b1 && stax.isStartElement() ) 				state = 1;  // <ParentElem>
-				if( b1 && stax.isEndElement()   ) 				state = 0;
-				
-				if( state == 1 && b2 && stax.isStartElement() ) state = 2;	// <ChildElem>
-				if( state == 2 && b2 && stax.isEndElement()   ) state = 1;
-				if( state == 2 && b3 ) 							state = 3;	// <FindText>
-				if( state == 3 && b4 && stax.isStartElement() ) state = 4;	// <DataElem>
-				if( state == 4 && b4 && stax.isEndElement()   ) break;
-				if( state == 4 && stax.hasText() ) sb.append( stax.getText() ); // gesuchtes Ergebnis
-			}
-			logger.trace("stax content " + sb );
-			*/
-			
-			// CODE to parse response with SAX 
-			try {
-			      // Use an instance of LithiumParser as the SAX event handler
-			      DefaultHandler handler = new LithiumParser();
-			      // Parse the input with the default (non-validating) parser
-			      SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-			      saxParser.parse( conn.getInputStream(), handler );
-			      System.exit( 0 );
-			    } catch( Exception e ) {
-			    	logger.error("EXCEPTION :: " + e.getStackTrace().toString());
-			    	System.exit( 2 );
-			    }
 			
 			conn.disconnect();
 			

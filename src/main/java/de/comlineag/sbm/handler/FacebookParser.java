@@ -1,5 +1,6 @@
 package de.comlineag.sbm.handler;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,5 +67,11 @@ public final class FacebookParser extends GenericParser {
 			user.save();
 		}
 		logger.debug("Facebook parser END");
+	}
+
+	@Override
+	protected void parse(InputStream is) {
+		// TODO CHECK IF THIS ONE IS NEEDED
+		
 	}
 }

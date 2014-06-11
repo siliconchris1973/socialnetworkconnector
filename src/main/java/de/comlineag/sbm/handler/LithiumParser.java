@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
@@ -31,98 +32,59 @@ import de.comlineag.sbm.data.LithiumErrorData;
  * 				and finally calls the persistence manager to store the objects
  * 
  */
-public final class LithiumParser extends DefaultHandler { //GenericParser {
+public final class LithiumParser extends GenericParser {
 
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
-	// now some static modifier for the sax parsing
-	static final   String       sNEWLINE   = System.getProperty( "line.separator" );
-	static private Writer       out        = null;
-	private        StringBuffer textBuffer = null;
-	
-	
 	public LithiumParser() {}
 
-	public LithiumParser(Object content) {}
-
-	
-	// ---- SAX DefaultHandler methods ----
-	@Override 
-	public void startDocument() throws SAXException {
-		echoString( sNEWLINE + "<?xml ...?>" + sNEWLINE + sNEWLINE );
+	@Override
+	protected void parse(String strPosting) {
+		// THIS ONE IS NOT NEEDED
 	}
 
 	@Override
-	public void endDocument() throws SAXException {
-	    echoString( sNEWLINE );
-	}
-
-	@Override
-	public void startElement( String namespaceURI,
-			  					String localName,   // local name
-	                            String qName,       // qualified name
-	                            Attributes attrs )
-	                            		throws SAXException {
-	    
-		echoTextBuffer();
-		String eName = ( "".equals( localName ) ) ? qName : localName;
-	    echoString( "<" + eName );                  // element name
-	    if( attrs != null ) {
-	    	for( int i=0; i<attrs.getLength(); i++ ) {
-	    		String aName = attrs.getLocalName( i ); // Attr name
-	    		if( "".equals( aName ) )  aName = attrs.getQName( i );
-	    		echoString( " " + aName + "=\"" + attrs.getValue( i ) + "\"" );
-	    	}
-	    }
-	    echoString( ">" );
-	}
-
-	@Override  
-	public void endElement( String namespaceURI,
-	                          String localName,     // local name
-	                          String qName )        // qualified name
-	                        		  throws SAXException {
-		echoTextBuffer();
-		String eName = ( "".equals( localName ) ) ? qName : localName;
-	    echoString( "</" + eName + ">" );           // element name  
-	}
-
-
-	@Override  
-	public void characters( char[] buf, int offset, int len )
-			throws SAXException {
-		String s = new String( buf, offset, len );
-		if( textBuffer == null )
-			textBuffer = new StringBuffer( s );
-		else
-			textBuffer.append( s );
+	protected void parse(InputStream is) {
+		// this parse method is used for the Lithium community 
+		
 	}
 	
-	
-	// ---- Helper methods ----
-	// Display text accumulated in the character buffer  
-	private void echoTextBuffer()
-			throws SAXException {
-		if( textBuffer == null )  return;
-		echoString( textBuffer.toString() );
-		textBuffer = null;
-	}
-	
-	
-	// Wrap I/O exceptions in SAX exceptions, to
-	// suit handler signature requirements
-	private void echoString( String s )
-			throws SAXException {
+	public ArrayList parseXml(InputStream in) {
+		logger.debug("Lithium parser START");
+		
+		// Create a empty link of Errors initially
+		ArrayList<LithiumErrorData> errors = new ArrayList<LithiumErrorData>();
 		try {
-			if( null == out )
-				out = new OutputStreamWriter( System.out, "UTF8" );
-			out.write( s );
-			out.flush();
-		} catch( IOException ex ) {
-			throw new SAXException( "I/O error", ex );
-		}
+			// Create default handler instance
+			LithiumError handler = new LithiumError();
+			
+			// Create parser from factory
+			XMLReader parser = XMLReaderFactory.createXMLReader();
+			
+			// Register handler with parser
+			parser.setContentHandler(handler);
+			
+			//Create an input source from the XML input stream
+			InputSource source = new InputSource(in);
+			
+			//parse the document
+			parser.parse(source);
+			
+			//populate the parsed users list in above created empty list; You can return from here also.
+			errors = handler.getErrors();
+			
+		} catch (SAXException e) {
+			logger.error("EXCEPTION :: " + e.getStackTrace().toString());
+		} catch (IOException e) {
+			logger.error("EXCEPTION :: " + e.getStackTrace().toString());
+		} finally {}
+	
+		logger.debug("Lithium parser END");
+		
+		return errors;
 	}
 	
+	/* This is the original parse method
 	//@Override
 	//protected void parse(String strPost) {
 	protected void parse(InputStream is) {
@@ -131,7 +93,7 @@ public final class LithiumParser extends DefaultHandler { //GenericParser {
 		
 		logger.trace("this is what I got from you " + is.toString());
 		
-		/* ALTER Parser
+		// ALTER Parser
 		logger.trace("this is the content of the input source " + strPost.toString());
 		// macht ein JSon Decode aus dem uebergebenen String
 		JSONParser parser = new JSONParser();
@@ -171,8 +133,9 @@ public final class LithiumParser extends DefaultHandler { //GenericParser {
 			LithiumUser user = (LithiumUser) users.get(ii);
 			user.save();
 		}
-		*/
+		
 		
 		logger.debug("Lithium parser END");
 	}
+	*/
 }

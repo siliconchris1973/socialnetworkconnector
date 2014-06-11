@@ -10,6 +10,15 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import de.comlineag.sbm.data.LithiumErrorData;
 
+/**
+ * 
+ * @author 		Christian Guenther
+ * @category	Handler
+ * @description	This is the Handler for errors returned by the Lithium community
+ * 				it extends the DefaultHandler form SAX and is called upon by the LithiumParser
+ * 				
+ *
+ */
 public class LithiumError extends DefaultHandler {
 	
 	private final Logger logger = Logger.getLogger(getClass().getName());
@@ -35,17 +44,17 @@ public class LithiumError extends DefaultHandler {
 	
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		logger.trace("new element " + localName + "(" + qName + ") with " + attributes + " to push on errorList stack " + uri);
-		//Push it in element stack    
+		// Push it in element stack    
 		this.elementStack.push(qName);
 
-		//If this is start of 'error' element then prepare a new Error instance and push it in object stack
+		// If this is start of 'error' element then prepare a new Error instance and push it in object stack
 		if ("response status".equals(qName)) {
-			//New Error instance
+			// New Error instance
 			LithiumErrorData error = new LithiumErrorData();
 			
-			//Set all required attributes in any XML element here itself
+			// Set all required attributes in any XML element here itself
 			if(attributes != null && attributes.getLength() == 1) {
-				error.setId(Integer.parseInt(attributes.getValue(0)));
+				error.setErrorCode(attributes.getValue(0));
 			}
 			
 			this.objectStack.push(error);
@@ -54,11 +63,11 @@ public class LithiumError extends DefaultHandler {
 
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		logger.trace("endElement called");
-		//Remove last added element
+		// Remove last added element
 		this.elementStack.pop();
 		
-		//Error instance has been constructed so pop it from object stack and push in errorList
-		if ("error".equals(qName)) {
+		// Error instance has been constructed so pop it from object stack and push in errorList
+		if ("response status".equals(qName)) {
 			LithiumErrorData object = (LithiumErrorData) this.objectStack.pop();
 			this.errorList.add(object);
 		}
@@ -72,7 +81,7 @@ public class LithiumError extends DefaultHandler {
 			return; // ignore white space
 		}
 
-		//handle the value based on to which element it belongs
+		// handle the value based on to which element it belongs
 		if ("error code".equals(currentElement())) {
 			LithiumErrorData error = (LithiumErrorData) this.objectStack.peek();
 			error.setErrorCode(value);
@@ -82,12 +91,12 @@ public class LithiumError extends DefaultHandler {
 		}
 	}
 
-	//Utility method for getting the current element in processing
+	// Utility method for getting the current element in processing
 	private String currentElement() {
 		return (String) this.elementStack.peek();
 	}
 
-	//Accessor for errorList object
+	// Accessor for errorList object
 	public ArrayList getErrors() {
 		return errorList;
 	}

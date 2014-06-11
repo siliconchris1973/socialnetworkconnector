@@ -1,5 +1,17 @@
 package de.comlineag.sbm.data;
 
+/**
+ * 
+ * @author 		Christian Guenther
+ * @category	Model Class (aka Data)
+ * @description	LithiumErrorData is the model class that represents a single error 
+ * 				as returned by the Lithium community. It consists of data elements for
+ * 				* response status
+ * 				* error code 
+ * 				* message
+ *
+ *	@returns	error code as string
+ */
 public class LithiumErrorData {
 
 	public LithiumErrorData() {}
@@ -15,19 +27,11 @@ public class LithiumErrorData {
 		</response>
 	 */
 	
-	// XML attribute id
-	private int id;
 	// XML element error
 	private String responseStatus;
 	private String errorCode;
 	private String message;
  
-    public int getId() {
-        return id;
-    }
-    public void setId(int id) {
-        this.id = id;
-    }
     public String getResponseStatus() {
 		return responseStatus;
 	}
@@ -49,7 +53,7 @@ public class LithiumErrorData {
     
     @Override
     public String toString() {
-        return this.id + ":" + this.errorCode;
+        return this.errorCode;
     }
 	
 	
