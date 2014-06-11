@@ -13,9 +13,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -23,9 +22,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
+import org.xml.sax.helpers.DefaultHandler;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.util.HttpURLConnection;
 import org.apache.log4j.Logger;
@@ -50,14 +47,17 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
+	
 	// Set up your blocking queues: Be sure to size these properly based on
 	// expected TPS of your stream
 	private BlockingQueue<String> msgQueue;
 	private LithiumParser post;
 	
+	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
 	private String smallLogMessage = "";
+	
 	
 	public LithiumCrawler() {
 		logger.trace("Instantiated LithiumCrawler Class");
@@ -120,11 +120,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		// this is the connection object and the status - I need this outside the try catch clause
 		HttpsURLConnection conn = null;
 		HttpStatusCode statusCode = null;
-		String xmlEntry = "error";
+		String xmlEntry = "error code";
 		
 		try {
-			//for (int i = 0; i < tSites.length; i++){
-			
 			String tURL = REST_API_URL + "/messages"; //+ "/Girokonto-Zahlungsverkehr/bd-p/Girokonto-Zahlungsverkehr";
 			//String mURL = REST_API_URL + 
 			
@@ -157,6 +155,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			in.close();
 			*/
 			
+			// CODE to parse through responses with STAX
+			/*
 			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 			XMLStreamReader stax = inputFactory.createXMLStreamReader(new StreamSource(conn.getInputStream()));
 			StringBuffer    sb = new StringBuffer();
@@ -186,11 +186,25 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				if( state == 4 && stax.hasText() ) sb.append( stax.getText() ); // gesuchtes Ergebnis
 			}
 			logger.trace("stax content " + sb );
+			*/
+			
+			// CODE to parse response with SAX 
+			try {
+			      // Use an instance of ourselves as the SAX event handler
+			      DefaultHandler handler = new LithiumParser();
+			      // Parse the input with the default (non-validating) parser
+			      SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+			      saxParser.parse( conn.getInputStream(), handler );
+			      System.exit( 0 );
+			    } catch( Throwable t ) {
+			      t.printStackTrace();
+			      System.exit( 2 );
+			    }
 			
 			conn.disconnect();
 			
 		} catch (Exception e) {
-			logger.error("EXCEPTION :: during rest call to lithium " + e.toString());
+			logger.error("EXCEPTION :: " + e.toString());
 		}
 		
 		/*
