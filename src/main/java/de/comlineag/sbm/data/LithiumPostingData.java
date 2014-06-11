@@ -1,7 +1,6 @@
 package de.comlineag.sbm.data;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -60,24 +59,20 @@ public final class LithiumPostingData extends PostData {
 	public LithiumPostingData(JSONObject jsonObject) {
 
 		// log the startup message
-		logger.debug("constructing new subset of data of post (ID: " + jsonObject.get("id") + ") from lithium post-object");
+		logger.debug("constructing new subset of data of post from lithium post-object");
 		logger.trace("  working on " + jsonObject.toString());
 		
 		// alles auf Null und die SocialNetworkID schon mal parken
-		initialize();
+		//initialize();
 
+		
+		/* OLD TWITTER STUFF
 		// ID des Posting
 		setId((Long) jsonObject.get("id"));
 
 		// User ID
 		JSONObject user = (JSONObject) jsonObject.get("user");
 		setUserId((Long) user.get("id"));
-		
-		// fuer Debugging der Nachrichten in den verschiedenen Faellen
-		//String tUser = new String(new Long(getUserId()).toString());
-		//if (tUser.contains("754994"))
-		//	logger.trace("Post von siliconchris in Json: " + jsonObject);
-		// END Debugging fuer Nachrichtenausgaben
 		
 		// Sprache
 		setLang((String) jsonObject.get("lang"));
@@ -106,46 +101,8 @@ public final class LithiumPostingData extends PostData {
 		// Geodaten des Posts - es gibt coordinates und place, place wird gefuellt wenn bspw. im Web ein Ort fuer den Tweet angegeben wird:
 		if (jsonObject.get("coordinates") != null)
 			logger.debug("Found Coordinates " + jsonObject.get("coordinates").toString() + "");
-		
-		/**
-		 * Struktur der Coordinates:
-		 * {"type":"Point","coordinates":[-90.06779631,29.95202616]}
-		 * zufaellig entdeckt (kein eigener Post!), der Spassvogel befindet sich wohl am Suedpol (-90)
-		 * 
-		 * damit vielleicht besser moeglich den Kram zu verarbeiten?
-		 * http://docs.geotools.org/latest/userguide/faq.html
-		 * 
-		 * mein Tweet mit Ortsangabe JSON siehe unten hatte in place die Daten
-		 
-		 // TODO implement proper geo handling - this currently kills the parser
-		if (jsonObject.get("place") != null) {
-			logger.trace("Found place " + jsonObject.get("place"));
-			JSONObject place = (JSONObject) jsonObject.get("place");
-
-			setGeoPlaceId(place.get("id").toString());
-			preparePostGeoData((JSONObject) place.get("bounding_box"));
-
-		}
 		*/
 		
-		/**
-		 * Structure of Hashtag and Symbols - not yet implemented
-		 * 
-		 * "entities": {
-		 * 		"trends":[],
-		 * 		"symbols":[],
-		 * 		"urls":[],
-		 * 		"hashtags":[{
-		 * 			"text":"SocialBrandMonitor",
-		 * 			"indices":[20,39]}],
-		 * 		"user_mentions":[]
-		 * 	}
-		 * 
-		 */
-		// TODO implement proper handling of hashtags, symbols and mentions - this currently kills the parser
-		//setHashtags((List<?>)jsonObject.get("hashtags"));
-		//setSymbols((List<?>)jsonObject.get("symbols"));
-		//setMentions((List<?>)jsonObject.get("user_mentions"));
 	}
 	
 	

@@ -11,21 +11,31 @@ import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import java.util.ArrayList;
-
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.util.HttpURLConnection;
 import org.apache.log4j.Logger;
 
 import de.comlineag.sbm.data.HttpErrorMessages;
 import de.comlineag.sbm.data.HttpStatusCode;
+import de.comlineag.sbm.data.LithiumStatusException;
 import de.comlineag.sbm.handler.LithiumParser;
+import de.comlineag.sbm.handler.LithiumPosting;
+import de.comlineag.sbm.handler.TwitterPosting;
+import de.comlineag.sbm.handler.TwitterUser;
 import de.comlineag.sbm.persistence.NoBase64EncryptedValue;
 
 /**
@@ -42,29 +52,13 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
-
-	/*
-	// Set up your blocking queues: Be sure to size these properly based on
-	// expected TPS of your stream
-	private BlockingQueue<String> msgQueue;
-	private LithiumParser post;
-	*/
 	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
 	//private String smallLogMessage = "";
 	
 	
-	public LithiumCrawler() {
-		logger.trace("Instantiated LithiumCrawler Class");
-		/*
-		// Define message and event queue
-		msgQueue = new LinkedBlockingQueue<String>(100000);
-				
-		// instantiate the Lithium-Posting-Manager
-		post = new LithiumParser();
-		*/
-	}
+	public LithiumCrawler() {}
 
 	
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
@@ -89,6 +83,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		}
 		
 		logger.trace("setting up the rest endpoint at " + REST_API_URL + " with user " + _user);
+		
 		
 		/*
 		// setup restrictions on what to get from lithium - also says where to look
@@ -116,73 +111,132 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 											(String) arg0.getJobDetail().getJobDataMap().get("tokenSecret"));
 		*/
 		
-		// this is the connection object and the status - I need this outside the try catch clause
-		HttpsURLConnection conn = null;
+		// this is the status code for the http connection
 		HttpStatusCode statusCode = null;
 		
 		try {
-			String tURL = REST_API_URL + "/messages"; //+ "/Girokonto-Zahlungsverkehr/bd-p/Girokonto-Zahlungsverkehr";
-			//String mURL = REST_API_URL + 
+			logger.trace("initiating ssl-connection to " + REST_API_URL);
+			HttpClient client = new HttpClient();
 			
-			logger.trace("initiating ssl-connection to " + tURL);
-			
-			URL url = new URL(tURL);
-			conn = (HttpsURLConnection) url.openConnection();
-			
-			statusCode = HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
+			PostMethod method = new PostMethod(REST_API_URL+"/search/messages");
+			method.addParameter("restapi.response_format", "json");
+			method.addParameter("phrase", "Aktien");
+			statusCode = HttpStatusCode.getHttpStatusCode(client.executeMethod(method));
+			String jsonString = method.getResponseBodyAsString();
+			logger.trace("our json: " + jsonString);
 			
 			if (!statusCode.isOk()){
 				if (statusCode == HttpStatusCode.FORBIDDEN){
 					// TODO implement proper authorization handling
 					logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
 				} else {
-					logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode())+" could not connect to " + tURL.toString() + " " + conn.getResponseMessage());
+					logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode())+" could not connect to " + REST_API_URL);
 				}
 			} else {
-				logger.debug("connection established (status is " + statusCode + ") now checking returned xml");
+				logger.debug("connection established (status is " + statusCode + ")");
 			}	
 			
-			// Create the parser instance
-	        LithiumParser parser = new LithiumParser();
-	 
-	        // Parse the input stream
-	        // TODO check how to make this so, that we do not need to know whether this is a message, posting or error
-	        ArrayList<?> errors = parser.parseErrorXml(conn.getInputStream());
-	 
-	        // Verify the result
-	        System.out.println(errors);
+			// the JSON String we received from the http connection is now decoded and passed on to the 
+			// specific parser for posts and user
+			// 															courtesy by Maic Rittmeier
+			JSONParser parser = new JSONParser();
+			Object obj = parser.parse(jsonString);
+			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+			if(jsonObj == null)
+				throw new Exception();
+			JSONObject responseObj = (JSONObject)jsonObj.get("response");
+			String status = (String) responseObj.get("status");
+			if(!"success".equals(status))
+				throw new LithiumStatusException("statusText");
+			JSONObject messages = (JSONObject) responseObj.get("messages");
+			JSONArray messageArray = (JSONArray) messages.get("message");
+		
+			for(Object messageObj : messageArray){
+				
+				String messageRef = (String) ((JSONObject)messageObj).get("href");
+				
+				JSONObject messageResponse = SendMessageRequest(messageRef, REST_API_URL);
+				if (messageResponse != null)
+					new LithiumPosting(messageResponse).save();
+				
+			}
 			
-			conn.disconnect();
+			//List<LithiumPosting> postings = new ArrayList<LithiumPosting>();
+			//List<LithiumUser> users = new ArrayList<LithiumUser>();
 			
-		} catch (Exception e) {
+			// TODO implement counter and loop to get all messages for given keyword 
+			
+		}
+		catch (LithiumStatusException le){
+			
+		}
+		catch (Exception e) {
+			logger.error(e.getMessage(), e);
 			logger.error("EXCEPTION :: " + e.toString());
 		}
-		
-		/*
-		// Do whatever needs to be done with messages 
-		for (int msgRead = 0; msgRead < 1000; msgRead++) {
-			String msg = "";
-			try {
-				// TODO check hwo to take the messages from client
-				msg = msgQueue.take();
-			} catch (InterruptedException e) {
-				logger.error("ERROR :: Message loop interrupted " + e.getMessage());
-			} catch (Exception ee) {
-				logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
-			}
-			logger.info("New Post tracked from " + msg.substring(15, 45) + "...");
-			logger.trace("complete post: " + msg );
-
-			// Jede einzelne Message wird nun an den Parser LithiumParser
-			// (abgeleitet von GenericParser) uebergeben
-			post.process(msg);
-		}
-		*/
 		
 		logger.debug("Lithium-Crawler END");
 	}
 	
-	
+	/**
+	 * @author		Maic Rittmeier
+	 * @param 		messageRef
+	 * @param 		REST_API_URL
+	 * @return		JSONObject
+	 * 							representing one message		
+	 * 
+	 * @description	retrieves a message-ref (part of a url) and the REST-Url
+	 * 				and retrieves that specific message from the community 
+	 */
+	private JSONObject SendMessageRequest(String messageRef, String REST_API_URL) {
+		HttpStatusCode statusCode = null;
+		
+		try {
+			logger.trace("initiating ssl-connection to " + REST_API_URL);
+			HttpClient client = new HttpClient();
+			
+			PostMethod method = new PostMethod(REST_API_URL+messageRef);
+			method.addParameter("restapi.response_format", "json");
+			statusCode = HttpStatusCode.getHttpStatusCode(client.executeMethod(method));
+			String jsonString = method.getResponseBodyAsString();
+			logger.trace("our json: " + jsonString);
+			
+			if (!statusCode.isOk()){
+				if (statusCode == HttpStatusCode.FORBIDDEN){
+					// TODO implement proper authorization handling
+					logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
+				} else {
+					logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode())+" could not connect to " + REST_API_URL);
+				}
+			} else {
+				logger.debug("connection established (status is " + statusCode + ")");
+			}	
+			
+			// the JSON String we received from the http connection is now decoded and passed on to the 
+			// specific parser for posts and user
+			// 															courtesy by Maic Rittmeier
+			JSONParser parser = new JSONParser();
+			Object obj = parser.parse(jsonString);
+			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+			if(jsonObj == null)
+				throw new Exception();
+			JSONObject responseObj = (JSONObject)jsonObj.get("response");
+			String status = (String) responseObj.get("status");
+			if(!"success".equals(status))
+				throw new LithiumStatusException("statusText");
+			return (JSONObject) responseObj.get("message");
+		}
+		catch (LithiumStatusException le){
+			
+		}
+		catch (Exception e) {
+			logger.error("EXCEPTION :: " + e.toString());
+		}
+		
+		return null;
+	}
+
+
 	// some useful functions
 	/**
 	 * @param 		user
@@ -204,100 +258,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		});
 	}
 	
-	/**
-	 * @description connects to the url and posts some Key Value pairs to the endpoint
-	 * @param urlStr
-	 * @param paramName
-	 * @param paramVal
-	 * @return
-	 * @throws Exception
-	 */
-	public String httpPost(URL url, String[] paramName, String[] paramVal) throws Exception {
-		HttpURLConnection conn =
-				(HttpURLConnection) url.openConnection();
-
-		HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
-		
-		if (!statusCode.isOk()){
-			throw new IOException("EXCEPTION :: "+HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode())+" could not connect to " + url.toString() + " " + conn.getResponseMessage());
-		} else {
-			logger.info("connection established " + statusCode);
-		}
-
-		conn.setRequestMethod("POST");
-		conn.setDoOutput(true);
-		conn.setDoInput(true);
-		conn.setUseCaches(false);
-		conn.setAllowUserInteraction(false);
-		conn.setRequestProperty("Content-Type",
-								"application/x-www-form-urlencoded");
-
-		// Create the form content
-		OutputStream out = conn.getOutputStream();
-		Writer writer = new OutputStreamWriter(out, "UTF-8");
-		for (int i = 0; i < paramName.length; i++) {
-			writer.write(paramName[i]);
-			writer.write("=");
-			writer.write(URLEncoder.encode(paramVal[i], "UTF-8"));
-			writer.write("&");
-		}
-		writer.close();
-		out.close();
-		
-		HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
-		
-		if (!statusCode.isOk()) {
-			throw new IOException("EXCEPTION :: could not post to " + url.toString() + " " + conn.getResponseMessage());
-		}
-		
-		// Buffer the result into a string
-		BufferedReader rd = new BufferedReader(
-			new InputStreamReader(conn.getInputStream()));
-		StringBuilder sb = new StringBuilder();
-		String line;
-		while ((line = rd.readLine()) != null) {
-			sb.append(line);
-		}
-		rd.close();
-		
-		conn.disconnect();
-		return sb.toString();
-	}
-	
-	/**
-	 * @description connects to the given url using the GET method
-	 * @param urlStr
-	 * @return
-	 * @throws IOException
-	 */
-	public String httpGet(URL url) throws IOException {
-		logger.trace("initiating url connection now...");
-		
-		HttpURLConnection conn =
-				(HttpURLConnection) url.openConnection();
-		
-		HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
-		
-		if (!statusCode.isOk()){
-			throw new IOException("EXCEPTION :: "+HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode())+" could not connect to " + url.toString() + " " + conn.getResponseMessage());
-		} else {
-			logger.info("connection established " + statusCode);
-		}	
-		
-		// Buffer the result into a string
-		BufferedReader rd = new BufferedReader(
-				new InputStreamReader(conn.getInputStream()));
-		StringBuilder sb = new StringBuilder();
-		String line;
-		while ((line = rd.readLine()) != null) {
-			sb.append(line);
-		}
-		rd.close();
-		
-		conn.disconnect();
-		return sb.toString();
-	}
-
 	/**
 	 * @description Entschluesselt Werte aus der Konfig fuer die Connection
 	 *
