@@ -11,9 +11,9 @@ package de.comlineag.sbm.data;
  * 
  */
 public enum LithiumStatusCode {
-	UNKNOWN 						("unknown", false),
-	FORBIDDEN						("forbidden", false),
-	SUCCESS							("success", true);
+	UNKNOWN 						("unknown"										, false),
+	FORBIDDEN						("forbidden"									, false),
+	SUCCESS							("success"										, true);
 	
 	
 

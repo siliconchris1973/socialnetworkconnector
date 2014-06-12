@@ -15,8 +15,7 @@ import org.json.simple.parser.ParseException;
  * @category 	Handler
  * 
  * @description LithiumParser implementation of the parser for Lithium postings and users
- * 				LithiumParsr is an extension of the default SAX handler and NOT, as with
- * 				LithiumParser, an extension of the GenericParser. 
+ * 				LithiumParsr is an extension of the default GenericParser. 
  * 				
  * 				LithiumParser creates objects for posting and user from the classes
  * 				LithiumUserData and LithiumPostingData, feeds this in a queue 
@@ -47,7 +46,6 @@ public final class LithiumParser extends GenericParser {
 			LithiumUser user = new LithiumUser(jsonUser);
 			users.add(user);
 			
-			// zum schluss noch etwaige retweeted messages
 			//TODO check if retweeted REALLY is added
 			JSONObject jsonRePosted = (JSONObject) jsonPostResource.get("retweeted_status");
 			if (jsonRePosted != null) {
