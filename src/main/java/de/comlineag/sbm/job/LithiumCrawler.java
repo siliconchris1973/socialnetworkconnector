@@ -55,7 +55,11 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
-	//private String smallLogMessage = "";
+	private String smallLogMessage = "";
+	private static boolean restrictToSites = false;
+	private static boolean restrictToTerms = true;
+	private static boolean restrictToLangs = false;
+	private static boolean restrictToUsers = false;
 	
 	
 	public LithiumCrawler() {}
@@ -78,30 +82,37 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		try {
 			_user = decryptValue((String) arg0.getJobDetail().getJobDataMap().get("user"));
 			_passwd = decryptValue((String) arg0.getJobDetail().getJobDataMap().get("passwd"));
-		} catch (NoBase64EncryptedValue e4) {
-			logger.error("EXCEPTION :: value for user or passwd is NOT base64 encrypted " + e4.toString());
+		} catch (NoBase64EncryptedValue e) {
+			logger.error("EXCEPTION :: value for user or passwd is NOT base64 encrypted " + e.toString(), e);
 		}
 		
 		logger.trace("setting up the rest endpoint at " + REST_API_URL + " with user " + _user);
 		
 		
-		/*
+		
 		// setup restrictions on what to get from lithium - also says where to look
-		String[] tSites = {"/Girokonto-Zahlungsverkehr/bd-p/Girokonto-Zahlungsverkehr",
-							"/Sparen-Anlegen/bd-p/Sparen-und-Anlegen",
-							"/Wertpapierhandel/bd-p/Wertpapierhandel",
-							"/Finanzieren/bd-p/Finanzieren",
-							"/Sonstige-Themen/bd-p/Sonstige-Themen"};
-		smallLogMessage += "specific Sites ";
+		if (restrictToSites) {
+			String[] tSites = {"/Girokonto-Zahlungsverkehr/bd-p/Girokonto-Zahlungsverkehr",
+								"/Sparen-Anlegen/bd-p/Sparen-und-Anlegen",
+								"/Wertpapierhandel/bd-p/Wertpapierhandel",
+								"/Finanzieren/bd-p/Finanzieren",
+								"/Sonstige-Themen/bd-p/Sonstige-Themen"};
+			smallLogMessage += "specific Sites ";
+		}
+		if (restrictToTerms) {
+			String[] tTerms = {"Tagesgeld", "Trading", "Depot", "Girokonto", "Wertpapier", "Kreditkarte", "HBCI"};
+			smallLogMessage += "specific terms ";
+		}
+		if (restrictToLangs) {
+			String[] tLangs = {"de", "en"};
+			smallLogMessage += "specific languages ";
+		}
+		if (restrictToUsers) {
+			String[] tUsers = {};
+			smallLogMessage += "specific users ";
+		}
+		logger.debug("new lithium crawler instantiated - restricted to track " + smallLogMessage);
 		
-		String[] tTerms = {"Tagesgeld", "Trading", "Depot", "Girokonto", "Wertpapier", "Kreditkarte", "HBCI"};
-		smallLogMessage += "specific terms ";
-		
-		String[] tLangs = {"de", "en"};
-		smallLogMessage += "specific languages ";
-		
-		logger.debug("new lithium parser instantiated - restricted to track " + smallLogMessage);
-		*/
 		
 		//TODO implement authentication against lithium network
 		/*
@@ -171,8 +182,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			
 		}
 		catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			logger.error("EXCEPTION :: " + e.toString());
+			//logger.error(e.getMessage(), e);
+			logger.error("EXCEPTION :: " + e.toString(), e);
 		}
 		
 		logger.debug("Lithium-Crawler END");
@@ -225,12 +236,11 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			if(!"success".equals(status))
 				throw new LithiumStatusException("statusText");
 			return (JSONObject) responseObj.get("message");
-		}
-		catch (LithiumStatusException le){
-			
+		} catch (LithiumStatusException le){
+			logger.error("EXCEPTION :: " + le.toString(), le);
 		}
 		catch (Exception e) {
-			logger.error("EXCEPTION :: " + e.toString());
+			logger.error("EXCEPTION :: " + e.toString(), e);
 		}
 		
 		return null;

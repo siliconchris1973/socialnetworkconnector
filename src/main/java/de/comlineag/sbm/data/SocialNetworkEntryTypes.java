@@ -1,9 +1,11 @@
 package de.comlineag.sbm.data;
 
 /**
- * @description contains a enum with types of data in a social network and whether or not this type should be tracked
- * @author Christian Guenther
- *
+ * @author 		Christian Guenther
+ * @category	data type
+ * 
+ * @description an enum with types of data in a social network and whether or not this type should be tracked
+ * 
  */
 public enum SocialNetworkEntryTypes {
 	// attention: looks like this will be handled by trackterms from applicationContext.xml 
@@ -11,6 +13,7 @@ public enum SocialNetworkEntryTypes {
 	UNKNOWN 		("Unknown"	, false),
 	POSTING			("Post"		, true),
 	POST			("Post"		, true),
+	MESSAGE			("Post"		, true),
 	USER			("User"		, true),
 	BLOG			("Blog"		, true),
 	ADVERTISEMENT	("Ad"		, false),

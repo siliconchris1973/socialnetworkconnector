@@ -238,7 +238,7 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 			smallLogMessage += "specific locations ";
 		}
 		
-		logger.debug("new facebook parser instantiated - restricted to track " + smallLogMessage);
+		logger.debug("new facebook crawler instantiated - restricted to track " + smallLogMessage);
 		logger.trace("call for Endpoint POST: " //+ endpoint.getPostParamString() 
 					+ bigLogMessage);
 		

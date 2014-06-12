@@ -141,7 +141,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			smallLogMessage += "specific locations ";
 		}
 		
-		logger.debug("new twitter parser instantiated - restricted to track " + smallLogMessage);
+		logger.debug("new twitter crawler instantiated - restricted to track " + smallLogMessage);
 		logger.trace("call for Endpoint POST: " + endpoint.getPostParamString() 
 					+ bigLogMessage);
 
