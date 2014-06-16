@@ -91,8 +91,8 @@ public class HANAPersistence implements IPersistenceManager {
 							.properties(OProperties.string("user_id", new String(new Long(postData.getUserId()).toString())))
 							.properties(OProperties.datetime("timestamp", postData.getTimestamp()))
 							.properties(OProperties.string("postLang", postData.getLang()))
-							.properties(OProperties.string("text", postData.getText()))
-							.properties(OProperties.string("raw_text", postData.getRawText()))
+							//.properties(OProperties.string("text", postData.getText()))
+							//.properties(OProperties.string("raw_text", postData.getRawText()))
 							.properties(OProperties.string("geoLocation_longitude", postData.getGeoLongitude()))
 							.properties(OProperties.string("geoLocation_latitude", postData.getGeoLatitude()))
 							.properties(OProperties.string("client", postData.getClient()))
@@ -113,6 +113,11 @@ public class HANAPersistence implements IPersistenceManager {
 				} catch (Exception le){
 					logger.error("EXCEPTION :: Odata call failed " + le.getLocalizedMessage());
 				}
+				
+				// now update the two text-fields via jdbc
+				logger.trace("updating text and raw_text via jdbc");
+				setPostingTextWithJdbc("text", postData.getText(), (long)postData.getId());
+				setPostingTextWithJdbc("raw_text", postData.getRawText(), (long)postData.getId());
 			}
 		} catch (NoBase64EncryptedValue e) {
 			logger.error(e.getMessage(), e);
@@ -196,23 +201,32 @@ public class HANAPersistence implements IPersistenceManager {
 
 	}
 
-	public void setPostingTextWithJdbc(String textElement){
+	/**
+	 * 
+	 * @description		update a the text field element of a post with a given string 
+	 * @param 			txtString
+	 * 						the new string
+	 * @param 			idToUpdate
+	 * 						the element to update identified by post_id
+	 */
+	public void setPostingTextWithJdbc(String txtField, String txtString, long idToUpdate){
 		try {
 			Class.forName("com.sap.db.jdbc.Driver");
 			java.sql.Connection conn = java.sql.DriverManager.getConnection(""
 					+ "jdbc:sap://"+this.host+":"+this.port,this.user,this.pass);
 			
 			Statement stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery( "UPDATE text" );
+			// this is the update statement as executed from sql console
+			// UPDATE "CL_SBM"."comline.sbm.data.tables::posts_1" set "CL_SBM"."comline.sbm.data.tables::posts_1"."text" = 'XYZ' where "CL_SBM"."comline.sbm.data.tables::posts_1"."post_id" = '1'
+
+			ResultSet rs = stmt.executeQuery( "UPDATE \"CL_SBM\".\"comline.sbm.data.tables::posts_1\" set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"" 
+												+ txtField + "\" = \'" 
+												+ txtString + "\' where \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"post_id\" = \'" 
+												+ idToUpdate + "\'");
 			
-			SimpleDateFormat sd = new SimpleDateFormat("dd.MM.yyyy");
-			while(rs.next()) {
-				System.out.print( rs.getString(1) + " | "); System.out.print( rs.getString(2) + " ");
-				System.out.print( rs.getString(3) + " | "); System.out.print( sd.format(rs.getTimestamp(4)) + " | "); System.out.println( rs.getString(5) );
-			}
 			rs.close() ; stmt.close() ; conn.close() ;
 		} catch(Exception e) {
-			logger.error("EXCEPTION :: could not create element " + e.getStackTrace().toString());
+			logger.error("EXCEPTION :: could not update element " + idToUpdate + ": " + e.getStackTrace().toString());
 		}
 	}
 	

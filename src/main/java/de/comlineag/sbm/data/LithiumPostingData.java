@@ -209,7 +209,7 @@ public final class LithiumPostingData extends PostData {
 		}
 		
 		
-		// Text des Post
+		// Text des Post - this will be updated via jdbc
 		try {
 			JSONParser parser = new JSONParser();
 			Object obj;
