@@ -43,6 +43,12 @@ public class PostData {
 	protected String text;
 
 	/**
+	 * post Text with html elements
+	 * <Property Name="text" Type="Edm.String" DefaultValue="" MaxLength="65536"/>
+	 */
+	protected String raw_text;
+	
+	/**
 	 * Language of post
 	 * <Property Name="postLang" Type="Edm.String" MaxLength="64"/>
 	 */
@@ -122,6 +128,13 @@ public class PostData {
 	}
 	public void setText(String text) {
 		this.text = text;
+	}
+	
+	public String getRawText() {
+		return raw_text;
+	}
+	public void setRawText(String text) {
+		this.raw_text = text;
 	}
 	
 	public String getTime() {

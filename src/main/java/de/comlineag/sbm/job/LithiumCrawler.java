@@ -20,7 +20,6 @@ import de.comlineag.sbm.data.HttpStatusCode;
 import de.comlineag.sbm.data.LithiumStatusCode;
 import de.comlineag.sbm.data.LithiumStatusException;
 import de.comlineag.sbm.data.LithiumConstants;
-import de.comlineag.sbm.handler.LithiumParser;
 import de.comlineag.sbm.handler.LithiumPosting;
 import de.comlineag.sbm.persistence.NoBase64EncryptedValue;
 
@@ -68,7 +67,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		final String PORT = (String) arg0.getJobDetail().getJobDataMap().get("PORT");
 		final String REST_API_LOC = (String) arg0.getJobDetail().getJobDataMap().get("REST_API_LOC");
 		*/
-		
 		final String REST_API_URL = CONSTANTS.PROTOCOL + "://" + CONSTANTS.SERVER_URL + ":" + CONSTANTS.PORT + CONSTANTS.REST_API_LOC;
 		
 		// authentication to lithium
@@ -83,7 +81,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		
 		logger.trace("setting up the rest endpoint at " + REST_API_URL + " with user " + _user);
 		
-		
+		// THIS IS USED TO RESTRICT RESULTS TO SPECIFIC TERMS 
+		String searchTerm = null;
 		
 		// setup restrictions on what to get from lithium - also says where to look
 		if (restrictToSites) {
@@ -95,7 +94,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			smallLogMessage += "specific Sites ";
 		}
 		if (restrictToTerms) {
-			String[] tTerms = {"Tagesgeld", "Trading", "Depot", "Girokonto", "Wertpapier", "Kreditkarte", "HBCI"};
+			// TODO: make this search term a parameter
+			String[] tTerms = {"Aktien", "Tagesgeld", "Trading", "Depot", "Girokonto", "Wertpapier", "Kreditkarte", "HBCI"};
 			smallLogMessage += "specific terms ";
 		}
 		if (restrictToLangs) {
@@ -116,9 +116,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 											(String) arg0.getJobDetail().getJobDataMap().get("token"), 
 											(String) arg0.getJobDetail().getJobDataMap().get("tokenSecret"));
 		*/
-		
-		// TODO: make this search term a parameter
-		String searchTerm = "Aktien";
 				
 		// this is the status code for the http connection
 		HttpStatusCode httpStatusCode = null;
@@ -128,69 +125,72 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			logger.trace("initiating ssl-connection to " + REST_API_URL);
 			HttpClient client = new HttpClient();
 			
-			PostMethod method = new PostMethod(REST_API_URL+CONSTANTS.REST_MESSAGES_SEARCH_URI);
-			method.addParameter(CONSTANTS.HTTP_RESPONSE_FORMAT_COMMAND, CONSTANTS.HTTP_RESPONSE_FORMAT);
-			method.addParameter(CONSTANTS.SEARCH_TERM, searchTerm );
-			httpStatusCode = HttpStatusCode.getHttpStatusCode(client.executeMethod(method));
-			String jsonString = method.getResponseBodyAsString();
-			logger.trace("our json: " + jsonString);
+			//TODO implement loop over different search terms
+			//for (int i = 0 ; i < 100 ; i++ ){
 			
-			if (!httpStatusCode.isOk()){
-				if (httpStatusCode == HttpStatusCode.FORBIDDEN){
-					// TODO implement proper authorization handling
-					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCode.getErrorCode()));
+				searchTerm = "HBCI";
+			
+				PostMethod method = new PostMethod(REST_API_URL+CONSTANTS.REST_MESSAGES_SEARCH_URI);
+				method.addParameter(CONSTANTS.HTTP_RESPONSE_FORMAT_COMMAND, CONSTANTS.HTTP_RESPONSE_FORMAT);
+				method.addParameter(CONSTANTS.SEARCH_TERM, searchTerm);
+				httpStatusCode = HttpStatusCode.getHttpStatusCode(client.executeMethod(method));
+				String jsonString = method.getResponseBodyAsString();
+				logger.trace("our json: " + jsonString);
+				
+				if (!httpStatusCode.isOk()){
+					if (httpStatusCode == HttpStatusCode.FORBIDDEN){
+						// TODO implement proper authorization handling
+						logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCode.getErrorCode()));
+					} else {
+						logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCode.getErrorCode()) + " could not connect to " + REST_API_URL);
+					}
 				} else {
-					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCode.getErrorCode())+" could not connect to " + REST_API_URL);
+					logger.trace("http connection established (status is " + httpStatusCode + ")");
+				}	
+				
+				// the JSON String we received from the http connection is now decoded and passed on to the 
+				// specific parser for posts and user
+				// 															courtesy by Maic Rittmeier
+				JSONParser parser = new JSONParser();
+				Object obj = parser.parse(jsonString);
+				JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+				if(jsonObj == null)
+					throw new Exception();
+				JSONObject responseObj = (JSONObject)jsonObj.get(CONSTANTS.JSON_RESPONSE_OBJECT_TEXT);
+				
+				// first check if the server response is not only OK from an http point of view, but also
+				//    from the perspective of the REST API 
+				jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT).toString().toUpperCase());
+				
+				if(!"success".equals(responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT)))
+					throw new LithiumStatusException("return code from server is " + jsonStatusCode);
+				
+				/* TODO check why this does not work
+				if(!jsonStatusCode.isOk())
+					throw new LithiumStatusException("return code from server is " + jsonStatusCode);
+				*/
+				JSONObject messages = (JSONObject) responseObj.get(CONSTANTS.JSON_MESSAGES_OBJECT_IDENTIFIER);
+				JSONArray messageArray = (JSONArray) messages.get(CONSTANTS.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
+			
+				for(Object messageObj : messageArray){
+					
+					String messageRef = (String) ((JSONObject)messageObj).get(CONSTANTS.JSON_MESSAGE_REFERENCE);
+					
+					JSONObject messageResponse = SendMessageRequest(messageRef, REST_API_URL);
+					if (messageResponse != null)
+						new LithiumPosting(messageResponse).save();
+					
 				}
-			} else {
-				logger.trace("http connection established (status is " + httpStatusCode + ")");
-			}	
-			
-			// the JSON String we received from the http connection is now decoded and passed on to the 
-			// specific parser for posts and user
-			// 															courtesy by Maic Rittmeier
-			JSONParser parser = new JSONParser();
-			Object obj = parser.parse(jsonString);
-			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
-			if(jsonObj == null)
-				throw new Exception();
-			JSONObject responseObj = (JSONObject)jsonObj.get(CONSTANTS.JSON_RESPONSE_OBJECT_TEXT);
-			
-			// first check if the server response is not only OK from an http point of view, but also
-			//    from the perspective of the REST API 
-			jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT).toString().toUpperCase());
-			
-			if("success"!=(String)responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT))
-				throw new LithiumStatusException("return code from server is " + jsonStatusCode);
-			
-			/* TODO check why this does not work
-			if(!jsonStatusCode.isOk())
-				throw new LithiumStatusException("return code from server is " + jsonStatusCode);
-			*/
-			JSONObject messages = (JSONObject) responseObj.get(CONSTANTS.JSON_MESSAGES_OBJECT_IDENTIFIER);
-			JSONArray messageArray = (JSONArray) messages.get(CONSTANTS.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
-		
-			for(Object messageObj : messageArray){
 				
-				String messageRef = (String) ((JSONObject)messageObj).get(CONSTANTS.JSON_MESSAGE_REFERENCE);
-				
-				JSONObject messageResponse = SendMessageRequest(messageRef, REST_API_URL);
-				if (messageResponse != null)
-					new LithiumPosting(messageResponse).save();
-				
-			}
+				//List<LithiumPosting> postings = new ArrayList<LithiumPosting>();
+				//List<LithiumUser> users = new ArrayList<LithiumUser>();
 			
-			//List<LithiumPosting> postings = new ArrayList<LithiumPosting>();
-			//List<LithiumUser> users = new ArrayList<LithiumUser>();
-			
-			// TODO implement counter and loop to get all messages for given keyword 
-			
+			//} // loop over search terms
 		}
-		catch (LithiumStatusException le){
-			
+		catch (LithiumStatusException le) {
+			logger.error("EXCEPTION :: " + le.toString(), le);
 		}
 		catch (Exception e) {
-			//logger.error(e.getMessage(), e);
 			logger.error("EXCEPTION :: " + e.toString(), e);
 		}
 		
@@ -246,7 +246,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			//    from the perspective of the REST API
 			jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT).toString().toUpperCase());
 			
-			if("success"!=(String)responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT))
+			if(!"success".equals(responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT)))
 				throw new LithiumStatusException("return code from server is " + jsonStatusCode);
 			
 			/* TODO check why this does not work
@@ -288,26 +288,24 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	}
 	
 	/**
-	 * @description Entschluesselt Werte aus der Konfig fuer die Connection
-	 *
-	 * @param param
-	 *            der Wert der entschluesselt werden soll
-	 * @return Klartext
+	 * @description decrypt given text 
+	 * @param 		param
+	 *          	  encrypted text 
+	 * @return 		clear text
 	 *
 	 */
-	@SuppressWarnings("unused")
 	private String decryptValue(String param) throws NoBase64EncryptedValue {
 
-		// byte-Array kommt vom Decoder zurueck und kann dann in String uebernommen und zurueckgegeben werden
+		// the decode returns a byte-Array which needs to be converted to a string before returning
 		byte[] base64Array;
 
-		// Validierung das auch ein verschluesselter Wert da angekommen ist
+		// validates that an encrypted value was returned
 		try {
 			base64Array = Base64.decodeBase64(param.getBytes());
 		} catch (Exception e) {
 			throw new NoBase64EncryptedValue("Parameter " + param + " ist nicht Base64-verschluesselt");
 		}
-		// konvertiere in String
+		// (re)convert into string and return
 		return new String(base64Array);
 	}
 }

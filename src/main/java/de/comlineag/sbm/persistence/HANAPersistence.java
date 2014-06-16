@@ -51,6 +51,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * <Property Name="timestamp" Type="Edm.DateTime"/>
 	 * <Property Name="postLang" Type="Edm.String" MaxLength="64"/>
 	 * <Property Name="text" Type="Edm.String" DefaultValue="" MaxLength="1024"/>
+	 * <Property Name="raw_text" Type="Edm.String" DefaultValue="" MaxLength="5000"/>
 	 * <Property Name="geoLocation_longitude" Type="Edm.String" MaxLength="40"/>
 	 * <Property Name="geoLocation_latitude" Type="Edm.String" MaxLength="40"/>
 	 * <Property Name="client" Type="Edm.String" MaxLength="2048"/>
@@ -67,43 +68,47 @@ public class HANAPersistence implements IPersistenceManager {
 	 */
 	public void savePosts(PostData postData) {
 		logger.debug("savePosts called for post with id " + postData.getId());
-		int truncated;
-		truncated = (postData.getTruncated()) ? 0 : 1;
+		int truncated = (postData.getTruncated()) ? 0 : 1;
 
 		try {
 			if (postService == null)
 				prepareConnections();
-			if (postData.getLang().equalsIgnoreCase("de") || postData.getLang().equalsIgnoreCase("en")) {
+			
+			//TODO Check if we really need to check on languages at all. this looks like a bad workaround to me
+			if ( (postData.getLang().equalsIgnoreCase("de") || postData.getLang().equalsIgnoreCase("en")) ) {
 
 				logger.trace("Setting timestamp " + postData.getTimestamp().toString());
-
-				OEntity newPost = postService.createEntity("post")
-						.properties(OProperties.string("sn_id", postData.getSnId()))
-						.properties(OProperties.string("post_id", new String(new Long(postData.getId()).toString())))
-						.properties(OProperties.string("user_id", new String(new Long(postData.getUserId()).toString())))
-						.properties(OProperties.datetime("timestamp", postData.getTimestamp()))
-						.properties(OProperties.string("postLang", postData.getLang()))
-						.properties(OProperties.string("text", postData.getText()))
-						.properties(OProperties.string("geoLocation_longitude", postData.getGeoLongitude()))
-						.properties(OProperties.string("geoLocation_latitude", postData.getGeoLatitude()))
-						.properties(OProperties.string("client", postData.getClient()))
-						.properties(OProperties.int32("truncated", new Integer(truncated)))
-
-						.properties(OProperties.int64("inReplyTo", postData.getInReplyTo()))
-						.properties(OProperties.int64("inReplyToUserID", postData.getInReplyToUser()))
-						.properties(OProperties.string("inReplyToScreenName", postData.getInReplyToUserScreenName()))
-						// .properties(OProperties.string("placeID", postData.getLocation()))
-						// .properties(OProperties.string("plName", "Client"))
-						// .properties(OProperties.string("plCountry", "Client"))
-						// .properties(OProperties.string("plAround_longitude", "Client"))
-						// .properties(OProperties.string("plAround_latitude", "Client"))
-
-						.execute();
 				
-				logger.info("New post " + newPost.getEntityKey().toKeyString());
-
+				try{
+					OEntity newPost = postService.createEntity("post")
+							.properties(OProperties.string("sn_id", postData.getSnId()))
+							.properties(OProperties.string("post_id", new String(new Long(postData.getId()).toString())))
+							.properties(OProperties.string("user_id", new String(new Long(postData.getUserId()).toString())))
+							.properties(OProperties.datetime("timestamp", postData.getTimestamp()))
+							.properties(OProperties.string("postLang", postData.getLang()))
+							.properties(OProperties.string("text", postData.getText()))
+							.properties(OProperties.string("raw_text", postData.getRawText()))
+							.properties(OProperties.string("geoLocation_longitude", postData.getGeoLongitude()))
+							.properties(OProperties.string("geoLocation_latitude", postData.getGeoLatitude()))
+							.properties(OProperties.string("client", postData.getClient()))
+							.properties(OProperties.int32("truncated", new Integer(truncated)))
+	
+							.properties(OProperties.int64("inReplyTo", postData.getInReplyTo()))
+							.properties(OProperties.int64("inReplyToUserID", postData.getInReplyToUser()))
+							.properties(OProperties.string("inReplyToScreenName", postData.getInReplyToUserScreenName()))
+							// .properties(OProperties.string("placeID", postData.getLocation()))
+							// .properties(OProperties.string("plName", "Client"))
+							// .properties(OProperties.string("plCountry", "Client"))
+							// .properties(OProperties.string("plAround_longitude", "Client"))
+							// .properties(OProperties.string("plAround_latitude", "Client"))
+	
+							.execute();
+					
+					logger.info("New post " + newPost.getEntityKey().toKeyString());
+				} catch (Exception le){
+					logger.error("EXCEPTION :: Odata call failed " + le.getLocalizedMessage());
+				}
 			}
-
 		} catch (NoBase64EncryptedValue e) {
 			logger.error(e.getMessage(), e);
 		} catch (Exception e) {

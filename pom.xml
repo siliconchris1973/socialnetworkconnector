@@ -132,7 +132,7 @@
 		<artifactId>geojson-jackson</artifactId>
 		<version>1.1</version>
 	</dependency>
-	<!-- this is needed for ne4j graph database -->
+	<!-- this is needed for neo4j graph database -->
   	<dependency>
    		<groupId>org.neo4j</groupId>
    		<artifactId>neo4j</artifactId>
@@ -163,6 +163,13 @@
      		<version>4.2.3</version>
      		<scope>compile</scope>
 	</dependency>
+	
+	<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.7.2</version>
+	</dependency>
+	
   </dependencies>
 
   <organization>

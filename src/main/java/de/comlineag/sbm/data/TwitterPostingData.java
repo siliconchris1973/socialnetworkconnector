@@ -1,7 +1,6 @@
 package de.comlineag.sbm.data;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,8 +18,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * 
- * @author Christian Guenther, Magnus Leinemann
- * @category data type
+ * @author 		Christian Guenther, Magnus Leinemann
+ * @category 	data type
  * 
  * @description Describes a single twitter posting with all relevant
  *              informations.
@@ -92,6 +91,7 @@ public final class TwitterPostingData extends PostData {
 		// Metadaten zum Post:
 		// von wo erzeugt:
 		setClient((String) jsonObject.get("source"));
+		
 		// Flag gekuerzt....was auch immer damit dann passieren wird...
 		setTruncated((Boolean) jsonObject.get("truncated"));
 

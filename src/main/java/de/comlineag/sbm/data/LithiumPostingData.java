@@ -1,45 +1,133 @@
 package de.comlineag.sbm.data;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.log4j.Logger;
-import org.geojson.GeoJsonObject;
-import org.geojson.LineString;
-import org.geojson.LngLatAlt;
-import org.geojson.Point;
-import org.geojson.Polygon;
 import org.json.simple.JSONObject;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.jsoup.Jsoup;
 
 /**
  * 
  * @author 		Christian Guenther
  * @category 	data type
  * 
- * @description Describes a single lithium posting with all relevant informations. 
- * 				The class shall be used to make all methods handling a lithium posting type save.
+ * @description Describes a single Lithium posting with all relevant informations. 
+ * 				The class shall be used to make all methods handling a Lithium posting type save.
+ * 
+ * 				ATTENTION: 	The messages in the Lithium network differ fundamentally from a Twitter 
+ * 							Tweet. On the one side, there are less information (location and reply 
+ * 							information are missing) and on the other side there are man y other 
+ * 							informations unknown to twitter, like kudos count, views count, board
+ * 							subject, teaser and the like.
  * 
  * @param <JSonObject>
- *            "id" Long
- *            "sn_id" String
- *            "created_at" String
- *            "text" String
- *            "source" String
- *            "truncated" Boolean
- *            "in_reply_to_status_id" Long
- *            "in_reply_to_user_id" Long
- *            "in_reply_to_screen_name" String
- *            "coordinates" List
- *            "place" List
- *            "lang" String
- *            "hashtags" List
- *            "symbols" List
- *            "mentions" List
+ * 			Our internal column name	data type	element in json object
+ *            "id" 						Long		id
+ *            "sn_id" 					String		fixed to LT
+ *            "created_at" 				String		post_time
+ *            "text" 					String		body
+ *            "raw_text" 					String		body
+ *            "source" 					String		href auf das board
+ *            "truncated" 				Boolean		fixed to FALSE because not used
+ *            "in_reply_to_status_id" 	Long		fixed to NULL because not used
+ *            "in_reply_to_user_id" 	Long		fixed to NULL because not used
+ *            "in_reply_to_screen_name"	String		fixed to NULL because not used
+ *            "coordinates" 			List		fixed to NULL because not used
+ *            "place" 					List		fixed to NULL because not used
+ *            "lang" 					String		fixed to NULL because not used
+ *            "hashtags" 				List		fixed to NULL because not used
+ *            "symbols" 				List		fixed to NULL because not used
+ *            "mentions" 				List		fixed to NULL because not used
+ * 
+ * JSON Structure:
+ * 
+ * 		1. Level			directly accessible through passed JSONObject
+ * 			2. Level		one more JSONObject creation
+ * 				3. Level	two more JSONObject creation 
+ * {}JSON
+		{}body										- this is the message text
+		{}message_rating
+			$ : 0
+			type : "float"
+		{}read_only
+			$ : false
+			type : "boolean"
+		{}message_status
+			{}name
+				$ : "Unspecified"
+				type : "string"
+			type : "message_status"
+			href : "/message_statuses/id/1"
+			{}key
+				$ : "unspecified"
+				type : "string"
+		{}root										- this is the json object containing the href
+			type : "message"
+			href : "/messages/id/2961"
+		{}subject									- the top subject, as used in the search 
+			$ : "Aktie"
+			type : "string"
+		{}labels
+			{}label
+				0
+				{}id
+					$ : 163
+					type : "int"
+				{}text
+					$ : "Aktie"
+					type : "string"
+				type : "label"
+				href : "/labels/id/163"
+		{}parent
+			$ : null
+			type : "message"
+			null : true
+		{}last_edit_time
+			$ : "2014-02-18T10:49:59+00:00"
+			type : "date_time"
+		{}board										- a json object containing the board
+			type : "board"
+			href : "/boards/id/Boersenlexikon"		- we use this as the source
+		type : "message"
+		{}board_id									- the board id
+			$ : 1119
+			type : "int"
+		{}deleted
+			$ : false
+			type : "boolean"
+		{}id										- the message id
+			$ : 2961
+			type : "int"
+		{}author									- this is the user that posted the message
+			{}login
+				$ : "Cortal_Consors"
+				type : "string"
+			type : "user"
+			href : "/users/id/9"
+		{}last_edit_author
+			{}login
+				$ : "Cortal_Consors"
+				type : "string"
+			type : "user"
+			href : "/users/id/9"
+		{}views
+			{}count
+				$ : 363
+				type : "int"
+		{}thread
+			type : "thread"
+			href : "/threads/id/2961"
+		{}teaser
+			$ : ""
+			type : "string"
+		href : "/messages/id/2961"
+		{}kudos
+			{}count
+				$ : 0
+				type : "int"
+		{}post_time
+			$ : "2014-01-08T12:21:42+00:00"
+			type : "date_time"
  * 
  * 
  */
@@ -63,78 +151,109 @@ public final class LithiumPostingData extends PostData {
 		logger.trace("  working on " + jsonObject.toString());
 		
 		// alles auf Null und die SocialNetworkID schon mal parken
-		//initialize();
-
+		initialize();
 		
-		/* OLD TWITTER STUFF
+		
 		// ID des Posting
-		setId((Long) jsonObject.get("id"));
-
-		// User ID
-		JSONObject user = (JSONObject) jsonObject.get("user");
-		setUserId((Long) user.get("id"));
+		try {
+			JSONParser parser = new JSONParser();
+			Object obj;
+			obj = parser.parse(jsonObject.get("id").toString());
+			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+			
+			setId((Long) jsonObj.get("$"));
+			logger.trace("the post id is " + getId());
+		} catch (ParseException e) {
+			logger.error("EXCEPTION :: parsing json failed " + e.getStackTrace().toString());
+		}
 		
-		// Sprache
-		setLang((String) jsonObject.get("lang"));
-
-		// Timestamp als String und dann als Objekt fuer den oDATA Call
-		setTime((String) jsonObject.get("created_at"));
-		setTimestamp(DataHelper.prepareLocalDateTime(getTime(), getSnId()));
-
+		
+		
+		// the user
+		// {}author									- this is the user that
+		//		{}login
+		//			$ : "Cortal_Consors"
+		//			type : "string"
+		//		type : "user"
+		//		href : "/users/id/9"
+		try {
+			JSONParser parser = new JSONParser();
+			Object obj;
+			obj = parser.parse(jsonObject.get("author").toString());
+			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+			
+			String idAsString = jsonObj.get("href").toString().substring(jsonObj.get("href").toString().lastIndexOf('/') + 1); 
+			setUserId((Long.parseLong(idAsString.trim())));
+			logger.trace("the user id is " + getUserId());
+		} catch (ParseException e) {
+			logger.error("EXCEPTION :: parsing json failed " + e.getStackTrace().toString());
+		}
+		
+		
+		// Sprache - fix on de at the moment
+		setLang("de");
+		
+		
+		// Timestamp as a string and as an objekt for the oDATA call
+		try {
+			JSONParser parser = new JSONParser();
+			Object obj;
+			obj = parser.parse(jsonObject.get("post_time").toString());
+			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+			
+			setTime((String) jsonObj.get("$"));
+			//setTimestamp(DataHelper.prepareLocalDateTime(getTime(), getSnId()));
+			logger.trace("the post_time is " + getTime().toString());
+		} catch (ParseException e) {
+			logger.error("EXCEPTION :: parsing json failed " + e.getStackTrace().toString());
+		}
+		
+		
 		// Text des Post
-		setText((String) jsonObject.get("text"));
-
-		// Metadaten zum Post:
-		// von wo erzeugt:
-		setClient((String) jsonObject.get("source"));
-		// Flag gekuerzt....was auch immer damit dann passieren wird...
-		setTruncated((Boolean) jsonObject.get("truncated"));
-
-		// Information zu Reply
-		if (jsonObject.get("in_reply_to_status_id") != null)
-			setInReplyTo((Long) jsonObject.get("in_reply_to_status_id"));
-		if (jsonObject.get("in_reply_to_user_id") != null)
-			setInReplyToUser((Long) jsonObject.get("in_reply_to_user_id"));
-		if (jsonObject.get("in_reply_to_screen_name") != null)
-			setInReplyToUserScreenName((String) jsonObject.get("in_reply_to_screen_name"));
-
-		// Geodaten des Posts - es gibt coordinates und place, place wird gefuellt wenn bspw. im Web ein Ort fuer den Tweet angegeben wird:
-		if (jsonObject.get("coordinates") != null)
-			logger.debug("Found Coordinates " + jsonObject.get("coordinates").toString() + "");
-		*/
+		try {
+			JSONParser parser = new JSONParser();
+			Object obj;
+			obj = parser.parse(jsonObject.get("body").toString());
+			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+			
+			// strip all HTML tags from the post
+			setText((String) stripHTML(jsonObj.get("$")));
+			setRawText((String) jsonObj.get("$"));
+			logger.trace("the text is " +  getText());
+		} catch (ParseException e) {
+			logger.error("EXCEPTION :: parsing json failed " + e.getStackTrace().toString());
+		}
 		
-	}
-	
-	
-	public void setMentions(List<?> listOfMentions) {
-		// TODO Implement proper algorithm to deal with user mentions
-		logger.trace("List of mentioned users received, creating something different from it");
-		Iterator<?> itr = listOfMentions.iterator();
-		while(itr.hasNext()){
-			logger.trace("found user " + itr.next());
+		
+		// in which board was the message posted - we use the client field for this value
+		try {
+			JSONParser parser = new JSONParser();
+			Object obj;
+			obj = parser.parse(jsonObject.get("board").toString());
+			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+			
+			setClient((String) jsonObj.get("href"));
+			logger.trace("the board: " + getClient());
+		} catch (ParseException e) {
+			logger.error("EXCEPTION :: parsing json failed " + e.getStackTrace().toString());
 		}
-	}
-	
-	public void setSymbols(List<?> listOfSymbols) {
-		// TODO Implement proper algorithm to deal with symbols
-		logger.trace("List of symbols received, creating something different from it");
-		Iterator<?> itr = listOfSymbols.iterator();
-		while(itr.hasNext()){
-			logger.trace("found symbol " + itr.next());
-		}
-	}
-	
-	public void setHashtags(List<?> listOfHashtags) {
-		// TODO Implement proper algorithm to deal with hashtags
-		logger.trace("List of Hashtags received, creating something different from it");
-		Iterator<?> itr = listOfHashtags.iterator();
-		while(itr.hasNext()){
-			logger.trace("found hashtag " + itr.next());
-		}
+		
+		// Flag to indicate if the post was truncated - this is NEVER used by the Lithium network
+		setTruncated((Boolean) false);
 	}
 	
 	
-	
+	/**
+	 * 
+	 * @description	convert an html text to plain text
+	 * @param 		object
+	 * @return		plan text
+	 */
+	private String stripHTML(Object object) {
+		String html = object.toString();
+		return Jsoup.parse(html).text();
+	}
+
 	/**
 	 * setup the Object with NULL
 	 */
@@ -144,14 +263,18 @@ public final class LithiumPostingData extends PostData {
 		// posting
 		id = 0;
 
-		// ACHTUNG, wenn die Klasse fuer Facebook u.a. kopiert wird,
-		// daa muss dieses Value natuerlich umgesetzt werden
+		// set social network identifier
 		sn_id = SocialNetworks.LITHIUM.getValue();
 
 		text = null;
+		raw_text = null;
 		time = null;
 		posted_from_client = null;
-		truncated = null;
+		truncated = false;
+		lang = null;
+		
+		
+		// these values are never used by Lithium
 		in_reply_to_post = 0;
 		in_reply_to_user = 0;
 		in_reply_to_user_screen_name = null;
@@ -159,138 +282,8 @@ public final class LithiumPostingData extends PostData {
 		geoLatitude = null;
 		geoLongitude = null;
 		place = null;
-		lang = null;
 		hashtags = null;
 		symbols = null;
 		mentions = null;
-	}
-
-	/**
-	 * Die Lithium API liefert einen JSON-Eintrag "place" der die "bounding_box" enthaelt. 
-	 * Darin ist bisher immer ein Polygon aufgetreten.
-	 * Hier ein Datenbeispiel:
-	 * 
-	 * "place":{
-	 * "id":"2ecc0df58a30d37b",
-	 * 
-	 * "bounding_box":{
-	 * "type":"Polygon","coordinates":[
-	 * [
-	 * [10.992998,48.087582],
-	 * [10.992998,48.296783],
-	 * [11.412601,48.296783],
-	 * [11.412601,48.087582]
-	 * ]]
-	 * },
-	 * 
-	 * "place_type":"admin",
-	 * "contained_within":[],
-	 * "name":"Fuerstenfeldbruck",
-	 * "attributes":{},
-	 * "country_code":"DE",
-	 * "url":"https:\/\/api.lithium.com\/1.1\/geo\/id\/2ecc0df58a30d37b.json",
-	 * "country":"Deutschland",
-	 * "full_name":"Fuerstenfeldbruck, Bayern"
-	 * },
-	 * 
-	 * Weitere Infos hier: http://www.geojson.org/geojson-spec.html#polygon
-	 * 
-	 * Diese Methode uebernimmt den JSON String aus einer "bounding_box" und generiert zunuechst ein
-	 * allgemeines GeoJsonObject welches in der place Variable hinterlegt wird. Dann wird aus den 
-	 * Koordinaten ermittelt wo der Mittelpunkt
-	 * liegt.
-	 * 
-	 * @param _b_box
-	 *            bounding_box Obejct in Lithium String
-	 * 
-	 */
-	private void preparePostGeoData(JSONObject _b_box) {
-
-		GeoJsonObject geoObject;
-		double rootCoordLat = 0.00;
-		double rootCoordLon = 0.00;
-
-		try {
-			// generelles GeoJson in der place-Variable ablegen:
-			geoObject = new ObjectMapper().readValue(_b_box.toString().getBytes(), GeoJsonObject.class);
-			setPlace(geoObject);
-			logger.debug("geo information place initialized");
-
-			// welche Info haben wir denn im Objekt verfuegbar, damit dann den Mittelpunkt berechnen
-			if (geoObject instanceof Polygon) {
-				/*
-				 * Fall 1: Polygon
-				 * beinhaltet eine List der Koordinaten, diese ist eine 2-stufige Liste (Outer, Inner)
-				 * Es wird ueber die Liste geschleift und die Longitude/Latitude Mittelwerte gebildet
-				 */
-				Polygon geoOPolygon = (Polygon) geoObject;
-				List<LngLatAlt> coords = geoOPolygon.getCoordinates().get(0);
-
-				if (coords.size() > 0) {
-					for (int ii = 0; ii < coords.size(); ii++) {
-						rootCoordLat += coords.get(ii).getLatitude();
-						rootCoordLon += coords.get(ii).getLongitude();
-					}
-					rootCoordLat = rootCoordLat / (coords.size() + 1);
-					rootCoordLon = rootCoordLon / (coords.size() + 1);
-				}
-			} else if (geoObject instanceof Point) {
-				/*
-				 * Fall 2: Punkt
-				 * Fuer einen Punkt muss nur aus den Koordinaten abgelesen werden
-				 */
-				Point geoOPoint = (Point) geoObject;
-				rootCoordLat = geoOPoint.getCoordinates().getLatitude();
-				rootCoordLon = geoOPoint.getCoordinates().getLongitude();
-
-			} else if (geoObject instanceof LineString) {
-				/*
-				 * Fall 3: Linie
-				 * beinhaltet eine List der Koordinaten, diese ist aber 1-stufig im Gegensatz zum Polygon
-				 * Es wird ueber die Liste geschleift und die Longitude/Latitude Mittelwerte gebildet
-				 */
-				LineString geoOLine = (LineString) geoObject;
-				List<LngLatAlt> coords = geoOLine.getCoordinates();
-
-				if (coords.size() > 0) {
-					for (int ii = 0; ii < coords.size(); ii++) {
-						rootCoordLat += coords.get(ii).getLatitude();
-						rootCoordLon += coords.get(ii).getLongitude();
-					}
-					rootCoordLat = rootCoordLat / (coords.size() + 1);
-					rootCoordLon = rootCoordLon / (coords.size() + 1);
-				}
-			} else {
-				setGeoDefault();
-			}
-
-			setGeoLatitude(new Double(rootCoordLat).toString());
-			setGeoLongitude(new Double(rootCoordLon).toString());
-
-			logger.debug("Posting coordinates: " + rootCoordLat + " / " + rootCoordLon);
-
-			setGeoPlaceName(_b_box.get("name").toString());
-			setGeoPlaceCountry(_b_box.get("country").toString());
-
-		} catch (JsonParseException e) {
-			logger.error(e.getMessage());
-			setGeoDefault();
-		} catch (JsonMappingException e) {
-			logger.error(e.getMessage());
-			setGeoDefault();
-		} catch (IOException e) {
-			logger.error(e.getMessage());
-			setGeoDefault();
-		}
-
-	}
-
-	/**
-	 * Setter fuer 0.00/0.00 damit da dann immer was drin steht und die OData Aufbereitung da einen Eintrag finden kann
-	 */
-	private void setGeoDefault() {
-		setGeoLatitude("0.00");
-		setGeoLongitude("0.00");
-
 	}
 }

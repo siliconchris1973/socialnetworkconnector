@@ -36,22 +36,26 @@ public final class LithiumParser extends GenericParser {
 		List<LithiumUser> users = new ArrayList<LithiumUser>();
 
 		try {
-			// zuerst suchen wir uns den post (tweet)
+			// first decode and add the posting
 			JSONObject jsonPostResource = (JSONObject) parser.parse(strPosting);
 			LithiumPosting posting = new LithiumPosting(jsonPostResource);
 			postings.add(posting);
 
-			// und dann den user
+			// next, grab the user and 
+			/*
 			JSONObject jsonUser = (JSONObject) jsonPostResource.get("user");
 			LithiumUser user = new LithiumUser(jsonUser);
 			users.add(user);
+			*/
 			
-			//TODO check if retweeted REALLY is added
+			// retweeted is NOT part of the Lithium network
+			/*
 			JSONObject jsonRePosted = (JSONObject) jsonPostResource.get("retweeted_status");
 			if (jsonRePosted != null) {
 				postings.add(new LithiumPosting(jsonRePosted));
 			}
-
+			*/
+			
 		} catch (ParseException e) {
 			logger.error("EXCEPTION :: " + e.getMessage() + " " + e);
 		}

@@ -2,11 +2,11 @@ package de.comlineag.sbm.data;
 
 /**
  * 
- * @author Christian Guenther
- * @category data enumeration
+ * @author 		Christian Guenther
+ * @category 	data enumeration
  * 
  * @description contains an enumeration with shortcuts referencing the social networks
- * @version 1.0
+ * @version 	1.0
  * 
  */
 public enum SocialNetworks {
@@ -18,7 +18,7 @@ public enum SocialNetworks {
 	STREAMWORK	("SW", "Post"), 
 	INSTAGRAM	("IN", "Message"),
 	FOURSQUARE	("FS", "Post"),
-	LITHIUM		("LT", "Post");
+	LITHIUM		("LT", "Message");
 
 	private final String value;
 	private final String type;

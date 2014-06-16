@@ -51,7 +51,10 @@ public class DataHelper {
 				// Formatter unbedingt mit USA da sonst die englischen Bezeichner nicht aufgeloest werden, evtl. auch EN/UK
 				snLocale = Locale.US;
 			} else {
-				logger.warn("unsupported System " + _snId);
+				logger.warn("no specific conversion for system " + _snId);
+				snPattern = "EEE MMM d H:m:s Z yyyy";
+				// Formatter unbedingt mit USA da sonst die englischen Bezeichner nicht aufgeloest werden, evtl. auch EN/UK
+				snLocale = Locale.US;
 			}
 
 			// uebersetzen der Daten:
