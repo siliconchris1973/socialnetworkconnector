@@ -113,17 +113,17 @@ public class HANAPersistence implements IPersistenceManager {
 				} catch (Exception le){
 					logger.error("EXCEPTION :: Odata call failed " + le.getLocalizedMessage());
 				}
-				
-				// now update the two text-fields via jdbc
-				logger.trace("updating text and raw_text via jdbc");
-				setPostingTextWithJdbc("text", postData.getText(), (long)postData.getId());
-				setPostingTextWithJdbc("raw_text", postData.getRawText(), (long)postData.getId());
 			}
 		} catch (NoBase64EncryptedValue e) {
 			logger.error(e.getMessage(), e);
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: Failure in savePost " + e.getLocalizedMessage(), e);
 		}
+
+		// now update the two text-fields via jdbc
+		logger.trace("updating text and raw_text via jdbc");
+		setPostingTextWithJdbc("text", postData.getText(), (long)postData.getId());
+		setPostingTextWithJdbc("raw_text", postData.getRawText(), (long)postData.getId());
 
 	}
 
