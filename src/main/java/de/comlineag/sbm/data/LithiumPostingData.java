@@ -202,7 +202,7 @@ public final class LithiumPostingData extends PostData {
 			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
 			setTime((String) jsonObj.get("$"));
-			//setTimestamp(DataHelper.prepareLocalDateTime(getTime(), getSnId()));
+			setTimestamp(DataHelper.prepareLocalDateTime(getTime(), getSnId()));
 			logger.trace("the post_time is " + getTime().toString());
 		} catch (ParseException e) {
 			logger.error("EXCEPTION :: parsing json failed " + e.getStackTrace().toString());

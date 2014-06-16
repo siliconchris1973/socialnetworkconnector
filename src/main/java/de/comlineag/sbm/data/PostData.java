@@ -44,7 +44,7 @@ public class PostData {
 
 	/**
 	 * post Text with html elements
-	 * <Property Name="text" Type="Edm.String" DefaultValue="" MaxLength="65536"/>
+	 * <Property Name="text" Type="Edm.String" DefaultValue="" MaxLength="5000"/>
 	 */
 	protected String raw_text;
 	

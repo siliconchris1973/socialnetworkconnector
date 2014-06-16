@@ -1,5 +1,9 @@
 package de.comlineag.sbm.persistence;
 
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.text.SimpleDateFormat;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.odata4j.consumer.ODataConsumer;
@@ -7,6 +11,7 @@ import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OProperties;
 //import org.odata4j.edm.EdmDataServices;
+
 
 import de.comlineag.sbm.data.PostData;
 import de.comlineag.sbm.data.UserData;
@@ -191,6 +196,26 @@ public class HANAPersistence implements IPersistenceManager {
 
 	}
 
+	public void setPostingTextWithJdbc(String textElement){
+		try {
+			Class.forName("com.sap.db.jdbc.Driver");
+			java.sql.Connection conn = java.sql.DriverManager.getConnection(""
+					+ "jdbc:sap://"+this.host+":"+this.port,this.user,this.pass);
+			
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery( "UPDATE text" );
+			
+			SimpleDateFormat sd = new SimpleDateFormat("dd.MM.yyyy");
+			while(rs.next()) {
+				System.out.print( rs.getString(1) + " | "); System.out.print( rs.getString(2) + " ");
+				System.out.print( rs.getString(3) + " | "); System.out.print( sd.format(rs.getTimestamp(4)) + " | "); System.out.println( rs.getString(5) );
+			}
+			rs.close() ; stmt.close() ; conn.close() ;
+		} catch(Exception e) {
+			logger.error("EXCEPTION :: could not create element " + e.getStackTrace().toString());
+		}
+	}
+	
 	/**
 	 * Entschluesselt Werte aus der Konfig fuer die Connection
 	 *
