@@ -2,7 +2,6 @@ package de.comlineag.sbm.persistence;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
@@ -10,19 +9,17 @@ import org.odata4j.consumer.ODataConsumer;
 import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OProperties;
-//import org.odata4j.edm.EdmDataServices;
-
 
 import de.comlineag.sbm.data.PostData;
 import de.comlineag.sbm.data.UserData;
 
 /**
  *
- * @author Magnus Leinemann, Christian Guenther
- * @category Connector Class
+ * @author 		Magnus Leinemann, Christian Guenther
+ * @category 	Connector Class
  *
- * @description handles the connectivity to SAP HANA Systems and saves posts and users in the DB
- * @version 1.1
+ * @description handles the connectivity to the SAP HANA Systems and saves posts and users in the DB
+ * @version 	1.2
  *
  */
 public class HANAPersistence implements IPersistenceManager {
@@ -57,6 +54,11 @@ public class HANAPersistence implements IPersistenceManager {
 	 * <Property Name="postLang" Type="Edm.String" MaxLength="64"/>
 	 * <Property Name="text" Type="Edm.String" DefaultValue="" MaxLength="1024"/>
 	 * <Property Name="raw_text" Type="Edm.String" DefaultValue="" MaxLength="5000"/>
+	 * <Property Name="subject" Type="Edm.String" DefaultValue="" MaxLength="20"/>
+	 * <Property Name="teaser" Type="Edm.String" DefaultValue="" MaxLength="256"/>
+	 * <Property Name="viewcount" Type="Edm.int" DefaultValue=0/>
+	 * <Property Name="favoritecount" Type="Edm.int" DefaultValue=0/>
+	 * 
 	 * <Property Name="geoLocation_longitude" Type="Edm.String" MaxLength="40"/>
 	 * <Property Name="geoLocation_latitude" Type="Edm.String" MaxLength="40"/>
 	 * <Property Name="client" Type="Edm.String" MaxLength="2048"/>
@@ -91,40 +93,50 @@ public class HANAPersistence implements IPersistenceManager {
 							.properties(OProperties.string("user_id", new String(new Long(postData.getUserId()).toString())))
 							.properties(OProperties.datetime("timestamp", postData.getTimestamp()))
 							.properties(OProperties.string("postLang", postData.getLang()))
+							
+							// Text and Raw Text is updated via jdbc - see below.
 							//.properties(OProperties.string("text", postData.getText()))
 							//.properties(OProperties.string("raw_text", postData.getRawText()))
+							.properties(OProperties.string("text", ""))
+							.properties(OProperties.string("raw_text", ""))
+							.properties(OProperties.string("teaser", postData.getTeaser()))
+							.properties(OProperties.string("subject", postData.getSubject()))
+							
+							.properties(OProperties.int32("viewcount", new Integer(postData.getViewCount())))
+							.properties(OProperties.int32("favoritecount", new Integer(postData.getFavoriteCount())))
+							
 							.properties(OProperties.string("geoLocation_longitude", postData.getGeoLongitude()))
 							.properties(OProperties.string("geoLocation_latitude", postData.getGeoLatitude()))
+							// .properties(OProperties.string("placeID", postData.getLocation()))
+							// .properties(OProperties.string("plName", "Client"))
+							// .properties(OProperties.string("plCountry", "Client"))
+							// .properties(OProperties.string("plAround_longitude", "Client"))
+							// .properties(OProperties.string("plAround_latitude", "Client"))
+							
 							.properties(OProperties.string("client", postData.getClient()))
 							.properties(OProperties.int32("truncated", new Integer(truncated)))
 	
 							.properties(OProperties.int64("inReplyTo", postData.getInReplyTo()))
 							.properties(OProperties.int64("inReplyToUserID", postData.getInReplyToUser()))
 							.properties(OProperties.string("inReplyToScreenName", postData.getInReplyToUserScreenName()))
-							// .properties(OProperties.string("placeID", postData.getLocation()))
-							// .properties(OProperties.string("plName", "Client"))
-							// .properties(OProperties.string("plCountry", "Client"))
-							// .properties(OProperties.string("plAround_longitude", "Client"))
-							// .properties(OProperties.string("plAround_latitude", "Client"))
-	
+							
 							.execute();
 					
 					logger.info("New post " + newPost.getEntityKey().toKeyString());
 				} catch (Exception le){
 					logger.error("EXCEPTION :: Odata call failed " + le.getLocalizedMessage());
 				}
+				
+				// now updating the two text-fields via jdbc
+				logger.trace("updating text and raw_text via jdbc");
+				setPostingTextWithJdbc("text", postData.getText(), (long)postData.getId());
+				setPostingTextWithJdbc("raw_text", postData.getRawText(), (long)postData.getId());
 			}
 		} catch (NoBase64EncryptedValue e) {
 			logger.error(e.getMessage(), e);
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: Failure in savePost " + e.getLocalizedMessage(), e);
 		}
-
-		// now update the two text-fields via jdbc
-		logger.trace("updating text and raw_text via jdbc");
-		setPostingTextWithJdbc("text", postData.getText(), (long)postData.getId());
-		setPostingTextWithJdbc("raw_text", postData.getRawText(), (long)postData.getId());
-
 	}
 
 	public void saveUsers(UserData userData) {

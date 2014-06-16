@@ -189,6 +189,39 @@ public final class LithiumPostingData extends PostData {
 			logger.error("EXCEPTION :: parsing json failed " + e.getStackTrace().toString());
 		}
 		
+		// number of kudos (favorites count)
+		// {}kudos								
+		//		{}count
+		//			$ : "0"
+		//			type : "int"
+		try {
+			JSONParser parser = new JSONParser();
+			Object obj;
+			obj = parser.parse(jsonObject.get("kudos").toString());
+			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+			
+			setFavoriteCount((int) jsonObj.get("$"));
+			logger.trace("the favorite is " + getFavoriteCount());
+		} catch (ParseException e) {
+			logger.error("EXCEPTION :: parsing json failed " + e.getStackTrace().toString());
+		}
+		
+		// number of views
+		// {}views								
+		//		{}count
+		//			$ : "0"
+		//			type : "int"
+		try {
+			JSONParser parser = new JSONParser();
+			Object obj;
+			obj = parser.parse(jsonObject.get("views").toString());
+			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+			
+			setViewCount((int) jsonObj.get("$"));
+			logger.trace("the viewcount is " + getViewCount());
+		} catch (ParseException e) {
+			logger.error("EXCEPTION :: parsing json failed " + e.getStackTrace().toString());
+		}
 		
 		// Sprache - fix on de at the moment
 		setLang("de");

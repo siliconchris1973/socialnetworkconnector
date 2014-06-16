@@ -7,12 +7,12 @@ import org.joda.time.LocalDateTime;
 
 /**
  * 
- * @author Magnus Leinemann
+ * @author 		Magnus Leinemann, Christian Guenther
  * 
- * @category Data Class
+ * @category 	Data Class
  * 
  * @description Data Class representing a Post from the OData Service
- * @version 1.0
+ * @version 	1.1
  * 
  */
 
@@ -22,16 +22,16 @@ public class PostData {
 	 * SocialNetworkID e.g. TW, FB
 	 * <Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"/>
 	 */
-	protected String sn_id;
+	protected String sn_id; // string identifying the social network - taken from SocialNetworks enum
 
 	/**
 	 * the ID of the current Post in the Social Network
 	 * <Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"/>
 	 */
-	protected long id; // ID from Twitter
+	protected long id; // ID from the social network
 
 	/**
-	 * User ID from the Network
+	 * User ID of the posting user
 	 * <Property Name="user_id" Type="Edm.String" MaxLength="20"/>
 	 */
 	protected long userId;
@@ -44,16 +44,40 @@ public class PostData {
 
 	/**
 	 * post Text with html elements
-	 * <Property Name="text" Type="Edm.String" DefaultValue="" MaxLength="5000"/>
+	 * <Property Name="raw_text" Type="Edm.String" DefaultValue="" MaxLength="5000"/>
 	 */
 	protected String raw_text;
+	
+	/**
+	 * a teaser (short version) of the post
+	 * <Property Name="teaser" Type="Edm.String" MaxLength="256"/>
+	 */
+	protected String teaser;
+	
+	/**
+	 * a subject of the post
+	 * <Property Name="subject" Type="Edm.String" MaxLength="20"/>
+	 */
+	protected String subject;
 	
 	/**
 	 * Language of post
 	 * <Property Name="postLang" Type="Edm.String" MaxLength="64"/>
 	 */
 	protected String lang;
-
+		
+	/**
+	 * count of views
+	 * <Property Name="viewcount" Type="Edm.int"/>
+	 */
+	protected int viewcount;
+	
+	/**
+	 * count of favoritecount
+	 * <Property Name="favoritecount" Type="Edm.int"/>
+	 */
+	protected int favoritecount;
+	
 	/**
 	 * Timestamp
 	 * <Property Name="timestamp" Type="Edm.DateTime"/>
@@ -135,6 +159,34 @@ public class PostData {
 	}
 	public void setRawText(String text) {
 		this.raw_text = text;
+	}
+	
+	public String getSubject() {
+		return subject;
+	}
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+	
+	public String getTeaser() {
+		return teaser;
+	}
+	public void setTeaser(String teaser) {
+		this.teaser = teaser;
+	}
+
+	public int getViewCount() {
+		return viewcount;
+	}
+	public void setViewCount(int viewcount) {
+		this.viewcount = viewcount;
+	}
+	
+	public int getFavoriteCount() {
+		return favoritecount;
+	}
+	public void setFavoriteCount(int favoritecount) {
+		this.favoritecount = favoritecount;
 	}
 	
 	public String getTime() {
