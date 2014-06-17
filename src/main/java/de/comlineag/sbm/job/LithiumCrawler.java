@@ -7,6 +7,7 @@ import java.net.PasswordAuthentication;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -109,7 +110,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		logger.debug("new lithium crawler instantiated - restricted to track " + smallLogMessage);
 		
 		
-		//TODO implement authentication against lithium network
 		/*
 		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get("consumerKey"), 
 											(String) arg0.getJobDetail().getJobDataMap().get("consumerSecret"), 
@@ -139,7 +139,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				
 				if (!httpStatusCode.isOk()){
 					if (httpStatusCode == HttpStatusCode.FORBIDDEN){
-						// TODO implement proper authorization handling
 						logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCode.getErrorCode()));
 					} else {
 						logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCode.getErrorCode()) + " could not connect to " + REST_API_URL);
@@ -155,17 +154,19 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				Object obj = parser.parse(jsonString);
 				JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
 				if(jsonObj == null)
-					throw new Exception();
+					throw new ParseException(0, "returned json object is null");
 				JSONObject responseObj = (JSONObject)jsonObj.get(CONSTANTS.JSON_RESPONSE_OBJECT_TEXT);
 				
 				// first check if the server response is not only OK from an http point of view, but also
-				//    from the perspective of the REST API 
+				//    from the perspective of the REST API call
+				// TODO CHECK WHY THIS RETURNS UNKNOWN!!!
 				jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT).toString().toUpperCase());
+				logger.trace("json status code is " + responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT) + " translates to " + jsonStatusCode);
 				
 				if(!"success".equals(responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT)))
 					throw new LithiumStatusException("return code from server is " + jsonStatusCode);
 				
-				/* TODO check why this does not work
+				/* 
 				if(!jsonStatusCode.isOk())
 					throw new LithiumStatusException("return code from server is " + jsonStatusCode);
 				*/
@@ -223,7 +224,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			
 			if (!httpStatusCode.isOk()){
 				if (httpStatusCode == HttpStatusCode.FORBIDDEN){
-					// TODO implement proper authorization handling
 					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCode.getErrorCode()));
 				} else {
 					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCode.getErrorCode())+" could not connect to " + REST_API_URL);
@@ -239,17 +239,19 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			Object obj = parser.parse(jsonString);
 			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
 			if(jsonObj == null)
-				throw new Exception();
+				throw new ParseException(0, "returned json object is null");
 			JSONObject responseObj = (JSONObject)jsonObj.get(CONSTANTS.JSON_RESPONSE_OBJECT_TEXT);
 			
 			// first check if the server response is not only OK from an http point of view, but also
-			//    from the perspective of the REST API
+			//    from the perspective of the REST API call
+			// TODO CHECK WHY THIS RETURNS UNKNOWN!!!
 			jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT).toString().toUpperCase());
+			logger.trace("json status code is " + responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT) + " translates to " + jsonStatusCode);
 			
 			if(!"success".equals(responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT)))
 				throw new LithiumStatusException("return code from server is " + jsonStatusCode);
 			
-			/* TODO check why this does not work
+			/* 
 			if(!jsonStatusCode.isOk())
 				throw new LithiumStatusException("return code from server is " + jsonStatusCode);
 			*/
@@ -257,8 +259,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			return (JSONObject) responseObj.get(CONSTANTS.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
 		} catch (LithiumStatusException le){
 			logger.error("EXCEPTION :: " + le.toString(), le);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			logger.error("EXCEPTION :: " + e.toString(), e);
 		}
 		

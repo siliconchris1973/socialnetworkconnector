@@ -15,14 +15,6 @@ import de.comlineag.sbm.data.LithiumPostingData;
  *              posting with all relevant information about the posting is decoded 
  *              by LithiumParser.
  * 
- * 				The data type Lithium posting consists of these elements
- *	            	id						Long 
- *					created_at				String 
- *					text					String 
- *					raw_text				String 
- *					source					String
- *            		truncated				Boolean 
- 
  * 
  * @param <LithiumPostingData>
  * 					Data type 
@@ -30,18 +22,6 @@ import de.comlineag.sbm.data.LithiumPostingData;
  */
 
 public class LithiumPosting extends GenericDataManager<LithiumPostingData> {
-	/*
-	 * Die nachfolgenden Elemente des Posts sollen weiter verarbeitet und
-	 * gespeichert werden
-	 * 
-	 * key="cl_postID" 					value="id" 
-	 * key="cl_postTime" 				value="created_at"
-	 * key="cl_posting" 				value="text" 
-	 * key="cl_posting_raw" 			value="raw_text" 
-	 * key="cl_postClient" 				value="source"
-	 * key="cl_postTruncated" 			value="truncated" 
-	 */
-	
 	private LithiumPostingData data;
 
 	public LithiumPosting(JSONObject jsonObject) {

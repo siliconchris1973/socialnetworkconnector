@@ -3,7 +3,6 @@ package de.comlineag.sbm.data;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 
 /**
@@ -26,18 +25,26 @@ import org.jsoup.Jsoup;
  *            "sn_id" 					String		fixed to LT
  *            "created_at" 				String		post_time
  *            "text" 					String		body
- *            "raw_text" 					String		body
- *            "source" 					String		href auf das board
+ *            "raw_text" 				String		body
+ *            "teaser"	 				String		teaser
+ *            "subject"	 				String		subject
+ *            "source" 					String		href to the board in which the message was posted
+ *            
+ *            "viewcount"				int			views
+ *            "favoritecount"			int			kudos
+ *            
  *            "truncated" 				Boolean		fixed to FALSE because not used
+ *            "lang" 					String		fixed to de
+ *            
+ *            "hashtags" 				List		fixed to NULL because not used
+ *            "symbols" 				List		fixed to NULL because not used
+ *            "mentions" 				List		fixed to NULL because not used
+ *            
  *            "in_reply_to_status_id" 	Long		fixed to NULL because not used
  *            "in_reply_to_user_id" 	Long		fixed to NULL because not used
  *            "in_reply_to_screen_name"	String		fixed to NULL because not used
  *            "coordinates" 			List		fixed to NULL because not used
  *            "place" 					List		fixed to NULL because not used
- *            "lang" 					String		fixed to NULL because not used
- *            "hashtags" 				List		fixed to NULL because not used
- *            "symbols" 				List		fixed to NULL because not used
- *            "mentions" 				List		fixed to NULL because not used
  * 
  * JSON Structure:
  * 
@@ -154,125 +161,161 @@ public final class LithiumPostingData extends PostData {
 		initialize();
 		
 		
-		// ID des Posting
 		try {
 			JSONParser parser = new JSONParser();
 			Object obj;
+			
+			
+			// ID des Posting
+			// Structure: 
+			// 	{}id
+			//		$ : 2961
+			// 		type : "int"
 			obj = parser.parse(jsonObject.get("id").toString());
-			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+			JSONObject jsonObjId = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			setId((Long) jsonObj.get("$"));
+			setId((Long) jsonObjId.get("$"));
 			logger.trace("the post id is " + getId());
-		} catch (ParseException e) {
-			logger.error("EXCEPTION :: parsing json failed " + e.getStackTrace().toString());
-		}
-		
-		
-		
-		// the user
-		// {}author									- this is the user that
-		//		{}login
-		//			$ : "Cortal_Consors"
-		//			type : "string"
-		//		type : "user"
-		//		href : "/users/id/9"
-		try {
-			JSONParser parser = new JSONParser();
-			Object obj;
+			
+			
+			
+			// the user
+			// Structure: 
+			// 	{}author
+			//		{}login
+			//			$ : "Cortal_Consors"
+			//			type : "string"
+			//		type : "user"
+			//		href : "/users/id/9"
 			obj = parser.parse(jsonObject.get("author").toString());
-			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+			JSONObject jsonObjAuthor = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			String idAsString = jsonObj.get("href").toString().substring(jsonObj.get("href").toString().lastIndexOf('/') + 1); 
-			setUserId((Long.parseLong(idAsString.trim())));
+			String userHref = jsonObjAuthor.get("href").toString().substring(jsonObjAuthor.get("href").toString().lastIndexOf('/') + 1); 
+			setUserId((Long.parseLong(userHref.trim())));
 			logger.trace("the user id is " + getUserId());
-		} catch (ParseException e) {
-			logger.error("EXCEPTION :: parsing json failed " + e.getStackTrace().toString());
-		}
-		
-		// number of kudos (favorites count)
-		// {}kudos								
-		//		{}count
-		//			$ : "0"
-		//			type : "int"
-		try {
-			JSONParser parser = new JSONParser();
-			Object obj;
+			
+			
+			
+			// number of kudos (favorites count)
+			// Structure: 
+			// 	{}kudos								
+			//		{}count
+			//			$ : "0"
+			//			type : "int"
+			// first level - get kudos
 			obj = parser.parse(jsonObject.get("kudos").toString());
-			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+			JSONObject jsonObjKudos = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			setFavoriteCount((int) jsonObj.get("$"));
-			logger.trace("the favorite is " + getFavoriteCount());
-		} catch (ParseException e) {
-			logger.error("EXCEPTION :: parsing json failed " + e.getStackTrace().toString());
-		}
-		
-		// number of views
-		// {}views								
-		//		{}count
-		//			$ : "0"
-		//			type : "int"
-		try {
-			JSONParser parser = new JSONParser();
-			Object obj;
+			// second level - get count
+			JSONParser parserKudos = new JSONParser();
+			Object objKudos = parserKudos.parse(jsonObjKudos.get("count").toString());
+			JSONObject jsonObjKudosTwo = objKudos instanceof JSONObject ?(JSONObject) objKudos : null;
+			
+			setFavoriteCount((long) jsonObjKudosTwo.get("$"));
+			logger.trace("the favorite count is " + getFavoriteCount());
+			
+			
+			
+			// number of views
+			// Structure: 
+			// 	{}views								
+			//		{}count
+			//			$ : "0"
+			//			type : "int"
+			// first level - get json-object for views
 			obj = parser.parse(jsonObject.get("views").toString());
-			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+			JSONObject jsonObjViews = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			setViewCount((int) jsonObj.get("$"));
-			logger.trace("the viewcount is " + getViewCount());
-		} catch (ParseException e) {
-			logger.error("EXCEPTION :: parsing json failed " + e.getStackTrace().toString());
-		}
-		
-		// Sprache - fix on de at the moment
-		setLang("de");
-		
-		
-		// Timestamp as a string and as an objekt for the oDATA call
-		try {
-			JSONParser parser = new JSONParser();
-			Object obj;
+			// second level - get count
+			JSONParser parserViews = new JSONParser();
+			Object objViews = parserViews.parse(jsonObjViews.get("count").toString());
+			JSONObject jsonObjViewsTwo = objViews instanceof JSONObject ?(JSONObject) objViews : null;
+			
+			setViewCount((long) jsonObjViewsTwo.get("$"));
+			logger.trace("the view count is " + getViewCount());
+			
+			
+			
+			// Timestamp as a string and as an objekt for the oDATA call
+			// Structure: 
+			// 	{}post_time
+			//		$ : "2014-01-08T12:21:42+00:00"
+			//		type : "date_time"
 			obj = parser.parse(jsonObject.get("post_time").toString());
-			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+			JSONObject jsonObjTime = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			setTime((String) jsonObj.get("$"));
+			setTime((String) jsonObjTime.get("$"));
 			setTimestamp(DataHelper.prepareLocalDateTime(getTime(), getSnId()));
 			logger.trace("the post_time is " + getTime().toString());
-		} catch (ParseException e) {
-			logger.error("EXCEPTION :: parsing json failed " + e.getStackTrace().toString());
-		}
-		
-		
-		// Text des Post - this will be updated via jdbc
-		try {
-			JSONParser parser = new JSONParser();
-			Object obj;
+			
+			
+			
+			// Text des Post - this will be updated via jdbc
+			// Structure: 
+			//	{}body	
 			obj = parser.parse(jsonObject.get("body").toString());
-			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+			JSONObject jsonObjText = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
 			// strip all HTML tags from the post
-			setText((String) stripHTML(jsonObj.get("$")));
-			setRawText((String) jsonObj.get("$"));
-			logger.trace("the text is " +  getText());
-		} catch (ParseException e) {
-			logger.error("EXCEPTION :: parsing json failed " + e.getStackTrace().toString());
-		}
-		
-		
-		// in which board was the message posted - we use the client field for this value
-		try {
-			JSONParser parser = new JSONParser();
-			Object obj;
-			obj = parser.parse(jsonObject.get("board").toString());
-			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+			setText((String) stripHTML(jsonObjText.get("$")));
+			setRawText((String) jsonObjText.get("$"));
+			logger.trace("the first 50 chars of the text are " +  getText().substring(0, 50)+ "...");
 			
-			setClient((String) jsonObj.get("href"));
+			
+			
+			// in which board was the message posted - we use the client field for this value
+			// Structure:
+			//	{}board	
+			//		type : "board"
+			//		href : "/boards/id/Boersenlexikon"	
+			obj = parser.parse(jsonObject.get("board").toString());
+			JSONObject jsonObjBoard = obj instanceof JSONObject ?(JSONObject) obj : null;
+			
+			setClient((String) jsonObjBoard.get("href"));
 			logger.trace("the board: " + getClient());
-		} catch (ParseException e) {
+			
+			
+			
+			// labels may contain some more valuable information, but we do not use them at the moment
+			// TODO : when implementing this, be aware of multiple occurrences for Label within Labels 
+			// Structure:
+			//	{}labels
+			//		{}label
+			//			0
+			//			{}id
+			//				$ : 163
+			//				type : "int"
+			//			{}text
+			//				$ : "Aktie"
+			//				type : "string"
+			//		type : "label"
+			//		href : "/labels/id/163"
+			/*
+			obj = parser.parse(jsonObject.get("labels").toString());
+			JSONObject jsonObjLabels = obj instanceof JSONObject ?(JSONObject) obj : null;
+			
+			// second level - get count
+			JSONParser parserLabels = new JSONParser();
+			Object objLabels = parserLabels.parse(jsonObjLabels.get("label").toString());
+			JSONObject jsonObjLabelsTwo = objLabels instanceof JSONObject ?(JSONObject) objLabels : null;
+			
+			JSONParser parserLabelsTwo = new JSONParser();
+			Object objLabelsTwo = parserLabelsTwo.parse(jsonObjLabelsTwo.get("text").toString());
+			JSONObject jsonObjLabelsThree = objLabelsTwo instanceof JSONObject ?(JSONObject) objLabelsTwo : null;
+			
+			//setLabel((String) jsonObjLabelsThree.get("$"));
+			logger.trace("the label is " + jsonObjLabelsThree.get("$"));
+			*/
+			
+			// language - fix on de (German) at the moment
+			setLang("de");
+					
+					
+			// Flag to indicate if the post was truncated - this is NEVER used by the Lithium network
+			setTruncated((Boolean) false);
+		} catch (Exception e) {
 			logger.error("EXCEPTION :: parsing json failed " + e.getStackTrace().toString());
 		}
-		
-		// Flag to indicate if the post was truncated - this is NEVER used by the Lithium network
-		setTruncated((Boolean) false);
 	}
 	
 	
@@ -301,20 +344,27 @@ public final class LithiumPostingData extends PostData {
 
 		text = null;
 		raw_text = null;
+		subject = "";
+		teaser = "";
+		
+		viewcount = 0;
+		favoritecount = 0;
+		
 		time = null;
 		posted_from_client = null;
 		truncated = false;
 		lang = null;
 		
-		
 		// these values are never used by Lithium
 		in_reply_to_post = 0;
 		in_reply_to_user = 0;
 		in_reply_to_user_screen_name = null;
+		
 		coordinates = null;
 		geoLatitude = null;
 		geoLongitude = null;
 		place = null;
+		
 		hashtags = null;
 		symbols = null;
 		mentions = null;

@@ -52,30 +52,33 @@ public class HANAPersistence implements IPersistenceManager {
 	 * <Property Name="user_id" Type="Edm.String" MaxLength="20"/>
 	 * <Property Name="timestamp" Type="Edm.DateTime"/>
 	 * <Property Name="postLang" Type="Edm.String" MaxLength="64"/>
+	
 	 * <Property Name="text" Type="Edm.String" DefaultValue="" MaxLength="1024"/>
 	 * <Property Name="raw_text" Type="Edm.String" DefaultValue="" MaxLength="5000"/>
 	 * <Property Name="subject" Type="Edm.String" DefaultValue="" MaxLength="20"/>
 	 * <Property Name="teaser" Type="Edm.String" DefaultValue="" MaxLength="256"/>
+	
 	 * <Property Name="viewcount" Type="Edm.int" DefaultValue=0/>
 	 * <Property Name="favoritecount" Type="Edm.int" DefaultValue=0/>
-	 * 
+	
 	 * <Property Name="geoLocation_longitude" Type="Edm.String" MaxLength="40"/>
 	 * <Property Name="geoLocation_latitude" Type="Edm.String" MaxLength="40"/>
-	 * <Property Name="client" Type="Edm.String" MaxLength="2048"/>
-	 * <Property Name="truncated" Type="Edm.Byte" DefaultValue="0"/>
-	 * <Property Name="inReplyTo" Type="Edm.String" MaxLength="20"/>
-	 * <Property Name="inReplyToUserID" Type="Edm.String" MaxLength="20"/>
-	 * <Property Name="inReplyToScreenName" Type="Edm.String" MaxLength="128"/>
 	 * <Property Name="placeID" Type="Edm.String" MaxLength="16"/>
 	 * <Property Name="plName" Type="Edm.String" MaxLength="256"/>
 	 * <Property Name="plCountry" Type="Edm.String" MaxLength="128"/>
 	 * <Property Name="plAround_longitude" Type="Edm.String" MaxLength="40"/>
 	 * <Property Name="plAround_latitude" Type="Edm.String" MaxLength="40"/>
+	
+	 * <Property Name="client" Type="Edm.String" MaxLength="2048"/>
+	 * <Property Name="truncated" Type="Edm.Byte" DefaultValue="0"/>
+	 * <Property Name="inReplyTo" Type="Edm.String" MaxLength="20"/>
+	 * <Property Name="inReplyToUserID" Type="Edm.String" MaxLength="20"/>
+	 * <Property Name="inReplyToScreenName" Type="Edm.String" MaxLength="128"/>
 	 *
 	 */
 	public void savePosts(PostData postData) {
 		logger.debug("savePosts called for post with id " + postData.getId());
-		int truncated = (postData.getTruncated()) ? 0 : 1;
+		int truncated = (postData.getTruncated()) ? 1 : 0;
 
 		try {
 			if (postService == null)
@@ -87,6 +90,71 @@ public class HANAPersistence implements IPersistenceManager {
 				logger.trace("Setting timestamp " + postData.getTimestamp().toString());
 				
 				try{
+					logger.trace("trying to insert data with jdbc");
+					
+					Class.forName("com.sap.db.jdbc.Driver");
+					java.sql.Connection conn = java.sql.DriverManager.getConnection(""
+												+ "jdbc:sap://"+this.host+":"+this.port,this.user,this.pass);
+					
+					Statement stmt = conn.createStatement();
+					
+					ResultSet rs = stmt.executeQuery( "INSERT INTO \"CL_SBM\".\"comline.sbm.data.tables::posts_1\" "
+														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"sn_id\" = \'" + postData.getSnId() + "\'"
+														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"post_id\" = \'" + new String(new Long(postData.getId()).toString()) + "\'"
+														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"user_id\" = \'" + new String(new Long(postData.getUserId()).toString()) + "\'"
+														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"timestamp\" = \'" + postData.getTimestamp() + "\'"
+														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"postLang\" = \'" + postData.getLang() + "\'"
+														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"text\" = \'" + postData.getText() + "\'"
+														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"raw_text\" = \'" + postData.getRawText() + "\'"
+														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"teaser\" = \'" + postData.getTeaser() + "\'"
+														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"subject\" = \'" + postData.getSubject() + "\'"
+														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"viewcount\" = \'" + postData.getViewCount() + "\'"
+														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"favoritecount\" = \'" + postData.getFavoriteCount() + "\'"
+														// TODO when geo location is working, reactivate these fields 
+														//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"geoLocation_longitude\" = \'" + postData.getGeoLongitude() + "\'"
+														//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"geoLocation_latitude\" = \'" + postData.getGeoLatitude() + "\'"
+														//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"placeID\" = \'" + postData.getPlaceId() + "\'"
+														//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"plName\" = \'" + postData.getPLName() + "\'"
+														//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"plCountry\" = \'" + postData.getPLCountry() + "\'"
+														//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"plAround_longitude\" = \'" + postData.getPLAroundLongitude() + "\'"
+														//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"plAround_latitude\" = \'" + postData.getPLAroundLattitude() + "\'"
+														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"client\" = \'" + postData.getClient() + "\'"
+														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"truncated\" = \'" + new Integer(truncated) + "\'"
+														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"inReplyTo\" = \'" + postData.getInReplyTo() + "\'"
+														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"inReplyToUserID\" = \'" + postData.getInReplyToUser() + "\'"
+														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"inReplyToScreenName\" = \'" + postData.getInReplyToUserScreenName() + "\'"						
+												);
+					rs.close() ; stmt.close() ; conn.close() ;
+				} catch (java.lang.ClassNotFoundException le) {
+					logger.warn("JDBC driver not available - falling back to OData");
+					
+					logger.trace("this is the data we are sending over the wire: \n"
+							+ "			sn_id				"	+ postData.getSnId() 						+ "\n"
+							+ "			post_id				" 	+ new Long(postData.getId()).toString() 	+ "\n"
+							+ "			user_id				" 	+ new Long(postData.getUserId()).toString()	+ "\n"
+							+ "			timestamp			" 	+ postData.getTimestamp()					+ "\n"
+							+ "			postLang			" 	+ postData.getLang()						+ "\n"
+							+ "			text				" 	+ postData.getText().substring(0, 50)		+ "...\n"
+							+ "			raw_text			" 	+ postData.getRawText().substring(0, 50)	+ "...\n"
+							+ "			teaser				" 	+ postData.getTeaser()						+ "\n"
+							+ "			subject				" 	+ postData.getSubject()						+ "\n"
+							+ "			viewcount			" 	+ new Long(postData.getViewCount())			+ "\n"
+							+ "			favoritecount			" 	+ new Long(postData.getFavoriteCount())		+ "\n"
+							// TODO when geo location is working, reactivate these fields
+							//+ "			geoLocation_longitude	"	+ postData.getGeoLongitude()				+ "\n"
+							//+ "			geoLocation_latitude	" 	+ postData.getGeoLatitude()					+ "\n"
+							//+ "			placeID 				" 	+ postData.getLocation()					+ "\n"
+							//+ "			plName 					" 	+ postData.getPLName()						+ "\n"
+							//+ "			plCountry 				" 	+ postData.getPLCountry()					+ "\n"
+							//+ "			plAround_longitude 		" 	+ postData.getPLAroundLongitude()			+ "\n"
+							//+ "			plAround_latitude 		" 	+ postData.getPLAroundLatitude()			+ "\n"
+							+ "			client 				" 	+ postData.getClient()						+ "\n"
+							+ "			truncated 				" 	+ new Integer(truncated)					+ "\n"
+							+ "			inReplyTo 				" 	+ postData.getInReplyTo()					+ "\n"
+							+ "			inReplyToUserID 		" 	+ postData.getInReplyToUser()				+ "\n"
+							+ "			inReplyToScreenName 	" 	+ postData.getInReplyToUserScreenName()		+ "\n"	
+							);
+					
 					OEntity newPost = postService.createEntity("post")
 							.properties(OProperties.string("sn_id", postData.getSnId()))
 							.properties(OProperties.string("post_id", new String(new Long(postData.getId()).toString())))
@@ -94,24 +162,22 @@ public class HANAPersistence implements IPersistenceManager {
 							.properties(OProperties.datetime("timestamp", postData.getTimestamp()))
 							.properties(OProperties.string("postLang", postData.getLang()))
 							
-							// Text and Raw Text is updated via jdbc - see below.
-							//.properties(OProperties.string("text", postData.getText()))
-							//.properties(OProperties.string("raw_text", postData.getRawText()))
-							.properties(OProperties.string("text", ""))
-							.properties(OProperties.string("raw_text", ""))
+							.properties(OProperties.string("text", postData.getText()))
+							.properties(OProperties.string("raw_text", postData.getRawText()))
 							.properties(OProperties.string("teaser", postData.getTeaser()))
 							.properties(OProperties.string("subject", postData.getSubject()))
 							
-							.properties(OProperties.int32("viewcount", new Integer(postData.getViewCount())))
-							.properties(OProperties.int32("favoritecount", new Integer(postData.getFavoriteCount())))
+							.properties(OProperties.int64("viewcount", new Long(postData.getViewCount())))
+							.properties(OProperties.int64("favoritecount", new Long(postData.getFavoriteCount())))
 							
-							.properties(OProperties.string("geoLocation_longitude", postData.getGeoLongitude()))
-							.properties(OProperties.string("geoLocation_latitude", postData.getGeoLatitude()))
-							// .properties(OProperties.string("placeID", postData.getLocation()))
-							// .properties(OProperties.string("plName", "Client"))
-							// .properties(OProperties.string("plCountry", "Client"))
-							// .properties(OProperties.string("plAround_longitude", "Client"))
-							// .properties(OProperties.string("plAround_latitude", "Client"))
+							// TODO when geo location is working, reactivate these fields
+							//.properties(OProperties.string("geoLocation_longitude", postData.getGeoLongitude()))
+							//.properties(OProperties.string("geoLocation_latitude", postData.getGeoLatitude()))
+							//.properties(OProperties.string("placeID", postData.getLocation()))
+							//.properties(OProperties.string("plName",  postData.getPLName()))
+							//.properties(OProperties.string("plCountry", postData.getPLCountry()))
+							//.properties(OProperties.string("plAround_longitude", postData.getPLAroundLongitude()))
+							//.properties(OProperties.string("plAround_latitude", postData.getPLAroundLatitude()))
 							
 							.properties(OProperties.string("client", postData.getClient()))
 							.properties(OProperties.int32("truncated", new Integer(truncated)))
@@ -123,14 +189,16 @@ public class HANAPersistence implements IPersistenceManager {
 							.execute();
 					
 					logger.info("New post " + newPost.getEntityKey().toKeyString());
+					
+					// now updating the two text-fields via jdbc
+					logger.trace("updating text and raw_text via jdbc");
+					setPostingTextWithJdbc("text", postData.getText(), (long)postData.getId());
+					setPostingTextWithJdbc("raw_text", postData.getRawText(), (long)postData.getId());
+					
 				} catch (Exception le){
-					logger.error("EXCEPTION :: Odata call failed " + le.getLocalizedMessage());
+					logger.error("EXCEPTION :: JDBC call failed " + le.getLocalizedMessage());
+					le.printStackTrace();
 				}
-				
-				// now updating the two text-fields via jdbc
-				logger.trace("updating text and raw_text via jdbc");
-				setPostingTextWithJdbc("text", postData.getText(), (long)postData.getId());
-				setPostingTextWithJdbc("raw_text", postData.getRawText(), (long)postData.getId());
 			}
 		} catch (NoBase64EncryptedValue e) {
 			logger.error(e.getMessage(), e);
@@ -141,12 +209,28 @@ public class HANAPersistence implements IPersistenceManager {
 
 	public void saveUsers(UserData userData) {
 		logger.debug("saveUsers called for user " + userData.getScreenName());
-		//EdmDataServices serviceMeta;
-
+		
 		try {
 			if (userService == null)
 				prepareConnections();
-
+			
+			logger.trace("trying to insert data with jdbc");
+			
+			//Class.forName("com.sap.db.jdbc.Driver");
+			Class.forName("SAP_HANA_JDBC");
+			java.sql.Connection conn = java.sql.DriverManager.getConnection(""
+					+ "jdbc:sap://"+this.host+":"+this.port,this.user,this.pass);
+			
+			Statement stmt = conn.createStatement();
+			
+			ResultSet rs = stmt.executeQuery( "INSERT INTO \"CL_SBM\".\"comline.sbm.data.tables::users\" "
+												+ "set \"CL_SBM\".\"comline.sbm.data.tables::users\".\"sn_id\" = \'" + userData.getSnId() + "\'"
+																		
+										);
+			rs.close() ; stmt.close() ; conn.close() ;
+		} catch (java.lang.ClassNotFoundException le) {
+			logger.warn("JDBC driver not available - falling back to OData");
+			
 			OEntity newUser = userService.createEntity("user")
 					.properties(OProperties.string("sn_id", userData.getSnId()))
 					.properties(OProperties.string("user_id", new String(new Long(userData.getId()).toString())))
@@ -222,6 +306,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * 						the element to update identified by post_id
 	 */
 	public void setPostingTextWithJdbc(String txtField, String txtString, long idToUpdate){
+		
 		try {
 			Class.forName("com.sap.db.jdbc.Driver");
 			java.sql.Connection conn = java.sql.DriverManager.getConnection(""
@@ -237,6 +322,9 @@ public class HANAPersistence implements IPersistenceManager {
 												+ idToUpdate + "\'");
 			
 			rs.close() ; stmt.close() ; conn.close() ;
+		} catch (java.lang.ClassNotFoundException le) {
+			logger.error("EXCEPTION :: the jdbc driver could not be found. Could not update text fields in database");
+			
 		} catch(Exception e) {
 			logger.error("EXCEPTION :: could not update element " + idToUpdate + ": " + e.getStackTrace().toString());
 		}

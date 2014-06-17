@@ -70,13 +70,13 @@ public class PostData {
 	 * count of views
 	 * <Property Name="viewcount" Type="Edm.int"/>
 	 */
-	protected int viewcount;
+	protected long viewcount;
 	
 	/**
 	 * count of favoritecount
 	 * <Property Name="favoritecount" Type="Edm.int"/>
 	 */
-	protected int favoritecount;
+	protected long favoritecount;
 	
 	/**
 	 * Timestamp
@@ -175,17 +175,17 @@ public class PostData {
 		this.teaser = teaser;
 	}
 
-	public int getViewCount() {
+	public long getViewCount() {
 		return viewcount;
 	}
-	public void setViewCount(int viewcount) {
+	public void setViewCount(long viewcount) {
 		this.viewcount = viewcount;
 	}
 	
-	public int getFavoriteCount() {
+	public long getFavoriteCount() {
 		return favoritecount;
 	}
-	public void setFavoriteCount(int favoritecount) {
+	public void setFavoriteCount(long favoritecount) {
 		this.favoritecount = favoritecount;
 	}
 	

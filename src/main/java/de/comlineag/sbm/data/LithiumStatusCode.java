@@ -14,6 +14,9 @@ public enum LithiumStatusCode {
 	UNKNOWN 						("unknown"										, false),
 	FORBIDDEN						("forbidden"									, false),
 	SUCCESS							("success"										, true);
+	//UNKNOWN 						("UNKNOWN"										, false),
+	//FORBIDDEN						("FORBIDDEN"									, false),
+	//SUCCESS							("SUCCESS"										, true);
 	
 	
 

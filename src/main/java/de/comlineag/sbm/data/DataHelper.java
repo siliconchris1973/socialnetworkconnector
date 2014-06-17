@@ -49,17 +49,14 @@ public class DataHelper {
 				snPattern = "EEE MMM d H:m:s Z yyyy";
 				// Formatter unbedingt mit USA da sonst die englischen Bezeichner nicht aufgeloest werden, evtl. auch EN/UK
 				snLocale = Locale.US;
-			} else if (_snId.equalsIgnoreCase(SocialNetworks.LITHIUM.getValue())) {  
-				logger.trace("formatting date time for use with Lithium");
+			} else if (_snId.equalsIgnoreCase(SocialNetworks.LITHIUM.getValue())) {
+				//TODO fix date time formatting 
+				logger.warn("formatting date time for use with Lithium is not yet supported");
 				// 2014-01-08T12:21:42+00:00
-				//snPattern = "EEE MMM d H:m:s Z yyyy";
-				snPattern = "yyyy-mm-ddTH:m:s Z";
+				snPattern = "EEE MMM d H:m:s Z yyyy";
 				snLocale = Locale.GERMANY;
 			} else {
 				logger.warn("no specific conversion for system " + _snId);
-				snPattern = "EEE MMM d H:m:s Z yyyy";
-				// Formatter unbedingt mit USA da sonst die englischen Bezeichner nicht aufgeloest werden, evtl. auch EN/UK
-				snLocale = Locale.GERMANY;
 			}
 
 			// convert the datum

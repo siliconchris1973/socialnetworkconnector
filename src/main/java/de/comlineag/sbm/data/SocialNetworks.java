@@ -18,7 +18,8 @@ public enum SocialNetworks {
 	STREAMWORK	("SW", "Post"), 
 	INSTAGRAM	("IN", "Message"),
 	FOURSQUARE	("FS", "Post"),
-	LITHIUM		("LT", "Message");
+	LITHIUM		("LT", "Message"),
+	YOUTUBE		("YT", "Post");
 
 	private final String value;
 	private final String type;
