@@ -19,7 +19,8 @@ public enum SocialNetworks {
 	INSTAGRAM	("IN", "Message"),
 	FOURSQUARE	("FS", "Post"),
 	LITHIUM		("LT", "Message"),
-	YOUTUBE		("YT", "Post");
+	YOUTUBE		("YT", "Post"),
+	FINANZFORUM	("FF", "Post");
 
 	private final String value;
 	private final String type;
