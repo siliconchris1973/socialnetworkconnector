@@ -358,7 +358,7 @@ public class HANAPersistence implements IPersistenceManager {
 		
 		try {
 			Class.forName("com.sap.db.jdbc.Driver");
-
+			
             // decrypting the values because the jdbc driver needs these values in clear text
 			String user = decryptValue(this.user);
             String password = decryptValue(this.pass);
@@ -373,11 +373,8 @@ public class HANAPersistence implements IPersistenceManager {
             stmt.setString(1, txtString);
             stmt.setLong(2, idToUpdate);
 			
-			// this is the update statement as executed from sql console
-			// UPDATE "CL_SBM"."comline.sbm.data.tables::posts_1" set "CL_SBM"."comline.sbm.data.tables::posts_1"."text" = 'XYZ' where "CL_SBM"."comline.sbm.data.tables::posts_1"."post_id" = '1'
-
 			int rowCount = stmt.executeUpdate( );
-			 logger.trace("Insert "+rowCount+" Rows");
+			logger.trace("Insert "+rowCount+" Rows");
 			
 			stmt.close() ; conn.close() ;
 		} catch (java.lang.ClassNotFoundException le) {
