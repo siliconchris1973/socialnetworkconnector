@@ -10,6 +10,7 @@ import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OProperties;
 
+import de.comlineag.sbm.data.SocialNetworks;
 import de.comlineag.sbm.data.PostData;
 import de.comlineag.sbm.data.UserData;
 
@@ -19,7 +20,7 @@ import de.comlineag.sbm.data.UserData;
  * @category 	Connector Class
  *
  * @description handles the connectivity to the SAP HANA Systems and saves posts and users in the DB
- * @version 	1.2
+ * @version 	1.3
  *
  */
 public class HANAPersistence implements IPersistenceManager {
@@ -78,8 +79,27 @@ public class HANAPersistence implements IPersistenceManager {
 	 */
 	public void savePosts(PostData postData) {
 		logger.debug("savePosts called for post with id " + postData.getId());
+		
+		// first check if the post was already added to the database
+		try {
+			if (postService == null)
+				prepareConnections();
+			
+			logger.trace("trying to find the message " + postData.getId() + " from network " + SocialNetworks.getNetworkNameByValue(postData.getSnId()) + " in the db...");
+			OEntity queryPost = (OEntity) postService.getEntity("id", postData.getId());
+			logger.trace(queryPost.getEntityKey());		
+					//.properties(OProperties.string("sn_id", postData.getSnId()))
+					//.properties(OProperties.string("post_id", new String(new Long(postData.getId()).toString()));
+			
+		} catch (NoBase64EncryptedValue e1) {
+			logger.error("could not decrypt values from configuration " + e1.getMessage().toString());
+		} catch (Exception e2) {
+			logger.error("could not query for the post ", e2);
+		}
+		
+		// static variant to set the truncated flag - not used anyway
 		int truncated = (postData.getTruncated()) ? 1 : 0;
-
+		
 		try {
 			if (postService == null)
 				prepareConnections();
@@ -192,11 +212,6 @@ public class HANAPersistence implements IPersistenceManager {
 					
 					logger.info("New post " + newPost.getEntityKey().toKeyString());
 					
-					// now updating the two text-fields via jdbc
-					logger.trace("updating text and raw_text via jdbc");
-					setPostingTextWithJdbc("text", postData.getText(), (long)postData.getId());
-					setPostingTextWithJdbc("raw_text", postData.getRawText(), (long)postData.getId());
-					
 				} catch (Exception le){
 					logger.error("EXCEPTION :: JDBC call failed " + le.getLocalizedMessage());
 					le.printStackTrace();
@@ -220,8 +235,9 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			Class.forName("com.sap.db.jdbc.Driver");
 			String url = "jdbc:sap://"+this.host+":"+this.port+"/CL_SBM";
-            String user = this.user;
-            String password = this.pass;
+            // decrypting the values because the jdbc driver needs these values in clear text
+            String user = decryptValue(this.user);
+            String password = decryptValue(this.pass);
 
             java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
 			Statement stmt = conn.createStatement();
@@ -336,9 +352,10 @@ public class HANAPersistence implements IPersistenceManager {
 		try {
 			Class.forName("com.sap.db.jdbc.Driver");
 			String url = "jdbc:sap://"+this.host+":"+this.port+"/CL_SBM";
-            String user = this.user;
-            String password = this.pass;
-
+            // decrypting the values because the jdbc driver needs these values in clear text
+			String user = decryptValue(this.user);
+            String password = decryptValue(this.pass);
+            
             java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
 			Statement stmt = conn.createStatement();
 			// this is the update statement as executed from sql console

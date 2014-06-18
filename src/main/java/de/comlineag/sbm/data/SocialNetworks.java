@@ -10,36 +10,31 @@ package de.comlineag.sbm.data;
  * 
  */
 public enum SocialNetworks {
-	TWITTER		("TW", "Tweet"), 
-	FACEBOOK	("FB", "Post"), 
-	GOOGLE		("G+", "Post"), 
-	LINKEDIN	("LI", "Post"), 
-	XING		("XI", "Post"), 
-	STREAMWORK	("SW", "Post"), 
-	INSTAGRAM	("IN", "Message"),
-	FOURSQUARE	("FS", "Post"),
-	LITHIUM		("LT", "Message"),
-	YOUTUBE		("YT", "Post"),
-	FINANZFORUM	("FF", "Post");
-
+	UNKNOWN		("XY", "Unknown"),
+	TWITTER		("TW", "Twitter"), 
+	FACEBOOK	("FB", "Facebook"), 
+	GOOGLE		("G+", "Google+"), 
+	LINKEDIN	("LI", "Linkedin"), 
+	XING		("XI", "XING"), 
+	STREAMWORK	("SW", "Streamwork"), 
+	INSTAGRAM	("IN", "Instagram"),
+	FOURSQUARE	("FS", "Foursquare"),
+	LITHIUM		("LT", "Lithium"),
+	YOUTUBE		("YT", "Youtube"),
+	FINANZFORUM	("FF", "Finazforum");
+	
 	private final String value;
 	private final String type;
-
+	
 	private SocialNetworks(final String value, final String type) {
 		this.value = value;
 		this.type = type;
 	}
-
-	/**
-	 * access method for the ID
-	 * 
-	 * @return current ID of Social Network
-	 * 
-	 */
+	
 	public String getValue() {
 		return value;
 	}
-
+	
 	public String getType() {
 		return type;
 	}
@@ -48,5 +43,12 @@ public enum SocialNetworks {
 	public String toString() {
 		return getValue();
 	}
-
+	
+	public static SocialNetworks getNetworkNameByValue(String value){
+		for (SocialNetworks name : SocialNetworks.values()) {
+			if(name.getValue() == value)
+				return name;
+		}
+		return SocialNetworks.UNKNOWN;
+	}
 }

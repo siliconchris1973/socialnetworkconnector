@@ -47,13 +47,13 @@ public class DataHelper {
 			if (_snId.equalsIgnoreCase(SocialNetworks.TWITTER.getValue())) {
 				logger.trace("formatting date time for use with twitter");
 				snPattern = "EEE MMM d H:m:s Z yyyy";
-				// Formatter unbedingt mit USA da sonst die englischen Bezeichner nicht aufgeloest werden, evtl. auch EN/UK
+				// the date time format for twitter must be set to US, otherwise english designators will not be translated correctly
 				snLocale = Locale.US;
 			} else if (_snId.equalsIgnoreCase(SocialNetworks.LITHIUM.getValue())) {
-				//TODO fix date time formatting 
-				logger.warn("formatting date time for use with Lithium is not yet supported");
+				logger.trace("formatting date time for use with Lithium");
 				// 2014-01-08T12:21:42+00:00
-				snPattern = "EEE MMM d H:m:s Z yyyy";
+				// date time pattern provided by Thomas Nowak
+				snPattern = "yyyy-MM-dd'T'HH:mm:ssZZ";
 				snLocale = Locale.GERMANY;
 			} else {
 				logger.warn("no specific conversion for system " + _snId);
