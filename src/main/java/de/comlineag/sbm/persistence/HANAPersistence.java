@@ -90,13 +90,14 @@ public class HANAPersistence implements IPersistenceManager {
 				logger.trace("Setting timestamp " + postData.getTimestamp().toString());
 				
 				try{
-					logger.trace("trying to insert data with jdbc");
+					
 					
 					Class.forName("com.sap.db.jdbc.Driver");
 					String url = "jdbc:sap://"+this.host+":"+this.port+"/CL_SBM";
-		            String user = this.user;
-		            String password = this.pass;
-
+					
+		            String user = new String (Base64.decodeBase64(this.user.getBytes()));
+		            String password = new String (Base64.decodeBase64(this.pass.getBytes()));
+		            logger.trace("trying to insert data with jdbc user="+user+" Password="+password);
 		            java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
 					Statement stmt = conn.createStatement();
 					
