@@ -50,7 +50,6 @@ public class DataHelper {
 				// Formatter unbedingt mit USA da sonst die englischen Bezeichner nicht aufgeloest werden, evtl. auch EN/UK
 				snLocale = Locale.US;
 			} else if (_snId.equalsIgnoreCase(SocialNetworks.LITHIUM.getValue())) {
-				//TODO fix date time formatting 
 				logger.trace("formatting date time for use with Lithium");
 				// 2014-01-08T12:21:42+00:00
 				snPattern = "yyyy-MM-dd'T'HH:mm:ssZZ";
