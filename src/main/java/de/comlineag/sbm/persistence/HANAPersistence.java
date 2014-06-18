@@ -1,10 +1,13 @@
 package de.comlineag.sbm.persistence;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.Timestamp;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTimeZone;
 import org.odata4j.consumer.ODataConsumer;
 import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
 import org.odata4j.core.OEntity;
@@ -15,7 +18,7 @@ import de.comlineag.sbm.data.UserData;
 
 /**
  *
- * @author 		Magnus Leinemann, Christian Guenther
+ * @author 		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Connector Class
  *
  * @description handles the connectivity to the SAP HANA Systems and saves posts and users in the DB
@@ -27,6 +30,7 @@ public class HANAPersistence implements IPersistenceManager {
 	// Servicelocation
 	private String host;
 	private String port;
+	private String jdbcPort="30015";
 	private String protocol;
 	private String location;
 	private String serviceUserEndpoint;
@@ -93,41 +97,64 @@ public class HANAPersistence implements IPersistenceManager {
 					
 					
 					Class.forName("com.sap.db.jdbc.Driver");
-					String url = "jdbc:sap://"+this.host+":"+this.port+"/CL_SBM";
+					String url = "jdbc:sap://"+this.host+":"+this.jdbcPort;
 					
 		            String user = new String (Base64.decodeBase64(this.user.getBytes()));
 		            String password = new String (Base64.decodeBase64(this.pass.getBytes()));
-		            logger.trace("trying to insert data with jdbc user="+user+" Password="+password);
+		            logger.trace("trying to insert data with jdbc url="+url+" user="+user+" Password="+password);
 		            java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
-					Statement stmt = conn.createStatement();
 					
-					ResultSet rs = stmt.executeQuery( "INSERT INTO \"CL_SBM\".\"comline.sbm.data.tables::posts_1\" "
-														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"sn_id\" = \'" + postData.getSnId() + "\'"
-														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"post_id\" = \'" + new String(new Long(postData.getId()).toString()) + "\'"
-														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"user_id\" = \'" + new String(new Long(postData.getUserId()).toString()) + "\'"
-														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"timestamp\" = \'" + postData.getTimestamp() + "\'"
-														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"postLang\" = \'" + postData.getLang() + "\'"
-														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"text\" = \'" + postData.getText() + "\'"
-														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"raw_text\" = \'" + postData.getRawText() + "\'"
-														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"teaser\" = \'" + postData.getTeaser() + "\'"
-														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"subject\" = \'" + postData.getSubject() + "\'"
-														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"viewcount\" = \'" + postData.getViewCount() + "\'"
-														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"favoritecount\" = \'" + postData.getFavoriteCount() + "\'"
-														// TODO when geo location is working, reactivate these fields 
-														//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"geoLocation_longitude\" = \'" + postData.getGeoLongitude() + "\'"
-														//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"geoLocation_latitude\" = \'" + postData.getGeoLatitude() + "\'"
-														//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"placeID\" = \'" + postData.getPlaceId() + "\'"
-														//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"plName\" = \'" + postData.getPLName() + "\'"
-														//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"plCountry\" = \'" + postData.getPLCountry() + "\'"
-														//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"plAround_longitude\" = \'" + postData.getPLAroundLongitude() + "\'"
-														//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"plAround_latitude\" = \'" + postData.getPLAroundLattitude() + "\'"
-														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"client\" = \'" + postData.getClient() + "\'"
-														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"truncated\" = \'" + new Integer(truncated) + "\'"
-														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"inReplyTo\" = \'" + postData.getInReplyTo() + "\'"
-														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"inReplyToUserID\" = \'" + postData.getInReplyToUser() + "\'"
-														+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"inReplyToScreenName\" = \'" + postData.getInReplyToUserScreenName() + "\'"						
-												);
-					rs.close() ; stmt.close() ; conn.close() ;
+					String sql="INSERT INTO \"CL_SBM\".\"comline.sbm.data.tables::posts_1\" "
+							+ "(\"sn_id\", \"post_id\",\"user_id\",\"timestamp\",\"postLang\",\"text\",\"raw_text\",\"teaser\",\"subject\",\"viewcount\",\"favoritecount\",\"client\",\"truncated\",\"inReplyTo\",\"inReplyToUserID\",\"inReplyToScreenName\" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+					/*
+							+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\". = \'" + new String(new Long(postData.getId()).toString()) + "\', "
+							+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\". = \'" + new String(new Long(postData.getUserId()).toString()) + "\', "
+							+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\". = \'" + postData.getTimestamp() + "\', "
+							+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\". = \'" + postData.getLang() + "\', "
+							+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\". = \'" + postData.getText() + "\', "
+							+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"raw_text\" = \'" + postData.getRawText() + "\', "
+							+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\". = \'" + postData.getTeaser() + "\', "
+							+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\". = \'" + postData.getSubject() + "\', "
+							+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\". = \'" + postData.getViewCount() + "\', "
+							+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\". = \'" + postData.getFavoriteCount() + "\', "
+							// TODO when geo location is working, reactivate these fields 
+							//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"geoLocation_longitude\" = \'" + postData.getGeoLongitude() + "\', "
+							//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"geoLocation_latitude\" = \'" + postData.getGeoLatitude() + "\', "
+							//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"placeID\" = \'" + postData.getPlaceId() + "\', "
+							//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"plName\" = \'" + postData.getPLName() + "\', "
+							//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"plCountry\" = \'" + postData.getPLCountry() + "\', "
+							//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"plAround_longitude\" = \'" + postData.getPLAroundLongitude() + "\', "
+							//+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"plAround_latitude\" = \'" + postData.getPLAroundLattitude() + "\', "
+							+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\". = \'" + postData.getClient() + "\', "
+							+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\". = \'" + new Integer(truncated) + "\', "
+							+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\". = \'" + postData.getInReplyTo() + "\', "
+							+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\". = \'" + postData.getInReplyToUser() + "\', "
+							+ "set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\". = \'" + postData.getInReplyToUserScreenName() + "\', ";
+					*/
+					PreparedStatement stmt = conn.prepareStatement(sql);
+					logger.trace("SQL: "+sql);
+					stmt.setString(1, postData.getSnId());
+					stmt.setLong(2, new Long(postData.getId()));
+					stmt.setLong(3,new Long(postData.getUserId()));
+					stmt.setTimestamp(4,new Timestamp((postData.getTimestamp().toDateTime(DateTimeZone.UTC)).getMillis() ));
+					stmt.setString(5, postData.getLang());
+					stmt.setString(6, postData.getText());
+					stmt.setString(7, postData.getRawText());
+					stmt.setString(8, postData.getTeaser());
+					stmt.setString(9, postData.getSubject());
+					stmt.setLong(10, postData.getViewCount());
+					stmt.setLong(11, postData.getFavoriteCount());
+					stmt.setString(12, postData.getClient());
+					stmt.setInt(13, truncated);
+					stmt.setLong(14, postData.getInReplyTo());
+					stmt.setLong(15, postData.getInReplyToUser());
+					stmt.setString(16, postData.getInReplyToUserScreenName());
+					
+					
+					
+					int rowCount = stmt.executeUpdate();
+					 stmt.close() ; conn.close() ;
+					 logger.trace("Insert "+rowCount+" Rows");
 				} catch (java.lang.ClassNotFoundException le) {
 					logger.warn("JDBC driver not available - falling back to OData");
 					
@@ -220,15 +247,17 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.trace("trying to insert data with jdbc");
 			
 			Class.forName("com.sap.db.jdbc.Driver");
-			String url = "jdbc:sap://"+this.host+":"+this.port+"/CL_SBM";
-            String user = this.user;
-            String password = this.pass;
+			String url = "jdbc:sap://"+this.host+":"+this.jdbcPort;
+			String user = new String (Base64.decodeBase64(this.user.getBytes()));
+            String password = new String (Base64.decodeBase64(this.pass.getBytes()));
+            logger.trace("trying to insert data with jdbc url="+url+" user="+user+" Password="+password);
 
             java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
-			Statement stmt = conn.createStatement();
-			
-			ResultSet rs = stmt.executeQuery( "INSERT INTO \"CL_SBM\".\"comline.sbm.data.tables::users\" "
-												+ "set \"CL_SBM\".\"comline.sbm.data.tables::users\".\"sn_id\" = \'" + userData.getSnId() + "\'"
+            String sql="INSERT INTO \"CL_SBM\".\"comline.sbm.data.tables::users\" (\"sn_id\",\"user_id\",\"userName\",\"nickName\",\"userLang\",\"follower\",\"friends\",\"postingsCount\",\"favoritesCount\",\"listsAndGroupsCount\") VALUES (?,?,?,?,?,?,?,?,?,?)";
+			//ToDo follower,friends,postimgCount,favoritesCount,listsAndGroupsCount sollten in eine extra Tabelle ausgelagert werden mit user_id und Timestamp um den zeitlichen Verlauf dieser Werte auswerten zu können
+            
+            /*									
+            + "set \"CL_SBM\".\"comline.sbm.data.tables::users\".\"sn_id\" = \'" + userData.getSnId() + "\'"
 												+ "set \"CL_SBM\".\"comline.sbm.data.tables::users\".\"user_id\" = \'" + new String(new Long(userData.getId()).toString()) + "\'"
 												+ "set \"CL_SBM\".\"comline.sbm.data.tables::users\".\"userName\" = \'" + userData.getUsername() + "\'"
 												+ "set \"CL_SBM\".\"comline.sbm.data.tables::users\".\"nickName\" = \'" + userData.getScreenName() + "\'"
@@ -238,9 +267,24 @@ public class HANAPersistence implements IPersistenceManager {
 												+ "set \"CL_SBM\".\"comline.sbm.data.tables::users\".\"friends\" = \'" + new Integer((int) userData.getFriendsCount()) + "\'"
 												+ "set \"CL_SBM\".\"comline.sbm.data.tables::users\".\"postingsCount\" = \'" + new Integer((int) userData.getPostingsCount()) + "\'"
 												+ "set \"CL_SBM\".\"comline.sbm.data.tables::users\".\"favoritesCount\" = \'" + new Integer((int) userData.getFavoritesCount()) + "\'"
-												+ "set \"CL_SBM\".\"comline.sbm.data.tables::users\".\"listsAndGroupsCount\" = \'" + new Integer((int) userData.getListsAndGrooupsCount()) + "\'"					
-										);
-			rs.close() ; stmt.close() ; conn.close() ;
+												+ "set \"CL_SBM\".\"comline.sbm.data.tables::users\".\"listsAndGroupsCount\" = \'" + new Integer((int) userData.getListsAndGrooupsCount()) + "\'""
+												*/
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt.setString(1, userData.getSnId());
+			stmt.setLong(2, userData.getId());
+			stmt.setString(2, userData.getUsername());
+			stmt.setString(3, userData.getScreenName());
+			stmt.setString(4, userData.getLang());
+			stmt.setLong(5, userData.getFollowersCount());
+			stmt.setLong(6, userData.getFriendsCount());
+			stmt.setLong(7, userData.getPostingsCount());
+			stmt.setLong(8, userData.getFavoritesCount());
+			stmt.setLong(9, userData.getListsAndGrooupsCount());
+			stmt.setString(10, userData.getSnId());
+			
+			int rowCount = stmt.executeUpdate();
+			 logger.trace("Insert "+rowCount+" Rows");
+			 stmt.close() ; conn.close() ;
 		} catch (java.lang.ClassNotFoundException le) {
 			logger.warn("JDBC driver not available - falling back to OData");
 			
@@ -336,21 +380,26 @@ public class HANAPersistence implements IPersistenceManager {
 		
 		try {
 			Class.forName("com.sap.db.jdbc.Driver");
-			String url = "jdbc:sap://"+this.host+":"+this.port+"/CL_SBM";
-            String user = this.user;
-            String password = this.pass;
+			String url = "jdbc:sap://"+this.host+":"+this.jdbcPort;
+			String user = new String (Base64.decodeBase64(this.user.getBytes()));
+            String password = new String (Base64.decodeBase64(this.pass.getBytes()));
+            logger.trace("trying to insert data with jdbc url="+url+" user="+user+" Password="+password);
 
             java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
-			Statement stmt = conn.createStatement();
+			String sql="UPDATE \"CL_SBM\".\"comline.sbm.data.tables::posts_1\" set \"" + txtField + "\" = ? where \"post_id\" =  ?";
+												
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            
+            stmt.setString(1, txtString);
+            stmt.setLong(2, idToUpdate);
+			
 			// this is the update statement as executed from sql console
 			// UPDATE "CL_SBM"."comline.sbm.data.tables::posts_1" set "CL_SBM"."comline.sbm.data.tables::posts_1"."text" = 'XYZ' where "CL_SBM"."comline.sbm.data.tables::posts_1"."post_id" = '1'
 
-			ResultSet rs = stmt.executeQuery( "UPDATE \"CL_SBM\".\"comline.sbm.data.tables::posts_1\" set \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"" 
-												+ txtField + "\" = \'" 
-												+ txtString + "\' where \"CL_SBM\".\"comline.sbm.data.tables::posts_1\".\"post_id\" = \'" 
-												+ idToUpdate + "\'");
+			int rowCount = stmt.executeUpdate( );
+			 logger.trace("Insert "+rowCount+" Rows");
 			
-			rs.close() ; stmt.close() ; conn.close() ;
+			stmt.close() ; conn.close() ;
 		} catch (java.lang.ClassNotFoundException le) {
 			logger.error("EXCEPTION :: the jdbc driver could not be found. Could not update text fields in database");
 			
@@ -437,6 +486,13 @@ public class HANAPersistence implements IPersistenceManager {
 		this.port = port;
 	}
 
+	public String getJdbcPort() {
+		return jdbcPort;
+	}
+
+	public void setJdbcPort(String port) {
+		this.jdbcPort = port;
+	}
 	public String getProtocol() {
 		return protocol;
 	}
