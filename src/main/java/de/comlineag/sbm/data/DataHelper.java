@@ -53,7 +53,7 @@ public class DataHelper {
 				//TODO fix date time formatting 
 				logger.warn("formatting date time for use with Lithium is not yet supported");
 				// 2014-01-08T12:21:42+00:00
-				snPattern = "EEE MMM d H:m:s Z yyyy";
+				snPattern = "yyyy-MM-dd'T'HH:mm:ssZZ";
 				snLocale = Locale.GERMANY;
 			} else {
 				logger.warn("no specific conversion for system " + _snId);
