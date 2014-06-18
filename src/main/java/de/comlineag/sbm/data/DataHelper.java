@@ -51,7 +51,7 @@ public class DataHelper {
 				snLocale = Locale.US;
 			} else if (_snId.equalsIgnoreCase(SocialNetworks.LITHIUM.getValue())) {
 				//TODO fix date time formatting 
-				logger.warn("formatting date time for use with Lithium is not yet supported");
+				logger.trace("formatting date time for use with Lithium");
 				// 2014-01-08T12:21:42+00:00
 				snPattern = "yyyy-MM-dd'T'HH:mm:ssZZ";
 				snLocale = Locale.GERMANY;
