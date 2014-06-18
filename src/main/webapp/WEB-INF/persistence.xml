@@ -8,6 +8,7 @@
 	<System>
 		<Host></Host>
 		<Location></Location>
+		<JdbcPort></JdbcPort>
 		<ServiceNameUser></ServiceNameUser>
 		<ServiceNamePost></ServiceNamePost>
 	</System>

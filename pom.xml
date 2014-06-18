@@ -193,8 +193,7 @@
 			<artifactId>jsoup</artifactId>
 			<version>1.7.2</version>
 	</dependency>
-	
-	<!--  external JDBC Driver for HANA 
+	<!--  external  JDBC Driver for HANA  -->
 	<dependency>
          <groupId>ngdbc</groupId>
          <artifactId>ngdbc</artifactId>
@@ -202,7 +201,6 @@
          <scope>system</scope>
          <systemPath>${basedir}/lib/ngdbc.jar</systemPath>
 	</dependency>
-	 -->
   </dependencies>
 
   <organization>

@@ -10,12 +10,12 @@ import org.joda.time.format.DateTimeFormatter;
 
 /**
  * 
- * @author		MLeinemann
+ * @author		Magnus Leinemann, Christian Guenther
  * @category 	Helper Class
  * 
  * @description Tools for managing special Requests in the Crawler logic
  * 
- * @version 	1.0
+ * @version 	1.1
  * 
  */
 

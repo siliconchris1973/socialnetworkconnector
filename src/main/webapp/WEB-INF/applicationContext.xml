@@ -219,6 +219,7 @@
 	 <bean id="persistenceManager" class="de.comlineag.sbm.persistence.HANAPersistence">
 		<property name="host" value="192.168.131.30" />
 		<property name="port" value="8000" />
+		<property name="jdbcPort" value="30015" />
 		<property name="protocol" value="http" />
 		<property name="location" value="/comline/sbm/services" />
 		<property name="serviceUserEndpoint" value="saveUser.xsodata" />
