@@ -4,10 +4,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTimeZone;
+
 import org.odata4j.consumer.ODataConsumer;
 import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
 import org.odata4j.core.OEntity;
@@ -50,7 +53,7 @@ public class HANAPersistence implements IPersistenceManager {
 	}
 
 	/**
-	 * Speichern der Post auf HANA mit folgenden Servicedaten:
+	 * save a post from social network to the HANA DB with these elements
 	 *
 	 * <Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"/>
 	 * <Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"/>
@@ -66,6 +69,12 @@ public class HANAPersistence implements IPersistenceManager {
 	 * <Property Name="viewcount" Type="Edm.int" DefaultValue=0/>
 	 * <Property Name="favoritecount" Type="Edm.int" DefaultValue=0/>
 	
+	 * <Property Name="client" Type="Edm.String" MaxLength="2048"/>
+	 * <Property Name="truncated" Type="Edm.Byte" DefaultValue="0"/>
+	 * <Property Name="inReplyTo" Type="Edm.String" MaxLength="20"/>
+	 * <Property Name="inReplyToUserID" Type="Edm.String" MaxLength="20"/>
+	 * <Property Name="inReplyToScreenName" Type="Edm.String" MaxLength="128"/>
+	 *
 	 * <Property Name="geoLocation_longitude" Type="Edm.String" MaxLength="40"/>
 	 * <Property Name="geoLocation_latitude" Type="Edm.String" MaxLength="40"/>
 	 * <Property Name="placeID" Type="Edm.String" MaxLength="16"/>
@@ -73,13 +82,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * <Property Name="plCountry" Type="Edm.String" MaxLength="128"/>
 	 * <Property Name="plAround_longitude" Type="Edm.String" MaxLength="40"/>
 	 * <Property Name="plAround_latitude" Type="Edm.String" MaxLength="40"/>
-	
-	 * <Property Name="client" Type="Edm.String" MaxLength="2048"/>
-	 * <Property Name="truncated" Type="Edm.Byte" DefaultValue="0"/>
-	 * <Property Name="inReplyTo" Type="Edm.String" MaxLength="20"/>
-	 * <Property Name="inReplyToUserID" Type="Edm.String" MaxLength="20"/>
-	 * <Property Name="inReplyToScreenName" Type="Edm.String" MaxLength="128"/>
-	 *
+	 * 
 	 */
 	public void savePosts(PostData postData) {
 		logger.debug("savePosts called for post with id " + postData.getId());
@@ -101,8 +104,36 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("could not query for the post ", e2);
 		}
 		
-		// static variant to set the truncated flag - not used anyway
+		// static variant to set the truncated flag - which is not used anyway at the moment
 		int truncated = (postData.getTruncated()) ? 1 : 0;
+		
+		//TODO put this trace in a loop
+		logger.trace("this is the data we are sending over the wire: \n"
+				+ "			sn_id				"	+ postData.getSnId() 						+ "\n"
+				+ "			post_id				" 	+ new Long(postData.getId()).toString() 	+ "\n"
+				+ "			user_id				" 	+ new Long(postData.getUserId()).toString()	+ "\n"
+				+ "			timestamp			" 	+ postData.getTimestamp()					+ "\n"
+				+ "			postLang			" 	+ postData.getLang()						+ "\n"
+				+ "			text				" 	+ postData.getText().substring(0, 50)		+ "...\n"
+				+ "			raw_text			" 	+ postData.getRawText().substring(0, 50)	+ "...\n"
+				+ "			teaser				" 	+ postData.getTeaser()						+ "\n"
+				+ "			subject				" 	+ postData.getSubject()						+ "\n"
+				+ "			viewcount			" 	+ new Long(postData.getViewCount())			+ "\n"
+				+ "			favoritecount		" 	+ new Long(postData.getFavoriteCount())		+ "\n"
+				+ "			client 				" 	+ postData.getClient()						+ "\n"
+				+ "			truncated 			" 	+ new Integer(truncated)					+ "\n"
+				+ "			inReplyTo 			" 	+ postData.getInReplyTo()					+ "\n"
+				+ "			inReplyToUserID		" 	+ postData.getInReplyToUser()				+ "\n"
+				+ "			inReplyToScreenName 	" 	+ postData.getInReplyToUserScreenName()		+ "\n"
+				// TODO when geo location is working, reactivate these fields
+				//+ "			geoLocation_longitude	"	+ postData.getGeoLongitude()				+ "\n"
+				//+ "			geoLocation_latitude	" 	+ postData.getGeoLatitude()					+ "\n"
+				//+ "			placeID 				" 	+ postData.getLocation()					+ "\n"
+				//+ "			plName 					" 	+ postData.getPLName()						+ "\n"
+				//+ "			plCountry 				" 	+ postData.getPLCountry()					+ "\n"
+				//+ "			plAround_longitude 		" 	+ postData.getPLAroundLongitude()			+ "\n"
+				//+ "			plAround_latitude 		" 	+ postData.getPLAroundLatitude()			+ "\n"
+				);
 		
 		try {
 			if (postService == null)
@@ -110,23 +141,28 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			//TODO Check if we really need to check on languages at all. this looks like a bad workaround to me
 			if ( (postData.getLang().equalsIgnoreCase("de") || postData.getLang().equalsIgnoreCase("en")) ) {
-
-				logger.trace("Setting timestamp " + postData.getTimestamp().toString());
 				
+				// first try to save the data via jdbc and fall back to OData (see below) if that is not possible
 				try{
-					
-					
 					Class.forName("com.sap.db.jdbc.Driver");
 					String url = "jdbc:sap://"+this.host+":"+this.jdbcPort;
-					
-		            String user = decryptValue(this.user);
+					String user = decryptValue(this.user);
 		            String password = decryptValue(this.pass);
 		            
-		            logger.trace("trying to insert data with jdbc url="+url+" user="+user+" Password="+password);
+		            logger.trace("trying to insert data with jdbc url="+url+" user="+user);
 		            java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
 					
+		            // prepare the SQL statement
 					String sql="INSERT INTO \"CL_SBM\".\"comline.sbm.data.tables::posts_1\" "
-							+ "(\"sn_id\", \"post_id\",\"user_id\",\"timestamp\",\"postLang\",\"text\",\"raw_text\",\"teaser\",\"subject\",\"viewcount\",\"favoritecount\",\"client\",\"truncated\",\"inReplyTo\",\"inReplyToUserID\",\"inReplyToScreenName\" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+							+ "(\"sn_id\", \"post_id\",\"user_id\",\"timestamp\",\"postLang\","
+							+ "\"text\",\"raw_text\",\"teaser\",\"subject\",\"viewcount\","
+							+ "\"favoritecount\",\"client\",\"truncated\",\"inReplyTo\","
+							+ "\"inReplyToUserID\",\"inReplyToScreenName\" ) "
+							+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?"
+							// TODO activate these, when geo location works 
+							//+ "?,?,?,?,?,?,?"
+							+ ")";
+					
 					
 					PreparedStatement stmt = conn.prepareStatement(sql);
 					logger.trace("SQL: "+sql);
@@ -147,39 +183,26 @@ public class HANAPersistence implements IPersistenceManager {
 					stmt.setLong(14, postData.getInReplyTo());
 					stmt.setLong(15, postData.getInReplyToUser());
 					stmt.setString(16, postData.getInReplyToUserScreenName());
+					// TODO activate these, when geo location works
+					//stmt.setString(17, postData.getGeoLongitude());
+					//stmt.setString(18, postData.getGeoLatitude());
+					//stmt.setString(19, postData.getLocation());
+					//stmt.setString(20, postData.getPLName());
+					//stmt.setString(21, postData.getPLCountry());
+					//stmt.setString(22, postData.getPLAroundLongitude());
+					//stmt.setString(23, postData.getPLAroundLatitude());
 					
 					int rowCount = stmt.executeUpdate();
+					
+					// TODO establish proper error handling
+					logger.trace("any warnings?: " + stmt.getWarnings());
+					logger.debug("Inserted " + rowCount + " rows in the db");
+					
 					stmt.close() ; conn.close() ;
-					logger.trace("Insert "+rowCount+" Rows");
+				
+				// in case the jdbc library to connect to the SAP HANA DB is not available, fall back to OData to save the post
 				} catch (java.lang.ClassNotFoundException le) {
 					logger.warn("JDBC driver not available - falling back to OData");
-					
-					logger.trace("this is the data we are sending over the wire: \n"
-														+ "			sn_id				"	+ postData.getSnId() 						+ "\n"
-														+ "			post_id				" 	+ new Long(postData.getId()).toString() 	+ "\n"
-														+ "			user_id				" 	+ new Long(postData.getUserId()).toString()	+ "\n"
-														+ "			timestamp			" 	+ postData.getTimestamp()					+ "\n"
-														+ "			postLang			" 	+ postData.getLang()						+ "\n"
-														+ "			text				" 	+ postData.getText().substring(0, 50)		+ "...\n"
-														+ "			raw_text			" 	+ postData.getRawText().substring(0, 50)	+ "...\n"
-														+ "			teaser				" 	+ postData.getTeaser()						+ "\n"
-														+ "			subject				" 	+ postData.getSubject()						+ "\n"
-														+ "			viewcount			" 	+ new Long(postData.getViewCount())			+ "\n"
-														+ "			favoritecount		" 	+ new Long(postData.getFavoriteCount())		+ "\n"
-														// TODO when geo location is working, reactivate these fields
-														//+ "			geoLocation_longitude	"	+ postData.getGeoLongitude()				+ "\n"
-														//+ "			geoLocation_latitude	" 	+ postData.getGeoLatitude()					+ "\n"
-														//+ "			placeID 				" 	+ postData.getLocation()					+ "\n"
-														//+ "			plName 					" 	+ postData.getPLName()						+ "\n"
-														//+ "			plCountry 				" 	+ postData.getPLCountry()					+ "\n"
-														//+ "			plAround_longitude 		" 	+ postData.getPLAroundLongitude()			+ "\n"
-														//+ "			plAround_latitude 		" 	+ postData.getPLAroundLatitude()			+ "\n"
-														+ "			client 				" 	+ postData.getClient()						+ "\n"
-														+ "			truncated 				" 	+ new Integer(truncated)					+ "\n"
-														+ "			inReplyTo 				" 	+ postData.getInReplyTo()					+ "\n"
-														+ "			inReplyToUserID 		" 	+ postData.getInReplyToUser()				+ "\n"
-														+ "			inReplyToScreenName 	" 	+ postData.getInReplyToUserScreenName()		+ "\n"	
-							);
 					
 					OEntity newPost = postService.createEntity("post")
 							.properties(OProperties.string("sn_id", postData.getSnId()))
@@ -222,7 +245,7 @@ public class HANAPersistence implements IPersistenceManager {
 				}
 			}
 		} catch (NoBase64EncryptedValue e) {
-			logger.error(e.getMessage(), e);
+			logger.error("EXCEPTION :: could not decrypt user and/or password - not encrypted? " + e.getMessage(), e);
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: Failure in savePost " + e.getLocalizedMessage(), e);
 		}
@@ -230,91 +253,92 @@ public class HANAPersistence implements IPersistenceManager {
 
 	public void saveUsers(UserData userData) {
 		logger.debug("saveUsers called for user " + userData.getScreenName());
+		//TODO put this trace in a loop
+		logger.trace("this is the data we are sending over the wire: \n"
+											+ "			sn_id				"	+ userData.getSnId() 													+ "\n"
+											+ "			user_id				" 	+ new String(new Long(userData.getId()).toString())						+ "\n"
+											+ "			username			" 	+ userData.getUsername()												+ "\n"
+											+ "			nickname			" 	+ userData.getScreenName()												+ "\n"
+											+ "			userLang			" 	+ userData.getLang() 													+ "\n"
+											//+ "			location			" 	+ userData.getLocation().get(0).toString()  						+ "\n"
+											+ "			follower			" 	+ new Integer((int) userData.getFollowersCount()) 						+ "\n"
+											+ "			friends				" 	+ new Integer((int) userData.getFriendsCount()) 						+ "\n"
+											+ "			postingsCount		" 	+ new Integer((int) userData.getPostingsCount()) 						+ "\n"
+											+ "			favoritesCount		" 	+ new Integer((int) userData.getFavoritesCount()) 						+ "\n"
+											+ "			listsAndGroupsCount	" 	+ new Integer((int) userData.getListsAndGrooupsCount()) 				+ "\n"
+				);
 		
 		try {
 			if (userService == null)
 				prepareConnections();
 			
-			logger.trace("trying to insert data with jdbc");
-			
-			Class.forName("com.sap.db.jdbc.Driver");
-			String url = "jdbc:sap://"+this.host+":"+this.port+"/CL_SBM";
-            // decrypting the values because the jdbc driver needs these values in clear text
-            String user = decryptValue(this.user);
-            String password = decryptValue(this.pass);
-
-            java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
-            String sql="INSERT INTO \"CL_SBM\".\"comline.sbm.data.tables::users\" (\"sn_id\",\"user_id\",\"userName\",\"nickName\",\"userLang\",\"follower\",\"friends\",\"postingsCount\",\"favoritesCount\",\"listsAndGroupsCount\") VALUES (?,?,?,?,?,?,?,?,?,?)";
-			//ToDo follower,friends,postimgCount,favoritesCount,listsAndGroupsCount sollten in eine extra Tabelle ausgelagert werden mit user_id und Timestamp um den zeitlichen Verlauf dieser Werte auswerten zu k��nnen
-            
-			PreparedStatement stmt = conn.prepareStatement(sql);
-			stmt.setString(1, userData.getSnId());
-			stmt.setLong(2, userData.getId());
-			stmt.setString(2, userData.getUsername());
-			stmt.setString(3, userData.getScreenName());
-			stmt.setString(4, userData.getLang());
-			stmt.setLong(5, userData.getFollowersCount());
-			stmt.setLong(6, userData.getFriendsCount());
-			stmt.setLong(7, userData.getPostingsCount());
-			stmt.setLong(8, userData.getFavoritesCount());
-			stmt.setLong(9, userData.getListsAndGrooupsCount());
-			stmt.setString(10, userData.getSnId());
-			
-			int rowCount = stmt.executeUpdate();
-			 logger.trace("Insert "+rowCount+" Rows");
-			 stmt.close() ; conn.close() ;
-		} catch (java.lang.ClassNotFoundException le) {
-			logger.warn("JDBC driver not available - falling back to OData");
-			
-			logger.trace("this is the data we are sending over the wire: \n"
-												+ "			sn_id				"	+ userData.getSnId() 													+ "\n"
-												+ "			user_id				" 	+ new String(new Long(userData.getId()).toString())						+ "\n"
-												+ "			username			" 	+ userData.getUsername()												+ "\n"
-												+ "			nickname			" 	+ userData.getScreenName()												+ "\n"
-												+ "			userLang			" 	+ userData.getLang() 													+ "\n"
-												//+ "			location			" 	+ userData.getLocation().get(0).toString()  						+ "\n"
-												+ "			follower			" 	+ new Integer((int) userData.getFollowersCount()) 						+ "\n"
-												+ "			friends				" 	+ new Integer((int) userData.getFriendsCount()) 						+ "\n"
-												+ "			postingsCount		" 	+ new Integer((int) userData.getPostingsCount()) 						+ "\n"
-												+ "			favoritesCount		" 	+ new Integer((int) userData.getFavoritesCount()) 						+ "\n"
-												+ "			listsAndGroupsCount	" 	+ new Integer((int) userData.getListsAndGrooupsCount()) 				+ "\n"
-					);
-			
-			OEntity newUser = userService.createEntity("user")
-					.properties(OProperties.string("sn_id", userData.getSnId()))
-					.properties(OProperties.string("user_id", new String(new Long(userData.getId()).toString())))
-					.properties(OProperties.string("userName", userData.getUsername()))
-
-					.properties(OProperties.string("nickName", userData.getScreenName()))
-					.properties(OProperties.string("userLang", userData.getLang()))
-					//.properties(OProperties.string("location", "default location")) // userData.getLocation().get(0).toString()))
-
-					.properties(OProperties.int32("follower", new Integer((int) userData.getFollowersCount())))
-					.properties(OProperties.int32("friends", new Integer((int) userData.getFriendsCount())))
-					.properties(OProperties.int32("postingsCount", new Integer((int) userData.getPostingsCount())))
-					.properties(OProperties.int32("favoritesCount", new Integer((int) userData.getFavoritesCount())))
-					.properties(OProperties.int32("listsAndGroupsCount", new Integer((int) userData.getListsAndGrooupsCount())))
-
-					.execute();
-
-			/*
-			 * {name = "sn_id"; sqlType = NVARCHAR; nullable = false; length = 2;},
-			 * {name = "user_id"; sqlType = NVARCHAR; nullable = false; length = 20;},
-			 * {name = "userName"; sqlType = NVARCHAR; nullable = true; length = 128;},
-			 * {name = "nickName"; sqlType = NVARCHAR; nullable = true; length = 128;},
-			 * {name = "userLang"; sqlType = NVARCHAR; nullable = true; length = 64;},
-			 * {name = "location"; sqlType = NVARCHAR; nullable = true; length = 1024;},
-			 * {name = "follower"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
-			 * {name = "friends"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
-			 * {name = "postingsCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
-			 * {name = "favoritesCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
-			 * {name = "listsAndGroupsCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";}
-			 */
-
-			logger.info("New user " + newUser.getEntityKey().toKeyString());
-
+			try {
+				Class.forName("com.sap.db.jdbc.Driver");
+				String url = "jdbc:sap://"+this.host+":"+this.jdbcPort;
+				// decrypting the values because the jdbc driver needs these values in clear text
+				String user = decryptValue(this.user);
+	            String password = decryptValue(this.pass);
+	            
+	            logger.trace("trying to insert data with jdbc url="+url+" user="+user);
+	            
+	            // TODO follower,friends,postimgCount,favoritesCount,listsAndGroupsCount sollten in eine extra Tabelle ausgelagert werden mit user_id und Timestamp um den zeitlichen Verlauf dieser Werte auswerten zu koennen
+	            
+	            java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
+	            String sql="INSERT INTO \"CL_SBM\".\"comline.sbm.data.tables::users\" "
+	            		+ "(\"sn_id\",\"user_id\",\"userName\",\"nickName\",\"userLang\",\"follower\","
+	            		+ "\"friends\",\"postingsCount\",\"favoritesCount\",\"listsAndGroupsCount\") "
+	            		+ "VALUES (?,?,?,?,?,?,?,?,?,?)";
+				 
+				PreparedStatement stmt = conn.prepareStatement(sql);
+				stmt.setString(1, userData.getSnId());
+				stmt.setLong(2, userData.getId());
+				stmt.setString(2, userData.getUsername());
+				stmt.setString(3, userData.getScreenName());
+				stmt.setString(4, userData.getLang());
+				stmt.setLong(5, userData.getFollowersCount());
+				stmt.setLong(6, userData.getFriendsCount());
+				stmt.setLong(7, userData.getPostingsCount());
+				stmt.setLong(8, userData.getFavoritesCount());
+				stmt.setLong(9, userData.getListsAndGrooupsCount());
+				stmt.setString(10, userData.getSnId());
+				
+				int rowCount = stmt.executeUpdate();
+				
+				// TODO establish proper error handling
+				logger.trace("any warnings?: " + stmt.getWarnings());
+				logger.trace("Inserted " + rowCount + " rows in the db");
+				
+				stmt.close() ; conn.close() ;
+				
+			// in case the jdbc library to connect to the SAP HANA DB is not available, fall back to OData to save the user
+			} catch (java.lang.ClassNotFoundException le) {
+				logger.warn("JDBC driver not available - falling back to OData");
+				
+				OEntity newUser = userService.createEntity("user")
+						.properties(OProperties.string("sn_id", userData.getSnId()))
+						.properties(OProperties.string("user_id", new String(new Long(userData.getId()).toString())))
+						.properties(OProperties.string("userName", userData.getUsername()))
+	
+						.properties(OProperties.string("nickName", userData.getScreenName()))
+						.properties(OProperties.string("userLang", userData.getLang()))
+						// TODO check location values for user
+						//.properties(OProperties.string("location", "default location")) // userData.getLocation().get(0).toString()))
+	
+						.properties(OProperties.int32("follower", new Integer((int) userData.getFollowersCount())))
+						.properties(OProperties.int32("friends", new Integer((int) userData.getFriendsCount())))
+						.properties(OProperties.int32("postingsCount", new Integer((int) userData.getPostingsCount())))
+						.properties(OProperties.int32("favoritesCount", new Integer((int) userData.getFavoritesCount())))
+						.properties(OProperties.int32("listsAndGroupsCount", new Integer((int) userData.getListsAndGrooupsCount())))
+	
+						.execute();
+	
+				logger.info("New user " + newUser.getEntityKey().toKeyString());
+			} catch (Exception le){
+				logger.error("EXCEPTION :: JDBC call failed " + le.getLocalizedMessage());
+				le.printStackTrace();
+			}
 		} catch (NoBase64EncryptedValue e) {
-			logger.error(e.getMessage(), e);
+			logger.error("EXCEPTION :: could not decrypt user and/or password - not encrypted? " + e.getMessage(), e);
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: Failure in saveUser: " + e.getLocalizedMessage(), e);
 		}
@@ -326,9 +350,7 @@ public class HANAPersistence implements IPersistenceManager {
 
 		String _user = decryptValue(this.user);
 		String _pw = decryptValue(this.pass);
-		// logger.debug("b64 USER: " + _user);
-		// logger.debug("b64 PASS: " + _pw);
-
+		
 		BasicAuthenticationBehavior bAuth = new BasicAuthenticationBehavior(_user, _pw);
 		String baseLocation = new String("http://" + this.host + ":" + this.port + this.location);
 		String userURI = new String(baseLocation + "/" + this.serviceUserEndpoint);

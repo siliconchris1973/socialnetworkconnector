@@ -175,7 +175,6 @@ public final class LithiumPostingData extends PostData {
 			JSONObject jsonObjId = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
 			setId((Long) jsonObjId.get("$"));
-			logger.trace("the post id is " + getId());
 			
 			
 			
@@ -192,7 +191,6 @@ public final class LithiumPostingData extends PostData {
 			
 			String userHref = jsonObjAuthor.get("href").toString().substring(jsonObjAuthor.get("href").toString().lastIndexOf('/') + 1); 
 			setUserId((Long.parseLong(userHref.trim())));
-			logger.trace("the user id is " + getUserId());
 			
 			
 			
@@ -212,7 +210,6 @@ public final class LithiumPostingData extends PostData {
 			JSONObject jsonObjKudosTwo = objKudos instanceof JSONObject ?(JSONObject) objKudos : null;
 			
 			setFavoriteCount((long) jsonObjKudosTwo.get("$"));
-			logger.trace("the favorite count is " + getFavoriteCount());
 			
 			
 			
@@ -232,7 +229,6 @@ public final class LithiumPostingData extends PostData {
 			JSONObject jsonObjViewsTwo = objViews instanceof JSONObject ?(JSONObject) objViews : null;
 			
 			setViewCount((long) jsonObjViewsTwo.get("$"));
-			logger.trace("the view count is " + getViewCount());
 			
 			
 			
@@ -246,7 +242,6 @@ public final class LithiumPostingData extends PostData {
 			
 			setTime((String) jsonObjTime.get("$"));
 			setTimestamp(DataHelper.prepareLocalDateTime(getTime(), getSnId()));
-			logger.trace("the post_time is " + getTime().toString());
 			
 			
 			
@@ -259,7 +254,6 @@ public final class LithiumPostingData extends PostData {
 			// strip all HTML tags from the post
 			setText((String) stripHTML(jsonObjText.get("$")));
 			setRawText((String) jsonObjText.get("$"));
-			logger.trace("the first 50 chars of the text are " +  getText().substring(0, 50)+ "...");
 			
 			
 			
@@ -272,7 +266,6 @@ public final class LithiumPostingData extends PostData {
 			JSONObject jsonObjBoard = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
 			setClient((String) jsonObjBoard.get("href"));
-			logger.trace("the board: " + getClient());
 			
 			
 			

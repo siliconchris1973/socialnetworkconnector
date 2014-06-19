@@ -130,7 +130,8 @@ public class PostData {
 	protected List<?> symbols;
 	protected List<?> mentions;
 	
-	protected String coordinates; // obsolet
+	protected String coordinates; // obsolete
+	
 	
 	// getter and setter
 	public long getId() {
