@@ -57,7 +57,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// log the startup message
-		logger.debug("Lithium-Crawler START");
+		logger.info("Lithium-Crawler START");
 		
 		/* TODO: check with Maic, where these values should come from
 		 * 
@@ -94,11 +94,11 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 								"/Sonstige-Themen/bd-p/Sonstige-Themen"};
 			smallLogMessage += "specific Sites ";
 		}
-		if (restrictToTerms) {
+		//if (restrictToTerms) {
 			// TODO: make this search term a parameter
 			String[] tTerms = {"Aktien", "Tagesgeld", "Trading", "Depot", "Girokonto", "Wertpapier", "Kreditkarte", "HBCI"};
 			smallLogMessage += "specific terms ";
-		}
+		//}
 		if (restrictToLangs) {
 			String[] tLangs = {"de", "en"};
 			smallLogMessage += "specific languages ";
@@ -119,6 +119,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				
 		// this is the status code for the http connection
 		HttpStatusCode httpStatusCode = null;
+		// this is the status code within the json object string
 		LithiumStatusCode jsonStatusCode = null;
 		
 		try {
@@ -126,9 +127,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			HttpClient client = new HttpClient();
 			
 			//TODO implement loop over different search terms
-			//for (int i = 0 ; i < 100 ; i++ ){
-				// TODO make the searchTerm dynamic - possibly from db configuration
-				searchTerm = "HBCI";
+			for (int i = 0 ; i < tTerms.length; i++ ){
+				searchTerm = tTerms[i];
+				logger.info("now searching for " + searchTerm);
 			
 				PostMethod method = new PostMethod(REST_API_URL+CONSTANTS.REST_MESSAGES_SEARCH_URI);
 				method.addParameter(CONSTANTS.HTTP_RESPONSE_FORMAT_COMMAND, CONSTANTS.HTTP_RESPONSE_FORMAT);
@@ -186,7 +187,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				//List<LithiumPosting> postings = new ArrayList<LithiumPosting>();
 				//List<LithiumUser> users = new ArrayList<LithiumUser>();
 			
-			//} // loop over search terms
+			} // loop over search terms
 		}
 		catch (LithiumStatusException le) {
 			logger.error("EXCEPTION :: " + le.toString(), le);
@@ -195,7 +196,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			logger.error("EXCEPTION :: " + e.toString(), e);
 		}
 		
-		logger.debug("Lithium-Crawler END");
+		logger.info("Lithium-Crawler END");
 	}
 	
 	/**
