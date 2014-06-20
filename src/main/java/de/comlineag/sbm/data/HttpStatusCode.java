@@ -1,6 +1,8 @@
 package de.comlineag.sbm.data;
 
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpResponse;
+import org.apache.log4j.Logger;
 
 
 /**
@@ -62,6 +64,11 @@ public enum HttpStatusCode {
 			if(code.getErrorCode() == errorCode)
 				return code;
 		}
+		return HttpStatusCode.UNKNOWN;
+	}
+
+	public static HttpStatusCode getHttpStatusCode(HttpResponse execute) {
+		System.out.println("all my headers: " + execute.getAllHeaders().toString());
 		return HttpStatusCode.UNKNOWN;
 	}
 }

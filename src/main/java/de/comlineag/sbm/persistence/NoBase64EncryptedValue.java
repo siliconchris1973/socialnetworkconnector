@@ -4,7 +4,7 @@ package de.comlineag.sbm.persistence;
  * 
  * @author MLeinemann
  * 
- *         Fehler der anzeigt das die Werte nicht entschlüsselt werden konnten
+ *         Fehler der anzeigt das die Werte nicht entschluesselt werden konnten
  */
 public class NoBase64EncryptedValue extends Exception {
 

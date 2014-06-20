@@ -1,15 +1,11 @@
 package de.comlineag.sbm.persistence;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.Iterator;
-import java.util.Map;
 
+import org.joda.time.DateTimeZone;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
-import org.joda.time.DateTimeZone;
 
 import org.odata4j.consumer.ODataConsumer;
 import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
@@ -26,7 +22,13 @@ import de.comlineag.sbm.data.UserData;
  * @category 	Connector Class
  *
  * @description handles the connectivity to the SAP HANA Systems and saves posts and users in the DB
- * @version 	1.3
+ * @version 	1.4
+ * 
+ * @changelog	1.0 savePost implemented
+ * 				1.1	saveUsers implemented
+ * 				1.2	added support for encrypted user and password
+ * 				1.3	added JDBC support
+ * 				1.4	added search for dataset prior inserting one 
  *
  */
 public class HANAPersistence implements IPersistenceManager {
@@ -34,6 +36,7 @@ public class HANAPersistence implements IPersistenceManager {
 	// Servicelocation
 	private String host;
 	private String port;
+	// TODO put this in the configuration from applicationContext.xml
 	private String jdbcPort="30015";
 	private String protocol;
 	private String location;
@@ -48,9 +51,7 @@ public class HANAPersistence implements IPersistenceManager {
 
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
-	public HANAPersistence() {
-		logger.debug("HANAPersistence called");
-	}
+	public HANAPersistence() {}
 
 	/**
 	 * save a post from social network to the HANA DB with these elements
@@ -82,272 +83,317 @@ public class HANAPersistence implements IPersistenceManager {
 	 * <Property Name="plCountry" Type="Edm.String" MaxLength="128"/>
 	 * <Property Name="plAround_longitude" Type="Edm.String" MaxLength="40"/>
 	 * <Property Name="plAround_latitude" Type="Edm.String" MaxLength="40"/>
+	 * @throws NoBase64EncryptedValue 
 	 * 
 	 */
 	public void savePosts(PostData postData) {
-		logger.debug("savePosts called for post with id " + postData.getId());
+		logger.info("savePost called for message " + postData.getId() + " from network " + SocialNetworks.getNetworkNameByValue(postData.getSnId()));
 		
-		// first check if the post was already added to the database
-		try {
-			if (postService == null)
-				prepareConnections();
+		// first check if the dataset is already in the database
+		if (!findDBEntryByIDandNetwork(postData.getId(), postData.getSnId(), "post")) {
+			logger.info("creating new post " + postData.getId());
 			
-			logger.trace("trying to find the message " + postData.getId() + " from network " + SocialNetworks.getNetworkNameByValue(postData.getSnId()) + " in the db...");
-			OEntity queryPost = (OEntity) postService.getEntity("id", postData.getId());
-			logger.trace(queryPost.getEntityKey());		
-					//.properties(OProperties.string("sn_id", postData.getSnId()))
-					//.properties(OProperties.string("post_id", new String(new Long(postData.getId()).toString()));
+			// static variant to set the truncated flag - which is not used anyway at the moment
+			int truncated = (postData.getTruncated()) ? 1 : 0;
 			
-		} catch (NoBase64EncryptedValue e1) {
-			logger.error("could not decrypt values from configuration " + e1.getMessage().toString());
-		} catch (Exception e2) {
-			logger.error("could not query for the post ", e2);
+			try {
+				//TODO Check if we really need to check on languages at all. plus, this way the code looks like a bad workaround to me
+				if ( (postData.getLang().equalsIgnoreCase("de") || 
+						postData.getLang().equalsIgnoreCase("en") ||
+						postData.getLang().equalsIgnoreCase("fr") ||
+						postData.getLang().equalsIgnoreCase("it") ||
+						postData.getLang().equalsIgnoreCase("es")
+						)) {
+					
+					
+					// first try to save the data via jdbc and fall back to OData (see below) if that is not possible
+					try{
+						Class.forName("com.sap.db.jdbc.Driver");
+						String url = "jdbc:sap://"+this.host+":"+this.jdbcPort;
+						String user = decryptValue(this.user);
+			            String password = decryptValue(this.pass);
+			            
+			            logger.trace("trying to insert data with jdbc url="+url+" user="+user);
+			            java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
+						
+			            // prepare the SQL statement
+						String sql="INSERT INTO \"CL_SBM\".\"comline.sbm.data.tables::posts_1\" "
+								+ "(\"sn_id\", \"post_id\",\"user_id\",\"timestamp\",\"postLang\" "
+								+ ",\"text\",\"raw_text\",\"teaser\",\"subject\",\"viewcount\","
+								+ ",\"favoritecount\",\"client\",\"truncated\",\"inReplyTo\" "
+								+ ",\"inReplyToUserID\",\"inReplyToScreenName\" "
+								// TODO activate these, when geo location works
+								//+ ",\"geoLocation_longitude\",\"geoLocation_latitude\" "
+								//+ ",\"placeID\",\"plName\",\"plCountry\" "
+								//+ ",\"plAround_longitude\",\"plAround_latitude\" "
+								+ ") "
+								+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?" 
+								//+ "?,?,?,?,?,?,?"
+								+ ")";
+						
+						
+						PreparedStatement stmt = conn.prepareStatement(sql);
+						logger.trace("SQL: "+sql);
+						
+						stmt.setString(1, postData.getSnId());
+						stmt.setLong(2, new Long(postData.getId()));
+						stmt.setLong(3,new Long(postData.getUserId()));
+						stmt.setTimestamp(4,new Timestamp((postData.getTimestamp().toDateTime(DateTimeZone.UTC)).getMillis() ));
+						stmt.setString(5, postData.getLang());
+						stmt.setString(6, postData.getText());
+						stmt.setString(7, postData.getRawText());
+						stmt.setString(8, postData.getTeaser());
+						stmt.setString(9, postData.getSubject());
+						stmt.setLong(10, postData.getViewCount());
+						stmt.setLong(11, postData.getFavoriteCount());
+						stmt.setString(12, postData.getClient());
+						stmt.setInt(13, truncated);
+						stmt.setLong(14, postData.getInReplyTo());
+						stmt.setLong(15, postData.getInReplyToUser());
+						stmt.setString(16, postData.getInReplyToUserScreenName());
+						// TODO activate these, when geo location works
+						//stmt.setString(17, postData.getGeoLongitude());
+						//stmt.setString(18, postData.getGeoLatitude());
+						//stmt.setString(19, postData.getLocation());
+						//stmt.setString(20, postData.getPLName());
+						//stmt.setString(21, postData.getPLCountry());
+						//stmt.setString(22, postData.getPLAroundLongitude());
+						//stmt.setString(23, postData.getPLAroundLatitude());
+						
+						int rowCount = stmt.executeUpdate();
+						
+						// TODO establish proper error handling
+						logger.trace("any warnings?: " + stmt.getWarnings());
+						logger.debug("Inserted " + rowCount + " rows in the db");
+						
+						stmt.close() ; conn.close() ;
+					
+					// in case the jdbc library to connect to the SAP HANA DB is not available, fall back to OData to save the post
+					} catch (java.lang.ClassNotFoundException le) {
+						logger.warn("JDBC driver not available - falling back to OData");
+						if (postService == null)
+							prepareConnections();
+						
+						OEntity newPost = postService.createEntity("post")
+								.properties(OProperties.string("sn_id", postData.getSnId()))
+								.properties(OProperties.string("post_id", new String(new Long(postData.getId()).toString())))
+								.properties(OProperties.string("user_id", new String(new Long(postData.getUserId()).toString())))
+								.properties(OProperties.datetime("timestamp", postData.getTimestamp()))
+								.properties(OProperties.string("postLang", postData.getLang()))
+								
+								.properties(OProperties.string("text", postData.getText()))
+								.properties(OProperties.string("raw_text", postData.getRawText()))
+								.properties(OProperties.string("teaser", postData.getTeaser()))
+								.properties(OProperties.string("subject", postData.getSubject()))
+								
+								.properties(OProperties.int64("viewcount", new Long(postData.getViewCount())))
+								.properties(OProperties.int64("favoritecount", new Long(postData.getFavoriteCount())))
+								
+								// TODO when geo location is working, reactivate these fields
+								//.properties(OProperties.string("geoLocation_longitude", postData.getGeoLongitude()))
+								//.properties(OProperties.string("geoLocation_latitude", postData.getGeoLatitude()))
+								//.properties(OProperties.string("placeID", postData.getLocation()))
+								//.properties(OProperties.string("plName",  postData.getPLName()))
+								//.properties(OProperties.string("plCountry", postData.getPLCountry()))
+								//.properties(OProperties.string("plAround_longitude", postData.getPLAroundLongitude()))
+								//.properties(OProperties.string("plAround_latitude", postData.getPLAroundLatitude()))
+								
+								.properties(OProperties.string("client", postData.getClient()))
+								.properties(OProperties.int32("truncated", new Integer(truncated)))
+		
+								.properties(OProperties.int64("inReplyTo", postData.getInReplyTo()))
+								.properties(OProperties.int64("inReplyToUserID", postData.getInReplyToUser()))
+								.properties(OProperties.string("inReplyToScreenName", postData.getInReplyToUserScreenName()))
+								
+								.execute();
+						
+						logger.info("New post " + newPost.getEntityKey().toKeyString() + " created");
+						
+					} catch (Exception le){
+						logger.error("EXCEPTION :: JDBC call failed " + le.getLocalizedMessage());
+						le.printStackTrace();
+					}
+				}
+			} catch (NoBase64EncryptedValue e) {
+				logger.error("EXCEPTION :: could not decrypt user and/or password - not encrypted? " + e.getMessage(), e);
+			} catch (Exception e) {
+				logger.error("EXCEPTION :: Failure in savePost " + e.getLocalizedMessage(), e);
+			}
+		} else {
+			logger.info("the post " + postData.getId() + " from network " + postData.getSnId() + " is already in the database");
 		}
+	}
+
+	public void saveUsers(UserData userData) {
+		logger.info("saveUsers called for user " + userData.getUsername() + " from network " + SocialNetworks.getNetworkNameByValue(userData.getSnId()));
 		
-		// static variant to set the truncated flag - which is not used anyway at the moment
-		int truncated = (postData.getTruncated()) ? 1 : 0;
-		
-		//TODO put this trace in a loop
-		logger.trace("this is the data we are sending over the wire: \n"
-				+ "			sn_id				"	+ postData.getSnId() 						+ "\n"
-				+ "			post_id				" 	+ new Long(postData.getId()).toString() 	+ "\n"
-				+ "			user_id				" 	+ new Long(postData.getUserId()).toString()	+ "\n"
-				+ "			timestamp			" 	+ postData.getTimestamp()					+ "\n"
-				+ "			postLang			" 	+ postData.getLang()						+ "\n"
-				+ "			text				" 	+ postData.getText().substring(0, 50)		+ "...\n"
-				+ "			raw_text			" 	+ postData.getRawText().substring(0, 50)	+ "...\n"
-				+ "			teaser				" 	+ postData.getTeaser()						+ "\n"
-				+ "			subject				" 	+ postData.getSubject()						+ "\n"
-				+ "			viewcount			" 	+ new Long(postData.getViewCount())			+ "\n"
-				+ "			favoritecount		" 	+ new Long(postData.getFavoriteCount())		+ "\n"
-				+ "			client 				" 	+ postData.getClient()						+ "\n"
-				+ "			truncated 			" 	+ new Integer(truncated)					+ "\n"
-				+ "			inReplyTo 			" 	+ postData.getInReplyTo()					+ "\n"
-				+ "			inReplyToUserID		" 	+ postData.getInReplyToUser()				+ "\n"
-				+ "			inReplyToScreenName 	" 	+ postData.getInReplyToUserScreenName()		+ "\n"
-				// TODO when geo location is working, reactivate these fields
-				//+ "			geoLocation_longitude	"	+ postData.getGeoLongitude()				+ "\n"
-				//+ "			geoLocation_latitude	" 	+ postData.getGeoLatitude()					+ "\n"
-				//+ "			placeID 				" 	+ postData.getLocation()					+ "\n"
-				//+ "			plName 					" 	+ postData.getPLName()						+ "\n"
-				//+ "			plCountry 				" 	+ postData.getPLCountry()					+ "\n"
-				//+ "			plAround_longitude 		" 	+ postData.getPLAroundLongitude()			+ "\n"
-				//+ "			plAround_latitude 		" 	+ postData.getPLAroundLatitude()			+ "\n"
-				);
-		
-		try {
-			if (postService == null)
-				prepareConnections();
+		// first check if the dataset is already in the database
+		if (!findDBEntryByIDandNetwork(userData.getId(), userData.getSnId(), "user")) {
+			logger.info("creating new user " + userData.getUsername());
 			
-			//TODO Check if we really need to check on languages at all. this looks like a bad workaround to me
-			if ( (postData.getLang().equalsIgnoreCase("de") || postData.getLang().equalsIgnoreCase("en")) ) {
-				
+			try {
 				// first try to save the data via jdbc and fall back to OData (see below) if that is not possible
-				try{
+				try {
 					Class.forName("com.sap.db.jdbc.Driver");
 					String url = "jdbc:sap://"+this.host+":"+this.jdbcPort;
+					// decrypting the values because the jdbc driver needs these values in clear text
 					String user = decryptValue(this.user);
 		            String password = decryptValue(this.pass);
 		            
 		            logger.trace("trying to insert data with jdbc url="+url+" user="+user);
+		            
+		            // TODO follower,friends,postimgCount,favoritesCount,listsAndGroupsCount sollten in eine extra Tabelle ausgelagert werden mit user_id und Timestamp um den zeitlichen Verlauf dieser Werte auswerten zu koennen
+		            
 		            java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
-					
-		            // prepare the SQL statement
-					String sql="INSERT INTO \"CL_SBM\".\"comline.sbm.data.tables::posts_1\" "
-							+ "(\"sn_id\", \"post_id\",\"user_id\",\"timestamp\",\"postLang\","
-							+ "\"text\",\"raw_text\",\"teaser\",\"subject\",\"viewcount\","
-							+ "\"favoritecount\",\"client\",\"truncated\",\"inReplyTo\","
-							+ "\"inReplyToUserID\",\"inReplyToScreenName\" ) "
-							+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?"
-							// TODO activate these, when geo location works 
-							//+ "?,?,?,?,?,?,?"
-							+ ")";
-					
-					
+		            String sql="INSERT INTO \"CL_SBM\".\"comline.sbm.data.tables::users\" "
+		            		+ "(\"sn_id\",\"user_id\",\"userName\",\"nickName\",\"userLang\",\"follower\","
+		            		+ "\"friends\",\"postingsCount\",\"favoritesCount\",\"listsAndGroupsCount\") "
+		            		+ "VALUES (?,?,?,?,?,?,?,?,?,?)";
+					 
 					PreparedStatement stmt = conn.prepareStatement(sql);
-					logger.trace("SQL: "+sql);
-					
-					stmt.setString(1, postData.getSnId());
-					stmt.setLong(2, new Long(postData.getId()));
-					stmt.setLong(3,new Long(postData.getUserId()));
-					stmt.setTimestamp(4,new Timestamp((postData.getTimestamp().toDateTime(DateTimeZone.UTC)).getMillis() ));
-					stmt.setString(5, postData.getLang());
-					stmt.setString(6, postData.getText());
-					stmt.setString(7, postData.getRawText());
-					stmt.setString(8, postData.getTeaser());
-					stmt.setString(9, postData.getSubject());
-					stmt.setLong(10, postData.getViewCount());
-					stmt.setLong(11, postData.getFavoriteCount());
-					stmt.setString(12, postData.getClient());
-					stmt.setInt(13, truncated);
-					stmt.setLong(14, postData.getInReplyTo());
-					stmt.setLong(15, postData.getInReplyToUser());
-					stmt.setString(16, postData.getInReplyToUserScreenName());
-					// TODO activate these, when geo location works
-					//stmt.setString(17, postData.getGeoLongitude());
-					//stmt.setString(18, postData.getGeoLatitude());
-					//stmt.setString(19, postData.getLocation());
-					//stmt.setString(20, postData.getPLName());
-					//stmt.setString(21, postData.getPLCountry());
-					//stmt.setString(22, postData.getPLAroundLongitude());
-					//stmt.setString(23, postData.getPLAroundLatitude());
+					stmt.setString(1, userData.getSnId());
+					stmt.setLong(2, userData.getId());
+					stmt.setString(2, userData.getUsername());
+					stmt.setString(3, userData.getScreenName());
+					stmt.setString(4, userData.getLang());
+					stmt.setLong(5, userData.getFollowersCount());
+					stmt.setLong(6, userData.getFriendsCount());
+					stmt.setLong(7, userData.getPostingsCount());
+					stmt.setLong(8, userData.getFavoritesCount());
+					stmt.setLong(9, userData.getListsAndGrooupsCount());
+					stmt.setString(10, userData.getSnId());
 					
 					int rowCount = stmt.executeUpdate();
 					
 					// TODO establish proper error handling
 					logger.trace("any warnings?: " + stmt.getWarnings());
-					logger.debug("Inserted " + rowCount + " rows in the db");
+					logger.trace("Inserted " + rowCount + " rows in the db");
 					
 					stmt.close() ; conn.close() ;
-				
-				// in case the jdbc library to connect to the SAP HANA DB is not available, fall back to OData to save the post
+					
+				// in case the jdbc library to connect to the SAP HANA DB is not available, fall back to OData to save the user
 				} catch (java.lang.ClassNotFoundException le) {
 					logger.warn("JDBC driver not available - falling back to OData");
 					
-					OEntity newPost = postService.createEntity("post")
-							.properties(OProperties.string("sn_id", postData.getSnId()))
-							.properties(OProperties.string("post_id", new String(new Long(postData.getId()).toString())))
-							.properties(OProperties.string("user_id", new String(new Long(postData.getUserId()).toString())))
-							.properties(OProperties.datetime("timestamp", postData.getTimestamp()))
-							.properties(OProperties.string("postLang", postData.getLang()))
-							
-							.properties(OProperties.string("text", postData.getText()))
-							.properties(OProperties.string("raw_text", postData.getRawText()))
-							.properties(OProperties.string("teaser", postData.getTeaser()))
-							.properties(OProperties.string("subject", postData.getSubject()))
-							
-							.properties(OProperties.int64("viewcount", new Long(postData.getViewCount())))
-							.properties(OProperties.int64("favoritecount", new Long(postData.getFavoriteCount())))
-							
-							// TODO when geo location is working, reactivate these fields
-							//.properties(OProperties.string("geoLocation_longitude", postData.getGeoLongitude()))
-							//.properties(OProperties.string("geoLocation_latitude", postData.getGeoLatitude()))
-							//.properties(OProperties.string("placeID", postData.getLocation()))
-							//.properties(OProperties.string("plName",  postData.getPLName()))
-							//.properties(OProperties.string("plCountry", postData.getPLCountry()))
-							//.properties(OProperties.string("plAround_longitude", postData.getPLAroundLongitude()))
-							//.properties(OProperties.string("plAround_latitude", postData.getPLAroundLatitude()))
-							
-							.properties(OProperties.string("client", postData.getClient()))
-							.properties(OProperties.int32("truncated", new Integer(truncated)))
-	
-							.properties(OProperties.int64("inReplyTo", postData.getInReplyTo()))
-							.properties(OProperties.int64("inReplyToUserID", postData.getInReplyToUser()))
-							.properties(OProperties.string("inReplyToScreenName", postData.getInReplyToUserScreenName()))
-							
+					if (userService == null)
+						prepareConnections();
+					
+					OEntity newUser = userService.createEntity("user")
+							.properties(OProperties.string("sn_id", userData.getSnId()))
+							.properties(OProperties.string("user_id", new String(new Long(userData.getId()).toString())))
+							.properties(OProperties.string("userName", userData.getUsername()))
+		
+							.properties(OProperties.string("nickName", userData.getScreenName()))
+							.properties(OProperties.string("userLang", userData.getLang()))
+							// TODO check location values for user
+							//.properties(OProperties.string("location", "default location")) // userData.getLocation().get(0).toString()))
+		
+							.properties(OProperties.int32("follower", new Integer((int) userData.getFollowersCount())))
+							.properties(OProperties.int32("friends", new Integer((int) userData.getFriendsCount())))
+							.properties(OProperties.int32("postingsCount", new Integer((int) userData.getPostingsCount())))
+							.properties(OProperties.int32("favoritesCount", new Integer((int) userData.getFavoritesCount())))
+							.properties(OProperties.int32("listsAndGroupsCount", new Integer((int) userData.getListsAndGrooupsCount())))
+		
 							.execute();
-					
-					logger.info("New post " + newPost.getEntityKey().toKeyString());
-					
+		
+					logger.info("New user " + newUser.getEntityKey().toKeyString());
 				} catch (Exception le){
 					logger.error("EXCEPTION :: JDBC call failed " + le.getLocalizedMessage());
 					le.printStackTrace();
 				}
+			} catch (NoBase64EncryptedValue e) {
+				logger.error("EXCEPTION :: could not decrypt user and/or password - not encrypted? " + e.getMessage(), e);
+			} catch (Exception e) {
+				logger.error("EXCEPTION :: Failure in saveUser: " + e.getLocalizedMessage(), e);
 			}
-		} catch (NoBase64EncryptedValue e) {
-			logger.error("EXCEPTION :: could not decrypt user and/or password - not encrypted? " + e.getMessage(), e);
-		} catch (Exception e) {
-			logger.error("EXCEPTION :: Failure in savePost " + e.getLocalizedMessage(), e);
+		} else {
+			logger.info("the user " + userData.getUsername() + " (" + userData.getId() + ") from network " + userData.getSnId() + " is already in the database");
 		}
 	}
-
-	public void saveUsers(UserData userData) {
-		logger.debug("saveUsers called for user " + userData.getScreenName());
-		//TODO put this trace in a loop
-		logger.trace("this is the data we are sending over the wire: \n"
-											+ "			sn_id				"	+ userData.getSnId() 													+ "\n"
-											+ "			user_id				" 	+ new String(new Long(userData.getId()).toString())						+ "\n"
-											+ "			username			" 	+ userData.getUsername()												+ "\n"
-											+ "			nickname			" 	+ userData.getScreenName()												+ "\n"
-											+ "			userLang			" 	+ userData.getLang() 													+ "\n"
-											//+ "			location			" 	+ userData.getLocation().get(0).toString()  						+ "\n"
-											+ "			follower			" 	+ new Integer((int) userData.getFollowersCount()) 						+ "\n"
-											+ "			friends				" 	+ new Integer((int) userData.getFriendsCount()) 						+ "\n"
-											+ "			postingsCount		" 	+ new Integer((int) userData.getPostingsCount()) 						+ "\n"
-											+ "			favoritesCount		" 	+ new Integer((int) userData.getFavoritesCount()) 						+ "\n"
-											+ "			listsAndGroupsCount	" 	+ new Integer((int) userData.getListsAndGrooupsCount()) 				+ "\n"
-				);
+	
+	
+	/**
+	 * 
+	 * @description  searches for users or posts in the database
+	 * 
+	 * @param 		id
+	 * 					id of the user or post
+	 * @param 		sn_id
+	 * 					type of the social network as defined in enum SocialNetworks 
+	 * @param 		type
+	 * 					must be set to either post or user
+	 * 
+	 * @return 		true on success (found) or false in case of an error
+	 */
+	private boolean findDBEntryByIDandNetwork(long id, String sn_id, String type) {
+		assert type == "user" || type == "post" : "type must be either user or post";
+		
+		BasicAuthenticationBehavior bAuth = null;
+		String _user = null;
+		String _pw = null;
+		ODataConsumer.Builder builder = null;
+		String entitySetName = null;
+		
+		String baseLocation = new String(this.protocol + "://" + this.host + ":" + this.port + this.location);
+		String postURI = new String(baseLocation + "/" + this.servicePostEndpoint);
+		String userURI = new String(baseLocation + "/" + this.serviceUserEndpoint);
 		
 		try {
-			if (userService == null)
-				prepareConnections();
-			
-			try {
-				Class.forName("com.sap.db.jdbc.Driver");
-				String url = "jdbc:sap://"+this.host+":"+this.jdbcPort;
-				// decrypting the values because the jdbc driver needs these values in clear text
-				String user = decryptValue(this.user);
-	            String password = decryptValue(this.pass);
-	            
-	            logger.trace("trying to insert data with jdbc url="+url+" user="+user);
-	            
-	            // TODO follower,friends,postimgCount,favoritesCount,listsAndGroupsCount sollten in eine extra Tabelle ausgelagert werden mit user_id und Timestamp um den zeitlichen Verlauf dieser Werte auswerten zu koennen
-	            
-	            java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
-	            String sql="INSERT INTO \"CL_SBM\".\"comline.sbm.data.tables::users\" "
-	            		+ "(\"sn_id\",\"user_id\",\"userName\",\"nickName\",\"userLang\",\"follower\","
-	            		+ "\"friends\",\"postingsCount\",\"favoritesCount\",\"listsAndGroupsCount\") "
-	            		+ "VALUES (?,?,?,?,?,?,?,?,?,?)";
-				 
-				PreparedStatement stmt = conn.prepareStatement(sql);
-				stmt.setString(1, userData.getSnId());
-				stmt.setLong(2, userData.getId());
-				stmt.setString(2, userData.getUsername());
-				stmt.setString(3, userData.getScreenName());
-				stmt.setString(4, userData.getLang());
-				stmt.setLong(5, userData.getFollowersCount());
-				stmt.setLong(6, userData.getFriendsCount());
-				stmt.setLong(7, userData.getPostingsCount());
-				stmt.setLong(8, userData.getFavoritesCount());
-				stmt.setLong(9, userData.getListsAndGrooupsCount());
-				stmt.setString(10, userData.getSnId());
-				
-				int rowCount = stmt.executeUpdate();
-				
-				// TODO establish proper error handling
-				logger.trace("any warnings?: " + stmt.getWarnings());
-				logger.trace("Inserted " + rowCount + " rows in the db");
-				
-				stmt.close() ; conn.close() ;
-				
-			// in case the jdbc library to connect to the SAP HANA DB is not available, fall back to OData to save the user
-			} catch (java.lang.ClassNotFoundException le) {
-				logger.warn("JDBC driver not available - falling back to OData");
-				
-				OEntity newUser = userService.createEntity("user")
-						.properties(OProperties.string("sn_id", userData.getSnId()))
-						.properties(OProperties.string("user_id", new String(new Long(userData.getId()).toString())))
-						.properties(OProperties.string("userName", userData.getUsername()))
-	
-						.properties(OProperties.string("nickName", userData.getScreenName()))
-						.properties(OProperties.string("userLang", userData.getLang()))
-						// TODO check location values for user
-						//.properties(OProperties.string("location", "default location")) // userData.getLocation().get(0).toString()))
-	
-						.properties(OProperties.int32("follower", new Integer((int) userData.getFollowersCount())))
-						.properties(OProperties.int32("friends", new Integer((int) userData.getFriendsCount())))
-						.properties(OProperties.int32("postingsCount", new Integer((int) userData.getPostingsCount())))
-						.properties(OProperties.int32("favoritesCount", new Integer((int) userData.getFavoritesCount())))
-						.properties(OProperties.int32("listsAndGroupsCount", new Integer((int) userData.getListsAndGrooupsCount())))
-	
-						.execute();
-	
-				logger.info("New user " + newUser.getEntityKey().toKeyString());
-			} catch (Exception le){
-				logger.error("EXCEPTION :: JDBC call failed " + le.getLocalizedMessage());
-				le.printStackTrace();
-			}
+			_user = decryptValue(this.user);
+			_pw = decryptValue(this.pass);
+			bAuth = new BasicAuthenticationBehavior(_user, _pw);
 		} catch (NoBase64EncryptedValue e) {
-			logger.error("EXCEPTION :: could not decrypt user and/or password - not encrypted? " + e.getMessage(), e);
-		} catch (Exception e) {
-			logger.error("EXCEPTION :: Failure in saveUser: " + e.getLocalizedMessage(), e);
+			logger.error("EXCEPTION :: could not decrpt values for user and passowrd " + e.getMessage());
+		}
+		
+		logger.debug("checking for "+type+" entry with id " + id + " and network " + sn_id + " at " + postURI + " authenticated as user " + _user);
+		
+		if (type == "user") {
+			builder = ODataConsumer.newBuilder(userURI);
+			builder.setClientBehaviors(bAuth);
+			userService = builder.build();
+			
+			entitySetName = "user";
+			
+			// query for the user by id
+			try {
+				userService.getEntities(entitySetName).filter("user_id eq '"+id+"' and sn_id eq '" + sn_id + "'").top(1).execute().first();
+			} catch (Exception e) {
+				return false;
+			}
+			//logger.trace(element.getProperties().toString());
+			//String linkArray[] = element.getLinks().toArray();
+			
+			return true;
+		} else {
+			builder = ODataConsumer.newBuilder(postURI);
+			builder.setClientBehaviors(bAuth);
+			postService = builder.build();
+			
+			entitySetName = "post";
+			
+			// query for the post by id
+			try {
+				postService.getEntities(entitySetName).filter("post_id eq '"+id+"' and sn_id eq '" + sn_id + "'").top(1).execute().first();
+			} catch (Exception e) {
+				return false;
+			}
+			//logger.trace(element.getProperties().toString());
+			
+		    return true; 
 		}
 	}
-
+	
+	
+	
+	/**
+	 * @description opens an HTTP connection to the post and user service endpoint of the HANA
+	 * 
+	 * @throws 		NoBase64EncryptedValue
+	 */
 	private void prepareConnections() throws NoBase64EncryptedValue {
-
-		logger.debug("Start prepareConnection");
-
+		logger.trace("Start prepareConnection");
+		
 		String _user = decryptValue(this.user);
 		String _pw = decryptValue(this.pass);
 		
@@ -355,65 +401,28 @@ public class HANAPersistence implements IPersistenceManager {
 		String baseLocation = new String("http://" + this.host + ":" + this.port + this.location);
 		String userURI = new String(baseLocation + "/" + this.serviceUserEndpoint);
 		String postURI = new String(baseLocation + "/" + this.servicePostEndpoint);
-
+		
 		ODataConsumer.Builder builder = ODataConsumer.newBuilder(userURI);
 		builder.setClientBehaviors(bAuth);
 		userService = builder.build();
-
+		
 		builder = ODataConsumer.newBuilder(postURI);
 		builder.setClientBehaviors(bAuth);
 		postService = builder.build();
-
-		logger.debug("HANAPersistence Services connected");
-
-	}
-
-	/**
-	 * 
-	 * @description		update a the text field element of a post with a given string 
-	 * @param 			txtString
-	 * 						the new string
-	 * @param 			idToUpdate
-	 * 						the element to update identified by post_id
-	 */
-	public void setPostingTextWithJdbc(String txtField, String txtString, long idToUpdate){
 		
-		try {
-			Class.forName("com.sap.db.jdbc.Driver");
-			
-            // decrypting the values because the jdbc driver needs these values in clear text
-			String user = decryptValue(this.user);
-            String password = decryptValue(this.pass);
-			String url = "jdbc:sap://"+this.host+":"+this.jdbcPort;
-            logger.trace("trying to insert data with jdbc url="+url+" user="+user+" Password="+password);
-            
-            java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
-			String sql="UPDATE \"CL_SBM\".\"comline.sbm.data.tables::posts_1\" set \"" + txtField + "\" = ? where \"post_id\" =  ?";
-												
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            
-            stmt.setString(1, txtString);
-            stmt.setLong(2, idToUpdate);
-			
-			int rowCount = stmt.executeUpdate( );
-			logger.trace("Insert "+rowCount+" Rows");
-			
-			stmt.close() ; conn.close() ;
-		} catch (java.lang.ClassNotFoundException le) {
-			logger.error("EXCEPTION :: the jdbc driver could not be found. Could not update text fields in database");
-			
-		} catch(Exception e) {
-			logger.error("EXCEPTION :: could not update element " + idToUpdate + ": " + e.getStackTrace().toString());
-		}
+		logger.debug("HANAPersistence Services connected");
 	}
 	
+	
 	/**
-	 * Entschluesselt Werte aus der Konfig fuer die Connection
+	 * @description Decrypts configuration values 
 	 *
-	 * @param param
-	 *            der Wert der entschluesselt werden soll
-	 * @return Klartext
+	 * @param 		String
+	 *					the value to decrypt
+	 * @return 		String
+	 * 					the return value as clear text
 	 *
+	 * @throws 		NoBase64EncryptedValue
 	 */
 	private String decryptValue(String param) throws NoBase64EncryptedValue {
 

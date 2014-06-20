@@ -125,7 +125,9 @@ public class PostData {
 	 * <Property Name="plAround_longitude" Type="Edm.String" MaxLength="40"/>
 	 * <Property Name="plAround_latitude" Type="Edm.String" MaxLength="40"/>
 	 */
-
+	protected String geoAroundLongitude;
+	protected String geoAroundLatitude;
+	
 	protected List<?> hashtags;
 	protected List<?> symbols;
 	protected List<?> mentions;
@@ -287,39 +289,48 @@ public class PostData {
 	public void setTimestamp(LocalDateTime timestamp) {
 		this.timestamp = timestamp;
 	}
-
+	
+	// GEO data
 	public String getGeoLongitude() {
 		return geoLongitude;
 	}
 	public void setGeoLongitude(String geoLongitude) {
 		this.geoLongitude = geoLongitude;
 	}
-
 	public String getGeoLatitude() {
 		return geoLatitude;
 	}
 	public void setGeoLatitude(String geoLatitude) {
 		this.geoLatitude = geoLatitude;
 	}
-
 	public String getGeoPlaceId() {
 		return geoPlaceId;
 	}
 	public void setGeoPlaceId(String geoPlaceId) {
 		this.geoPlaceId = geoPlaceId;
 	}
-
 	public String getGeoPlaceName() {
 		return geoPlaceName;
 	}
 	public void setGeoPlaceName(String geoPlaceName) {
 		this.geoPlaceName = geoPlaceName;
 	}
-
 	public String getGeoPlaceCountry() {
 		return geoPlaceCountry;
 	}
 	public void setGeoPlaceCountry(String geoPlaceCountry) {
 		this.geoPlaceCountry = geoPlaceCountry;
+	}
+	public String getGeoAroundLongitude() {
+		return geoAroundLongitude;
+	}
+	public void setGeoAroundLongitude(String geoAroundLongitude) {
+		this.geoAroundLongitude = geoAroundLongitude;
+	}
+	public String getGeoAroundLatitude() {
+		return geoAroundLatitude;
+	}
+	public void setGeoAroundLatitude(String geoAroundLatitude) {
+		this.geoAroundLatitude = geoAroundLatitude;
 	}
 }

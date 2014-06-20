@@ -127,7 +127,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			
 			//TODO implement loop over different search terms
 			//for (int i = 0 ; i < 100 ; i++ ){
-			
+				// TODO make the searchTerm dynamic - possibly from db configuration
 				searchTerm = "HBCI";
 			
 				PostMethod method = new PostMethod(REST_API_URL+CONSTANTS.REST_MESSAGES_SEARCH_URI);

@@ -43,8 +43,10 @@ import org.jsoup.Jsoup;
  *            "in_reply_to_status_id" 	Long		fixed to NULL because not used
  *            "in_reply_to_user_id" 	Long		fixed to NULL because not used
  *            "in_reply_to_screen_name"	String		fixed to NULL because not used
+ *            
  *            "coordinates" 			List		fixed to NULL because not used
  *            "place" 					List		fixed to NULL because not used
+ *            
  * 
  * JSON Structure:
  * 
@@ -357,6 +359,8 @@ public final class LithiumPostingData extends PostData {
 		geoLatitude = null;
 		geoLongitude = null;
 		place = null;
+		geoAroundLongitude = null;
+		geoAroundLatitude = null;
 		
 		hashtags = null;
 		symbols = null;

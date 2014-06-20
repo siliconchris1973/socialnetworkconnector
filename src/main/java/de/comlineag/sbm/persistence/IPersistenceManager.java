@@ -26,6 +26,7 @@ public interface IPersistenceManager {
 	 * 
 	 * @param postData
 	 *            Object Post Data
+	 * @throws NoBase64EncryptedValue 
 	 * 
 	 */
 	public void savePosts(PostData postData);
