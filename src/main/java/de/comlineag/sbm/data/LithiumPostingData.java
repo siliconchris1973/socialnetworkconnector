@@ -143,6 +143,7 @@ import org.jsoup.Jsoup;
 
 public final class LithiumPostingData extends PostData {
 
+	private static final int MAX_NVARCHAR_SIZE = 5000;
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	public LithiumPostingData(){}
@@ -154,10 +155,8 @@ public final class LithiumPostingData extends PostData {
 	 *            one single post in Lithium
 	 */
 	public LithiumPostingData(JSONObject jsonObject) {
-
-		// log the startup message
 		logger.debug("constructing new subset of data of post from lithium post-object");
-		logger.trace("  working on " + jsonObject.toString());
+		//logger.trace("  working on " + jsonObject.toString());
 		
 		// alles auf Null und die SocialNetworkID schon mal parken
 		initialize();
@@ -253,10 +252,15 @@ public final class LithiumPostingData extends PostData {
 			obj = parser.parse(jsonObject.get("body").toString());
 			JSONObject jsonObjText = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			// strip all HTML tags from the post
-			setText((String) stripHTML(jsonObjText.get("$")));
-			setRawText((String) jsonObjText.get("$"));
-			
+			// strip all HTML tags from the post 
+			// TODO CHANGE!!! this is a bad idea, better use TINYTEXT as data type in db then substring in the crawler
+			if (jsonObjText.get("$").toString().length()>MAX_NVARCHAR_SIZE-1){
+				setText((String) stripHTML(jsonObjText.get("$")).substring(0, MAX_NVARCHAR_SIZE));
+				setRawText((String) jsonObjText.get("$").toString().substring(0, MAX_NVARCHAR_SIZE));
+			} else {
+				setText((String) stripHTML(jsonObjText.get("$")));
+				setRawText((String) jsonObjText.get("$"));
+			}
 			
 			
 			// in which board was the message posted - we use the client field for this value
@@ -303,13 +307,14 @@ public final class LithiumPostingData extends PostData {
 			*/
 			
 			// language - fix on de (German) at the moment
-			setLang("de");
-					
-					
+			setLang(lang);
+			
+			
 			// Flag to indicate if the post was truncated - this is NEVER used by the Lithium network
 			setTruncated((Boolean) false);
 		} catch (Exception e) {
-			logger.error("EXCEPTION :: parsing json failed " + e.getStackTrace().toString());
+			logger.error("EXCEPTION :: parsing json failed " + e.getLocalizedMessage());
+			//e.printStackTrace();
 		}
 	}
 	
@@ -348,7 +353,7 @@ public final class LithiumPostingData extends PostData {
 		time = null;
 		posted_from_client = null;
 		truncated = false;
-		lang = null;
+		lang = "de";
 		
 		// these values are never used by Lithium
 		in_reply_to_post = 0;
