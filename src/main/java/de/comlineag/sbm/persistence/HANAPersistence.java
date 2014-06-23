@@ -1,6 +1,5 @@
 package de.comlineag.sbm.persistence;
 
-import java.net.ConnectException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -37,8 +36,7 @@ public class HANAPersistence implements IPersistenceManager {
 	// Servicelocation
 	private String host;
 	private String port;
-	// TODO put this in the configuration from applicationContext.xml
-	private String jdbcPort="30015";
+	private String jdbcPort;
 	private String protocol;
 	private String location;
 	private String serviceUserEndpoint;
@@ -530,8 +528,8 @@ public class HANAPersistence implements IPersistenceManager {
 		return jdbcPort;
 	}
 
-	public void setJdbcPort(String port) {
-		this.jdbcPort = port;
+	public void setJdbcPort(String jdbcport) {
+		this.jdbcPort = jdbcport;
 	}
 	public String getProtocol() {
 		return protocol;

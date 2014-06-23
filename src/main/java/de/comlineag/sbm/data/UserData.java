@@ -2,11 +2,12 @@ package de.comlineag.sbm.data;
 
 /**
  * 
- * @author Magnus Leinemann
+ * @author		Magnus Leinemann
  * 
- * @category Data Class
- * @description the User Data Representation for the OData Service
- * @version 1.0
+ * @category	Data Class
+ * @version		1.0
+ * 
+ * @description core data type for the User Data
  */
 public class UserData {
 

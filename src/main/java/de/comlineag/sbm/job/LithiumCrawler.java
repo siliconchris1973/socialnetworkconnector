@@ -4,6 +4,7 @@ package de.comlineag.sbm.job;
 import java.io.IOException;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
+import java.util.ArrayList;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -23,6 +24,7 @@ import de.comlineag.sbm.data.HttpStatusCode;
 import de.comlineag.sbm.data.LithiumConstants;
 import de.comlineag.sbm.data.LithiumStatusCode;
 import de.comlineag.sbm.data.LithiumStatusException;
+import de.comlineag.sbm.handler.CrawlerConfigurationManager;
 import de.comlineag.sbm.handler.LithiumParser;
 import de.comlineag.sbm.handler.LithiumPosting;
 import de.comlineag.sbm.handler.LithiumUser;
@@ -31,12 +33,16 @@ import de.comlineag.sbm.persistence.NoBase64EncryptedValue;
 /**
  * 
  * @author 		Christian Guenther
- * @category 	Handler
+ * @category 	Job
+ * @version		1.1
  * 
  * @description this is the actual crawler of the Lithium network. It is
  *              implemented as a job and, upon execution, will connect to the
  *              Lithium REST API to fetch posts and users
  * 
+ * @changelog	0.9	first static version retrieves posts			Chris
+ * 				1.0 retrieves posts and users						Chris
+ * 				1.1	- configuration is made dynamic 				Chris
  */
 public class LithiumCrawler extends GenericCrawler implements Job {
 
@@ -50,15 +56,15 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
 	private String smallLogMessage = "";
 	
-	// restrict the crawler to specific areas and other parameter
-	private static boolean restrictToSites = false;
-	private static boolean restrictToTerms = true;
-	private static boolean restrictToLangs = false;
-	private static boolean restrictToUsers = false;
-	
 	public LithiumCrawler() {}
-
 	
+	/**
+	 * @author		Magbus Leinemann, Christian Guenther
+	 * @version 	1.4
+	 * 
+	 * @description	this is the actual crawler implementation for the lithium network
+	 *  
+	 */
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// log the startup message
 		logger.info("Lithium-Crawler START");
@@ -70,8 +76,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		final String REST_API_LOC = (String) arg0.getJobDetail().getJobDataMap().get("REST_API_LOC");
 		
 		// REST_API_URL is either taken from LithiumConstants or from applicationControl.xml
-		final String REST_API_URL = PROTOCOL + "://" + SERVER_URL + ":" + PORT + REST_API_LOC;
 		//final String REST_API_URL = CONSTANTS.PROTOCOL + "://" + CONSTANTS.SERVER_URL + ":" + CONSTANTS.PORT + CONSTANTS.REST_API_LOC;
+		final String REST_API_URL = PROTOCOL + "://" + SERVER_URL + ":" + PORT + REST_API_LOC;
 		
 		// authentication to lithium
 		String _user = null;
@@ -85,24 +91,30 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		
 		logger.trace("setting up the rest endpoint at " + REST_API_URL + " with user " + _user);
 		
-		// THIS IS USED TO RESTRICT RESULTS TO SPECIFIC TERMS 
+		
+		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES AND USERS
+		logger.debug("now retrieving restrictions from configuration db");
 		String searchTerm = null;
+		ArrayList<String> tTerms = new CrawlerConfigurationManager().getTrackTerms(); 
+		ArrayList<String> tLangs = new CrawlerConfigurationManager().getTrackLanguages(); 
+		ArrayList<String> tUsers = new CrawlerConfigurationManager().getTrackUsers(); 
+		ArrayList<String> tSites = new CrawlerConfigurationManager().getTrackSites();
+		//ArrayList<String> tLocas = new CrawlerConfigurationManager().getTrackLocations();
 		
-		// setup restrictions on what to get from lithium - also says where to look
-		String[] tTerms = {"Aktien", "Tagesgeld", "Trading", "Depot", "Girokonto", "Wertpapier", "Kreditkarte", "HBCI"};
-		String[] tLangs = {"de", "en", "fr", "it", "es"};
-		String[] tUsers = {};
-		
-		if (restrictToUsers)
+		// simple log output
+		if (tUsers.size()>0)
 			smallLogMessage += "specific users ";
-		if (restrictToSites)
+		if (tSites.size()>0)
 			smallLogMessage += "specific Sites ";
-		if (restrictToTerms) 
+		/* Does NOT work on Lithium
+		if (tLocas.size()>0)
+			smallLogMessage += "specific Locations ";
+		*/
+		if (tTerms.size()>0)
 			smallLogMessage += "specific terms ";
-		if (restrictToLangs)
+		if (tLangs.size()>0)
 			smallLogMessage += "specific languages ";
-			
-		logger.debug("new lithium crawler instantiated - restricted to track " + smallLogMessage);
+		logger.info("new lithium crawler instantiated - restricted to track " + smallLogMessage);
 		
 		
 		/*
@@ -120,8 +132,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			HttpClient client = new HttpClient();
 			
 			//TODO implement loop over different search terms
-			for (int i = 0 ; i < tTerms.length; i++ ){
-				searchTerm = tTerms[i];
+			for (int i = 0 ; i < tTerms.size(); i++ ){
+				searchTerm = tTerms.get(i);
 				logger.info("now searching for " + searchTerm);
 			
 				PostMethod method = new PostMethod(REST_API_URL+CONSTANTS.REST_MESSAGES_SEARCH_URI);

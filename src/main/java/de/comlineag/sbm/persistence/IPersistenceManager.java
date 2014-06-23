@@ -5,8 +5,8 @@ import de.comlineag.sbm.data.UserData;
 
 /**
  * 
- * @author Magnus Leinemann
- * @version 1.0
+ * @author		Magnus Leinemann
+ * @version 	1.0
  * 
  * @description Interface Definition for any Persistence Implementation
  */

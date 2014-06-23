@@ -18,18 +18,23 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 
+import de.comlineag.sbm.handler.CrawlerConfigurationManager;
 import de.comlineag.sbm.handler.TwitterParser;
 
 /**
  * 
- * @author Christian Guenther
- * @category Handler
+ * @author 		Christian Guenther
+ * @category 	Job
+ * @version		1.1
  * 
  * @description this is the actual crawler of the twitter network. It is
  *              implemented as a job and, upon execution, will connect to the
  *              twitter api to grab new tweets as they are created on the
  *              network.
  * 
+ * @changelog	0.9	- first static version retrieves posts			Chris and Maic
+ * 				1.0	- keys are taken from ApplicationContext.xml	Magnus
+ * 				1.1	- configuration is made dynamic 				Chris
  */
 public class TwitterCrawler extends GenericCrawler implements Job {
 
@@ -45,7 +50,6 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
-	private String bigLogMessage = "";
 	private String smallLogMessage = "";
 	
 	public TwitterCrawler() {
@@ -69,82 +73,46 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// log the startup message
-		logger.debug("Twitter-Crawler START");
-		
-		
-		// setup restrictions on what to track
-		// TODO check why these won't be fetched from applicationContext.xml
-		final boolean restrictToTrackterms = true;	//(boolean) arg0.getJobDetail().getJobDataMap().get("restrictToTrackterms");
-		final boolean restrictToLanguages = true;	//(boolean) arg0.getJobDetail().getJobDataMap().get("restrictToLanguages");
-		final boolean restrictToUsers = false;		//(boolean) arg0.getJobDetail().getJobDataMap().get("restrictToUsers");
-		final boolean restrictToLocations = false;	//(boolean) arg0.getJobDetail().getJobDataMap().get("restrictToLocations"); // locations does not yet work
+		logger.info("Twitter-Crawler START");
 		
 		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 		
-		// possible restrictions
-		if (restrictToTrackterms) {
-			//TODO the trackterms need to go in a configuration file or a database
-			/*
-			String[] ttTerms = {"SAP", "ERP", "SAP BW", "BO", "CRM", "SCM", "SRM", "IDM", 
-								"NetWeaver", "ABAP", "HANA", "Business Objects", 
-								"Business Warehouse", "Customer Relationship Management", 
-								"Supply Chain Management", "Supplier Relationship Management", 
-								"Identity Management", "Social Brand Monitor",
-								"Social Activity Analyzer"};
-			*/
-			String[] ttTerms = {"Tagesgeld", "Trading", "Depot", "Girokonto", "Wertpapier", "Kreditkarte", "HBCI"};
-			
-			//String[] ttTerms = {"SocialActivityAnalyzer", "SocialNetworkAnalyzer", "SocialBrandMonitor", "SocialNetworkConnector"};
-			ArrayList<String> tTerms = new ArrayList<String>();
-			for (int i = 0 ; i < ttTerms.length ; i++) {
-				tTerms.add(ttTerms[i]);
-			}
-			endpoint.trackTerms(tTerms);
-			
-			bigLogMessage += "\n                       restricted to terms: " + tTerms.toString() + "\n";
-			smallLogMessage += "specific terms ";
-		}
+		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES AND USERS
+		logger.debug("now retrieving restrictions from configuration db");
+		ArrayList<String> tTerms = new CrawlerConfigurationManager().getTrackTerms(); 
+		ArrayList<String> tLangs = new CrawlerConfigurationManager().getTrackLanguages(); 
+		ArrayList<String> tUsers = new CrawlerConfigurationManager().getTrackUsers(); 
+		//ArrayList<String> tSites = new CrawlerConfigurationManager().getTrackSites();
+		ArrayList<String> tLocas = new CrawlerConfigurationManager().getTrackLocations();
 		
-		// Restrict tracked messages to english and german
-		if (restrictToLanguages) {
-			ArrayList<String> langs = new ArrayList<String>();
-			langs.add("de");
-			langs.add("en");
-			
-			endpoint.languages(langs);
-			bigLogMessage += "                       restricted to languages: " + langs.toString() + "\n";
-			smallLogMessage += "specific languages ";
-		}
 		
-		// Restrict the tracked messages to specific users
-		if (restrictToUsers) {
-			ArrayList<Long> users = new ArrayList<Long>();
-			users.add(754994L);			// Christian Guenther
-			users.add(2412281046L);		// Magnus Leinemann
-			
-			endpoint.followings(users);
-			bigLogMessage += "                       restricted on user: " + users.toString() + "\n";
+		// log output AND setup of the filter endpoint
+		if (tUsers.size()>0) {
+			// TODO check how to change ArrayList<String> dynamically to ArrayList<Long>
 			smallLogMessage += "specific users ";
+			//endpoint.followings(tUsers);
 		}
-		
-		// Restrict the tracked messages to specific locations
-		if (restrictToLocations) {
-			
-			// TODO check how to work with locations in hbc twitter api 
-			ArrayList<String> locs = new ArrayList<String>(); 
-			locs.add("Germany");
-			locs.add("USA");
-			
-			//endpoint.locations(locs);
-			
-			bigLogMessage += "                       restricted on locations: " + locs.toString() + " (NOT IMPLEMENTED)";
-			smallLogMessage += "specific locations ";
+		/* does NOT work on twitter
+		if (tSites.size()>0) {
+			smallLogMessage += "specific Sites ";
+			//endpoint.locations(tSites);
 		}
+		*/
+		if (tLocas.size()>0) {
+			// TODO check how to change ArrayList<String> dynamically to ArrayList<Long>
+			smallLogMessage += "specific Locations ";
+			//endpoint.locations(tLocas);
+		}
+		if (tTerms.size()>0) {
+			smallLogMessage += "specific terms ";
+			endpoint.trackTerms(tTerms);
+		}
+		if (tLangs.size()>0) {
+			smallLogMessage += "specific languages ";
+			endpoint.languages(tLangs);
+		}
+		logger.info("new twitter crawler instantiated - restricted to track " + smallLogMessage);
 		
-		logger.debug("new twitter crawler instantiated - restricted to track " + smallLogMessage);
-		logger.trace("call for Endpoint POST: " + endpoint.getPostParamString() 
-					+ bigLogMessage);
-
 		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get("consumerKey"), 
 											(String) arg0.getJobDetail().getJobDataMap().get("consumerSecret"), 
 											(String) arg0.getJobDetail().getJobDataMap().get("token"), 
@@ -153,13 +121,15 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		// Create a new BasicClient. By default gzip is enabled.
 		Client client = new ClientBuilder().hosts(Constants.STREAM_HOST).endpoint(endpoint).authentication(sn_Auth)
 				.processor(new StringDelimitedProcessor(msgQueue)).connectionTimeout(1000).build();
-
+		
 		// Establish a connection
 		try {
 			client.connect();
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: connecting to " + Constants.STREAM_HOST + " failed: " + e.getMessage(), e);
 		}
+		
+		logger.debug("crawler connection endpoint is " + Constants.STREAM_HOST + client.getEndpoint().getURI());
 		
 		// Do whatever needs to be done with messages
 		for (int msgRead = 0; msgRead < 1000; msgRead++) {
@@ -179,7 +149,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			post.process(msg);
 		}
 		
-		logger.debug("Twitter-Crawler END");
+		logger.info("Twitter-Crawler END");
 		client.stop();
 	}
 }

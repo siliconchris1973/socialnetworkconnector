@@ -6,8 +6,8 @@ import org.quartz.JobExecutionException;
 
 /**
  * 
- * @author Magnus Leinemann
- * @category Handler
+ * @author 		Magnus Leinemann
+ * @category 	Job
  * 
  * @description generic Implementation for Crawler Job Scheduler
  */

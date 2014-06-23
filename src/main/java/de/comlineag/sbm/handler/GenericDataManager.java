@@ -6,11 +6,11 @@ import de.comlineag.sbm.persistence.IPersistenceManager;
 
 /**
  * 
- * @author Christian Guenther
- * @category Handler
+ * @author		Christian Guenther
+ * @category	Handler
  * 
- * @description GenericDataManager ist die abstrakte Basisklasse fuer die Handler
- *              der Elemente (Posts und User) der einzelnen sozialen Netzwerke
+ * @description GenericDataManager the abstract base class for the data handler
+ *              Posts and User
  * 
  * @param <T>
  * 

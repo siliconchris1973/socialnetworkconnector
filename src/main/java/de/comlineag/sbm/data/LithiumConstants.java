@@ -11,10 +11,10 @@ public final class LithiumConstants {
 	public final String JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER	= "message";
 	public final String JSON_MESSAGE_REFERENCE					= "href";
 	
-	// this on is used within a message to identify the user (aka author of the post)
+	// these are used within a message to identify the user (aka author of the post)
 	public final String JSON_AUTHOR_OBJECT_IDENTIFIER			= "author";
 	public final String JSON_AUTHOR_REFERENCE					= "href";
-	// this on is used within the user object itself
+	// this is used within the user object itself
 	public final String JSON_USER_OBJECT_IDENTIFIER				= "user";
 	
 	

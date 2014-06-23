@@ -79,18 +79,6 @@
 				<entry key="tokenSecret"			value="qm1dqrJas8Lf2ANU8Lx470TkcUSndWLwvJ1I2huZKvJrc" />
 				
 				<!-- entries for server protocol and location are taken from constants from the hbc twitter api -->
-				
-				<!-- these are NOT used for Twitter -->
-				<entry key="restrictToBlogs"		value="false" />
-				<entry key="restrictToBoards"		value="false" />
-				<entry key="restrictToCommunities"	value="false" />
-				<entry key="restrictToGroups"		value="false" />
-				<entry key="restrictToSites"		value="false" />
-				<!-- but these ARE used -->
-				<entry key="restrictToTrackterms"	value="true" />
-				<entry key="restrictToLanguages"	value="true" />
-				<entry key="restrictToUsers"		value="false" />
-				<entry key="restrictToLocations"	value="false" />
 			</map>
 		</property>
 		<property name="durability" value="true" />
@@ -128,18 +116,6 @@
 				<entry key="PORT"					value="443" />
 				<entry key="SERVER_URL"				value="wissen.cortalconsors.de" />
 				<entry key="REST_API_LOC"			value="/restapi/vc" />
-				
-				<!-- restrictions on what to track -->
-				<entry key="restrictToBlogs"		value="false" />
-				<entry key="restrictToBoards"		value="false" />
-				<entry key="restrictToCommunities"	value="true" />
-				<entry key="restrictToGroups"		value="false" />
-				<entry key="restrictToSites"		value="false" />
-				<entry key="restrictToWikis"		value="false" />
-				<entry key="restrictToTrackterms"	value="true" />
-				<entry key="restrictToLanguages"	value="true" />
-				<entry key="restrictToUsers"		value="false" />
-				<entry key="restrictToLocations"	value="false" />
 			</map>
 		</property>
 		<property name="durability" value="true" />
@@ -178,17 +154,6 @@
 				<entry key="SERVER_URL"				value="facebook.com" />
 				<entry key="GRAPH_ENDPOINT"			value="/graph" />
 				<entry key="REST_API_LOC"			value="/restapi/" />
-				
-				<!-- restrictions on what to track -->
-				<entry key="restrictToBlogs"		value="false" />
-				<entry key="restrictToBoards"		value="false" />
-				<entry key="restrictToCommunities"	value="false" />
-				<entry key="restrictToGroups"		value="false" />
-				<entry key="restrictToSites"		value="false" />
-				<entry key="restrictToTrackterms"	value="true" />
-				<entry key="restrictToLanguages"	value="true" />
-				<entry key="restrictToUsers"		value="false" />
-				<entry key="restrictToLocations"	value="false" />
 			</map>
 		</property>
 		<property name="durability" value="true" />
@@ -213,10 +178,33 @@
 		<property name="cronExpression" value="0 0 6 * * ?" />
 	</bean> -->
 	
-	 
-	<!-- this is the bean for the hana persistence -->
+	<!-- this is the bean to get the crawler configuration from the HANA -->
+	<!--  
+	<bean id="configurationManager" class="de.comlineag.sbm.persistence.HANAConfigurationPersistence">
+		<property name="host" value="192.168.131.30" />
+		<property name="port" value="8000" />
+		<property name="jdbcPort" value="30015" />
+		<property name="protocol" value="http" />
+		<property name="location" value="/comline/sbm/services" />
+		<property name="user" value="U0JNX0VYVA==" />
+		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
+	</bean>
+	-->
 	
-	 <bean id="persistenceManager" class="de.comlineag.sbm.persistence.HANAPersistence">
+	<!-- this is the bean to get the crawler configuration from an ini file -->
+	<!-- 
+	<bean id="configurationManager" class="de.comlineag.sbm.persistence.XMLFileConfigurationPersistence">
+		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration.xml" />
+	</bean>
+	-->
+	<!-- this is the bean to get the crawler configuration from an ini file -->
+	<bean id="configurationManager" class="de.comlineag.sbm.persistence.IniFileConfigurationPersistence">
+		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration.ini" />
+		<!-- <property name="configDbHandler" value="WEB-INF/CrawlerConfiguration.ini" /> -->
+	</bean>
+	
+	<!-- this is the bean for the hana persistence -->
+	<bean id="persistenceManager" class="de.comlineag.sbm.persistence.HANAPersistence">
 		<property name="host" value="192.168.131.30" />
 		<property name="port" value="8000" />
 		<property name="jdbcPort" value="30015" />
@@ -259,13 +247,15 @@
 			<props>
 				<!-- ThreadPool -->
 				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
+				<!-- change this to the number of crawlers (see below) or the number of cores, whichever is higher -->
 				<prop key="org.quartz.threadPool.threadCount">1</prop>
 			</props>
 		</property>
 		<property name="triggers">
 			<list>
-				<!-- <ref bean="TwitterCrawlerTrigger"/>  -->
-				<ref bean="LithiumCrawlerTrigger"/>
+				<!-- activate each crawler you want and make sure to increase the threadCount above -->
+				<ref bean="TwitterCrawlerTrigger"/>  
+				<!-- <ref bean="LithiumCrawlerTrigger"/>  -->
 			</list>
 		</property>
 	</bean>
