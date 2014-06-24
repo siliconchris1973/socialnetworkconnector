@@ -254,8 +254,8 @@
 		<property name="triggers">
 			<list>
 				<!-- activate each crawler you want and make sure to increase the threadCount above -->
-				<ref bean="TwitterCrawlerTrigger"/>  
-				<!-- <ref bean="LithiumCrawlerTrigger"/>  -->
+				<!--<ref bean="TwitterCrawlerTrigger"/> -->  
+				<ref bean="LithiumCrawlerTrigger"/>
 			</list>
 		</property>
 	</bean>

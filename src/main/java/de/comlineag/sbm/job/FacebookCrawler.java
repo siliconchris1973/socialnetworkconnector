@@ -21,7 +21,7 @@ import org.apache.commons.httpclient.util.HttpURLConnection;
 import org.apache.log4j.Logger;
 
 import de.comlineag.sbm.data.HttpStatusCode;
-import de.comlineag.sbm.handler.CrawlerConfigurationManager;
+import de.comlineag.sbm.handler.CrawlerConfiguration;
 import de.comlineag.sbm.handler.FacebookParser;
 
 // TODO !!!!! IMPLEMENT THE FaceBookCrawler !!!!!!
@@ -82,10 +82,10 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		// setup restrictions on what to track
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES AND USERS
 		logger.debug("now retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfigurationManager().getTrackTerms(); 
-		ArrayList<String> tLangs = new CrawlerConfigurationManager().getTrackLanguages(); 
-		ArrayList<String> tUsers = new CrawlerConfigurationManager().getTrackUsers(); 
-		ArrayList<String> tSites = new CrawlerConfigurationManager().getTrackSites();
+		ArrayList<String> tTerms = new CrawlerConfiguration().getTrackTerms(); 
+		ArrayList<String> tLangs = new CrawlerConfiguration().getTrackLanguages(); 
+		ArrayList<String> tUsers = new CrawlerConfiguration().getTrackUsers(); 
+		ArrayList<String> tSites = new CrawlerConfiguration().getTrackSites();
 				
 		// simple log output
 		if (tUsers.size()>0)

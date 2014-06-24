@@ -1,7 +1,7 @@
 package de.comlineag.sbm.handler;
 
 import de.comlineag.sbm.persistence.AppContext;
-import de.comlineag.sbm.persistence.IConfigurationPersistence;
+import de.comlineag.sbm.persistence.IConfigurationManager;
 
 /**
  * 
@@ -15,9 +15,9 @@ import de.comlineag.sbm.persistence.IConfigurationPersistence;
  */
 public abstract class GenericConfigurationManager {
 
-	protected IConfigurationPersistence configurationManager;
+	protected IConfigurationManager configurationManager;
 	protected GenericConfigurationManager() {
-		configurationManager = (IConfigurationPersistence) AppContext.Context.getBean("configurationManager");
+		configurationManager = (IConfigurationManager) AppContext.Context.getBean("configurationManager");
 	}
 	
 	@SuppressWarnings("unused")

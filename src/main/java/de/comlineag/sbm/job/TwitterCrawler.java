@@ -18,7 +18,7 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 
-import de.comlineag.sbm.handler.CrawlerConfigurationManager;
+import de.comlineag.sbm.handler.CrawlerConfiguration;
 import de.comlineag.sbm.handler.TwitterParser;
 
 /**
@@ -79,11 +79,11 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES AND USERS
 		logger.debug("now retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfigurationManager().getTrackTerms(); 
-		ArrayList<String> tLangs = new CrawlerConfigurationManager().getTrackLanguages(); 
-		ArrayList<String> tUsers = new CrawlerConfigurationManager().getTrackUsers(); 
-		//ArrayList<String> tSites = new CrawlerConfigurationManager().getTrackSites();
-		ArrayList<String> tLocas = new CrawlerConfigurationManager().getTrackLocations();
+		ArrayList<String> tTerms = new CrawlerConfiguration().getTrackTerms(); 
+		ArrayList<String> tLangs = new CrawlerConfiguration().getTrackLanguages(); 
+		ArrayList<String> tUsers = new CrawlerConfiguration().getTrackUsers(); 
+		//ArrayList<String> tSites = new CrawlerConfiguration().getTrackSites();
+		ArrayList<String> tLocas = new CrawlerConfiguration().getTrackLocations();
 		
 		
 		// log output AND setup of the filter endpoint

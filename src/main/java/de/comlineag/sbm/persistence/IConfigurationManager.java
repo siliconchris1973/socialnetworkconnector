@@ -7,12 +7,12 @@ import java.util.ArrayList;
  * @author 		Christian Guenther
  * @version		0.9
  * 
- * @description	The interface IConfigurationPersistence must be implemented by all configuration
+ * @description	The interface IConfigurationManager must be implemented by all configuration
  * 				manager classes. It defines methods to get the terms, users and 
  * 				languages to track in the social networks. 
  *
  */
-public interface IConfigurationPersistence {
+public interface IConfigurationManager {
 	
 	/**
 	 * 

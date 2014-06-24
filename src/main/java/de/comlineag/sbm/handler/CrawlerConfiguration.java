@@ -2,7 +2,7 @@ package de.comlineag.sbm.handler;
 
 import java.util.ArrayList;
 
-public class CrawlerConfigurationManager extends GenericConfigurationManager {
+public class CrawlerConfiguration extends GenericConfigurationManager {
 	public ArrayList<String> getTrackTerms() {
 		return configurationManager.getTrackTerms();
 	}

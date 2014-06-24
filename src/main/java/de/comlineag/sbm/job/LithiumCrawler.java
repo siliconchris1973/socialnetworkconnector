@@ -24,7 +24,7 @@ import de.comlineag.sbm.data.HttpStatusCode;
 import de.comlineag.sbm.data.LithiumConstants;
 import de.comlineag.sbm.data.LithiumStatusCode;
 import de.comlineag.sbm.data.LithiumStatusException;
-import de.comlineag.sbm.handler.CrawlerConfigurationManager;
+import de.comlineag.sbm.handler.CrawlerConfiguration;
 import de.comlineag.sbm.handler.LithiumParser;
 import de.comlineag.sbm.handler.LithiumPosting;
 import de.comlineag.sbm.handler.LithiumUser;
@@ -95,11 +95,11 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES AND USERS
 		logger.debug("now retrieving restrictions from configuration db");
 		String searchTerm = null;
-		ArrayList<String> tTerms = new CrawlerConfigurationManager().getTrackTerms(); 
-		ArrayList<String> tLangs = new CrawlerConfigurationManager().getTrackLanguages(); 
-		ArrayList<String> tUsers = new CrawlerConfigurationManager().getTrackUsers(); 
-		ArrayList<String> tSites = new CrawlerConfigurationManager().getTrackSites();
-		//ArrayList<String> tLocas = new CrawlerConfigurationManager().getTrackLocations();
+		ArrayList<String> tTerms = new CrawlerConfiguration().getTrackTerms(); 
+		ArrayList<String> tLangs = new CrawlerConfiguration().getTrackLanguages(); 
+		ArrayList<String> tUsers = new CrawlerConfiguration().getTrackUsers(); 
+		ArrayList<String> tSites = new CrawlerConfiguration().getTrackSites();
+		//ArrayList<String> tLocas = new CrawlerConfiguration().getTrackLocations();
 		
 		// simple log output
 		if (tUsers.size()>0)

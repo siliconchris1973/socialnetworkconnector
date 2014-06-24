@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * @description	A configuration manager for the crawler using flat ini files for the configuration
  *
  */
-public class IniFileConfigurationPersistence implements IConfigurationPersistence  {
+public class IniFileConfigurationPersistence implements IConfigurationManager  {
 	
 	// the path to the configuration file
 	private String configDbHandler;
