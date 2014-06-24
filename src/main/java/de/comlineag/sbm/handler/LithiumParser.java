@@ -35,9 +35,9 @@ public final class LithiumParser extends GenericParser {
 	public LithiumParser() {}
 
 	/**
-	 * @description	this is the parser implementation specific for the lithium network
-	 * 				it receives a json string from the crawler and decodes that in single
-	 * 				messages. These messages are then added to an array of json objects
+	 * @description	this is the parser implementation specific for the Lithium network
+	 * 				it receives a Json string from the crawler and decodes that in single
+	 * 				messages. These messages are then added to an array of Json objects
 	 * 				and returned to the crawler, which retrieves every single posting and 
 	 * 				feds it to the persistence 
 	 * 

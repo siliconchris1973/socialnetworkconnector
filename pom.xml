@@ -25,7 +25,7 @@
 	
 	<groupId>de.comlineag.sbm</groupId>
 	<artifactId>SocialNetWorkConnector</artifactId>
-	<version>0.1.5-SNAPSHOT</version>
+	<version>0.1.6-SNAPSHOT</version>
 	
  	<build>
 	  	<!-- Explicitly declare source encoding to avoid Maven warning -->

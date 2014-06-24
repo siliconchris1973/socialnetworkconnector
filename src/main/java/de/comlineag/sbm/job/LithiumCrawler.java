@@ -75,8 +75,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		final String PORT = (String) arg0.getJobDetail().getJobDataMap().get("PORT");
 		final String REST_API_LOC = (String) arg0.getJobDetail().getJobDataMap().get("REST_API_LOC");
 		
-		// REST_API_URL is either taken from LithiumConstants or from applicationControl.xml
-		//final String REST_API_URL = CONSTANTS.PROTOCOL + "://" + CONSTANTS.SERVER_URL + ":" + CONSTANTS.PORT + CONSTANTS.REST_API_LOC;
 		final String REST_API_URL = PROTOCOL + "://" + SERVER_URL + ":" + PORT + REST_API_LOC;
 		
 		// authentication to lithium
