@@ -67,6 +67,9 @@
 	 
 	<bean id="contextApplicationContextProvider" class="de.comlineag.sbm.persistence.ApplicationContextProvider"></bean>
 	
+	
+	
+	<!--    C R A W L E R    S E T T I N G S     -->
 	<!-- Twitter Crawler -->
 	<bean name="TwitterCrawlerDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.sbm.job.TwitterCrawler" />
@@ -171,13 +174,44 @@
 		<property name="repeatInterval" value="150000" />
 	</bean>
 	
+	<!-- Google Crawler NOT YET IMPLEMENTED 
+	<bean name="GoogleCrawlerDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="de.comlineag.sbm.job.GoogleCrawler" />
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="consumerKey"			value="" />
+				<entry key="consumerSecret"			value="" />
+				<entry key="token"					value="" />
+				<entry key="tokenSecret"			value="" />
+				
+				<entry key="user" 					value="" />
+				<entry key="passwd" 				value="" />
+				
+				<entry key="PROTOCOL"				value="https" />
+				<entry key="PORT"					value="443" />
+				<entry key="SERVER_URL"				value="google.com" />
+				<entry key="GRAPH_ENDPOINT"			value="/graph" />
+				<entry key="REST_API_LOC"			value="/restapi/" />
+			</map>
+		</property>
+		<property name="durability" value="true" />
+	</bean>
+	<bean id="GoogleCrawlerTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="GoogleCrawlerDetail" />
+		<property name="startDelay" value="1000" />
+		<property name="repeatInterval" value="150000" />
+	</bean>
+	-->
 	
+	<!-- This bean would trigger in a cron like fashion at a specific time -->
 	<!-- <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="appSendJobDetail" />
 		run every morning at 6 AM
 		<property name="cronExpression" value="0 0 6 * * ?" />
 	</bean> -->
 	
+	
+	<!--   C O N F I G U R A T I O N     S E T T I N G S   -->
 	<!-- this is the bean to get the crawler configuration from the HANA -->
 	<!--  
 	<bean id="configurationManager" class="de.comlineag.sbm.persistence.HANAConfigurationPersistence">
@@ -203,6 +237,9 @@
 		<!-- <property name="configDbHandler" value="WEB-INF/CrawlerConfiguration.ini" /> -->
 	</bean>
 	
+	
+	<!--    P E R S I S T E N C E    S E T T I N G S    -->
+	<!-- You may choose exactly one of the provided persistence manager -->
 	<!-- this is the bean for the hana persistence -->
 	<bean id="persistenceManager" class="de.comlineag.sbm.persistence.HANAPersistence">
 		<property name="host" value="192.168.131.30" />
@@ -216,9 +253,8 @@
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
 	</bean>
 	
-	<!-- this is the bean for the neo4j persistence -->
-	<!--
-	 <bean id="persistenceManager" class="de.comlineag.sbm.persistence.Neo4JPersistence">
+	<!-- this is the bean for the neo4j persistence 
+	<bean id="persistenceManager" class="de.comlineag.sbm.persistence.Neo4JPersistence">
 		<property name="protocol" value="http" />
 		<property name="host" value="localhost" />
 		<property name="port" value="7474" />
@@ -226,7 +262,29 @@
 		<property name="DB_PATH" value="/db/data" />
 	</bean>
 	-->
+	<!-- this is the bean for the neo4j embedded persistence
+	<bean id="persistenceManager" class="de.comlineag.sbm.persistence.Neo4JEmbeddedPersistence">
+		<property name="protocol" value="t.b.d." />
+		<property name="host" value="localhost" />
+		<property name="port" value="7474" />
+		<property name="location" value="/db/data" />
+		<property name="DB_PATH" value="/db/data" />
+	</bean>
+	-->
 	
+	<!-- this is the bean for the MapDB embedded persistence -->
+	<!--
+	 <bean id="persistenceManager" class="de.comlineag.sbm.persistence.MapDBPersistence">
+		<property name="protocol" value="t.b.d." />
+		<property name="host" value="localhost" />
+		<property name="port" value="t.b.d." />
+		<property name="location" value="/db/data" />
+		<property name="DB_PATH" value="/db/data" />
+	</bean>
+	-->
+	
+	
+	<!--    J O B    C O N T R O L    S E T T I N G S    -->
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 	<property name="autoStartup">
 			<value>true</value>
@@ -241,8 +299,7 @@
 				<value>true</value> -->
 			<value>false</value>
 		</property>
-
-
+		
 		<property name="quartzProperties">
 			<props>
 				<!-- ThreadPool -->
@@ -254,7 +311,11 @@
 		<property name="triggers">
 			<list>
 				<!-- activate each crawler you want and make sure to increase the threadCount above -->
-				<!--<ref bean="TwitterCrawlerTrigger"/> -->  
+				<!--<ref bean="TwitterCrawlerTrigger"/> -->
+				<!--<ref bean="FacebookCrawlerTrigger"/> -->
+				<!--<ref bean="GoogleCrawlerTrigger"/> -->
+				<!--<ref bean="LinkedinCrawlerTrigger"/> -->
+				<!--<ref bean="FinanzforumCrawlerTrigger"/> -->  
 				<ref bean="LithiumCrawlerTrigger"/>
 			</list>
 		</property>
