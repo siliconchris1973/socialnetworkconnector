@@ -1,42 +1,73 @@
-; Social Network Connector configuration ini file
-; With this file the crawler can be instructed on
-; what to track
-
-; all 5 sections on what to track must be kept in 
-; here, even if empty. If a section is missing,
-; the crawler will not start up and no error is
-; shown.
-;
-; Please consider using one of the more sophisticated
-; alternatives (like xml or database) available in
-; ApplicationContext.xml for the configuration.
-;
-; copyright (c) 2014 COMLINE AG
-
-[trackTerms]
-term1 = Aktien
-term2 = Tagesgeld
-term3 = Trading
-term4 = Depot
-term5 = Girokonto
-term6 = Wertpapier
-term7 = Kreditkarte
-term8 = HBCI
-
-[trackUsers]
-
-[trackLanguages]
-lang1 = de
-lang2 = en
-lang3 = it
-lang4 = fr
-lang5 = es
-
-[trackSites]
-
-[trackLocations]
-
-[networkSpecific]
-CC_COMMUNITY_ID	= hiaeh67457
-
-	
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationParameter>
+	<trackTerms>
+		<term>
+			<type>String</type>
+			<value>Aktien</value>
+		</term>
+		<term>
+			<type>String</type>
+			<value>Tagesgeld</value>
+		</term>
+		<term>
+			<type>String</type>
+			<value>Trading</value>
+		</term>
+		<term>
+			<type>String</type>
+			<value>Depot</value>
+		</term>
+		<term>
+			<type>String</type>
+			<value>Girokonto</value>
+		</term>
+		<term>
+			<type>String</type>
+			<value>Wertpapier</value>
+		</term>
+		<term>
+			<type>String</type>
+			<value>Kreditkarte</value>
+		</term>
+		<term>
+			<type>String</type>
+			<value>HBCI</value>
+		</term>
+	</trackTerms>
+	<trackLanguages>
+		<language>
+			<type>String</type>
+			<value>de</value>
+		</language>
+		<language>
+			<type>String</type>
+			<value>en</value>
+		</language>
+		<language>
+			<type>String</type>
+			<value>it</value>
+		</language>
+		<language>
+			<type>String</type>
+			<value>es</value>
+		</language>
+		<language>
+			<type>String</type>
+			<value>fr</value>
+		</language>
+	</trackLanguages>
+	<trackSites>
+	</trackSites>
+	<trackLocations>
+		<location>
+			<type>String</type>
+			<value>DE</value>
+		</location>
+	</trackLocations>
+	<networkSpecific>
+		<entry name="CC_COMMUNITY_ID">
+			<type>String</type>
+			<value>hiaeh67457</value>
+		</entry>
+	</networkSpecific>
+</configurationParameter>

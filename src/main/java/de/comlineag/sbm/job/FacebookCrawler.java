@@ -84,12 +84,9 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		logger.debug("now retrieving restrictions from configuration db");
 		ArrayList<String> tTerms = new CrawlerConfiguration().getTrackTerms(); 
 		ArrayList<String> tLangs = new CrawlerConfiguration().getTrackLanguages(); 
-		ArrayList<String> tUsers = new CrawlerConfiguration().getTrackUsers(); 
 		ArrayList<String> tSites = new CrawlerConfiguration().getTrackSites();
 				
 		// simple log output
-		if (tUsers.size()>0)
-			smallLogMessage += "specific users ";
 		if (tSites.size()>0)
 			smallLogMessage += "specific Sites ";
 		if (tTerms.size()>0)

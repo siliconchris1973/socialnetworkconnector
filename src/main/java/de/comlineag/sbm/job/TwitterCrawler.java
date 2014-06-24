@@ -1,6 +1,7 @@
 package de.comlineag.sbm.job;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -8,6 +9,8 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.apache.log4j.Logger;
+
+import twitter4j.Location;
 
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
@@ -77,35 +80,20 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		
 		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 		
-		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES AND USERS
+		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, LOCATIONS AND USERS
 		logger.debug("now retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfiguration().getTrackTerms(); 
-		ArrayList<String> tLangs = new CrawlerConfiguration().getTrackLanguages(); 
-		ArrayList<String> tUsers = new CrawlerConfiguration().getTrackUsers(); 
-		//ArrayList<String> tSites = new CrawlerConfiguration().getTrackSites();
-		ArrayList<String> tLocas = new CrawlerConfiguration().getTrackLocations();
-		
+		ArrayList<String> tTerms = new CrawlerConfiguration().getTrackTerms();
+		ArrayList<String> tLangs = new CrawlerConfiguration().getTrackLanguages();
+		ArrayList<Location> tLocas = new CrawlerConfiguration().getTrackLocations();
 		
 		// log output AND setup of the filter endpoint
-		if (tUsers.size()>0) {
-			// TODO check how to change ArrayList<String> dynamically to ArrayList<Long>
-			smallLogMessage += "specific users ";
-			//endpoint.followings(tUsers);
-		}
-		/* does NOT work on twitter
-		if (tSites.size()>0) {
-			smallLogMessage += "specific Sites ";
-			//endpoint.locations(tSites);
-		}
-		*/
-		if (tLocas.size()>0) {
-			// TODO check how to change ArrayList<String> dynamically to ArrayList<Long>
-			smallLogMessage += "specific Locations ";
-			//endpoint.locations(tLocas);
-		}
 		if (tTerms.size()>0) {
 			smallLogMessage += "specific terms ";
 			endpoint.trackTerms(tTerms);
+		}
+		if (tLocas.size()>0) {
+			smallLogMessage += "specific Locations ";
+			//endpoint.locations(tLocas);
 		}
 		if (tLangs.size()>0) {
 			smallLogMessage += "specific languages ";

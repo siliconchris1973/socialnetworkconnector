@@ -95,19 +95,11 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		String searchTerm = null;
 		ArrayList<String> tTerms = new CrawlerConfiguration().getTrackTerms(); 
 		ArrayList<String> tLangs = new CrawlerConfiguration().getTrackLanguages(); 
-		ArrayList<String> tUsers = new CrawlerConfiguration().getTrackUsers(); 
 		ArrayList<String> tSites = new CrawlerConfiguration().getTrackSites();
-		//ArrayList<String> tLocas = new CrawlerConfiguration().getTrackLocations();
 		
 		// simple log output
-		if (tUsers.size()>0)
-			smallLogMessage += "specific users ";
 		if (tSites.size()>0)
 			smallLogMessage += "specific Sites ";
-		/* Does NOT work on Lithium
-		if (tLocas.size()>0)
-			smallLogMessage += "specific Locations ";
-		*/
 		if (tTerms.size()>0)
 			smallLogMessage += "specific terms ";
 		if (tLangs.size()>0)
@@ -129,9 +121,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			logger.info("initiating ssl-connection to " + REST_API_URL);
 			HttpClient client = new HttpClient();
 			
-			//TODO implement loop over different search terms
+			//TODO change this simple for-loop to something more sophisticated
 			for (int i = 0 ; i < tTerms.size(); i++ ){
-				searchTerm = tTerms.get(i);
+				searchTerm = tTerms.get(i).toString();
 				logger.info("now searching for " + searchTerm);
 			
 				PostMethod method = new PostMethod(REST_API_URL+CONSTANTS.REST_MESSAGES_SEARCH_URI);

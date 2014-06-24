@@ -4,9 +4,12 @@ import org.apache.log4j.Logger;
 import org.ini4j.Ini;
 import org.ini4j.InvalidIniFormatException;
 
+import twitter4j.Location;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+
 
 /**
  * @author		Christian Guenther
@@ -34,18 +37,31 @@ public class IniFileConfigurationPersistence implements IConfigurationManager  {
 	}
 
 	@Override
-	public ArrayList<String> getTrackUsers() {
-		return getDataFromIni("trackUsers");
-	}
-	
-	@Override
 	public ArrayList<String> getTrackSites() {
 		return getDataFromIni("trackSites");
 	}
 	
 	@Override
-	public ArrayList<String> getTrackLocations() {
-		return getDataFromIni("trackLocations");
+	public ArrayList<Location> getTrackLocations() {
+		ArrayList<Location> ar = new ArrayList<Location>();
+		Ini ini = null;
+		
+		try {
+			ini = new Ini(new FileReader((String)getConfigDbHandler()));
+		} catch (InvalidIniFormatException e1) {
+			logger.error("EXCEPTION :: invalid ini format " + e1.getLocalizedMessage() + ". This is serious, I'm giving up!");
+			System.exit(-1);
+		} catch (IOException e2) {
+			logger.error("EXCEPTION :: error reading configuration file " + e2.getLocalizedMessage() + ". This is serious, I'm giving up!");
+			System.exit(-1);
+		}
+
+        for (String key : ini.get("trackLocations").keySet()) {
+        	//ar.add(ini.get("trackLocations").fetch(key));
+        	logger.trace(ini.get("trackLocations").getName() + " = " + ini.get("trackLocations").fetch(key));
+        }
+		
+		return ar;
 	}
 	
 	private ArrayList<String> getDataFromIni(String section) {
@@ -80,7 +96,6 @@ public class IniFileConfigurationPersistence implements IConfigurationManager  {
 	public void setConfigurationElement(String key, String vakue, String path) {
 		// TODO Auto-generated method stub
 	}
-	
 	
 	// getter and setter for the configuration path
 	public String getConfigDbHandler() {
