@@ -208,7 +208,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		LithiumStatusCode jsonStatusCode = null;
 		
 		try {
-			logger.info("retrieving single object ("+jsonObjectIdentifier+") from " + REST_API_URL);
+			logger.info("Lithium " + jsonObjectIdentifier+" tracked, retrieving from " + REST_API_URL + objectRef);
 			HttpClient client = new HttpClient();
 			
 			PostMethod method = new PostMethod(REST_API_URL+objectRef);

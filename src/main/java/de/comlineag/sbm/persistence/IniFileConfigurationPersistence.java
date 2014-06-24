@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import org.ini4j.Ini;
 import org.ini4j.InvalidIniFormatException;
 
-import twitter4j.Location;
+import de.comlineag.sbm.data.SocialNetworks;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
  * @description	A configuration manager for the crawler using flat ini files for the configuration
  *
  */
-public class IniFileConfigurationPersistence implements IConfigurationManager  {
+public class IniFileConfigurationPersistence implements IConfigurationManager<SocialNetworks>  {
 	
 	// the path to the configuration file
 	private String configDbHandler;
@@ -38,30 +38,20 @@ public class IniFileConfigurationPersistence implements IConfigurationManager  {
 
 	@Override
 	public ArrayList<String> getTrackSites() {
+		logger.warn("no type safety guranteed for configuration element sites");
 		return getDataFromIni("trackSites");
 	}
 	
 	@Override
-	public ArrayList<Location> getTrackLocations() {
-		ArrayList<Location> ar = new ArrayList<Location>();
-		Ini ini = null;
-		
-		try {
-			ini = new Ini(new FileReader((String)getConfigDbHandler()));
-		} catch (InvalidIniFormatException e1) {
-			logger.error("EXCEPTION :: invalid ini format " + e1.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(-1);
-		} catch (IOException e2) {
-			logger.error("EXCEPTION :: error reading configuration file " + e2.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(-1);
-		}
-
-        for (String key : ini.get("trackLocations").keySet()) {
-        	//ar.add(ini.get("trackLocations").fetch(key));
-        	logger.trace(ini.get("trackLocations").getName() + " = " + ini.get("trackLocations").fetch(key));
-        }
-		
-		return ar;
+	public ArrayList<String> getTrackLocations() {
+		logger.warn("no type safety guranteed for configuration element location");
+		return getDataFromIni("trackLocas");
+	}
+	
+	@Override
+	public ArrayList<String> getTrackUsers() {
+		logger.warn("no type safety guranteed for configuration element users");
+		return getDataFromIni("trackUsers");
 	}
 	
 	private ArrayList<String> getDataFromIni(String section) {
@@ -88,13 +78,13 @@ public class IniFileConfigurationPersistence implements IConfigurationManager  {
 	
 	@Override
 	public String getConfigurationElement(String key, String path) {
-		// TODO Auto-generated method stub
+		// TODO implement return a single element
 		return null;
 	}
 
 	@Override
 	public void setConfigurationElement(String key, String vakue, String path) {
-		// TODO Auto-generated method stub
+		// TODO implement insert a single element
 	}
 	
 	// getter and setter for the configuration path

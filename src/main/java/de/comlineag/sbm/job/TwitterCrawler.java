@@ -1,7 +1,6 @@
 package de.comlineag.sbm.job;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -84,17 +83,26 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		logger.debug("now retrieving restrictions from configuration db");
 		ArrayList<String> tTerms = new CrawlerConfiguration().getTrackTerms();
 		ArrayList<String> tLangs = new CrawlerConfiguration().getTrackLanguages();
-		ArrayList<Location> tLocas = new CrawlerConfiguration().getTrackLocations();
+		//ArrayList<TwitterUser> tUsers = new CrawlerConfiguration().getTrackLocations();
+		//ArrayList<TwitterLocation> tLocas = new CrawlerConfiguration().getTrackLocations();
 		
 		// log output AND setup of the filter endpoint
 		if (tTerms.size()>0) {
 			smallLogMessage += "specific terms ";
 			endpoint.trackTerms(tTerms);
 		}
+		/*
+		if (tUsers.size()>0) {
+			smallLogMessage += "specific Locations ";
+			endpoint.locations(tUsers);
+		}
+		+/
+		/*
 		if (tLocas.size()>0) {
 			smallLogMessage += "specific Locations ";
-			//endpoint.locations(tLocas);
+			endpoint.locations(tLocas);
 		}
+		*/
 		if (tLangs.size()>0) {
 			smallLogMessage += "specific languages ";
 			endpoint.languages(tLangs);

@@ -2,8 +2,6 @@ package de.comlineag.sbm.persistence;
 
 import java.util.ArrayList;
 
-import twitter4j.Location;
-
 /**
  * 
  * @author 		Christian Guenther
@@ -14,7 +12,7 @@ import twitter4j.Location;
  * 				languages to track in the social networks. 
  *
  */
-public interface IConfigurationManager {
+public interface IConfigurationManager<T> {
 	
 	/**
 	 * 
@@ -54,7 +52,16 @@ public interface IConfigurationManager {
 	 * 
 	 * 				Does NOT work on all social network - namely Lithium does not support this 
 	 */
-	public abstract ArrayList<Location> getTrackLocations();
+	public abstract ArrayList<String> getTrackLocations();
+	
+	/**
+	 * 
+	 * @return		an array of user-ids to track in the social networks
+	 * 
+	 * @description	returns an array of users which the crawler should use to narrow 
+	 * 				the resultset, when crawling the social network
+	 */
+	public abstract ArrayList<String> getTrackUsers();
 	
 	
 	/**
@@ -63,7 +70,7 @@ public interface IConfigurationManager {
 	 * @param path
 	 * @return
 	 */
-	public abstract Object getConfigurationElement(String key, String path);
+	public abstract String getConfigurationElement(String key, String path);
 		
 	/**
 	 * 

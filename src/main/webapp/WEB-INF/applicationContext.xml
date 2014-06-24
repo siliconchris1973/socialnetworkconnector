@@ -1,47 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Licensed to the Apache Software Foundation (ASF) under one or more
-  contributor license agreements.  See the NOTICE file distributed with
-  this work for additional information regarding copyright ownership.
-  The ASF licenses this file to You under the Apache License, Version 2.0
-  (the "License"); you may not use this file except in compliance with
-  the License.  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
+<!-- 
+	Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	You under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. 
 -->
 <!-- @version $Id: applicationContext.xml 561608 2007-08-01 00:33:12Z vgritsenko $ -->
-
-<!-- <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:util="http://www.springframework.org/schema/util"
-       xmlns:configurator="http://cocoon.apache.org/schema/configurator"
-       xmlns:avalon="http://cocoon.apache.org/schema/avalon"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd
-                           http://cocoon.apache.org/schema/configurator http://cocoon.apache.org/schema/configurator/cocoon-configurator-1.0.1.xsd
-                           http://cocoon.apache.org/schema/avalon http://cocoon.apache.org/schema/avalon/cocoon-avalon-1.0.xsd">
-
-  Activate Cocoon Spring Configurator
-  <configurator:settings/>
-
-  Configure Log4j
-  <bean name="org.apache.cocoon.spring.configurator.log4j"
-        class="org.apache.cocoon.spring.configurator.log4j.Log4JConfigurator"
-        scope="singleton">
-    <property name="settings" ref="org.apache.cocoon.configuration.Settings"/>
-    <property name="resource" value="/WEB-INF/log4j.xml"/>
-  </bean>
-
-  Activate Avalon Bridge
-  <avalon:bridge/>
-
-</beans> -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
@@ -63,184 +33,177 @@
 	<context:component-scan base-package="de.comlineag.sbm.job" />
 	<context:component-scan base-package="de.comlineag.sbm.handler" />
 
-	<tx:annotation-driven />	
-	 
+	<tx:annotation-driven />
+
 	<bean id="contextApplicationContextProvider" class="de.comlineag.sbm.persistence.ApplicationContextProvider"></bean>
-	
-	
-	
-	<!--    C R A W L E R    S E T T I N G S     -->
-	<!-- Twitter Crawler -->
-	<bean name="TwitterCrawlerDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+
+
+
+	<!-- C R A W L E R    S E T T I N G S -->
+	<!-- Twitter Crawler (WORKS) -->
+	<bean name="TwitterCrawlerDetail"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.sbm.job.TwitterCrawler" />
 		<property name="jobDataAsMap">
 			<map>
 				<!-- These are the security tokens for the twitter API -->
-				<entry key="consumerKey"			value="zlGuAavBH2T23hIm57l8WA" />
-				<entry key="consumerSecret"			value="xzqH6lLWnXLvlHJooNDaCDXlzJzv976JcWt8y2eyHBk" />
-				<entry key="token"					value="754994-KDec8qJBwEggHwHQ9XO0X7QBx1VCOZwgbgtpYiibWjl" />
-				<entry key="tokenSecret"			value="qm1dqrJas8Lf2ANU8Lx470TkcUSndWLwvJ1I2huZKvJrc" />
-				
-				<!-- entries for server protocol and location are taken from constants from the hbc twitter api -->
+				<entry key="consumerKey" value="zlGuAavBH2T23hIm57l8WA" />
+				<entry key="consumerSecret" value="xzqH6lLWnXLvlHJooNDaCDXlzJzv976JcWt8y2eyHBk" />
+				<entry key="token" value="754994-KDec8qJBwEggHwHQ9XO0X7QBx1VCOZwgbgtpYiibWjl" />
+				<entry key="tokenSecret" value="qm1dqrJas8Lf2ANU8Lx470TkcUSndWLwvJ1I2huZKvJrc" />
+
+				<!-- 
+					entries for server protocol and location are taken from constants 
+					from the hbc twitter api 
+				-->
 			</map>
 		</property>
 		<property name="durability" value="true" />
 	</bean>
-	<bean id="TwitterCrawlerTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+	<bean id="TwitterCrawlerTrigger"
+		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
 		<property name="jobDetail" ref="TwitterCrawlerDetail" />
 		<!-- 1 second delay after startup -->
 		<property name="startDelay" value="1000" />
 		<!-- repeat the job every 
-					5000 	- 50 seconds
-					6000	- 1 minutes 
-					15000	- 2,5 minutes (round about)
-					30000	- 5 minutes
-		-->
+							5000 - 50 seconds 
+							6000 - 1 minutes 
+							15000 - 2,5 minutes (round about) 
+							30000 - 5 minutes -->
 		<property name="repeatInterval" value="30000" />
 	</bean>
-	
-	<!-- Lithium Crawler -->
-	<bean name="LithiumCrawlerDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+
+	<!-- Lithium Crawler (WORKS) -->
+	<bean name="LithiumCrawlerDetail"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.sbm.job.LithiumCrawler" />
 		<property name="jobDataAsMap">
 			<map>
 				<!-- These are security tokens -->
-				<entry key="consumerKey"			value="" />
-				<entry key="consumerSecret"			value="" />
-				<entry key="token"					value="" />
-				<entry key="tokenSecret"			value="" />
-				
+				<entry key="consumerKey" value="" />
+				<entry key="consumerSecret" value="" />
+				<entry key="token" value="" />
+				<entry key="tokenSecret" value="" />
+
 				<!-- login settings - are encrypted using base64 -->
-				<entry key="user"					value="Y21yYWw=" />
-				<entry key="passwd"					value="MTIzVGVzdDEyMw==" />
-				
+				<entry key="user" value="Y21yYWw=" />
+				<entry key="passwd" value="MTIzVGVzdDEyMw==" />
+
 				<!-- with these entries the url to the communities' rest api is generated -->
-				<entry key="PROTOCOL"				value="https" />
-				<entry key="PORT"					value="443" />
-				<entry key="SERVER_URL"				value="wissen.cortalconsors.de" />
-				<entry key="REST_API_LOC"			value="/restapi/vc" />
+				<entry key="PROTOCOL" value="https" />
+				<entry key="PORT" value="443" />
+				<entry key="SERVER_URL" value="wissen.cortalconsors.de" />
+				<entry key="REST_API_LOC" value="/restapi/vc" />
 			</map>
 		</property>
 		<property name="durability" value="true" />
 	</bean>
-	<bean id="LithiumCrawlerTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+	<bean id="LithiumCrawlerTrigger"
+		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
 		<property name="jobDetail" ref="LithiumCrawlerDetail" />
 		<!-- 1 second delay after startup -->
 		<property name="startDelay" value="1000" />
-		<!-- repeat the job every 
-					5000 	- 50 seconds
-					6000	- 1 minutes 
-					15000	- 2,5 minutes (round about)
-					30000	- 5 minutes
-		-->
+		<!-- repeat the job every 5000 - 50 seconds 6000 - 1 minutes 15000 - 2,5 
+			minutes (round about) 30000 - 5 minutes -->
 		<property name="repeatInterval" value="150000" />
 	</bean>
 	
-	<!-- Facebook Crawler NOT YET IMPLEMENTED -->
-	<bean name="FacebookCrawlerDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+	
+	<!-- Facebook Crawler (TO BE IMPLEMENTED) -->
+	<bean name="FacebookCrawlerDetail"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.sbm.job.FacebookCrawler" />
 		<property name="jobDataAsMap">
 			<map>
 				<!-- These are security tokens -->
-				<entry key="consumerKey"			value="" />
-				<entry key="consumerSecret"			value="" />
-				<entry key="token"					value="" />
-				<entry key="tokenSecret"			value="" />
-				
+				<entry key="consumerKey" value="" />
+				<entry key="consumerSecret" value="" />
+				<entry key="token" value="" />
+				<entry key="tokenSecret" value="" />
+
 				<!-- login settings -->
-				<entry key="user" 					value="" />
-				<entry key="passwd" 				value="" />
-				
+				<entry key="user" value="" />
+				<entry key="passwd" value="" />
+
 				<!-- with these entries the url to the rest api and graph engine is generated -->
-				<entry key="PROTOCOL"				value="https" />
-				<entry key="PORT"					value="443" />
-				<entry key="SERVER_URL"				value="facebook.com" />
-				<entry key="GRAPH_ENDPOINT"			value="/graph" />
-				<entry key="REST_API_LOC"			value="/restapi/" />
+				<entry key="PROTOCOL" value="https" />
+				<entry key="PORT" value="443" />
+				<entry key="SERVER_URL" value="facebook.com" />
+				<entry key="GRAPH_ENDPOINT" value="/graph" />
+				<entry key="REST_API_LOC" value="/restapi/" />
 			</map>
 		</property>
 		<property name="durability" value="true" />
 	</bean>
-	<bean id="FacebookCrawlerTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+	<bean id="FacebookCrawlerTrigger"
+		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
 		<property name="jobDetail" ref="FacebookCrawlerDetail" />
 		<!-- 1 second delay after startup -->
 		<property name="startDelay" value="1000" />
-		<!-- repeat the job every 
-					5000 	- 50 seconds
-					6000	- 1 minutes 
-					15000	- 2,5 minutes (round about)
-					30000	- 5 minutes
-		-->
+		<!-- repeat the job every 5000 - 50 seconds 6000 - 1 minutes 15000 - 2,5 
+			minutes (round about) 30000 - 5 minutes -->
 		<property name="repeatInterval" value="150000" />
 	</bean>
 	
-	<!-- Google Crawler NOT YET IMPLEMENTED 
-	<bean name="GoogleCrawlerDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="de.comlineag.sbm.job.GoogleCrawler" />
-		<property name="jobDataAsMap">
-			<map>
-				<entry key="consumerKey"			value="" />
-				<entry key="consumerSecret"			value="" />
-				<entry key="token"					value="" />
-				<entry key="tokenSecret"			value="" />
-				
-				<entry key="user" 					value="" />
-				<entry key="passwd" 				value="" />
-				
-				<entry key="PROTOCOL"				value="https" />
-				<entry key="PORT"					value="443" />
-				<entry key="SERVER_URL"				value="google.com" />
-				<entry key="GRAPH_ENDPOINT"			value="/graph" />
-				<entry key="REST_API_LOC"			value="/restapi/" />
-			</map>
-		</property>
-		<property name="durability" value="true" />
-	</bean>
-	<bean id="GoogleCrawlerTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
-		<property name="jobDetail" ref="GoogleCrawlerDetail" />
-		<property name="startDelay" value="1000" />
-		<property name="repeatInterval" value="150000" />
-	</bean>
-	-->
 	
-	<!-- This bean would trigger in a cron like fashion at a specific time -->
-	<!-- <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
-		<property name="jobDetail" ref="appSendJobDetail" />
-		run every morning at 6 AM
-		<property name="cronExpression" value="0 0 6 * * ?" />
-	</bean> -->
-	
-	
-	<!--   C O N F I G U R A T I O N     S E T T I N G S   -->
-	<!-- this is the bean to get the crawler configuration from the HANA -->
+	<!-- Google Crawler (TO BE DEFINED) -->
 	<!--  
-	<bean id="configurationManager" class="de.comlineag.sbm.persistence.HANAConfigurationPersistence">
-		<property name="host" value="192.168.131.30" />
-		<property name="port" value="8000" />
-		<property name="jdbcPort" value="30015" />
-		<property name="protocol" value="http" />
-		<property name="location" value="/comline/sbm/services" />
-		<property name="user" value="U0JNX0VYVA==" />
-		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
-	</bean>
+	<bean name="GoogleCrawlerDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean"> 
+		<property name="jobClass" value="de.comlineag.sbm.job.GoogleCrawler" /> 
+		<property name="jobDataAsMap">
+			<map> 
+				<entry key="consumerKey" value="" /> 
+				<entry key="consumerSecret" value="" /> 
+				<entry key="token" value="" /> 
+				<entry key="tokenSecret" value="" /> 
+				
+				<entry key="user" value="" /> 
+				<entry key="passwd" value="" /> 
+				
+				<entry key="PROTOCOL" value="https" /> 
+				<entry key="PORT" value="443" /> 
+				<entry key="SERVER_URL"	value="google.com" /> 
+				<entry key="GRAPH_ENDPOINT" value="/graph" /> 
+				<entry key="REST_API_LOC" value="/restapi/" /> 
+			</map> 
+		</property> 
+		<property name="durability" value="true" /> 
+	</bean> 
+	<bean id="GoogleCrawlerTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean"> 
+		<property name="jobDetail" ref="GoogleCrawlerDetail" /> 
+		<property name="startDelay" value="1000" /> 
+		<property name="repeatInterval" value="150000" /> 
+	</bean> 
 	-->
-	
-	<!-- this is the bean to get the crawler configuration from an ini file -->
+
+
+	<!-- C O N F I G U R A T I O N    S E T T I N G S -->
+	<!-- this is the bean to get the crawler configuration from the HANA (TO BE IMPLEMENETED) -->
 	<!-- 
-	<bean id="configurationManager" class="de.comlineag.sbm.persistence.XMLFileConfigurationPersistence">
-		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration.xml" />
-	</bean>
+	<bean id="configurationManager" class="de.comlineag.sbm.persistence.HANAConfigurationPersistence"> 
+		<property name="host" value="192.168.131.30" /> <property name="port" value="8000" /> 
+		<property name="jdbcPort" value="30015" /> <property name="protocol" value="http" /> 
+		<property name="location" value="/comline/sbm/services" /> 
+		<property name="user" value="U0JNX0VYVA==" /> 
+		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" /> 
+	</bean> 
 	-->
-	<!-- this is the bean to get the crawler configuration from an ini file -->
+
+	<!-- this is the bean to get the crawler configuration from an xml file (TO BE IMPLEMENTED) -->
+	<!--
+	<bean id="configurationManager" class="de.comlineag.sbm.persistence.XMLFileConfigurationPersistence"> 
+		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration.xml" /> 
+	</bean> 
+	-->
+	<!-- this is the bean to get the crawler configuration from an ini file (WORKS) -->
 	<bean id="configurationManager" class="de.comlineag.sbm.persistence.IniFileConfigurationPersistence">
 		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration.ini" />
-		<!-- <property name="configDbHandler" value="WEB-INF/CrawlerConfiguration.ini" /> -->
 	</bean>
-	
-	
-	<!--    P E R S I S T E N C E    S E T T I N G S    -->
+
+
+	<!-- P E R S I S T E N C E S E T T I N G S -->
 	<!-- You may choose exactly one of the provided persistence manager -->
-	<!-- this is the bean for the hana persistence -->
+	<!-- this is the bean for the hana persistence (WORKS) -->
 	<bean id="persistenceManager" class="de.comlineag.sbm.persistence.HANAPersistence">
 		<property name="host" value="192.168.131.30" />
 		<property name="port" value="8000" />
@@ -252,41 +215,43 @@
 		<property name="user" value="U0JNX0VYVA==" />
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
 	</bean>
-	
-	<!-- this is the bean for the neo4j persistence 
-	<bean id="persistenceManager" class="de.comlineag.sbm.persistence.Neo4JPersistence">
-		<property name="protocol" value="http" />
-		<property name="host" value="localhost" />
-		<property name="port" value="7474" />
-		<property name="location" value="/db/data" />
-		<property name="DB_PATH" value="/db/data" />
-	</bean>
-	-->
-	<!-- this is the bean for the neo4j embedded persistence
-	<bean id="persistenceManager" class="de.comlineag.sbm.persistence.Neo4JEmbeddedPersistence">
-		<property name="protocol" value="t.b.d." />
-		<property name="host" value="localhost" />
-		<property name="port" value="7474" />
-		<property name="location" value="/db/data" />
-		<property name="DB_PATH" value="/db/data" />
-	</bean>
+
+	<!-- this is the bean for the neo4j persistence (WORKS) -->
+	<!-- 
+	<bean id="persistenceManager" class="de.comlineag.sbm.persistence.Neo4JPersistence"> 
+		<property name="protocol" value="http" /> 
+		<property name="host" value="localhost" /> 
+		<property name="port" value="7474" /> 
+		<property name="location" value="/db/data" /> 
+		<property name="DB_PATH" value="/db/data" /> 
+	</bean> 
 	-->
 	
-	<!-- this is the bean for the MapDB embedded persistence -->
+	<!-- this is the bean for the neo4j embedded persistence (TO BE IMPLEMENETED) -->
 	<!--
-	 <bean id="persistenceManager" class="de.comlineag.sbm.persistence.MapDBPersistence">
-		<property name="protocol" value="t.b.d." />
-		<property name="host" value="localhost" />
-		<property name="port" value="t.b.d." />
-		<property name="location" value="/db/data" />
-		<property name="DB_PATH" value="/db/data" />
-	</bean>
+	<bean id="persistenceManager" 
+		class="de.comlineag.sbm.persistence.Neo4JEmbeddedPersistence"> 
+		<property name="protocol" value="t.b.d." /> <property name="host" value="localhost" /> 
+		<property name="port" value="7474" /> <property name="location" value="/db/data" /> 
+		<property name="DB_PATH" value="/db/data" /> 
+	</bean> 
 	-->
-	
-	
-	<!--    J O B    C O N T R O L    S E T T I N G S    -->
+
+	<!-- this is the bean for the MapDB embedded persistence (TO BE IMPLEMENTED) -->
+	<!-- 
+	<bean id="persistenceManager" class="de.comlineag.sbm.persistence.MapDBPersistence"> 
+		<property name="protocol" value="t.b.d." /> 
+		<property name="host" value="localhost"	/> 
+		<property name="port" value="t.b.d." /> 
+		<property name="location" value="/db/data" /> 
+		<property name="DB_PATH" value="/db/data" /> 
+	</bean> 
+	-->
+
+
+	<!-- J O B    C O N T R O L    S E T T I N G S -->
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-	<property name="autoStartup">
+		<property name="autoStartup">
 			<value>true</value>
 		</property>
 
@@ -295,28 +260,29 @@
 		</property>
 
 		<property name="waitForJobsToCompleteOnShutdown">
-			<!-- changed value from true to false
-				<value>true</value> -->
+			<!-- changed value from true to false <value>true</value> -->
 			<value>false</value>
 		</property>
-		
+
 		<property name="quartzProperties">
 			<props>
 				<!-- ThreadPool -->
 				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
-				<!-- change this to the number of crawlers (see below) or the number of cores, whichever is higher -->
-				<prop key="org.quartz.threadPool.threadCount">1</prop>
+				<!-- change this to the number of crawlers (see below) or the number 
+					of cores, whichever is higher -->
+				<prop key="org.quartz.threadPool.threadCount">2</prop>
 			</props>
 		</property>
 		<property name="triggers">
 			<list>
-				<!-- activate each crawler you want and make sure to increase the threadCount above -->
-				<ref bean="TwitterCrawlerTrigger"/>
+				<!-- activate each crawler you want and make sure to increase the threadCount 
+					above -->
+				<ref bean="TwitterCrawlerTrigger" />
 				<!--<ref bean="FacebookCrawlerTrigger"/> -->
 				<!--<ref bean="GoogleCrawlerTrigger"/> -->
 				<!--<ref bean="LinkedinCrawlerTrigger"/> -->
-				<!--<ref bean="FinanzforumCrawlerTrigger"/> -->  
-				<!--<ref bean="LithiumCrawlerTrigger"/> -->
+				<!--<ref bean="FinanzforumCrawlerTrigger"/> -->
+				<ref bean="LithiumCrawlerTrigger" />
 			</list>
 		</property>
 	</bean>

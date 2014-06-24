@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <SBM_Persistence>
 
-<!-- Definition der Persistence Implementierung -->
+	<!-- Definition der Persistence Implementierung -->
 	<ClassType></ClassType>
 
-<!-- Systemdaten -->	
+	<!-- Systemdaten -->
 	<System>
 		<Host></Host>
 		<Location></Location>
@@ -13,7 +13,7 @@
 		<ServiceNamePost></ServiceNamePost>
 	</System>
 
-<!-- Authentifizierung -->	
+	<!-- Authentifizierung -->
 	<Credentials>
 		<User></User>
 		<Pass></Pass>

@@ -85,14 +85,23 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		ArrayList<String> tTerms = new CrawlerConfiguration().getTrackTerms(); 
 		ArrayList<String> tLangs = new CrawlerConfiguration().getTrackLanguages(); 
 		ArrayList<String> tSites = new CrawlerConfiguration().getTrackSites();
-				
+		//ArrayList<Location> tLocas = new CrawlerConfiguration().getTrackLocations();
+			
 		// simple log output
-		if (tSites.size()>0)
+		if (tSites.size()>0){
 			smallLogMessage += "specific Sites ";
-		if (tTerms.size()>0)
+		}
+		if (tTerms.size()>0){
 			smallLogMessage += "specific terms ";
-		if (tLangs.size()>0)
+		}
+		if (tLangs.size()>0){
 			smallLogMessage += "specific languages ";
+		}
+		/*
+		if (tLocas.size()>0) {
+			smallLogMessage += "specific Locations ";
+		}
+		*/
 		logger.debug("new facebook crawler instantiated - restricted to track " + smallLogMessage);
 		
 		//TODO implement authentication against facebook network

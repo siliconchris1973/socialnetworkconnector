@@ -1,5 +1,6 @@
 package de.comlineag.sbm.handler;
 
+import de.comlineag.sbm.data.SocialNetworks;
 import de.comlineag.sbm.persistence.AppContext;
 import de.comlineag.sbm.persistence.IConfigurationManager;
 
@@ -13,9 +14,11 @@ import de.comlineag.sbm.persistence.IConfigurationManager;
  * 				It gets the active configuration persistence from ApplicationContext.xml
  * 
  */
-public abstract class GenericConfigurationManager {
+public abstract class GenericConfigurationManager<T> {
 
 	protected IConfigurationManager configurationManager;
+	protected SocialNetworks sourceSocialNetwork;
+
 	protected GenericConfigurationManager() {
 		configurationManager = (IConfigurationManager) AppContext.Context.getBean("configurationManager");
 	}
