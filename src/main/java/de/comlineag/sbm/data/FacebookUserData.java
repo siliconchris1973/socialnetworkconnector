@@ -5,8 +5,9 @@ import org.json.simple.JSONObject;
 
 /**
  * 
- * @author Christian Guenther
- * @category data type
+ * @author 		Christian Guenther
+ * @category 	data type
+ * @version 	1.1
  * 
  * @description Describes a single facebook user with all relevant informations.
  *              The class shall be used to make all methods handling a facebook

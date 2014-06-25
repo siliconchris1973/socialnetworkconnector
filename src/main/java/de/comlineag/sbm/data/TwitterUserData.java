@@ -5,8 +5,9 @@ import org.json.simple.JSONObject;
 
 /**
  * 
- * @author Christian Guenther, Magnus Leinemann
- * @category data type
+ * @author 		Christian Guenther, Magnus Leinemann
+ * @category 	data type
+ * @version 	1.0
  * 
  * @description Describes a single twitter user with all relevant informations.
  *              The class shall be used to make all methods handling a twitter

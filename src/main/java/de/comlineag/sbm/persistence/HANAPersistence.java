@@ -12,7 +12,6 @@ import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OProperties;
 
-import de.comlineag.sbm.data.SocialNetworks;
 import de.comlineag.sbm.data.PostData;
 import de.comlineag.sbm.data.UserData;
 
@@ -20,9 +19,9 @@ import de.comlineag.sbm.data.UserData;
  *
  * @author 		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Connector Class
+ * @version 	1.4
  *
  * @description handles the connectivity to the SAP HANA Systems and saves posts and users in the DB
- * @version 	1.4
  * 
  * @changelog	1.0 savePost implemented
  * 				1.1	saveUsers implemented
@@ -538,5 +537,4 @@ public class HANAPersistence implements IPersistenceManager {
 	public void setProtocol(String protocol) {
 		this.protocol = protocol;
 	}
-
 }

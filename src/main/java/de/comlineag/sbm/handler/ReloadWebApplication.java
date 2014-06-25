@@ -8,6 +8,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+/**
+ * 
+ * @author		Christian Guenther
+ * @category	Handler
+ * @version		0.9 - currently not used
+ * 
+ * @description	Helper class to restart a given web application on the application server
+ *
+ */
 public class ReloadWebApplication {
 	
 	public String reloadWebApplication(final String user, final String pwd, final String urlWithParameters, final boolean returnResponse) {

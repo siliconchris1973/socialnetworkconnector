@@ -1,7 +1,6 @@
 package de.comlineag.sbm.data;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,8 +18,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * 
- * @author Christian Guenther
- * @category data type
+ * @author 		Christian Guenther
+ * @category 	data type
+ * @version 	1.0
  * 
  * @description Describes a single facebook posting with all relevant informations. 
  * 				The class shall be used to make all methods handling a facebook posting type save.

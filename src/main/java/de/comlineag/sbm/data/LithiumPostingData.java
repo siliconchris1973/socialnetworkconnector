@@ -9,15 +9,17 @@ import org.jsoup.Jsoup;
  * 
  * @author 		Christian Guenther
  * @category 	data type
+ * @version 	1.1
  * 
  * @description Describes a single Lithium posting with all relevant informations. 
  * 				The class shall be used to make all methods handling a Lithium posting type save.
  * 
  * 				ATTENTION: 	The messages in the Lithium network differ fundamentally from a Twitter 
  * 							Tweet. On the one side, there are less information (location and reply 
- * 							information are missing) and on the other side there are man y other 
+ * 							information are missing) and on the other side there are many other 
  * 							informations unknown to twitter, like kudos count, views count, board
- * 							subject, teaser and the like.
+ * 							subject, teaser and the like. So in the end, a lithium message will
+ * 							show up differently in the db.
  * 
  * @param <JSonObject>
  * 			Our internal column name	data type	element in json object
@@ -331,7 +333,7 @@ public final class LithiumPostingData extends PostData {
 	}
 
 	/**
-	 * setup the Object with NULL
+	 * @description	setup a posting data with NULL-values
 	 */
 	private void initialize() {
 		// setting everything to 0 or null default value.

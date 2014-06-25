@@ -36,13 +36,15 @@ import de.comlineag.sbm.persistence.NoBase64EncryptedValue;
  * @category 	Job
  * @version		1.1
  * 
- * @description this is the actual crawler of the Lithium network. It is
+ * @description this is the actual crawler for the Lithium network. It is
  *              implemented as a job and, upon execution, will connect to the
- *              Lithium REST API to fetch posts and users
+ *              Lithium REST API to search for posts that contain keywords.
+ *              The keywords are sourced in by the configuration manager.
+ *              The crawler also gets the user for each post and  
  * 
  * @changelog	0.9	first static version retrieves posts			Chris
  * 				1.0 retrieves posts and users						Chris
- * 				1.1	- configuration is made dynamic 				Chris
+ * 				1.1	configuration is made dynamic 					Chris
  */
 public class LithiumCrawler extends GenericCrawler implements Job {
 
@@ -192,6 +194,10 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	
 	/**
 	 * @author		Christian Guenther
+	 * 
+	 * @description	expects an object-ref (part of a url) and the REST-Url plus a json identifier
+	 * 				and retrieves that specific element (currently user or message) from the community
+	 * 
 	 * @param 		objectRef
 	 * 					the uri part of a specific object - is appended to REST_API_URL
 	 * @param 		REST_API_URL
@@ -200,8 +206,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	 * @return		JSONObject
 	 * 					a json object (as identified from jsonObjectIdentifier) from the web ressource
 	 * 
-	 * @description	expects an object-ref (part of a url) and the REST-Url plus a json identifier
-	 * 				and retrieves that specific element (currently user or message) from the community 
 	 */
 	private JSONObject SendObjectRequest(String objectRef, String REST_API_URL, String jsonObjectIdentifier) {
 		HttpStatusCode httpStatusCode = null;
@@ -264,11 +268,12 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	
 	// some useful functions
 	/**
+	 * 
+	 * @description	this method shall commit basic authentication against a web resource
+	 * 
 	 * @param 		user
 	 * @param 		pwd
 	 * @returns 	new password authentication against web resource
-	 * 
-	 * @description	this method shall commit basic authentication against a web resource
 	 * 
 	 */
 	private void basicAuthentication(String user, String pwd){ 
@@ -284,7 +289,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	}
 		
 	/**
+	 * 
 	 * @description decrypt given text 
+	 * 
 	 * @param 		param
 	 *          	  encrypted text 
 	 * @return 		clear text

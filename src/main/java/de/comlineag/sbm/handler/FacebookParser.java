@@ -11,8 +11,9 @@ import org.json.simple.parser.ParseException;
 
 /**
  * 
- * @author Christian Guenther
- * @category Handler
+ * @author 		Christian Guenther
+ * @category 	Handler
+ * @version		0.1 - not implemented
  * 
  * @description FacebookParser implementation of the parser for facebook postings
  * 				calls specific classes for posting and user for every object

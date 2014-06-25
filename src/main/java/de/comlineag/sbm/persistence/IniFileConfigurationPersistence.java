@@ -13,12 +13,13 @@ import java.util.ArrayList;
 
 /**
  * @author		Christian Guenther
+ * @category	Persistence manager
  * @version		0.9
  * 
  * @description	A configuration manager for the crawler using flat ini files for the configuration
  *
  */
-public class IniFileConfigurationPersistence implements IConfigurationManager<SocialNetworks>  {
+public class IniFileConfigurationPersistence implements IConfigurationManager  {
 	
 	// the path to the configuration file
 	private String configDbHandler;
@@ -38,19 +39,19 @@ public class IniFileConfigurationPersistence implements IConfigurationManager<So
 
 	@Override
 	public ArrayList<String> getTrackSites() {
-		logger.warn("no type safety guranteed for configuration element sites");
+		logger.warn("no type safety guranteed for configuration element sites - consider using xml configuration");
 		return getDataFromIni("trackSites");
 	}
 	
 	@Override
 	public ArrayList<String> getTrackLocations() {
-		logger.warn("no type safety guranteed for configuration element location");
+		logger.warn("no type safety guranteed for configuration element location - consider using xml configuration");
 		return getDataFromIni("trackLocas");
 	}
 	
 	@Override
 	public ArrayList<String> getTrackUsers() {
-		logger.warn("no type safety guranteed for configuration element users");
+		logger.warn("no type safety guranteed for configuration element users - consider using xml configuration");
 		return getDataFromIni("trackUsers");
 	}
 	

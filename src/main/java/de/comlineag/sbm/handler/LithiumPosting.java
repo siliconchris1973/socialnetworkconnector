@@ -7,10 +7,11 @@ import de.comlineag.sbm.data.LithiumPostingData;
 /**
  * 
  * @author 		Christian Guenther
- * @category 	Parser
+ * @category 	Handler
+ * @version		1.0
  * 
- * @description Implementation of the Lithium posting manager - extends
- *              GenericDataManager This handler is used to save a new post or
+ * @description Implementation of the Lithium posting handler - extends
+ *              GenericDataManager. This handler is used to save a new post or
  *              update an existing one. LithiumPostingManager is called after a
  *              posting with all relevant information about the posting is decoded 
  *              by LithiumParser.

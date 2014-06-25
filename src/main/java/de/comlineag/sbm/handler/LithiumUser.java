@@ -8,26 +8,17 @@ import de.comlineag.sbm.data.LithiumUserData;
  * 
  * @author 		Christian Guenther
  * @category 	Handler
+ * @version		1.0
  * 
- * @description Implementation of the lithium user manager - extends
+ * @description	Implementation of the Lithium user handler - extends
  *              GenericDataManager. This handler is used to save a new user or
  *              update an existing one. LithiumUserManager is called after a
- *              posting with all relevant information about the user (posting
- *              user as well as mentioned users) is decoded by LithiumParser.
- * 				
- * 				The data type lithium user consists of these elements
- *            		id 					Long 
- *            		name 				String 
- *            		screen_name 		String 
- *            		location 			List
- *            		followers_count		Long 
- *            		friends_count 		Long 
- *            		statuses_count 		Long
- *            		favourites_count	Long 
- *            		listed_count		Long 
- *            		lang				String
+ *              user with all relevant information about it is decoded 
+ *              by LithiumParser.
  * 
- * @param none
+ * 				
+ * @param <LithiumUserData>
+ * 					Data type 
  * 
  */
 

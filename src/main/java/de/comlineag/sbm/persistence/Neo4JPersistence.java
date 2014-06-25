@@ -26,12 +26,12 @@ import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
 
 /**
  *
- * @author Christian Guenther
- * @category Connector Class
+ * @author 		Christian Guenther
+ * @category 	Connector Class
+ * @version 	1.1
  *
- * @description handles the connectivity to the Neo4J Graph Database 
- * 				and saves posts, users and connections in the graph
- * @version 1.1
+ * @description handles the connectivity to the Neo4J Graph Database and saves posts, 
+ * 				users and connections in the graph. Implements IPersistenceManager
  *
  */
 public class Neo4JPersistence implements IPersistenceManager {
@@ -139,7 +139,6 @@ public class Neo4JPersistence implements IPersistenceManager {
 				p.put("plName", postData.getGeoPlaceName());				// Property Name="plName" Type="Edm.String" MaxLength="256"
 			if (postData.getGeoPlaceCountry() != null)
 				p.put("plCountry", postData.getGeoPlaceCountry());			// Property Name="plCountry" Type="Edm.String" MaxLength="128"
-			//TODO check where to get plAround_longitude and _latitude
 			//p.put("plAround_longitude", "00 00 00 00 00");				// Property Name="plAround_longitude" Type="Edm.String" MaxLength="40"
 			//p.put("plAround_latitude", "00 00 00 00 00");					// Property Name="plAround_latitude" Type="Edm.String" MaxLength="40"
 			

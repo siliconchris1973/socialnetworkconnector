@@ -2,7 +2,8 @@ package de.comlineag.sbm.data;
 
 /**
  * @author 		Christian Guenther
- * @category	data type
+ * @category	enum
+ * @version 	1.1
  * 
  * @description an enum with types of data in a social network and whether or not this type should be tracked
  * 

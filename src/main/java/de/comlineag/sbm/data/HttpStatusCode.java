@@ -2,15 +2,17 @@ package de.comlineag.sbm.data;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.http.HttpResponse;
-import org.apache.log4j.Logger;
-
 
 /**
  *
- * @author Christian Guenther
+ * @author 		Christian Guenther and Maic Rittmeier
+ * @category	enum
+ * @version 	1.1
+ * 
  * @description contains all relevant HTTP Status Codes
  * 				provides a query to see if a given http response code is good, as in OK, Accepted or Created
  * 				or if it is bad, as in Rejected, Bad Request etc.
+ * 
  */
 public enum HttpStatusCode {
 	UNKNOWN 						(-1												, false),

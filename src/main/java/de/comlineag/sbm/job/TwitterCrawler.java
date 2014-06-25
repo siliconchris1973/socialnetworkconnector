@@ -34,9 +34,9 @@ import de.comlineag.sbm.handler.TwitterParser;
  *              twitter api to grab new tweets as they are created on the
  *              network.
  * 
- * @changelog	0.9	- first static version retrieves posts			Chris and Maic
- * 				1.0	- keys are taken from ApplicationContext.xml	Magnus
- * 				1.1	- configuration is made dynamic 				Chris
+ * @changelog	0.9	first static version retrieves posts			Chris and Maic
+ * 				1.0	keys are taken from ApplicationContext.xml		Magnus
+ * 				1.1	configuration is made dynamic 					Chris
  */
 public class TwitterCrawler extends GenericCrawler implements Job {
 

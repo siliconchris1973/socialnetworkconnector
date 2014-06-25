@@ -6,8 +6,9 @@ import org.json.simple.parser.JSONParser;
 
 /**
  * 
- * @author Christian Guenther
- * @category data type
+ * @author 		Christian Guenther
+ * @category 	data type
+ * @version 	1.1
  * 
  * @description Describes a single lithium user with all relevant informations.
  *              The class shall be used to make all methods handling a lithium
@@ -65,8 +66,9 @@ import org.json.simple.parser.JSONParser;
 		{}deleted
 			type : "boolean"
 			$ : false
-			
- 	*/
+ *
+ *
+ */
 
 public final class LithiumUserData extends UserData {
 

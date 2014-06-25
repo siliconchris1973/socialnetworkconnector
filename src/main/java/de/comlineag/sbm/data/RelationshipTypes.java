@@ -5,10 +5,15 @@ import org.neo4j.graphdb.RelationshipType;
 
 /**
  * 
- * @author Christian Guenther
- * @description the different possible connection types between two nodes in the graph
+ * @author 		Christian Guenther
+ * @category	enum
+ * @version 	1.1
+ * 
+ * @description describes the different possible connection types between two nodes in the graph
  * 				the enum contains a static for the field within the twitter/facebook etc. data object
  * 				and a corresponding attribute for the edge within the graph
+ * 				This enum is currently only used by the Neo4J Graph DB, but might be used by the HANA
+ * 				Graph Engine as well. 
  * 				
  * 				ENUM Static				attribute		cypher as ascii art example
  * 				---------------------------------------------------------------------------
@@ -22,7 +27,7 @@ import org.neo4j.graphdb.RelationshipType;
  * 				
  *
  */
-public enum RelationshipTypes implements RelationshipType { //implements {@link RelationshipType} {
+public enum RelationshipTypes implements RelationshipType {
 	IN_REPLY_TO_STATUS("REPLIED_ON"),
 	IN_REPLY_TO_USER("REPLIED_TO"),
 	USER_MENTIONS("MENTIONED"),

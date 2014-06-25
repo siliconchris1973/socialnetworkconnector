@@ -6,11 +6,12 @@ import org.springframework.context.ApplicationContextAware;
 
 /**
  * 
- * @author Magnus Leinemann
- * @category Configuration Manager
- * 
+ * @author 		Magnus Leinemann
+ * @category 	Configuration Manager
+ * @version 	1.0
+ *  
  * @description provides the application Context with metadata of used backend
- * @version 1.0
+ * 
  */
 
 public class ApplicationContextProvider implements ApplicationContextAware {

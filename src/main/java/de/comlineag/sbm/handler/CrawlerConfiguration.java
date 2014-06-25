@@ -1,9 +1,25 @@
 package de.comlineag.sbm.handler;
 
 import java.util.ArrayList;
-import de.comlineag.sbm.data.SocialNetworks;
 
-public class CrawlerConfiguration extends GenericConfigurationManager<SocialNetworks> {
+/**
+ * 
+ * @author 		Christian Guenther
+ * @category	handler
+ * @version		1.0
+ * 
+ * @description	invokes the configuration manager as defined in applicationContext.xml
+ * 				returns ArrayLists for 
+ * 				- terms
+ * 				- languages
+ * 				- sites
+ * 				- locations
+ * 				- user
+ * 
+ * 				ATTENTION: The current implementation uses string for everything and is NOT type safe
+ * 
+ */
+public class CrawlerConfiguration extends GenericConfigurationManager {
 	public ArrayList<String> getTrackTerms() {
 		return configurationManager.getTrackTerms();
 	}

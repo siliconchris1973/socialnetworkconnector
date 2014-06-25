@@ -3,7 +3,8 @@ package de.comlineag.sbm.data;
 /**
  *
  * @author 		Christian Guenther
- * @category	data type
+ * @category	enum
+ * @version 	1.0
  * 
  * @description contains relevant Lithium Status Codes
  * 				provides a query to see if a given response code is good, as in OK, Accepted or Success
@@ -17,7 +18,6 @@ public enum LithiumStatusCode {
 	//UNKNOWN 						("UNKNOWN"										, false),
 	//FORBIDDEN						("FORBIDDEN"									, false),
 	//SUCCESS							("SUCCESS"										, true);
-	
 	
 
 	private final String value;
@@ -49,5 +49,4 @@ public enum LithiumStatusCode {
 		}
 		return LithiumStatusCode.UNKNOWN;
 	}
-	
 }

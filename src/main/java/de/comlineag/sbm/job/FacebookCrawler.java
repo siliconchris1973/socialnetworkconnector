@@ -30,12 +30,13 @@ import de.comlineag.sbm.handler.FacebookParser;
  * 
  * @author 		Christian Guenther
  * @category 	Job
+ * @version		0.1 - not yet implemented
  * 
  * @description this is the actual crawler of the facebook network. It is
  *              implemented as a job and, upon execution, will connect to the
  *              facebook rest api to fetch posts and users
  * 
- * @changelog	0.9 copy of TwitterCrawler 0.9 plus dynamic config			Chris
+ * @changelog	0.1 copy of TwitterCrawler 0.9 plus dynamic config			Chris
  * 
  */
 public class FacebookCrawler extends GenericCrawler implements Job {

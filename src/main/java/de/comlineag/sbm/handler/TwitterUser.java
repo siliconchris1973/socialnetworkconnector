@@ -7,28 +7,17 @@ import de.comlineag.sbm.data.TwitterUserData;
 
 /**
  * 
- * @author Christian Guenther
- * @category Handler
+ * @author 		Christian Guenther
+ * @category 	Handler
+ * @version		1.0
  * 
  * @description Implementation of the twitter user manager - extends
  *              GenericDataManager. This handler is used to save a new user or
  *              update an existing one. TwitterUserManager is called after a
- *              posting with all relevant information about the user (posting
+ *              user with all relevant information about the user (posting
  *              user as well as mentioned users) is decoded by TwitterParser.
- * 				
- * 				The data type twitter user consists of these elements
- *            		id 					Long 
- *            		name 				String 
- *            		screen_name 		String 
- *            		location 			List
- *            		followers_count		Long 
- *            		friends_count 		Long 
- *            		statuses_count 		Long
- *            		favourites_count	Long 
- *            		listed_count		Long 
- *            		lang				String
  * 
- * @param none
+ * @param  <TwitterPosting>
  * 
  */
 

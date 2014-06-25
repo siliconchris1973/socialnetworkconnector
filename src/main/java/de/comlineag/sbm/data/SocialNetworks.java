@@ -3,10 +3,10 @@ package de.comlineag.sbm.data;
 /**
  * 
  * @author 		Christian Guenther
- * @category 	data enumeration
+ * @category 	enum
+ * @version 	1.4
  * 
  * @description contains an enumeration with shortcuts referencing the social networks
- * @version 	1.0
  * 
  */
 public enum SocialNetworks {
@@ -21,7 +21,7 @@ public enum SocialNetworks {
 	FOURSQUARE	("FS", "Foursquare"),
 	LITHIUM		("LT", "Lithium"),
 	YOUTUBE		("YT", "Youtube"),
-	FINANZFORUM	("FF", "Finazforum");
+	FINANZFORUM	("FF", "Finanzforum");
 	
 	private final String value;
 	private final String type;

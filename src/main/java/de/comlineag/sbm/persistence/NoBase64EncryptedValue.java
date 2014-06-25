@@ -2,21 +2,19 @@ package de.comlineag.sbm.persistence;
 
 /**
  * 
- * @author MLeinemann
+ * @author		Magnus Leinemann
+ * @category	Error Handling
+ * @version		1.0
  * 
- *         Fehler der anzeigt das die Werte nicht entschluesselt werden konnten
+ * @description	Error to show that a value is NOT Base64 coded
+ * 
  */
 public class NoBase64EncryptedValue extends Exception {
-
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 6300138787724088083L;
-
-	public NoBase64EncryptedValue() {
-
-	}
-
+	
+	public NoBase64EncryptedValue() {}
+	
 	public NoBase64EncryptedValue(String s) {
 		super(s);
 	}

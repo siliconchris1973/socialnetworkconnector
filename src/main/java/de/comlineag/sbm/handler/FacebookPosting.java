@@ -6,8 +6,9 @@ import de.comlineag.sbm.data.FacebookPostingData;
 
 /**
  * 
- * @author Christian Guenther
- * @category Parser
+ * @author 		Christian Guenther
+ * @category 	Parser
+ * @version		0.1 - not implemented
  * 
  * @description Implementation of the facebook posting manager - extends
  *              GenericDataManager This handler is used to save a new post or

@@ -2,26 +2,29 @@ package de.comlineag.sbm.data;
 
 /**
  * 
- * @author		Magnus Leinemann
- * 
+ * @author		Magnus Leinemann, Christian Guenther
  * @category	Data Class
- * @version		1.0
+ * @version		1.1
  * 
  * @description core data type for the User Data
+ * 
  */
 public class UserData {
 
-	protected long id;
-	protected String sn_id;
-	protected String username;
-	protected String screen_name;
-	protected String location;
-	protected long followers_count;
-	protected long friends_count;
-	protected long postings_count;
-	protected long favorites_count;
-	protected long lists_and_groups_count;
-	protected String lang;
+	protected long id;								// the id of the positng within the social network
+	protected String sn_id;							// the social network id from enum SocialNetworks
+	protected String username;						// the actual user name, might be different from the screen name 
+	protected String screen_name;					// the username as shown on the network (sometimes named nick name)
+	protected String location;						// a simple location representation (like a town, or country name)
+	protected long followers_count;					// how many people is the user following
+	protected long friends_count;					// how many friends does the user have
+	protected long postings_count;					// how many posts did the user write
+	protected long favorites_count;					// how many posts where favorited
+	protected long lists_and_groups_count;			// how many groups and lists did the user subscribe to
+	protected float average_rating_value;			// how the user rates other peoples posts
+	protected float average_posting_rating_value;	// how the postings of the user is rated by others
+	protected float average_posting_ratio;			// how many posts per year
+	protected String lang;							// default language of the user
 
 	// getter and setter
 	public long getId() {

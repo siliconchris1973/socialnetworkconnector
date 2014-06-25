@@ -6,6 +6,7 @@ import java.io.InputStream;
  * 
  * @author 		Christian Guenther
  * @category 	Parser
+ * @version		1.1
  * 
  * @description GenericParser is the abstract base class for the specific parser of the 
  * 				social networks. Each social network needs to implement it's own 

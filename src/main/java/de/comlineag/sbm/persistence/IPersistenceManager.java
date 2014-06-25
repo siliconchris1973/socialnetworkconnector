@@ -6,9 +6,11 @@ import de.comlineag.sbm.data.UserData;
 /**
  * 
  * @author		Magnus Leinemann
+ * @category	Interface
  * @version 	1.0
  * 
- * @description Interface Definition for any Persistence Implementation
+ * @description Interface definition for any persistence implementation
+ * 
  */
 public interface IPersistenceManager {
 
@@ -25,8 +27,7 @@ public interface IPersistenceManager {
 	 * implementation for saving the Post Data provided by social network in the DB
 	 * 
 	 * @param postData
-	 *            Object Post Data
-	 * @throws NoBase64EncryptedValue 
+	 *            Object Post Data 
 	 * 
 	 */
 	public void savePosts(PostData postData);

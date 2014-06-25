@@ -5,6 +5,7 @@ import java.util.ArrayList;
 /**
  * 
  * @author 		Christian Guenther
+ * @category	interface
  * @version		0.9
  * 
  * @description	The interface IConfigurationManager must be implemented by all configuration
@@ -12,7 +13,7 @@ import java.util.ArrayList;
  * 				languages to track in the social networks. 
  *
  */
-public interface IConfigurationManager<T> {
+public interface IConfigurationManager {
 	
 	/**
 	 * 

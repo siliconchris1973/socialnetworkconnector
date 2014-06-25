@@ -20,9 +20,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * 
  * @author 		Christian Guenther, Magnus Leinemann
  * @category 	data type
+ * @version 	1.1
  * 
- * @description Describes a single twitter posting with all relevant
- *              informations.
+ * @description Describes a single twitter posting with all relevant informations.
  *              The class shall be used to make all methods handling a twitter
  *              posting type save.
  * 
@@ -72,12 +72,6 @@ public final class TwitterPostingData extends PostData {
 		JSONObject user = (JSONObject) jsonObject.get("user");
 		setUserId((Long) user.get("id"));
 		
-		// fuer Debugging der Nachrichten in den verschiedenen Faellen
-		//String tUser = new String(new Long(getUserId()).toString());
-		//if (tUser.contains("754994"))
-		//	logger.trace("Post von siliconchris in Json: " + jsonObject);
-		// END Debugging fuer Nachrichtenausgaben
-		
 		// Sprache
 		setLang((String) jsonObject.get("lang"));
 
@@ -107,16 +101,17 @@ public final class TwitterPostingData extends PostData {
 		if (jsonObject.get("coordinates") != null)
 			logger.debug("Found Coordinates " + jsonObject.get("coordinates").toString() + "");
 		
-		/**
-		 * Struktur der Coordinates:
-		 * {"type":"Point","coordinates":[-90.06779631,29.95202616]}
-		 * zufaellig entdeckt (kein eigener Post!), der Spassvogel befindet sich wohl am Suedpol (-90)
+		
+		/*
+		 * @description		Structur of geo coordinates:
+		 * 					{"type":"Point",
+		 * 						"coordinates":[-90.06779631,29.95202616]
+		 * 					}
 		 * 
-		 * damit vielleicht besser moeglich den Kram zu verarbeiten?
-		 * http://docs.geotools.org/latest/userguide/faq.html
+		 * TODO check if is possible to use this: http://docs.geotools.org/latest/userguide/faq.html
 		 * 
-		 * mein Tweet mit Ortsangabe JSON siehe unten hatte in place die Daten
-		 
+		 */
+		/*
 		 // TODO implement proper geo handling - this currently kills the parser
 		if (jsonObject.get("place") != null) {
 			logger.trace("Found place " + jsonObject.get("place"));
@@ -128,8 +123,9 @@ public final class TwitterPostingData extends PostData {
 		}
 		*/
 		
-		/**
-		 * Structure of Hashtag and Symbols - not yet implemented
+		/*
+		 * 
+		 * @description	Structure of Hashtag and Symbols - not yet implemented
 		 * 
 		 * "entities": {
 		 * 		"trends":[],

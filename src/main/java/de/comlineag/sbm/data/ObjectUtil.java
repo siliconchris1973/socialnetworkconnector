@@ -12,6 +12,8 @@ import org.apache.commons.codec.binary.Base64;
 /**
  * 
  * @author 		Mohammed Abbas
+ * @category 	Helper Class
+ * @version 	1.0
  * 
  * @description	this class is a way to serialize Java object as strings
  *
@@ -20,8 +22,7 @@ public class ObjectUtil {
 
     private static Base64 base64 = new Base64();
 
-    public static String serializeObjectToString(Object object) throws Exception 
-    {
+    public static String serializeObjectToString(Object object) throws Exception {
 
         ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
         GZIPOutputStream gzipOutputStream = new GZIPOutputStream(arrayOutputStream);
@@ -38,8 +39,7 @@ public class ObjectUtil {
         return objectString;
     }
 
-    public static Object deserializeObjectFromString(String objectString) throws Exception 
-    {
+    public static Object deserializeObjectFromString(String objectString) throws Exception {
 
         ByteArrayInputStream arrayInputStream = new ByteArrayInputStream((byte[]) base64.decode(objectString));
         GZIPInputStream gzipInputStream = new GZIPInputStream(arrayInputStream);

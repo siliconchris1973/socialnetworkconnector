@@ -2,6 +2,15 @@ package de.comlineag.sbm.data;
 
 import org.apache.commons.httpclient.HttpStatus;
 
+/**
+ * 
+ * @author 		Christian Guenther
+ * @category	helper class
+ * @version 	1.0
+ * 
+ * @description	provides for some funny error messages to http errors
+ *
+ */
 public class HttpErrorMessages { // extends Exception {
 	
 	// simple static text function to return funny messages on http errors

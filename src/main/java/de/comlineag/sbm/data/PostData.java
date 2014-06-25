@@ -8,12 +8,11 @@ import org.joda.time.LocalDateTime;
 /**
  * 
  * @author 		Magnus Leinemann, Christian Guenther
- * 
- * @category 	Data Class
- * 
- * @description Data Class representing a Post from the OData Service
+ * @category 	data class
  * @version 	1.1
- * 
+ *  
+ * @description Data Class representing a Post from the OData Service
+ *  
  */
 
 public class PostData {

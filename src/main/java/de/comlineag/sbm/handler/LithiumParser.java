@@ -16,14 +16,13 @@ import de.comlineag.sbm.data.LithiumStatusException;
 /**
  * 
  * @author 		Christian Guenther
- * @category 	Handler
- * 
+ * @category 	Handler				
+ * @version		1.3
+ *  
  * @description LithiumParser implementation of the parser for the Lithium network community
  * 				LithiumParsr is an extension of the default GenericParser but differs in that
  * 				it implements a new parse method (parseMessages) and not the standard one from 
  * 				GenericParser.
- * 				
- * @version		1.0
  * 
  */
 public final class LithiumParser extends GenericParser {

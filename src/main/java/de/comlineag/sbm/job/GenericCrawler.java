@@ -8,8 +8,10 @@ import org.quartz.JobExecutionException;
  * 
  * @author 		Magnus Leinemann
  * @category 	Job
+ * @version		1.0
  * 
- * @description generic Implementation for Crawler Job Scheduler
+ * @description abstract definition for a crawler to be executed by the job control
+ * 
  */
 public abstract class GenericCrawler implements Job {
 

@@ -6,8 +6,9 @@ import de.comlineag.sbm.data.FacebookUserData;
 
 /**
  * 
- * @author Christian Guenther
- * @category Handler
+ * @author 		Christian Guenther
+ * @category 	Handler
+ * @version		0.1 - not implemented
  * 
  * @description Implementation of the facebook user manager - extends
  *              GenericDataManager. This handler is used to save a new user or

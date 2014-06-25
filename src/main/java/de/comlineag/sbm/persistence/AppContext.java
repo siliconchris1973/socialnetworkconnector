@@ -4,11 +4,12 @@ import org.springframework.context.ApplicationContext;
 
 /**
  * 
- * @author Magnus Leinemann
- * @category Configuration Manager
+ * @author 		Magnus Leinemann
+ * @category	Configuration Manager
+ * @version		1.0
  * 
- * @description contains the Application Context used to connect to backend
- * @version 1.0
+ * @description defines the application context
+ * 
  */
 public class AppContext {
 

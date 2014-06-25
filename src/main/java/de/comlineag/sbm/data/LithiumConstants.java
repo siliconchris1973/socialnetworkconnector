@@ -1,5 +1,16 @@
 package de.comlineag.sbm.data;
 
+/**
+ * 
+ * @author 		Christian Guenther
+ * @category	helper class
+ * @version 	1.1
+ * 
+ * @description provides constants for use with the Lithium Network crawler and parser. 
+ * 				This class is instantiated by LithiumCrawler and LithiumParser and the
+ * 				values are referenced therein
+ *
+ */
 public final class LithiumConstants {
 	// constants for the json response structure
 	public final String JSON_RESPONSE_OBJECT_TEXT				= "response";
@@ -27,5 +38,4 @@ public final class LithiumConstants {
 	public final String HTTP_RESPONSE_FORMAT_COMMAND			= "restapi.response_format";
 	
 	public LithiumConstants(){}
-	
 }
