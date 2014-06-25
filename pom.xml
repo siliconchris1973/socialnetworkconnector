@@ -12,28 +12,19 @@
 <!-- $Id: pom.xml 642118 2008-03-28 08:04:16Z reinhard $ -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+	
 	<modelVersion>4.0.0</modelVersion>
 	<packaging>war</packaging>
-
+	
 	<groupId>de.comlineag.sbm</groupId>
 	<artifactId>SocialNetWorkConnector</artifactId>
 	<version>0.1.7-SNAPSHOT</version>
-
+	
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	
 	<build>
-		<!-- Explicitly declare source encoding to avoid Maven warning -->
-		<!-- <properties> <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
-			</properties> -->
-		<!-- as per http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding 
-			the following entries should help get rid of these yellow warnings regarding 
-			source file encoding: "Using platform encoding (US-ASCII actually) to copy 
-			filtered resources, i.e. build is platform dependent!" but apparently they 
-			don't work :-( -->
-		<!-- <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> -->
-		<!-- <sourceEncoding>UTF-8</sourceEncoding> -->
-		<!-- This post http://dimitrisli.wordpress.com/2010/08/28/specifying-encoding-in-maven-pom/ 
-			says to use this line but it doesn't work either <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> -->
-
 		<!-- application server dependencies -->
 		<plugins>
 			<plugin>

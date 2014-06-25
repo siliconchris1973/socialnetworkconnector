@@ -14,13 +14,13 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
-import de.comlineag.sbm.Neo4J.Relation;
-import de.comlineag.sbm.Neo4J.TraversalDefinition;
 import de.comlineag.sbm.data.HttpErrorMessages;
 import de.comlineag.sbm.data.HttpStatusCode;
 import de.comlineag.sbm.data.PostData;
 import de.comlineag.sbm.data.RelationshipTypes;
 import de.comlineag.sbm.data.UserData;
+import de.comlineag.sbm.neo4j.Relation;
+import de.comlineag.sbm.neo4j.TraversalDefinition;
 import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
 
 

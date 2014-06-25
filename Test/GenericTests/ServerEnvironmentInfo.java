@@ -1,4 +1,4 @@
-package de.comlineag.sbm.Tests;
+package GenericTests;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one

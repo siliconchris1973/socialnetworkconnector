@@ -1,4 +1,4 @@
-package de.comlineag.sbm.Neo4J;
+package de.comlineag.sbm.neo4j;
 
 import java.util.ArrayList;
 

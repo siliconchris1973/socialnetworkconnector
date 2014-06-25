@@ -1,4 +1,4 @@
-package de.comlineag.sbm.Tests;
+package GenericTests;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -30,7 +30,6 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.OptionsMethod;
-import de.comlineag.sbm.Tests.ServerEnvironmentInfo;
 
 public class HeaderTest extends TestCase {
 

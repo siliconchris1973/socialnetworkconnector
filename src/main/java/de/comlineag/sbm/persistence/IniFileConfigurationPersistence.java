@@ -4,20 +4,22 @@ import org.apache.log4j.Logger;
 import org.ini4j.Ini;
 import org.ini4j.InvalidIniFormatException;
 
-import de.comlineag.sbm.data.SocialNetworks;
-
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-
 /**
  * @author		Christian Guenther
  * @category	Persistence manager
- * @version		0.9
+ * @version		0.9 transition to 1.0 in progress
  * 
  * @description	A configuration manager for the crawler using flat ini files for the configuration
- *
+ * 
+ * @changelog	0.9	initial version retrieves terms, locations, users, sites and languages
+ * 					from the ini file and returns these as an array list of strings
+ *				1.0	implements method to retrieve a single value and either add a new value 
+ *					or update an existing one in the file
+ *  
  */
 public class IniFileConfigurationPersistence implements IConfigurationManager  {
 	
@@ -79,8 +81,19 @@ public class IniFileConfigurationPersistence implements IConfigurationManager  {
 	
 	@Override
 	public String getConfigurationElement(String key, String path) {
-		// TODO implement return a single element
-		return null;
+		Ini ini = null;
+		
+		try {
+			ini = new Ini(new FileReader((String)getConfigDbHandler()));
+		} catch (InvalidIniFormatException e1) {
+			logger.error("EXCEPTION :: invalid ini format " + e1.getLocalizedMessage() + ". This is serious, I'm giving up!");
+			System.exit(-1);
+		} catch (IOException e2) {
+			logger.error("EXCEPTION :: error reading configuration file " + e2.getLocalizedMessage() + ". This is serious, I'm giving up!");
+			System.exit(-1);
+		}
+		
+		return ini.get(path).fetch(key);
 	}
 
 	@Override
