@@ -80,6 +80,7 @@ public class IniFileConfigurationPersistence implements IConfigurationManager  {
 	}
 	
 	@Override
+	@org.junit.Test
 	public String getConfigurationElement(String key, String path) {
 		Ini ini = null;
 		
