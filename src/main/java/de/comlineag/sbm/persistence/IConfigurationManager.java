@@ -76,8 +76,8 @@ public interface IConfigurationManager {
 	/**
 	 * 
 	 * @param key
-	 * @param vakue
+	 * @param value
 	 * @param path
 	 */
-	public abstract void setConfigurationElement(String key, String vakue, String path);
+	public abstract void setConfigurationElement(String key, String value, String path);
 }

@@ -95,6 +95,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES AND USERS
 		logger.debug("now retrieving restrictions from configuration db");
 		String searchTerm = null;
+				
 		ArrayList<String> tTerms = new CrawlerConfiguration().getTrackTerms(); 
 		ArrayList<String> tLangs = new CrawlerConfiguration().getTrackLanguages(); 
 		ArrayList<String> tSites = new CrawlerConfiguration().getTrackSites();
