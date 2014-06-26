@@ -85,11 +85,11 @@
 		<appender-ref ref="console" />
 	</logger>
 
-	<!-- persistence logging <logger name = "de.comlineag.sbm.persistence"> 
+	<!-- persistence logging <logger name = "de.comlineag.snc.persistence"> 
 		<level value = "debug"></level> <appender-ref ref="fileP" /> </logger> -->
-	<!-- twitter posting data logging <logger name = "de.comlineag.sbm.data.TwitterPostingData"> 
+	<!-- twitter posting data logging <logger name = "de.comlineag.snc.data.TwitterPostingData"> 
 		<level value = "debug"></level> <appender-ref ref="fileC" /> </logger> -->
-	<!-- twitter crawler logging <logger name = "de.comlineag.sbm.job.TwitterCrawler"> 
+	<!-- twitter crawler logging <logger name = "de.comlineag.snc.job.TwitterCrawler"> 
 		<level value = "debug"></level> <appender-ref ref="fileC" /> </logger> -->
 	<!-- twitter api(?) logging <logger name = "com.twitter"> <level value = 
 		"info"></level> <appender-ref ref="fileT" /> </logger> -->

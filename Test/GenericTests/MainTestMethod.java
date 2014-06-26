@@ -1,6 +1,6 @@
 package GenericTests;
 
-import de.comlineag.sbm.persistence.IniFileConfigurationPersistence;
+import de.comlineag.snc.persistence.IniFileConfigurationPersistence;
 
 public class MainTestMethod {
 
