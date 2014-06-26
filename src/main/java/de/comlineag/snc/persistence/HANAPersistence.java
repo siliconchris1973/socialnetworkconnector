@@ -31,7 +31,7 @@ import de.comlineag.snc.data.UserData;
  *
  */
 public class HANAPersistence implements IPersistenceManager {
-
+	
 	// Servicelocation
 	private String host;
 	private String port;

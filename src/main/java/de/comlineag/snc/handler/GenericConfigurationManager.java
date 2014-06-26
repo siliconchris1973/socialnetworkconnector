@@ -17,7 +17,7 @@ import de.comlineag.snc.persistence.IConfigurationManager;
  * 
  */
 public abstract class GenericConfigurationManager {
-
+	
 	protected IConfigurationManager configurationManager;
 	protected SocialNetworks sourceSocialNetwork;
 
