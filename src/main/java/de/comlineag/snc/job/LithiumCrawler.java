@@ -60,7 +60,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	public LithiumCrawler() {}
 	
 	/**
-	 * @author		Magbus Leinemann, Christian Guenther
+	 * @author		Christian Guenther
 	 * @version 	1.4
 	 * 
 	 * @description	this is the actual crawler implementation for the lithium network
@@ -78,6 +78,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		
 		final String REST_API_URL = PROTOCOL + "://" + SERVER_URL + ":" + PORT + REST_API_LOC;
 		
+		// this is the status code for the http connection
+		HttpStatusCode httpStatusCode = null;
+				
 		// authentication to lithium
 		String _user = null;
 		String _passwd = null;
@@ -87,9 +90,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		} catch (NoBase64EncryptedValue e) {
 			logger.error("EXCEPTION :: value for user or passwd is NOT base64 encrypted " + e.toString(), e);
 		}
-		
-		logger.trace("setting up the rest endpoint at " + REST_API_URL + " with user " + _user);
-		
 		
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES AND USERS
 		logger.debug("now retrieving restrictions from configuration db");
@@ -108,22 +108,13 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			smallLogMessage += "specific languages ";
 		logger.info("new lithium crawler instantiated - restricted to track " + smallLogMessage);
 		
-		
-		/*
-		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get("consumerKey"), 
-											(String) arg0.getJobDetail().getJobDataMap().get("consumerSecret"), 
-											(String) arg0.getJobDetail().getJobDataMap().get("token"), 
-											(String) arg0.getJobDetail().getJobDataMap().get("tokenSecret"));
-		*/
-				
-		// this is the status code for the http connection
-		HttpStatusCode httpStatusCode = null;
-		
 		try {
-			logger.info("initiating ssl-connection to " + REST_API_URL);
+			logger.info("setting up the rest endpoint at " + REST_API_URL + " with user " + _user);
+			//logger.info("initiating ssl-connection to " + REST_API_URL);
 			HttpClient client = new HttpClient();
 			
 			//TODO change this simple for-loop to something more sophisticated
+			// maybe we can use the Outputs class for this???
 			for (int i = 0 ; i < tTerms.size(); i++ ){
 				searchTerm = tTerms.get(i).toString();
 				logger.info("now searching for " + searchTerm);
@@ -131,7 +122,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				PostMethod method = new PostMethod(REST_API_URL+CONSTANTS.REST_MESSAGES_SEARCH_URI);
 				method.addParameter(CONSTANTS.HTTP_RESPONSE_FORMAT_COMMAND, CONSTANTS.HTTP_RESPONSE_FORMAT);
 				method.addParameter(CONSTANTS.SEARCH_TERM, searchTerm);
+				
 				httpStatusCode = HttpStatusCode.getHttpStatusCode(client.executeMethod(method));
+				
 				String jsonString = method.getResponseBodyAsString();
 				logger.trace("our json: " + jsonString);
 				

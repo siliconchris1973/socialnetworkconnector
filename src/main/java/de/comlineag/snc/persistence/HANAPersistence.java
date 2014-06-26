@@ -105,7 +105,8 @@ public class HANAPersistence implements IPersistenceManager {
 					user = decryptValue(this.user);
 					password = decryptValue(this.pass);
 				} catch (NoBase64EncryptedValue e) {
-					logger.error("EXCEPTION :: could not decrypt user and/or password - not encrypted? " + e.getMessage(), e);
+					logger.error("EXCEPTION :: could not decrypt user and/or password. Connection to persistence won't be successful, giving up." + e.getMessage(), e);
+					System.exit(-1);
 				}
 	            
 	            logger.trace("trying to insert data with jdbc url="+url+" user="+user);
@@ -182,10 +183,12 @@ public class HANAPersistence implements IPersistenceManager {
 						
 						logger.info("HANAPersistence Service for users connected");
 					} catch (NoBase64EncryptedValue e) {
-						logger.error("EXCEPTION :: could not decrypt user and/or password - not encrypted? " + e.getMessage(), e);
+						logger.error("EXCEPTION :: could not decrypt user and/or password. Connection to persistence won't be successful, giving up. " + e.getMessage(), e);
+						System.exit(-1);
 					} catch (Exception e) {
-						logger.error("EXCEPTION :: unforseen error condition: " + e.getLocalizedMessage());
+						logger.error("EXCEPTION :: unforseen error condition: " + e.getLocalizedMessage() + ". I'm giving up!");
 						e.printStackTrace();
+						System.exit(-1);
 					}
 				} else {
 					logger.debug("already connected to service endpoint " + this.protocol+"://" + this.host + ":" + this.port + this.location + "/" + this.servicePostEndpoint);
@@ -231,16 +234,20 @@ public class HANAPersistence implements IPersistenceManager {
 				} catch (RuntimeException e) {
 					logger.error("ERROR :: could not create post ("+postData.getSnId()+"-"+postData.getId()+"): " + e.getLocalizedMessage());
 					e.printStackTrace();
+					System.exit(-1);
 				} catch (Exception e) {
 					logger.error("EXCEPTION :: unforseen error condition, post ("+postData.getSnId()+"-"+postData.getId()+") NOT created: " + e.getLocalizedMessage());
 					e.printStackTrace();
+					System.exit(-1);
 				}
 			} catch (SQLException le){
 				logger.error("EXCEPTION :: JDBC call failed, post ("+postData.getSnId()+"-"+postData.getId()+") not inserted " + le.getLocalizedMessage());
 				le.printStackTrace();
+				System.exit(-1);
 			} catch (Exception le) {
 				logger.error("EXCEPTION :: unforseen error condition, post ("+postData.getSnId()+"-"+postData.getId()+") NOT created: " + le.getLocalizedMessage());
 				le.printStackTrace();
+				System.exit(-1);
 			}
 		} else {
 			logger.info("the post ("+postData.getSnId()+"-"+postData.getId()+") is already in the database");
@@ -265,7 +272,8 @@ public class HANAPersistence implements IPersistenceManager {
 					user = decryptValue(this.user);
 					password = decryptValue(this.pass);
 				} catch (NoBase64EncryptedValue e) {
-					logger.error("EXCEPTION :: could not decrypt user and/or password - not encrypted? " + e.getMessage(), e);
+					logger.error("EXCEPTION :: could not decrypt user and/or password.  Connection to persistence won't be successful, giving up. " + e.getMessage(), e);
+					System.exit(-1);
 				}
 	            
 	            logger.debug("trying to insert data with jdbc url="+url+" user="+user);
@@ -317,10 +325,12 @@ public class HANAPersistence implements IPersistenceManager {
 						
 						logger.info("HANAPersistence Service for users connected");
 					} catch (NoBase64EncryptedValue e) {
-						logger.error("EXCEPTION :: could not decrypt user and/or password - not encrypted? " + e.getMessage(), e);
+						logger.error("EXCEPTION :: could not decrypt user and/or password Connection to persistence won't be successful, giving up. " + e.getMessage(), e);
+						System.exit(-1);
 					} catch (Exception e) {
 						logger.error("EXCEPTION :: unforseen error condition: " + e.getLocalizedMessage());
 						e.printStackTrace();
+						System.exit(-1);
 					}
 				} else {
 					logger.debug("already connected to service endpoint " + this.protocol+"://" + this.host + ":" + this.port + this.location + "/" + this.serviceUserEndpoint);
@@ -352,17 +362,21 @@ public class HANAPersistence implements IPersistenceManager {
 					
 					logger.error("ERROR :: Could not create user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
 					e.printStackTrace();
+					System.exit(-1);
 				} catch (Exception e) {
 					logger.error("EXCEPTION :: unforseen error condition, user ("+userData.getSnId()+"-"+userData.getId()+") NOT added to the DB: " + e.getLocalizedMessage());
 					e.printStackTrace();
+					System.exit(-1);
 				}
 				
 			} catch (SQLException le){
 				logger.error("EXCEPTION :: JDBC call failed, user ("+userData.getSnId()+"-"+userData.getId()+") not inserted: " + le.getLocalizedMessage());
 				le.printStackTrace();
+				System.exit(-1);
 			} catch (Exception le) {
 				logger.error("EXCEPTION :: unforseen error condition, user ("+userData.getSnId()+"-"+userData.getId()+") NOT added to the DB: " + le.getLocalizedMessage());
 				le.printStackTrace();
+				System.exit(-1);
 			}
 		} else {
 			logger.info("The user " + userData.getUsername() + " (" + userData.getSnId()  + "-" + userData.getId() + ") is already in the database");

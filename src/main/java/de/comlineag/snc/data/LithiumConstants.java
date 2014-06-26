@@ -37,5 +37,8 @@ public final class LithiumConstants {
 	public final String HTTP_RESPONSE_FORMAT					= "json";
 	public final String HTTP_RESPONSE_FORMAT_COMMAND			= "restapi.response_format";
 	
+	// this is a divider. it is used to reduce the maximum number of parallel processes when searching the lithium etwork
+	public final int DIVIDE_NUMBER_OF_CORES_BY					= 2;
+	
 	public LithiumConstants(){}
 }
