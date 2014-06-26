@@ -53,7 +53,7 @@
 				<entry key="tokenSecret" value="qm1dqrJas8Lf2ANU8Lx470TkcUSndWLwvJ1I2huZKvJrc" />
 
 				<!-- 
-					entries for server protocol and location are taken from constants 
+					entries for server, protocol and location are taken from constants 
 					from the hbc twitter api 
 				-->
 			</map>
@@ -181,9 +181,12 @@
 	<!-- this is the bean to get the crawler configuration from the HANA (TO BE IMPLEMENETED) -->
 	<!-- 
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.HANAConfigurationPersistence"> 
-		<property name="host" value="192.168.131.30" /> <property name="port" value="8000" /> 
-		<property name="jdbcPort" value="30015" /> <property name="protocol" value="http" /> 
-		<property name="location" value="/comline/sbm/services" /> 
+		<property name="host" value="192.168.131.30" /> 
+		<property name="port" value="8000" /> 
+		<property name="jdbcPort" value="30015" /> 
+		<property name="protocol" value="http" /> 
+		
+		<property name="location" value="/comline/snc/services" /> 
 		<property name="user" value="U0JNX0VYVA==" /> 
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" /> 
 	</bean> 
@@ -209,7 +212,7 @@
 		<property name="port" value="8000" />
 		<property name="jdbcPort" value="30015" />
 		<property name="protocol" value="http" />
-		<property name="location" value="/comline/sbm/services" />
+		<property name="location" value="/comline/snc/services" />
 		<property name="serviceUserEndpoint" value="saveUser.xsodata" />
 		<property name="servicePostEndpoint" value="savePost.xsodata" />
 		<property name="user" value="U0JNX0VYVA==" />
@@ -231,8 +234,10 @@
 	<!--
 	<bean id="persistenceManager" 
 		class="de.comlineag.snc.persistence.Neo4JEmbeddedPersistence"> 
-		<property name="protocol" value="t.b.d." /> <property name="host" value="localhost" /> 
-		<property name="port" value="7474" /> <property name="location" value="/db/data" /> 
+		<property name="protocol" value="t.b.d." /> 
+		<property name="host" value="localhost" /> 
+		<property name="port" value="7474" /> 
+		<property name="location" value="/db/data" /> 
 		<property name="DB_PATH" value="/db/data" /> 
 	</bean> 
 	-->

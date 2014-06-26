@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<SBM_Persistence>
+<SNC_Persistence>
 
 	<!-- Definition der Persistence Implementierung -->
 	<ClassType></ClassType>
@@ -19,4 +19,4 @@
 		<Pass></Pass>
 	</Credentials>
 
-</SBM_Persistence>
+</SNC_Persistence>
