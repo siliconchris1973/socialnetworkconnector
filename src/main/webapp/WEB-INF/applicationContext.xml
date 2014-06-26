@@ -212,7 +212,7 @@
 		<property name="port" value="8000" />
 		<property name="jdbcPort" value="30015" />
 		<property name="protocol" value="http" />
-		<property name="location" value="/comline/snc/services" />
+		<property name="location" value="/comline/sbm/services" />
 		<property name="serviceUserEndpoint" value="saveUser.xsodata" />
 		<property name="servicePostEndpoint" value="savePost.xsodata" />
 		<property name="user" value="U0JNX0VYVA==" />
@@ -275,7 +275,7 @@
 				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
 				<!-- change this to the number of crawlers (see below) or the number 
 					of cores, whichever is higher -->
-				<prop key="org.quartz.threadPool.threadCount">2</prop>
+				<prop key="org.quartz.threadPool.threadCount">1</prop>
 			</props>
 		</property>
 		<property name="triggers">
@@ -287,7 +287,7 @@
 				<!--<ref bean="GoogleCrawlerTrigger"/> -->
 				<!--<ref bean="LinkedinCrawlerTrigger"/> -->
 				<!--<ref bean="FinanzforumCrawlerTrigger"/> -->
-				<ref bean="LithiumCrawlerTrigger" />
+				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
 			</list>
 		</property>
 	</bean>
