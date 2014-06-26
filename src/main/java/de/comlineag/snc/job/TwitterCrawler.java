@@ -9,8 +9,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.apache.log4j.Logger;
 
-import twitter4j.Location;
-
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;

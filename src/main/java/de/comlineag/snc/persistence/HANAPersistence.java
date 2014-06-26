@@ -52,7 +52,7 @@ public class HANAPersistence implements IPersistenceManager {
 	public HANAPersistence() {}
 
 	/**
-	 * save a post from social network to the HANA DB with these elements
+	 * @description save a post from social network to the HANA DB with these elements
 	 *
 	 * <Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"/>
 	 * <Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"/>
@@ -81,6 +81,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * <Property Name="plCountry" Type="Edm.String" MaxLength="128"/>
 	 * <Property Name="plAround_longitude" Type="Edm.String" MaxLength="40"/>
 	 * <Property Name="plAround_latitude" Type="Edm.String" MaxLength="40"/>
+	 * 
 	 * @throws NoBase64EncryptedValue 
 	 * 
 	 */

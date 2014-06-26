@@ -1,6 +1,5 @@
 package de.comlineag.snc.job;
 
-
 import java.io.IOException;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;

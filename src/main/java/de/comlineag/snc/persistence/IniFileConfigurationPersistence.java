@@ -110,6 +110,7 @@ public class IniFileConfigurationPersistence implements IConfigurationManager  {
 			section.put(key, value);
 			
 			Writer wri = new FileWriter((String)getConfigDbHandler());
+			wri.close();
 			/*
 			FileOutputStream fos = new FileOutputStream((String)getConfigDbHandler());
 	        ObjectOutputStream oos = new ObjectOutputStream(fos);
