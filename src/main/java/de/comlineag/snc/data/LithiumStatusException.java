@@ -4,9 +4,11 @@ package de.comlineag.snc.data;
  * 
  * @author		Maic Rittmeier
  * @category	program flow and structure
- * @version 	0.9
+ * @version 	1.0
  *
  * @description	throws a custom exception for the Lithium network
+ * 
+ * @changelog	1.0 class created
  * 
  */
 public class LithiumStatusException extends Exception {

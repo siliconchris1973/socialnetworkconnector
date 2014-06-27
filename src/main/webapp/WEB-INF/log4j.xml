@@ -86,7 +86,7 @@
 
 	<!-- not fitting in any other category -->
 	<logger name="de.comlineag.snc">
-		<level value="trace"></level>
+		<level value="info"></level>
 		<appender-ref ref="console" />
 	</logger>
 

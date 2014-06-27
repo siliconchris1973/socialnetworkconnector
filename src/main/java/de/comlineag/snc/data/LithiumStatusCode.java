@@ -10,6 +10,8 @@ package de.comlineag.snc.data;
  * 				provides a query to see if a given response code is good, as in OK, Accepted or Success
  * 				or if it is bad, as in Rejected, Bad Request etc.
  * 
+ * @changelog	1.0 enum created
+ * 
  */
 public enum LithiumStatusCode {
 	UNKNOWN 						("unknown"										, false),

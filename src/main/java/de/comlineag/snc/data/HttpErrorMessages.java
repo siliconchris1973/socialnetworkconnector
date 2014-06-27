@@ -10,6 +10,9 @@ import org.apache.commons.httpclient.HttpStatus;
  * 
  * @description	provides for some funny error messages to http errors
  *
+ * @changelog	0.9 class created
+ * 				1.0 changed text elements
+ * 
  */
 public class HttpErrorMessages { // extends Exception {
 	

@@ -15,7 +15,10 @@ import java.io.InputStream;
  * 				method (to be implemented by specialized versions) either with data 
  * 				represented as a string or as an input stream from a http connection.
  * 				 
- * 				
+ * @changelog	0.1 first skeleton
+ * 				1.0 first productive version
+ * 				1.1 added definition of 2nd input channel (InputStream)
+ * 
  */
 public abstract class GenericParser {
 	

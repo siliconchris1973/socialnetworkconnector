@@ -8,6 +8,9 @@ package de.comlineag.snc.data;
  * 
  * @description core data type for the User Data
  * 
+ * @changelog	1.0 class created according to twitter user needs
+ * 				1.0 added fields for Lithium user
+ * 
  */
 public class UserData {
 

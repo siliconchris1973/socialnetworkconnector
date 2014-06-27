@@ -43,6 +43,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *            "symbols" List
  *            "mentions" List
  * 
+ * @changelog	0.1 class created
+ * 				0.2 added all simple fields
+ * 				0.3 added constant for social network
+ * 				0.4 - 0.8 work on geo location - as of v1.1 still not implemented
+ * 				0.9 skeleton for symbols, hashtags and mentions - as of v1.1 still not implemented
+ * 				1.0 first productive version without geo location and hashtag, symbols, mentions
+ * 				1.1 minor bugfixings
+ * 
+ * @TODO implement geo, hashtags, symbols and mentions
  * 
  */
 

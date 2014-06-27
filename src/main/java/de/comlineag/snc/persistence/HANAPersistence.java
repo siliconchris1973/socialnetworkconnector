@@ -19,15 +19,19 @@ import de.comlineag.snc.data.UserData;
  *
  * @author 		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Connector Class
- * @version 	1.4
+ * @version 	1.2
  *
  * @description handles the connectivity to the SAP HANA Systems and saves posts and users in the DB
  * 
- * @changelog	1.0 savePost implemented
- * 				1.1	saveUsers implemented
- * 				1.2	added support for encrypted user and password
- * 				1.3	added JDBC support
- * 				1.4	added search for dataset prior inserting one 
+ * @changelog	0.1 skeleton created
+ * 				0.2 savePost implemented
+ * 				0.3 saveUser implemented
+ * 				0.4 added skeleton for geo-location information
+ * 				0.5 added support for encrypted user and password
+ * 				0.6 - 0.9 bugfixing and optimization
+ * 				1.0 first productive version, saves users and posts as is (no geo-information)
+ *				1.1	added JDBC support
+ * 				1.2	added search for dataset prior inserting one 
  *
  */
 public class HANAPersistence implements IPersistenceManager {

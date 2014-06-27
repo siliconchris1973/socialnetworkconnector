@@ -18,6 +18,7 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 
+import de.comlineag.snc.data.SocialNetworks;
 import de.comlineag.snc.handler.CrawlerConfiguration;
 import de.comlineag.snc.handler.TwitterParser;
 
@@ -25,16 +26,20 @@ import de.comlineag.snc.handler.TwitterParser;
  * 
  * @author 		Christian Guenther
  * @category 	Job
- * @version		1.1
+ * @version		1.2
  * 
  * @description this is the actual crawler of the twitter network. It is
  *              implemented as a job and, upon execution, will connect to the
  *              twitter api to grab new tweets as they are created on the
  *              network.
  * 
- * @changelog	0.9	first static version retrieves posts			Chris and Maic
- * 				1.0	keys are taken from ApplicationContext.xml		Magnus
- * 				1.1	configuration is made dynamic 					Chris
+ * @changelog	0.1 - 0.4 first static version retrieves posts				Chris and Maic
+ * 				0.5 keys are taken from ApplicationContext.xml				Magnus
+ * 				0.6 - 0.9 bugfixing and optimization
+ * 				1.0	first productive version
+ * 				1.1	configuration is made dynamic 							Chris
+ *				1.2	added support for SocialNetwork specific configuration
+ *
  */
 public class TwitterCrawler extends GenericCrawler implements Job {
 
@@ -79,10 +84,10 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, LOCATIONS AND USERS
 		logger.debug("now retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfiguration().getTrackTerms();
-		ArrayList<String> tLangs = new CrawlerConfiguration().getTrackLanguages();
-		//ArrayList<TwitterUser> tUsers = new CrawlerConfiguration().getTrackLocations();
-		//ArrayList<TwitterLocation> tLocas = new CrawlerConfiguration().getTrackLocations();
+		ArrayList<String> tTerms = new CrawlerConfiguration().getTrackTerms(SocialNetworks.TWITTER);
+		ArrayList<String> tLangs = new CrawlerConfiguration().getTrackLanguages(SocialNetworks.TWITTER);
+		//ArrayList<TwitterUser> tUsers = new CrawlerConfiguration().getTrackLocations(SocialNetworks.TWITTER);
+		//ArrayList<TwitterLocation> tLocas = new CrawlerConfiguration().getTrackLocations(SocialNetworks.TWITTER);
 		
 		// log output AND setup of the filter endpoint
 		if (tTerms.size()>0) {

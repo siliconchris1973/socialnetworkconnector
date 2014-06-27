@@ -12,7 +12,10 @@ import org.joda.time.LocalDateTime;
  * @version 	1.1
  *  
  * @description Data Class representing a Post from the OData Service
- *  
+ * 
+ * @changelog	1.0 class created according to twitter user needs
+ * 				1.0 added field raw-text for Lithium postings which contain html and we strip that in the field text
+ * 
  */
 
 public class PostData {
@@ -37,7 +40,7 @@ public class PostData {
 
 	/**
 	 * post Text
-	 * <Property Name="text" Type="Edm.String" DefaultValue="" MaxLength="1024"/>
+	 * <Property Name="text" Type="Edm.String" DefaultValue="" MaxLength="5000"/>
 	 */
 	protected String text;
 

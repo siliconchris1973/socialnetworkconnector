@@ -8,7 +8,7 @@ import org.json.simple.parser.JSONParser;
  * 
  * @author 		Christian Guenther
  * @category 	data type
- * @version 	1.1
+ * @version 	1.0
  * 
  * @description Describes a single lithium user with all relevant informations.
  *              The class shall be used to make all methods handling a lithium
@@ -68,13 +68,18 @@ import org.json.simple.parser.JSONParser;
 			$ : false
  *
  *
+ * @changelog	0.1 first initial version as copy from TwitterUserData
+ * 				0.2 - 0.4 added parsing of 2nd and 3rd level of json string
+ * 				1.0 jump to first productive version
+ * 
  */
-
 public final class LithiumUserData extends UserData {
 
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	public LithiumUserData() {}
+	
+	
 	
 	/**
 	 * Constructor, based on the JSONObject sent from Lithium the Data Object is prepared
@@ -89,7 +94,6 @@ public final class LithiumUserData extends UserData {
 		// alles auf Null und die SocialNetworkID schon mal parken
 		initialize();
 		
-
 		try {
 			JSONParser parser = new JSONParser();
 			Object obj;

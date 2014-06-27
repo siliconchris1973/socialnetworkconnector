@@ -7,6 +7,9 @@ package de.comlineag.snc.data;
  * 
  * @description an enum with types of data in a social network and whether or not this type should be tracked
  * 
+ * @changelog	1.0 enum created
+ * 				1.1 added app, game, forum and wiki
+ * 
  */
 public enum SocialNetworkEntryTypes {
 	// attention: looks like this will be handled by trackterms from applicationContext.xml 

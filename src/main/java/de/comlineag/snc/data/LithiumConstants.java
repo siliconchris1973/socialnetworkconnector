@@ -10,6 +10,9 @@ package de.comlineag.snc.data;
  * 				This class is instantiated by LithiumCrawler and LithiumParser and the
  * 				values are referenced therein
  *
+ * @changelog	1.0 class created
+ * 				1.1 added DIVIDE_NUMBER_OF_CORES_BY
+ * 
  */
 public final class LithiumConstants {
 	// constants for the json response structure

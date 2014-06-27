@@ -10,6 +10,8 @@ import org.springframework.context.ApplicationContext;
  * 
  * @description defines the application context
  * 
+ * @changelog	1.0 class created
+ * 
  */
 public class AppContext {
 

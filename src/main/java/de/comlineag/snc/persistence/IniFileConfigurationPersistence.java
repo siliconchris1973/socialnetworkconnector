@@ -4,17 +4,17 @@ import org.apache.log4j.Logger;
 import org.ini4j.Ini;
 import org.ini4j.InvalidIniFormatException;
 
+import de.comlineag.snc.data.SocialNetworks;
+
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 
 
 /**
  * @author		Christian Guenther
  * @category	Persistence manager
- * @version		0.9 transition to 1.0 in progress
+ * @version		1.1
  * 
  * @description	A configuration manager for the crawler using flat ini files for the configuration
  * 
@@ -23,6 +23,7 @@ import java.util.ArrayList;
  *				1.0	implement methods getConfigurationElement and setConfigurationElemenet
  *					to retrieve a single value and either add a new value 
  *					or update an existing one in the file
+ *				1.1	added support for SocialNetwork specific configuration
  *  
  */
 public class IniFileConfigurationPersistence implements IConfigurationManager  {
@@ -34,34 +35,34 @@ public class IniFileConfigurationPersistence implements IConfigurationManager  {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	@Override
-	public ArrayList<String> getTrackTerms() {
-		return getDataFromIni("trackTerms");
+	public ArrayList<String> getTrackTerms(SocialNetworks SN) {
+		return getDataFromIni("trackTerms", SN);
 	}
 
 	@Override
-	public ArrayList<String> getTrackLanguages() {
-		return getDataFromIni("trackLanguages");
+	public ArrayList<String> getTrackLanguages(SocialNetworks SN) {
+		return getDataFromIni("trackLanguages", SN);
 	}
 
 	@Override
-	public ArrayList<String> getTrackSites() {
+	public ArrayList<String> getTrackSites(SocialNetworks SN) {
 		logger.warn("no type safety guranteed for configuration element sites - consider using xml configuration");
-		return getDataFromIni("trackSites");
+		return getDataFromIni("trackSites", SN);
 	}
 	
 	@Override
-	public ArrayList<String> getTrackLocations() {
+	public ArrayList<String> getTrackLocations(SocialNetworks SN) {
 		logger.warn("no type safety guranteed for configuration element location - consider using xml configuration");
-		return getDataFromIni("trackLocas");
+		return getDataFromIni("trackLocas", SN);
 	}
 	
 	@Override
-	public ArrayList<String> getTrackUsers() {
+	public ArrayList<String> getTrackUsers(SocialNetworks SN) {
 		logger.warn("no type safety guranteed for configuration element users - consider using xml configuration");
-		return getDataFromIni("trackUsers");
+		return getDataFromIni("trackUsers", SN);
 	}
 	
-	private ArrayList<String> getDataFromIni(String section) {
+	private ArrayList<String> getDataFromIni(String section, SocialNetworks SN) {
 		ArrayList<String> ar = new ArrayList<String>();
 		Ini ini = null;
 		
@@ -109,14 +110,15 @@ public class IniFileConfigurationPersistence implements IConfigurationManager  {
 			Ini.Section section = ini.get(path);
 			section.put(key, value);
 			
-			Writer wri = new FileWriter((String)getConfigDbHandler());
-			wri.close();
+			//TODO implement write to ini support
+			//Writer wri = new FileWriter((String)getConfigDbHandler());
+			//wri.close();
 			/*
 			FileOutputStream fos = new FileOutputStream((String)getConfigDbHandler());
 	        ObjectOutputStream oos = new ObjectOutputStream(fos);
 			ini.store(oos);
 			*/
-			logger.error("adding values is not yet implemented");
+			logger.warn("adding values is not yet implemented - nothing was done");
 		} catch (InvalidIniFormatException e1) {
 			logger.error("EXCEPTION :: invalid ini format " + e1.getLocalizedMessage()+ ". This is serious, I'm giving up!");
 			System.exit(-1);

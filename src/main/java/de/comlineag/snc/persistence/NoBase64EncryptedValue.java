@@ -8,6 +8,8 @@ package de.comlineag.snc.persistence;
  * 
  * @description	Error to show that a value is NOT Base64 coded
  * 
+ * @changelog	1.0 initial version
+ * 
  */
 public class NoBase64EncryptedValue extends Exception {
 	

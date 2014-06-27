@@ -30,6 +30,8 @@ import de.comlineag.snc.data.FacebookUserData;
  * 
  * @param none
  * 
+ * @changelog	0.1 copy from TwitterUser
+ * 
  */
 
 public class FacebookUser extends GenericDataManager<FacebookUserData> {

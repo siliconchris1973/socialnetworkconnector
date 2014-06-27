@@ -12,10 +12,12 @@ import java.net.URLConnection;
  * 
  * @author		Christian Guenther
  * @category	Handler
- * @version		0.9 - currently not used
+ * @version		0.1 - currently not used
  * 
  * @description	Helper class to restart a given web application on the application server
  *
+ * @changelog	0.1 copy from the web
+ * 
  */
 public class ReloadWebApplication {
 	

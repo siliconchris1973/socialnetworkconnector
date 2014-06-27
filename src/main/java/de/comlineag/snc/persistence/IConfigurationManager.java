@@ -2,15 +2,20 @@ package de.comlineag.snc.persistence;
 
 import java.util.ArrayList;
 
+import de.comlineag.snc.data.SocialNetworks;
+
 /**
  * 
  * @author 		Christian Guenther
  * @category	interface
- * @version		0.9
+ * @version		1.0
  * 
  * @description	The interface IConfigurationManager must be implemented by all configuration
  * 				manager classes. It defines methods to get the terms, users and 
  * 				languages to track in the social networks. 
+ * 
+ * @changelog	0.9 first implementation as copy from IPersistenceManager	chris
+ * 				1.0	added support for SocialNetwork specific configuration
  *
  */
 public interface IConfigurationManager {
@@ -22,7 +27,7 @@ public interface IConfigurationManager {
 	 * @description	returns an array of terms (simple words) which the crawler should use to narrow the 
 	 * 				resultset, when crawling the social network 
 	 */
-	public abstract ArrayList<String> getTrackTerms();
+	public abstract ArrayList<String> getTrackTerms(SocialNetworks SN);
 	
 	/**
 	 * 
@@ -30,7 +35,7 @@ public interface IConfigurationManager {
 	 * @description	returns an array of languages which the crawler should use to narrow the 
 	 * 				resultset, when crawling the social network 
 	 */
-	public abstract ArrayList<String> getTrackLanguages();
+	public abstract ArrayList<String> getTrackLanguages(SocialNetworks SN);
 	
 	/**
 	 * 
@@ -42,7 +47,7 @@ public interface IConfigurationManager {
 	 * 
 	 * 				Does NOT work on all social network - namely Twitter does not support this
 	 */
-	public abstract ArrayList<String> getTrackSites();
+	public abstract ArrayList<String> getTrackSites(SocialNetworks SN);
 	
 	/**
 	 * 
@@ -53,7 +58,7 @@ public interface IConfigurationManager {
 	 * 
 	 * 				Does NOT work on all social network - namely Lithium does not support this 
 	 */
-	public abstract ArrayList<String> getTrackLocations();
+	public abstract ArrayList<String> getTrackLocations(SocialNetworks SN);
 	
 	/**
 	 * 
@@ -62,7 +67,7 @@ public interface IConfigurationManager {
 	 * @description	returns an array of users which the crawler should use to narrow 
 	 * 				the resultset, when crawling the social network
 	 */
-	public abstract ArrayList<String> getTrackUsers();
+	public abstract ArrayList<String> getTrackUsers(SocialNetworks SN);
 	
 	
 	/**

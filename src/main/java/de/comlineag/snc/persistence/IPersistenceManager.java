@@ -11,6 +11,8 @@ import de.comlineag.snc.data.UserData;
  * 
  * @description Interface definition for any persistence implementation
  * 
+ * @changelog	1.0 initial version
+ * 
  */
 public interface IPersistenceManager {
 

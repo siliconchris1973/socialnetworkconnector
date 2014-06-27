@@ -17,6 +17,8 @@ import org.apache.commons.codec.binary.Base64;
  * 
  * @description	this class is a way to serialize Java object as strings
  *
+ * @changelog	1.0 copy from the web
+ * 
  */
 public class ObjectUtil {
 

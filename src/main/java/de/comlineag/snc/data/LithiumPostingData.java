@@ -140,6 +140,10 @@ import org.jsoup.Jsoup;
 			$ : "2014-01-08T12:21:42+00:00"
 			type : "date_time"
  * 
+ * @changelog	0.1 first initial version as copy from TwitterPostingrData
+ * 				0.2 - 0.4 added parsing of 2nd and 3rd level of json string
+ * 				1.0 jump to first productive version
+ * 				1.1 added support to strip all html for text and created raw text
  * 
  */
 

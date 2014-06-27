@@ -10,11 +10,15 @@ import org.joda.time.format.DateTimeFormatter;
 
 /**
  * 
- * @author		Magnus Leinemann, Christian Guenther
+ * @author		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Helper Class
  * @version 	1.2
  * 
  * @description Tools for managing special Requests in the Crawler logic
+ * 
+ * @changelog	1.0 class created
+ * 				1.1 try and error for lithium post date time
+ * 				1.2 bugfixing and productive version with support for lithium
  * 
  */
 

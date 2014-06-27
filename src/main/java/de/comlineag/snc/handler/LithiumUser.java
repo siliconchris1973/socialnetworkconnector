@@ -20,6 +20,8 @@ import de.comlineag.snc.data.LithiumUserData;
  * @param <LithiumUserData>
  * 					Data type 
  * 
+ * @changelog	1.0 class created as copy from TwitterUser
+ * 
  */
 
 public class LithiumUser extends GenericDataManager<LithiumUserData> {

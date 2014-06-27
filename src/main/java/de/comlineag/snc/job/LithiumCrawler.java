@@ -23,6 +23,7 @@ import de.comlineag.snc.data.HttpStatusCode;
 import de.comlineag.snc.data.LithiumConstants;
 import de.comlineag.snc.data.LithiumStatusCode;
 import de.comlineag.snc.data.LithiumStatusException;
+import de.comlineag.snc.data.SocialNetworks;
 import de.comlineag.snc.handler.CrawlerConfiguration;
 import de.comlineag.snc.handler.LithiumParser;
 import de.comlineag.snc.handler.LithiumPosting;
@@ -33,7 +34,7 @@ import de.comlineag.snc.persistence.NoBase64EncryptedValue;
  * 
  * @author 		Christian Guenther
  * @category 	Job
- * @version		1.1
+ * @version		1.2
  * 
  * @description this is the actual crawler for the Lithium network. It is
  *              implemented as a job and, upon execution, will connect to the
@@ -41,9 +42,15 @@ import de.comlineag.snc.persistence.NoBase64EncryptedValue;
  *              The keywords are sourced in by the configuration manager.
  *              The crawler also gets the user for each post and  
  * 
- * @changelog	0.9	first static version retrieves posts			Chris
- * 				1.0 retrieves posts and users						Chris
- * 				1.1	configuration is made dynamic 					Chris
+ * @changelog	0.1 copy of TwitterCrawler										Chris
+ * 				0.2 - 0.4 try and error with xml rest api						
+ * 				0.5 changed payload to json and retrieves posts					Maic
+ * 				0.6 - 0.7 bugfixing and optimization							Chris
+ * 				0.8 added support to retrieve users								
+ * 				0.9 added search prio inserting new data						
+ * 				1.0	first productive version retrieves posts and users			
+ * 				1.1	configuration is made dynamic 
+ *				1.2	added support for SocialNetwork specific configuration
  */
 public class LithiumCrawler extends GenericCrawler implements Job {
 
@@ -95,9 +102,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		logger.debug("now retrieving restrictions from configuration db");
 		String searchTerm = null;
 				
-		ArrayList<String> tTerms = new CrawlerConfiguration().getTrackTerms(); 
-		ArrayList<String> tLangs = new CrawlerConfiguration().getTrackLanguages(); 
-		ArrayList<String> tSites = new CrawlerConfiguration().getTrackSites();
+		ArrayList<String> tTerms = new CrawlerConfiguration().getTrackTerms(SocialNetworks.LITHIUM); 
+		ArrayList<String> tLangs = new CrawlerConfiguration().getTrackLanguages(SocialNetworks.LITHIUM); 
+		ArrayList<String> tSites = new CrawlerConfiguration().getTrackSites(SocialNetworks.LITHIUM);
 		
 		// simple log output
 		if (tSites.size()>0)

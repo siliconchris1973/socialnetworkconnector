@@ -25,7 +25,10 @@ import org.neo4j.graphdb.RelationshipType;
  * 				FOLLOWS					FOLLOWS			(u:User-ID) -[FOLLOWS]-> (u:User-ID)
  * 				AUTHORED				AUTHORED		(u:User-ID) -[AUTHORED]-> (p:Post-ID)
  * 				
- *
+ * @changelog	0.1 class created
+ * 				1.0 first productive version
+ * 				1.1 added follows and favorited
+ * 
  */
 public enum RelationshipTypes implements RelationshipType {
 	IN_REPLY_TO_STATUS("REPLIED_ON"),

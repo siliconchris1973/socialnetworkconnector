@@ -33,6 +33,14 @@ import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
  * @description handles the connectivity to the Neo4J Graph Database and saves posts, 
  * 				users and connections in the graph. Implements IPersistenceManager
  *
+ * @changelog	0.1 initial version as copy from HANAPersistence
+ * 				0.2 insert of post
+ * 				0.3	insert of user
+ * 				0.4	query for location
+ * 				0.5	create relatinship between nodes
+ * 				0.6 - 0.9 bugfixing and wrap up
+ * 				1.0 first productive version
+ * 				1.1 skeleton for graph traversal
  */
 public class Neo4JPersistence implements IPersistenceManager {
 	
@@ -492,9 +500,10 @@ public class Neo4JPersistence implements IPersistenceManager {
 	
 	/**
      * @description Adds property to a node whose url is passed
-     * @param nodeURI - URI of node to which the property is to be added
-     * @param propertyName - name of property which we want to add
-     * @param propertyValue - Value of above property
+     * 
+     * @param 		nodeURI 		- URI of node to which the property is to be added
+     * @param 		propertyName 	- name of property which we want to add
+     * @param 		propertyValue 	- Value of above property
      */
     public void addProperty(String nodeURI,
                             String propertyName,

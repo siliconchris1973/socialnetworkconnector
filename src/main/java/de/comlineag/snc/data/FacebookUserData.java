@@ -7,7 +7,7 @@ import org.json.simple.JSONObject;
  * 
  * @author 		Christian Guenther
  * @category 	data type
- * @version 	1.1
+ * @version 	0.1
  * 
  * @description Describes a single facebook user with all relevant informations.
  *              The class shall be used to make all methods handling a facebook
@@ -25,6 +25,9 @@ import org.json.simple.JSONObject;
  *            "favourites_count" Long
  *            "lists_and_groups_count" Long
  *            "lang" String
+ * 
+ * @changelog	0.1 class created as copy from TwitterUserData
+ * 
  */
 
 public final class FacebookUserData extends UserData {

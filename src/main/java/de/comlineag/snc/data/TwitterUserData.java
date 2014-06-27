@@ -25,6 +25,9 @@ import org.json.simple.JSONObject;
  *            "favourites_count" Long
  *            "lists_and_groups_count" Long
  *            "lang" String
+ *            
+ * @changelog	1.0 class created
+ * 
  */
 
 public final class TwitterUserData extends UserData {

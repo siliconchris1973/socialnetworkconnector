@@ -8,6 +8,8 @@ package de.comlineag.snc.persistence;
  * 
  * @description	Defines a unique identifier for errors related to the hana persistence
  *
+ * @changelog	1.0 class created
+ * 
  */
 public class HANAConnectionFailed extends Exception {
 	

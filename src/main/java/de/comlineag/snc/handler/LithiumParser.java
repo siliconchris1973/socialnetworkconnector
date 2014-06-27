@@ -16,12 +16,20 @@ import de.comlineag.snc.data.LithiumStatusException;
  * 
  * @author 		Christian Guenther
  * @category 	Handler				
- * @version		1.3
+ * @version		1.1
  *  
  * @description LithiumParser implementation of the parser for the Lithium network community
  * 				LithiumParsr is an extension of the default GenericParser but differs in that
  * 				it implements a new parse method (parseMessages) and not the standard one from 
  * 				GenericParser.
+ * 				parseMessage expects a json string and decodes it according to fields provided
+ * 				from LithiumConstants 
+ * 
+ * @changelog	0.1 class created as copy from TwitterParser
+ * 				0.2 - 0.6 change from json to xml and back to json
+ * 				0.7 implemented constants from LithiumConstants
+ * 				1.0 first productive version returns array of messages
+ * 				1.1 bugfixing and optimization
  * 
  */
 public final class LithiumParser extends GenericParser {

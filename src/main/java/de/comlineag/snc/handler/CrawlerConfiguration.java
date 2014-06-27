@@ -2,11 +2,13 @@ package de.comlineag.snc.handler;
 
 import java.util.ArrayList;
 
+import de.comlineag.snc.data.SocialNetworks;
+
 /**
  * 
  * @author 		Christian Guenther
  * @category	handler
- * @version		1.1
+ * @version		1.2
  * 
  * @description	invokes the configuration manager as defined in applicationContext.xml
  * 				returns ArrayLists for 
@@ -19,25 +21,26 @@ import java.util.ArrayList;
  * 				ATTENTION: The current implementation uses string for everything and is NOT type safe
  * 
  * @changelog	0.9 first initial version with terms, languages, sites, locations and users
- * 				1.0 bug free
+ * 				1.0 first productive version
  * 				1.1 added getConfigurationElement and setConfigurationElement
+ *				1.2	added support for SocialNetwork specific configuration
  * 
  */
 public class CrawlerConfiguration extends GenericConfigurationManager {
-	public ArrayList<String> getTrackTerms() {
-		return configurationManager.getTrackTerms();
+	public ArrayList<String> getTrackTerms(SocialNetworks SN) {
+		return configurationManager.getTrackTerms(SN);
 	}
-	public ArrayList<String> getTrackLanguages() {
-		return configurationManager.getTrackLanguages();
+	public ArrayList<String> getTrackLanguages(SocialNetworks SN) {
+		return configurationManager.getTrackLanguages(SN);
 	}
-	public ArrayList<String> getTrackSites() {
-		return configurationManager.getTrackSites();
+	public ArrayList<String> getTrackSites(SocialNetworks SN) {
+		return configurationManager.getTrackSites(SN);
 	}
-	public ArrayList<String> getTrackLocations() {
-		return configurationManager.getTrackLocations();
+	public ArrayList<String> getTrackLocations(SocialNetworks SN) {
+		return configurationManager.getTrackLocations(SN);
 	}
-	public ArrayList<String> getTrackUsers() {
-		return configurationManager.getTrackUsers();
+	public ArrayList<String> getTrackUsers(SocialNetworks SN) {
+		return configurationManager.getTrackUsers(SN);
 	}
 	public String getConfigurationElement(String key, String path){
 		return configurationManager.getConfigurationElement(key, path);

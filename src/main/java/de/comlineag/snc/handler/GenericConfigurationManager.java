@@ -8,13 +8,17 @@ import de.comlineag.snc.persistence.IConfigurationManager;
  * 
  * @author		Christian Guenther
  * @category	Handler
- * @version		1.0
+ * @version		1.1
  * 
  * @description GenericConfigurationManager is the abstract base class for the 
  * 				configuration handler. It gets the active configuration persistence 
  * 				(as defined in applicationContext.xml) and passes it along to the 
  * 				actual configuration manager - like CrawlerConfiguration.
  * 
+ * @changelog	0.9 first version as copy from GenericDataManager
+ * 				1.0 added @SuppressWarnings
+ *				1.1	added support for SocialNetwork specific configuration
+ *
  */
 public abstract class GenericConfigurationManager {
 	

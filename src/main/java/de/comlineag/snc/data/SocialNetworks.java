@@ -8,6 +8,11 @@ package de.comlineag.snc.data;
  * 
  * @description contains an enumeration with shortcuts referencing the social networks
  * 
+ * @changelog	1.0 enum created with unknown, twitter, facebook, google+ and linkedin
+ * 				1.1 added xing
+ * 				1.2 added instagram, foursquare and streamwork
+ * 				1.3 added lithium
+ * 				1.4 added youtube and finanzforum
  */
 public enum SocialNetworks {
 	UNKNOWN		("XY", "Unknown"),

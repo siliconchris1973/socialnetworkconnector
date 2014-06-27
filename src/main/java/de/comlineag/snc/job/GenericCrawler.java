@@ -12,6 +12,8 @@ import org.quartz.JobExecutionException;
  * 
  * @description abstract definition for a crawler to be executed by the job control
  * 
+ * @changelog	1.0 class created
+ * 
  */
 public abstract class GenericCrawler implements Job {
 

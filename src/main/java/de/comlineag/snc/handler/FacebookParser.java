@@ -19,6 +19,8 @@ import org.json.simple.parser.ParseException;
  * 				calls specific classes for posting and user for every object
  * 				and finally calls the persistence manager to store the objects
  * 
+ * @changelog	0.1 copy from TwitterParser
+ * 
  */
 public final class FacebookParser extends GenericParser {
 
