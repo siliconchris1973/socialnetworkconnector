@@ -1,4 +1,4 @@
-package de.comlineag.snc.data;
+package de.comlineag.snc.handler;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
