@@ -1,73 +1,151 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationParameter>
-	<trackTerms>
-		<term>
-			<type>String</type>
-			<value>Aktien</value>
-		</term>
-		<term>
-			<type>String</type>
-			<value>Tagesgeld</value>
-		</term>
-		<term>
-			<type>String</type>
-			<value>Trading</value>
-		</term>
-		<term>
-			<type>String</type>
-			<value>Depot</value>
-		</term>
-		<term>
-			<type>String</type>
-			<value>Girokonto</value>
-		</term>
-		<term>
-			<type>String</type>
-			<value>Wertpapier</value>
-		</term>
-		<term>
-			<type>String</type>
-			<value>Kreditkarte</value>
-		</term>
-		<term>
-			<type>String</type>
-			<value>HBCI</value>
-		</term>
-	</trackTerms>
-	<trackLanguages>
-		<language>
-			<type>String</type>
-			<value>de</value>
-		</language>
-		<language>
-			<type>String</type>
-			<value>en</value>
-		</language>
-		<language>
-			<type>String</type>
-			<value>it</value>
-		</language>
-		<language>
-			<type>String</type>
-			<value>es</value>
-		</language>
-		<language>
-			<type>String</type>
-			<value>fr</value>
-		</language>
-	</trackLanguages>
-	<trackSites>
-	</trackSites>
-	<trackLocations>
-		<location>
-			<type>String</type>
-			<value>DE</value>
-		</location>
-	</trackLocations>
-	<networkSpecific>
-		<entry name="CC_COMMUNITY_ID">
+		<!-- 
+			This is the xml configuration file for the social network connector.
+			
+			It is used to setup general tracking configurations (aka constraints) 
+			for the crawler. The constraints can be setup globally (for all networks) 
+			or individually for specific networks. 
+			The constraints are combined with AND. That means, that a term added in 
+			a configuration for one network, say twitter, is added to the constraints 
+			from the general configuration. 
+		 -->
+<configurations>
+	<!-- START OF GENERIC CONFIG -->
+	<configuration scope="ALL">
+		<!-- track only messages (aka posts) with specific keywords -->
+		<constraint>
+			<term>
+				<type>String</type>
+				<value>Aktien</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Tagesgeld</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Trading</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Depot</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Girokonto</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Wertpapier</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Kreditkarte</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>HBCI</value>
+			</term>
+		</constraint>
+		
+		<!-- track only messages (aka posts) in specific languages -->
+		<!-- is done specifically for twitter - see below
+		<constraint>
+			<language>
+				<type>String</type>
+				<value>de</value>
+			</language>
+		</constraint>
+		-->
+		
+		<!-- setup a constraint against specific sites -->
+		<!-- is only necessary for lithium - see below
+		<constraint>
+			<site>
+				<type>url</type>
+				<value>http://example.com/track/only/me/and/no/one/else</value>
+			</site>
+		</constraint>
+		-->
+		 
+		<!-- setup a constraint against specific geografical regions -->
+		<!-- NOT YET IMPLEMENTED 
+		<constraint>
+			<location>
+				<type>String</type>
+				<value>DE</value>
+			</location>
+		</constraint>
+		-->
+	</configuration>
+	<!-- END OF GENERIC CONFIG -->
+	
+	
+	
+	<!-- START OF TWITTER CONFIG -->
+	<!-- specific configuration for TWITTER crawler -->
+	<configuration scope="TW">
+	
+		<!-- track only messages (aka posts) with specific keywords -->
+		<constraint>
+			<term>
+				<type>String</type>
+				<value>Cortal consors</value>
+			</term>
+		</constraint>
+		
+		<!-- track only messages (aka posts) in specific languages -->
+		<constraint>
+			<language>
+				<type>String</type>
+				<value>de</value>
+			</language>
+			<language>
+				<type>String</type>
+				<value>en</value>
+			</language>
+			<language>
+				<type>String</type>
+				<value>it</value>
+			</language>
+			<language>
+				<type>String</type>
+				<value>es</value>
+			</language>
+			<language>
+				<type>String</type>
+				<value>fr</value>
+			</language>
+		</constraint>
+		
+		<!-- setup a constraint against specific geografical regions -->
+		<!-- NOT YET IMPLEMENTED 
+		<constraint>
+			<location>
+				<type>String</type>
+				<value>DE</value>
+			</location>
+		</constraint>
+		-->
+	</configuration>
+	<!-- END OF TWITTER CONFIG -->
+	
+	<!-- START OF LITHIUM CONFIG -->
+	<!-- specific configuration for lithium crawler -->
+	<configuration scope="LT">
+		<!-- setup a constraint against specific sites -->
+		<!-- 
+		<constraint>
+			<site>
+				<type>url</type>
+				<value>http://example.com/track/only/me/and/no/one/else</value>
+			</site>
+		</constraint>
+		-->
+		<entry scope="CC_COMMUNITY_ID">
 			<type>String</type>
 			<value>hiaeh67457</value>
 		</entry>
-	</networkSpecific>
-</configurationParameter>
+	</configuration>
+	<!-- END OF LITHIUM CONFIG -->
+</configurations>

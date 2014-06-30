@@ -4,7 +4,7 @@ package de.comlineag.snc.data;
  * 
  * @author 		Christian Guenther
  * @category 	enum
- * @version 	1.4
+ * @version 	1.5
  * 
  * @description contains an enumeration with shortcuts referencing the social networks
  * 
@@ -13,8 +13,11 @@ package de.comlineag.snc.data;
  * 				1.2 added instagram, foursquare and streamwork
  * 				1.3 added lithium
  * 				1.4 added youtube and finanzforum
+ * 				1.5 added ALL as an indicator for xml configuration for all networks
+ * 
  */
 public enum SocialNetworks {
+	ALL			("AL", "All networks"),
 	UNKNOWN		("XY", "Unknown"),
 	TWITTER		("TW", "Twitter"), 
 	FACEBOOK	("FB", "Facebook"), 

@@ -19,6 +19,8 @@ import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 
 import de.comlineag.snc.data.SocialNetworks;
+import de.comlineag.snc.data.TwitterConfigLocation;
+import de.comlineag.snc.data.TwitterConfigUser;
 import de.comlineag.snc.handler.CrawlerConfiguration;
 import de.comlineag.snc.handler.TwitterParser;
 
@@ -84,11 +86,13 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, LOCATIONS AND USERS
 		logger.debug("now retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfiguration().getTrackTerms(SocialNetworks.TWITTER);
-		ArrayList<String> tLangs = new CrawlerConfiguration().getTrackLanguages(SocialNetworks.TWITTER);
-		//ArrayList<TwitterUser> tUsers = new CrawlerConfiguration().getTrackLocations(SocialNetworks.TWITTER);
-		//ArrayList<TwitterLocation> tLocas = new CrawlerConfiguration().getTrackLocations(SocialNetworks.TWITTER);
-		
+		CrawlerConfiguration config = new CrawlerConfiguration();
+		ArrayList<String> tTerms = config.getConstraint("term", SocialNetworks.TWITTER);
+		ArrayList<String> tLangs = config.getConstraint("language", SocialNetworks.TWITTER);
+		// TODO implement data types for user and location
+		//ArrayList<TwitterConfigUser> tUsers = config.getConstraint("user", SocialNetworks.TWITTER);
+		//ArrayList<TwitterConfigLocation> tLocas = config.getConstraint("location", SocialNetworks.TWITTER);
+				
 		// log output AND setup of the filter endpoint
 		if (tTerms.size()>0) {
 			smallLogMessage += "specific terms ";

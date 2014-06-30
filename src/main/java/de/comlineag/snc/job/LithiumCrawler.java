@@ -15,6 +15,7 @@ import org.quartz.JobExecutionException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.log4j.Logger;
 
@@ -51,6 +52,7 @@ import de.comlineag.snc.persistence.NoBase64EncryptedValue;
  * 				1.0	first productive version retrieves posts and users			
  * 				1.1	configuration is made dynamic 
  *				1.2	added support for SocialNetwork specific configuration
+ *
  */
 public class LithiumCrawler extends GenericCrawler implements Job {
 
@@ -101,14 +103,17 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES AND USERS
 		logger.debug("now retrieving restrictions from configuration db");
 		String searchTerm = null;
-				
-		ArrayList<String> tTerms = new CrawlerConfiguration().getTrackTerms(SocialNetworks.LITHIUM); 
-		ArrayList<String> tLangs = new CrawlerConfiguration().getTrackLanguages(SocialNetworks.LITHIUM); 
-		ArrayList<String> tSites = new CrawlerConfiguration().getTrackSites(SocialNetworks.LITHIUM);
+		
+		CrawlerConfiguration config = new CrawlerConfiguration();
+		ArrayList<String> tTerms = config.getConstraint("term", SocialNetworks.LITHIUM); 
+		ArrayList<String> tLangs = config.getConstraint("language", SocialNetworks.LITHIUM); 
+		// TODO implement data types for user and url
+		//ArrayList<LithiumConfigUser> tUsers = config.getConstraint("user", SocialNetworks.LITHIUM);
+		//ArrayList<URI> tSites = config.getConstraint("site", SocialNetworks.LITHIUM);
 		
 		// simple log output
-		if (tSites.size()>0)
-			smallLogMessage += "specific Sites ";
+		//if (tSites.size()>0)
+		//	smallLogMessage += "specific Sites ";
 		if (tTerms.size()>0)
 			smallLogMessage += "specific terms ";
 		if (tLangs.size()>0)

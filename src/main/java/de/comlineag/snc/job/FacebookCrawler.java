@@ -84,11 +84,13 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		// setup restrictions on what to track
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES AND USERS
 		logger.debug("now retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfiguration().getTrackTerms(SocialNetworks.FACEBOOK); 
-		ArrayList<String> tLangs = new CrawlerConfiguration().getTrackLanguages(SocialNetworks.FACEBOOK); 
-		ArrayList<String> tSites = new CrawlerConfiguration().getTrackSites(SocialNetworks.FACEBOOK);
-		//ArrayList<Location> tLocas = new CrawlerConfiguration().getTrackLocations(SocialNetworks.FACEBOOK);
-			
+		CrawlerConfiguration config = new CrawlerConfiguration();
+		ArrayList<String> tTerms = config.getConstraint("term", SocialNetworks.FACEBOOK); 
+		ArrayList<String> tLangs = config.getConstraint("language", SocialNetworks.FACEBOOK); 
+		ArrayList<String> tSites = config.getConstraint("site", SocialNetworks.FACEBOOK);
+		//ArrayList<Location> tLocas = config.getConstraint("location", SocialNetworks.FACEBOOK);
+		//ArrayList<String> tUsers = config.getConstraint("user", SocialNetworks.FACEBOOK);
+		
 		// simple log output
 		if (tSites.size()>0){
 			smallLogMessage += "specific Sites ";

@@ -14,17 +14,20 @@ import java.util.ArrayList;
 /**
  * @author		Christian Guenther
  * @category	Persistence manager
- * @version		1.1
+ * @version		0.7
  * 
  * @description	A configuration manager for the crawler using flat ini files for the configuration
  * 
- * @changelog	0.9	initial version retrieves terms, locations, users, sites and languages
+ * @changelog	0.1	initial version 
+ * 				0.2 retrieves terms, locations, users, sites and languages
  * 					from the ini file and returns these as an array list of strings
- *				1.0	implement methods getConfigurationElement and setConfigurationElemenet
- *					to retrieve a single value and either add a new value 
- *					or update an existing one in the file
- *				1.1	added support for SocialNetwork specific configuration
+ *				0.3	implemented method getConfigurationElement to retrieve a single value
+ *				0.4	added support for SocialNetwork specific configuration
+ *				0.5 changed naming convention for constraints according to XMLFileConfiguration
+ *				0.6 changed methods according to IConfigurationManager version 0.3
+ *				0.7 added warning to unimplemented methods
  *  
+ *  TODO implement setConfigurationElement
  */
 public class IniFileConfigurationPersistence implements IConfigurationManager  {
 	
@@ -35,31 +38,11 @@ public class IniFileConfigurationPersistence implements IConfigurationManager  {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	@Override
-	public ArrayList<String> getTrackTerms(SocialNetworks SN) {
-		return getDataFromIni("trackTerms", SN);
-	}
-
-	@Override
-	public ArrayList<String> getTrackLanguages(SocialNetworks SN) {
-		return getDataFromIni("trackLanguages", SN);
-	}
-
-	@Override
-	public ArrayList<String> getTrackSites(SocialNetworks SN) {
-		logger.warn("no type safety guranteed for configuration element sites - consider using xml configuration");
-		return getDataFromIni("trackSites", SN);
-	}
-	
-	@Override
-	public ArrayList<String> getTrackLocations(SocialNetworks SN) {
-		logger.warn("no type safety guranteed for configuration element location - consider using xml configuration");
-		return getDataFromIni("trackLocas", SN);
-	}
-	
-	@Override
-	public ArrayList<String> getTrackUsers(SocialNetworks SN) {
-		logger.warn("no type safety guranteed for configuration element users - consider using xml configuration");
-		return getDataFromIni("trackUsers", SN);
+	public ArrayList<String> getConstraint(String category, SocialNetworks SN) {
+		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "location")  : "ERROR :: can only accept term, site, user, language or location as category";
+		
+		logger.warn("no type safety guranteed for configuration elements - consider using xml or db configuration");
+		return getDataFromIni(category, SN);
 	}
 	
 	private ArrayList<String> getDataFromIni(String section, SocialNetworks SN) {
@@ -75,7 +58,8 @@ public class IniFileConfigurationPersistence implements IConfigurationManager  {
 			logger.error("EXCEPTION :: error reading configuration file " + e2.getLocalizedMessage() + ". This is serious, I'm giving up!");
 			System.exit(-1);
 		}
-
+		
+		// now add config elements one by one to array
         for (String key : ini.get(section).keySet()) {
         	ar.add(ini.get(section).fetch(key));
         	logger.trace(ini.get(section).getName() + " = " + ini.get(section).fetch(key));
@@ -86,45 +70,13 @@ public class IniFileConfigurationPersistence implements IConfigurationManager  {
 	
 	@Override
 	public String getConfigurationElement(String key, String path) {
-		Ini ini = null;
-		
-		try {
-			ini = new Ini(new FileReader((String)getConfigDbHandler()));
-		} catch (InvalidIniFormatException e1) {
-			logger.error("EXCEPTION :: invalid ini format " + e1.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(-1);
-		} catch (IOException e2) {
-			logger.error("EXCEPTION :: error reading configuration file " + e2.getLocalizedMessage() + ". You sure we are up and running?");
-			System.exit(-1);
-		}
-		
-		return ini.get(path).fetch(key);
+		logger.warn("The method getConfigurationElement is not supported on configuration type ini-file");
+		return null;
 	}
 
 	@Override
 	public void setConfigurationElement(String key, String value, String path) {
-		Ini ini = null;
-		
-		try {
-			ini = new Ini(new FileReader((String)getConfigDbHandler()));
-			Ini.Section section = ini.get(path);
-			section.put(key, value);
-			
-			//TODO implement write to ini support
-			//Writer wri = new FileWriter((String)getConfigDbHandler());
-			//wri.close();
-			/*
-			FileOutputStream fos = new FileOutputStream((String)getConfigDbHandler());
-	        ObjectOutputStream oos = new ObjectOutputStream(fos);
-			ini.store(oos);
-			*/
-			logger.warn("adding values is not yet implemented - nothing was done");
-		} catch (InvalidIniFormatException e1) {
-			logger.error("EXCEPTION :: invalid ini format " + e1.getLocalizedMessage()+ ". This is serious, I'm giving up!");
-			System.exit(-1);
-		} catch (IOException e2) {
-			logger.error("EXCEPTION :: error reading configuration file " + e2.getLocalizedMessage() + ". Your changes/additions are probably lost, sorry!");
-		}
+		logger.warn("The method setConfigurationElement is not supported on configuration type ini-file");
 	}
 	
 	// getter and setter for the configuration path
@@ -133,5 +85,10 @@ public class IniFileConfigurationPersistence implements IConfigurationManager  {
 	}
 	public void setConfigDbHandler(String configDbHandler) {
 		this.configDbHandler = configDbHandler;
+	}
+
+	@Override
+	public void writeNewConfiguration(String xml) {
+		logger.warn("The method writeNewConfiguration from XML is not supported on configuration type ini-file");
 	}
 }
