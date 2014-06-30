@@ -118,6 +118,14 @@
 			</language>
 		</constraint>
 		
+		<!-- setup a constraint against specific user -->
+		<constraint>
+			<user>
+				<type>Long</type>
+				<value>754994</value>
+			</user>
+		</constraint>
+		
 		<!-- setup a constraint against specific geografical regions -->
 		<!-- NOT YET IMPLEMENTED 
 		<constraint>

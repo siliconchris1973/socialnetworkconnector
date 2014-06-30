@@ -20,7 +20,8 @@ import org.w3c.dom.NodeList;
 /**
  * @author		Christian Guenther
  * @category	Persistence manager
- * @version		0.4
+ * @version		0.5
+ * @param <T>
  * 
  * @description	A configuration manager for the crawler using structured xml files for the configuration
  * 
@@ -28,9 +29,10 @@ import org.w3c.dom.NodeList;
  * 				0.2 added simple parsing of XML file with jsoup
  * 				0.3 changed XML parsing to XPath
  * 				0.4 added warnings to unimplemented methods
+ * 				0.5 added support for generic type conversion on T
  *  
  */
-public class XMLFileConfigurationPersistence implements IConfigurationManager  {
+public class XMLFileConfigurationPersistence<T> implements IConfigurationManager<T>  {
 	
 	// the path to the configuration file
 	private String configDbHandler;
@@ -44,17 +46,18 @@ public class XMLFileConfigurationPersistence implements IConfigurationManager  {
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
-	// general invocation for every constraint#
+	// general invocation for every constraint
 	@Override
-	public ArrayList<String> getConstraint(String category, SocialNetworks SN) {
+	public ArrayList<T> getConstraint(String category, SocialNetworks SN) {
 		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "location")  : "ERROR :: can only accept term, site, user, language or location as category";
 		
 		logger.debug("reading constraints on " + category + " for network " + SN.toString());
-		return getDataFromXml(category, SN);
+		return (ArrayList<T>) getDataFromXml(category, SN);
 	}
 	
-	private ArrayList<String> getDataFromXml(String section, SocialNetworks SN) {
-		ArrayList<String> ar = new ArrayList<String>();
+	@SuppressWarnings("unchecked")
+	private ArrayList<T> getDataFromXml(String section, SocialNetworks SN) {
+		ArrayList<T> ar = new ArrayList<T>();
 		logger.trace("using configuration file " + getConfigDbHandler());
 		
 		
@@ -70,19 +73,18 @@ public class XMLFileConfigurationPersistence implements IConfigurationManager  {
 			// first step is to get all general constraints 
 			String expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+scopeOnAllIdentifier+"']/"+constraintIdentifier+"/"+section+"/"+valueIdentifier;
 			NodeList nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
-			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " - now iterating over them");
-			for (int i = 0 ; i < nodeList.getLength() ; i++)
-				ar.add(nodeList.item(i).getTextContent());
-			
+			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + ": \r");
+			for (int i = 0 ; i < nodeList.getLength() ; i++) 
+				ar.add((T) nodeList.item(i).getTextContent());
 			
 			// second step is to get all constraints for the specified social network 
 			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+SN+"']/"+constraintIdentifier+"/"+section+"/"+valueIdentifier;
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " - now iterating over them");
 			for (int i = 0 ; i < nodeList.getLength() ; i++)
-				ar.add(nodeList.item(i).getTextContent());
-
+				ar.add((T) nodeList.item(i).getTextContent());
 			
+			logger.trace("    " + ar.toString());
 		} catch (IOException e) {
 			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
 			System.exit(-1);
@@ -92,13 +94,12 @@ public class XMLFileConfigurationPersistence implements IConfigurationManager  {
 			System.exit(-1);
 		}
 
-        return ar;
+        return (ArrayList<T>) ar;
 	}
 	
 	@Override
 	public String getConfigurationElement(String key, String path) {
 		logger.warn("The method getConfigurationElement is not supported on configuration type xml-file");
-		
 		return null;
 	}
 

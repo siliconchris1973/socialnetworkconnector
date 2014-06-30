@@ -92,6 +92,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				
 		// authentication to lithium
 		String _user = null;
+		@SuppressWarnings("unused")
 		String _passwd = null;
 		try {
 			_user = decryptValue((String) arg0.getJobDetail().getJobDataMap().get("user"));
@@ -101,23 +102,23 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		}
 		
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES AND USERS
-		logger.debug("now retrieving restrictions from configuration db");
+		logger.info("retrieving restrictions from configuration db");
 		String searchTerm = null;
 		
-		CrawlerConfiguration config = new CrawlerConfiguration();
-		ArrayList<String> tTerms = config.getConstraint("term", SocialNetworks.LITHIUM); 
-		ArrayList<String> tLangs = config.getConstraint("language", SocialNetworks.LITHIUM); 
-		// TODO implement data types for user and url
-		//ArrayList<LithiumConfigUser> tUsers = config.getConstraint("user", SocialNetworks.LITHIUM);
-		//ArrayList<URI> tSites = config.getConstraint("site", SocialNetworks.LITHIUM);
+		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint("term", SocialNetworks.LITHIUM); 
+		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint("language", SocialNetworks.LITHIUM); 
+		ArrayList<String> tUsers = new CrawlerConfiguration<String>().getConstraint("user", SocialNetworks.LITHIUM);
+		ArrayList<URI> tSites = new CrawlerConfiguration<URI>().getConstraint("site", SocialNetworks.LITHIUM);
 		
 		// simple log output
-		//if (tSites.size()>0)
-		//	smallLogMessage += "specific Sites ";
 		if (tTerms.size()>0)
 			smallLogMessage += "specific terms ";
+		if (tUsers.size()>0)
+			smallLogMessage += "specific Sites ";
 		if (tLangs.size()>0)
 			smallLogMessage += "specific languages ";
+		if (tSites.size()>0)
+			smallLogMessage += "specific Sites ";
 		logger.info("new lithium crawler instantiated - restricted to track " + smallLogMessage);
 		
 		try {
@@ -126,7 +127,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			HttpClient client = new HttpClient();
 			
 			//TODO change this simple for-loop to something more sophisticated
-			// maybe we can use the Outputs class for this???
+			// maybe we can use the GenericExecutorService class for this???
 			for (int i = 0 ; i < tTerms.size(); i++ ){
 				searchTerm = tTerms.get(i).toString();
 				logger.info("now searching for " + searchTerm);
@@ -281,6 +282,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	 * @returns 	new password authentication against web resource
 	 * 
 	 */
+	@SuppressWarnings("unused")
 	private void basicAuthentication(String user, String pwd){ 
 		Authenticator.setDefault( new Authenticator() {
 			@Override protected PasswordAuthentication getPasswordAuthentication() {

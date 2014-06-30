@@ -19,8 +19,6 @@ import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 
 import de.comlineag.snc.data.SocialNetworks;
-import de.comlineag.snc.data.TwitterConfigLocation;
-import de.comlineag.snc.data.TwitterConfigUser;
 import de.comlineag.snc.handler.CrawlerConfiguration;
 import de.comlineag.snc.handler.TwitterParser;
 
@@ -67,15 +65,6 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				
 		// instantiate the Twitter-Posting-Manager
 		post = new TwitterParser();
-		
-		// TODO check what about multithreading and executor services
-		/*
-		// Set up the executor service to distribute the actual tasks
-		final int numProcessingThreads = 4;
-		// Create an executor service which will spawn threads to do the actual work
-		// of parsing the incoming messages and calling the listeners on each message
-		ExecutorService service = Executors.newFixedThreadPool(numProcessingThreads);
-		 */
 	}
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
@@ -85,12 +74,11 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 		
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, LOCATIONS AND USERS
-		logger.debug("now retrieving restrictions from configuration db");
-		CrawlerConfiguration config = new CrawlerConfiguration();
-		ArrayList<String> tTerms = config.getConstraint("term", SocialNetworks.TWITTER);
-		ArrayList<String> tLangs = config.getConstraint("language", SocialNetworks.TWITTER);
-		// TODO implement data types for user and location
-		//ArrayList<TwitterConfigUser> tUsers = config.getConstraint("user", SocialNetworks.TWITTER);
+		logger.info("retrieving restrictions from configuration db");
+		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint("term", SocialNetworks.TWITTER);
+		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint("language", SocialNetworks.TWITTER);
+		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint("user", SocialNetworks.TWITTER);
+		// TODO implement data types for location
 		//ArrayList<TwitterConfigLocation> tLocas = config.getConstraint("location", SocialNetworks.TWITTER);
 				
 		// log output AND setup of the filter endpoint
@@ -98,22 +86,20 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			smallLogMessage += "specific terms ";
 			endpoint.trackTerms(tTerms);
 		}
-		/*
 		if (tUsers.size()>0) {
-			smallLogMessage += "specific Locations ";
-			endpoint.locations(tUsers);
+			smallLogMessage += "specific users ";
+			endpoint.followings(tUsers);
 		}
-		+/
+		if (tLangs.size()>0) {
+			smallLogMessage += "specific languages ";
+			endpoint.languages(tLangs);
+		}
 		/*
 		if (tLocas.size()>0) {
 			smallLogMessage += "specific Locations ";
 			endpoint.locations(tLocas);
 		}
 		*/
-		if (tLangs.size()>0) {
-			smallLogMessage += "specific languages ";
-			endpoint.languages(tLangs);
-		}
 		logger.info("new twitter crawler instantiated - restricted to track " + smallLogMessage);
 		
 		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get("consumerKey"), 

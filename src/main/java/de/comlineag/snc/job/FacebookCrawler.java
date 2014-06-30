@@ -83,13 +83,13 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		
 		// setup restrictions on what to track
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES AND USERS
-		logger.debug("now retrieving restrictions from configuration db");
+		logger.info("retrieving restrictions from configuration db");
 		CrawlerConfiguration config = new CrawlerConfiguration();
 		ArrayList<String> tTerms = config.getConstraint("term", SocialNetworks.FACEBOOK); 
 		ArrayList<String> tLangs = config.getConstraint("language", SocialNetworks.FACEBOOK); 
 		ArrayList<String> tSites = config.getConstraint("site", SocialNetworks.FACEBOOK);
 		//ArrayList<Location> tLocas = config.getConstraint("location", SocialNetworks.FACEBOOK);
-		//ArrayList<String> tUsers = config.getConstraint("user", SocialNetworks.FACEBOOK);
+		ArrayList<Long> tUsers = config.getConstraint("user", SocialNetworks.FACEBOOK);
 		
 		// simple log output
 		if (tSites.size()>0){
@@ -113,15 +113,6 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get("consumerKey"), (String) arg0.getJobDetail()
 				.getJobDataMap().get("consumerSecret"), (String) arg0.getJobDetail().getJobDataMap().get("token"), (String) arg0
 				.getJobDetail().getJobDataMap().get("tokenSecret"));
-		*/
-		
-		// TODO implement facebook connection handler
-		/*
-		try {
-			httpGet(REST_API_URL);
-		} catch (IOException e1) {
-			logger.error("EXCEPTION :: Could not connect to " + REST_API_URL + ": " + e1);
-		}
 		*/
 		
 		URL url;
