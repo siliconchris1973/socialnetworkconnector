@@ -16,7 +16,7 @@ import de.comlineag.snc.data.LithiumStatusException;
  * 
  * @author 		Christian Guenther
  * @category 	Handler				
- * @version		1.1
+ * @version		1.2
  *  
  * @description LithiumParser implementation of the parser for the Lithium network community
  * 				LithiumParsr is an extension of the default GenericParser but differs in that
@@ -30,6 +30,7 @@ import de.comlineag.snc.data.LithiumStatusException;
  * 				0.7 implemented constants from LithiumConstants
  * 				1.0 first productive version returns array of messages
  * 				1.1 bugfixing and optimization
+ * 				1.2 implemented proper json error handling
  * 
  */
 public final class LithiumParser extends GenericParser {
@@ -74,15 +75,19 @@ public final class LithiumParser extends GenericParser {
 			
 			// first check if the server response is not only OK from an http point of view, but also
 			//    from the perspective of the REST API call
-			// TODO CHECK WHY THIS RETURNS UNKNOWN!!!
-			jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT).toString().toUpperCase());
-			logger.trace("json status code is " + responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT) + " translates to " + jsonStatusCode);
-			
-			if(!"success".equals(responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT)))
-				throw new LithiumStatusException("return code from server is " + jsonStatusCode);
-			 
-			//if(!jsonStatusCode.isOk())
-			//	throw new LithiumStatusException("return code from server is " + jsonStatusCode);
+			jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT).toString());
+			if(!jsonStatusCode.isOk()){
+				//error json: {"response":{"status":"error","error":{"code":501,"message":"Unbekanntes Pfadelement bei Knoten \u201Ecommunity_search_context\u201C"}}}
+				JSONParser errorParser = new JSONParser();
+				Object errorObj = errorParser.parse(jsonString);
+				JSONObject jsonErrorObj = errorObj instanceof JSONObject ?(JSONObject) errorObj : null;
+				if(jsonErrorObj == null)
+					throw new ParseException(0, "returned json object is null");
+				
+				logger.error("the server returned error " + jsonErrorObj.get(CONSTANTS.JSON_ERROR_CODE_TEXT) + " - " + jsonErrorObj.get(CONSTANTS.JSON_ERROR_MESSAGE_TEXT));
+				
+				throw new LithiumStatusException("the server returned error " + jsonErrorObj.get(CONSTANTS.JSON_ERROR_CODE_TEXT) + " - " + jsonErrorObj.get(CONSTANTS.JSON_ERROR_MESSAGE_TEXT));
+			}
 			
 			JSONObject messages = (JSONObject) responseObj.get(CONSTANTS.JSON_MESSAGES_OBJECT_IDENTIFIER);
 			JSONArray messageArray = (JSONArray) messages.get(CONSTANTS.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);

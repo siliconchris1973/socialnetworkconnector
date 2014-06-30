@@ -4,18 +4,20 @@ package de.comlineag.snc.data;
  *
  * @author 		Christian Guenther
  * @category	enum
- * @version 	1.0
+ * @version 	1.0 transition to 1.1
  * 
  * @description contains relevant Lithium Status Codes
  * 				provides a query to see if a given response code is good, as in OK, Accepted or Success
  * 				or if it is bad, as in Rejected, Bad Request etc.
  * 
  * @changelog	1.0 enum created
+ * 				1.1 changed call to getLithiumStatusCode to check on failure or success
  * 
  */
 public enum LithiumStatusCode {
 	UNKNOWN 						("unknown"										, false),
 	FORBIDDEN						("forbidden"									, false),
+	ERROR							("error"										, false),
 	SUCCESS							("success"										, true);
 	//UNKNOWN 						("UNKNOWN"										, false),
 	//FORBIDDEN						("FORBIDDEN"									, false),

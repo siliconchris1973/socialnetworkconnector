@@ -19,6 +19,10 @@ public final class LithiumConstants {
 	public final String JSON_RESPONSE_OBJECT_TEXT				= "response";
 	public final String JSON_STATUS_CODE_TEXT					= "status";
 	
+	public final String JSON_ERROR_OBJECT_TEXT					= "error";
+	public final String JSON_ERROR_CODE_TEXT					= "code";
+	public final String JSON_ERROR_MESSAGE_TEXT					= "message";
+	
 	public final String JSON_MESSAGES_OBJECT_IDENTIFIER			= "messages";
 	public final String JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER	= "message";
 	public final String JSON_MESSAGE_REFERENCE					= "href";
