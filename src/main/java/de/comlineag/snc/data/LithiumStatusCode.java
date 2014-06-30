@@ -22,17 +22,16 @@ public enum LithiumStatusCode {
 	//SUCCESS							("SUCCESS"										, true);
 	
 
-	private final String value;
-	private final boolean name;
+	private String value;
+	private boolean isOk;
 
-	private LithiumStatusCode(String value, boolean name) {
+	private LithiumStatusCode(String value, boolean isOk) {
 		this.value = value;
-		this.name = name;
-
+		this.isOk = isOk;
 	}
 
 	public boolean isOk() {
-		return name;
+		return isOk;
 	}
 
 	public String getValue(){
@@ -44,9 +43,13 @@ public enum LithiumStatusCode {
 		return getValue();
 	}
 	
+	public boolean isEqual(String errorCode){
+		return this.value.equals(errorCode);
+	}
+	
 	public static LithiumStatusCode getLithiumStatusCode(String errorCode){
-		for (LithiumStatusCode code : LithiumStatusCode.values()) {
-			if(code.getValue() == errorCode)
+		for (LithiumStatusCode code : values()) {
+			if(code.value.equals(errorCode))
 				return code;
 		}
 		return LithiumStatusCode.UNKNOWN;

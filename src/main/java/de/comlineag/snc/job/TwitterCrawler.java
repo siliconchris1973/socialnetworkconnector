@@ -79,7 +79,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint("language", SocialNetworks.TWITTER);
 		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint("user", SocialNetworks.TWITTER);
 		// TODO implement data types for location
-		//ArrayList<TwitterConfigLocation> tLocas = config.getConstraint("location", SocialNetworks.TWITTER);
+		//ArrayList<TwitterLocation> tLocas = config.getConstraint("location", SocialNetworks.TWITTER);
 				
 		// log output AND setup of the filter endpoint
 		if (tTerms.size()>0) {
