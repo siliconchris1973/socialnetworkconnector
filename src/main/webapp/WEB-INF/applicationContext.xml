@@ -40,7 +40,7 @@
 
 
 	<!-- C R A W L E R    S E T T I N G S -->
-	<!-- Twitter Crawler (WORKS) -->
+	<!-- T W I T T E R    C R A W L E R    (WORKS) -->
 	<bean name="TwitterCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.snc.job.TwitterCrawler" />
@@ -72,8 +72,9 @@
 							30000 - 5 minutes -->
 		<property name="repeatInterval" value="30000" />
 	</bean>
-
-	<!-- Lithium Crawler (WORKS) -->
+	
+	
+	<!-- L I T H I U M    C R A W L E R    (WORKS) -->
 	<bean name="LithiumCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.snc.job.LithiumCrawler" />
@@ -103,13 +104,15 @@
 		<property name="jobDetail" ref="LithiumCrawlerDetail" />
 		<!-- 1 second delay after startup -->
 		<property name="startDelay" value="1000" />
-		<!-- repeat the job every 5000 - 50 seconds 6000 - 1 minutes 15000 - 2,5 
-			minutes (round about) 30000 - 5 minutes -->
+		<!-- repeat the job every 	5000 - 50 seconds 
+									6000 - 1 minutes 
+									15000 - 2,5 minutes (round about) 
+									30000 - 5 minutes -->
 		<property name="repeatInterval" value="150000" />
 	</bean>
 	
 	
-	<!-- Facebook Crawler (TO BE IMPLEMENTED) -->
+	<!-- F A C E B O O K    C R A W L E R    (TO BE IMPLEMENTED) -->
 	<bean name="FacebookCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.snc.job.FacebookCrawler" />
@@ -140,14 +143,17 @@
 		<property name="jobDetail" ref="FacebookCrawlerDetail" />
 		<!-- 1 second delay after startup -->
 		<property name="startDelay" value="1000" />
-		<!-- repeat the job every 5000 - 50 seconds 6000 - 1 minutes 15000 - 2,5 
-			minutes (round about) 30000 - 5 minutes -->
+		<!-- repeat the job every 
+							5000 - 50 seconds 
+							6000 - 1 minutes 
+							15000 - 2,5 minutes (round about) 
+							30000 - 5 minutes -->
 		<property name="repeatInterval" value="150000" />
 	</bean>
 	
 	
-	<!-- Google Crawler (TO BE DEFINED) -->
-	<!--  
+	<!-- G O O G L E    C R A W L E R    (TO BE DEFINED) -->
+<!--  
 	<bean name="GoogleCrawlerDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean"> 
 		<property name="jobClass" value="de.comlineag.snc.job.GoogleCrawler" /> 
 		<property name="jobDataAsMap">
@@ -170,11 +176,21 @@
 		<property name="durability" value="true" /> 
 	</bean> 
 	<bean id="GoogleCrawlerTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean"> 
-		<property name="jobDetail" ref="GoogleCrawlerDetail" /> 
-		<property name="startDelay" value="1000" /> 
+		<property name="jobDetail" ref="GoogleCrawlerDetail" />
+--> 
+		<!-- 1 second delay after startup -->
+<!-- 
+		<property name="startDelay" value="1000" />
+--> 
+		<!-- repeat the job every 
+							5000 - 50 seconds 
+							6000 - 1 minutes 
+							15000 - 2,5 minutes (round about) 
+							30000 - 5 minutes -->
+<!-- 
 		<property name="repeatInterval" value="150000" /> 
 	</bean> 
-	-->
+-->
 
 
 	<!-- C O N F I G U R A T I O N    S E T T I N G S -->
@@ -206,7 +222,7 @@
 
 	<!-- P E R S I S T E N C E    S E T T I N G S -->
 	<!-- You may choose exactly one of the provided persistence manager -->
-	<!-- this is the bean for the hana persistence (WORKS) -->
+	<!-- H A N A    P E R S I S T E N C E    (WORKS) -->
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.HANAPersistence">
 		<property name="host" value="192.168.131.30" />
 		<property name="port" value="8000" />
@@ -219,7 +235,7 @@
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
 	</bean>
 
-	<!-- this is the bean for the neo4j persistence (WORKS) -->
+	<!-- N E O 4 J    P E R S I S T E N C E    (WORKS) -->
 	<!-- 
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.Neo4JPersistence"> 
 		<property name="protocol" value="http" /> 
@@ -230,7 +246,7 @@
 	</bean> 
 	-->
 	
-	<!-- this is the bean for the neo4j embedded persistence (TO BE IMPLEMENETED) -->
+	<!-- N E O 4 J    E M B E D D E D    P E R S I S T E N C E    (TO BE IMPLEMENETED) -->
 	<!--
 	<bean id="persistenceManager" 
 		class="de.comlineag.snc.persistence.Neo4JEmbeddedPersistence"> 
@@ -242,7 +258,7 @@
 	</bean> 
 	-->
 
-	<!-- this is the bean for the MapDB embedded persistence (TO BE IMPLEMENTED) -->
+	<!-- M A P D B    P E R S I S T E N C E    (TO BE IMPLEMENTED) -->
 	<!-- 
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.MapDBPersistence"> 
 		<property name="protocol" value="t.b.d." /> 

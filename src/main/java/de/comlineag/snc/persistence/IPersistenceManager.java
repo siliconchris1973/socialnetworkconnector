@@ -35,14 +35,4 @@ public interface IPersistenceManager {
 	 * 
 	 */
 	public void savePosts(PostData postData);
-
-	/**
-	 * implementation for saving the Location Data provided by social network in the DB
-	 * 
-	 * @param locationData
-	 *            Object Location Information for users and posts
-	 * 
-	 */
-	public void saveLocation(LocationData locationData);
-
 }

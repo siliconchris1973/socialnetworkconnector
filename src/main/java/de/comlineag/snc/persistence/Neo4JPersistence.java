@@ -287,14 +287,6 @@ public class Neo4JPersistence implements IPersistenceManager {
 	}
 	
 	
-	@Override
-	public void saveLocation(LocationData locationData) {
-		// TODO Auto-generated method stub for saveLocation
-		logger.warn("saving of locations is not (yet) implemented for Neo4J Graph database");
-	}
-	
-	
-	
 	/**
 	 * @description create an edge between two nodes in the graph
 	 * 				with the given attribute (relationshipType) 

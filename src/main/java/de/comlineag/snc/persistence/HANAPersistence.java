@@ -390,13 +390,6 @@ public class HANAPersistence implements IPersistenceManager {
 	
 	
 	
-	@Override
-	public void saveLocation(LocationData locationData) {
-		// TODO Auto-generated method stub for saveLocation
-		logger.warn("saving of locations is not (yet) implemented for HANA database");
-	}
-	
-	
 	/**
 	 * 
 	 * @description searches for users or posts in the database and returns true if the dataset

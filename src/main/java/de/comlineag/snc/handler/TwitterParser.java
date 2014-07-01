@@ -42,7 +42,6 @@ public final class TwitterParser extends GenericParser {
 		JSONParser parser = new JSONParser();
 		List<TwitterPosting> postings = new ArrayList<TwitterPosting>();
 		List<TwitterUser> users = new ArrayList<TwitterUser>();
-		List<TwitterLocation> locations = new ArrayList<TwitterLocation>();
 		
 		try {
 			// first posts (tweets)
@@ -62,12 +61,6 @@ public final class TwitterParser extends GenericParser {
 				postings.add(new TwitterPosting(jsonReTweeted));
 			}
 			
-			// and finally get location data
-			JSONObject jsonLocation = (JSONObject) jsonTweetResource.get("place");
-			if (jsonLocation != null) {
-				locations.add(new TwitterLocation(jsonLocation));
-			}
-
 		} catch (ParseException e) {
 			logger.error("EXCEPTION :: " + e.getMessage() + " " + e);
 		}
@@ -82,10 +75,6 @@ public final class TwitterParser extends GenericParser {
 			user.save();
 		}
 		
-		for (int ii = 0; ii < locations.size(); ii++) {
-			TwitterLocation location = (TwitterLocation) locations.get(ii);
-			location.save();
-		}
 		logger.debug("Twitter parser END");
 	}
 
