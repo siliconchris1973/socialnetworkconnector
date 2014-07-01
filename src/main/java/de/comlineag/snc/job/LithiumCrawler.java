@@ -3,6 +3,7 @@ package de.comlineag.snc.job;
 import java.io.IOException;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
+import java.net.URL;
 import java.util.ArrayList;
 
 import org.json.simple.JSONArray;
@@ -111,7 +112,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint("term", SocialNetworks.LITHIUM); 
 		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint("language", SocialNetworks.LITHIUM); 
 		ArrayList<String> tUsers = new CrawlerConfiguration<String>().getConstraint("user", SocialNetworks.LITHIUM);
-		ArrayList<URI> tSites = new CrawlerConfiguration<URI>().getConstraint("site", SocialNetworks.LITHIUM);
+		ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint("site", SocialNetworks.LITHIUM);
 		
 		// simple log output
 		if (tTerms.size()>0)
@@ -125,90 +126,105 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		logger.info("new lithium crawler instantiated - restricted to track " + smallLogMessage);
 		
 		try {
-			logger.info("setting up the rest endpoint at " + REST_API_URL + " with user " + _user);
-			//logger.info("initiating ssl-connection to " + REST_API_URL);
-			HttpClient client = new HttpClient();
+			String postEndpoint = null;
 			
-			//TODO change this simple for-loop to something more sophisticated
+			// if no specific sites are configured, we use the standard REST_API_URL and message search endpoint
+			if (tSites.size()==0){
+				tSites.add(REST_API_URL+CONSTANTS.REST_MESSAGES_SEARCH_URI);
+			} else {
+				String t = null;
+				for (int i = 0; i < tSites.size() ; i++) {
+					t = tSites.get(i);
+					tSites.set(i, REST_API_URL + t + CONSTANTS.REST_MESSAGES_SEARCH_URI);
+				}
+			}
+			
+			//TODO change this simple double for-loop to something more sophisticated
 			// maybe we can use the GenericExecutorService class for this???
-			for (int i = 0 ; i < tTerms.size(); i++ ){
-				searchTerm = tTerms.get(i).toString();
-				logger.info("now searching for " + searchTerm);
+			for (int i = 0 ; i < tSites.size(); i++ ){
+				postEndpoint = tSites.get(i);
+				logger.trace("setting up the rest endpoint at " + postEndpoint + " with user " + _user);
+				HttpClient client = new HttpClient();
 				
-				// http connection stuff to get messages per search term
-				PostMethod method = new PostMethod(REST_API_URL+CONSTANTS.REST_MESSAGES_SEARCH_URI);
-				method.addParameter(CONSTANTS.HTTP_RESPONSE_FORMAT_COMMAND, CONSTANTS.HTTP_RESPONSE_FORMAT);
-				method.addParameter(CONSTANTS.SEARCH_TERM, searchTerm);
-				httpStatusCode = HttpStatusCode.getHttpStatusCode(client.executeMethod(method));
-				if (!httpStatusCode.isOk()){
-					if (httpStatusCode == HttpStatusCode.FORBIDDEN){
-						logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCode.getErrorCode()));
+				for (int ii = 0 ; ii < tTerms.size(); ii++ ){
+					searchTerm = tTerms.get(ii).toString();
+					logger.info("now searching for " + searchTerm + " in " + postEndpoint);
+					
+					// http connection stuff to get messages per search term
+					PostMethod method = new PostMethod(postEndpoint );
+					method.addParameter(CONSTANTS.HTTP_RESPONSE_FORMAT_COMMAND, CONSTANTS.HTTP_RESPONSE_FORMAT);
+					method.addParameter(CONSTANTS.SEARCH_TERM, searchTerm);
+					httpStatusCode = HttpStatusCode.getHttpStatusCode(client.executeMethod(method));
+					if (!httpStatusCode.isOk()){
+						if (httpStatusCode == HttpStatusCode.FORBIDDEN){
+							logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCode.getErrorCode()));
+						} else {
+							logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCode.getErrorCode()) + " could not connect to " + postEndpoint);
+						}
 					} else {
-						logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCode.getErrorCode()) + " could not connect to " + REST_API_URL);
-					}
-				} else {
-					// ONLY and ONLY if the http connection was successfull, we should even try to decode a response json
-					logger.info("http connection established (status is " + httpStatusCode + ")");
-					
-					// now get the json and check on that
-					String jsonString = method.getResponseBodyAsString();
-					logger.trace("our json in the execute loop: " + jsonString);
-					
-					// now do the check on json erro details within  the returned JSON object
-					// first check if the server response is not only OK from an http point of view, but also
-					//    from the perspective of the REST API call
-					JSONParser errParser = new JSONParser();
-					Object errObj = errParser.parse(jsonString);
-					JSONObject jsonErrObj = errObj instanceof JSONObject ?(JSONObject) errObj : null;
-					if(jsonErrObj == null)
-						throw new ParseException(0, "returned json object is null");
-					JSONObject responseObj = (JSONObject)jsonErrObj.get(CONSTANTS.JSON_RESPONSE_OBJECT_TEXT);
-					jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT).toString());
-					
-					if(!jsonStatusCode.isOk()){
-						//error json: {"response":{"status":"error","error":{"code":501,"message":"Unbekanntes Pfadelement bei Knoten \u201Ecommunity_search_context\u201C"}}}
-						JSONObject errorReference = (JSONObject)responseObj.get(CONSTANTS.JSON_ERROR_OBJECT_TEXT);
-						logger.error("the server returned error " + errorReference.get(CONSTANTS.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(CONSTANTS.JSON_ERROR_MESSAGE_TEXT));
+						// ONLY and ONLY if the http connection was successfull, we should even try to decode a response json
+						logger.debug("http connection established (status is " + httpStatusCode + ")");
 						
-						throw new GenericCrawlerException("the server returned error " + errorReference.get(CONSTANTS.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(CONSTANTS.JSON_ERROR_MESSAGE_TEXT));
-					} else {
+						// now get the json and check on that
+						String jsonString = method.getResponseBodyAsString();
+						logger.trace("our json in the execute loop: " + jsonString);
 						
-						// give the json object to the lithium parser for further processing
-						LithiumParser litParse = new LithiumParser();
-						JSONArray messageArray = litParse.parseMessages(jsonString);
+						// now do the check on json erro details within  the returned JSON object
+						// first check if the server response is not only OK from an http point of view, but also
+						//    from the perspective of the REST API call
+						JSONParser errParser = new JSONParser();
+						Object errObj = errParser.parse(jsonString);
+						JSONObject jsonErrObj = errObj instanceof JSONObject ?(JSONObject) errObj : null;
+						if(jsonErrObj == null)
+							throw new ParseException(0, "returned json object is null");
+						JSONObject responseObj = (JSONObject)jsonErrObj.get(CONSTANTS.JSON_RESPONSE_OBJECT_TEXT);
+						jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT).toString());
 						
-						for(Object messageObj : messageArray){
-							String messageRef = (String) ((JSONObject)messageObj).get(CONSTANTS.JSON_MESSAGE_REFERENCE);
+						if(!jsonStatusCode.isOk()){
+							//error json: {"response":{"status":"error","error":{"code":501,"message":"Unbekanntes Pfadelement bei Knoten \u201Ecommunity_search_context\u201C"}}}
+							JSONObject errorReference = (JSONObject)responseObj.get(CONSTANTS.JSON_ERROR_OBJECT_TEXT);
+							logger.error("the server returned error " + errorReference.get(CONSTANTS.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(CONSTANTS.JSON_ERROR_MESSAGE_TEXT));
 							
-							JSONObject messageResponse = SendObjectRequest(messageRef, REST_API_URL, CONSTANTS.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
-							if (messageResponse != null) {
-								// first save the message
-								new LithiumPosting(messageResponse).save();
+							throw new GenericCrawlerException("the server returned error " + errorReference.get(CONSTANTS.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(CONSTANTS.JSON_ERROR_MESSAGE_TEXT));
+						} else {
+							
+							// give the json object to the lithium parser for further processing
+							LithiumParser litParse = new LithiumParser();
+							JSONArray messageArray = litParse.parseMessages(jsonString);
+							
+							for(Object messageObj : messageArray){
+								String messageRef = (String) ((JSONObject)messageObj).get(CONSTANTS.JSON_MESSAGE_REFERENCE);
 								
-								// now get the user from REST url and save it also
-								try {
-									JSONParser parser = new JSONParser();
-									Object obj = parser.parse(messageResponse.toString());
-									JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
-									if(jsonObj == null)
-										throw new ParseException(0, "returned json object is null");
-									JSONObject authorObj = (JSONObject)jsonObj.get(CONSTANTS.JSON_AUTHOR_OBJECT_IDENTIFIER);
+								JSONObject messageResponse = SendObjectRequest(messageRef, REST_API_URL, CONSTANTS.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
+								if (messageResponse != null) {
+									// first save the message
+									new LithiumPosting(messageResponse).save();
 									
-									String userRef = (String) ((JSONObject)authorObj).get(CONSTANTS.JSON_AUTHOR_REFERENCE);
-									JSONObject userResponse = SendObjectRequest(userRef, REST_API_URL, CONSTANTS.JSON_USER_OBJECT_IDENTIFIER);
-									logger.trace("user object: " + userResponse.toString());
-									
-									new LithiumUser(userResponse).save();
-									
-								} catch (ParseException e) {
-									logger.error("EXCEPTION :: could not retrieve user from message object " + e.getLocalizedMessage());
-									e.printStackTrace();
-								} // try catch
-							} // if message response is != null
-						}// for loop over message array
-					}// is json ok
-				}// is http ok
-			}// loop over search terms
+									// now get the user from REST url and save it also
+									try {
+										JSONParser parser = new JSONParser();
+										Object obj = parser.parse(messageResponse.toString());
+										JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+										if(jsonObj == null)
+											throw new ParseException(0, "returned json object is null");
+										JSONObject authorObj = (JSONObject)jsonObj.get(CONSTANTS.JSON_AUTHOR_OBJECT_IDENTIFIER);
+										
+										String userRef = (String) ((JSONObject)authorObj).get(CONSTANTS.JSON_AUTHOR_REFERENCE);
+										JSONObject userResponse = SendObjectRequest(userRef, REST_API_URL, CONSTANTS.JSON_USER_OBJECT_IDENTIFIER);
+										logger.trace("user object: " + userResponse.toString());
+										
+										new LithiumUser(userResponse).save();
+										
+									} catch (ParseException e) {
+										logger.error("EXCEPTION :: could not retrieve user from message object " + e.getLocalizedMessage());
+										e.printStackTrace();
+									} // try catch
+								} // if message response is != null
+							}// for loop over message array
+						}// is json ok
+					}// is http ok
+				}// loop over search terms
+			}// loop over sites
 		} catch (HttpException e) {
 			logger.error("EXCEPTION :: HTTP Error: " + e.toString(), e);
 		} catch (IOException e) {

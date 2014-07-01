@@ -26,7 +26,7 @@ import de.comlineag.snc.handler.TwitterParser;
  * 
  * @author 		Christian Guenther
  * @category 	Job
- * @version		1.2
+ * @version		1.3
  * 
  * @description this is the actual crawler of the twitter network. It is
  *              implemented as a job and, upon execution, will connect to the
@@ -35,10 +35,10 @@ import de.comlineag.snc.handler.TwitterParser;
  * 
  * @changelog	0.1 - 0.4 first static version retrieves posts				Chris and Maic
  * 				0.5 keys are taken from ApplicationContext.xml				Magnus
- * 				0.6 - 0.9 bugfixing and optimization
+ * 				0.6 - 0.9 bugfi2ing and optimization
  * 				1.0	first productive version
  * 				1.1	configuration is made dynamic 							Chris
- *				1.2	added support for SocialNetwork specific configuration
+ *				1.2	added support for SocialNetwork specific configuration	
  *
  */
 public class TwitterCrawler extends GenericCrawler implements Job {
@@ -79,7 +79,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint("language", SocialNetworks.TWITTER);
 		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint("user", SocialNetworks.TWITTER);
 		// TODO implement data types for location
-		//ArrayList<TwitterLocation> tLocas = config.getConstraint("location", SocialNetworks.TWITTER);
+		//ArrayList<TwitterLocationData> tLocas = config.getConstraint("location", SocialNetworks.TWITTER);
 				
 		// log output AND setup of the filter endpoint
 		if (tTerms.size()>0) {

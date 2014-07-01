@@ -129,13 +129,12 @@ public class PostData {
 	 */
 	protected String geoAroundLongitude;
 	protected String geoAroundLatitude;
+
+	protected String coordinates; // obsolete
 	
 	protected List<?> hashtags;
 	protected List<?> symbols;
 	protected List<?> mentions;
-	
-	protected String coordinates; // obsolete
-	
 	
 	// getter and setter
 	public long getId() {

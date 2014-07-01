@@ -12,6 +12,7 @@
 <configurations>
 	<!-- START OF GENERIC CONFIG -->
 	<configuration scope="ALL">
+	
 		<!-- track only messages (aka posts) with specific keywords -->
 		<constraint>
 			<term>
@@ -48,6 +49,7 @@
 			</term>
 		</constraint>
 		
+		
 		<!-- track only messages (aka posts) in specific languages -->
 		<!-- is done specifically for twitter - see below
 		<constraint>
@@ -58,6 +60,7 @@
 		</constraint>
 		-->
 		
+		
 		<!-- setup a constraint against specific sites -->
 		<!-- is only necessary for lithium - see below
 		<constraint>
@@ -67,7 +70,8 @@
 			</site>
 		</constraint>
 		-->
-		 
+		
+		
 		<!-- setup a constraint against specific geografical regions -->
 		<!-- NOT YET IMPLEMENTED 
 		<constraint>
@@ -94,6 +98,7 @@
 			</term>
 		</constraint>
 		
+		
 		<!-- track only messages (aka posts) in specific languages -->
 		<constraint>
 			<language>
@@ -118,13 +123,17 @@
 			</language>
 		</constraint>
 		
+		
 		<!-- setup a constraint against specific user -->
+		<!-- 
 		<constraint>
 			<user>
 				<type>Long</type>
 				<value>754994</value>
 			</user>
 		</constraint>
+		 -->
+		 
 		
 		<!-- setup a constraint against specific geografical regions -->
 		<!-- NOT YET IMPLEMENTED 
@@ -138,18 +147,49 @@
 	</configuration>
 	<!-- END OF TWITTER CONFIG -->
 	
+	
 	<!-- START OF LITHIUM CONFIG -->
 	<!-- specific configuration for lithium crawler -->
 	<configuration scope="LT">
-		<!-- setup a constraint against specific sites -->
-		<!-- 
+		<!-- setup a constraint against specific sites or boards as they are called
+			 be aware that you should NOT add server-part and rest-api part to these uris.
+			 These values are taken from applicationContext.xml 
+		 -->
 		<constraint>
 			<site>
-				<type>url</type>
-				<value>http://example.com/track/only/me/and/no/one/else</value>
+				<type>String</type>
+				<value>/boards/id/Sonstige-Themen</value>
+			</site>
+			<site>
+				<type>String</type>
+				<value>/boards/id/Girokonto-Zahlungsverkehr</value>
+			</site>
+			<site>
+				<type>String</type>
+				<value>/boards/id/Sparen-und-Anlegen</value>
+			</site>
+			<site>
+				<type>String</type>
+				<value>/boards/id/Wertpapierhandel</value>
+			</site>
+			<site>
+				<type>String</type>
+				<value>/boards/id/Finanzieren</value>
+			</site>
+			<site>
+				<type>String</type>
+				<value>/boards/id/Rund-um-die-Community</value>
+			</site>
+			<site>
+				<type>String</type>
+				<value>/boards/id/FeedbackAnregungen</value>
+			</site>
+			<site>
+				<type>String</type>
+				<value>/boards/id/ExperteFrageAntwort</value>
 			</site>
 		</constraint>
-		-->
+		
 		<entry scope="CC_COMMUNITY_ID">
 			<type>String</type>
 			<value>hiaeh67457</value>

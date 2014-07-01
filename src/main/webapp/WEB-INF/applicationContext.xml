@@ -280,7 +280,7 @@
 		<property name="triggers">
 			<list>
 				<!-- activate each crawler you want and make sure to increase the threadCount above correspondingly -->
-				<!-- <ref bean="TwitterCrawlerTrigger" /> -->
+				<!-- <ref bean="TwitterCrawlerTrigger" />  -->
 				<!--<ref bean="FacebookCrawlerTrigger"/>-->
 				<!--<ref bean="GoogleCrawlerTrigger"/> -->
 				<!--<ref bean="LinkedinCrawlerTrigger"/> -->

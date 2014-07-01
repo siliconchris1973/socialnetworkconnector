@@ -36,6 +36,7 @@ public final class LithiumConstants {
 	// path to REST end points
 	public final String REST_MESSAGES_SEARCH_URI				= "/search/messages";
 	public final String REST_USERS_SEARCH_URI					= "/search/users";
+	public final String REST_BOARD_SEARCH_URI					= "/boards/id";
 		
 	// constants for the search process
 	public final String SEARCH_TERM								= "phrase";

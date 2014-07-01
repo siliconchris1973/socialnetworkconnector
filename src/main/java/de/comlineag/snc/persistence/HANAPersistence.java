@@ -12,6 +12,7 @@ import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OProperties;
 
+import de.comlineag.snc.data.LocationData;
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
 
@@ -385,6 +386,14 @@ public class HANAPersistence implements IPersistenceManager {
 		} else {
 			logger.info("The user " + userData.getUsername() + " (" + userData.getSnId()  + "-" + userData.getId() + ") is already in the database");
 		}
+	}
+	
+	
+	
+	@Override
+	public void saveLocation(LocationData locationData) {
+		// TODO Auto-generated method stub for saveLocation
+		logger.warn("saving of locations is not (yet) implemented for HANA database");
 	}
 	
 	

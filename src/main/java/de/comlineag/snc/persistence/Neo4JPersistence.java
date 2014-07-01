@@ -16,6 +16,7 @@ import org.json.simple.JSONObject;
 
 import de.comlineag.snc.data.HttpErrorMessages;
 import de.comlineag.snc.data.HttpStatusCode;
+import de.comlineag.snc.data.LocationData;
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.RelationshipTypes;
 import de.comlineag.snc.data.UserData;
@@ -284,6 +285,14 @@ public class Neo4JPersistence implements IPersistenceManager {
 			// create a relationship between User   and Post           of type AUTHORED            with no additional data
 			createRelationship(fromNodeLocationUri, toNodeLocationUri, RelationshipTypes.AUTHORED, null);
 	}
+	
+	
+	@Override
+	public void saveLocation(LocationData locationData) {
+		// TODO Auto-generated method stub for saveLocation
+		logger.warn("saving of locations is not (yet) implemented for Neo4J Graph database");
+	}
+	
 	
 	
 	/**

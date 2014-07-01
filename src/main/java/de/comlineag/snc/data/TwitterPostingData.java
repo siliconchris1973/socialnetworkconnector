@@ -1,26 +1,17 @@
 package de.comlineag.snc.data;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.geojson.GeoJsonObject;
-import org.geojson.LineString;
-import org.geojson.LngLatAlt;
-import org.geojson.Point;
-import org.geojson.Polygon;
-import org.json.simple.JSONObject;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.simple.JSONObject;
 
 /**
  * 
  * @author 		Christian Guenther, Magnus Leinemann
  * @category 	data type
- * @version 	1.1
+ * @version 	1.2
  * 
  * @description Describes a single twitter posting with all relevant informations.
  *              The class shall be used to make all methods handling a twitter
@@ -50,8 +41,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * 				0.9 skeleton for symbols, hashtags and mentions - as of v1.1 still not implemented
  * 				1.0 first productive version without geo location and hashtag, symbols, mentions
  * 				1.1 minor bugfixings
+ * 				1.2 geo location services and datatypes are now in their own class TwitterLocationData
  * 
- * @TODO implement geo, hashtags, symbols and mentions
+ * @TODO implement hashtags, symbols and mentions
  * 
  */
 
@@ -105,32 +97,48 @@ public final class TwitterPostingData extends PostData {
 			setInReplyToUser((Long) jsonObject.get("in_reply_to_user_id"));
 		if (jsonObject.get("in_reply_to_screen_name") != null)
 			setInReplyToUserScreenName((String) jsonObject.get("in_reply_to_screen_name"));
-
-		// Geodaten des Posts - es gibt coordinates und place, place wird gefuellt wenn bspw. im Web ein Ort fuer den Tweet angegeben wird:
-		if (jsonObject.get("coordinates") != null)
-			logger.debug("Found Coordinates " + jsonObject.get("coordinates").toString() + "");
 		
 		
 		/*
-		 * @description		Structur of geo coordinates:
-		 * 					{"type":"Point",
-		 * 						"coordinates":[-90.06779631,29.95202616]
-		 * 					}
-		 * 
-		 * TODO check if is possible to use this: http://docs.geotools.org/latest/userguide/faq.html
-		 * 
-		 */
-		/*
-		 // TODO implement proper geo handling - this currently kills the parser
+		 * coordinates is given by a mobile device
+		 *
+		 * Structure
+		 *		Coordinates {
+		 * 			"type":"Point",
+		 * 			"coordinates":[-84.497553,33.944551]
+		 * 		}
+	 	 */
+		if (jsonObject.get("coordinates") != null) {
+			logger.debug("Found Coordinates " + jsonObject.get("coordinates").toString());
+			
+		}
+		// place is filled from the users profile - it is a complex structure,
+		// therefore handling is done by its own class TwitterLocationData
 		if (jsonObject.get("place") != null) {
+			/* Structure
+			 * 			place {
+			 * 					"id":"e229de11a7eb6823",
+			 * 					"bounding_box":{
+			 * 						"type":"Polygon",
+			 * 						"coordinates":[
+			 * 							[[-84.616812,33.895088],[-84.616812,34.0011594],[-84.46746,34.0011594],[-84.46746,33.895088]]
+			 * 						]
+			 * 					},
+			 * 					"place_type":"city",
+			 * 					"name":"Marietta",
+			 * 					"attributes":{},
+			 * 					"country_code":"US",
+			 * 					"url":"https:\/\/api.twitter.com\/1.1\/geo\/id\/e229de11a7eb6823.json",
+			 * 					"country":"United States",
+			 * 					"full_name":"Marietta, GA"
+			 * 			}
+			 */
 			logger.trace("Found place " + jsonObject.get("place"));
 			JSONObject place = (JSONObject) jsonObject.get("place");
-
-			setGeoPlaceId(place.get("id").toString());
-			preparePostGeoData((JSONObject) place.get("bounding_box"));
-
+			TwitterLocationData twPlace = new TwitterLocationData(place);
+			
 		}
-		*/
+		
 		
 		/*
 		 * 
@@ -181,8 +189,6 @@ public final class TwitterPostingData extends PostData {
 		}
 	}
 	
-	
-	
 	/**
 	 * setup the Object with NULL
 	 */
@@ -211,134 +217,5 @@ public final class TwitterPostingData extends PostData {
 		hashtags = null;
 		symbols = null;
 		mentions = null;
-	}
-
-	/**
-	 * Die Twitter API liefert einen JSON-Eintrag "place" der die "bounding_box" enthaelt. 
-	 * Darin ist bisher immer ein Polygon aufgetreten.
-	 * Hier ein Datenbeispiel:
-	 * 
-	 * "place":{
-	 * "id":"2ecc0df58a30d37b",
-	 * 
-	 * "bounding_box":{
-	 * "type":"Polygon","coordinates":[
-	 * [
-	 * [10.992998,48.087582],
-	 * [10.992998,48.296783],
-	 * [11.412601,48.296783],
-	 * [11.412601,48.087582]
-	 * ]]
-	 * },
-	 * 
-	 * "place_type":"admin",
-	 * "contained_within":[],
-	 * "name":"Fuerstenfeldbruck",
-	 * "attributes":{},
-	 * "country_code":"DE",
-	 * "url":"https:\/\/api.twitter.com\/1.1\/geo\/id\/2ecc0df58a30d37b.json",
-	 * "country":"Deutschland",
-	 * "full_name":"Fuerstenfeldbruck, Bayern"
-	 * },
-	 * 
-	 * Weitere Infos hier: http://www.geojson.org/geojson-spec.html#polygon
-	 * 
-	 * Diese Methode uebernimmt den JSON String aus einer "bounding_box" und generiert zunuechst ein
-	 * allgemeines GeoJsonObject welches in der place Variable hinterlegt wird. Dann wird aus den 
-	 * Koordinaten ermittelt wo der Mittelpunkt
-	 * liegt.
-	 * 
-	 * @param _b_box
-	 *            bounding_box Obejct in Twitter String
-	 * 
-	 */
-	private void preparePostGeoData(JSONObject _b_box) {
-
-		GeoJsonObject geoObject;
-		double rootCoordLat = 0.00;
-		double rootCoordLon = 0.00;
-
-		try {
-			// generelles GeoJson in der place-Variable ablegen:
-			geoObject = new ObjectMapper().readValue(_b_box.toString().getBytes(), GeoJsonObject.class);
-			setPlace(geoObject);
-			logger.debug("geo information place initialized");
-
-			// welche Info haben wir denn im Objekt verfuegbar, damit dann den Mittelpunkt berechnen
-			if (geoObject instanceof Polygon) {
-				/*
-				 * Fall 1: Polygon
-				 * beinhaltet eine List der Koordinaten, diese ist eine 2-stufige Liste (Outer, Inner)
-				 * Es wird ueber die Liste geschleift und die Longitude/Latitude Mittelwerte gebildet
-				 */
-				Polygon geoOPolygon = (Polygon) geoObject;
-				List<LngLatAlt> coords = geoOPolygon.getCoordinates().get(0);
-
-				if (coords.size() > 0) {
-					for (int ii = 0; ii < coords.size(); ii++) {
-						rootCoordLat += coords.get(ii).getLatitude();
-						rootCoordLon += coords.get(ii).getLongitude();
-					}
-					rootCoordLat = rootCoordLat / (coords.size() + 1);
-					rootCoordLon = rootCoordLon / (coords.size() + 1);
-				}
-			} else if (geoObject instanceof Point) {
-				/*
-				 * Fall 2: Punkt
-				 * Fuer einen Punkt muss nur aus den Koordinaten abgelesen werden
-				 */
-				Point geoOPoint = (Point) geoObject;
-				rootCoordLat = geoOPoint.getCoordinates().getLatitude();
-				rootCoordLon = geoOPoint.getCoordinates().getLongitude();
-
-			} else if (geoObject instanceof LineString) {
-				/*
-				 * Fall 3: Linie
-				 * beinhaltet eine List der Koordinaten, diese ist aber 1-stufig im Gegensatz zum Polygon
-				 * Es wird ueber die Liste geschleift und die Longitude/Latitude Mittelwerte gebildet
-				 */
-				LineString geoOLine = (LineString) geoObject;
-				List<LngLatAlt> coords = geoOLine.getCoordinates();
-
-				if (coords.size() > 0) {
-					for (int ii = 0; ii < coords.size(); ii++) {
-						rootCoordLat += coords.get(ii).getLatitude();
-						rootCoordLon += coords.get(ii).getLongitude();
-					}
-					rootCoordLat = rootCoordLat / (coords.size() + 1);
-					rootCoordLon = rootCoordLon / (coords.size() + 1);
-				}
-			} else {
-				setGeoDefault();
-			}
-
-			setGeoLatitude(new Double(rootCoordLat).toString());
-			setGeoLongitude(new Double(rootCoordLon).toString());
-
-			logger.debug("Posting coordinates: " + rootCoordLat + " / " + rootCoordLon);
-
-			setGeoPlaceName(_b_box.get("name").toString());
-			setGeoPlaceCountry(_b_box.get("country").toString());
-
-		} catch (JsonParseException e) {
-			logger.error(e.getMessage());
-			setGeoDefault();
-		} catch (JsonMappingException e) {
-			logger.error(e.getMessage());
-			setGeoDefault();
-		} catch (IOException e) {
-			logger.error(e.getMessage());
-			setGeoDefault();
-		}
-
-	}
-
-	/**
-	 * Setter fuer 0.00/0.00 damit da dann immer was drin steht und die OData Aufbereitung da einen Eintrag finden kann
-	 */
-	private void setGeoDefault() {
-		setGeoLatitude("0.00");
-		setGeoLongitude("0.00");
-
 	}
 }

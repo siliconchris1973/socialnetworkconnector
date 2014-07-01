@@ -13,7 +13,7 @@ import org.json.simple.parser.ParseException;
  * 
  * @author 		Christian Guenther, Maic Rittmeier, Magnus Leinemann
  * @category 	Parser
- * @version		0.3
+ * @version		0.4
  * 
  * @description TwitterParser is the implementation of the generic parser for Twitter.
  * 				It decodes a tweet, passed along as a JSON String, calls the specific 
@@ -23,6 +23,7 @@ import org.json.simple.parser.ParseException;
  * @changelog	0.1 first skeleton										Chris
  * 				0.2 added support for list of posts	(no retweeted yet)	Maic
  * 				0.3 added support for list of users and decode user		Magnus
+ * 				0.4	added support for geo location saving to db			Chris
  * 
  * @TODO		add support for retweeted tweets and bring to version 1.0
  */
@@ -41,23 +42,30 @@ public final class TwitterParser extends GenericParser {
 		JSONParser parser = new JSONParser();
 		List<TwitterPosting> postings = new ArrayList<TwitterPosting>();
 		List<TwitterUser> users = new ArrayList<TwitterUser>();
-
+		List<TwitterLocation> locations = new ArrayList<TwitterLocation>();
+		
 		try {
-			// zuerst suchen wir uns den post (tweet)
+			// first posts (tweets)
 			JSONObject jsonTweetResource = (JSONObject) parser.parse(strTweet);
 			TwitterPosting posting = new TwitterPosting(jsonTweetResource);
 			postings.add(posting);
 
-			// und dann den user
+			// now users
 			JSONObject jsonUser = (JSONObject) jsonTweetResource.get("user");
 			TwitterUser user = new TwitterUser(jsonUser);
 			users.add(user);
 			
-			// zum schluss noch etwaige retweeted messages
+			// retweeted posts need to go in mesage array as well
 			//TODO check if retweeted REALLY is added
 			JSONObject jsonReTweeted = (JSONObject) jsonTweetResource.get("retweeted_status");
 			if (jsonReTweeted != null) {
 				postings.add(new TwitterPosting(jsonReTweeted));
+			}
+			
+			// and finally get location data
+			JSONObject jsonLocation = (JSONObject) jsonTweetResource.get("place");
+			if (jsonLocation != null) {
+				locations.add(new TwitterLocation(jsonLocation));
 			}
 
 		} catch (ParseException e) {
@@ -73,11 +81,16 @@ public final class TwitterParser extends GenericParser {
 			TwitterUser user = (TwitterUser) users.get(ii);
 			user.save();
 		}
+		
+		for (int ii = 0; ii < locations.size(); ii++) {
+			TwitterLocation location = (TwitterLocation) locations.get(ii);
+			location.save();
+		}
 		logger.debug("Twitter parser END");
 	}
 
 	@Override
 	protected void parse(InputStream is) {
-		// THIS ONE IS NOT USED
+		// THIS METHOD IS NOT USED
 	}
 }
