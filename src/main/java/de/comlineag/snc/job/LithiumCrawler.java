@@ -178,8 +178,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 						logger.trace("our json in the execute loop: " + jsonString);
 						
 						// now do the check on json error details within  the returned JSON object
-						// first check if the server response is not only OK from an http point of view, but also
-						//    from the perspective of the REST API call
 						JSONParser errParser = new JSONParser();
 						Object errObj = errParser.parse(jsonString);
 						JSONObject jsonErrObj = errObj instanceof JSONObject ?(JSONObject) errObj : null;
@@ -241,7 +239,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 							}// for loop over message array
 						}// is json ok
 					}// is http ok
-				}// loop over search terms
+				}// loop over search terms.exe
 			}// loop over sites
 		} catch (HttpException e) {
 			logger.error("EXCEPTION :: HTTP Error: " + e.toString(), e);
