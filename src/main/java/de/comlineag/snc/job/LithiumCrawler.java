@@ -127,6 +127,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			smallLogMessage += "specific Sites ";
 		logger.info("new lithium crawler instantiated - restricted to track " + smallLogMessage);
 		
+		
+		// now from this point everything is just one big mess and in it, we retrieve messages and users
 		try {
 			String postEndpoint = null;
 			
