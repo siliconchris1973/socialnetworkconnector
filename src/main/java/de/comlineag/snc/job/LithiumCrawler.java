@@ -92,7 +92,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		
 		// this is the status code for the http connection
 		HttpStatusCode httpStatusCode = null;
+		// and this the status code as coded within the json response
 		LithiumStatusCode jsonStatusCode = null;
+		
 		
 		// authentication to lithium
 		String _user = null;
@@ -105,13 +107,13 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			logger.error("EXCEPTION :: value for user or passwd is NOT base64 encrypted " + e.toString(), e);
 		}
 		
-		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES AND USERS
+		// THESE VALUES ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND SITES (aka boards)
 		logger.info("retrieving restrictions from configuration db");
 		String searchTerm = null;
 		
 		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint("term", SocialNetworks.LITHIUM); 
-		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint("language", SocialNetworks.LITHIUM); 
 		ArrayList<String> tUsers = new CrawlerConfiguration<String>().getConstraint("user", SocialNetworks.LITHIUM);
+		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint("language", SocialNetworks.LITHIUM); 
 		ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint("site", SocialNetworks.LITHIUM);
 		
 		// simple log output
@@ -132,6 +134,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			if (tSites.size()==0){
 				tSites.add(REST_API_URL+CONSTANTS.REST_MESSAGES_SEARCH_URI);
 			} else {
+				// otherwise each board from the sites section of the configuration file is surrounded by 
+				// the REST_API_URL and the message search uri
 				String t = null;
 				for (int i = 0; i < tSites.size() ; i++) {
 					t = tSites.get(i);
@@ -142,6 +146,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			//TODO change this simple double for-loop to something more sophisticated
 			// maybe we can use the GenericExecutorService class for this???
 			for (int i = 0 ; i < tSites.size(); i++ ){
+				// because the search endpoint can either be standard REST_API_URL or any of the configured sites, 
+				// we need a temp-variable to store it 
 				postEndpoint = tSites.get(i);
 				logger.trace("setting up the rest endpoint at " + postEndpoint + " with user " + _user);
 				HttpClient client = new HttpClient();
@@ -169,7 +175,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 						String jsonString = method.getResponseBodyAsString();
 						logger.trace("our json in the execute loop: " + jsonString);
 						
-						// now do the check on json erro details within  the returned JSON object
+						// now do the check on json error details within  the returned JSON object
 						// first check if the server response is not only OK from an http point of view, but also
 						//    from the perspective of the REST API call
 						JSONParser errParser = new JSONParser();
@@ -181,7 +187,17 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 						jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT).toString());
 						
 						if(!jsonStatusCode.isOk()){
-							//error json: {"response":{"status":"error","error":{"code":501,"message":"Unbekanntes Pfadelement bei Knoten \u201Ecommunity_search_context\u201C"}}}
+							/*
+							 *  error json structure: 
+							 *  {"response":{
+							 *  	"status":"error",
+							 *  	"error":{
+							 *  		"code":501,
+							 *  		"message":"Unbekanntes Pfadelement bei Knoten \u201Ecommunity_search_context\u201C"
+							 *  		}
+							 *  	}
+							 *  }
+							 */
 							JSONObject errorReference = (JSONObject)responseObj.get(CONSTANTS.JSON_ERROR_OBJECT_TEXT);
 							logger.error("the server returned error " + errorReference.get(CONSTANTS.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(CONSTANTS.JSON_ERROR_MESSAGE_TEXT));
 							
@@ -295,7 +311,17 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			logger.trace("json status code is " + responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT) + " translates to " + jsonStatusCode);
 			
 			if(!jsonStatusCode.isOk()){
-				//error json: {"response":{"status":"error","error":{"code":501,"message":"Unbekanntes Pfadelement bei Knoten \u201Ecommunity_search_context\u201C"}}}
+				/*
+				 *  error json structure: 
+				 *  {"response":{
+				 *  	"status":"error",
+				 *  	"error":{
+				 *  		"code":501,
+				 *  		"message":"Unbekanntes Pfadelement bei Knoten \u201Ecommunity_search_context\u201C"
+				 *  		}
+				 *  	}
+				 *  }
+				 */
 				JSONParser errorParser = new JSONParser();
 				Object errorObj = errorParser.parse(jsonString);
 				JSONObject jsonErrorObj = errorObj instanceof JSONObject ?(JSONObject) errorObj : null;
