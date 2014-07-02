@@ -3,6 +3,8 @@ package de.comlineag.snc.persistence;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.joda.time.DateTimeZone;
 import org.apache.commons.codec.binary.Base64;
@@ -11,6 +13,7 @@ import org.odata4j.consumer.ODataConsumer;
 import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OProperties;
+import org.odata4j.core.OProperty;
 
 import de.comlineag.snc.data.LocationData;
 import de.comlineag.snc.data.PostData;
@@ -123,13 +126,18 @@ public class HANAPersistence implements IPersistenceManager {
 						+ ",\"text\",\"raw_text\",\"teaser\",\"subject\",\"viewcount\","
 						+ ",\"favoritecount\",\"client\",\"truncated\",\"inReplyTo\" "
 						+ ",\"inReplyToUserID\",\"inReplyToScreenName\" "
-						// TODO activate these, when geo location works
-						//+ ",\"geoLocation_longitude\",\"geoLocation_latitude\" "
-						//+ ",\"placeID\",\"plName\",\"plCountry\" "
-						//+ ",\"plAround_longitude\",\"plAround_latitude\" "
+						
+						+ ",\"geoLocation_longitude\","
+						+ "\"geoLocation_latitude\" "
+						+ ",\"placeID\","
+						+ "\"plName\","
+						+ "\"plCountry\" "
+						+ ",\"plAround_longitude\","
+						+ "\"plAround_latitude\" "
 						+ ") "
 						+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?" 
-						//+ "?,?,?,?,?,?,?"
+						// these are for the geo location information
+						+ "?,?,?,?,?,?,?"
 						+ ")";
 				
 				PreparedStatement stmt = conn.prepareStatement(sql);
@@ -151,14 +159,13 @@ public class HANAPersistence implements IPersistenceManager {
 				stmt.setLong(14, postData.getInReplyTo());
 				stmt.setLong(15, postData.getInReplyToUser());
 				stmt.setString(16, postData.getInReplyToUserScreenName());
-				// TODO activate these, when geo location works
-				//stmt.setString(17, postData.getGeoLongitude());
-				//stmt.setString(18, postData.getGeoLatitude());
-				//stmt.setString(19, postData.getLocation());
-				//stmt.setString(20, postData.getPLName());
-				//stmt.setString(21, postData.getPLCountry());
-				//stmt.setString(22, postData.getPLAroundLongitude());
-				//stmt.setString(23, postData.getPLAroundLatitude());
+				stmt.setString(17, postData.getGeoLongitude());
+				stmt.setString(18, postData.getGeoLatitude());
+				stmt.setString(19, postData.getGeoPlaceId());
+				stmt.setString(20, postData.getGeoPlaceName());
+				stmt.setString(21, postData.getGeoPlaceCountry());
+				stmt.setString(22, postData.getGeoAroundLongitude());
+				stmt.setString(23, postData.getGeoAroundLatitude());
 				
 				int rowCount = stmt.executeUpdate();
 				
@@ -199,9 +206,9 @@ public class HANAPersistence implements IPersistenceManager {
 					logger.debug("already connected to service endpoint " + this.protocol+"://" + this.host + ":" + this.port + this.location + "/" + this.servicePostEndpoint);
 				}
 				
-				// now let us try 
+				OEntity newPost = null;
 				try {
-					OEntity newPost = postService.createEntity("post")
+					newPost = postService.createEntity("post")
 							.properties(OProperties.string("sn_id", postData.getSnId()))
 							.properties(OProperties.string("post_id", new String(new Long(postData.getId()).toString())))
 							.properties(OProperties.string("user_id", new String(new Long(postData.getUserId()).toString())))
@@ -216,15 +223,6 @@ public class HANAPersistence implements IPersistenceManager {
 							.properties(OProperties.int64("viewcount", new Long(postData.getViewCount())))
 							.properties(OProperties.int64("favoritecount", new Long(postData.getFavoriteCount())))
 							
-							// TODO when geo location is working, reactivate these fields
-							//.properties(OProperties.string("geoLocation_longitude", postData.getGeoLongitude()))
-							//.properties(OProperties.string("geoLocation_latitude", postData.getGeoLatitude()))
-							//.properties(OProperties.string("placeID", postData.getLocation()))
-							//.properties(OProperties.string("plName",  postData.getPLName()))
-							//.properties(OProperties.string("plCountry", postData.getPLCountry()))
-							//.properties(OProperties.string("plAround_longitude", postData.getPLAroundLongitude()))
-							//.properties(OProperties.string("plAround_latitude", postData.getPLAroundLatitude()))
-							
 							.properties(OProperties.string("client", postData.getClient()))
 							.properties(OProperties.int32("truncated", new Integer(truncated)))
 	
@@ -232,12 +230,35 @@ public class HANAPersistence implements IPersistenceManager {
 							.properties(OProperties.int64("inReplyToUserID", postData.getInReplyToUser()))
 							.properties(OProperties.string("inReplyToScreenName", postData.getInReplyToUserScreenName()))
 							
+							.properties(OProperties.string("geoLocation_longitude", postData.getGeoLongitude()))
+							.properties(OProperties.string("geoLocation_latitude", postData.getGeoLatitude()))
+							.properties(OProperties.string("placeID", postData.getGeoPlaceId()))
+							.properties(OProperties.string("plName",  postData.getGeoPlaceName()))
+							.properties(OProperties.string("plCountry", postData.getGeoPlaceCountry()))
+							.properties(OProperties.string("plAround_longitude", postData.getGeoAroundLongitude()))
+							.properties(OProperties.string("plAround_latitude", postData.getGeoAroundLatitude()))
+							
 							.execute();
 						
 					logger.info("New post ("+postData.getSnId()+"-"+postData.getId()+") created");
 				
+					/*
+					 * in case of an error during post, the following XML structure is returned as part of the exception:
+					 * 		<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+					 * 			<error xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"><code/>
+					 * 				<message xml:lang="en-US">
+					 * 					Service exception: inserted value too large for column.
+					 * 				</message>
+					 * 			</error>
+					 */
 				} catch (RuntimeException e) {
 					logger.error("ERROR :: could not create post ("+postData.getSnId()+"-"+postData.getId()+"): " + e.getLocalizedMessage());
+					// TODO find out how to get the http error code 
+					// check on the error code, some may be ok, for the crawler to continue 
+					// (everything above 499) some are client error, where we should bail out.
+					List<OProperty<?>> odataProp = newPost.getProperties();
+					for (int i = 0; i < odataProp.size() ; i++)
+						logger.trace("returned property at position " + i + " is " + odataProp.get(i).getValue() );
 					e.printStackTrace();
 					System.exit(-1);
 				} catch (Exception e) {
@@ -362,9 +383,16 @@ public class HANAPersistence implements IPersistenceManager {
 						
 					logger.info("New user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") created");
 				} catch (RuntimeException e) {
+					/*
+					 * in case of an error during post, the following XML structure is returned as part of the exception:
+					 * 		<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+					 * 			<error xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"><code/>
+					 * 				<message xml:lang="en-US">
+					 * 					Service exception: inserted value too large for column.
+					 * 				</message>
+					 * 			</error>
+					 */
 					// TODO find out how to retrieve return status from odata call
-					// <?xml version="1.0" encoding="utf-8" standalone="yes"?><error xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"><code/><message xml:lang="en-US">Service exception: inserted value too large for column.</message></error>
-					
 					logger.error("ERROR :: Could not create user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
 					e.printStackTrace();
 					System.exit(-1);

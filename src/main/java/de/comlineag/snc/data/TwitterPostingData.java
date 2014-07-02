@@ -4,8 +4,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  * 
@@ -28,7 +29,7 @@ import org.json.simple.JSONObject;
  *            "in_reply_to_user_id" Long
  *            "in_reply_to_screen_name" String
  *            "coordinates" List
- *            "place" List
+ *            "geoLocation" List
  *            "lang" String
  *            "hashtags" List
  *            "symbols" List
@@ -82,7 +83,10 @@ public final class TwitterPostingData extends PostData {
 
 		// Text des Post
 		setText((String) jsonObject.get("text"));
-
+		
+		// a teaser is created from the first 20 chars of the post
+		setTeaser(getText().substring(0,20)+"...");
+		
 		// Metadaten zum Post:
 		// von wo erzeugt:
 		setClient((String) jsonObject.get("source"));
@@ -111,12 +115,24 @@ public final class TwitterPostingData extends PostData {
 		if (jsonObject.get("coordinates") != null) {
 			logger.debug("Found Coordinates " + jsonObject.get("coordinates").toString());
 			
+			try {
+				JSONParser parser = new JSONParser();
+				Object simpleGeoLocationObj = parser.parse(jsonObject.get("coordinates").toString());	
+				JSONObject jsonObj = simpleGeoLocationObj instanceof JSONObject ?(JSONObject) simpleGeoLocationObj : null;
+				String t = new String(jsonObj.get("coordinates").toString());
+				logger.trace("retrieved coordinates: " + t + " / lat: " + t.substring(1, t.indexOf(",")) + " / long: " +t.substring(t.indexOf(",")+1,t.length()-1));
+				setGeoLatitude(t.substring(1, t.indexOf(","))); 
+				setGeoLongitude(t.substring(t.indexOf(",")+1,t.length()-1));
+			} catch (ParseException e) {
+				logger.error("error parsing json coordinates object: " + e.getLocalizedMessage());
+				e.printStackTrace();
+			}
 		}
-		// place is filled from the users profile - it is a complex structure,
-		// therefore handling is done by its own class TwitterLocationData
-		if (jsonObject.get("place") != null) {
+		// geoLocation is filled from the users profile - it is a complex structure,
+		// therefore handling is done by its own class LocationData
+		if (jsonObject.get("geoLocation") != null) {
 			/* Structure
-			 * 			place {
+			 * 			geoLocation {
 			 * 					"id":"e229de11a7eb6823",
 			 * 					"bounding_box":{
 			 * 						"type":"Polygon",
@@ -133,10 +149,17 @@ public final class TwitterPostingData extends PostData {
 			 * 					"full_name":"Marietta, GA"
 			 * 			}
 			 */
-			logger.trace("Found place " + jsonObject.get("place"));
-			JSONObject place = (JSONObject) jsonObject.get("place");
-			TwitterLocationData twPlace = new TwitterLocationData(place);
+			logger.trace("Found geoLocation " + jsonObject.get("geoLocation"));
+			JSONObject place = (JSONObject) jsonObject.get("geoLocation");
+			LocationData twPlace = new LocationData(place);
 			
+			setGeoLongitude(twPlace.getGeoLongitude());
+			setGeoLatitude(twPlace.getGeoLatitude());
+			setGeoPlaceId(twPlace.getGeoPlaceId());
+			setGeoPlaceName(twPlace.getGeoPlaceName());
+			setGeoPlaceCountry(twPlace.getGeoPlaceCountry());
+			setGeoAroundLongitude(twPlace.getGeoAroundLongitude());
+			setGeoAroundLatitude(getGeoAroundLongitude());
 		}
 		
 		
@@ -203,17 +226,26 @@ public final class TwitterPostingData extends PostData {
 		sn_id = SocialNetworks.TWITTER.getValue();
 
 		text = null;
+		raw_text = null;
 		time = null;
+		lang = null;
+		
 		posted_from_client = null;
 		truncated = null;
+		
 		in_reply_to_post = 0;
 		in_reply_to_user = 0;
 		in_reply_to_user_screen_name = null;
-		coordinates = null;
+		
+		place = null;
 		geoLatitude = null;
 		geoLongitude = null;
-		place = null;
-		lang = null;
+		geoAroundLatitude = null;
+		geoAroundLongitude = null;
+		geoPlaceId = null;
+		geoPlaceName = null;
+		geoPlaceCountry = null;
+		
 		hashtags = null;
 		symbols = null;
 		mentions = null;

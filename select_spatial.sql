@@ -1,0 +1,1 @@
+select * from "CL_SBM"."comline.sbm.data.tables::posts_1" where "CL_SBM"."comline.sbm.data.tables::posts_1"."sn_id" = 'TW' AND "CL_SBM"."comline.sbm.data.tables::posts_1"."geoLocation_longitude" != null

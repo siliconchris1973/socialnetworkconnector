@@ -47,7 +47,7 @@ import org.jsoup.Jsoup;
  *            "in_reply_to_screen_name"	String		fixed to NULL because not used
  *            
  *            "coordinates" 			List		fixed to NULL because not used
- *            "place" 					List		fixed to NULL because not used
+ *            "geoLocation" 					List		fixed to NULL because not used
  *            
  * 
  * JSON Structure:
@@ -269,6 +269,20 @@ public final class LithiumPostingData extends PostData {
 			}
 			
 			
+			
+			// a teaser can either be inserted by platform or it is created from the first 20 chars of the post
+			// Structure: 
+			// 	{}teaser
+			//		$ : ""
+			//		type : "string"
+			obj = parser.parse(jsonObject.get("teaser").toString());
+			JSONObject jsonObjTeaser = obj instanceof JSONObject ?(JSONObject) obj : null;
+			
+			setTeaser((String) jsonObjTeaser.get("$"));
+			if (getTeaser().length()<=5)
+				setTeaser(getText().substring(0,20)+"...");
+						
+						
 			// in which board was the message posted - we use the client field for this value
 			// Structure:
 			//	{}board	
@@ -366,12 +380,14 @@ public final class LithiumPostingData extends PostData {
 		in_reply_to_user = 0;
 		in_reply_to_user_screen_name = null;
 		
-		coordinates = null;
+		place = null;
 		geoLatitude = null;
 		geoLongitude = null;
-		place = null;
 		geoAroundLongitude = null;
 		geoAroundLatitude = null;
+		geoPlaceId = null;
+		geoPlaceName = null;
+		geoPlaceCountry = null;
 		
 		hashtags = null;
 		symbols = null;

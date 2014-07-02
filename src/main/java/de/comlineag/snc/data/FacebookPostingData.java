@@ -36,7 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *            "in_reply_to_user_id" Long
  *            "in_reply_to_screen_name" String
  *            "coordinates" List
- *            "place" List
+ *            "geoLocation" List
  *            "lang" String
  *            "hashtags" List
  *            "symbols" List
@@ -102,7 +102,7 @@ public final class FacebookPostingData extends PostData {
 		if (jsonObject.get("in_reply_to_screen_name") != null)
 			setInReplyToUserScreenName((String) jsonObject.get("in_reply_to_screen_name"));
 
-		// Geodaten des Posts - es gibt coordinates und place, place wird gefuellt wenn bspw. im Web ein Ort fuer den Tweet angegeben wird:
+		// Geodaten des Posts - es gibt coordinates und geoLocation, geoLocation wird gefuellt wenn bspw. im Web ein Ort fuer den Tweet angegeben wird:
 		if (jsonObject.get("coordinates") != null)
 			logger.debug("Found Coordinates " + jsonObject.get("coordinates").toString() + "");
 		
@@ -114,15 +114,15 @@ public final class FacebookPostingData extends PostData {
 		 * damit vielleicht besser moeglich den Kram zu verarbeiten?
 		 * http://docs.geotools.org/latest/userguide/faq.html
 		 * 
-		 * mein Tweet mit Ortsangabe JSON siehe unten hatte in place die Daten
+		 * mein Tweet mit Ortsangabe JSON siehe unten hatte in geoLocation die Daten
 		 
 		 // TODO implement proper geo handling - this currently kills the parser
-		if (jsonObject.get("place") != null) {
-			logger.trace("Found place " + jsonObject.get("place"));
-			JSONObject place = (JSONObject) jsonObject.get("place");
+		if (jsonObject.get("geoLocation") != null) {
+			logger.trace("Found geoLocation " + jsonObject.get("geoLocation"));
+			JSONObject geoLocation = (JSONObject) jsonObject.get("geoLocation");
 
-			setGeoPlaceId(place.get("id").toString());
-			preparePostGeoData((JSONObject) place.get("bounding_box"));
+			setGeoPlaceId(geoLocation.get("id").toString());
+			preparePostGeoData((JSONObject) geoLocation.get("bounding_box"));
 
 		}
 		*/
@@ -192,108 +192,25 @@ public final class FacebookPostingData extends PostData {
 
 		text = null;
 		time = null;
+		lang = null;
 		posted_from_client = null;
 		truncated = null;
+		
 		in_reply_to_post = 0;
 		in_reply_to_user = 0;
 		in_reply_to_user_screen_name = null;
-		coordinates = null;
+		
+		place = null;
 		geoLatitude = null;
 		geoLongitude = null;
-		place = null;
-		lang = null;
+		geoAroundLongitude = null;
+		geoAroundLatitude = null;
+		geoPlaceId = null;
+		geoPlaceName = null;
+		geoPlaceCountry = null;
+		
 		hashtags = null;
 		symbols = null;
 		mentions = null;
-	}
-
-	private void preparePostGeoData(JSONObject _b_box) {
-
-		GeoJsonObject geoObject;
-		double rootCoordLat = 0.00;
-		double rootCoordLon = 0.00;
-
-		try {
-			// generelles GeoJson in der place-Variable ablegen:
-			geoObject = new ObjectMapper().readValue(_b_box.toString().getBytes(), GeoJsonObject.class);
-			setPlace(geoObject);
-			logger.debug("geo information place initialized");
-
-			// welche Info haben wir denn im Objekt verfuegbar, damit dann den Mittelpunkt berechnen
-			if (geoObject instanceof Polygon) {
-				/*
-				 * Fall 1: Polygon
-				 * beinhaltet eine List der Koordinaten, diese ist eine 2-stufige Liste (Outer, Inner)
-				 * Es wird ueber die Liste geschleift und die Longitude/Latitude Mittelwerte gebildet
-				 */
-				Polygon geoOPolygon = (Polygon) geoObject;
-				List<LngLatAlt> coords = geoOPolygon.getCoordinates().get(0);
-
-				if (coords.size() > 0) {
-					for (int ii = 0; ii < coords.size(); ii++) {
-						rootCoordLat += coords.get(ii).getLatitude();
-						rootCoordLon += coords.get(ii).getLongitude();
-					}
-					rootCoordLat = rootCoordLat / (coords.size() + 1);
-					rootCoordLon = rootCoordLon / (coords.size() + 1);
-				}
-			} else if (geoObject instanceof Point) {
-				/*
-				 * Fall 2: Punkt
-				 * Fuer einen Punkt muss nur aus den Koordinaten abgelesen werden
-				 */
-				Point geoOPoint = (Point) geoObject;
-				rootCoordLat = geoOPoint.getCoordinates().getLatitude();
-				rootCoordLon = geoOPoint.getCoordinates().getLongitude();
-
-			} else if (geoObject instanceof LineString) {
-				/*
-				 * Fall 3: Linie
-				 * beinhaltet eine List der Koordinaten, diese ist aber 1-stufig im Gegensatz zum Polygon
-				 * Es wird ueber die Liste geschleift und die Longitude/Latitude Mittelwerte gebildet
-				 */
-				LineString geoOLine = (LineString) geoObject;
-				List<LngLatAlt> coords = geoOLine.getCoordinates();
-
-				if (coords.size() > 0) {
-					for (int ii = 0; ii < coords.size(); ii++) {
-						rootCoordLat += coords.get(ii).getLatitude();
-						rootCoordLon += coords.get(ii).getLongitude();
-					}
-					rootCoordLat = rootCoordLat / (coords.size() + 1);
-					rootCoordLon = rootCoordLon / (coords.size() + 1);
-				}
-			} else {
-				setGeoDefault();
-			}
-
-			setGeoLatitude(new Double(rootCoordLat).toString());
-			setGeoLongitude(new Double(rootCoordLon).toString());
-
-			logger.debug("Posting coordinates: " + rootCoordLat + " / " + rootCoordLon);
-
-			setGeoPlaceName(_b_box.get("name").toString());
-			setGeoPlaceCountry(_b_box.get("country").toString());
-
-		} catch (JsonParseException e) {
-			logger.error(e.getMessage());
-			setGeoDefault();
-		} catch (JsonMappingException e) {
-			logger.error(e.getMessage());
-			setGeoDefault();
-		} catch (IOException e) {
-			logger.error(e.getMessage());
-			setGeoDefault();
-		}
-
-	}
-
-	/**
-	 * Setter fuer 0.00/0.00 damit da dann immer was drin steht und die OData Aufbereitung da einen Eintrag finden kann
-	 */
-	private void setGeoDefault() {
-		setGeoLatitude("0.00");
-		setGeoLongitude("0.00");
-
 	}
 }

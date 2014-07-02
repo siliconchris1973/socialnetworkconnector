@@ -27,7 +27,7 @@ import de.comlineag.snc.data.FacebookPostingData;
  *            		in_reply_to_user_id		Long 
  *            		in_reply_to_screen_name	String
  *            		coordinates				List 
- *            		place					List 
+ *            		geoLocation					List 
  *            		lang					String 
  *            		hashtags				List
  *            		symbols					List
@@ -53,7 +53,7 @@ public class FacebookPosting extends GenericDataManager<FacebookPostingData> {
 	 * key="cl_postInReplyToUserID" 	value="in_reply_to_user_id" 
 	 * key="cl_postInReplyToScreenName"	value="in_reply_to_screen_name" 
 	 * key="cl_postGeoLocation"			value="coordinates" 
-	 * key="cl_postPlace"				value="place" 
+	 * key="cl_postPlace"				value="geoLocation" 
 	 * key="cl_postLang" 				value="lang" 
 	 * key="cl_postHashtags" 			value="hashtags" 
 	 * key="cl_postSymbols" 			value="symbols"
