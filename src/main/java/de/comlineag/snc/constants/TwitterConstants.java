@@ -14,8 +14,6 @@ package de.comlineag.snc.constants;
  * 
  */
 public final class TwitterConstants {
-	public final int MESSAGE_BLOCKING_QUEUE_SIZE = 100000;
-	public final int EVENT_BLOCKING_QUEUE_SIZE = 1000;
-	
-	public TwitterConstants(){}
+	public final static int MESSAGE_BLOCKING_QUEUE_SIZE = 100000;
+	public final static int EVENT_BLOCKING_QUEUE_SIZE = 1000;
 }

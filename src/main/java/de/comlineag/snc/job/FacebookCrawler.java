@@ -17,13 +17,18 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.util.HttpURLConnection;
 import org.apache.log4j.Logger;
 
+import com.twitter.hbc.core.endpoint.Location;
+
+import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.HttpStatusCode;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.handler.CrawlerConfiguration;
 import de.comlineag.snc.handler.FacebookParser;
+import de.comlineag.snc.persistence.NoBase64EncryptedValue;
 
 // TODO !!!!! IMPLEMENT THE FaceBookCrawler !!!!!!
 
@@ -68,14 +73,23 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		logger.debug("Facebook-Crawler START");
 		
 		// some static vars for the facebook crawler
-		final String _user = (String) arg0.getJobDetail().getJobDataMap().get("user");
-		final String _passwd =  (String) arg0.getJobDetail().getJobDataMap().get("passwd");
+		String _user = null;
+		String _passwd = null;
+		try {
+			_user = decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
+			_passwd = decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
+		} catch (NoBase64EncryptedValue e) {
+			logger.error("EXCEPTION :: value for user or passwd is NOT base64 encrypted " + e.toString(), e);
+			System.exit(-1);
+		}
 		
-		final String PROTOCOL = (String) arg0.getJobDetail().getJobDataMap().get("PROTOCOL");
-		final String SERVER_URL = (String) arg0.getJobDetail().getJobDataMap().get("SERVER_URL");
-		final String PORT = (String) arg0.getJobDetail().getJobDataMap().get("PORT");
+		final String PROTOCOL = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.HTTP_ENDPOINT_PROTOCOL_KEY);
+		final String SERVER_URL = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.HTTP_ENDPOINT_SERVER_URL_KEY);
+		final String PORT = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.HTTP_ENDPOINT_PORT_KEY);
+		final String REST_API_LOC = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.HTTP_ENDPOINT_REST_API_LOC_KEY);
+		
 		final String COMMUNITY_NAME = (String) arg0.getJobDetail().getJobDataMap().get("COMMUNITY_NAME");
-		final String REST_API_LOC = (String) arg0.getJobDetail().getJobDataMap().get("REST_API_LOC");
+		
 		final String REST_API_URL = PROTOCOL + "://" + SERVER_URL + ":" + PORT + COMMUNITY_NAME + REST_API_LOC;
 		
 		logger.trace("setting up the rest endpoint at " + REST_API_URL + " with user " + _user);
@@ -84,28 +98,29 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		// setup restrictions on what to track
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES AND USERS
 		logger.info("retrieving restrictions from configuration db");
-		CrawlerConfiguration config = new CrawlerConfiguration();
-		ArrayList<String> tTerms = config.getConstraint("term", SocialNetworks.FACEBOOK); 
-		ArrayList<String> tLangs = config.getConstraint("language", SocialNetworks.FACEBOOK); 
-		ArrayList<String> tSites = config.getConstraint("site", SocialNetworks.FACEBOOK);
-		//ArrayList<Location> tLocas = config.getConstraint("location", SocialNetworks.FACEBOOK);
-		ArrayList<Long> tUsers = config.getConstraint("user", SocialNetworks.FACEBOOK);
+		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, SocialNetworks.FACEBOOK);
+		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(ConfigurationConstants.CONSTRAINT_USER_TEXT, SocialNetworks.FACEBOOK);
+		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_LANGUAGE_TEXT, SocialNetworks.FACEBOOK);
+		ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_SITE_TEXT, SocialNetworks.FACEBOOK);
+		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(ConfigurationConstants.CONSTRAINT_LOCATION_TEXT, SocialNetworks.FACEBOOK);
 		
 		// simple log output
-		if (tSites.size()>0){
-			smallLogMessage += "specific Sites ";
-		}
 		if (tTerms.size()>0){
 			smallLogMessage += "specific terms ";
+		}
+		if (tUsers.size()>0){
+			smallLogMessage += "specific user ";
 		}
 		if (tLangs.size()>0){
 			smallLogMessage += "specific languages ";
 		}
-		/*
+		if (tSites.size()>0){
+			smallLogMessage += "specific Sites ";
+		}
 		if (tLocas.size()>0) {
 			smallLogMessage += "specific Locations ";
 		}
-		*/
+		
 		logger.debug("new facebook crawler instantiated - restricted to track " + smallLogMessage);
 		
 		//TODO implement authentication against facebook network
@@ -167,7 +182,7 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 	 * @return
 	 * @throws Exception
 	 */
-	public static String httpPost(String urlStr, String[] paramName, String[] paramVal) throws Exception {
+	private String httpPost(String urlStr, String[] paramName, String[] paramVal) throws Exception {
 		URL url = new URL(urlStr);
 		HttpURLConnection conn =
 				(HttpURLConnection) url.openConnection();
@@ -217,7 +232,7 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 	 * @return
 	 * @throws IOException
 	 */
-	public static String httpGet(String urlStr) throws IOException {
+	private String httpGet(String urlStr) throws IOException {
 		URL url = new URL(urlStr);
 		HttpURLConnection conn =
 				(HttpURLConnection) url.openConnection();
@@ -240,5 +255,29 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		
 		conn.disconnect();
 		return sb.toString();
+	}
+	
+	/**
+	 * 
+	 * @description decrypt given text 
+	 * 
+	 * @param 		param
+	 *          	  encrypted text 
+	 * @return 		clear text
+	 *
+	 */
+	private static String decryptValue(String param) throws NoBase64EncryptedValue {
+
+		// the decode returns a byte-Array which needs to be converted to a string before returning
+		byte[] base64Array;
+
+		// validates that an encrypted value was returned
+		try {
+			base64Array = Base64.decodeBase64(param.getBytes());
+		} catch (Exception e) {
+			throw new NoBase64EncryptedValue("Parameter " + param + " ist nicht Base64-verschluesselt");
+		}
+		// (re)convert into string and return
+		return new String(base64Array);
 	}
 }

@@ -16,12 +16,13 @@ import org.json.simple.JSONObject;
 
 import de.comlineag.snc.constants.HttpErrorMessages;
 import de.comlineag.snc.constants.HttpStatusCode;
+import de.comlineag.snc.constants.Neo4JConstants;
 import de.comlineag.snc.constants.RelationshipTypes;
-import de.comlineag.snc.data.LocationData;
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
 import de.comlineag.snc.neo4j.Relation;
 import de.comlineag.snc.neo4j.TraversalDefinition;
+
 import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
 
 
@@ -39,9 +40,8 @@ import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
  * 				0.3	insert of user
  * 				0.4	query for location
  * 				0.5	create relatinship between nodes
- * 				0.6 - 0.9 bugfixing and wrap up
- * 				1.0 first productive version
- * 				1.1 skeleton for graph traversal
+ * 				0.6 bugfixing and wrap up
+ * 				0.7 skeleton for graph traversal
  */
 public class Neo4JPersistence implements IPersistenceManager {
 	
@@ -55,7 +55,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	private String nodePointUrl;
 	
 	// file system path to the db
-	private String DB_PATH = null;
+	private String db_path = null;
 	
 	private String serviceUserEndpoint;
 	private String servicePostEndpoint;
@@ -70,23 +70,6 @@ public class Neo4JPersistence implements IPersistenceManager {
 	// contains ID and position of a node within the graph - used as the origin of a relationship (edge between nodes)
 	private String fromNodeLocationUri;
 	private Long fromNodeId;
-	
-	// extension to the URI of a node to store relationships
-	private static final String RELATIONSHIP_LOC = "/relationships";
-	// extension of the URI of the graph db for cypher queries
-	//private static final String CYPHERENDPOINT_LOC = "/cypher";
-	// extension of the URI to a node
-	private static final String NODE_LOC = "/node";
-	// extension of the URI for Properties
-	private static final String PROPERTY_LOC = "/properties";
-	// extension to the URI for the label of a node
-	private static final String LABEL_LOC = "/labels";
-		
-	// if set SNC will automatically create connections between nodes
-	// for example: if a new post and a new user is passed, SNC will automatically create the 
-	// 				relationship of type authored between these two nodes.
-	private static final boolean AUTO_CREATE_EDGE = true;
-	
 	
 	// setup the logging
 	private final Logger logger = Logger.getLogger(getClass().getName());
@@ -104,7 +87,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 		// we only store posts in german and english at the moment
 		if (postData.getLang().equalsIgnoreCase("de") || postData.getLang().equalsIgnoreCase("en")) {
 			dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
-			nodePointUrl = dbServerUrl + this.location + NODE_LOC;
+			nodePointUrl = dbServerUrl + this.location + Neo4JConstants.NODE_LOC;
 
 			logger.trace("savePosts for post-id " + postData.getId() + " called - working with " + nodePointUrl);
 			
@@ -204,7 +187,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	@Override
 	public void saveUsers(UserData userData) {
 		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
-		nodePointUrl = dbServerUrl + this.location + NODE_LOC;
+		nodePointUrl = dbServerUrl + this.location + Neo4JConstants.NODE_LOC;
 
 		logger.trace("saveUsers called for user-id " + userData.getId() + " - working with " + nodePointUrl);
 		
@@ -281,7 +264,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 		}
 		
 		// now that we have a post and a user (either new or already stored) in the graph-db lets create the relationship
-		if (AUTO_CREATE_EDGE) 
+		if (Neo4JConstants.AUTO_CREATE_EDGE) 
 			// create a relationship between User   and Post           of type AUTHORED            with no additional data
 			createRelationship(fromNodeLocationUri, toNodeLocationUri, RelationshipTypes.AUTHORED, null);
 	}
@@ -304,7 +287,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 		//prepareConnection();
 		String output = null;
 		HttpClient client = new HttpClient();
-		PostMethod mPost = new PostMethod(fromNodeUri + RELATIONSHIP_LOC);
+		PostMethod mPost = new PostMethod(fromNodeUri + Neo4JConstants.RELATIONSHIP_LOC);
 
 		// set header
 		Header mtHeader = new Header();
@@ -453,7 +436,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 
 		String output = null;
 		HttpClient client = new HttpClient();
-		PostMethod mPost = new PostMethod(nodeUri + LABEL_LOC);
+		PostMethod mPost = new PostMethod(nodeUri + Neo4JConstants.LABEL_LOC);
 
 		// set header
 		Header mtHeader = new Header();
@@ -466,7 +449,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 		// this cryptic string is passed along as part of a StringRequestEntity 
 		String r = "{ Label : " + label + " }";
 		
-		logger.trace("About to use the following string to add the label " + label + " to the node " + nodeUri + LABEL_LOC + ": " + r);
+		logger.trace("About to use the following string to add the label " + label + " to the node " + nodeUri + Neo4JConstants.LABEL_LOC + ": " + r);
 				
 		StringRequestEntity requestEntity = null;
 		try {
@@ -491,7 +474,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 				Header locationHeader =  mPost.getResponseHeader("location");
 				mPost.releaseConnection( );
 				
-				logger.info("SUCCESS :: added label " + label + " to the node " + nodeUri + LABEL_LOC);
+				logger.info("SUCCESS :: added label " + label + " to the node " + nodeUri + Neo4JConstants.LABEL_LOC);
 				logger.trace("status = " + status + " / location = " + locationHeader.getValue() + " \n output = " + output);
 			}
 		} catch(Exception e) {
@@ -512,7 +495,7 @@ public class Neo4JPersistence implements IPersistenceManager {
         String output = null;
 
         try{
-            String nodePointUrl = nodeURI + PROPERTY_LOC + propertyName;
+            String nodePointUrl = nodeURI + Neo4JConstants.PROPERTY_LOC + propertyName;
             HttpClient client = new HttpClient();
             PutMethod mPut = new PutMethod(nodePointUrl);
 
@@ -655,7 +638,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	 */
 	public HttpStatusCode getServerStatus(){
 		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
-		nodePointUrl = dbServerUrl + this.location + NODE_LOC;
+		nodePointUrl = dbServerUrl + this.location + Neo4JConstants.NODE_LOC;
 
 		// initialize the return value and whether this is acceptable or not.
 		HttpStatusCode status = HttpStatusCode.UNKNOWN;
@@ -708,7 +691,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	 */
 	@SuppressWarnings("unused")
 	private void clearDbPath() {
-        try { deleteRecursively( new File( DB_PATH) ); }
+        try { deleteRecursively( new File( db_path) ); }
         catch ( IOException e ) { throw new RuntimeException( e ); }
     }
 	
@@ -770,9 +753,9 @@ public class Neo4JPersistence implements IPersistenceManager {
 	}
 	
 	public String getDB_PATH() {
-		return DB_PATH;
+		return db_path;
 	}
 	public void setDB_PATH(String dB_PATH) {
-		this.DB_PATH = dB_PATH;
+		this.db_path = dB_PATH;
 	}
 }

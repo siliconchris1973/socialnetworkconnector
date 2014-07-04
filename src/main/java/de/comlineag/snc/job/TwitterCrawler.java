@@ -51,10 +51,6 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
-	// defines some configuration details
-	TwitterConstants TWITTER_CONSTANTS = new TwitterConstants();
-	ConfigurationConstants CONFIG_CONSTANTS = new ConfigurationConstants();
-	
 	// Set up your blocking queues: Be sure to size these properly based on
 	// expected TPS of your stream
 	private BlockingQueue<String> msgQueue;
@@ -69,8 +65,8 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	public TwitterCrawler() {
 		
 		// Define message and event queue
-		msgQueue = new LinkedBlockingQueue<String>(TWITTER_CONSTANTS.MESSAGE_BLOCKING_QUEUE_SIZE);
-		eventQueue = new LinkedBlockingQueue<Event>(TWITTER_CONSTANTS.EVENT_BLOCKING_QUEUE_SIZE);
+		msgQueue = new LinkedBlockingQueue<String>(TwitterConstants.MESSAGE_BLOCKING_QUEUE_SIZE);
+		eventQueue = new LinkedBlockingQueue<Event>(TwitterConstants.EVENT_BLOCKING_QUEUE_SIZE);
 				
 		// instantiate the Twitter-Posting-Manager
 		post = new TwitterParser();
@@ -84,10 +80,10 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
 		logger.info("retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(CONFIG_CONSTANTS.CONSTRAINT_TERM_TEXT, SocialNetworks.TWITTER);
-		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(CONFIG_CONSTANTS.CONSTRAINT_LANGUAGE_TEXT, SocialNetworks.TWITTER);
-		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(CONFIG_CONSTANTS.CONSTRAINT_USER_TEXT, SocialNetworks.TWITTER);
-		List<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(CONFIG_CONSTANTS.CONSTRAINT_LOCATION_TEXT, SocialNetworks.TWITTER);
+		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, SocialNetworks.TWITTER);
+		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_LANGUAGE_TEXT, SocialNetworks.TWITTER);
+		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(ConfigurationConstants.CONSTRAINT_USER_TEXT, SocialNetworks.TWITTER);
+		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(ConfigurationConstants.CONSTRAINT_LOCATION_TEXT, SocialNetworks.TWITTER);
 		
 		// log output AND setup of the filter end point
 		if (tTerms.size()>0) {
@@ -109,10 +105,10 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		
 		logger.info("new twitter crawler instantiated - restricted to track " + smallLogMessage);
 		
-		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get(CONFIG_CONSTANTS.AUTHENTICATION_CLIENT_ID_KEY), 
-											(String) arg0.getJobDetail().getJobDataMap().get(CONFIG_CONSTANTS.AUTHENTICATION_CLIENT_SECRET_KEY), 
-											(String) arg0.getJobDetail().getJobDataMap().get(CONFIG_CONSTANTS.AUTHENTICATION_TOKEN_ID_KEY), 
-											(String) arg0.getJobDetail().getJobDataMap().get(CONFIG_CONSTANTS.AUTHENTICATION_TOKEN_SECRET_KEY));
+		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_CLIENT_ID_KEY), 
+											(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_CLIENT_SECRET_KEY), 
+											(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_TOKEN_ID_KEY), 
+											(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_TOKEN_SECRET_KEY));
 
 		// Create a new BasicClient. By default gzip is enabled.
 		Client client = new ClientBuilder().hosts(Constants.STREAM_HOST).endpoint(endpoint).authentication(sn_Auth)
