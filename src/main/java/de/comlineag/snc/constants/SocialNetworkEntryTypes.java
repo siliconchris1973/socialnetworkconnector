@@ -1,14 +1,14 @@
-package de.comlineag.snc.data;
+package de.comlineag.snc.constants;
 
 /**
  * @author 		Christian Guenther
  * @category	enum
- * @version 	1.1
+ * @version 	0.2
  * 
  * @description an enum with types of data in a social network and whether or not this type should be tracked
  * 
- * @changelog	1.0 enum created
- * 				1.1 added app, game, forum and wiki
+ * @changelog	0.1 enum created
+ * 				0.2 added app, game, forum and wiki
  * 
  */
 public enum SocialNetworkEntryTypes {

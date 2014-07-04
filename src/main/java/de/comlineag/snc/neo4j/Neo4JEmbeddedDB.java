@@ -17,7 +17,7 @@ import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.jmx.impl.ManagementData;
 import org.neo4j.jmx.impl.Neo4jMBean;
 
-import de.comlineag.snc.data.RelationshipTypes;
+import de.comlineag.snc.constants.RelationshipTypes;
 import de.comlineag.snc.data.UserData;
 
 /**

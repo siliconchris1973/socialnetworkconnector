@@ -14,11 +14,11 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
-import de.comlineag.snc.data.HttpErrorMessages;
-import de.comlineag.snc.data.HttpStatusCode;
+import de.comlineag.snc.constants.HttpErrorMessages;
+import de.comlineag.snc.constants.HttpStatusCode;
+import de.comlineag.snc.constants.RelationshipTypes;
 import de.comlineag.snc.data.LocationData;
 import de.comlineag.snc.data.PostData;
-import de.comlineag.snc.data.RelationshipTypes;
 import de.comlineag.snc.data.UserData;
 import de.comlineag.snc.neo4j.Relation;
 import de.comlineag.snc.neo4j.TraversalDefinition;

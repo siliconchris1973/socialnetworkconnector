@@ -8,6 +8,8 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import de.comlineag.snc.constants.SocialNetworks;
+
 /**
  * 
  * @author		Magnus Leinemann, Christian Guenther, Thomas Nowak

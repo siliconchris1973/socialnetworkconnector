@@ -1,4 +1,4 @@
-package de.comlineag.snc.data;
+package de.comlineag.snc.constants;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.http.HttpResponse;

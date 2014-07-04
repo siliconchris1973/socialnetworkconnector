@@ -4,7 +4,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import de.comlineag.snc.data.GenericCrawlerException;
+import de.comlineag.snc.handler.GenericCrawlerException;
 
 /**
  * 

@@ -2,7 +2,7 @@ package de.comlineag.snc.persistence;
 
 import java.util.ArrayList;
 
-import de.comlineag.snc.data.SocialNetworks;
+import de.comlineag.snc.constants.SocialNetworks;
 
 /**
  * 

@@ -3,6 +3,8 @@ package de.comlineag.snc.data;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
+import de.comlineag.snc.constants.SocialNetworks;
+
 /**
  * 
  * @author 		Christian Guenther

@@ -1,4 +1,4 @@
-package de.comlineag.snc.data;
+package de.comlineag.snc.constants;
 
 import org.neo4j.graphdb.RelationshipType;
 
@@ -7,7 +7,7 @@ import org.neo4j.graphdb.RelationshipType;
  * 
  * @author 		Christian Guenther
  * @category	enum
- * @version 	1.1
+ * @version 	0.2
  * 
  * @description describes the different possible connection types between two nodes in the graph
  * 				the enum contains a static for the field within the twitter/facebook etc. data object
@@ -26,8 +26,7 @@ import org.neo4j.graphdb.RelationshipType;
  * 				AUTHORED				AUTHORED		(u:User-ID) -[AUTHORED]-> (p:Post-ID)
  * 				
  * @changelog	0.1 class created
- * 				1.0 first productive version
- * 				1.1 added follows and favorited
+ * 				0.2 added follows and favorited
  * 
  */
 public enum RelationshipTypes implements RelationshipType {

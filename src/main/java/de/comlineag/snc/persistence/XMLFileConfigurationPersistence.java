@@ -2,7 +2,7 @@ package de.comlineag.snc.persistence;
 
 import org.apache.log4j.Logger;
 
-import de.comlineag.snc.data.SocialNetworks;
+import de.comlineag.snc.constants.SocialNetworks;
 
 import java.io.IOException;
 import java.util.ArrayList;

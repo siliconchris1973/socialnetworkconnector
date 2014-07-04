@@ -1,14 +1,14 @@
-package de.comlineag.snc.data;
+package de.comlineag.snc.handler;
 
 /**
  * 
  * @author		Christian Guenther
  * @category	program flow and structure
- * @version 	1.0
+ * @version 	0.1
  *
  * @description	throws a custom exception for the crawler
  * 
- * @changelog	1.0 class created
+ * @changelog	0.1 class created
  * 
  */
 public class GenericCrawlerException extends Exception {

@@ -3,7 +3,6 @@ package de.comlineag.snc.job;
 import java.io.IOException;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
-import java.net.URL;
 import java.util.ArrayList;
 
 import org.json.simple.JSONArray;
@@ -16,20 +15,20 @@ import org.quartz.JobExecutionException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.log4j.Logger;
 
-import de.comlineag.snc.data.GenericCrawlerException;
-import de.comlineag.snc.data.HttpErrorMessages;
-import de.comlineag.snc.data.HttpStatusCode;
-import de.comlineag.snc.data.LithiumConstants;
-import de.comlineag.snc.data.LithiumStatusCode;
-import de.comlineag.snc.data.LithiumStatusException;
-import de.comlineag.snc.data.SocialNetworks;
+import de.comlineag.snc.constants.ConfigurationConstants;
+import de.comlineag.snc.constants.HttpErrorMessages;
+import de.comlineag.snc.constants.HttpStatusCode;
+import de.comlineag.snc.constants.LithiumConstants;
+import de.comlineag.snc.constants.LithiumStatusCode;
+import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.handler.CrawlerConfiguration;
+import de.comlineag.snc.handler.GenericCrawlerException;
 import de.comlineag.snc.handler.LithiumParser;
 import de.comlineag.snc.handler.LithiumPosting;
+import de.comlineag.snc.handler.LithiumStatusException;
 import de.comlineag.snc.handler.LithiumUser;
 import de.comlineag.snc.persistence.NoBase64EncryptedValue;
 
@@ -54,7 +53,8 @@ import de.comlineag.snc.persistence.NoBase64EncryptedValue;
  * 				1.0	first productive version retrieves posts and users			
  * 				1.1	configuration is made dynamic 
  *				1.2	added support for SocialNetwork specific configuration
- *				1.3 implemeneted proper json error handling
+ *				1.3 implemented proper json error handling
+ *				1.4 added configuration constants
  *
  */
 public class LithiumCrawler extends GenericCrawler implements Job {
@@ -63,7 +63,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	// defines some constants for the crawler behavior and locations
-	LithiumConstants CONSTANTS = new LithiumConstants();
+	LithiumConstants LITHIUM_CONSTANTS = new LithiumConstants();
+	// defines some configuration details
+	ConfigurationConstants CONFIG_CONSTANTS = new ConfigurationConstants();
 	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
@@ -83,10 +85,10 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		logger.info("Lithium-Crawler START");
 		
 		// some static vars for the lithium crawler taken from applicationContext.xml
-		final String PROTOCOL = (String) arg0.getJobDetail().getJobDataMap().get("PROTOCOL");
-		final String SERVER_URL = (String) arg0.getJobDetail().getJobDataMap().get("SERVER_URL");
-		final String PORT = (String) arg0.getJobDetail().getJobDataMap().get("PORT");
-		final String REST_API_LOC = (String) arg0.getJobDetail().getJobDataMap().get("REST_API_LOC");
+		final String PROTOCOL = (String) arg0.getJobDetail().getJobDataMap().get(CONFIG_CONSTANTS.HTTP_ENDPOINT_PROTOCOL_KEY);
+		final String SERVER_URL = (String) arg0.getJobDetail().getJobDataMap().get(CONFIG_CONSTANTS.HTTP_ENDPOINT_SERVER_URL_KEY);
+		final String PORT = (String) arg0.getJobDetail().getJobDataMap().get(CONFIG_CONSTANTS.HTTP_ENDPOINT_PORT_KEY);
+		final String REST_API_LOC = (String) arg0.getJobDetail().getJobDataMap().get(CONFIG_CONSTANTS.HTTP_ENDPOINT_REST_API_LOC_KEY);
 		
 		final String REST_API_URL = PROTOCOL + "://" + SERVER_URL + ":" + PORT + REST_API_LOC;
 		
@@ -101,20 +103,21 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		@SuppressWarnings("unused")
 		String _passwd = null;
 		try {
-			_user = decryptValue((String) arg0.getJobDetail().getJobDataMap().get("user"));
-			_passwd = decryptValue((String) arg0.getJobDetail().getJobDataMap().get("passwd"));
+			_user = decryptValue((String) arg0.getJobDetail().getJobDataMap().get(CONFIG_CONSTANTS.AUTHENTICATION_USER_KEY));
+			_passwd = decryptValue((String) arg0.getJobDetail().getJobDataMap().get(CONFIG_CONSTANTS.AUTHENTICATION_PASSWORD_KEY));
 		} catch (NoBase64EncryptedValue e) {
 			logger.error("EXCEPTION :: value for user or passwd is NOT base64 encrypted " + e.toString(), e);
+			System.exit(-1);
 		}
 		
 		// THESE VALUES ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND SITES (aka boards)
 		logger.info("retrieving restrictions from configuration db");
 		String searchTerm = null;
 		
-		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint("term", SocialNetworks.LITHIUM); 
-		ArrayList<String> tUsers = new CrawlerConfiguration<String>().getConstraint("user", SocialNetworks.LITHIUM);
-		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint("language", SocialNetworks.LITHIUM); 
-		ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint("site", SocialNetworks.LITHIUM);
+		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(CONFIG_CONSTANTS.CONSTRAINT_TERM_TEXT, SocialNetworks.LITHIUM); 
+		ArrayList<String> tUsers = new CrawlerConfiguration<String>().getConstraint(CONFIG_CONSTANTS.CONSTRAINT_USER_TEXT, SocialNetworks.LITHIUM);
+		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(CONFIG_CONSTANTS.CONSTRAINT_LANGUAGE_TEXT, SocialNetworks.LITHIUM); 
+		ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(CONFIG_CONSTANTS.CONSTRAINT_SITE_TEXT, SocialNetworks.LITHIUM);
 		
 		// simple log output
 		if (tTerms.size()>0)
@@ -134,14 +137,14 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			
 			// if no specific sites are configured, we use the standard REST_API_URL and message search endpoint
 			if (tSites.size()==0){
-				tSites.add(REST_API_URL+CONSTANTS.REST_MESSAGES_SEARCH_URI);
+				tSites.add(REST_API_URL+LITHIUM_CONSTANTS.REST_MESSAGES_SEARCH_URI);
 			} else {
 				// otherwise each board from the sites section of the configuration file is surrounded by 
 				// the REST_API_URL and the message search uri
 				String t = null;
 				for (int i = 0; i < tSites.size() ; i++) {
 					t = tSites.get(i);
-					tSites.set(i, REST_API_URL + t + CONSTANTS.REST_MESSAGES_SEARCH_URI);
+					tSites.set(i, REST_API_URL + t + LITHIUM_CONSTANTS.REST_MESSAGES_SEARCH_URI);
 				}
 			}
 			
@@ -160,8 +163,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 					
 					// http connection stuff to get messages per search term
 					PostMethod method = new PostMethod(postEndpoint );
-					method.addParameter(CONSTANTS.HTTP_RESPONSE_FORMAT_COMMAND, CONSTANTS.HTTP_RESPONSE_FORMAT);
-					method.addParameter(CONSTANTS.SEARCH_TERM, searchTerm);
+					method.addParameter(LITHIUM_CONSTANTS.HTTP_RESPONSE_FORMAT_COMMAND, LITHIUM_CONSTANTS.HTTP_RESPONSE_FORMAT);
+					method.addParameter(LITHIUM_CONSTANTS.SEARCH_TERM, searchTerm);
 					httpStatusCode = HttpStatusCode.getHttpStatusCode(client.executeMethod(method));
 					if (!httpStatusCode.isOk()){
 						if (httpStatusCode == HttpStatusCode.FORBIDDEN){
@@ -183,8 +186,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 						JSONObject jsonErrObj = errObj instanceof JSONObject ?(JSONObject) errObj : null;
 						if(jsonErrObj == null)
 							throw new ParseException(0, "returned json object is null");
-						JSONObject responseObj = (JSONObject)jsonErrObj.get(CONSTANTS.JSON_RESPONSE_OBJECT_TEXT);
-						jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT).toString());
+						JSONObject responseObj = (JSONObject)jsonErrObj.get(LITHIUM_CONSTANTS.JSON_RESPONSE_OBJECT_TEXT);
+						jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(LITHIUM_CONSTANTS.JSON_STATUS_CODE_TEXT).toString());
 						
 						if(!jsonStatusCode.isOk()){
 							/*
@@ -198,10 +201,10 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 							 *  	}
 							 *  }
 							 */
-							JSONObject errorReference = (JSONObject)responseObj.get(CONSTANTS.JSON_ERROR_OBJECT_TEXT);
-							logger.error("the server returned error " + errorReference.get(CONSTANTS.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(CONSTANTS.JSON_ERROR_MESSAGE_TEXT));
+							JSONObject errorReference = (JSONObject)responseObj.get(LITHIUM_CONSTANTS.JSON_ERROR_OBJECT_TEXT);
+							logger.error("the server returned error " + errorReference.get(LITHIUM_CONSTANTS.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LITHIUM_CONSTANTS.JSON_ERROR_MESSAGE_TEXT));
 							
-							throw new GenericCrawlerException("the server returned error " + errorReference.get(CONSTANTS.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(CONSTANTS.JSON_ERROR_MESSAGE_TEXT));
+							throw new GenericCrawlerException("the server returned error " + errorReference.get(LITHIUM_CONSTANTS.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LITHIUM_CONSTANTS.JSON_ERROR_MESSAGE_TEXT));
 						} else {
 							
 							// give the json object to the lithium parser for further processing
@@ -209,9 +212,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 							JSONArray messageArray = litParse.parseMessages(jsonString);
 							
 							for(Object messageObj : messageArray){
-								String messageRef = (String) ((JSONObject)messageObj).get(CONSTANTS.JSON_MESSAGE_REFERENCE);
+								String messageRef = (String) ((JSONObject)messageObj).get(LITHIUM_CONSTANTS.JSON_MESSAGE_REFERENCE);
 								
-								JSONObject messageResponse = SendObjectRequest(messageRef, REST_API_URL, CONSTANTS.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
+								JSONObject messageResponse = SendObjectRequest(messageRef, REST_API_URL, LITHIUM_CONSTANTS.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
 								if (messageResponse != null) {
 									// first save the message
 									new LithiumPosting(messageResponse).save();
@@ -223,10 +226,10 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 										JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
 										if(jsonObj == null)
 											throw new ParseException(0, "returned json object is null");
-										JSONObject authorObj = (JSONObject)jsonObj.get(CONSTANTS.JSON_AUTHOR_OBJECT_IDENTIFIER);
+										JSONObject authorObj = (JSONObject)jsonObj.get(LITHIUM_CONSTANTS.JSON_AUTHOR_OBJECT_IDENTIFIER);
 										
-										String userRef = (String) ((JSONObject)authorObj).get(CONSTANTS.JSON_AUTHOR_REFERENCE);
-										JSONObject userResponse = SendObjectRequest(userRef, REST_API_URL, CONSTANTS.JSON_USER_OBJECT_IDENTIFIER);
+										String userRef = (String) ((JSONObject)authorObj).get(LITHIUM_CONSTANTS.JSON_AUTHOR_REFERENCE);
+										JSONObject userResponse = SendObjectRequest(userRef, REST_API_URL, LITHIUM_CONSTANTS.JSON_USER_OBJECT_IDENTIFIER);
 										logger.trace("user object: " + userResponse.toString());
 										
 										new LithiumUser(userResponse).save();
@@ -265,7 +268,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	 * 					the uri part of a specific object - is appended to REST_API_URL
 	 * @param 		REST_API_URL
 	 * @param		jsonObjectIdentifier
-	 * 					an element from CONSTANTS which identifies a json element within the object
+	 * 					an element from LITHIUM_CONSTANTS which identifies a json element within the object
 	 * @return		JSONObject
 	 * 					a json object (as identified from jsonObjectIdentifier) from the web ressource
 	 * 
@@ -279,7 +282,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			HttpClient client = new HttpClient();
 			
 			PostMethod method = new PostMethod(REST_API_URL+objectRef);
-			method.addParameter(CONSTANTS.HTTP_RESPONSE_FORMAT_COMMAND, CONSTANTS.HTTP_RESPONSE_FORMAT);
+			method.addParameter(LITHIUM_CONSTANTS.HTTP_RESPONSE_FORMAT_COMMAND, LITHIUM_CONSTANTS.HTTP_RESPONSE_FORMAT);
 			httpStatusCode = HttpStatusCode.getHttpStatusCode(client.executeMethod(method));
 			String jsonString = method.getResponseBodyAsString();
 			
@@ -303,12 +306,12 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
 			if(jsonObj == null)
 				throw new ParseException(0, "returned json object is null");
-			JSONObject responseObj = (JSONObject)jsonObj.get(CONSTANTS.JSON_RESPONSE_OBJECT_TEXT);
+			JSONObject responseObj = (JSONObject)jsonObj.get(LITHIUM_CONSTANTS.JSON_RESPONSE_OBJECT_TEXT);
 			
 			// first check if the server response is not only OK from an http point of view, but also
 			//    from the perspective of the REST API call
-			jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT).toString());
-			logger.trace("json status code is " + responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT) + " translates to " + jsonStatusCode);
+			jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(LITHIUM_CONSTANTS.JSON_STATUS_CODE_TEXT).toString());
+			logger.trace("json status code is " + responseObj.get(LITHIUM_CONSTANTS.JSON_STATUS_CODE_TEXT) + " translates to " + jsonStatusCode);
 			
 			if(!jsonStatusCode.isOk()){
 				/*
@@ -328,8 +331,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				if(jsonErrorObj == null)
 					throw new ParseException(0, "returned json object is null");
 				
-				logger.error("the server returned error " + jsonErrorObj.get(CONSTANTS.JSON_ERROR_CODE_TEXT) + " - " + jsonErrorObj.get(CONSTANTS.JSON_ERROR_MESSAGE_TEXT));
-				throw new LithiumStatusException("the server returned error " + jsonErrorObj.get(CONSTANTS.JSON_ERROR_CODE_TEXT) + " - " + jsonErrorObj.get(CONSTANTS.JSON_ERROR_MESSAGE_TEXT));
+				logger.error("the server returned error " + jsonErrorObj.get(LITHIUM_CONSTANTS.JSON_ERROR_CODE_TEXT) + " - " + jsonErrorObj.get(LITHIUM_CONSTANTS.JSON_ERROR_MESSAGE_TEXT));
+				throw new LithiumStatusException("the server returned error " + jsonErrorObj.get(LITHIUM_CONSTANTS.JSON_ERROR_CODE_TEXT) + " - " + jsonErrorObj.get(LITHIUM_CONSTANTS.JSON_ERROR_MESSAGE_TEXT));
 			} else  {
 				return (JSONObject) responseObj.get(jsonObjectIdentifier);
 			}

@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import org.ini4j.Ini;
 import org.ini4j.InvalidIniFormatException;
 
-import de.comlineag.snc.data.SocialNetworks;
+import de.comlineag.snc.constants.SocialNetworks;
 
 import java.io.FileReader;
 import java.io.IOException;

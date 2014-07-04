@@ -1,6 +1,6 @@
 package de.comlineag.snc.handler;
 
-import de.comlineag.snc.data.SocialNetworks;
+import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.persistence.AppContext;
 import de.comlineag.snc.persistence.IConfigurationManager;
 

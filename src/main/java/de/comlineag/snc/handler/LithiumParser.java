@@ -8,9 +8,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import de.comlineag.snc.data.LithiumConstants;
-import de.comlineag.snc.data.LithiumStatusCode;
-import de.comlineag.snc.data.LithiumStatusException;
+import de.comlineag.snc.constants.LithiumConstants;
+import de.comlineag.snc.constants.LithiumStatusCode;
 
 /**
  * 

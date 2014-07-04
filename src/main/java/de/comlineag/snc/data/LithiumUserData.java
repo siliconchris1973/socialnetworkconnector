@@ -4,6 +4,8 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import de.comlineag.snc.constants.SocialNetworks;
+
 /**
  * 
  * @author 		Christian Guenther

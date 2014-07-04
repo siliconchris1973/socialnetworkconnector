@@ -1,19 +1,19 @@
-package de.comlineag.snc.data;
+package de.comlineag.snc.constants;
 
 /**
  * 
  * @author 		Christian Guenther
  * @category 	enum
- * @version 	1.5
+ * @version 	0.6
  * 
  * @description contains an enumeration with shortcuts referencing the social networks
  * 
- * @changelog	1.0 enum created with unknown, twitter, facebook, google+ and linkedin
- * 				1.1 added xing
- * 				1.2 added instagram, foursquare and streamwork
- * 				1.3 added lithium
- * 				1.4 added youtube and finanzforum
- * 				1.5 added ALL as an indicator for xml configuration for all networks
+ * @changelog	0.1 enum created with unknown, twitter, facebook, google+ and linkedin
+ * 				0.2 added xing
+ * 				0.3 added instagram, foursquare and streamwork
+ * 				0.4 added lithium
+ * 				0.5 added youtube and finanzforum
+ * 				0.6 added ALL as an indicator for xml configuration for all networks
  * 
  */
 public enum SocialNetworks {

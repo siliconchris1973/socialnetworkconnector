@@ -91,10 +91,10 @@
 				<entry key="passwd" value="MTIzVGVzdDEyMw==" />
 
 				<!-- with these entries the url to the communities' rest api is generated -->
-				<entry key="PROTOCOL" value="https" />
-				<entry key="PORT" value="443" />
-				<entry key="SERVER_URL" value="wissen.cortalconsors.de" />
-				<entry key="REST_API_LOC" value="/restapi/vc" />
+				<entry key="protocol" value="https" />
+				<entry key="port" value="443" />
+				<entry key="server_url" value="wissen.cortalconsors.de" />
+				<entry key="rest_api_loc" value="/restapi/vc" />
 			</map>
 		</property>
 		<property name="durability" value="true" />
@@ -129,11 +129,11 @@
 				<entry key="passwd" value="" />
 
 				<!-- with these entries the url to the rest api and graph engine is generated -->
-				<entry key="PROTOCOL" value="https" />
-				<entry key="PORT" value="443" />
-				<entry key="SERVER_URL" value="facebook.com" />
-				<entry key="GRAPH_ENDPOINT" value="/graph" />
-				<entry key="REST_API_LOC" value="/restapi/" />
+				<entry key="protocol" value="https" />
+				<entry key="port" value="443" />
+				<entry key="server_url" value="facebook.com" />
+				<entry key="graph_api_loc" value="/graph" />
+				<entry key="rest_api_loc" value="/restapi/" />
 			</map>
 		</property>
 		<property name="durability" value="true" />
@@ -166,11 +166,11 @@
 				<entry key="user" value="" /> 
 				<entry key="passwd" value="" /> 
 				
-				<entry key="PROTOCOL" value="https" /> 
-				<entry key="PORT" value="443" /> 
-				<entry key="SERVER_URL"	value="google.com" /> 
-				<entry key="GRAPH_ENDPOINT" value="/graph" /> 
-				<entry key="REST_API_LOC" value="/restapi/" /> 
+				<entry key="protocol" value="https" /> 
+				<entry key="port" value="443" /> 
+				<entry key="server_url"	value="google.com" /> 
+				<entry key="graph_api_loc" value="/graph" /> 
+				<entry key="rest_api_loc" value="/restapi/" /> 
 			</map> 
 		</property> 
 		<property name="durability" value="true" /> 
@@ -197,10 +197,10 @@
 	<!-- this is the bean to get the crawler configuration from the HANA (TO BE IMPLEMENETED) -->
 	<!-- 
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.HANAConfigurationPersistence"> 
+		<property name="protocol" value="http" /> 
 		<property name="host" value="192.168.131.30" /> 
 		<property name="port" value="8000" /> 
 		<property name="jdbcPort" value="30015" /> 
-		<property name="protocol" value="http" /> 
 		
 		<property name="location" value="/comline/snc/services" /> 
 		<property name="user" value="U0JNX0VYVA==" /> 
@@ -242,7 +242,7 @@
 		<property name="host" value="localhost" /> 
 		<property name="port" value="7474" /> 
 		<property name="location" value="/db/data" /> 
-		<property name="DB_PATH" value="/db/data" /> 
+		<property name="db_path" value="/db/data" /> 
 	</bean> 
 	-->
 	
@@ -254,7 +254,7 @@
 		<property name="host" value="localhost" /> 
 		<property name="port" value="7474" /> 
 		<property name="location" value="/db/data" /> 
-		<property name="DB_PATH" value="/db/data" /> 
+		<property name="db_path" value="/db/data" /> 
 	</bean> 
 	-->
 
@@ -265,7 +265,7 @@
 		<property name="host" value="localhost"	/> 
 		<property name="port" value="t.b.d." /> 
 		<property name="location" value="/db/data" /> 
-		<property name="DB_PATH" value="/db/data" /> 
+		<property name="db_path" value="/db/data" /> 
 	</bean> 
 	-->
 

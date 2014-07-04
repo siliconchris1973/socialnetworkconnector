@@ -1,17 +1,17 @@
-package de.comlineag.snc.data;
+package de.comlineag.snc.constants;
 
 /**
  * 
  * @author 		Christian Guenther
  * @category	helper class
- * @version 	1.1
+ * @version 	0.2
  * 
  * @description provides constants for use with the Lithium Network crawler and parser. 
  * 				This class is instantiated by LithiumCrawler and LithiumParser and the
  * 				values are referenced therein
  *
- * @changelog	1.0 class created
- * 				1.1 added DIVIDE_NUMBER_OF_CORES_BY
+ * @changelog	0.1 class created
+ * 				0.2 added DIVIDE_NUMBER_OF_CORES_BY
  * 
  */
 public final class LithiumConstants {

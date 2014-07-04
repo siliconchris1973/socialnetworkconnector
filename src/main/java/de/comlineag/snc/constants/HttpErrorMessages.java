@@ -1,4 +1,4 @@
-package de.comlineag.snc.data;
+package de.comlineag.snc.constants;
 
 import org.apache.commons.httpclient.HttpStatus;
 
@@ -6,12 +6,12 @@ import org.apache.commons.httpclient.HttpStatus;
  * 
  * @author 		Christian Guenther
  * @category	helper class
- * @version 	1.0
+ * @version 	0.2
  * 
  * @description	provides for some funny error messages to http errors
  *
- * @changelog	0.9 class created
- * 				1.0 changed text elements
+ * @changelog	0.1 class created
+ * 				0.2 changed text elements
  * 
  */
 public class HttpErrorMessages { // extends Exception {

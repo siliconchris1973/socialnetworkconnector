@@ -20,8 +20,8 @@ import org.quartz.JobExecutionException;
 import org.apache.commons.httpclient.util.HttpURLConnection;
 import org.apache.log4j.Logger;
 
-import de.comlineag.snc.data.HttpStatusCode;
-import de.comlineag.snc.data.SocialNetworks;
+import de.comlineag.snc.constants.HttpStatusCode;
+import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.handler.CrawlerConfiguration;
 import de.comlineag.snc.handler.FacebookParser;
 

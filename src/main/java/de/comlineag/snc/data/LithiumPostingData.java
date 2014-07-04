@@ -5,11 +5,13 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.jsoup.Jsoup;
 
+import de.comlineag.snc.constants.SocialNetworks;
+
 /**
  * 
  * @author 		Christian Guenther
  * @category 	data type
- * @version 	1.1
+ * @version 	1.2
  * 
  * @description Describes a single Lithium posting with all relevant informations. 
  * 				The class shall be used to make all methods handling a Lithium posting type save.
@@ -47,7 +49,7 @@ import org.jsoup.Jsoup;
  *            "in_reply_to_screen_name"	String		fixed to NULL because not used
  *            
  *            "coordinates" 			List		fixed to NULL because not used
- *            "geoLocation" 					List		fixed to NULL because not used
+ *            "geoLocation" 			List		fixed to NULL because not used
  *            
  * 
  * JSON Structure:
@@ -144,6 +146,7 @@ import org.jsoup.Jsoup;
  * 				0.2 - 0.4 added parsing of 2nd and 3rd level of json string
  * 				1.0 jump to first productive version
  * 				1.1 added support to strip all html for text and created raw text
+ * 				1.2 set the truncated flag, if posts are truncated due to length violation on MAX_NVARCHAR_SIZE
  * 
  */
 
@@ -261,9 +264,14 @@ public final class LithiumPostingData extends PostData {
 			// strip all HTML tags from the post 
 			// TODO CHANGE!!! this is a bad idea, better use TINYTEXT as data type in db then substring in the crawler
 			if (jsonObjText.get("$").toString().length()>MAX_NVARCHAR_SIZE-1){
+				logger.trace("Attention, posting too long, truncating to " + MAX_NVARCHAR_SIZE + " characters");
+				// Flag to indicate that the post was truncated 
+				setTruncated((Boolean) true);				
 				setText((String) stripHTML(jsonObjText.get("$")).substring(0, MAX_NVARCHAR_SIZE));
 				setRawText((String) jsonObjText.get("$").toString().substring(0, MAX_NVARCHAR_SIZE));
 			} else {
+				// Flag to indicate that the post is stored completely  
+				setTruncated((Boolean) false);
 				setText((String) stripHTML(jsonObjText.get("$")));
 				setRawText((String) jsonObjText.get("$"));
 			}
@@ -328,10 +336,6 @@ public final class LithiumPostingData extends PostData {
 			
 			// language - fix on de (German) at the moment
 			setLang(lang);
-			
-			
-			// Flag to indicate if the post was truncated - this is NEVER used by the Lithium network
-			setTruncated((Boolean) false);
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: parsing json failed " + e.getLocalizedMessage());
 			//e.printStackTrace();

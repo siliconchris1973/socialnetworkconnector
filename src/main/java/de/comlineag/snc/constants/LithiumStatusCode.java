@@ -1,17 +1,17 @@
-package de.comlineag.snc.data;
+package de.comlineag.snc.constants;
 
 /**
  *
  * @author 		Christian Guenther
  * @category	enum
- * @version 	1.0 transition to 1.1
+ * @version 	0.2
  * 
  * @description contains relevant Lithium Status Codes
  * 				provides a query to see if a given response code is good, as in OK, Accepted or Success
  * 				or if it is bad, as in Rejected, Bad Request etc.
  * 
- * @changelog	1.0 enum created
- * 				1.1 changed call to getLithiumStatusCode to check on failure or success
+ * @changelog	0.1 enum created
+ * 				0.2 changed call to getLithiumStatusCode to check on failure or success
  * 
  */
 public enum LithiumStatusCode {
