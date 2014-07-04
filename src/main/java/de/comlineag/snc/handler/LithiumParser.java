@@ -15,7 +15,7 @@ import de.comlineag.snc.constants.LithiumStatusCode;
  * 
  * @author 		Christian Guenther
  * @category 	Handler				
- * @version		1.2
+ * @version		0.7
  *  
  * @description LithiumParser implementation of the parser for the Lithium network community
  * 				LithiumParsr is an extension of the default GenericParser but differs in that
@@ -25,18 +25,17 @@ import de.comlineag.snc.constants.LithiumStatusCode;
  * 				from LithiumConstants 
  * 
  * @changelog	0.1 class created as copy from TwitterParser
- * 				0.2 - 0.6 change from json to xml and back to json
- * 				0.7 implemented constants from LithiumConstants
- * 				1.0 first productive version returns array of messages
- * 				1.1 bugfixing and optimization
- * 				1.2 implemented proper json error handling
+ * 				0.2 change from json to xml and back to json
+ * 				0.3 implemented constants from LithiumConstants
+ * 				0.4 first productive version returns array of messages
+ * 				0.5 bugfixing and optimization
+ * 				0.6 implemented proper json error handling
+ * 				0.7 changed constants to static
  * 
  */
 public final class LithiumParser extends GenericParser {
 
 	private final Logger logger = Logger.getLogger(getClass().getName());
-	// defines some constants for the crawler behavior and locations
-	LithiumConstants CONSTANTS = new LithiumConstants();
 	
 	public LithiumParser() {}
 
@@ -70,11 +69,11 @@ public final class LithiumParser extends GenericParser {
 			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
 			if(jsonObj == null)
 				throw new ParseException(0, "returned json object is null");
-			JSONObject responseObj = (JSONObject)jsonObj.get(CONSTANTS.JSON_RESPONSE_OBJECT_TEXT);
+			JSONObject responseObj = (JSONObject)jsonObj.get(LithiumConstants.JSON_RESPONSE_OBJECT_TEXT);
 			
 			// first check if the server response is not only OK from an http point of view, but also
 			//    from the perspective of the REST API call
-			jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(CONSTANTS.JSON_STATUS_CODE_TEXT).toString());
+			jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(LithiumConstants.JSON_STATUS_CODE_TEXT).toString());
 			if(!jsonStatusCode.isOk()){
 				//error json: {"response":{"status":"error","error":{"code":501,"message":"Unbekanntes Pfadelement bei Knoten \u201Ecommunity_search_context\u201C"}}}
 				JSONParser errorParser = new JSONParser();
@@ -83,13 +82,13 @@ public final class LithiumParser extends GenericParser {
 				if(jsonErrorObj == null)
 					throw new ParseException(0, "returned json object is null");
 				
-				logger.error("the server returned error " + jsonErrorObj.get(CONSTANTS.JSON_ERROR_CODE_TEXT) + " - " + jsonErrorObj.get(CONSTANTS.JSON_ERROR_MESSAGE_TEXT));
+				logger.error("the server returned error " + jsonErrorObj.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + jsonErrorObj.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT));
 				
-				throw new LithiumStatusException("the server returned error " + jsonErrorObj.get(CONSTANTS.JSON_ERROR_CODE_TEXT) + " - " + jsonErrorObj.get(CONSTANTS.JSON_ERROR_MESSAGE_TEXT));
+				throw new LithiumStatusException("the server returned error " + jsonErrorObj.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + jsonErrorObj.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT));
 			}
 			
-			JSONObject messages = (JSONObject) responseObj.get(CONSTANTS.JSON_MESSAGES_OBJECT_IDENTIFIER);
-			JSONArray messageArray = (JSONArray) messages.get(CONSTANTS.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
+			JSONObject messages = (JSONObject) responseObj.get(LithiumConstants.JSON_MESSAGES_OBJECT_IDENTIFIER);
+			JSONArray messageArray = (JSONArray) messages.get(LithiumConstants.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
 			
 			return messageArray;
 			

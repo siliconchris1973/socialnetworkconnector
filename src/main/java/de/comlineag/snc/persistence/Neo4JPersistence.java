@@ -30,7 +30,7 @@ import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
  *
  * @author 		Christian Guenther
  * @category 	Connector Class
- * @version 	1.1
+ * @version 	0.7
  *
  * @description handles the connectivity to the Neo4J Graph Database and saves posts, 
  * 				users and connections in the graph. Implements IPersistenceManager
@@ -131,8 +131,11 @@ public class Neo4JPersistence implements IPersistenceManager {
 				p.put("plName", postData.getGeoPlaceName());				// Property Name="plName" Type="Edm.String" MaxLength="256"
 			if (postData.getGeoPlaceCountry() != null)
 				p.put("plCountry", postData.getGeoPlaceCountry());			// Property Name="plCountry" Type="Edm.String" MaxLength="128"
-			//p.put("plAround_longitude", "00 00 00 00 00");				// Property Name="plAround_longitude" Type="Edm.String" MaxLength="40"
-			//p.put("plAround_latitude", "00 00 00 00 00");					// Property Name="plAround_latitude" Type="Edm.String" MaxLength="40"
+			if (postData.getGeoAroundLatitude() != null)
+				p.put("plAround_latitude", postData.getGeoAroundLatitude());	// Property Name="geoLocation_latitude" Type="Edm.String" MaxLength="40"
+			if (postData.getGeoAroundLongitude() != null)
+				p.put("plAround_longitude", postData.getGeoAroundLongitude());	// Property Name="geoLocation_latitude" Type="Edm.String" MaxLength="40"
+			
 			
 			p.put("user_id", postData.getUserId()); 						// CONNECTION Name="user_id" Type="AUTHORED"
 			// the following data is NOT stored directly but rathe as a relationship between nodes
@@ -671,7 +674,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	 *
 	 */
 	@SuppressWarnings("unused")
-	private String decryptValue(String param) throws NoBase64EncryptedValue {
+	private static String decryptValue(String param) throws NoBase64EncryptedValue {
 
 		// byte-Array kommt vom Decoder zurueck und kann dann in String uebernommen und zurueckgegeben werden
 		byte[] base64Array;
@@ -694,6 +697,7 @@ public class Neo4JPersistence implements IPersistenceManager {
         try { deleteRecursively( new File( db_path) ); }
         catch ( IOException e ) { throw new RuntimeException( e ); }
     }
+	
 	
 	// standard getter and setter
 	public String getHost() {
