@@ -3,7 +3,6 @@ package de.comlineag.snc.persistence;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTimeZone;
@@ -15,7 +14,6 @@ import org.odata4j.core.OEntity;
 import org.odata4j.core.OProperties;
 import org.odata4j.core.OProperty;
 
-import de.comlineag.snc.data.LocationData;
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
 
@@ -179,6 +177,7 @@ public class HANAPersistence implements IPersistenceManager {
 			} catch (java.lang.ClassNotFoundException le) {
 				logger.warn("JDBC driver not available - falling back to OData");
 				
+				// in case the connection is NOT opened already, attempt to create an OData Consumer
 				if (postService == null) {
 					try {
 						String _user = decryptValue(this.user);
@@ -200,12 +199,13 @@ public class HANAPersistence implements IPersistenceManager {
 					} catch (Exception e) {
 						logger.error("EXCEPTION :: unforseen error condition: " + e.getLocalizedMessage() + ". I'm giving up!");
 						e.printStackTrace();
-						System.exit(-1);
+						//System.exit(-1);
 					}
-				} else {
-					logger.debug("already connected to service endpoint " + this.protocol+"://" + this.host + ":" + this.port + this.location + "/" + this.servicePostEndpoint);
 				}
+				logger.debug("connected to service endpoint " + this.protocol+"://" + this.host + ":" + this.port + this.location + "/" + this.servicePostEndpoint);
 				
+				
+				// now build the OData statement and execute it against the connection endpoint
 				OEntity newPost = null;
 				try {
 					newPost = postService.createEntity("post")
@@ -255,25 +255,26 @@ public class HANAPersistence implements IPersistenceManager {
 					logger.error("ERROR :: could not create post ("+postData.getSnId()+"-"+postData.getId()+"): " + e.getLocalizedMessage());
 					// TODO find out how to get the http error code 
 					// check on the error code, some may be ok, for the crawler to continue 
-					// (everything above 499) some are client error, where we should bail out.
+					// (everything above 499) some are client errors, where we should bail out.
+					
 					List<OProperty<?>> odataProp = newPost.getProperties();
 					for (int i = 0; i < odataProp.size() ; i++)
 						logger.trace("returned property at position " + i + " is " + odataProp.get(i).getValue() );
 					e.printStackTrace();
-					System.exit(-1);
+					//System.exit(-1);
 				} catch (Exception e) {
 					logger.error("EXCEPTION :: unforseen error condition, post ("+postData.getSnId()+"-"+postData.getId()+") NOT created: " + e.getLocalizedMessage());
 					e.printStackTrace();
-					System.exit(-1);
+					//System.exit(-1);
 				}
 			} catch (SQLException le){
 				logger.error("EXCEPTION :: JDBC call failed, post ("+postData.getSnId()+"-"+postData.getId()+") not inserted " + le.getLocalizedMessage());
 				le.printStackTrace();
-				System.exit(-1);
+				//System.exit(-1);
 			} catch (Exception le) {
 				logger.error("EXCEPTION :: unforseen error condition, post ("+postData.getSnId()+"-"+postData.getId()+") NOT created: " + le.getLocalizedMessage());
 				le.printStackTrace();
-				System.exit(-1);
+				//System.exit(-1);
 			}
 		} else {
 			logger.info("the post ("+postData.getSnId()+"-"+postData.getId()+") is already in the database");
@@ -356,14 +357,15 @@ public class HANAPersistence implements IPersistenceManager {
 					} catch (Exception e) {
 						logger.error("EXCEPTION :: unforseen error condition: " + e.getLocalizedMessage());
 						e.printStackTrace();
-						System.exit(-1);
+						//System.exit(-1);
 					}
-				} else {
-					logger.debug("already connected to service endpoint " + this.protocol+"://" + this.host + ":" + this.port + this.location + "/" + this.serviceUserEndpoint);
 				}
+				logger.debug("connected to service endpoint " + this.protocol+"://" + this.host + ":" + this.port + this.location + "/" + this.serviceUserEndpoint);
 				
+				
+				OEntity newUser = null;
 				try {
-					OEntity newUser = userService.createEntity("user")
+					newUser = userService.createEntity("user")
 							.properties(OProperties.string("sn_id", userData.getSnId()))
 							.properties(OProperties.string("user_id", new String(new Long(userData.getId()).toString())))
 							.properties(OProperties.string("userName", userData.getUsername()))
@@ -394,22 +396,28 @@ public class HANAPersistence implements IPersistenceManager {
 					 */
 					// TODO find out how to retrieve return status from odata call
 					logger.error("ERROR :: Could not create user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
+					// TODO find out how to get the http error code 
+					// check on the error code, some may be ok, for the crawler to continue 
+					// (everything above 499) some are client error, where we should bail out.
+					List<OProperty<?>> odataProp = newUser.getProperties();
+					for (int i = 0; i < odataProp.size() ; i++)
+						logger.trace("returned property at position " + i + " is " + odataProp.get(i).getValue() );
 					e.printStackTrace();
-					System.exit(-1);
+					//System.exit(-1);
 				} catch (Exception e) {
 					logger.error("EXCEPTION :: unforseen error condition, user ("+userData.getSnId()+"-"+userData.getId()+") NOT added to the DB: " + e.getLocalizedMessage());
 					e.printStackTrace();
-					System.exit(-1);
+					//System.exit(-1);
 				}
 				
 			} catch (SQLException le){
 				logger.error("EXCEPTION :: JDBC call failed, user ("+userData.getSnId()+"-"+userData.getId()+") not inserted: " + le.getLocalizedMessage());
 				le.printStackTrace();
-				System.exit(-1);
+				//System.exit(-1);
 			} catch (Exception le) {
 				logger.error("EXCEPTION :: unforseen error condition, user ("+userData.getSnId()+"-"+userData.getId()+") NOT added to the DB: " + le.getLocalizedMessage());
 				le.printStackTrace();
-				System.exit(-1);
+				//System.exit(-1);
 			}
 		} else {
 			logger.info("The user " + userData.getUsername() + " (" + userData.getSnId()  + "-" + userData.getId() + ") is already in the database");

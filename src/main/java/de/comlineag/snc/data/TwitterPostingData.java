@@ -5,14 +5,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 /**
  * 
  * @author 		Christian Guenther, Magnus Leinemann
  * @category 	data type
- * @version 	1.2
+ * @version 	1.3
  * 
  * @description Describes a single twitter posting with all relevant informations.
  *              The class shall be used to make all methods handling a twitter
@@ -43,6 +41,7 @@ import org.json.simple.parser.ParseException;
  * 				1.0 first productive version without geo location and hashtag, symbols, mentions
  * 				1.1 minor bugfixings
  * 				1.2 geo location services and datatypes are now in their own class TwitterLocationData
+ * 				1.3 changed geo location to make use of simple class LocationData and added teaser as substring of post
  * 
  * @TODO implement hashtags, symbols and mentions
  * 
@@ -104,7 +103,7 @@ public final class TwitterPostingData extends PostData {
 		
 		
 		/*
-		 * coordinates is given by a mobile device
+		 * simple point location as given by e.g. a mobile device
 		 *
 		 * Structure
 		 *		Coordinates {
@@ -115,6 +114,13 @@ public final class TwitterPostingData extends PostData {
 		if (jsonObject.get("coordinates") != null) {
 			logger.debug("Found Coordinates " + jsonObject.get("coordinates").toString());
 			
+			JSONObject place = (JSONObject) jsonObject.get("coordinates");
+			LocationData twPlace = new LocationData(place);
+			
+			setGeoLongitude(twPlace.getGeoLongitude());
+			setGeoLatitude(twPlace.getGeoLatitude());
+			
+			/*
 			try {
 				JSONParser parser = new JSONParser();
 				Object simpleGeoLocationObj = parser.parse(jsonObject.get("coordinates").toString());	
@@ -127,28 +133,31 @@ public final class TwitterPostingData extends PostData {
 				logger.error("error parsing json coordinates object: " + e.getLocalizedMessage());
 				e.printStackTrace();
 			}
+			*/
 		}
-		// geoLocation is filled from the users profile - it is a complex structure,
-		// therefore handling is done by its own class LocationData
+		
+		/* 
+		 * geoLocation is filled from the users profile - a complex structure
+		 *  
+		 * Structure
+		 * 		geoLocation {
+		 * 			"id":"e229de11a7eb6823",
+		 * 			"bounding_box":{
+		 * 				"type":"Polygon",
+		 * 				"coordinates":[
+		 * 						[[-84.616812,33.895088],[-84.616812,34.0011594],[-84.46746,34.0011594],[-84.46746,33.895088]]
+		 * 				]
+		 * 			},
+		 * 			"place_type":"city",
+		 * 			"name":"Marietta",
+		 * 			"attributes":{},
+		 * 			"country_code":"US",
+		 * 			"url":"https:\/\/api.twitter.com\/1.1\/geo\/id\/e229de11a7eb6823.json",
+		 * 			"country":"United States",
+		 * 			"full_name":"Marietta, GA"
+		 * 		}
+		 */
 		if (jsonObject.get("geoLocation") != null) {
-			/* Structure
-			 * 			geoLocation {
-			 * 					"id":"e229de11a7eb6823",
-			 * 					"bounding_box":{
-			 * 						"type":"Polygon",
-			 * 						"coordinates":[
-			 * 							[[-84.616812,33.895088],[-84.616812,34.0011594],[-84.46746,34.0011594],[-84.46746,33.895088]]
-			 * 						]
-			 * 					},
-			 * 					"place_type":"city",
-			 * 					"name":"Marietta",
-			 * 					"attributes":{},
-			 * 					"country_code":"US",
-			 * 					"url":"https:\/\/api.twitter.com\/1.1\/geo\/id\/e229de11a7eb6823.json",
-			 * 					"country":"United States",
-			 * 					"full_name":"Marietta, GA"
-			 * 			}
-			 */
 			logger.trace("Found geoLocation " + jsonObject.get("geoLocation"));
 			JSONObject place = (JSONObject) jsonObject.get("geoLocation");
 			LocationData twPlace = new LocationData(place);
