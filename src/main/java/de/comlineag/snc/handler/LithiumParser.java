@@ -15,7 +15,7 @@ import de.comlineag.snc.constants.LithiumStatusCode;
  * 
  * @author 		Christian Guenther
  * @category 	Handler				
- * @version		0.7
+ * @version		0.8
  *  
  * @description LithiumParser implementation of the parser for the Lithium network community
  * 				LithiumParsr is an extension of the default GenericParser but differs in that

@@ -1,14 +1,14 @@
-package de.comlineag.snc.persistence;
+package de.comlineag.snc.handler;
 
 /**
  * 
  * @author		Magnus Leinemann
  * @category	Error Handling
- * @version		1.0
+ * @version		0.1
  * 
  * @description	Error to show that a value is NOT Base64 coded
  * 
- * @changelog	1.0 initial version
+ * @changelog	0.1 initial version
  * 
  */
 public class NoBase64EncryptedValue extends Exception {

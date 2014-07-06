@@ -184,7 +184,14 @@
 			<artifactId>jsoup</artifactId>
 			<version>1.7.2</version>
 		</dependency>
-
+		
+		<!-- used by truncateHtml from dataHelper -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.3.2</version>
+		</dependency>
+		
 		<!-- To read the crawler configuration from an ini file -->
 		<dependency>
 			<groupId>org.ini4j</groupId>

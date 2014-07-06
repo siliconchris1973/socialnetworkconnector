@@ -84,7 +84,7 @@ public class XMLFileConfigurationPersistence<T> implements IConfigurationManager
 			for (int i = 0 ; i < nodeList.getLength() ; i++)
 				ar.add((T) nodeList.item(i).getTextContent());
 			
-			logger.trace("    " + ar.toString());
+			logger.debug("    " + ar.toString());
 		} catch (IOException e) {
 			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
 			System.exit(-1);

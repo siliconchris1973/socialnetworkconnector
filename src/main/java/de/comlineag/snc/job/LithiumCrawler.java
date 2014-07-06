@@ -30,7 +30,7 @@ import de.comlineag.snc.handler.LithiumParser;
 import de.comlineag.snc.handler.LithiumPosting;
 import de.comlineag.snc.handler.LithiumStatusException;
 import de.comlineag.snc.handler.LithiumUser;
-import de.comlineag.snc.persistence.NoBase64EncryptedValue;
+import de.comlineag.snc.handler.NoBase64EncryptedValue;
 
 /**
  * 
@@ -84,6 +84,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		@SuppressWarnings("unused")
 		String _passwd = null;
 		try {
+			logger.trace("decrypting authorization details from job control");
 			_user = decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
 			_passwd = decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
 		} catch (NoBase64EncryptedValue e) {
@@ -92,6 +93,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		}
 		
 		// some static vars for the lithium crawler taken from applicationContext.xml
+		logger.trace("retrieving configuration details for server endpoint from job control " );
 		final String PROTOCOL = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.HTTP_ENDPOINT_PROTOCOL_KEY);
 		final String SERVER_URL = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.HTTP_ENDPOINT_SERVER_URL_KEY);
 		final String PORT = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.HTTP_ENDPOINT_PORT_KEY);
@@ -106,7 +108,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		
 		
 		// THESE VALUES ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND SITES (aka boards)
-		logger.info("retrieving restrictions from configuration db");
+		logger.debug("retrieving restrictions from configuration db");
 		String searchTerm = null;
 		
 		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, SocialNetworks.LITHIUM); 
@@ -132,14 +134,17 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			
 			// if no specific sites are configured, we use the standard REST_API_URL and message search endpoint
 			if (tSites.size()==0){
+				logger.trace("no restriction to specific sites, setting endpoint to " + REST_API_URL+LithiumConstants.REST_MESSAGES_SEARCH_URI);
 				tSites.add(REST_API_URL+LithiumConstants.REST_MESSAGES_SEARCH_URI);
 			} else {
+				logger.trace("converting given site restrictions to valid rest endpoints");
 				// otherwise each board from the sites section of the configuration file is surrounded by 
 				// the REST_API_URL and the message search uri
 				String t = null;
 				for (int i = 0; i < tSites.size() ; i++) {
 					t = tSites.get(i);
 					tSites.set(i, REST_API_URL + t + LithiumConstants.REST_MESSAGES_SEARCH_URI);
+					logger.trace("     " + tSites.get(i));
 				}
 			}
 			
@@ -149,7 +154,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				// because the search endpoint can either be standard REST_API_URL or any of the configured sites, 
 				// we need a temp-variable to store it 
 				postEndpoint = tSites.get(i);
-				logger.trace("setting up the rest endpoint at " + postEndpoint + " with user " + _user);
+				logger.debug("setting up the rest endpoint at " + postEndpoint + " with user " + _user);
 				HttpClient client = new HttpClient();
 				
 				for (int ii = 0 ; ii < tTerms.size(); ii++ ){
@@ -173,7 +178,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 						
 						// now get the json and check on that
 						String jsonString = method.getResponseBodyAsString();
-						logger.trace("our json in the execute loop: " + jsonString);
+						logger.trace("our posting json in the execute loop: " + jsonString);
 						
 						// now do the check on json error details within  the returned JSON object
 						JSONParser errParser = new JSONParser();
@@ -273,7 +278,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		LithiumStatusCode jsonStatusCode = null;
 		
 		try {
-			logger.info("Lithium " + jsonObjectIdentifier+" tracked, retrieving from " + REST_API_URL + objectRef);
+			logger.info("Lithium " + jsonObjectIdentifier + " tracked, retrieving from " + REST_API_URL + objectRef);
 			HttpClient client = new HttpClient();
 			
 			PostMethod method = new PostMethod(REST_API_URL+objectRef);
@@ -291,7 +296,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				logger.trace("http connection established (status is " + httpStatusCode + ")");
 			}	
 			
-			logger.trace("our json within SendObjectRequest: " + jsonString);
+			logger.trace("our " + jsonObjectIdentifier + " json within SendObjectRequest: " + jsonString);
 			
 			// the JSON String we received from the http connection is now decoded and passed on to the 
 			// specific parser for posts and user

@@ -15,7 +15,7 @@
 	<!-- 
 		This is the logging configuration file for SNC 
 		it will log 
-					all crawler logs to comlineag-loggerSNC.log 
+					all job logs to comlineag-loggerSNC.log 
 					all persistence logs to comlineag-loggerSNC_Persistence.log 
 					all Twitter logs to comlineag-loggerSNC_Twitter.log 
 					all Http logs to comlineag-loggerSNC_Http.log 
@@ -30,7 +30,7 @@
 	</appender>
 
 	<!-- standard logfile -->
-	<appender name="file" class="org.apache.log4j.FileAppender">
+	<appender name="fileA" class="org.apache.log4j.FileAppender">
 		<param name="File" value="./logs/comlineag-loggerSNC.log" />
 		<!-- <param name="Threshold" value="WARN"/> -->
 		<layout class="org.apache.log4j.PatternLayout">
@@ -38,9 +38,9 @@
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n" />
 		</layout>
 	</appender>
-	<!-- Crawler logfile -->
-	<appender name="fileC" class="org.apache.log4j.FileAppender">
-		<param name="File" value="./logs/comlineag-loggerSNC_Crawler.log" />
+	<!-- Job logfile -->
+	<appender name="fileJ" class="org.apache.log4j.FileAppender">
+		<param name="File" value="./logs/comlineag-loggerSNC_Job.log" />
 		<!-- <param name="Threshold" value="WARN"/> -->
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n" />
@@ -65,71 +65,40 @@
 			<!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> -->
 		</layout>
 	</appender>
-	<!-- twitter logfile -->
-	<appender name="fileT" class="org.apache.log4j.FileAppender">
-		<param name="File" value="./logs/comlineag-loggerSNC_Twitter.log" />
-		<!-- <param name="Threshold" value="WARN"/> -->
-		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n" />
-			<!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> -->
-		</layout>
-	</appender>
-	<!-- facebook logfile -->
-	<appender name="fileF" class="org.apache.log4j.FileAppender">
-		<param name="File" value="./logs/comlineag-loggerSNC_Facebook.log" />
-		<!-- <param name="Threshold" value="WARN"/> -->
-		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n" />
-			<!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> -->
-		</layout>
-	</appender>
-
+	
 	<!-- not fitting in any other category -->
 	<logger name="de.comlineag.snc">
-		<level value="info"></level>
+		<level value="debug"></level>
 		<appender-ref ref="console" />
+		<appender-ref ref="fileA" />
 	</logger>
-
+	
+	<!-- Handler logging -->
+	<!--  
+	<logger name = "de.comlineag.snc.handler"> 
+		<level value = "trace"></level> 
+		<appender-ref ref="fileH" /> 
+	</logger> 
+	-->
 	<!-- persistence logging -->
 	<!--  
 	<logger name = "de.comlineag.snc.persistence"> 
-		<level value = "debug"></level> 
+		<level value = "trace"></level> 
 		<appender-ref ref="fileP" /> 
 	</logger> 
 	-->
-	<!-- twitter posting data logging -->
+	<!-- data logging -->
 	<!-- 
-	<logger name = "de.comlineag.snc.data.TwitterPostingData"> 
-		<level value = "debug"></level> 
-		<appender-ref ref="fileC" /> 
+	<logger name = "de.comlineag.snc.data"> 
+		<level value = "trace"></level> 
+		<appender-ref ref="fileD" /> 
 	</logger> 
 	-->
-	<!-- twitter crawler logging -->
+	<!-- job logging -->
 	<!-- 
-	<logger name = "de.comlineag.snc.job.TwitterCrawler"> 
-		<level value = "debug"></level> 
-		<appender-ref ref="fileC" /> 
-	</logger> 
-	-->
-	<!-- twitter api(?) logging -->
-	<!-- 
-	<logger name = "com.twitter"> 
-		<level value = "info"></level> 
-		<appender-ref ref="fileT" /> 
-	</logger> 
-	-->
-	<!-- facebook api(?) logging -->
-	<!-- 
-	<logger name = "com.facebook"> 
-		<level value = "info"></level> 
-		<appender-ref ref="fileF" /> 
-	</logger> 
-	-->
-	<!-- http logging -->
-	<!-- 
-	<logger name = "org.apache.http"> 
-		<level value = "info"></level> 
-		<appender-ref ref="fileH" /> 
+	<logger name = "de.comlineag.snc.job"> 
+		<level value = "trace"></level> 
+		<appender-ref ref="fileJ" /> 
 	</logger> 
 	-->
 </log4j:configuration>

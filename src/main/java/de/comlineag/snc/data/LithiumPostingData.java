@@ -3,7 +3,6 @@ package de.comlineag.snc.data;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.jsoup.Jsoup;
 
 import de.comlineag.snc.constants.SocialNetworks;
 
@@ -255,25 +254,39 @@ public final class LithiumPostingData extends PostData {
 			
 			
 			
-			// Text des Post - this will be updated via jdbc
 			// Structure: 
 			//	{}body	
 			obj = parser.parse(jsonObject.get("body").toString());
 			JSONObject jsonObjText = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			// strip all HTML tags from the post 
-			// TODO CHANGE!!! this is a bad idea, better use TINYTEXT as data type in db then substring in the crawler
-			if (jsonObjText.get("$").toString().length()>MAX_NVARCHAR_SIZE-1){
-				logger.trace("Attention, posting too long, truncating to " + MAX_NVARCHAR_SIZE + " characters");
-				// Flag to indicate that the post was truncated 
-				setTruncated((Boolean) true);				
-				setText((String) stripHTML(jsonObjText.get("$")).substring(0, MAX_NVARCHAR_SIZE));
-				setRawText((String) jsonObjText.get("$").toString().substring(0, MAX_NVARCHAR_SIZE));
+			// TODO CHANGE!!! this is a bad idea, better use TINYTEXT as data type in db insetad of a substring function in the crawler
+			if (jsonObjText.get("$").toString().length() > (MAX_NVARCHAR_SIZE-1)){
+				logger.trace("Posting with markup too long (has "+jsonObjText.get("$").toString().length()+" characters), stripping all html and truncating the raw text");
+				
+				// strip all HTML tags from the post 
+				setText(	(String) DataHelper.stripHTML	 (jsonObjText.get("$").toString()));
+				
+				//setRawText( (String) DataHelper.htmlTruncator(jsonObjText.get("$").toString() , (MAX_NVARCHAR_SIZE-1)));
+				setRawText((String) DataHelper.truncateHtmlWords(jsonObjText.get("$").toString().substring(0, (MAX_NVARCHAR_SIZE-5)), (MAX_NVARCHAR_SIZE-1)));
+				
+				// in case, after removing all html markups the text is still too long, truncate it
+				if (getText().length() > (MAX_NVARCHAR_SIZE-1)){
+					logger.warn("Attention, posting too long (has "+getText().length()+" characters), truncating to " + (MAX_NVARCHAR_SIZE -1) + " characters");
+					
+					// Flag to indicate that the post was truncated 
+					setTruncated((Boolean) true);
+					
+					setText(getText().substring(0, (MAX_NVARCHAR_SIZE-1)) );
+				} 
+				logger.trace("the remaining text now has " + getText().length() + " characters and the raw-text has " + getRawText().length() + " characters");
+				logger.trace("the raw-text now reads: \n    " + getRawText());
 			} else {
-				// Flag to indicate that the post is stored completely  
+				// Flag to indicate that the post is stored completely
 				setTruncated((Boolean) false);
-				setText((String) stripHTML(jsonObjText.get("$")));
+				setText((String) DataHelper.stripHTML(jsonObjText.get("$")));
 				setRawText((String) jsonObjText.get("$"));
+				
+				logger.trace("the text has " + getText().length() + " characters and the raw-text has " + getRawText().length() + " characters");
 			}
 			
 			
@@ -286,11 +299,20 @@ public final class LithiumPostingData extends PostData {
 			obj = parser.parse(jsonObject.get("teaser").toString());
 			JSONObject jsonObjTeaser = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			setTeaser((String) jsonObjTeaser.get("$"));
-			if (getTeaser().length()<=5)
-				setTeaser(getText().substring(0,20)+"...");
-						
-						
+			if (jsonObjTeaser.get("$").toString().length() > 250) {
+				setTeaser(jsonObjTeaser.get("$").toString().substring(0, 245) + "...");
+			} else {
+				if (getTeaser().length() <= 3) {
+					if (getText().length() < 250) {
+						setTeaser(getText());
+					} else {
+						setTeaser(getText().substring(0,245) + "...");
+					}
+				} else {
+					setTeaser((String) jsonObjTeaser.get("$"));
+				}
+			}
+			
 			// in which board was the message posted - we use the client field for this value
 			// Structure:
 			//	{}board	
@@ -338,21 +360,10 @@ public final class LithiumPostingData extends PostData {
 			setLang(lang);
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: parsing json failed " + e.getLocalizedMessage());
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 	
-	
-	/**
-	 * 
-	 * @description	convert an html text to plain text
-	 * @param 		object
-	 * @return		plan text
-	 */
-	private String stripHTML(Object object) {
-		String html = object.toString();
-		return Jsoup.parse(html).text();
-	}
 
 	/**
 	 * @description	setup a posting data with NULL-values

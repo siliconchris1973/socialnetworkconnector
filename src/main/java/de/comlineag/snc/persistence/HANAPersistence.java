@@ -3,7 +3,6 @@ package de.comlineag.snc.persistence;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.List;
 
 import org.joda.time.DateTimeZone;
 import org.apache.commons.codec.binary.Base64;
@@ -12,28 +11,30 @@ import org.odata4j.consumer.ODataConsumer;
 import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OProperties;
-import org.odata4j.core.OProperty;
 
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
+import de.comlineag.snc.handler.NoBase64EncryptedValue;
 
 /**
  *
  * @author 		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Connector Class
- * @version 	0.9
+ * @version 	0.9a
  *
  * @description handles the connectivity to the SAP HANA Systems and saves posts and users in the DB
  * 
- * @changelog	0.1 skeleton created
- * 				0.2 savePost implemented
+ * @changelog	0.1 skeleton created																Chris
+ * 				0.2 savePost implemented															Magnus
  * 				0.3 saveUser implemented
  * 				0.4 added skeleton for geo-location information
  * 				0.5 added support for encrypted user and password
  * 				0.6 bugfixing and optimization
- * 				0.7 first productive version, saves users and posts as is (no geo-information)
- *				0.8	added JDBC support
- * 				0.9	added search for dataset prior inserting one 
+ * 				0.7 first productive version, saves users and posts as is (no geo-information)		Chris
+ *				0.8	added JDBC support																Thomas
+ * 				0.9	added search for dataset prior inserting one 									Chris
+ * 				0.9a added query to determine if an exception during persistence operation shall 
+ * 					terminate the crawler or not
  *
  */
 public class HANAPersistence implements IPersistenceManager {
@@ -52,7 +53,10 @@ public class HANAPersistence implements IPersistenceManager {
 
 	private static ODataConsumer userService;
 	private static ODataConsumer postService;
-
+	
+	// as the name says, if set to true, the crawler will be terminated in case of a persistence exception
+	private static final boolean terminateJobOnException = true;
+	
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	public HANAPersistence() {}
@@ -111,8 +115,7 @@ public class HANAPersistence implements IPersistenceManager {
 					user = decryptValue(this.user);
 					password = decryptValue(this.pass);
 				} catch (NoBase64EncryptedValue e) {
-					logger.error("EXCEPTION :: could not decrypt user and/or password. Connection to persistence won't be successful, giving up." + e.getMessage(), e);
-					System.exit(-1);
+					logger.error("EXCEPTION :: could not decrypt user and/or password" + e.getMessage(), e);
 				}
 	            
 	            logger.trace("trying to insert data with jdbc url="+url+" user="+user);
@@ -194,12 +197,14 @@ public class HANAPersistence implements IPersistenceManager {
 						
 						logger.info("HANAPersistence Service for users connected");
 					} catch (NoBase64EncryptedValue e) {
-						logger.error("EXCEPTION :: could not decrypt user and/or password. Connection to persistence won't be successful, giving up. " + e.getMessage(), e);
-						System.exit(-1);
+						logger.error("EXCEPTION :: could not decrypt user and/or password. " + e.getMessage(), e);
+						if (terminateJobOnException)
+							System.exit(-1);
 					} catch (Exception e) {
 						logger.error("EXCEPTION :: unforseen error condition: " + e.getLocalizedMessage() + ". I'm giving up!");
 						e.printStackTrace();
-						//System.exit(-1);
+						if (terminateJobOnException)
+							System.exit(-1);
 					}
 				}
 				logger.debug("connected to service endpoint " + this.protocol+"://" + this.host + ":" + this.port + this.location + "/" + this.servicePostEndpoint);
@@ -239,7 +244,9 @@ public class HANAPersistence implements IPersistenceManager {
 							.properties(OProperties.string("plAround_latitude", postData.getGeoAroundLatitude()))
 							
 							.execute();
-						
+					
+					logger.trace("entity set for the post: " + newPost.getEntitySet().toString());
+					
 					logger.info("New post ("+postData.getSnId()+"-"+postData.getId()+") created");
 				
 					/*
@@ -252,29 +259,33 @@ public class HANAPersistence implements IPersistenceManager {
 					 * 			</error>
 					 */
 				} catch (RuntimeException e) {
-					logger.error("ERROR :: could not create post ("+postData.getSnId()+"-"+postData.getId()+"): " + e.getLocalizedMessage());
+					logger.error("EXCEPTION :: could not create post ("+postData.getSnId()+"-"+postData.getId()+"): " + e.getLocalizedMessage());
+					e.printStackTrace();
+					
+					logger.trace("entity set for the post: " + newPost.getEntitySet().toString());
+					
 					// TODO find out how to get the http error code 
 					// check on the error code, some may be ok, for the crawler to continue 
 					// (everything above 499) some are client errors, where we should bail out.
 					
-					List<OProperty<?>> odataProp = newPost.getProperties();
-					for (int i = 0; i < odataProp.size() ; i++)
-						logger.trace("returned property at position " + i + " is " + odataProp.get(i).getValue() );
-					e.printStackTrace();
-					//System.exit(-1);
+					if (terminateJobOnException)
+						System.exit(-1);
 				} catch (Exception e) {
 					logger.error("EXCEPTION :: unforseen error condition, post ("+postData.getSnId()+"-"+postData.getId()+") NOT created: " + e.getLocalizedMessage());
 					e.printStackTrace();
-					//System.exit(-1);
+					if (terminateJobOnException)
+						System.exit(-1);
 				}
 			} catch (SQLException le){
 				logger.error("EXCEPTION :: JDBC call failed, post ("+postData.getSnId()+"-"+postData.getId()+") not inserted " + le.getLocalizedMessage());
 				le.printStackTrace();
-				//System.exit(-1);
+				if (terminateJobOnException)
+					System.exit(-1);
 			} catch (Exception le) {
 				logger.error("EXCEPTION :: unforseen error condition, post ("+postData.getSnId()+"-"+postData.getId()+") NOT created: " + le.getLocalizedMessage());
 				le.printStackTrace();
-				//System.exit(-1);
+				if (terminateJobOnException)
+					System.exit(-1);
 			}
 		} else {
 			logger.info("the post ("+postData.getSnId()+"-"+postData.getId()+") is already in the database");
@@ -299,8 +310,7 @@ public class HANAPersistence implements IPersistenceManager {
 					user = decryptValue(this.user);
 					password = decryptValue(this.pass);
 				} catch (NoBase64EncryptedValue e) {
-					logger.error("EXCEPTION :: could not decrypt user and/or password.  Connection to persistence won't be successful, giving up. " + e.getMessage(), e);
-					System.exit(-1);
+					logger.error("EXCEPTION :: could not decrypt user and/or password" + e.getMessage(), e);
 				}
 	            
 	            logger.debug("trying to insert data with jdbc url="+url+" user="+user);
@@ -352,12 +362,14 @@ public class HANAPersistence implements IPersistenceManager {
 						
 						logger.info("HANAPersistence Service for users connected");
 					} catch (NoBase64EncryptedValue e) {
-						logger.error("EXCEPTION :: could not decrypt user and/or password Connection to persistence won't be successful, giving up. " + e.getMessage(), e);
-						System.exit(-1);
+						logger.error("EXCEPTION :: could not decrypt user and/or password. " + e.getMessage(), e);
+						if (terminateJobOnException)
+							System.exit(-1);
 					} catch (Exception e) {
 						logger.error("EXCEPTION :: unforseen error condition: " + e.getLocalizedMessage());
 						e.printStackTrace();
-						//System.exit(-1);
+						if (terminateJobOnException)
+							System.exit(-1);
 					}
 				}
 				logger.debug("connected to service endpoint " + this.protocol+"://" + this.host + ":" + this.port + this.location + "/" + this.serviceUserEndpoint);
@@ -382,7 +394,9 @@ public class HANAPersistence implements IPersistenceManager {
 							.properties(OProperties.int32("listsAndGroupsCount", new Integer((int) userData.getListsAndGrooupsCount())))
 		
 							.execute();
-						
+					
+					logger.trace("entity set for the post: " + newUser.getEntitySet().toString());
+					
 					logger.info("New user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") created");
 				} catch (RuntimeException e) {
 					/*
@@ -394,30 +408,32 @@ public class HANAPersistence implements IPersistenceManager {
 					 * 				</message>
 					 * 			</error>
 					 */
-					// TODO find out how to retrieve return status from odata call
 					logger.error("ERROR :: Could not create user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
+					e.printStackTrace();
+					
 					// TODO find out how to get the http error code 
 					// check on the error code, some may be ok, for the crawler to continue 
 					// (everything above 499) some are client error, where we should bail out.
-					List<OProperty<?>> odataProp = newUser.getProperties();
-					for (int i = 0; i < odataProp.size() ; i++)
-						logger.trace("returned property at position " + i + " is " + odataProp.get(i).getValue() );
-					e.printStackTrace();
-					//System.exit(-1);
+					
+					if (terminateJobOnException)
+						System.exit(-1);
 				} catch (Exception e) {
 					logger.error("EXCEPTION :: unforseen error condition, user ("+userData.getSnId()+"-"+userData.getId()+") NOT added to the DB: " + e.getLocalizedMessage());
 					e.printStackTrace();
-					//System.exit(-1);
+					if (terminateJobOnException)
+						System.exit(-1);
 				}
 				
 			} catch (SQLException le){
 				logger.error("EXCEPTION :: JDBC call failed, user ("+userData.getSnId()+"-"+userData.getId()+") not inserted: " + le.getLocalizedMessage());
 				le.printStackTrace();
-				//System.exit(-1);
+				if (terminateJobOnException)
+					System.exit(-1);
 			} catch (Exception le) {
 				logger.error("EXCEPTION :: unforseen error condition, user ("+userData.getSnId()+"-"+userData.getId()+") NOT added to the DB: " + le.getLocalizedMessage());
 				le.printStackTrace();
-				//System.exit(-1);
+				if (terminateJobOnException)
+					System.exit(-1);
 			}
 		} else {
 			logger.info("The user " + userData.getUsername() + " (" + userData.getSnId()  + "-" + userData.getId() + ") is already in the database");
@@ -441,7 +457,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * @return 		true on success (found) or false in case of ANY error
 	 */
 	private boolean checkIfEntryExist(long id, String sn_id, String type) {
-		assert type == "user" || type == "post" : "type must be either user or post";
+		assert type == "user" || type == "post" : "type must be either \'user\' or \'post\'";
 		
 		BasicAuthenticationBehavior bAuth = null;
 		String _user = null;
@@ -462,10 +478,10 @@ public class HANAPersistence implements IPersistenceManager {
 			return false;
 		}
 		
-		logger.debug("checking if "+type+" " + sn_id + "-" + id + " at " + postURI + " exists");
-		logger.trace("     authenticated as user " + _user);
-		
 		if (type == "user") {
+			logger.debug("checking if "+type+" " + sn_id + "-" + id + " at " + userURI + " exists");
+			logger.trace("     authenticated as user " + _user);
+			
 			builder = ODataConsumer.newBuilder(userURI);
 			builder.setClientBehaviors(bAuth);
 			userService = builder.build();
@@ -481,6 +497,9 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			return true;
 		} else {
+			logger.debug("checking if "+type+" " + sn_id + "-" + id + " at " + postURI + " exists");
+			logger.trace("     authenticated as user " + _user);
+			
 			builder = ODataConsumer.newBuilder(postURI);
 			builder.setClientBehaviors(bAuth);
 			postService = builder.build();
