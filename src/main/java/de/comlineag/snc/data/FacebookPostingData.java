@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.comlineag.snc.constants.SocialNetworks;
+import de.comlineag.snc.helper.DataHelper;
 
 /**
  * 

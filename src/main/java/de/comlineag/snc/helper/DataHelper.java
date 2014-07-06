@@ -1,4 +1,4 @@
-package de.comlineag.snc.data;
+package de.comlineag.snc.helper;
 
 import java.util.ArrayList;
 import java.util.Arrays;

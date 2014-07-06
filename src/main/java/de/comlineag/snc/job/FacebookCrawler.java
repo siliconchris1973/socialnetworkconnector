@@ -28,7 +28,7 @@ import de.comlineag.snc.constants.HttpStatusCode;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.handler.CrawlerConfiguration;
 import de.comlineag.snc.handler.FacebookParser;
-import de.comlineag.snc.handler.NoBase64EncryptedValue;
+import de.comlineag.snc.helper.NoBase64EncryptedValue;
 
 // TODO !!!!! IMPLEMENT THE FaceBookCrawler !!!!!!
 

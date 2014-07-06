@@ -5,6 +5,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import de.comlineag.snc.constants.SocialNetworks;
+import de.comlineag.snc.helper.DataHelper;
 
 /**
  * 

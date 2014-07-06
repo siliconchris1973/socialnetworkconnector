@@ -30,7 +30,7 @@ import de.comlineag.snc.handler.LithiumParser;
 import de.comlineag.snc.handler.LithiumPosting;
 import de.comlineag.snc.handler.LithiumStatusException;
 import de.comlineag.snc.handler.LithiumUser;
-import de.comlineag.snc.handler.NoBase64EncryptedValue;
+import de.comlineag.snc.helper.NoBase64EncryptedValue;
 
 /**
  * 
