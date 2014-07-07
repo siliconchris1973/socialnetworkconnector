@@ -67,7 +67,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private ConfigurationEncryptionHandler encryptionProvider = new ConfigurationEncryptionHandler();
+	private ConfigurationEncryptionHandler configurationEncryptionProvider = new ConfigurationEncryptionHandler();
 
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
@@ -92,8 +92,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		String _passwd = null;
 		try {
 			logger.trace("decrypting authorization details from job control");
-			_user = encryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
-			_passwd = encryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
+			_user = configurationEncryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
+			_passwd = configurationEncryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
 		} catch (GenericEncryptionException e) {
 			logger.error("EXCEPTION :: value for user or passwd is NOT base64 encrypted " + e.toString(), e);
 			System.exit(-1);

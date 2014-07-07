@@ -81,7 +81,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private ConfigurationEncryptionHandler encryptionProvider = new ConfigurationEncryptionHandler();
+	private ConfigurationEncryptionHandler configurationEncryptionProvider = new ConfigurationEncryptionHandler();
 		
 	public Neo4JPersistence() {
 		// initialize the necessary variables from applicationContext.xml for server connection

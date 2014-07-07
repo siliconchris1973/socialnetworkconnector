@@ -8,8 +8,8 @@ import de.comlineag.snc.persistence.AppContext;
  * 
  * @author		Christian Guenther
  * @category	Handler
- * @version		0.1
- * @status		productive
+ * @version		0.2
+ * @status		deprecated
  * 
  * @description GenericEncryptionProvider is the abstract base class for the 
  * 				configuration handler. It gets the active encryption provider 
@@ -17,8 +17,11 @@ import de.comlineag.snc.persistence.AppContext;
  * 				actual EncryptionHandler - like ConfigurationEncryption.
  * 
  * @changelog	0.1 (Chris)		first version as copy from GenericDataManager
+ * 				0.2				marked deprecated as we now use ConfigurationEncryptionHandler directly
+ * 								this helps in case we need a second encryption provider for something different
  *
  */
+@Deprecated
 public abstract class GenericEncryptionProvider {
 	
 	protected IEncryptionProvider encryptionProvider;

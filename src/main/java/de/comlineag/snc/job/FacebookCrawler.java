@@ -53,7 +53,7 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private ConfigurationEncryptionHandler encryptionProvider = new ConfigurationEncryptionHandler();
+	private ConfigurationEncryptionHandler configurationEncryptionProvider = new ConfigurationEncryptionHandler();
 
 	// Set up your blocking queues: Be sure to size these properly based on
 	// expected TPS of your stream
@@ -81,8 +81,8 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		String _user = null;
 		String _passwd = null;
 		try {
-			_user = encryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
-			_passwd = encryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
+			_user = configurationEncryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
+			_passwd = configurationEncryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
 		} catch (GenericEncryptionException e) {
 			logger.error("EXCEPTION :: value for user or passwd is NOT base64 encrypted " + e.toString(), e);
 			System.exit(-1);
@@ -103,10 +103,15 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		// setup restrictions on what to track
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES AND USERS
 		logger.info("retrieving restrictions from configuration db");
+		logger.trace("   on terms");
 		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, SocialNetworks.FACEBOOK);
+		logger.trace("   on users");
 		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(ConfigurationConstants.CONSTRAINT_USER_TEXT, SocialNetworks.FACEBOOK);
+		logger.trace("   on languages");
 		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_LANGUAGE_TEXT, SocialNetworks.FACEBOOK);
+		logger.trace("   on sites");
 		ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_SITE_TEXT, SocialNetworks.FACEBOOK);
+		logger.trace("   on locations");
 		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(ConfigurationConstants.CONSTRAINT_LOCATION_TEXT, SocialNetworks.FACEBOOK);
 		
 		// simple log output

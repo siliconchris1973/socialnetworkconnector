@@ -67,7 +67,7 @@ public class HANAPersistence implements IPersistenceManager {
 	
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private ConfigurationEncryptionHandler encryptionProvider = new ConfigurationEncryptionHandler();
+	private ConfigurationEncryptionHandler configurationEncryptionProvider = new ConfigurationEncryptionHandler();
 	
 	
 	public HANAPersistence() {}
@@ -123,8 +123,8 @@ public class HANAPersistence implements IPersistenceManager {
 				
 				// get the user and password for the JDBC connection
 				try {
-					user = encryptionProvider.decryptValue(this.user);
-					password = encryptionProvider.decryptValue(this.pass);
+					user = configurationEncryptionProvider.decryptValue(this.user);
+					password = configurationEncryptionProvider.decryptValue(this.pass);
 				} catch (GenericEncryptionException e) {
 					logger.error("EXCEPTION :: could not decrypt user and/or password" + e.getMessage(), e);
 				}
@@ -195,8 +195,8 @@ public class HANAPersistence implements IPersistenceManager {
 				// in case the connection is NOT opened already, attempt to create an OData Consumer
 				if (postService == null) {
 					try {
-						String _user = encryptionProvider.decryptValue(this.user);
-						String _pw = encryptionProvider.decryptValue(this.pass);
+						String _user = configurationEncryptionProvider.decryptValue(this.user);
+						String _pw = configurationEncryptionProvider.decryptValue(this.pass);
 						
 						BasicAuthenticationBehavior bAuth = new BasicAuthenticationBehavior(_user, _pw);
 						String baseLocation = new String(this.protocol+"://" + this.host + ":" + this.port + this.location);
@@ -320,8 +320,8 @@ public class HANAPersistence implements IPersistenceManager {
 				
 				// get the user and password for the JDBC connection
 				try {
-					user = encryptionProvider.decryptValue(this.user);
-					password = encryptionProvider.decryptValue(this.pass);
+					user = configurationEncryptionProvider.decryptValue(this.user);
+					password = configurationEncryptionProvider.decryptValue(this.pass);
 				} catch (GenericEncryptionException e) {
 					logger.error("EXCEPTION :: could not decrypt user and/or password" + e.getMessage(), e);
 				}
@@ -362,8 +362,8 @@ public class HANAPersistence implements IPersistenceManager {
 				
 				if (userService == null) {
 					try {
-						String _user = encryptionProvider.decryptValue(this.user);
-						String _pw = encryptionProvider.decryptValue(this.pass);
+						String _user = configurationEncryptionProvider.decryptValue(this.user);
+						String _pw = configurationEncryptionProvider.decryptValue(this.pass);
 						String baseLocation = new String(this.protocol+"://" + this.host + ":" + this.port + this.location);
 						String userURI = new String(baseLocation + "/" + this.serviceUserEndpoint);
 							
@@ -484,8 +484,8 @@ public class HANAPersistence implements IPersistenceManager {
 		String userURI = new String(baseLocation + "/" + this.serviceUserEndpoint);
 		
 		try {
-			_user = encryptionProvider.decryptValue(this.user);
-			_pw = encryptionProvider.decryptValue(this.pass);
+			_user = configurationEncryptionProvider.decryptValue(this.user);
+			_pw = configurationEncryptionProvider.decryptValue(this.pass);
 			bAuth = new BasicAuthenticationBehavior(_user, _pw);
 		} catch (GenericEncryptionException e) {
 			logger.error("EXCEPTION :: could not decrpt values for user and passowrd " + e.getMessage());

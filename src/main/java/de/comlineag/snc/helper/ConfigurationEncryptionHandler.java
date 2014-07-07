@@ -2,6 +2,10 @@ package de.comlineag.snc.helper;
 
 import org.apache.log4j.Logger;
 
+import de.comlineag.snc.constants.EncryptionProvider;
+import de.comlineag.snc.constants.SocialNetworks;
+import de.comlineag.snc.persistence.AppContext;
+
 /**
  * 
  * @author 		Christian Guenther
@@ -16,9 +20,23 @@ import org.apache.log4j.Logger;
  * @changelog	0.1 first initial version 
  * 
  */
-public class ConfigurationEncryptionHandler extends GenericEncryptionProvider {
+public class ConfigurationEncryptionHandler { //extends GenericEncryptionProvider {
+		
+	protected IEncryptionProvider configurationEncryptionProvider;
+	protected SocialNetworks sourceSocialNetwork;
+	protected EncryptionProvider sourceEncryptionProvider;
+
 	
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	
+	public ConfigurationEncryptionHandler() {
+		configurationEncryptionProvider = (IEncryptionProvider) AppContext.Context.getBean("configurationEncryptionProvider");
+	}
+	
+	@SuppressWarnings("unused")
+	private static String getEncryptionProvider() {
+		return (String) AppContext.Context.getBean("encryptionProvider");
+	}
+	
 	
 	/**
 	 * @description Decrypts a given string 
@@ -31,8 +49,7 @@ public class ConfigurationEncryptionHandler extends GenericEncryptionProvider {
 	 *
 	 */
 	public String decryptValue(String param) throws GenericEncryptionException {
-		logger.debug("using " + encryptionProvider.getClass().getCanonicalName().toString() + " as encryption provider");
-		return encryptionProvider.decryptValue(param);
+		return configurationEncryptionProvider.decryptValue(param);
 	}
 
 	/**
@@ -45,7 +62,7 @@ public class ConfigurationEncryptionHandler extends GenericEncryptionProvider {
 	 *
 	 */
 	public String encryptValue(String param) throws GenericEncryptionException {
-		return encryptionProvider.encryptValue(param);
+		return configurationEncryptionProvider.encryptValue(param);
 	}
 
 	/**
@@ -55,6 +72,6 @@ public class ConfigurationEncryptionHandler extends GenericEncryptionProvider {
 	 *					entropy source
 	 */
 	public void setEntropy(String param) {
-		encryptionProvider.setEntropy(param);
+		configurationEncryptionProvider.setEntropy(param);
 	}
 }
