@@ -11,7 +11,8 @@ import org.springframework.context.ApplicationContextAware;
  * @version 	0.1
  * @status		productive
  *  
- * @description provides the application Context with metadata of used backend
+ * @description Wiring the ApplicationContext into a static method and 
+ * 				provides the application Context with metadata of used backend
  * 
  * @changelog	0.1 (Magnus)		class created
  * 
@@ -20,7 +21,6 @@ import org.springframework.context.ApplicationContextAware;
 public class ApplicationContextProvider implements ApplicationContextAware {
 
 	public void setApplicationContext(ApplicationContext ctx) throws BeansException {
-		// Wiring the ApplicationContext into a static method
 		AppContext.setApplicationContext(ctx);
 	}
 }

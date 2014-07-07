@@ -20,6 +20,7 @@ import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 
 import de.comlineag.snc.constants.ConfigurationConstants;
+import de.comlineag.snc.constants.EncryptionProvider;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.TwitterConstants;
 import de.comlineag.snc.handler.CrawlerConfiguration;
@@ -82,14 +83,10 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 		
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
-		logger.info("retrieving restrictions from configuration db");
-		logger.trace("   on terms");
+		logger.trace("retrieving restrictions from configuration db");
 		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, SocialNetworks.TWITTER);
-		logger.trace("   on languages");
 		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_LANGUAGE_TEXT, SocialNetworks.TWITTER);
-		logger.trace("   on users");
 		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(ConfigurationConstants.CONSTRAINT_USER_TEXT, SocialNetworks.TWITTER);
-		logger.trace("   on locations");
 		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(ConfigurationConstants.CONSTRAINT_LOCATION_TEXT, SocialNetworks.TWITTER);
 		
 		// log output AND setup of the filter end point

@@ -17,17 +17,17 @@ import de.comlineag.snc.persistence.AppContext;
  * 
  * @description	invokes the encryption provider as defined in applicationContext.xml
  * 
- * @param <T>
- * 
  * @changelog	0.1 first initial version 
  * 
  */
-public class ConfigurationEncryptionHandler { //extends GenericEncryptionProvider {
+public class ConfigurationEncryptionHandler { 
+	
+	// Logger Instanz
+	private final Logger logger = Logger.getLogger(getClass().getName());
 		
 	protected IEncryptionProvider configurationEncryptionProvider;
-	protected SocialNetworks sourceSocialNetwork;
-	protected EncryptionProvider sourceEncryptionProvider;
-
+	protected SocialNetworks sourceSocialNetwork;							// currently not used
+	protected EncryptionProvider sourceEncryptionProvider;					// currently not used
 	
 	
 	public ConfigurationEncryptionHandler() {
@@ -51,6 +51,7 @@ public class ConfigurationEncryptionHandler { //extends GenericEncryptionProvide
 	 *
 	 */
 	public String decryptValue(String param) throws GenericEncryptionException {
+		logger.trace("decrypting "+param+" via " + configurationEncryptionProvider.getClass().getCanonicalName().toString());
 		return configurationEncryptionProvider.decryptValue(param);
 	}
 
@@ -64,11 +65,15 @@ public class ConfigurationEncryptionHandler { //extends GenericEncryptionProvide
 	 *
 	 */
 	public String encryptValue(String param) throws GenericEncryptionException {
+		logger.trace("encrypting "+param+" via " + configurationEncryptionProvider.getClass().getCanonicalName().toString());
 		return configurationEncryptionProvider.encryptValue(param);
 	}
 
 	/**
-	 * @description Decrypts configuration values 
+	 * @description feed entropy data to the encryption provider
+	 * 				this can be a normal string or also a file vector passed as a string
+	 * 				whatever is used, is hidden from the handler as it is part of the 
+	 * 				implementation of the actual encryption provider 
 	 *
 	 * @param 		String
 	 *					entropy source

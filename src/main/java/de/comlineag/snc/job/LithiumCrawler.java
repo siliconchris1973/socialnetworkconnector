@@ -18,6 +18,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.log4j.Logger;
 
 import de.comlineag.snc.constants.ConfigurationConstants;
+import de.comlineag.snc.constants.EncryptionProvider;
 import de.comlineag.snc.constants.HttpErrorMessages;
 import de.comlineag.snc.constants.HttpStatusCode;
 import de.comlineag.snc.constants.LithiumConstants;
@@ -90,6 +91,12 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		String _user = null;
 		@SuppressWarnings("unused")
 		String _passwd = null;
+		
+		// this is just example code to show, how to interact with the EncryptionProvider enum
+		String desiredStrength = "low";
+		EncryptionProvider encryptionProviderToUse = EncryptionProvider.getEncryptionProvider(desiredStrength);
+		logger.trace("determined " + encryptionProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
+		
 		try {
 			logger.trace("decrypting authorization details from job control");
 			_user = configurationEncryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
@@ -115,9 +122,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		
 		
 		// THESE VALUES ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND SITES (aka boards)
-		logger.debug("retrieving restrictions from configuration db");
-		String searchTerm = null;
-		
+		logger.trace("retrieving restrictions from configuration db");
 		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, SocialNetworks.LITHIUM); 
 		ArrayList<String> tUsers = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_USER_TEXT, SocialNetworks.LITHIUM);
 		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_LANGUAGE_TEXT, SocialNetworks.LITHIUM); 
@@ -163,6 +168,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				postEndpoint = tSites.get(i);
 				logger.debug("setting up the rest endpoint at " + postEndpoint + " with user " + _user);
 				HttpClient client = new HttpClient();
+				String searchTerm = null;
 				
 				for (int ii = 0 ; ii < tTerms.size(); ii++ ){
 					searchTerm = tTerms.get(ii).toString();

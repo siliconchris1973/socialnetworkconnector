@@ -3,6 +3,7 @@ package de.comlineag.snc.persistence;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 
 import org.joda.time.DateTimeZone;
 import org.apache.log4j.Logger;
@@ -409,8 +410,12 @@ public class HANAPersistence implements IPersistenceManager {
 		
 							.execute();
 					
-					logger.trace("entity set for the post: " + newUser.getEntitySet().toString());
-					
+					/* prints out the EDM Definitions and values for the created user
+					logger.trace("entity set for the user: ");
+					List prop = newUser.getProperties();
+					for (int i = 0 ; i < newUser.getProperties().size() ; i++)
+						logger.trace("property " + prop.get(i).toString());
+					*/
 					logger.info("User " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") added to DB");
 				} catch (RuntimeException e) {
 					/*

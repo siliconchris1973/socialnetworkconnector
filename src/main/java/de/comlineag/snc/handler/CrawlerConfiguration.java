@@ -1,6 +1,9 @@
 package de.comlineag.snc.handler;
 
 import java.util.ArrayList;
+
+import org.apache.log4j.Logger;
+
 import de.comlineag.snc.constants.SocialNetworks;
 
 /**
@@ -31,15 +34,21 @@ import de.comlineag.snc.constants.SocialNetworks;
  * TODO 1. check if there is a better way for arbitrary data types AND type safety
  */
 public class CrawlerConfiguration<T> extends GenericConfigurationManager {
+	// Logger Instanz
+	private final Logger logger = Logger.getLogger(getClass().getName());
+		
 	@SuppressWarnings("unchecked")
 	public ArrayList<T> getConstraint(String category, SocialNetworks SN) {
+		logger.trace("retrieving "+category+" configuration for " +SN+ " via " + configurationManager.getClass().getCanonicalName().toString());
 		return (ArrayList<T>) configurationManager.getConstraint(category , SN);
 	}
 	
 	public String getConfigurationElement(String key, String path){
+		logger.trace("retrieving "+key+"  from " +path+ " via " + configurationManager.getClass().getCanonicalName().toString());
 		return configurationManager.getConfigurationElement(key, path);
 	}
 	public void setConfigurationElement(String key, String value, String path){
+		logger.trace("setting "+key+" = "+value+" at " +path+ " via " + configurationManager.getClass().getCanonicalName().toString());
 		configurationManager.setConfigurationElement(key, value, path);
 	}
 	public void writeNewConfiguration(String xml){

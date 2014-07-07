@@ -54,15 +54,13 @@ public class XMLFileConfigurationPersistence<T> implements IConfigurationManager
 	public ArrayList<T> getConstraint(String category, SocialNetworks SN) {
 		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "location")  : "ERROR :: can only accept term, site, user, language or location as category";
 		
-		logger.debug("reading constraints on " + category + " for network " + SN.toString());
 		return (ArrayList<T>) getDataFromXml(category, SN);
 	}
 	
 	@SuppressWarnings("unchecked")
 	private ArrayList<T> getDataFromXml(String section, SocialNetworks SN) {
 		ArrayList<T> ar = new ArrayList<T>();
-		logger.debug("using configuration file " + getConfigDbHandler());
-		
+		logger.debug("reading constraints on " + section + " for network " + SN.toString() + " from configuration file " + getConfigDbHandler());
 		
 		try {
 			File file = new File(getConfigDbHandler());
@@ -83,7 +81,7 @@ public class XMLFileConfigurationPersistence<T> implements IConfigurationManager
 			// second step is to get all constraints for the specified social network 
 			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+SN+"']/"+constraintIdentifier+"/"+section+"/"+valueIdentifier;
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
-			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " - now iterating over them");
+			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
 			for (int i = 0 ; i < nodeList.getLength() ; i++)
 				ar.add((T) nodeList.item(i).getTextContent());
 			

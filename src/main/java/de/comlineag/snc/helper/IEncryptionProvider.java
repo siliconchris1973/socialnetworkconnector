@@ -1,7 +1,5 @@
 package de.comlineag.snc.helper;
 
-import de.comlineag.snc.constants.EncryptionProvider;
-
 /**
  * 
  * @author		Christian Guenther
