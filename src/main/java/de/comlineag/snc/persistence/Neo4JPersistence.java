@@ -19,7 +19,7 @@ import de.comlineag.snc.constants.Neo4JConstants;
 import de.comlineag.snc.constants.RelationshipTypes;
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
-import de.comlineag.snc.helper.ConfigurationEncryptionHandler;
+import de.comlineag.snc.handler.ConfigurationEncryptionHandler;
 import de.comlineag.snc.neo4j.Relation;
 import de.comlineag.snc.neo4j.TraversalDefinition;
 import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
