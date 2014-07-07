@@ -1,50 +1,36 @@
 package de.comlineag.snc.helper;
 
+import de.comlineag.snc.constants.SocialNetworks;
+import de.comlineag.snc.constants.EncryptionProvider;
+import de.comlineag.snc.persistence.AppContext;
+
 /**
  * 
  * @author		Christian Guenther
- * @category	helper class
+ * @category	Handler
  * @version		0.1
- * @status		in development
+ * @status		productive
  * 
- * @description	abstract class every encryption class shall extend. Consumer classes
- * 				that need to encrypt/decrypt a value shall only call for a generic encryptor
- * 				and the actual implementation shall decide which algorithm to use
+ * @description GenericEncryptionProvider is the abstract base class for the 
+ * 				configuration handler. It gets the active encryption provider 
+ * 				(as defined in applicationContext.xml) and passes it along to the 
+ * 				actual EncryptionHandler - like ConfigurationEncryption.
  * 
- * @changelog	0.1 (Chris)		initial version
- * 
+ * @changelog	0.1 (Chris)		first version as copy from GenericDataManager
+ *
  */
 public abstract class GenericEncryptionProvider {
+	
+	protected IEncryptionProvider encryptionProvider;
+	protected SocialNetworks sourceSocialNetwork;
+	protected EncryptionProvider sourceEncryptionProvider;
 
-	/**
-	 * @description Decrypts a given string 
-	 *
-	 * @param 		String
-	 *					the value to decrypt
-	 * @return 		String
-	 * 					the return value as clear text
-	 * @throws GenericEncryptionException 
-	 *
-	 */
-	public abstract String decryptValue(String param) throws GenericEncryptionException;
-
-	/**
-	 * @description Encrypts a given string 
-	 *
-	 * @param 		String
-	 *					the value to encrypt
-	 * @return 		String
-	 * 					the return value as encrypted text
-	 *
-	 */
-	public abstract String encryptValue(String param) throws GenericEncryptionException;
-
-	/**
-	 * @description Decrypts configuration values 
-	 *
-	 * @param 		String
-	 *					entropy source
-	 */
-	public abstract void setEntropy(String param);
-
+	protected GenericEncryptionProvider() {
+		encryptionProvider = (IEncryptionProvider) AppContext.Context.getBean("encryptionProvider");
+	}
+	
+	@SuppressWarnings("unused")
+	private static String getEncryptionProvider() {
+		return (String) AppContext.Context.getBean("encryptionProvider");
+	}
 }

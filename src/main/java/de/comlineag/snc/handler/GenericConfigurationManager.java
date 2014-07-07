@@ -28,11 +28,11 @@ public abstract class GenericConfigurationManager {
 	protected SocialNetworks sourceSocialNetwork;
 
 	protected GenericConfigurationManager() {
-		configurationManager = (IConfigurationManager<?>) AppContext.Context.getBean("configurationManager");
+		configurationManager = (IConfigurationManager<?>) AppContext.Context.getBean("encryptionProvider");
 	}
 	
 	@SuppressWarnings("unused")
 	private static String getConfigDbHandler() {
-		return (String) AppContext.Context.getBean("configurationManager");
+		return (String) AppContext.Context.getBean("encryptionProvider");
 	}
 }

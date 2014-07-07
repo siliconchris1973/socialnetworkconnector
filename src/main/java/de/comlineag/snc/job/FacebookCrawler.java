@@ -17,7 +17,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.util.HttpURLConnection;
 import org.apache.log4j.Logger;
 
@@ -28,14 +27,14 @@ import de.comlineag.snc.constants.HttpStatusCode;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.handler.CrawlerConfiguration;
 import de.comlineag.snc.handler.FacebookParser;
-import de.comlineag.snc.helper.Base64EncryptionProvider;
+import de.comlineag.snc.helper.ConfigurationEncryptionHandler;
 import de.comlineag.snc.helper.GenericEncryptionException;
 
 /**
  * 
  * @author 		Christian Guenther
  * @category 	Job
- * @version		0.2
+ * @version		0.3
  * @status		not implemented
  * 
  * @description this is the actual crawler of the facebook network. It is
@@ -44,6 +43,7 @@ import de.comlineag.snc.helper.GenericEncryptionException;
  * 
  * @changelog	0.1 (Chris)		copy of TwitterCrawler 0.9 
  * 				0.2				dynamic config
+ * 				0.3				added support for different encryption provider, the actual one is set in applicationContext.xml 
  * 
  * TODO 1. implement real code
  */
@@ -52,8 +52,9 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
-	Base64EncryptionProvider encryptionProvider = new Base64EncryptionProvider();
-	
+	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
+	private ConfigurationEncryptionHandler encryptionProvider = new ConfigurationEncryptionHandler();
+
 	// Set up your blocking queues: Be sure to size these properly based on
 	// expected TPS of your stream
 	private BlockingQueue<String> msgQueue;

@@ -17,7 +17,7 @@ import de.comlineag.snc.constants.EncryptionProvider;
  * 				0.2				added support for GenericEncryptionException
  * 
  */
-public class Base64EncryptionProvider extends GenericEncryptionProvider {
+public class Base64EncryptionProvider implements IEncryptionProvider {
 
 	/**
 	 * @description Decrypts a given string 
@@ -52,6 +52,7 @@ public class Base64EncryptionProvider extends GenericEncryptionProvider {
 	 *
 	 */
 	public String encryptValue(String param){
+		// TODO implement encryption method
 		return param;
 	}
 
@@ -61,6 +62,8 @@ public class Base64EncryptionProvider extends GenericEncryptionProvider {
 	 * @param 		String
 	 *					entropy source
 	 */
-	public void setEntropy(String param){}
+	public void setEntropy(String param){
+		// NOT YET IMPLEMENTED
+	}
 
 }

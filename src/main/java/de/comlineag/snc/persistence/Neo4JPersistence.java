@@ -19,6 +19,7 @@ import de.comlineag.snc.constants.Neo4JConstants;
 import de.comlineag.snc.constants.RelationshipTypes;
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
+import de.comlineag.snc.helper.ConfigurationEncryptionHandler;
 import de.comlineag.snc.neo4j.Relation;
 import de.comlineag.snc.neo4j.TraversalDefinition;
 import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
@@ -28,7 +29,7 @@ import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
  *
  * @author 		Christian Guenther
  * @category 	Connector Class
- * @version 	0.7
+ * @version 	0.7b
  * @status		in development
  *
  * @description handles the connectivity to the Neo4J Graph Database and saves posts, 
@@ -42,6 +43,7 @@ import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
  * 				0.6 			bugfixing and wrap up
  * 				0.7 			skeleton for graph traversal
  * 				0.7a			removed Base64Encryption (now in its own class)
+ * 				0.7b			added support for different encryption provider, the actual one is set in applicationContext.xml 
  * 
  * TODO 1. implement code to check if a node already exists prior inserting one
  * TODO 2. implement code for graph traversal
@@ -78,6 +80,9 @@ public class Neo4JPersistence implements IPersistenceManager {
 	// setup the logging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
+	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
+	private ConfigurationEncryptionHandler encryptionProvider = new ConfigurationEncryptionHandler();
+		
 	public Neo4JPersistence() {
 		// initialize the necessary variables from applicationContext.xml for server connection
 		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;

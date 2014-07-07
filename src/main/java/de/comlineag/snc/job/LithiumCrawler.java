@@ -12,7 +12,6 @@ import org.json.simple.parser.ParseException;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -30,14 +29,14 @@ import de.comlineag.snc.handler.LithiumParser;
 import de.comlineag.snc.handler.LithiumPosting;
 import de.comlineag.snc.handler.LithiumStatusException;
 import de.comlineag.snc.handler.LithiumUser;
-import de.comlineag.snc.helper.Base64EncryptionProvider;
+import de.comlineag.snc.helper.ConfigurationEncryptionHandler;
 import de.comlineag.snc.helper.GenericEncryptionException;
 
 /**
  * 
  * @author 		Christian Guenther
  * @category 	Job
- * @version		1.1a
+ * @version		1.1b
  * @status		beta
  * 
  * @description this is the actual crawler for the Lithium network. It is
@@ -58,6 +57,7 @@ import de.comlineag.snc.helper.GenericEncryptionException;
  *				1.0 			implemented proper json error handling
  *				1.1 			added configuration constants
  *				1.1a			moved Base64EncryptionProvider in its own class
+ *				1.1b			added support for different encryption provider, the actual one is set in applicationContext.xml 
  *
  * TODO 1. change the double for-loop through sites and search terms to a more sophisticated solution
  */
@@ -66,8 +66,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
-	private Base64EncryptionProvider encryptionProvider = new Base64EncryptionProvider();
-	
+	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
+	private ConfigurationEncryptionHandler encryptionProvider = new ConfigurationEncryptionHandler();
+
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
 	private String smallLogMessage = "";

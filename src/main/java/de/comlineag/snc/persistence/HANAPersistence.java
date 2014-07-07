@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import org.joda.time.DateTimeZone;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.odata4j.consumer.ODataConsumer;
 import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
@@ -14,14 +13,14 @@ import org.odata4j.core.OProperties;
 
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
-import de.comlineag.snc.helper.Base64EncryptionProvider;
+import de.comlineag.snc.helper.ConfigurationEncryptionHandler;
 import de.comlineag.snc.helper.GenericEncryptionException;
 
 /**
  *
  * @author 		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Connector Class
- * @version 	0.9b
+ * @version 	0.9c
  * @status		beta
  *
  * @description handles the connectivity to the SAP HANA Systems and saves posts and users in the DB
@@ -38,6 +37,7 @@ import de.comlineag.snc.helper.GenericEncryptionException;
  * 				0.9a 				added query to determine if an exception during persistence operation shall 
  * 									terminate the crawler or not
  * 				0.9b				moved Base64Encryption in its own class
+ * 				0.9c				added support for different encryption provider, the actual one is set in applicationContext.xml 
  *
  * TODO	1. establish Update functionality for user and posts
  * TODO	2. enable query on field dimensions in DB so that (e.g. String)-fields can be truncated prior inserting
@@ -66,7 +66,8 @@ public class HANAPersistence implements IPersistenceManager {
 	private static final boolean terminateJobOnException = true;
 	
 	private final Logger logger = Logger.getLogger(getClass().getName());
-	private Base64EncryptionProvider encryptionProvider = new Base64EncryptionProvider();
+	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
+	private ConfigurationEncryptionHandler encryptionProvider = new ConfigurationEncryptionHandler();
 	
 	
 	public HANAPersistence() {}

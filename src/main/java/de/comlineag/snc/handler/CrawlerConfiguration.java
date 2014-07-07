@@ -1,7 +1,6 @@
 package de.comlineag.snc.handler;
 
 import java.util.ArrayList;
-
 import de.comlineag.snc.constants.SocialNetworks;
 
 /**

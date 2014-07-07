@@ -191,8 +191,15 @@
 		<property name="repeatInterval" value="150000" /> 
 	</bean> 
 -->
-
-
+	
+	
+	
+	<!-- E N C R Y P T I O N    S E T T I N G S -->
+	<!-- this is the bean to set the encryption provider to Base64 -->
+	<bean id="encryptionProvider" class="de.comlineag.snc.helper.Base64EncryptionProvider"> </bean>
+	
+	
+	
 	<!-- C O N F I G U R A T I O N    S E T T I N G S -->
 	<!-- this is the bean to get the crawler configuration from the HANA (TO BE IMPLEMENETED) -->
 	<!-- 
@@ -208,7 +215,7 @@
 	</bean> 
 	-->
 
-	<!-- this is the bean to get the crawler configuration from an xml file (IN PROGRESS) -->
+	<!-- this is the bean to get the crawler configuration from an xml file -->
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.XMLFileConfigurationPersistence"> 
 		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration.xml" /> 
 	</bean> 
