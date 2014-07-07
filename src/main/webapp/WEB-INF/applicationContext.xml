@@ -297,7 +297,7 @@
 				<!-- ThreadPool -->
 				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
 				<!-- change this to the number of crawlers (see below) or the number of cores, whichever is higher -->
-				<prop key="org.quartz.threadPool.threadCount">2</prop>
+				<prop key="org.quartz.threadPool.threadCount">1</prop>
 			</props>
 		</property>
 		<property name="triggers">
@@ -308,7 +308,7 @@
 				<!--<ref bean="GoogleCrawlerTrigger"/> -->
 				<!--<ref bean="LinkedinCrawlerTrigger"/> -->
 				<!--<ref bean="FinanzforumCrawlerTrigger"/> -->
-				<ref bean="LithiumCrawlerTrigger" />
+				<!-- <ref bean="LithiumCrawlerTrigger" />  -->
 			</list>
 		</property>
 	</bean>
