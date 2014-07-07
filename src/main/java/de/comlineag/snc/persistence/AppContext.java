@@ -6,11 +6,12 @@ import org.springframework.context.ApplicationContext;
  * 
  * @author 		Magnus Leinemann
  * @category	Configuration Manager
- * @version		1.0
+ * @version		0.1
+ * @status		productive
  * 
  * @description defines the application context
  * 
- * @changelog	1.0 class created
+ * @changelog	0.1 (Magnus)		class created
  * 
  */
 public class AppContext {

@@ -9,12 +9,13 @@ import org.joda.time.LocalDateTime;
  * 
  * @author 		Magnus Leinemann, Christian Guenther
  * @category 	data class
- * @version 	1.1
- *  
+ * @version 	0.2
+ * @status		productive
+ * 
  * @description Data Class representing a Post from the OData Service
  * 
- * @changelog	1.0 class created according to twitter user needs
- * 				1.0 added field raw-text for Lithium postings which contain html and we strip that in the field text
+ * @changelog	0.1 (Magnus)	class created according to twitter user needs
+ * 				0.2 (Chris)		added field raw-text for Lithium postings which contain html and we strip that in the field text
  * 
  */
 

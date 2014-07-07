@@ -13,14 +13,16 @@ import org.json.simple.parser.ParseException;
  * 
  * @author 		Christian Guenther
  * @category 	Handler
- * @version		0.1 - not implemented
+ * @version		0.1
+ * @status		not implemented
  * 
  * @description FacebookParser implementation of the parser for facebook postings
  * 				calls specific classes for posting and user for every object
  * 				and finally calls the persistence manager to store the objects
  * 
- * @changelog	0.1 copy from TwitterParser
+ * @changelog	0.1 (Chris)		copy from TwitterParser
  * 
+ * TODO 1. implement real code
  */
 public final class FacebookParser extends GenericParser {
 
@@ -50,7 +52,6 @@ public final class FacebookParser extends GenericParser {
 			users.add(user);
 			
 			// zum schluss noch etwaige reposted messages
-			//TODO check if reposted REALLY is added
 			JSONObject jsonRePosted = (JSONObject) jsonPostResource.get("reposted_status");
 			if (jsonRePosted != null) {
 				postings.add(new FacebookPosting(jsonRePosted));
@@ -74,7 +75,7 @@ public final class FacebookParser extends GenericParser {
 
 	@Override
 	protected void parse(InputStream is) {
-		// TODO CHECK IF THIS ONE IS NEEDED
+		// TODO implement if parse(InputSteam) is needed and if not make a comment
 		
 	}
 }

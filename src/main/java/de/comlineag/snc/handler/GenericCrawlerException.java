@@ -5,10 +5,11 @@ package de.comlineag.snc.handler;
  * @author		Christian Guenther
  * @category	program flow and structure
  * @version 	0.1
+ * @status		productive
  *
  * @description	throws a custom exception for the crawler
  * 
- * @changelog	0.1 class created
+ * @changelog	0.1 (Chris)		class created
  * 
  */
 public class GenericCrawlerException extends Exception {

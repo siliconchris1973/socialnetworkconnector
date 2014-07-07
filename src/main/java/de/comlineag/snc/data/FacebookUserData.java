@@ -10,6 +10,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * @author 		Christian Guenther
  * @category 	data type
  * @version 	0.1
+ * @status		not implemented
  * 
  * @description Describes a single facebook user with all relevant informations.
  *              The class shall be used to make all methods handling a facebook
@@ -28,8 +29,9 @@ import de.comlineag.snc.constants.SocialNetworks;
  *            "lists_and_groups_count" Long
  *            "lang" String
  * 
- * @changelog	0.1 class created as copy from TwitterUserData
+ * @changelog	0.1 (Chris)		class created as copy from TwitterUserData
  * 
+ * TODO 1. copy new from twitter
  */
 
 public final class FacebookUserData extends UserData {

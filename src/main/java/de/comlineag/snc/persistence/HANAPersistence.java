@@ -21,21 +21,27 @@ import de.comlineag.snc.helper.NoBase64EncryptedValue;
  * @author 		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Connector Class
  * @version 	0.9a
+ * @status		beta
  *
  * @description handles the connectivity to the SAP HANA Systems and saves posts and users in the DB
  * 
- * @changelog	0.1 skeleton created																Chris
- * 				0.2 savePost implemented															Magnus
- * 				0.3 saveUser implemented
- * 				0.4 added skeleton for geo-location information
- * 				0.5 added support for encrypted user and password
- * 				0.6 bugfixing and optimization
- * 				0.7 first productive version, saves users and posts as is (no geo-information)		Chris
- *				0.8	added JDBC support																Thomas
- * 				0.9	added search for dataset prior inserting one 									Chris
- * 				0.9a added query to determine if an exception during persistence operation shall 
- * 					terminate the crawler or not
+ * @changelog	0.1 (Chris)			skeleton created
+ * 				0.2	(Magnus)		savePost implemented
+ * 				0.3 				saveUser implemented
+ * 				0.4 				added skeleton for geo-location information
+ * 				0.5 				added support for encrypted user and password
+ * 				0.6 				bug fixing and optimization
+ * 				0.7 (Chris)			first productive version, saves users and posts as is (no geo-information)
+ *				0.8	(Thomas)		added JDBC support
+ * 				0.9	(Chris)			added search for dataset prior inserting one
+ * 				0.9a 				added query to determine if an exception during persistence operation shall 
+ * 									terminate the crawler or not
  *
+ * TODO	1. establish Update functionality for user and posts
+ * TODO	2. enable query on field dimensions in DB so that (e.g. String)-fields can be truncated prior inserting
+ * TODO	3. establish proper error handling (see comments in source code)
+ * TODO 4. enable location support for user
+ * TODO 5. clean up code 
  */
 public class HANAPersistence implements IPersistenceManager {
 	
@@ -70,7 +76,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * <Property Name="timestamp" Type="Edm.DateTime"/>
 	 * <Property Name="postLang" Type="Edm.String" MaxLength="64"/>
 	
-	 * <Property Name="text" Type="Edm.String" DefaultValue="" MaxLength="1024"/>
+	 * <Property Name="text" Type="Edm.String" DefaultValue="" MaxLength="5000"/>
 	 * <Property Name="raw_text" Type="Edm.String" DefaultValue="" MaxLength="5000"/>
 	 * <Property Name="subject" Type="Edm.String" DefaultValue="" MaxLength="20"/>
 	 * <Property Name="teaser" Type="Edm.String" DefaultValue="" MaxLength="256"/>
@@ -98,7 +104,7 @@ public class HANAPersistence implements IPersistenceManager {
 	public void savePosts(PostData postData) {
 		// first check if the dataset is already in the database
 		if (!checkIfEntryExist(postData.getId(), postData.getSnId(), "post")) {
-			logger.info("savePost called for message ("+postData.getSnId()+"-"+postData.getId()+")");
+			logger.info("Inserting post ("+postData.getSnId()+"-"+postData.getId()+") into the DB");
 			
 			// static variant to set the truncated flag - which is not used anyway at the moment
 			int truncated = (postData.getTruncated()) ? 1 : 0;
@@ -172,7 +178,8 @@ public class HANAPersistence implements IPersistenceManager {
 				
 				// TODO establish proper error handling
 				logger.trace("any warnings?: " + stmt.getWarnings());
-				logger.info("Post ("+postData.getSnId()+"-"+postData.getId()+") added to DB ("+rowCount+" rows added)");
+				logger.info("Post ("+postData.getSnId()+"-"+postData.getId()+") added to DB");
+				logger.debug(rowCount+" rows added");
 				
 				stmt.close() ; conn.close() ;
 			
@@ -288,14 +295,15 @@ public class HANAPersistence implements IPersistenceManager {
 					System.exit(-1);
 			}
 		} else {
-			logger.info("the post ("+postData.getSnId()+"-"+postData.getId()+") is already in the database");
+			logger.info("The post ("+postData.getSnId()+"-"+postData.getId()+") is already in the database - updating dataset");
+			// TODO: establish update procedure
 		}
 	}
 
 	public void saveUsers(UserData userData) {
 		// first check if the dataset is already in the database
 		if (!checkIfEntryExist(userData.getId(), userData.getSnId(), "user")) {
-			logger.info("saveUser called for user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+")");
+			logger.info("inserting user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") into the DB");
 			
 			// first try to save the data via jdbc and fall back to OData (see below) if that is not possible
 			try {
@@ -338,7 +346,8 @@ public class HANAPersistence implements IPersistenceManager {
 				
 				// TODO establish proper error handling
 				logger.trace("any warnings?: " + stmt.getWarnings());
-				logger.info("User "+userData.getScreenName()+" ("+userData.getSnId()+"-"+userData.getId()+") added to DB ("+rowCount+" rows added)");
+				logger.info("User "+userData.getScreenName()+" ("+userData.getSnId()+"-"+userData.getId()+") added to DB");
+				logger.debug(rowCount+" rows added");
 				
 				stmt.close() ; conn.close() ;
 				
@@ -397,7 +406,7 @@ public class HANAPersistence implements IPersistenceManager {
 					
 					logger.trace("entity set for the post: " + newUser.getEntitySet().toString());
 					
-					logger.info("New user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") created");
+					logger.info("User " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") added to DB");
 				} catch (RuntimeException e) {
 					/*
 					 * in case of an error during post, the following XML structure is returned as part of the exception:
@@ -436,7 +445,7 @@ public class HANAPersistence implements IPersistenceManager {
 					System.exit(-1);
 			}
 		} else {
-			logger.info("The user " + userData.getUsername() + " (" + userData.getSnId()  + "-" + userData.getId() + ") is already in the database");
+			logger.info("The user " + userData.getUsername() + " (" + userData.getSnId()  + "-" + userData.getId() + ") is already in the database ");
 		}
 	}
 	

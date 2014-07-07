@@ -1,7 +1,6 @@
 package de.comlineag.snc.job;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -30,21 +29,25 @@ import de.comlineag.snc.handler.TwitterParser;
  * 
  * @author 		Christian Guenther
  * @category 	Job
- * @version		1.3
+ * @version		0.9
+ * @status		beta
  * 
  * @description this is the actual crawler of the twitter network. It is
  *              implemented as a job and, upon execution, will connect to the
  *              twitter api to grab new tweets as they are created on the
  *              network.
  * 
- * @changelog	0.1 - 0.4 first static version retrieves posts				Chris and Maic
- * 				0.5 keys are taken from ApplicationContext.xml				Magnus
- * 				0.6 - 0.9 bugfi2ing and optimization
- * 				1.0	first productive version
- * 				1.1	configuration is made dynamic 							Chris
- *				1.2	added support for SocialNetwork specific configuration	
- *				1.3 added constants for configuration retrieval
- *
+ * @changelog	0.1 (Chris)			first skeleton against rest-api
+ * 				0.2	(Maic)			static version retrieves posts
+ * 				0.3	(Chris)			connection against streaming api
+ * 				0.4	(Maic)			bug fixing
+ * 				0.5 (Magnus)		keys are taken from ApplicationContext.xml
+ * 				0.6 				bug fixing and optimization
+ * 				0.7 (Chris)			configuration is made dynamic
+ *				0.8					added support for SocialNetwork specific configuration	
+ *				0.9					added constants for configuration retrieval
+ * 
+ * TODO 1. check why crawler is stopping and not restarting correctly when executed together with LithiumCrawler 
  */
 public class TwitterCrawler extends GenericCrawler implements Job {
 

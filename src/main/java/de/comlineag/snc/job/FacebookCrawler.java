@@ -30,20 +30,21 @@ import de.comlineag.snc.handler.CrawlerConfiguration;
 import de.comlineag.snc.handler.FacebookParser;
 import de.comlineag.snc.helper.NoBase64EncryptedValue;
 
-// TODO !!!!! IMPLEMENT THE FaceBookCrawler !!!!!!
-
 /**
  * 
  * @author 		Christian Guenther
  * @category 	Job
- * @version		0.1 - not yet implemented
+ * @version		0.2
+ * @status		not implemented
  * 
  * @description this is the actual crawler of the facebook network. It is
  *              implemented as a job and, upon execution, will connect to the
  *              facebook rest api to fetch posts and users
  * 
- * @changelog	0.1 copy of TwitterCrawler 0.9 plus dynamic config			Chris
+ * @changelog	0.1 (Chris)		copy of TwitterCrawler 0.9 
+ * 				0.2				dynamic config
  * 
+ * TODO 1. implement real code
  */
 public class FacebookCrawler extends GenericCrawler implements Job {
 

@@ -15,12 +15,14 @@ import de.comlineag.snc.data.GenericInputType;
  * @author 		Christian Guenther
  * @category	Handler
  * @version		0.2
+ * @status		not used
  * 
  * @description	This handler shall be used to implement parallel execution of tasks
  * 
- * @changelog	0.1 copy from the web
- * 				0.2 refactoring from output to GenericExecutorService
- * 				
+ * @changelog	0.1 (Chris)		copy from the web
+ * 				0.2 			refactoring from output to GenericExecutorService
+ * 
+ * TODO 1. check if we need our own executor service and if not delete it
  */
 public class GenericExecutorService {
 	public List<GenericExecutorService> processInputs(List<GenericInputType> genericInputTypes)

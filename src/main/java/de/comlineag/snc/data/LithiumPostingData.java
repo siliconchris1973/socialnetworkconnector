@@ -11,7 +11,8 @@ import de.comlineag.snc.helper.DataHelper;
  * 
  * @author 		Christian Guenther
  * @category 	data type
- * @version 	1.2
+ * @version 	0.5
+ * @status		productive but further improvements possible/needed
  * 
  * @description Describes a single Lithium posting with all relevant informations. 
  * 				The class shall be used to make all methods handling a Lithium posting type save.
@@ -51,6 +52,18 @@ import de.comlineag.snc.helper.DataHelper;
  *            "coordinates" 			List		fixed to NULL because not used
  *            "geoLocation" 			List		fixed to NULL because not used
  *            
+ * 
+ * @changelog	0.1 (Chris)		first initial version as copy from TwitterPostingrData
+ * 				0.2		 		added parsing of 2nd and 3rd level of json string
+ * 				0.3 			jump to first productive version
+ * 				0.4 			added support to strip all html for text and created raw text
+ * 				0.5				set the truncated flag, if posts are truncated due to length violation on MAX_NVARCHAR_SIZE
+ * 
+ * TODO 1. Add support for labels
+ * TODO 2. find a better way to deal with field dimensions
+ * TODO 3. find a new/better method to truncate html
+ * TODO 4. check if we need to safe the thread from which the posting originated
+ * 
  * 
  * JSON Structure:
  * 
@@ -141,13 +154,6 @@ import de.comlineag.snc.helper.DataHelper;
 		{}post_time
 			$ : "2014-01-08T12:21:42+00:00"
 			type : "date_time"
- * 
- * @changelog	0.1 first initial version as copy from TwitterPostingrData
- * 				0.2 - 0.4 added parsing of 2nd and 3rd level of json string
- * 				1.0 jump to first productive version
- * 				1.1 added support to strip all html for text and created raw text
- * 				1.2 set the truncated flag, if posts are truncated due to length violation on MAX_NVARCHAR_SIZE
- * 
  */
 
 public final class LithiumPostingData extends PostData {
@@ -255,6 +261,7 @@ public final class LithiumPostingData extends PostData {
 			
 			
 			
+			// The posting itself
 			// Structure: 
 			//	{}body	
 			obj = parser.parse(jsonObject.get("body").toString());
@@ -314,6 +321,7 @@ public final class LithiumPostingData extends PostData {
 				}
 			}
 			
+			
 			// in which board was the message posted - we use the client field for this value
 			// Structure:
 			//	{}board	
@@ -325,6 +333,18 @@ public final class LithiumPostingData extends PostData {
 			setClient((String) jsonObjBoard.get("href"));
 			
 			
+			// TODO check if we can make use of threads and if threads may be the proper field instead of board
+			// the thread in which the posting was posted
+			// Structure
+			//  {}thread
+			//		type : "thread"
+			//		href : "/threads/id/2961"
+			/*
+			obj = parser.parse(jsonObject.get("thread").toString());
+			JSONObject jsonObjThread = obj instanceof JSONObject ?(JSONObject) obj : null;
+			
+			setClient((String) jsonObjThread.get("href"));
+			*/
 			
 			// labels may contain some more valuable information, but we do not use them at the moment
 			// TODO : when implementing this, be aware of multiple occurrences for Label within Labels 

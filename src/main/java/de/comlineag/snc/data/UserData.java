@@ -4,13 +4,16 @@ package de.comlineag.snc.data;
  * 
  * @author		Magnus Leinemann, Christian Guenther
  * @category	Data Class
- * @version		1.1
+ * @version		0.3
+ * @status		productive
  * 
  * @description core data type for the User Data
  * 
- * @changelog	1.0 class created according to twitter user needs
- * 				1.0 added fields for Lithium user
+ * @changelog	0.1	(Magnus)	class created according to twitter user needs
+ * 				0.2 (Chris)		added fields for counters
+ * 				0.3				added fields average_rating_value, average_posting_rating_value and average_posting_ratio for Lithium user 
  * 
+ * TODO 1. check if we need more/other fields for other social networks
  */
 public class UserData {
 
@@ -33,87 +36,98 @@ public class UserData {
 	public long getId() {
 		return id;
 	}
-
 	public void setId(long id) {
 		this.id = id;
 	}
-
+	
 	public String getSnId() {
 		return sn_id;
 	}
-
 	public void setSnId(String sn_id) {
 		this.sn_id = sn_id;
 	}
-
+	
 	public String getUsername() {
 		return username;
 	}
-
 	public void setUsername(String username) {
 		this.username = username;
 	}
-
+	
 	public String getScreenName() {
 		return screen_name;
 	}
-
 	public void setScreenName(String screenName) {
 		this.screen_name = screenName;
 	}
-
+	
 	public String getLocation() {
 		return location;
 	}
-
 	public void setLocation(String location) {
 		this.location = location;
 	}
-
+	
 	public long getFollowersCount() {
 		return followers_count;
 	}
-
 	public void setFollowersCount(long followersCount) {
 		this.followers_count = followersCount;
 	}
-
+	
 	public long getFriendsCount() {
 		return friends_count;
 	}
-
 	public void setFriendsCount(long friendsCount) {
 		this.friends_count = friendsCount;
 	}
-
+	
 	public long getPostingsCount() {
 		return postings_count;
 	}
-
 	public void setPostingsCount(long postingsCount) {
 		this.postings_count = postingsCount;
 	}
-
-	public long getFavoritesCount() {
-		return favorites_count;
+	
+	public float getAverageRatingValue() {
+		return average_rating_value;
 	}
-
-	public void setFavoritesCount(long favoritesCount) {
-		this.favorites_count = favoritesCount;
+	public void setAverageRatingValue(float average_rating_value) {
+		this.average_rating_value = average_rating_value;
 	}
-
+	
+	public float getAveragePostingRatingValue() {
+		return average_posting_rating_value;
+	}
+	public void setAveragePostingRatingValue(float average_posting_rating_value) {
+		this.average_posting_rating_value = average_posting_rating_value;
+	}
+	
+	public float getAveragePostingRating() {
+		return average_posting_ratio;
+	}
+	public void setAveragePostingRating(float average_posting_ratio) {
+		this.average_posting_ratio = average_posting_ratio;
+	}
+	
 	public long getListsAndGrooupsCount() {
 		return lists_and_groups_count;
 	}
-
 	public void setListsAndGroupsCount(long listsAndGroupsCount) {
 		this.lists_and_groups_count = listsAndGroupsCount;
 	}
-
+	
+	public long getFavoritesCount() {
+		return favorites_count;
+	}
+	public void setFavoritesCount(long favoritesCount) {
+		this.favorites_count = favoritesCount;
+	}
+	
+	
 	public String getLang() {
 		return lang;
 	}
-
 	public void setLang(String lang) {
 		this.lang = lang;
 	}

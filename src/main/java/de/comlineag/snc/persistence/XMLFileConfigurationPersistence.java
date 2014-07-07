@@ -21,16 +21,19 @@ import org.w3c.dom.NodeList;
  * @author		Christian Guenther
  * @category	Persistence manager
  * @version		0.5
- * @param <T>
+ * @status		productive but some functions are missing
  * 
  * @description	A configuration manager for the crawler using structured xml files for the configuration
+ *
+ * @param <T>
  * 
- * @changelog	0.1 copy of IniFileConfigurationPersistence
- * 				0.2 added simple parsing of XML file with jsoup
- * 				0.3 changed XML parsing to XPath
- * 				0.4 added warnings to unimplemented methods
- * 				0.5 added support for generic type conversion on T
+ * @changelog	0.1 (Chris)		copy of IniFileConfigurationPersistence
+ * 				0.2 			added simple parsing of XML file with jsoup
+ * 				0.3 			changed XML parsing to XPath
+ * 				0.4 			added warnings to unimplemented methods
+ * 				0.5 			added support for generic type conversion on T
  *  
+ *  TODO 1. implement code for missing methods
  */
 public class XMLFileConfigurationPersistence<T> implements IConfigurationManager<T>  {
 	
@@ -58,7 +61,7 @@ public class XMLFileConfigurationPersistence<T> implements IConfigurationManager
 	@SuppressWarnings("unchecked")
 	private ArrayList<T> getDataFromXml(String section, SocialNetworks SN) {
 		ArrayList<T> ar = new ArrayList<T>();
-		logger.trace("using configuration file " + getConfigDbHandler());
+		logger.debug("using configuration file " + getConfigDbHandler());
 		
 		
 		try {
@@ -99,13 +102,15 @@ public class XMLFileConfigurationPersistence<T> implements IConfigurationManager
 	
 	@Override
 	public String getConfigurationElement(String key, String path) {
-		logger.warn("The method getConfigurationElement is not supported on configuration type xml-file");
+		// TODO implement code to retrieve one single configuration element
+		logger.warn("The method getConfigurationElement is currently not implemented for configuration type xml-file");
 		return null;
 	}
 
 	@Override
 	public void setConfigurationElement(String key, String value, String path) {
-		logger.warn("The method setConfigurationElement is not supported on configuration type xml-file");
+		// TODO implement code to update a configuration element 
+		logger.warn("The method setConfigurationElement is currently not implemented for configuration type xml-file");
 	}
 	
 	@Override

@@ -7,13 +7,15 @@ import org.apache.http.HttpResponse;
  *
  * @author 		Christian Guenther and Maic Rittmeier
  * @category	enum
- * @version 	1.0
+ * @version 	0.2
+ * @status		productive
  * 
  * @description contains all relevant HTTP Status Codes
  * 				provides a query to see if a given http response code is good, as in OK, Accepted or Created
  * 				or if it is bad, as in Rejected, Bad Request etc.
  * 
- * @changelog	1.0 class created
+ * @changelog	0.1 (Chris)		class created
+ * 				0.2 			query on whether a status code is ok or not
  * 
  */
 public enum HttpStatusCode {

@@ -8,7 +8,8 @@ import de.comlineag.snc.persistence.IPersistenceManager;
  * 
  * @author		Christian Guenther
  * @category	Handler
- * @version		1.0
+ * @version		0.1
+ * @status		productive
  * 
  * @description GenericDataManager is the abstract base class for the data handler. 
  * 				It gets the active persistence manager (as defined in applicationContext.xml)
@@ -18,7 +19,7 @@ import de.comlineag.snc.persistence.IPersistenceManager;
  * 
  * @param <T>
  * 
- * @changelog	0.1 class created
+ * @changelog	0.1 (Chris)		class created
  * 
  */
 public abstract class GenericDataManager<T> {

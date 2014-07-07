@@ -1,19 +1,20 @@
 package de.comlineag.snc.persistence;
 
 import de.comlineag.snc.data.PostData;
-import de.comlineag.snc.data.LocationData;
 import de.comlineag.snc.data.UserData;
 
 /**
  * 
  * @author		Magnus Leinemann
  * @category	Interface
- * @version 	1.1
+ * @version 	0.3
+ * @status		productive
  * 
  * @description Interface definition for any persistence implementation
  * 
- * @changelog	1.0 initial version
- * 				1.0 added declaration for saveLocation				chris
+ * @changelog	0.1 (Magnus)		initial version
+ * 				0.2 (Chris)			added declaration for saveLocation
+ * 				0.3					removed declaration for saveLocation
  * 
  */
 public interface IPersistenceManager {

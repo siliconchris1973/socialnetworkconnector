@@ -13,9 +13,10 @@ import de.comlineag.snc.constants.LithiumStatusCode;
 
 /**
  * 
- * @author 		Christian Guenther
+ * @author 		Christian Guenther, Maic Rittmeier
  * @category 	Handler				
- * @version		0.8
+ * @version		0.7
+ * @status		productive
  *  
  * @description LithiumParser implementation of the parser for the Lithium network community
  * 				LithiumParsr is an extension of the default GenericParser but differs in that
@@ -24,13 +25,13 @@ import de.comlineag.snc.constants.LithiumStatusCode;
  * 				parseMessage expects a json string and decodes it according to fields provided
  * 				from LithiumConstants 
  * 
- * @changelog	0.1 class created as copy from TwitterParser
- * 				0.2 change from json to xml and back to json
- * 				0.3 implemented constants from LithiumConstants
- * 				0.4 first productive version returns array of messages
- * 				0.5 bugfixing and optimization
- * 				0.6 implemented proper json error handling
- * 				0.7 changed constants to static
+ * @changelog	0.1 (Chris)		class created as copy from TwitterParser
+ * 				0.2 (Maic)		change from json to xml and back to json
+ * 				0.3 (Chris)		implemented constants from LithiumConstants
+ * 				0.4				first productive version returns array of messages
+ * 				0.5 			bugfixing and optimization
+ * 				0.6 			implemented proper json error handling
+ * 				0.7 			changed constants to be static
  * 
  */
 public final class LithiumParser extends GenericParser {

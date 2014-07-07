@@ -4,11 +4,13 @@ package de.comlineag.snc.persistence;
  * 
  * @author		Magnus Leinemann
  * @category	Error handling
- * @version		1.0
+ * @version		0.2
+ * @status		productive
  * 
  * @description	Defines a unique identifier for errors related to the hana persistence
  *
- * @changelog	1.0 class created
+ * @changelog	0.1 (Magnus)		class created
+ * 				0.2 (Chris)			added text to call of super class 
  * 
  */
 public class HANAConnectionFailed extends Exception {

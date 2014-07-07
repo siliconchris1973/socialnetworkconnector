@@ -10,7 +10,8 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  * @author 		Christian Guenther
  * @category 	data type
- * @version 	1.0
+ * @version 	0.4
+ * @status		productive but some fields are missing
  * 
  * @description Describes a single lithium user with all relevant informations.
  *              The class shall be used to make all methods handling a lithium
@@ -28,9 +29,18 @@ import de.comlineag.snc.constants.SocialNetworks;
  *            "favourites_count" Long
  *            "lists_and_groups_count" Long
  *            "lang" String
- *            
- *            JSON Structure:
+ *
+ * @changelog	0.1 (Chris)		first initial version as copy from TwitterUserData
+ * 				0.2 			added parsing of 2nd and 3rd level of json string
+ * 				0.3 			bugfixing
+ * 				0.4 			first productive version
  * 
+ * TODO 1. implement geo location support for users
+ * TODO 2. check if user profile can and shall be used
+ * TODO 3. check if we need to support for the anonymous and deleted flag
+ * TODO 4. add support for average_rating_value, average_posting_rating_value and average_posting_ratio
+ * 
+ * JSON Structure:
  * 		1. Level			directly accessible through passed JSONObject
  * 			2. Level		one more JSONObject creation
  * 				3. Level	two more JSONObject creation 
@@ -69,11 +79,6 @@ import de.comlineag.snc.constants.SocialNetworks;
 			type : "boolean"
 			$ : false
  *
- *
- * @changelog	0.1 first initial version as copy from TwitterUserData
- * 				0.2 - 0.4 added parsing of 2nd and 3rd level of json string
- * 				1.0 jump to first productive version
- * 
  */
 public final class LithiumUserData extends UserData {
 
@@ -88,7 +93,6 @@ public final class LithiumUserData extends UserData {
 	 * 
 	 * @param jsonObject
 	 */
-	//TODO Check if lithium sends a JSON Object or an aml 
 	public LithiumUserData(JSONObject jsonObject) {
 		logger.debug("constructing new subset of data of user from lithium user-object");
 		//logger.trace("  working on " + jsonObject.toString());

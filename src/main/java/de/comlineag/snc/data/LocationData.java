@@ -22,16 +22,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author 		Christian Guenther
  * @category	data type
  * @version		0.4
+ * @status		productive
  * 
  * @description	core data type for locations 
  * 
- * @changelog	0.1 first initial version
- * 				0.2 added getter and setter for geoLocation, geoAroundLongitude + geoAroundLatitude and geoCoordinates
- * 				0.3 added new constructor for json-object 
- * 				0.4 added constants for location object parser
+ * @changelog	0.1 (Chris)		first initial version
+ * 				0.2 			added getter and setter for geoLocation, geoAroundLongitude + geoAroundLatitude and geoCoordinates
+ * 				0.3 			added new constructor for json-object 
+ * 				0.4 			added constants for location object parser
  * 
- * TODO check if is possible to use this: http://docs.geotools.org/latest/userguide/faq.html
- * 
+ * TODO 1. check if is possible to use this: http://docs.geotools.org/latest/userguide/faq.html
+ * TODO 2. check if this class is ok for other social networks
  */
 public class LocationData {
 	

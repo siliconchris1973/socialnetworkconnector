@@ -7,11 +7,12 @@ import org.apache.commons.httpclient.HttpStatus;
  * @author 		Christian Guenther
  * @category	helper class
  * @version 	0.2
+ * @status		productive
  * 
  * @description	provides for some funny error messages to http errors
  *
- * @changelog	0.1 class created
- * 				0.2 changed text elements
+ * @changelog	0.1 (Chris)		class created
+ * 				0.2 			changed text elements
  * 
  */
 public class HttpErrorMessages { // extends Exception {

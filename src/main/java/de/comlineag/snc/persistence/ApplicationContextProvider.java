@@ -8,11 +8,12 @@ import org.springframework.context.ApplicationContextAware;
  * 
  * @author 		Magnus Leinemann
  * @category 	Configuration Manager
- * @version 	1.0
+ * @version 	0.1
+ * @status		productive
  *  
  * @description provides the application Context with metadata of used backend
  * 
- * @changelog	1.0 class created
+ * @changelog	0.1 (Magnus)		class created
  * 
  */
 

@@ -1,0 +1,13 @@
+GenericTests
+data
+de.comlineag.snc.constants
+de.comlineag.snc.data
+de.comlineag.snc.handler
+de.comlineag.snc.helper
+de.comlineag.snc.job
+de.comlineag.snc.neo4j
+de.comlineag.snc.persistence
+handler
+job
+neo4j
+persistence

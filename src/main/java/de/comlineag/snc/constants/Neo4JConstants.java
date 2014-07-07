@@ -5,12 +5,13 @@ package de.comlineag.snc.constants;
  * @author 		Christian Guenther
  * @category	helper class
  * @version 	0.1
+ * @status		productive
  * 
  * @description provides constants for use with the Neo4J Graph DB persistence manager. 
  * 				This class is instantiated by Neo4JPersistence and Neo4JEmbeddedDB and the
  * 				values are referenced therein
  *
- * @changelog	0.1 class created
+ * @changelog	0.1 (Chris)		class created
  * 
  */
 public class Neo4JConstants {

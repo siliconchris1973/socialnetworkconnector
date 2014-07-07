@@ -23,17 +23,19 @@ import de.comlineag.snc.constants.SocialNetworks;
  * @author		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Helper Class
  * @version 	0.5
+ * @status		productive
  * 
  * @description Tools for managing special Requests in the Crawler logic
  * 
- * @changelog	0.1 class created with timestamp for twitter								Magnus
- * 				0.2 try and error for lithium post date time								Chris
- * 				0.3 bugfixing and productive version with support for lithium				Thomas
- * 				0.4 added method to convert UTF-8 to US-ASCII and  
- * 				0.4a one to strip html strings while maintaining tag-integrity				Chris
- * 				0.5 added a more sophisticated method to strip the html
- * 					kudos go to http://stackoverflow.com/questions/2496372/html-truncator-in-java
- * 				
+ * @changelog	0.1 (Magnus)	class created with timestamp for twitter
+ * 				0.2 (Chris)		try and error for lithium post date time
+ * 				0.3 (Thomas)	bugfixing and productive version with support for lithium
+ * 				0.4 (Chris)		added method to convert UTF-8 to US-ASCII and  
+ * 				0.4a 			one to strip html strings while maintaining tag-integrity
+ * 				0.5 			added a more sophisticated method to strip the html
+ * 								kudos go to http://stackoverflow.com/questions/2496372/html-truncator-in-java
+ * 
+ * TODO 1. check for a better solution to strip html content to a maximum size.			
  */
 
 public class DataHelper {
@@ -93,7 +95,7 @@ public class DataHelper {
 	
 	/**
 	 * 
-	 * @description returns a normalized version of the given string by converting every ä to a, ö to o and so on
+	 * @description returns a normalized version of the given string by converting "umlaute"
 	 * 	
 	 * @param 		String s
 	 * 					the text to normalize
@@ -169,7 +171,7 @@ public class DataHelper {
 	    // splits all html-tags to scanable lines
 	    Matcher tagMatcher =  tagPattern.matcher(text);
 	    int numTags = tagMatcher.groupCount();
-
+	    
 	    int totalLength = 0;
 	    List<String> openTags = new ArrayList<String>();
 

@@ -13,11 +13,12 @@ import org.apache.commons.codec.binary.Base64;
  * 
  * @author 		Mohammed Abbas
  * @category 	Helper Class
- * @version 	1.0
+ * @version 	0.1
+ * @status		not used
  * 
  * @description	this class is a way to serialize Java object as strings
  *
- * @changelog	1.0 copy from the web
+ * @changelog	0.1 (Mohammed)		initial version
  * 
  */
 public class ObjectUtil {

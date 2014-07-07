@@ -8,6 +8,7 @@ import org.neo4j.graphdb.RelationshipType;
  * @author 		Christian Guenther
  * @category	enum
  * @version 	0.2
+ * @status		productive
  * 
  * @description describes the different possible connection types between two nodes in the graph
  * 				the enum contains a static for the field within the twitter/facebook etc. data object
@@ -25,8 +26,8 @@ import org.neo4j.graphdb.RelationshipType;
  * 				FOLLOWS					FOLLOWS			(u:User-ID) -[FOLLOWS]-> (u:User-ID)
  * 				AUTHORED				AUTHORED		(u:User-ID) -[AUTHORED]-> (p:Post-ID)
  * 				
- * @changelog	0.1 class created
- * 				0.2 added follows and favorited
+ * @changelog	0.1 (Chris)		class created
+ * 				0.2 			added follows and favorited
  * 
  */
 public enum RelationshipTypes implements RelationshipType {

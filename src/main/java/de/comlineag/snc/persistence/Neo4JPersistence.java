@@ -31,17 +31,22 @@ import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
  * @author 		Christian Guenther
  * @category 	Connector Class
  * @version 	0.7
+ * @status		in development
  *
  * @description handles the connectivity to the Neo4J Graph Database and saves posts, 
  * 				users and connections in the graph. Implements IPersistenceManager
  *
- * @changelog	0.1 initial version as copy from HANAPersistence
- * 				0.2 insert of post
- * 				0.3	insert of user
- * 				0.4	query for location
- * 				0.5	create relatinship between nodes
- * 				0.6 bugfixing and wrap up
- * 				0.7 skeleton for graph traversal
+ * @changelog	0.1 (Chris)		initial version as copy from HANAPersistence
+ * 				0.2 			insert of post
+ * 				0.3				insert of user
+ * 				0.4				query for location
+ * 				0.5				create relationship between nodes
+ * 				0.6 			bugfixing and wrap up
+ * 				0.7 			skeleton for graph traversal
+ * 
+ * TODO 1. implement code to check if a node already exists prior inserting one
+ * TODO 2. implement code for graph traversal
+ * TODO 3. check implementation of geo location
  */
 public class Neo4JPersistence implements IPersistenceManager {
 	

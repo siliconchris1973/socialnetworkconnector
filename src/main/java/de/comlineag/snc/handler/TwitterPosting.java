@@ -6,9 +6,10 @@ import de.comlineag.snc.data.TwitterPostingData;
 
 /**
  * 
- * @author 		Christian Guenther, Magnus Leinemann
+ * @author 		Magnus Leinemann
  * @category 	Handler
- * @version		1.0
+ * @version		0.1
+ * @status		productive
  * 
  * @description Implementation of the twitter posting manager - extends
  *              GenericDataManager This handler is used to save a new tweet or
@@ -19,8 +20,8 @@ import de.comlineag.snc.data.TwitterPostingData;
  * 
  * @param <TwitterPosting>
  * 
- * @changelog	1.0 class created
- *
+ * @changelog	0.1 (Magnus)		class created
+ * 
  */
 
 public class TwitterPosting extends GenericDataManager<TwitterPostingData> {

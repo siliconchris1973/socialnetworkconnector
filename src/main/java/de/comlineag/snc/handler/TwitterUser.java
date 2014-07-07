@@ -10,6 +10,7 @@ import de.comlineag.snc.data.TwitterUserData;
  * @author 		Christian Guenther
  * @category 	Handler
  * @version		0.1
+ * @status		productive
  * 
  * @description Implementation of the twitter user manager - extends
  *              GenericDataManager. This handler is used to save a new user or
@@ -19,7 +20,7 @@ import de.comlineag.snc.data.TwitterUserData;
  * 
  * @param  <TwitterUserData>
  * 
- * @changelog	0.1 class created as copy from TwitterPosting
+ * @changelog	0.1 (Chris)		class created as copy from TwitterPosting
  * 
  */
 

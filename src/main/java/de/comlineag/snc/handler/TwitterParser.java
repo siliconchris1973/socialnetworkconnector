@@ -14,18 +14,19 @@ import org.json.simple.parser.ParseException;
  * @author 		Christian Guenther, Maic Rittmeier, Magnus Leinemann
  * @category 	Parser
  * @version		0.4
+ * @status		open todos
  * 
  * @description TwitterParser is the implementation of the generic parser for Twitter.
  * 				It decodes a tweet, passed along as a JSON String, calls the specific 
  * 				classes for posting (TwitterPosting) and user (TwitterUser) and 
  * 				finally calls the persistence manager to store the objects
  * 
- * @changelog	0.1 first skeleton										Chris
- * 				0.2 added support for list of posts	(no retweeted yet)	Maic
- * 				0.3 added support for list of users and decode user		Magnus
- * 				0.4	added support for geo location saving to db			Chris
+ * @changelog	0.1 (Chris)		first skeleton
+ * 				0.2 (Maic)		added support for list of posts	(no retweeted yet)
+ * 				0.3 (Magnus)	added support for list of users and decode user
+ * 				0.4	(Chris)		added support to save geo location information to the db
  * 
- * @TODO		add support for retweeted tweets and bring to version 1.0
+ * @TODO 1. add support for retweeted tweets
  */
 public final class TwitterParser extends GenericParser {
 

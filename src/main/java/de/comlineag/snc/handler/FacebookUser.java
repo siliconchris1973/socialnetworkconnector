@@ -8,7 +8,8 @@ import de.comlineag.snc.data.FacebookUserData;
  * 
  * @author 		Christian Guenther
  * @category 	Handler
- * @version		0.1 - not implemented
+ * @version		0.1 
+ * @status		not implemented
  * 
  * @description Implementation of the facebook user manager - extends
  *              GenericDataManager. This handler is used to save a new user or
@@ -30,8 +31,9 @@ import de.comlineag.snc.data.FacebookUserData;
  * 
  * @param none
  * 
- * @changelog	0.1 copy from TwitterUser
+ * @changelog	0.1 (CHris)		copy from TwitterUser
  * 
+ * TODO 1. implement real code
  */
 
 public class FacebookUser extends GenericDataManager<FacebookUserData> {

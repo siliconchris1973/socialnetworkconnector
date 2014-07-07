@@ -8,7 +8,8 @@ import de.comlineag.snc.data.FacebookPostingData;
  * 
  * @author 		Christian Guenther
  * @category 	Parser
- * @version		0.1 - not implemented
+ * @version		0.1
+ * @status		not implemented
  * 
  * @description Implementation of the facebook posting manager - extends
  *              GenericDataManager This handler is used to save a new post or
@@ -27,7 +28,7 @@ import de.comlineag.snc.data.FacebookPostingData;
  *            		in_reply_to_user_id		Long 
  *            		in_reply_to_screen_name	String
  *            		coordinates				List 
- *            		geoLocation					List 
+ *            		geoLocation				List 
  *            		lang					String 
  *            		hashtags				List
  *            		symbols					List
@@ -35,8 +36,9 @@ import de.comlineag.snc.data.FacebookPostingData;
  * 
  * @param <FacebookPosting>
  * 
- * @changelog	0.1 copy from TwitterPosting
+ * @changelog	0.1 (Chris)		copy from TwitterPosting
  * 
+ * TODO 1. implement real code
  */
 
 public class FacebookPosting extends GenericDataManager<FacebookPostingData> {

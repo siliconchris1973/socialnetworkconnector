@@ -8,7 +8,8 @@ import de.comlineag.snc.data.LithiumPostingData;
  * 
  * @author 		Christian Guenther
  * @category 	Handler
- * @version		1.0
+ * @version		0.1
+ * @status		productive
  * 
  * @description Implementation of the Lithium posting handler - extends
  *              GenericDataManager. This handler is used to save a new post or
@@ -20,7 +21,7 @@ import de.comlineag.snc.data.LithiumPostingData;
  * @param <LithiumPostingData>
  * 					Data type 
  * 
- * @changelog	1.0 class created as copy from TwitterUser
+ * @changelog	0.1 (Chris)		class created as copy from TwitterUser
  * 
  */
 

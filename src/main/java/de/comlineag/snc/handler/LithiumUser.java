@@ -8,7 +8,8 @@ import de.comlineag.snc.data.LithiumUserData;
  * 
  * @author 		Christian Guenther
  * @category 	Handler
- * @version		1.0
+ * @version		0.1 
+ * @status		productive
  * 
  * @description	Implementation of the Lithium user handler - extends
  *              GenericDataManager. This handler is used to save a new user or
@@ -20,7 +21,7 @@ import de.comlineag.snc.data.LithiumUserData;
  * @param <LithiumUserData>
  * 					Data type 
  * 
- * @changelog	1.0 class created as copy from TwitterUser
+ * @changelog	0.1 (Chris)		class created as copy from TwitterUser
  * 
  */
 

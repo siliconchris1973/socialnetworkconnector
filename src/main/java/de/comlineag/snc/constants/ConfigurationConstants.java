@@ -5,13 +5,14 @@ package de.comlineag.snc.constants;
  * @author 		Christian Guenther
  * @category	helper class
  * @version 	0.2
+ * @status		productive
  * 
  * @description provides constants for use by the Social Network crawler and parser. 
  * 				The constants herein are used to determine which keys from applicaionContext.xml
  * 				to use and what parameter to pass to the configuration handler
  *
- * @changelog	0.2 class created
- * 				changed everything to static
+ * @changelog	0.1 (Chris)		class created
+ * 				0.2 			changed everything to static
  * 
  */
 public class ConfigurationConstants {
@@ -32,11 +33,14 @@ public class ConfigurationConstants {
 	public static final String HTTP_ENDPOINT_REST_API_LOC_KEY 		= "rest_api_loc";
 	public static final String HTTP_ENDPOINT_GRAPH_API_LOC_KEY 		= "graph_api_loc";
 	
+	// as the name implies :-)
 	public static final String JDBC_ENDPOINT_PORT_KEY 				= "jdbcPort";
 	
+	// currently only used by SAP HANA
 	public static final String ODATA_ENDPOINT_USER_SERVICE_KEY 		= "serviceUserEndpoint";
 	public static final String ODATA_ENDPOINT_POST_SERVICE_KEY 		= "serviceUserEndpoint";
 	
+	// these values are only needed by file-based db systems, such as Neo4J 
 	public static final String DB_PATH_KEY 							= "db_path";
 	public static final String LOCATION_KEY 						= "location";
 	
@@ -45,6 +49,7 @@ public class ConfigurationConstants {
 	public static final String AUTHENTICATION_CLIENT_SECRET_KEY 	= "consumerSecret";
 	public static final String AUTHENTICATION_TOKEN_ID_KEY 			= "token";
 	public static final String AUTHENTICATION_TOKEN_SECRET_KEY 		= "tokenSecret";
+	
 	// basic authentication with username and password
 	public static final String AUTHENTICATION_USER_KEY 				= "user";
 	public static final String AUTHENTICATION_PASSWORD_KEY 			= "passwd";

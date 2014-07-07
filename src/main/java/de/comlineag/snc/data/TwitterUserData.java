@@ -9,7 +9,8 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  * @author 		Christian Guenther, Magnus Leinemann
  * @category 	data type
- * @version 	1.0
+ * @version 	0.2
+ * @status		productive
  * 
  * @description Describes a single twitter user with all relevant informations.
  *              The class shall be used to make all methods handling a twitter
@@ -28,7 +29,8 @@ import de.comlineag.snc.constants.SocialNetworks;
  *            "lists_and_groups_count" Long
  *            "lang" String
  *            
- * @changelog	1.0 class created
+ * @changelog	0.1 (Magnus)	class created
+ * 				0.2 (Chris)		added support for counters
  * 
  */
 

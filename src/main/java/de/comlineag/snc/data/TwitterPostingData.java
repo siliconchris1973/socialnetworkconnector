@@ -14,6 +14,7 @@ import de.comlineag.snc.helper.DataHelper;
  * @author 		Christian Guenther, Magnus Leinemann
  * @category 	data type
  * @version 	1.3
+ * @status		productive but some fields are missing
  * 
  * @description Describes a single twitter posting with all relevant informations.
  *              The class shall be used to make all methods handling a twitter
@@ -46,7 +47,7 @@ import de.comlineag.snc.helper.DataHelper;
  * 				1.2 geo location services and datatypes are now in their own class TwitterLocationData
  * 				1.3 changed geo location to make use of simple class LocationData and added teaser as substring of post
  * 
- * @TODO implement hashtags, symbols and mentions
+ * TODO 1. implement hashtags, symbols and mentions
  * 
  */
 

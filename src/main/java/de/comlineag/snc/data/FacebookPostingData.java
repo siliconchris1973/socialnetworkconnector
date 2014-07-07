@@ -1,20 +1,10 @@
 package de.comlineag.snc.data;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.geojson.GeoJsonObject;
-import org.geojson.LineString;
-import org.geojson.LngLatAlt;
-import org.geojson.Point;
-import org.geojson.Polygon;
 import org.json.simple.JSONObject;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.helper.DataHelper;
@@ -24,6 +14,7 @@ import de.comlineag.snc.helper.DataHelper;
  * @author 		Christian Guenther
  * @category 	data type
  * @version 	0.1
+ * @status		not implemented
  * 
  * @description Describes a single facebook posting with all relevant informations. 
  * 				The class shall be used to make all methods handling a facebook posting type save.
@@ -45,8 +36,9 @@ import de.comlineag.snc.helper.DataHelper;
  *            "symbols" List
  *            "mentions" List
  * 
- * 				@changelog 0.1 class created as copy from TwitterPostingData
+ * @changelog	0.1 (Chris)		class created as copy from TwitterPostingData
  * 
+ * TODO 1. copy new from twitter
  */
 
 public final class FacebookPostingData extends PostData {

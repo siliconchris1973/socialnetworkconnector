@@ -5,14 +5,15 @@ package de.comlineag.snc.constants;
  * @author 		Christian Guenther
  * @category	helper class
  * @version 	0.3
+ * @status		productive
  * 
  * @description provides constants for use with the Lithium Network crawler and parser. 
  * 				This class is instantiated by LithiumCrawler and LithiumParser and the
  * 				values are referenced therein
  *
- * @changelog	0.1 class created
- * 				0.2 added DIVIDE_NUMBER_OF_CORES_BY
- * 				0.3 changed everything to static
+ * @changelog	0.1 (Chris)		class created
+ * 				0.2 			added DIVIDE_NUMBER_OF_CORES_BY
+ * 				0.3 			changed everything to static
  * 
  */
 public final class LithiumConstants {
@@ -21,7 +22,7 @@ public final class LithiumConstants {
 	public static final String JSON_STATUS_CODE_TEXT					= "status";
 	
 	public static final String JSON_ERROR_OBJECT_TEXT					= "error";
-	public static final String JSON_ERROR_CODE_TEXT					= "code";
+	public static final String JSON_ERROR_CODE_TEXT						= "code";
 	public static final String JSON_ERROR_MESSAGE_TEXT					= "message";
 	
 	public static final String JSON_MESSAGES_OBJECT_IDENTIFIER			= "messages";

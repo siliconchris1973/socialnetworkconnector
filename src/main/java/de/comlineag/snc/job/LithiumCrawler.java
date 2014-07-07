@@ -37,6 +37,7 @@ import de.comlineag.snc.helper.NoBase64EncryptedValue;
  * @author 		Christian Guenther
  * @category 	Job
  * @version		1.1
+ * @status		beta
  * 
  * @description this is the actual crawler for the Lithium network. It is
  *              implemented as a job and, upon execution, will connect to the
@@ -44,18 +45,19 @@ import de.comlineag.snc.helper.NoBase64EncryptedValue;
  *              The keywords are sourced in by the configuration manager.
  *              The crawler also gets the user for each post and  
  * 
- * @changelog	0.1 copy of TwitterCrawler								Chris
- * 				0.2 try and error with xml rest api						
- * 				0.3 changed payload to json and retrieves posts			Maic
- * 				0.4 bugfixing and optimization							Chris
- * 				0.5 added support to retrieve users								
- * 				0.6 added search prio inserting new data						
- * 				0.7	first productive version retrieves posts and users			
- * 				0.8	configuration is made dynamic 
- *				0.9	added support for SocialNetwork specific configuration
- *				1.0 implemented proper json error handling
- *				1.1 added configuration constants
+ * @changelog	0.1 (Chris)		copy of TwitterCrawler
+ * 				0.2 			try and error with xml rest api						
+ * 				0.3 (Maic)		changed payload to json and retrieves posts	
+ * 				0.4 (Chris)		bugfixing and optimization
+ * 				0.5 			added support to retrieve users								
+ * 				0.6 			added search prior inserting new data						
+ * 				0.7				first productive version retrieves posts and users			
+ * 				0.8				configuration is made dynamic 
+ *				0.9				added support for SocialNetwork specific configuration
+ *				1.0 			implemented proper json error handling
+ *				1.1 			added configuration constants
  *
+ * TODO 1. change the double for-loop through sites and search terms to a more sophisticated solution
  */
 public class LithiumCrawler extends GenericCrawler implements Job {
 

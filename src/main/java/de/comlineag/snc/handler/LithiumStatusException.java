@@ -4,12 +4,14 @@ package de.comlineag.snc.handler;
  * 
  * @author		Maic Rittmeier
  * @category	program flow and structure
- * @version 	1.0
+ * @version 	0.1
+ * @status		productive
  *
  * @description	throws a custom exception for the Lithium network
  * 
- * @changelog	1.0 class created
+ * @changelog	0.1 (Maic)		class created
  * 
+ * TODO 1. check if we need to implement more sophisticated error handling here
  */
 public class LithiumStatusException extends Exception {
 	

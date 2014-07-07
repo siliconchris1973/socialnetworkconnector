@@ -5,10 +5,11 @@ package de.comlineag.snc.helper;
  * @author		Magnus Leinemann
  * @category	Error Handling
  * @version		0.1
+ * @status		productive
  * 
  * @description	Error to show that a value is NOT Base64 coded
  * 
- * @changelog	0.1 initial version
+ * @changelog	0.1 (Magnus)		initial version
  * 
  */
 public class NoBase64EncryptedValue extends Exception {
