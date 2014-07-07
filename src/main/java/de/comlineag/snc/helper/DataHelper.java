@@ -26,13 +26,14 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  * @description Tools for managing special Requests in the Crawler logic
  * 
- * @changelog	0.1 class created												Magnus
- * 				0.2 try and error for lithium post date time					Chris
- * 				0.3 bugfixing and productive version with support for lithium	Thomas
- * 				0.4 added method to convert UTF-8 to US-ASCII and one to strip 
- * 					html strings while maintaining tag-integrity				Chris
+ * @changelog	0.1 class created with timestamp for twitter								Magnus
+ * 				0.2 try and error for lithium post date time								Chris
+ * 				0.3 bugfixing and productive version with support for lithium				Thomas
+ * 				0.4 added method to convert UTF-8 to US-ASCII and  
+ * 				0.4a one to strip html strings while maintaining tag-integrity				Chris
  * 				0.5 added a more sophisticated method to strip the html
  * 					kudos go to http://stackoverflow.com/questions/2496372/html-truncator-in-java
+ * 				
  */
 
 public class DataHelper {
@@ -116,7 +117,8 @@ public class DataHelper {
 	
 	
 	/**
-	 * @description	this function truncates a string up to a number of characters while preserving whole words and HTML tags.
+	 * @description	this function truncates a string up to a number of characters 
+	 * 				while preserving whole words and HTML tags.
 	 * 
 	 * @param 		String text
 	 *					text to strip
@@ -278,7 +280,9 @@ public class DataHelper {
 	}
 	
 	
+	
 	/**
+	 * @deprecated
 	 * @description	truncate a given html to a fixed length
 	 * @param html
 	 * @param length

@@ -48,6 +48,42 @@
 				<type>String</type>
 				<value>HBCI</value>
 			</term>
+			<term>
+				<type>String</type>
+				<value>Börse</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Wertpapierhandel</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Ethik</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Geld</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Währung</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Devisen</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Geschäft</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Trading</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Broker</value>
+			</term>
 		</constraint>
 		
 		
@@ -94,14 +130,20 @@
 			track only messages (aka posts) with specific keywords
 			these constraints are added to the generic ones above 
 		-->
-		<!-- 
+		 
 		<constraint>
+		<!--
 			<term>
 				<type>String</type>
 				<value>TestingTheCode</value>
 			</term>
+		-->
+			<term>
+				<type>String</type>
+				<value>Cortal Consors</value>
+			</term>
 		</constraint>
-		 -->
+		 
 		
 		<!-- 
 			track only messages (aka posts) in specific languages 
@@ -180,13 +222,14 @@
 			track only messages (aka posts) with specific keywords
 			these constraints are added to the generic ones above 
 		-->
+		<!-- 
 		<constraint>
 			<term>
 				<type>String</type>
 				<value>Wertpapierhandel</value>
 			</term>
 		</constraint>
-		
+		 -->
 		<!-- 
 			setup a constraint against specific sites
 			these constraints are added to the generic ones above 
