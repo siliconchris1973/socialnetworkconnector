@@ -499,7 +499,6 @@ public class HANAPersistence implements IPersistenceManager {
 		
 		if (type == "user") {
 			logger.debug("checking if "+type+" " + sn_id + "-" + id + " at " + userURI + " exists");
-			logger.trace("     authenticated as user " + _user);
 			
 			builder = ODataConsumer.newBuilder(userURI);
 			builder.setClientBehaviors(bAuth);
@@ -517,7 +516,6 @@ public class HANAPersistence implements IPersistenceManager {
 			return true;
 		} else {
 			logger.debug("checking if "+type+" " + sn_id + "-" + id + " at " + postURI + " exists");
-			logger.trace("     authenticated as user " + _user);
 			
 			builder = ODataConsumer.newBuilder(postURI);
 			builder.setClientBehaviors(bAuth);
