@@ -30,13 +30,14 @@ import de.comlineag.snc.handler.LithiumParser;
 import de.comlineag.snc.handler.LithiumPosting;
 import de.comlineag.snc.handler.LithiumStatusException;
 import de.comlineag.snc.handler.LithiumUser;
-import de.comlineag.snc.helper.NoBase64EncryptedValue;
+import de.comlineag.snc.helper.Base64EncryptionProvider;
+import de.comlineag.snc.helper.GenericEncryptionException;
 
 /**
  * 
  * @author 		Christian Guenther
  * @category 	Job
- * @version		1.1
+ * @version		1.1a
  * @status		beta
  * 
  * @description this is the actual crawler for the Lithium network. It is
@@ -56,6 +57,7 @@ import de.comlineag.snc.helper.NoBase64EncryptedValue;
  *				0.9				added support for SocialNetwork specific configuration
  *				1.0 			implemented proper json error handling
  *				1.1 			added configuration constants
+ *				1.1a			moved Base64EncryptionProvider in its own class
  *
  * TODO 1. change the double for-loop through sites and search terms to a more sophisticated solution
  */
@@ -63,6 +65,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
+	
+	private Base64EncryptionProvider encryptionProvider = new Base64EncryptionProvider();
 	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
@@ -87,9 +91,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		String _passwd = null;
 		try {
 			logger.trace("decrypting authorization details from job control");
-			_user = decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
-			_passwd = decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
-		} catch (NoBase64EncryptedValue e) {
+			_user = encryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
+			_passwd = encryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
+		} catch (GenericEncryptionException e) {
 			logger.error("EXCEPTION :: value for user or passwd is NOT base64 encrypted " + e.toString(), e);
 			System.exit(-1);
 		}
@@ -369,29 +373,5 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				return new PasswordAuthentication( "user", "pwd???".toCharArray() );
 			}
 		});
-	}
-		
-	/**
-	 * 
-	 * @description decrypt given text 
-	 * 
-	 * @param 		param
-	 *          	  encrypted text 
-	 * @return 		clear text
-	 *
-	 */
-	private static String decryptValue(String param) throws NoBase64EncryptedValue {
-
-		// the decode returns a byte-Array which needs to be converted to a string before returning
-		byte[] base64Array;
-
-		// validates that an encrypted value was returned
-		try {
-			base64Array = Base64.decodeBase64(param.getBytes());
-		} catch (Exception e) {
-			throw new NoBase64EncryptedValue("Parameter " + param + " ist nicht Base64-verschluesselt");
-		}
-		// (re)convert into string and return
-		return new String(base64Array);
 	}
 }

@@ -28,7 +28,8 @@ import de.comlineag.snc.constants.HttpStatusCode;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.handler.CrawlerConfiguration;
 import de.comlineag.snc.handler.FacebookParser;
-import de.comlineag.snc.helper.NoBase64EncryptedValue;
+import de.comlineag.snc.helper.Base64EncryptionProvider;
+import de.comlineag.snc.helper.GenericEncryptionException;
 
 /**
  * 
@@ -50,7 +51,9 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
-
+	
+	Base64EncryptionProvider encryptionProvider = new Base64EncryptionProvider();
+	
 	// Set up your blocking queues: Be sure to size these properly based on
 	// expected TPS of your stream
 	private BlockingQueue<String> msgQueue;
@@ -77,9 +80,9 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		String _user = null;
 		String _passwd = null;
 		try {
-			_user = decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
-			_passwd = decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
-		} catch (NoBase64EncryptedValue e) {
+			_user = encryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
+			_passwd = encryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
+		} catch (GenericEncryptionException e) {
 			logger.error("EXCEPTION :: value for user or passwd is NOT base64 encrypted " + e.toString(), e);
 			System.exit(-1);
 		}
@@ -256,29 +259,5 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		
 		conn.disconnect();
 		return sb.toString();
-	}
-	
-	/**
-	 * 
-	 * @description decrypt given text 
-	 * 
-	 * @param 		param
-	 *          	  encrypted text 
-	 * @return 		clear text
-	 *
-	 */
-	private static String decryptValue(String param) throws NoBase64EncryptedValue {
-
-		// the decode returns a byte-Array which needs to be converted to a string before returning
-		byte[] base64Array;
-
-		// validates that an encrypted value was returned
-		try {
-			base64Array = Base64.decodeBase64(param.getBytes());
-		} catch (Exception e) {
-			throw new NoBase64EncryptedValue("Parameter " + param + " ist nicht Base64-verschluesselt");
-		}
-		// (re)convert into string and return
-		return new String(base64Array);
 	}
 }

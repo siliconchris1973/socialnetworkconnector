@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -20,7 +19,6 @@ import de.comlineag.snc.constants.Neo4JConstants;
 import de.comlineag.snc.constants.RelationshipTypes;
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
-import de.comlineag.snc.helper.NoBase64EncryptedValue;
 import de.comlineag.snc.neo4j.Relation;
 import de.comlineag.snc.neo4j.TraversalDefinition;
 import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
@@ -43,6 +41,7 @@ import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
  * 				0.5				create relationship between nodes
  * 				0.6 			bugfixing and wrap up
  * 				0.7 			skeleton for graph traversal
+ * 				0.7a			removed Base64Encryption (now in its own class)
  * 
  * TODO 1. implement code to check if a node already exists prior inserting one
  * TODO 2. implement code for graph traversal
@@ -670,29 +669,6 @@ public class Neo4JPersistence implements IPersistenceManager {
 	    return status;
 	}
 
-	/**
-	 * @description Entschluesselt Werte aus der Konfig fuer die Connection
-	 *
-	 * @param param
-	 *            der Wert der entschluesselt werden soll
-	 * @return Klartext
-	 *
-	 */
-	@SuppressWarnings("unused")
-	private static String decryptValue(String param) throws NoBase64EncryptedValue {
-
-		// byte-Array kommt vom Decoder zurueck und kann dann in String uebernommen und zurueckgegeben werden
-		byte[] base64Array;
-
-		// Validierung das auch ein verschluesselter Wert da angekommen ist
-		try {
-			base64Array = Base64.decodeBase64(param.getBytes());
-		} catch (Exception e) {
-			throw new NoBase64EncryptedValue("Parameter " + param + " ist nicht Base64-verschluesselt");
-		}
-		// konvertiere in String
-		return new String(base64Array);
-	}
 	
 	/**
 	 * @description deletes all graph-db files on file system, thus essentially wiping out the entire DB

@@ -14,13 +14,14 @@ import org.odata4j.core.OProperties;
 
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
-import de.comlineag.snc.helper.NoBase64EncryptedValue;
+import de.comlineag.snc.helper.Base64EncryptionProvider;
+import de.comlineag.snc.helper.GenericEncryptionException;
 
 /**
  *
  * @author 		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Connector Class
- * @version 	0.9a
+ * @version 	0.9b
  * @status		beta
  *
  * @description handles the connectivity to the SAP HANA Systems and saves posts and users in the DB
@@ -36,12 +37,13 @@ import de.comlineag.snc.helper.NoBase64EncryptedValue;
  * 				0.9	(Chris)			added search for dataset prior inserting one
  * 				0.9a 				added query to determine if an exception during persistence operation shall 
  * 									terminate the crawler or not
+ * 				0.9b				moved Base64Encryption in its own class
  *
  * TODO	1. establish Update functionality for user and posts
  * TODO	2. enable query on field dimensions in DB so that (e.g. String)-fields can be truncated prior inserting
  * TODO	3. establish proper error handling (see comments in source code)
  * TODO 4. enable location support for user
- * TODO 5. clean up code 
+ * TODO 5. clean up code - split the big methods saveXXX and create private methods
  */
 public class HANAPersistence implements IPersistenceManager {
 	
@@ -64,7 +66,9 @@ public class HANAPersistence implements IPersistenceManager {
 	private static final boolean terminateJobOnException = true;
 	
 	private final Logger logger = Logger.getLogger(getClass().getName());
-
+	private Base64EncryptionProvider encryptionProvider = new Base64EncryptionProvider();
+	
+	
 	public HANAPersistence() {}
 
 	/**
@@ -98,7 +102,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * <Property Name="plAround_longitude" Type="Edm.String" MaxLength="40"/>
 	 * <Property Name="plAround_latitude" Type="Edm.String" MaxLength="40"/>
 	 * 
-	 * @throws NoBase64EncryptedValue 
+	 * @throws GenericEncryptionException 
 	 * 
 	 */
 	public void savePosts(PostData postData) {
@@ -118,9 +122,9 @@ public class HANAPersistence implements IPersistenceManager {
 				
 				// get the user and password for the JDBC connection
 				try {
-					user = decryptValue(this.user);
-					password = decryptValue(this.pass);
-				} catch (NoBase64EncryptedValue e) {
+					user = encryptionProvider.decryptValue(this.user);
+					password = encryptionProvider.decryptValue(this.pass);
+				} catch (GenericEncryptionException e) {
 					logger.error("EXCEPTION :: could not decrypt user and/or password" + e.getMessage(), e);
 				}
 	            
@@ -190,8 +194,8 @@ public class HANAPersistence implements IPersistenceManager {
 				// in case the connection is NOT opened already, attempt to create an OData Consumer
 				if (postService == null) {
 					try {
-						String _user = decryptValue(this.user);
-						String _pw = decryptValue(this.pass);
+						String _user = encryptionProvider.decryptValue(this.user);
+						String _pw = encryptionProvider.decryptValue(this.pass);
 						
 						BasicAuthenticationBehavior bAuth = new BasicAuthenticationBehavior(_user, _pw);
 						String baseLocation = new String(this.protocol+"://" + this.host + ":" + this.port + this.location);
@@ -203,7 +207,7 @@ public class HANAPersistence implements IPersistenceManager {
 						postService = builder.build();
 						
 						logger.info("HANAPersistence Service for users connected");
-					} catch (NoBase64EncryptedValue e) {
+					} catch (GenericEncryptionException e) {
 						logger.error("EXCEPTION :: could not decrypt user and/or password. " + e.getMessage(), e);
 						if (terminateJobOnException)
 							System.exit(-1);
@@ -315,9 +319,9 @@ public class HANAPersistence implements IPersistenceManager {
 				
 				// get the user and password for the JDBC connection
 				try {
-					user = decryptValue(this.user);
-					password = decryptValue(this.pass);
-				} catch (NoBase64EncryptedValue e) {
+					user = encryptionProvider.decryptValue(this.user);
+					password = encryptionProvider.decryptValue(this.pass);
+				} catch (GenericEncryptionException e) {
 					logger.error("EXCEPTION :: could not decrypt user and/or password" + e.getMessage(), e);
 				}
 	            
@@ -357,8 +361,8 @@ public class HANAPersistence implements IPersistenceManager {
 				
 				if (userService == null) {
 					try {
-						String _user = decryptValue(this.user);
-						String _pw = decryptValue(this.pass);
+						String _user = encryptionProvider.decryptValue(this.user);
+						String _pw = encryptionProvider.decryptValue(this.pass);
 						String baseLocation = new String(this.protocol+"://" + this.host + ":" + this.port + this.location);
 						String userURI = new String(baseLocation + "/" + this.serviceUserEndpoint);
 							
@@ -370,7 +374,7 @@ public class HANAPersistence implements IPersistenceManager {
 						userService = builder.build();
 						
 						logger.info("HANAPersistence Service for users connected");
-					} catch (NoBase64EncryptedValue e) {
+					} catch (GenericEncryptionException e) {
 						logger.error("EXCEPTION :: could not decrypt user and/or password. " + e.getMessage(), e);
 						if (terminateJobOnException)
 							System.exit(-1);
@@ -479,10 +483,10 @@ public class HANAPersistence implements IPersistenceManager {
 		String userURI = new String(baseLocation + "/" + this.serviceUserEndpoint);
 		
 		try {
-			_user = decryptValue(this.user);
-			_pw = decryptValue(this.pass);
+			_user = encryptionProvider.decryptValue(this.user);
+			_pw = encryptionProvider.decryptValue(this.pass);
 			bAuth = new BasicAuthenticationBehavior(_user, _pw);
-		} catch (NoBase64EncryptedValue e) {
+		} catch (GenericEncryptionException e) {
 			logger.error("EXCEPTION :: could not decrpt values for user and passowrd " + e.getMessage());
 			return false;
 		}
@@ -527,31 +531,7 @@ public class HANAPersistence implements IPersistenceManager {
 	}
 	
 	
-	
-	/**
-	 * @description Decrypts configuration values 
-	 *
-	 * @param 		String
-	 *					the value to decrypt
-	 * @return 		String
-	 * 					the return value as clear text
-	 *
-	 * @throws 		NoBase64EncryptedValue
-	 */
-	private String decryptValue(String param) throws NoBase64EncryptedValue {
-
-		// the decode returns a byte-Array - this is converted in a string and returned
-		byte[] base64Array;
-
-		// Check that the returned string is correctly coded as bas64
-		try {
-			base64Array = Base64.decodeBase64(param.getBytes());
-		} catch (Exception e) {
-			throw new NoBase64EncryptedValue("EXCEPTION :: Parameter " + param + " not Base64-encrypted: " + e.getLocalizedMessage());
-		}
-		return new String(base64Array);
-	}
-
+	// getter and setter
 	public String getHost() {
 		return host;
 	}
