@@ -500,7 +500,7 @@ public class HANAPersistence implements IPersistenceManager {
 			return false;
 		}
 		
-		if (type == "user") {
+		if ("user".equals(type)) {
 			logger.debug("checking if "+type+" " + sn_id + "-" + id + " at " + userURI + " exists");
 			
 			builder = ODataConsumer.newBuilder(userURI);
@@ -513,6 +513,8 @@ public class HANAPersistence implements IPersistenceManager {
 			try {
 				userService.getEntities(entitySetName).filter("user_id eq '"+id+"' and sn_id eq '" + sn_id + "'").top(1).execute().first();
 			} catch (Exception e) {
+				logger.debug("EXCEPTION :: " + e.getLocalizedMessage());
+				e.printStackTrace();
 				return false;
 			}
 			
@@ -530,6 +532,8 @@ public class HANAPersistence implements IPersistenceManager {
 			try {
 				postService.getEntities(entitySetName).filter("post_id eq '"+id+"' and sn_id eq '" + sn_id + "'").top(1).execute().first();
 			} catch (Exception e) {
+				logger.debug("EXCEPTION :: " + e.getLocalizedMessage());
+				e.printStackTrace();
 				return false;
 			}
 			
