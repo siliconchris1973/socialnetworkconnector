@@ -54,7 +54,7 @@ public class ConfigurationEncryptionHandler {
 		logger.trace("decrypting "+param+" via " + configurationEncryptionProvider.getClass().getCanonicalName().toString());
 		return configurationEncryptionProvider.decryptValue(param);
 	}
-
+	
 	/**
 	 * @description Encrypts a given string 
 	 *
@@ -68,7 +68,7 @@ public class ConfigurationEncryptionHandler {
 		logger.trace("encrypting "+param+" via " + configurationEncryptionProvider.getClass().getCanonicalName().toString());
 		return configurationEncryptionProvider.encryptValue(param);
 	}
-
+	
 	/**
 	 * @description feed entropy data to the encryption provider
 	 * 				this can be a normal string or also a file vector passed as a string
@@ -80,5 +80,15 @@ public class ConfigurationEncryptionHandler {
 	 */
 	public void setEntropy(String param) {
 		configurationEncryptionProvider.setEntropy(param);
+	}
+	
+	/**
+	 * @description receive entropy data for the encryption provider
+	 *
+	 * @param 		String
+	 *					entropy source
+	 */
+	public String getEntropy() {
+		return configurationEncryptionProvider.getEntropy();
 	}
 }

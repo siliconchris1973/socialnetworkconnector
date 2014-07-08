@@ -16,7 +16,7 @@ package de.comlineag.snc.crypto;
  * 
  */
 public interface IEncryptionProvider {
-
+	
 	/**
 	 * @description Decrypts a given string 
 	 *
@@ -28,7 +28,7 @@ public interface IEncryptionProvider {
 	 *
 	 */
 	public abstract String decryptValue(String param) throws GenericEncryptionException;
-
+	
 	/**
 	 * @description Encrypts a given string 
 	 *
@@ -39,13 +39,17 @@ public interface IEncryptionProvider {
 	 *
 	 */
 	public abstract String encryptValue(String param) throws GenericEncryptionException;
-
+	
 	/**
-	 * @description Decrypts configuration values 
+	 * @description set the entropy source 
 	 *
 	 * @param 		String
 	 *					entropy source
 	 */
 	public abstract void setEntropy(String param);
-
+	
+	/**
+	 * @description get an initial vector or entropy source
+	 */
+	public abstract String getEntropy();
 }

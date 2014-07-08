@@ -57,13 +57,22 @@ public class Base64EncryptionProvider implements IEncryptionProvider {
 	}
 
 	/**
-	 * @description Decrypts configuration values 
+	 * @description set the entropy source 
 	 *
 	 * @param 		String
 	 *					entropy source
+	 *
 	 */
 	public void setEntropy(String param){
-		// NOT YET IMPLEMENTED
+		// NOT NEEDED AND NOT IMPLEMENTED
 	}
-
+	/**
+	 * @description get an initial vector
+	 * 
+	 * @return null
+	 * 
+	 */
+	public String getEntropy(){
+		return null;
+	}
 }

@@ -88,7 +88,7 @@ public class DesEncryptionProvider implements IEncryptionProvider {
 	}
 
 	/**
-	 * @description Decrypts configuration values 
+	 * @description set the entropy source 
 	 *
 	 * @param 		String
 	 *					entropy source
@@ -102,5 +102,11 @@ public class DesEncryptionProvider implements IEncryptionProvider {
 			// TODO get initial vector form applicationContext.xml
 		}
 	}
-
+	
+	/**
+	 * @description get an initial vector
+	 */
+	public String getEntropy(){
+		return null;
+	}
 }

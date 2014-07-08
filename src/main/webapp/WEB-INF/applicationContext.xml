@@ -25,22 +25,20 @@
                            http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
                            http://www.springframework.org/schema/tx
                            http://www.springframework.org/schema/tx/spring-tx.xsd">
-
-
+	
+	
 	<!-- Activate Spring annotation support -->
 	<context:annotation-config />
-
 	<context:component-scan base-package="de.comlineag.snc.job" />
 	<context:component-scan base-package="de.comlineag.snc.handler" />
-
 	<tx:annotation-driven />
-
+	
 	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.persistence.ApplicationContextProvider"></bean>
-
-
-
-	<!-- C R A W L E R    S E T T I N G S -->
-	<!-- T W I T T E R    C R A W L E R    (WORKS) -->
+	
+	
+	
+	<!-- C R A W L E R    S E T T I N G S 				-->
+	<!-- T W I T T E R    C R A W L E R    (WORKS)		-->
 	<bean name="TwitterCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.snc.job.TwitterCrawler" />
@@ -51,7 +49,7 @@
 				<entry key="consumerSecret" value="xzqH6lLWnXLvlHJooNDaCDXlzJzv976JcWt8y2eyHBk" />
 				<entry key="token" value="754994-KDec8qJBwEggHwHQ9XO0X7QBx1VCOZwgbgtpYiibWjl" />
 				<entry key="tokenSecret" value="qm1dqrJas8Lf2ANU8Lx470TkcUSndWLwvJ1I2huZKvJrc" />
-
+				
 				<!-- 
 					entries for server, protocol and location are taken from constants 
 					from the hbc twitter api 
@@ -85,11 +83,11 @@
 				<entry key="consumerSecret" value="" />
 				<entry key="token" value="" />
 				<entry key="tokenSecret" value="" />
-
+				
 				<!-- login settings - are encrypted using base64 -->
 				<entry key="user" value="Y21yYWw=" />
 				<entry key="passwd" value="MTIzVGVzdDEyMw==" />
-
+				
 				<!-- with these entries the url to the communities' rest api is generated -->
 				<entry key="protocol" value="https" />
 				<entry key="port" value="443" />
@@ -123,11 +121,11 @@
 				<entry key="consumerSecret" value="" />
 				<entry key="token" value="" />
 				<entry key="tokenSecret" value="" />
-
+				
 				<!-- login settings -->
 				<entry key="user" value="" />
 				<entry key="passwd" value="" />
-
+				
 				<!-- with these entries the url to the rest api and graph engine is generated -->
 				<entry key="protocol" value="https" />
 				<entry key="port" value="443" />
@@ -214,11 +212,11 @@
 	<bean id="configurationEncryptionProvider" class="de.comlineag.snc.crypto.AesEncryptionProvider"> </bean>
 	-->
 	<!-- D A T A     E N C R Y P T I O N     S E T T I N G S    -   not yet implemented-->
-	<!-- this is the bean to set the data encryption provider to null 
-	<bean id="dataEncryptionProvider" class="de.comlineag.snc.crypto.NoneEncryptionProvider"> </bean>
-	-->
-	<!-- this is the bean to set the data encryption provider to Base64 -->
+	<!-- this is the bean to set the data encryption provider to null -->
+	<bean id="dataEncryptionProvider" class="de.comlineag.snc.crypto.NullEncryptionProvider"> </bean>
+	<!-- this is the bean to set the data encryption provider to Base64 
 	<bean id="dataEncryptionProvider" class="de.comlineag.snc.crypto.Base64EncryptionProvider"> </bean>
+	-->
 	<!-- this is the bean to set the data encryption provider to DES
 	<bean id="dataEncryptionProvider" class="de.comlineag.snc.crypto.DesEncryptionProvider"> 
 		<property name="initialVector"dfhjhgcfngcfhcecf4tcdgc5vtrgvhtdzvcgcdbzvt5cxhvxtycsvtsctyvzs5zcc5zzvhcdht></property>
@@ -247,19 +245,20 @@
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" /> 
 	</bean> 
 	-->
-
+	
 	<!-- this is the bean to get the crawler configuration from an xml file -->
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.XMLFileConfigurationPersistence"> 
 		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration.xml" /> 
 	</bean> 
 	
-	<!-- this is the bean to get the crawler configuration from an ini file (WORKS WITH RESTRICTIONS - NO CRAWLER SPECIFIC CONFIG POSSIBLE) -->
+	<!-- this is the bean to get the crawler configuration from an ini file 
+		(WORKS WITH RESTRICTIONS - NO CRAWLER SPECIFIC CONFIG POSSIBLE) -->
 	<!--
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.IniFileConfigurationPersistence">
 		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration.ini" />
 	</bean>
 	-->
-
+	
 	<!-- P E R S I S T E N C E    S E T T I N G S -->
 	<!-- You may choose exactly one of the provided persistence manager -->
 	<!-- H A N A    P E R S I S T E N C E    (WORKS) -->
@@ -274,7 +273,7 @@
 		<property name="user" value="U0JNX0VYVA==" />
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
 	</bean>
-
+	
 	<!-- N E O 4 J    P E R S I S T E N C E    (WORKS) -->
 	<!-- 
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.Neo4JPersistence"> 
