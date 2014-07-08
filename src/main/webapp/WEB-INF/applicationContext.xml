@@ -195,37 +195,35 @@
 	<!-- E N C R Y P T I O N    S E T T I N G S -->
 	<!-- You can choose exactly one of the provided encryption provider for each category (id) -->
 	<!-- C O N F I G U R A T I O N     E N C R Y P T I O N     S E T T I N G S -->
-	<!-- this is the bean to set the configuration encryption provider to null 
-	<bean id="configurationEncryptionProvider" class="de.comlineag.snc.crypto.NoneEncryptionProvider"> </bean>
+	<!-- NULL   Encryption Provider   -   this is the bean to set the configuration encryption provider to null
+	<bean id="configurationEncryptionProvider" class="de.comlineag.snc.crypto.NullEncryptionProvider"> </bean>
 	-->
-	<!-- this is the bean to set the configuration encryption provider to Base64 -->
+	<!-- BASE64 Encryption Provider   -   this is the bean to set the configuration encryption provider to Base64 -->
 	<bean id="configurationEncryptionProvider" class="de.comlineag.snc.crypto.Base64EncryptionProvider"> </bean>
-	<!-- this is the bean to set the configuration encryption provider to DES
-	<bean id="configurationEncryptionProvider" class="de.comlineag.snc.crypto.DesEncryptionProvider"> 
-		<property name="initialVector"dfhjhgcfngcfhcecf4tcdgc5vtrgvhtdzvcgcdbzvt5cxhvxtycsvtsctyvzs5zcc5zzvhcdht></property>
-	</bean>
+	<!-- DES    Encryption Provider   -   this is the bean to set the configuration encryption provider to DES
+	<bean id="configurationEncryptionProvider" class="de.comlineag.snc.crypto.DesEncryptionProvider"> </bean>
 	 -->
-	 <!-- this is the bean to set the configuration encryption provider to Triple DES
+	<!-- 3DES   Encryption Provider   -   this is the bean to set the configuration encryption provider to Triple DES
 	<bean id="configurationEncryptionProvider" class="de.comlineag.snc.crypto.Des3EncryptionProvider"> </bean>
 	 -->
-	<!-- this is the bean to set the configuration encryption provider to AES 
+	<!-- AES    Encryption Provider   -   this is the bean to set the configuration encryption provider to AES 
 	<bean id="configurationEncryptionProvider" class="de.comlineag.snc.crypto.AesEncryptionProvider"> </bean>
 	-->
-	<!-- D A T A     E N C R Y P T I O N     S E T T I N G S    -   not yet implemented-->
-	<!-- this is the bean to set the data encryption provider to null -->
+	<!-- D A T A     E N C R Y P T I O N     S E T T I N G S -->
+	<!-- NULL   Encryption Provider   -   this is the bean to set the data encryption provider to null -->
 	<bean id="dataEncryptionProvider" class="de.comlineag.snc.crypto.NullEncryptionProvider"> </bean>
-	<!-- this is the bean to set the data encryption provider to Base64 
+	<!-- BASE64 Encryption Provider   -   this is the bean to set the data encryption provider to Base64 
 	<bean id="dataEncryptionProvider" class="de.comlineag.snc.crypto.Base64EncryptionProvider"> </bean>
 	-->
-	<!-- this is the bean to set the data encryption provider to DES
+	<!-- DES    Encryption Provider   -   this is the bean to set the data encryption provider to DES
 	<bean id="dataEncryptionProvider" class="de.comlineag.snc.crypto.DesEncryptionProvider"> 
 		<property name="initialVector"dfhjhgcfngcfhcecf4tcdgc5vtrgvhtdzvcgcdbzvt5cxhvxtycsvtsctyvzs5zcc5zzvhcdht></property>
 	</bean>
 	 -->
-	 <!-- this is the bean to set the data encryption provider to Triple DES
+	<!-- 3DES   Encryption Provider   -   this is the bean to set the data encryption provider to Triple DES
 	<bean id="dataEncryptionProvider" class="de.comlineag.snc.crypto.Des3EncryptionProvider"> </bean>
 	 -->
-	<!-- this is the bean to set the data encryption provider to AES 
+	<!-- AES    Encryption Provider   -   this is the bean to set the data encryption provider to AES 
 	<bean id="dataEncryptionProvider" class="de.comlineag.snc.crypto.AesEncryptionProvider"> </bean>
 	-->
 	

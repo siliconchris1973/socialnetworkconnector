@@ -4,8 +4,8 @@ package de.comlineag.snc.crypto;
  * 
  * @author		Christian Guenther
  * @category	interface
- * @version		0.2
- * @status		in development
+ * @version		0.3
+ * @status		productive
  * 
  * @description	interface class every encryption class shall implement. Consumer classes
  * 				that need to encrypt/decrypt a value only call for a generic encryptionProvider
@@ -13,6 +13,7 @@ package de.comlineag.snc.crypto;
  * 
  * @changelog	0.1 (Chris)		initial version
  * 				0.2				changed from abstract class to interface
+ * 				0.3				deleted set/getEntropy from interface
  * 
  */
 public interface IEncryptionProvider {
@@ -39,17 +40,4 @@ public interface IEncryptionProvider {
 	 *
 	 */
 	public abstract String encryptValue(String param) throws GenericEncryptionException;
-	
-	/**
-	 * @description set the entropy source 
-	 *
-	 * @param 		String
-	 *					entropy source
-	 */
-	public abstract void setEntropy(String param);
-	
-	/**
-	 * @description get an initial vector or entropy source
-	 */
-	public abstract String getEntropy();
 }

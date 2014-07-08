@@ -3,7 +3,6 @@ package de.comlineag.snc.persistence;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.List;
 
 import org.joda.time.DateTimeZone;
 import org.apache.log4j.Logger;
@@ -16,12 +15,13 @@ import de.comlineag.snc.crypto.GenericEncryptionException;
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
 import de.comlineag.snc.handler.ConfigurationEncryptionHandler;
+import de.comlineag.snc.handler.DataEncryptionHandler;
 
 /**
  *
  * @author 		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Connector Class
- * @version 	0.9c
+ * @version 	0.9d
  * @status		beta
  *
  * @description handles the connectivity to the SAP HANA Systems and saves posts and users in the DB
@@ -39,6 +39,7 @@ import de.comlineag.snc.handler.ConfigurationEncryptionHandler;
  * 									terminate the crawler or not
  * 				0.9b				moved Base64Encryption in its own class
  * 				0.9c				added support for different encryption provider, the actual one is set in applicationContext.xml 
+ * 				0.9d				added support to en/decrypt parts of the data (posting text and username)
  *
  * TODO	1. establish Update functionality for user and posts
  * TODO	2. enable query on field dimensions in DB so that (e.g. String)-fields can be truncated prior inserting
@@ -69,7 +70,9 @@ public class HANAPersistence implements IPersistenceManager {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
 	private ConfigurationEncryptionHandler configurationEncryptionProvider = new ConfigurationEncryptionHandler();
-	
+	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
+	private DataEncryptionHandler dataEncryptionProvider = new DataEncryptionHandler();
+
 	
 	public HANAPersistence() {}
 
@@ -161,10 +164,10 @@ public class HANAPersistence implements IPersistenceManager {
 				stmt.setLong(3,new Long(postData.getUserId()));
 				stmt.setTimestamp(4,new Timestamp((postData.getTimestamp().toDateTime(DateTimeZone.UTC)).getMillis() ));
 				stmt.setString(5, postData.getLang());
-				stmt.setString(6, postData.getText());
-				stmt.setString(7, postData.getRawText());
-				stmt.setString(8, postData.getTeaser());
-				stmt.setString(9, postData.getSubject());
+				stmt.setString(6, dataEncryptionProvider.encryptValue(postData.getText()));
+				stmt.setString(7, dataEncryptionProvider.encryptValue(postData.getRawText()));
+				stmt.setString(8, dataEncryptionProvider.encryptValue(postData.getTeaser()));
+				stmt.setString(9, dataEncryptionProvider.encryptValue(postData.getSubject()));
 				stmt.setLong(10, postData.getViewCount());
 				stmt.setLong(11, postData.getFavoriteCount());
 				stmt.setString(12, postData.getClient());
@@ -233,10 +236,10 @@ public class HANAPersistence implements IPersistenceManager {
 							.properties(OProperties.datetime("timestamp", postData.getTimestamp()))
 							.properties(OProperties.string("postLang", postData.getLang()))
 							
-							.properties(OProperties.string("text", postData.getText()))
-							.properties(OProperties.string("raw_text", postData.getRawText()))
-							.properties(OProperties.string("teaser", postData.getTeaser()))
-							.properties(OProperties.string("subject", postData.getSubject()))
+							.properties(OProperties.string("text", dataEncryptionProvider.encryptValue(postData.getText())))
+							.properties(OProperties.string("raw_text", dataEncryptionProvider.encryptValue(postData.getRawText())))
+							.properties(OProperties.string("teaser", dataEncryptionProvider.encryptValue(postData.getTeaser())))
+							.properties(OProperties.string("subject", dataEncryptionProvider.encryptValue(postData.getSubject())))
 							
 							.properties(OProperties.int64("viewcount", new Long(postData.getViewCount())))
 							.properties(OProperties.int64("favoritecount", new Long(postData.getFavoriteCount())))
@@ -338,8 +341,8 @@ public class HANAPersistence implements IPersistenceManager {
 				PreparedStatement stmt = conn.prepareStatement(sql);
 				stmt.setString(1, userData.getSnId());
 				stmt.setLong(2, userData.getId());
-				stmt.setString(2, userData.getUsername());
-				stmt.setString(3, userData.getScreenName());
+				stmt.setString(2, dataEncryptionProvider.encryptValue(userData.getUsername()));
+				stmt.setString(3, dataEncryptionProvider.encryptValue(userData.getScreenName()));
 				stmt.setString(4, userData.getLang());
 				stmt.setLong(5, userData.getFollowersCount());
 				stmt.setLong(6, userData.getFriendsCount());
@@ -395,9 +398,9 @@ public class HANAPersistence implements IPersistenceManager {
 					newUser = userService.createEntity("user")
 							.properties(OProperties.string("sn_id", userData.getSnId()))
 							.properties(OProperties.string("user_id", new String(new Long(userData.getId()).toString())))
-							.properties(OProperties.string("userName", userData.getUsername()))
+							.properties(OProperties.string("userName", dataEncryptionProvider.encryptValue(userData.getUsername())))
 		
-							.properties(OProperties.string("nickName", userData.getScreenName()))
+							.properties(OProperties.string("nickName", dataEncryptionProvider.encryptValue(userData.getScreenName())))
 							.properties(OProperties.string("userLang", userData.getLang()))
 							// TODO check location values for user
 							//.properties(OProperties.string("location", "default location")) // userData.getLocation().get(0).toString()))

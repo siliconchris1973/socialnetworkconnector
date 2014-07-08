@@ -21,23 +21,23 @@ import de.comlineag.snc.persistence.AppContext;
  * 				0.2				deleted methods for set/getEntropy
  * 
  */
-public class ConfigurationEncryptionHandler { 
+public class DataEncryptionHandler { 
 	
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
 		
-	protected IEncryptionProvider configurationEncryptionProvider;
+	protected IEncryptionProvider dataEncryptionProvider;
 	protected SocialNetworks sourceSocialNetwork;							// currently not used
 	protected EncryptionProvider sourceEncryptionProvider;					// currently not used
 	
 	
-	public ConfigurationEncryptionHandler() {
-		configurationEncryptionProvider = (IEncryptionProvider) AppContext.Context.getBean("configurationEncryptionProvider");
+	public DataEncryptionHandler() {
+		dataEncryptionProvider = (IEncryptionProvider) AppContext.Context.getBean("dataEncryptionProvider");
 	}
 	
 	@SuppressWarnings("unused")
 	private static String getEncryptionProvider() {
-		return (String) AppContext.Context.getBean("configurationEncryptionProvider");
+		return (String) AppContext.Context.getBean("dataEncryptionProvider");
 	}
 	
 	
@@ -53,10 +53,10 @@ public class ConfigurationEncryptionHandler {
 	 */
 	public String decryptValue(String param) throws GenericEncryptionException {
 		if (param.length()>20)
-			logger.trace("decrypting "+param.substring(0, 20)+"... via " + configurationEncryptionProvider.getClass().getCanonicalName().toString());
+			logger.trace("decrypting "+param.substring(0, 20)+"... via " + dataEncryptionProvider.getClass().getCanonicalName().toString());
 		else
-			logger.trace("decrypting "+param+" via " + configurationEncryptionProvider.getClass().getCanonicalName().toString());
-		return configurationEncryptionProvider.decryptValue(param);
+			logger.trace("decrypting "+param+" via " + dataEncryptionProvider.getClass().getCanonicalName().toString());
+		return dataEncryptionProvider.decryptValue(param);
 	}
 	
 	/**
@@ -70,9 +70,9 @@ public class ConfigurationEncryptionHandler {
 	 */
 	public String encryptValue(String param) throws GenericEncryptionException {
 		if (param.length()>20)
-			logger.trace("encrypting "+param.substring(0, 20)+"... via " + configurationEncryptionProvider.getClass().getCanonicalName().toString());
+			logger.trace("encrypting "+param.substring(0, 20)+"... via " + dataEncryptionProvider.getClass().getCanonicalName().toString());
 		else
-			logger.trace("encrypting "+param+" via " + configurationEncryptionProvider.getClass().getCanonicalName().toString());
-		return configurationEncryptionProvider.encryptValue(param);
+			logger.trace("encrypting "+param+" via " + dataEncryptionProvider.getClass().getCanonicalName().toString());
+		return dataEncryptionProvider.encryptValue(param);
 	}
 }

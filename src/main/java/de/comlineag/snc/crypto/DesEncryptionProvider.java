@@ -15,27 +15,30 @@ import de.comlineag.snc.constants.EncryptionProvider;
  * 
  * @author		Christian Guenther
  * @category	helper class
- * @version		0.1
+ * @version		0.3
  * @status		in development
  * 
  * @description	this is the DES, the least secure, encryption provider
  * 
  * @changelog	0.1 (Chris)		initial version
  * 				0.2				added support for initial vector to be taken from applicationContext.xml
+ * 				0.3				removed get/setEntropy and deleted code to get initial vector from applicationContext.xml
  * 
  */
 public class DesEncryptionProvider implements IEncryptionProvider {
 
 	byte[] keyBytes;
 	byte[] ivBytes;
+	
 	int dec_len;
 	int enc_len;
+	
 	// the decode returns a byte-Array - this is converted in a string and returned
 	byte[] decrypted;
 	byte[] encrypted;
 	
 	// how long must the initial vector be
-	int MIN_INITIALVECTOR_SIZE = 8;
+	int MIN_INITIALVECTOR_SIZE = 64;
 	
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
@@ -83,30 +86,9 @@ public class DesEncryptionProvider implements IEncryptionProvider {
 	 *
 	 */
 	public String encryptValue(String param){
+		logger.warn("NOT YET IMPLEMENTED");
+		
 		// TODO implement encryption method
 		return param;
-	}
-
-	/**
-	 * @description set the entropy source 
-	 *
-	 * @param 		String
-	 *					entropy source
-	 */
-	public void setEntropy(String param){
-		if (param != null && param.length()>MIN_INITIALVECTOR_SIZE) {
-			logger.trace("using provided initial vector");
-			// convert passed string to ivBytes[]
-		} else {
-			logger.trace("using initial vector from applicationContext.xml");
-			// TODO get initial vector form applicationContext.xml
-		}
-	}
-	
-	/**
-	 * @description get an initial vector
-	 */
-	public String getEntropy(){
-		return null;
 	}
 }
