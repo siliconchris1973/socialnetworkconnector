@@ -12,10 +12,10 @@ import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OProperties;
 
+import de.comlineag.snc.crypto.GenericEncryptionException;
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
 import de.comlineag.snc.handler.ConfigurationEncryptionHandler;
-import de.comlineag.snc.helper.GenericEncryptionException;
 
 /**
  *

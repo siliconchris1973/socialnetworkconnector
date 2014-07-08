@@ -4,8 +4,8 @@ import org.apache.log4j.Logger;
 
 import de.comlineag.snc.constants.EncryptionProvider;
 import de.comlineag.snc.constants.SocialNetworks;
-import de.comlineag.snc.helper.GenericEncryptionException;
-import de.comlineag.snc.helper.IEncryptionProvider;
+import de.comlineag.snc.crypto.GenericEncryptionException;
+import de.comlineag.snc.crypto.IEncryptionProvider;
 import de.comlineag.snc.persistence.AppContext;
 
 /**

@@ -24,6 +24,7 @@ import de.comlineag.snc.constants.HttpStatusCode;
 import de.comlineag.snc.constants.LithiumConstants;
 import de.comlineag.snc.constants.LithiumStatusCode;
 import de.comlineag.snc.constants.SocialNetworks;
+import de.comlineag.snc.crypto.GenericEncryptionException;
 import de.comlineag.snc.handler.ConfigurationEncryptionHandler;
 import de.comlineag.snc.handler.CrawlerConfiguration;
 import de.comlineag.snc.handler.GenericCrawlerException;
@@ -31,7 +32,6 @@ import de.comlineag.snc.handler.LithiumParser;
 import de.comlineag.snc.handler.LithiumPosting;
 import de.comlineag.snc.handler.LithiumStatusException;
 import de.comlineag.snc.handler.LithiumUser;
-import de.comlineag.snc.helper.GenericEncryptionException;
 
 /**
  * 

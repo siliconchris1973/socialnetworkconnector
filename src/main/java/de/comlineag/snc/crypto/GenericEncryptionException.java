@@ -1,4 +1,4 @@
-package de.comlineag.snc.helper;
+package de.comlineag.snc.crypto;
 
 import de.comlineag.snc.constants.EncryptionProvider;
 

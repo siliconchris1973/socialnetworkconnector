@@ -25,10 +25,10 @@ import com.twitter.hbc.core.endpoint.Location;
 import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.HttpStatusCode;
 import de.comlineag.snc.constants.SocialNetworks;
+import de.comlineag.snc.crypto.GenericEncryptionException;
 import de.comlineag.snc.handler.ConfigurationEncryptionHandler;
 import de.comlineag.snc.handler.CrawlerConfiguration;
 import de.comlineag.snc.handler.FacebookParser;
-import de.comlineag.snc.helper.GenericEncryptionException;
 
 /**
  * 

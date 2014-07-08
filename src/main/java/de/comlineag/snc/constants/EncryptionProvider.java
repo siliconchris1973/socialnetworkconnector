@@ -18,11 +18,11 @@ package de.comlineag.snc.constants;
  */
 public enum EncryptionProvider {
 //	enum code			name			int / String encryptionGrade/Strength	
-	NONE 				("None", 		0,	"none"),
-	BASE64				("Base64", 		1,	"low"),
-	DES					("DES", 		2,	"medium"),
-	DES3				("Triple DES", 	3,	"good"),
-	AES					("AES", 		4,	"best");
+	NONE 				("NoneEncryptionProvider", 			0,	"none"),	// 
+	BASE64				("Base64EncryptionProvider", 		1,	"low"),		// implemented
+	DES					("DesEncryptionProvider", 			2,	"medium"),
+	DES3				("TripleDesEncryptionProvider", 	3,	"good"),
+	AES					("AesEncryptionProvider", 			4,	"best");
 
 	private final String name;
 	private final int encryptionGrade;
