@@ -35,23 +35,4 @@ public class NullEncryptionProvider implements IEncryptionProvider {
 	public String encryptValue(String param){
 		return param;
 	}
-
-	/**
-	 * @description does nothing
-	 *
-	 * @param 		String
-	 * 
-	 */
-	public void setEntropy(String param){
-		// NOT NEEDED AND NOT IMPLEMENTED
-	}
-	/**
-	 * @description returns null
-	 * 
-	 * @return null
-	 * 
-	 */
-	public String getEntropy(){
-		return null;
-	}
 }
