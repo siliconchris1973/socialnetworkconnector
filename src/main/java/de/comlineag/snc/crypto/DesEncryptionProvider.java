@@ -7,6 +7,8 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.log4j.Logger;
+
 import de.comlineag.snc.constants.EncryptionProvider;
 
 /**
@@ -16,13 +18,13 @@ import de.comlineag.snc.constants.EncryptionProvider;
  * @version		0.1
  * @status		in development
  * 
- * @description	this is the Triple DES, the least secure, encryption provider
+ * @description	this is the DES, the least secure, encryption provider
  * 
  * @changelog	0.1 (Chris)		initial version
- * 				0.2				added support for GenericEncryptionException
+ * 				0.2				added support for initial vector to be taken from applicationContext.xml
  * 
  */
-public class Des3EncryptionProvider implements IEncryptionProvider {
+public class DesEncryptionProvider implements IEncryptionProvider {
 
 	byte[] keyBytes;
 	byte[] ivBytes;
@@ -31,7 +33,13 @@ public class Des3EncryptionProvider implements IEncryptionProvider {
 	// the decode returns a byte-Array - this is converted in a string and returned
 	byte[] decrypted;
 	byte[] encrypted;
-			
+	
+	// how long must the initial vector be
+	int MIN_INITIALVECTOR_SIZE = 8;
+	
+	// Logger Instanz
+	private final Logger logger = Logger.getLogger(getClass().getName());
+	
 	
 	/**
 	 * @description Decrypts a given string 
@@ -45,10 +53,10 @@ public class Des3EncryptionProvider implements IEncryptionProvider {
 	public String decryptValue(String param) throws GenericEncryptionException {
 
 		// wrap key data in Key/IV specs to pass to cipher
-		SecretKeySpec key = new SecretKeySpec(keyBytes, "DES");
+		SecretKeySpec key = new SecretKeySpec(keyBytes, EncryptionProvider.DES.toString());
 		IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 		// create the cipher with the algorithm you choose
-		// see javadoc for Cipher class for more info, e.g.
+		// see javadoc for Cipher class for more info
 		Cipher cipher;
 		try {
 			cipher = Cipher.getInstance("DES/CBC/PKCS5Padding");
@@ -58,9 +66,9 @@ public class Des3EncryptionProvider implements IEncryptionProvider {
 			dec_len += cipher.doFinal(decrypted, dec_len);
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
 			e.printStackTrace();
-			throw new GenericEncryptionException(EncryptionProvider.DES3, "EXCEPTION :: Parameter " + param + " not Triple DES-encrypted: " + e.getLocalizedMessage());
+			throw new GenericEncryptionException(EncryptionProvider.DES, "EXCEPTION :: Parameter " + param + " not DES-encrypted: " + e.getLocalizedMessage());
 		} catch (Exception e) {
-			throw new GenericEncryptionException(EncryptionProvider.DES3, "EXCEPTION :: unforseen error condition: " + e.getLocalizedMessage());
+			throw new GenericEncryptionException(EncryptionProvider.DES, "EXCEPTION :: unforseen error condition: " + e.getLocalizedMessage());
 		}
 		return new String(decrypted);
 	}
@@ -86,7 +94,13 @@ public class Des3EncryptionProvider implements IEncryptionProvider {
 	 *					entropy source
 	 */
 	public void setEntropy(String param){
-		
+		if (param != null && param.length()>MIN_INITIALVECTOR_SIZE) {
+			logger.trace("using provided initial vector");
+			// convert passed string to ivBytes[]
+		} else {
+			logger.trace("using initial vector from applicationContext.xml");
+			// TODO get initial vector form applicationContext.xml
+		}
 	}
 
 }
