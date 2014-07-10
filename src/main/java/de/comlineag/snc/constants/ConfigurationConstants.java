@@ -4,7 +4,7 @@ package de.comlineag.snc.constants;
  * 
  * @author 		Christian Guenther
  * @category	helper class
- * @version 	0.2
+ * @version 	0.2		- 10.07.2014
  * @status		productive
  * 
  * @description provides constants for use by the Social Network crawler and parser. 

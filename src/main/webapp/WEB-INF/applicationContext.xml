@@ -328,18 +328,18 @@
 				<!-- ThreadPool -->
 				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
 				<!-- change this to the number of crawlers (see below) or the number of cores, whichever is higher -->
-				<prop key="org.quartz.threadPool.threadCount">1</prop>
+				<prop key="org.quartz.threadPool.threadCount">2</prop>
 			</props>
 		</property>
 		<property name="triggers">
 			<list>
 				<!-- activate each crawler you want and make sure to increase the threadCount above correspondingly -->
-				 <ref bean="TwitterCrawlerTrigger" />
+				<ref bean="TwitterCrawlerTrigger" />
 				<!--<ref bean="FacebookCrawlerTrigger"/>-->
 				<!--<ref bean="GoogleCrawlerTrigger"/> -->
 				<!--<ref bean="LinkedinCrawlerTrigger"/> -->
 				<!--<ref bean="FinanzforumCrawlerTrigger"/> -->
-				<!--  <ref bean="LithiumCrawlerTrigger" />  -->
+				<ref bean="LithiumCrawlerTrigger" />
 			</list>
 		</property>
 	</bean>

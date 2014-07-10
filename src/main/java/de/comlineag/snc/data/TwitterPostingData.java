@@ -6,16 +6,16 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
+import de.comlineag.snc.constants.GeneralDataDefinitions;
 import de.comlineag.snc.constants.SocialNetworks;
-import de.comlineag.snc.constants.DataConstants;
 import de.comlineag.snc.helper.DataHelper;
 
 /**
  * 
  * @author 		Christian Guenther, Magnus Leinemann
  * @category 	data type
- * @version 	1.3
- * @status		productive but some fields are missing
+ * @version 	0.9a		- 10.07.2014
+ * @status		productive (but some fields are missing)
  * 
  * @description Describes a single twitter posting with all relevant informations.
  *              The class shall be used to make all methods handling a twitter
@@ -38,17 +38,17 @@ import de.comlineag.snc.helper.DataHelper;
  *            "symbols" List
  *            "mentions" List
  * 
- * @changelog	0.1 class created
- * 				0.2 added all simple fields
- * 				0.3 added constant for social network
- * 				0.4 - 0.8 work on geo location - as of v1.1 still not implemented
- * 				0.9 skeleton for symbols, hashtags and mentions - as of v1.1 still not implemented
- * 				1.0 first productive version without geo location and hashtag, symbols, mentions
- * 				1.1 minor bugfixings
- * 				1.2 geo location services and datatypes are now in their own class TwitterLocationData
- * 				1.3 changed geo location to make use of simple class LocationData and added teaser as substring of post
- * 
- * TODO 1. implement hashtags, symbols and mentions
+ * @changelog	0.1 (Chris)		class created
+ * 				0.2 (Magnus)	added all simple fields
+ * 				0.3 (Chris)		added constant for social network
+ * 				0.4 (Magnus)	work on geo location
+ * 				0.5 			skeleton for symbols, hashtags and mentions - as of v1.1 still not implemented
+ * 				0.6 			first productive version without geo location and hashtag, symbols, mentions
+ * 				0.7 (Chris)		minor bugfixings
+ * 				0.8 			geo location services and datatypes are now in their own class TwitterLocationData
+ * 				0.9 			changed geo location to make use of simple class LocationData and added teaser as substring of post
+ * 				0.9a			field length on teaser and subject and stripping of html for text
+ * 				0.9b			Symbols, Hashtags and Mentions - yet to come
  * 
  */
 
@@ -68,50 +68,72 @@ public final class TwitterPostingData extends PostData {
 		logger.debug("constructing new subset of data of tweet (ID: " + jsonObject.get("id") + ") from twitter post-object");
 		logger.trace("  working on " + jsonObject.toString());
 		
-		// alles auf Null und die SocialNetworkID schon mal parken
+		// set all values to zero
 		initialize();
 
-		// ID des Posting
+		// posting ID 
 		setId((Long) jsonObject.get("id"));
-
+		
+		
 		// User ID
 		JSONObject user = (JSONObject) jsonObject.get("user");
 		setUserId((Long) user.get("id"));
 		
-		// Sprache
+		
+		// langauge
 		setLang((String) jsonObject.get("lang"));
-
-		// Timestamp als String und dann als Objekt fuer den oDATA Call
+		
+		
+		// Timestamp as a string and as an object for the oDATA call
 		setTime((String) jsonObject.get("created_at"));
 		setTimestamp(DataHelper.prepareLocalDateTime(getTime(), getSnId()));
 		
 		
-		// Flag gekuerzt....was auch immer damit dann passieren wird...
+		// Flag truncated - we can use this to indicate more text
 		setTruncated((Boolean) jsonObject.get("truncated"));
 		
 		
-		// Text des Post - also eigentlich kann der Fall, dass ein Twitter Posting größer als 5000, ist nicht eintreten, aber man weiss ja nie
-		if (jsonObject.get("text").toString().length() <= DataConstants.POSTING_TEXT_SIZE) {
+		// content of the posting, can either be stored with or without markup elements. 
+		if (GeneralDataDefinitions.TEXT_WITH_MARKUP) {
 			setText((String) jsonObject.get("text"));
+		} else {
+			setText((String) DataHelper.stripHTML(jsonObject.get("text")));
+		}
+		// content of the raw text of the posting, can either be stored with or without markup elements. 
+		if (GeneralDataDefinitions.RAW_TEXT_WITH_MARKUP) {
 			setRawText((String) jsonObject.get("text"));
 		} else {
-			setText((String) jsonObject.get("text").toString().substring(0, DataConstants.POSTING_TEXT_SIZE-3) + "...");
-			setRawText((String) jsonObject.get("text"));
-			setTruncated((Boolean) true);
+			setRawText((String) DataHelper.stripHTML(jsonObject.get("text")));
 		}
 		
-		// a teaser is created from the first 20 chars of the post
-		if (getText().length() <= DataConstants.TEASER_TEXT_SIZE)
+		
+		// a teaser is created from the first 256 chars of the post 
+		// the persistence layer can also truncate the teaser, in case field length is smaller
+		if (GeneralDataDefinitions.TEASER_WITH_MARKUP){
 			setTeaser(getText());
-		else
-			setTeaser(getText().substring(0,DataConstants.TEASER_TEXT_SIZE-3)+"...");
+		}else{
+			setTeaser((String) DataHelper.stripHTML(getText()));
+		}
+		if (getTeaser().length() > GeneralDataDefinitions.TEASER_MAX_LENGTH)
+			setTeaser(getTeaser().substring(0, GeneralDataDefinitions.TEASER_MAX_LENGTH-3)+"...");
 		
 		
-		// Metadaten zum Post:
-		// von wo erzeugt:
+		// a subject is created from the first 20 chars of the post 
+		// the persistence layer can also truncate the subject, in case field length is smaller
+		if (GeneralDataDefinitions.SUBJECT_WITH_MARKUP){
+			setSubject(getText());
+		}else{
+			setSubject((String) DataHelper.stripHTML(getText()));
+		}
+		if (getSubject().length() > GeneralDataDefinitions.SUBJECT_MAX_LENGTH)
+			setSubject(getSubject().substring(0, GeneralDataDefinitions.SUBJECT_MAX_LENGTH-3)+"...");
+		
+		
+		// what client posted the tweet - this is an url to possible clients on twitter
 		setClient((String) jsonObject.get("source"));
 		
-		// Information zu Reply
+		
+		// reply information
 		if (jsonObject.get("in_reply_to_status_id") != null)
 			setInReplyTo((Long) jsonObject.get("in_reply_to_status_id"));
 		if (jsonObject.get("in_reply_to_user_id") != null)
@@ -137,22 +159,8 @@ public final class TwitterPostingData extends PostData {
 			
 			setGeoLongitude(twPlace.getGeoLongitude());
 			setGeoLatitude(twPlace.getGeoLatitude());
-			
-			/*
-			try {
-				JSONParser parser = new JSONParser();
-				Object simpleGeoLocationObj = parser.parse(jsonObject.get("coordinates").toString());	
-				JSONObject jsonObj = simpleGeoLocationObj instanceof JSONObject ?(JSONObject) simpleGeoLocationObj : null;
-				String t = new String(jsonObj.get("coordinates").toString());
-				logger.trace("retrieved coordinates: " + t + " / lat: " + t.substring(1, t.indexOf(",")) + " / long: " +t.substring(t.indexOf(",")+1,t.length()-1));
-				setGeoLatitude(t.substring(1, t.indexOf(","))); 
-				setGeoLongitude(t.substring(t.indexOf(",")+1,t.length()-1));
-			} catch (ParseException e) {
-				logger.error("error parsing json coordinates object: " + e.getLocalizedMessage());
-				e.printStackTrace();
-			}
-			*/
 		}
+		
 		
 		/* 
 		 * geoLocation is filled from the users profile - a complex structure
@@ -252,6 +260,9 @@ public final class TwitterPostingData extends PostData {
 
 		text = null;
 		raw_text = null;
+		subject = null;
+		teaser = null;
+		
 		time = null;
 		lang = null;
 		

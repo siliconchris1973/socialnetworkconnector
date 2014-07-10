@@ -5,15 +5,15 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import de.comlineag.snc.constants.SocialNetworks;
-import de.comlineag.snc.constants.DataConstants;
+import de.comlineag.snc.constants.GeneralDataDefinitions;
 import de.comlineag.snc.helper.DataHelper;
 
 /**
  * 
  * @author 		Christian Guenther
  * @category 	data type
- * @version 	0.5
- * @status		productive but further improvements possible/needed
+ * @version 	0.6		- 10.07.2014
+ * @status		productive
  * 
  * @description Describes a single Lithium posting with all relevant informations. 
  * 				The class shall be used to make all methods handling a Lithium posting type save.
@@ -59,9 +59,9 @@ import de.comlineag.snc.helper.DataHelper;
  * 				0.3 			jump to first productive version
  * 				0.4 			added support to strip all html for text and created raw text
  * 				0.5				set the truncated flag, if posts are truncated due to length violation on MAX_NVARCHAR_SIZE
+ * 				0.6				changed field handling according to new constants from GeneralDataDefinitions
  * 
  * TODO 1. Add support for labels
- * TODO 2. find a better way to deal with field dimensions
  * TODO 3. find a new/better method to truncate html
  * TODO 4. check if we need to safe the thread from which the posting originated
  * 
@@ -193,7 +193,6 @@ public final class LithiumPostingData extends PostData {
 			setId((Long) jsonObjId.get("$"));
 			
 			
-			
 			// the user
 			// Structure: 
 			// 	{}author
@@ -207,7 +206,6 @@ public final class LithiumPostingData extends PostData {
 			
 			String userHref = jsonObjAuthor.get("href").toString().substring(jsonObjAuthor.get("href").toString().lastIndexOf('/') + 1); 
 			setUserId((Long.parseLong(userHref.trim())));
-			
 			
 			
 			// number of kudos (favorites count)
@@ -228,7 +226,6 @@ public final class LithiumPostingData extends PostData {
 			setFavoriteCount((long) jsonObjKudosTwo.get("$"));
 			
 			
-			
 			// number of views
 			// Structure: 
 			// 	{}views								
@@ -247,7 +244,6 @@ public final class LithiumPostingData extends PostData {
 			setViewCount((long) jsonObjViewsTwo.get("$"));
 			
 			
-			
 			// Timestamp as a string and as an objekt for the oDATA call
 			// Structure: 
 			// 	{}post_time
@@ -260,43 +256,24 @@ public final class LithiumPostingData extends PostData {
 			setTimestamp(DataHelper.prepareLocalDateTime(getTime(), getSnId()));
 			
 			
-			
 			// The posting itself
 			// Structure: 
-			//	{}body	
+			//	{}body
+			//		$ : ""
+			//		type : "string"
 			obj = parser.parse(jsonObject.get("body").toString());
 			JSONObject jsonObjText = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			// TODO CHANGE!!! this is a bad idea, better use TINYTEXT as data type in db insetad of a substring function in the crawler
-			if (jsonObjText.get("$").toString().length() > (DataConstants.POSTING_TEXT_SIZE-1)){
-				logger.trace("Posting with markup too long (has "+jsonObjText.get("$").toString().length()+" characters), stripping all html and truncating the raw text");
-				
-				// strip all HTML tags from the post 
-				setText(	(String) DataHelper.stripHTML	 (jsonObjText.get("$").toString()));
-				
-				//setRawText( (String) DataHelper.htmlTruncator(jsonObjText.get("$").toString() , (MAX_NVARCHAR_SIZE-1)));
-				setRawText((String) DataHelper.truncateHtmlWords(jsonObjText.get("$").toString().substring(0, (DataConstants.POSTING_TEXT_SIZE-5)), (DataConstants.POSTING_TEXT_SIZE-1)));
-				
-				// in case, after removing all html markups the text is still too long, truncate it
-				if (getText().length() > (DataConstants.POSTING_TEXT_SIZE-1)){
-					logger.warn("Attention, posting too long (has "+getText().length()+" characters), truncating to " + (DataConstants.POSTING_TEXT_SIZE -1) + " characters");
-					
-					// Flag to indicate that the post was truncated 
-					setTruncated((Boolean) true);
-					
-					setText(getText().substring(0, (DataConstants.POSTING_TEXT_SIZE-1)) );
-				} 
-				logger.trace("the remaining text now has " + getText().length() + " characters and the raw-text has " + getRawText().length() + " characters");
-				logger.trace("the raw-text now reads: \n    " + getRawText());
+			if (GeneralDataDefinitions.TEXT_WITH_MARKUP) {
+				setText(jsonObjText.get("$").toString());
 			} else {
-				// Flag to indicate that the post is stored completely
-				setTruncated((Boolean) false);
-				setText((String) DataHelper.stripHTML(jsonObjText.get("$")));
-				setRawText((String) jsonObjText.get("$"));
-				
-				logger.trace("the text has " + getText().length() + " characters and the raw-text has " + getRawText().length() + " characters");
+				setText((String) DataHelper.stripHTML(jsonObjText.get("$").toString()));
 			}
-			
+			if (GeneralDataDefinitions.RAW_TEXT_WITH_MARKUP) {
+				setRawText((jsonObjText.get("$").toString()));
+			} else {
+				setRawText((String) DataHelper.stripHTML(jsonObjText.get("$").toString()));
+			}
 			
 			
 			// a teaser can either be inserted by platform or it is created from the first 20 chars of the post
@@ -307,19 +284,46 @@ public final class LithiumPostingData extends PostData {
 			obj = parser.parse(jsonObject.get("teaser").toString());
 			JSONObject jsonObjTeaser = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			if (jsonObjTeaser.get("$").toString().length() > DataConstants.TEASER_TEXT_SIZE) {
-				setTeaser(jsonObjTeaser.get("$").toString().substring(0, DataConstants.TEASER_TEXT_SIZE-3) + "...");
+			if (jsonObjTeaser.get("$").toString().length() <= GeneralDataDefinitions.TEASER_MIN_LENGTH) {
+				if (GeneralDataDefinitions.TEASER_WITH_MARKUP){
+					setTeaser(getText());
+				}else{
+					setTeaser((String) DataHelper.stripHTML(getText()));
+				}
 			} else {
-				if (getTeaser().length() <= 3) {
-					if (getText().length() < DataConstants.TEASER_TEXT_SIZE) {
-						setTeaser(getText());
-					} else {
-						setTeaser(getText().substring(0,DataConstants.TEASER_TEXT_SIZE-3) + "...");
-					}
-				} else {
+				if (GeneralDataDefinitions.TEASER_WITH_MARKUP){
 					setTeaser((String) jsonObjTeaser.get("$"));
+				} else {
+					setTeaser((String) DataHelper.stripHTML(jsonObjTeaser.get("$")));
 				}
 			}
+			if (getTeaser().length() > GeneralDataDefinitions.TEASER_MAX_LENGTH)
+				setTeaser(getTeaser().substring(0, GeneralDataDefinitions.TEASER_MAX_LENGTH-3)+"...");
+			
+			
+			// a subject can either be inserted by platform or it is created from the first 20 chars of the post
+			// Structure: 
+			// 	{}subject
+			//		$ : ""
+			//		type : "string"
+			obj = parser.parse(jsonObject.get("subject").toString());
+			JSONObject jsonObjSubject = obj instanceof JSONObject ?(JSONObject) obj : null;
+			
+			if (jsonObjSubject.get("$").toString().length() <= GeneralDataDefinitions.SUBJECT_MIN_LENGTH) {
+				if (GeneralDataDefinitions.SUBJECT_WITH_MARKUP){
+					setSubject(getText());
+				}else{
+					setSubject((String) DataHelper.stripHTML(getText()));
+				}
+			} else {
+				if (GeneralDataDefinitions.SUBJECT_WITH_MARKUP){
+					setSubject((String) jsonObjSubject.get("$"));
+				} else {
+					setSubject((String) DataHelper.stripHTML(jsonObjSubject.get("$")));
+				}
+			}
+			if (getSubject().length() > GeneralDataDefinitions.SUBJECT_MAX_LENGTH)
+				setSubject(getSubject().substring(0, GeneralDataDefinitions.SUBJECT_MAX_LENGTH-3)+"...");
 			
 			
 			// in which board was the message posted - we use the client field for this value
