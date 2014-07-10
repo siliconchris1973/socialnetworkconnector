@@ -55,10 +55,12 @@ public final class TwitterParser extends GenericParser {
 			TwitterUser user = new TwitterUser(jsonUser);
 			users.add(user);
 			
-			// retweeted posts need to go in mesage array as well
-			//TODO check if retweeted REALLY is added
+			// retweeted posts need to go in message array as well
+			//TODO check if a retweeted message is REALLY added
 			JSONObject jsonReTweeted = (JSONObject) jsonTweetResource.get("retweeted_status");
 			if (jsonReTweeted != null) {
+				logger.debug("retweet found - adding to message queue");
+				logger.trace("    retweeted message: " + jsonReTweeted.toString());
 				postings.add(new TwitterPosting(jsonReTweeted));
 			}
 			
@@ -76,7 +78,7 @@ public final class TwitterParser extends GenericParser {
 			user.save();
 		}
 		
-		logger.debug("Twitter parser END");
+		logger.debug("Twitter parser END\n");
 	}
 
 	@Override

@@ -267,7 +267,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			logger.error("EXCEPTION :: Crawler Error: " + e.toString(), e);
 		}
 		
-		logger.info("Lithium-Crawler END");
+		logger.info("Lithium-Crawler END\n");
 	}
 	
 	

@@ -53,9 +53,9 @@ public class ConfigurationEncryptionHandler {
 	 */
 	public String decryptValue(String param) throws GenericEncryptionException {
 		if (param.length()>20)
-			logger.trace("decrypting "+param.substring(0, 20)+"... via " + configurationEncryptionProvider.getClass().getCanonicalName().toString());
+			logger.trace("decrypting "+param.substring(0, 20)+"... via " + configurationEncryptionProvider.getClass().getSimpleName());
 		else
-			logger.trace("decrypting "+param+" via " + configurationEncryptionProvider.getClass().getCanonicalName().toString());
+			logger.trace("decrypting "+param+" via " + configurationEncryptionProvider.getClass().getSimpleName());
 		return configurationEncryptionProvider.decryptValue(param);
 	}
 	
@@ -70,9 +70,9 @@ public class ConfigurationEncryptionHandler {
 	 */
 	public String encryptValue(String param) throws GenericEncryptionException {
 		if (param.length()>20)
-			logger.trace("encrypting "+param.substring(0, 20)+"... via " + configurationEncryptionProvider.getClass().getCanonicalName().toString());
+			logger.trace("encrypting "+param.substring(0, 20)+"... via " + configurationEncryptionProvider.getClass().getSimpleName());
 		else
-			logger.trace("encrypting "+param+" via " + configurationEncryptionProvider.getClass().getCanonicalName().toString());
+			logger.trace("encrypting "+param+" via " + configurationEncryptionProvider.getClass().getSimpleName());
 		return configurationEncryptionProvider.encryptValue(param);
 	}
 }

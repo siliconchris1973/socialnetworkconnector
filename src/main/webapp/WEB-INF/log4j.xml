@@ -68,7 +68,7 @@
 	
 	<!-- not fitting in any other category -->
 	<logger name="de.comlineag.snc">
-		<level value="trace"></level>
+		<level value="debug"></level>
 		<appender-ref ref="console" />
 		<appender-ref ref="fileA" />
 	</logger>

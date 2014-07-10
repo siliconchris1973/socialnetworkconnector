@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
 import de.comlineag.snc.constants.SocialNetworks;
+import de.comlineag.snc.constants.DataConstants;
 import de.comlineag.snc.helper.DataHelper;
 
 /**
@@ -83,20 +84,33 @@ public final class TwitterPostingData extends PostData {
 		// Timestamp als String und dann als Objekt fuer den oDATA Call
 		setTime((String) jsonObject.get("created_at"));
 		setTimestamp(DataHelper.prepareLocalDateTime(getTime(), getSnId()));
-
-		// Text des Post
-		setText((String) jsonObject.get("text"));
+		
+		
+		// Flag gekuerzt....was auch immer damit dann passieren wird...
+		setTruncated((Boolean) jsonObject.get("truncated"));
+		
+		
+		// Text des Post - also eigentlich kann der Fall, dass ein Twitter Posting größer als 5000, ist nicht eintreten, aber man weiss ja nie
+		if (jsonObject.get("text").toString().length() <= DataConstants.POSTING_TEXT_SIZE) {
+			setText((String) jsonObject.get("text"));
+			setRawText((String) jsonObject.get("text"));
+		} else {
+			setText((String) jsonObject.get("text").toString().substring(0, DataConstants.POSTING_TEXT_SIZE-3) + "...");
+			setRawText((String) jsonObject.get("text"));
+			setTruncated((Boolean) true);
+		}
 		
 		// a teaser is created from the first 20 chars of the post
-		setTeaser(getText().substring(0,20)+"...");
+		if (getText().length() <= DataConstants.TEASER_TEXT_SIZE)
+			setTeaser(getText());
+		else
+			setTeaser(getText().substring(0,DataConstants.TEASER_TEXT_SIZE-3)+"...");
+		
 		
 		// Metadaten zum Post:
 		// von wo erzeugt:
 		setClient((String) jsonObject.get("source"));
 		
-		// Flag gekuerzt....was auch immer damit dann passieren wird...
-		setTruncated((Boolean) jsonObject.get("truncated"));
-
 		// Information zu Reply
 		if (jsonObject.get("in_reply_to_status_id") != null)
 			setInReplyTo((Long) jsonObject.get("in_reply_to_status_id"));
@@ -233,9 +247,7 @@ public final class TwitterPostingData extends PostData {
 		// so I can check on initialized or not initialized values for the
 		// posting
 		id = 0;
-
-		// ACHTUNG, wenn die Klasse fuer Facebook u.a. kopiert wird,
-		// daa muss dieses Value natuerlich umgesetzt werden
+		
 		sn_id = SocialNetworks.TWITTER.getValue();
 
 		text = null;

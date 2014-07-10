@@ -18,6 +18,7 @@ package de.comlineag.snc.constants;
  * 
  */
 public enum SocialNetworks {
+	//enum		value	type
 	ALL			("AL", "All networks"),
 	UNKNOWN		("XY", "Unknown"),
 	TWITTER		("TW", "Twitter"), 
@@ -59,5 +60,13 @@ public enum SocialNetworks {
 				return name;
 		}
 		return SocialNetworks.UNKNOWN;
+	}
+	
+	public static String getNetworkTypeByValue(String value){
+		for (SocialNetworks type : SocialNetworks.values()) {
+			if(type.getValue().equals(value))
+				return type.getType();
+		}
+		return SocialNetworks.UNKNOWN.getType();
 	}
 }

@@ -29,7 +29,7 @@ import de.comlineag.snc.handler.TwitterParser;
  *
  * @author 		Christian Guenther
  * @category 	Job
- * @version		0.9
+ * @version		0.9a
  * @status		beta
  *
  * @description this is the actual crawler of the twitter network. It is
@@ -46,8 +46,8 @@ import de.comlineag.snc.handler.TwitterParser;
  * 				0.7 (Chris)			configuration is made dynamic
  *				0.8					added support for SocialNetwork specific configuration
  *				0.9					added constants for configuration retrieval
+ *				0.9a (Maic)			Fixed the "crawler stop and no clean restart" bug
  *
- * TODO 1. check why crawler is stopping and not restarting correctly when executed together with LithiumCrawler
  */
 public class TwitterCrawler extends GenericCrawler implements Job {
 
@@ -66,29 +66,28 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	private String smallLogMessage = "";
 
 	public TwitterCrawler() {
-
 		// Define message and event queue
 		msgQueue = new LinkedBlockingQueue<String>(TwitterConstants.MESSAGE_BLOCKING_QUEUE_SIZE);
 		eventQueue = new LinkedBlockingQueue<Event>(TwitterConstants.EVENT_BLOCKING_QUEUE_SIZE);
-
+		
 		// instantiate the Twitter-Posting-Manager
 		post = new TwitterParser();
 	}
-
+	
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// log the startup message
 		logger.info("Twitter-Crawler START");
-
+		
 		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
-
+		
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
 		logger.trace("retrieving restrictions from configuration db");
 		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, SocialNetworks.TWITTER);
 		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_LANGUAGE_TEXT, SocialNetworks.TWITTER);
 		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(ConfigurationConstants.CONSTRAINT_USER_TEXT, SocialNetworks.TWITTER);
 		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(ConfigurationConstants.CONSTRAINT_LOCATION_TEXT, SocialNetworks.TWITTER);
-
+		
 		// log output AND setup of the filter end point
 		if (tTerms.size()>0) {
 			smallLogMessage += "specific terms ";
@@ -106,14 +105,14 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			smallLogMessage += "specific Locations ";
 			endpoint.locations(tLocas);
 		}
-
+		
 		logger.info("new twitter crawler instantiated - restricted to track " + smallLogMessage);
-
+		
 		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_CLIENT_ID_KEY),
 											(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_CLIENT_SECRET_KEY),
 											(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_TOKEN_ID_KEY),
 											(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_TOKEN_SECRET_KEY));
-
+		
 		// Create a new BasicClient. By default gzip is enabled.
 		Client client = new ClientBuilder().hosts(Constants.STREAM_HOST).endpoint(endpoint).authentication(sn_Auth)
 				.processor(new StringDelimitedProcessor(msgQueue)).connectionTimeout(1000).build();
@@ -123,10 +122,11 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				client.connect();
 			} catch (Exception e) {
 				logger.error("EXCEPTION :: connecting to " + Constants.STREAM_HOST + " failed: " + e.getMessage(), e);
+				client.stop();
 			}
-
+			
 			logger.debug("crawler connection endpoint is " + Constants.STREAM_HOST + client.getEndpoint().getURI());
-
+			
 			// Do whatever needs to be done with messages
 			for (int msgRead = 0; msgRead < 1000; msgRead++) {
 				String msg = "";
@@ -138,16 +138,15 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 					logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
 				}
 				logger.info("New Tweet tracked from " + msg.substring(15, 45) + "...");
-				logger.trace("complete tweet: " + msg );
-
-				// Jede einzelne Message wird nun an den Parser TwitterParser
-				// (abgeleitet von GenericParser) uebergeben
+				logger.trace("   content: " + msg );
+				
+				// Jede einzelne Message wird nun an den Parser TwitterParser uebergeben
 				post.process(msg);
 			}
 		} catch (Exception e) {
 			logger.error("Error while processing messages", e);
 		}
 		client.stop();
-		logger.info("Twitter-Crawler END");
+		logger.info("Twitter-Crawler END\n");
 	}
 }

@@ -52,10 +52,13 @@ public class DataEncryptionHandler {
 	 *
 	 */
 	public String decryptValue(String param) throws GenericEncryptionException {
+		if (param == null)
+			return null;
+		
 		if (param.length()>20)
-			logger.trace("decrypting "+param.substring(0, 20)+"... via " + dataEncryptionProvider.getClass().getCanonicalName().toString());
+			logger.trace("in-stream decrypting \""+param.substring(0, 20)+"...\" via " + dataEncryptionProvider.getClass().getSimpleName());
 		else
-			logger.trace("decrypting "+param+" via " + dataEncryptionProvider.getClass().getCanonicalName().toString());
+			logger.trace("in-stream decrypting \""+param+"\" via " + dataEncryptionProvider.getClass().getSimpleName());
 		return dataEncryptionProvider.decryptValue(param);
 	}
 	
@@ -69,10 +72,13 @@ public class DataEncryptionHandler {
 	 *
 	 */
 	public String encryptValue(String param) throws GenericEncryptionException {
+		if (param == null)
+			return null;
+		
 		if (param.length()>20)
-			logger.trace("encrypting "+param.substring(0, 20)+"... via " + dataEncryptionProvider.getClass().getCanonicalName().toString());
+			logger.trace("in-stream encrypting \""+param.substring(0, 20)+"...\" via " + dataEncryptionProvider.getClass().getSimpleName());
 		else
-			logger.trace("encrypting "+param+" via " + dataEncryptionProvider.getClass().getCanonicalName().toString());
+			logger.trace("in-stream encrypting \""+param+"\" via " + dataEncryptionProvider.getClass().getSimpleName());
 		return dataEncryptionProvider.encryptValue(param);
 	}
 }

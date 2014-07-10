@@ -39,16 +39,16 @@ public class CrawlerConfiguration<T> extends GenericConfigurationManager {
 		
 	@SuppressWarnings("unchecked")
 	public ArrayList<T> getConstraint(String category, SocialNetworks SN) {
-		logger.trace("retrieving "+category+" configuration for " +SN+ " via " + configurationManager.getClass().getCanonicalName().toString());
+		logger.trace("retrieving "+category+" configuration for " +SN+ " via " + configurationManager.getClass().getSimpleName());
 		return (ArrayList<T>) configurationManager.getConstraint(category , SN);
 	}
 	
 	public String getConfigurationElement(String key, String path){
-		logger.trace("retrieving "+key+"  from " +path+ " via " + configurationManager.getClass().getCanonicalName().toString());
+		logger.trace("retrieving "+key+"  from " +path+ " via " + configurationManager.getClass().getSimpleName());
 		return configurationManager.getConfigurationElement(key, path);
 	}
 	public void setConfigurationElement(String key, String value, String path){
-		logger.trace("setting "+key+" = "+value+" at " +path+ " via " + configurationManager.getClass().getCanonicalName().toString());
+		logger.trace("setting "+key+" = "+value+" at " +path+ " via " + configurationManager.getClass().getSimpleName());
 		configurationManager.setConfigurationElement(key, value, path);
 	}
 	public void writeNewConfiguration(String xml){
