@@ -9,7 +9,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  * @author 		Christian Guenther, Magnus Leinemann
  * @category 	data type
- * @version 	0.2		- 10.07.2014
+ * @version 	0.2a		- 10.07.2014
  * @status		productive
  * 
  * @description Describes a single twitter user with all relevant informations.
@@ -31,6 +31,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  *            
  * @changelog	0.1 (Magnus)	class created
  * 				0.2 (Chris)		added support for counters
+ * 				0.2a 			moved variable initialization into method initialize
  * 
  */
 
@@ -46,20 +47,9 @@ public final class TwitterUserData extends UserData {
 	public TwitterUserData(JSONObject jsonObject) {
 		logger.debug("constructing new subset of data of user (TW-"  + jsonObject.get("id") + ") from twitter user-object");
 		
-		// setting everything to 0 or null default value.
-		// so I can check on initialized or not initialized values for the
-		// posting
-		id = 0;
-		sn_id = SocialNetworks.TWITTER.getValue();
-		username = null;
-		screen_name = null;
-		lang = null;
-		geoLocation = null;
-		followers_count = 0;
-		friends_count = 0;
-		postings_count = 0;
-		favorites_count = 0;
-		lists_and_groups_count = 0;
+		// set all values to zero
+		initialize();
+		
 		try {
 			setId((Long) jsonObject.get("id"));
 			setUsername((String) jsonObject.get("name"));
@@ -86,5 +76,22 @@ public final class TwitterUserData extends UserData {
 			logger.error("EXCEPTION :: during parsing of json twitter user-object " + e.getLocalizedMessage());
 			e.printStackTrace();
 		}
+	}
+
+	private void initialize() {
+		// setting everything to 0 or null default value.
+		// so I can check on initialized or not initialized values for the
+		// posting
+		id = 0;
+		sn_id = SocialNetworks.TWITTER.getValue();
+		username = null;
+		screen_name = null;
+		lang = null;
+		geoLocation = null;
+		followers_count = 0;
+		friends_count = 0;
+		postings_count = 0;
+		favorites_count = 0;
+		lists_and_groups_count = 0;	
 	}
 }
