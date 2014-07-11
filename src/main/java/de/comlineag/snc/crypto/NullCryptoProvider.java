@@ -12,7 +12,7 @@ package de.comlineag.snc.crypto;
  * @changelog	0.1 (Chris)		initial version
  * 
  */
-public class NullEncryptionProvider implements IEncryptionProvider {
+public class NullCryptoProvider implements ICryptoProvider {
 
 	/**
 	 * @description just returns a given string 
@@ -21,7 +21,7 @@ public class NullEncryptionProvider implements IEncryptionProvider {
 	 * @return 		String
 	 *
 	 */
-	public String decryptValue(String param) throws GenericEncryptionException {
+	public String decryptValue(String param) throws GenericCryptoException {
 		return param;
 	}
 

@@ -18,14 +18,14 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.log4j.Logger;
 
 import de.comlineag.snc.constants.ConfigurationConstants;
-import de.comlineag.snc.constants.EncryptionProvider;
+import de.comlineag.snc.constants.CryptoProvider;
 import de.comlineag.snc.constants.HttpErrorMessages;
-import de.comlineag.snc.constants.HttpStatusCode;
+import de.comlineag.snc.constants.HttpStatusCodes;
 import de.comlineag.snc.constants.LithiumConstants;
 import de.comlineag.snc.constants.LithiumStatusCode;
 import de.comlineag.snc.constants.SocialNetworks;
-import de.comlineag.snc.crypto.GenericEncryptionException;
-import de.comlineag.snc.handler.ConfigurationEncryptionHandler;
+import de.comlineag.snc.crypto.GenericCryptoException;
+import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.CrawlerConfiguration;
 import de.comlineag.snc.handler.GenericCrawlerException;
 import de.comlineag.snc.handler.LithiumParser;
@@ -57,7 +57,7 @@ import de.comlineag.snc.handler.LithiumUser;
  *				0.9				added support for SocialNetwork specific configuration
  *				1.0 			implemented proper json error handling
  *				1.1 			added configuration constants
- *				1.1a			moved Base64EncryptionProvider in its own class
+ *				1.1a			moved Base64CryptoProvider in its own class
  *				1.1b			added support for different encryption provider, the actual one is set in applicationContext.xml 
  *
  * TODO 1. change the double for-loop through sites and search terms to a more sophisticated solution
@@ -68,7 +68,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private ConfigurationEncryptionHandler configurationEncryptionProvider = new ConfigurationEncryptionHandler();
+	private ConfigurationCryptoHandler configurationEncryptionProvider = new ConfigurationCryptoHandler();
 
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
@@ -92,16 +92,16 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		@SuppressWarnings("unused")
 		String _passwd = null;
 		
-		// this is just example code to show, how to interact with the EncryptionProvider enum
+		// this is just example code to show, how to interact with the CryptoProvider enum
 		String desiredStrength = "low";
-		EncryptionProvider encryptionProviderToUse = EncryptionProvider.getEncryptionProvider(desiredStrength);
+		CryptoProvider encryptionProviderToUse = CryptoProvider.getEncryptionProvider(desiredStrength);
 		logger.trace("determined " + encryptionProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
 		
 		try {
 			logger.trace("decrypting authorization details from job control");
 			_user = configurationEncryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
 			_passwd = configurationEncryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
-		} catch (GenericEncryptionException e) {
+		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: value for user or passwd is NOT base64 encrypted " + e.toString(), e);
 			System.exit(-1);
 		}
@@ -116,7 +116,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		final String REST_API_URL = PROTOCOL + "://" + SERVER_URL + ":" + PORT + REST_API_LOC;
 		
 		// this is the status code for the http connection
-		HttpStatusCode httpStatusCode = null;
+		HttpStatusCodes httpStatusCodes = null;
 		// and this the status code as coded within the json response
 		LithiumStatusCode jsonStatusCode = null;
 		
@@ -178,16 +178,16 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 					PostMethod method = new PostMethod(postEndpoint );
 					method.addParameter(LithiumConstants.HTTP_RESPONSE_FORMAT_COMMAND, LithiumConstants.HTTP_RESPONSE_FORMAT);
 					method.addParameter(LithiumConstants.SEARCH_TERM, searchTerm);
-					httpStatusCode = HttpStatusCode.getHttpStatusCode(client.executeMethod(method));
-					if (!httpStatusCode.isOk()){
-						if (httpStatusCode == HttpStatusCode.FORBIDDEN){
-							logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCode.getErrorCode()));
+					httpStatusCodes = HttpStatusCodes.getHttpStatusCode(client.executeMethod(method));
+					if (!httpStatusCodes.isOk()){
+						if (httpStatusCodes == HttpStatusCodes.FORBIDDEN){
+							logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
 						} else {
-							logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCode.getErrorCode()) + " could not connect to " + postEndpoint);
+							logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()) + " could not connect to " + postEndpoint);
 						}
 					} else {
 						// ONLY and ONLY if the http connection was successfull, we should even try to decode a response json
-						logger.debug("http connection established (status is " + httpStatusCode + ")");
+						logger.debug("http connection established (status is " + httpStatusCodes + ")");
 						
 						// now get the json and check on that
 						String jsonString = method.getResponseBodyAsString();
@@ -286,7 +286,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	 * 
 	 */
 	private JSONObject SendObjectRequest(String objectRef, String REST_API_URL, String jsonObjectIdentifier) {
-		HttpStatusCode httpStatusCode = null;
+		HttpStatusCodes httpStatusCodes = null;
 		LithiumStatusCode jsonStatusCode = null;
 		
 		try {
@@ -295,17 +295,17 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			
 			PostMethod method = new PostMethod(REST_API_URL+objectRef);
 			method.addParameter(LithiumConstants.HTTP_RESPONSE_FORMAT_COMMAND, LithiumConstants.HTTP_RESPONSE_FORMAT);
-			httpStatusCode = HttpStatusCode.getHttpStatusCode(client.executeMethod(method));
+			httpStatusCodes = HttpStatusCodes.getHttpStatusCode(client.executeMethod(method));
 			String jsonString = method.getResponseBodyAsString();
 			
-			if (!httpStatusCode.isOk()){
-				if (httpStatusCode == HttpStatusCode.FORBIDDEN){
-					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCode.getErrorCode()));
+			if (!httpStatusCodes.isOk()){
+				if (httpStatusCodes == HttpStatusCodes.FORBIDDEN){
+					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
 				} else {
-					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCode.getErrorCode())+" could not connect to " + REST_API_URL);
+					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode())+" could not connect to " + REST_API_URL);
 				}
 			} else {
-				logger.trace("http connection established (status is " + httpStatusCode + ")");
+				logger.trace("http connection established (status is " + httpStatusCodes + ")");
 			}	
 			
 			logger.trace("our " + jsonObjectIdentifier + " json within SendObjectRequest: " + jsonString);

@@ -18,7 +18,7 @@ import org.apache.http.HttpResponse;
  * 				0.2 			query on whether a status code is ok or not
  * 
  */
-public enum HttpStatusCode {
+public enum HttpStatusCodes {
 	UNKNOWN 						(-1												, false),
 	ACCEPTED						(HttpStatus.SC_ACCEPTED							, true),		// 202
 	BAD_GATEWAY						(HttpStatus.SC_BAD_GATEWAY						, false), 		// 502
@@ -51,7 +51,7 @@ public enum HttpStatusCode {
 	private final int value;
 	private final boolean name;
 
-	private HttpStatusCode(int value, boolean name) {
+	private HttpStatusCodes(int value, boolean name) {
 		this.value = value;
 		this.name = name;
 
@@ -65,16 +65,16 @@ public enum HttpStatusCode {
 		return value;
 	}
 
-	public static HttpStatusCode getHttpStatusCode(int errorCode){
-		for (HttpStatusCode code : HttpStatusCode.values()) {
+	public static HttpStatusCodes getHttpStatusCode(int errorCode){
+		for (HttpStatusCodes code : HttpStatusCodes.values()) {
 			if(code.getErrorCode() == errorCode)
 				return code;
 		}
-		return HttpStatusCode.UNKNOWN;
+		return HttpStatusCodes.UNKNOWN;
 	}
 
-	public static HttpStatusCode getHttpStatusCode(HttpResponse execute) {
+	public static HttpStatusCodes getHttpStatusCode(HttpResponse execute) {
 		System.out.println("all my headers: " + execute.getAllHeaders().toString());
-		return HttpStatusCode.UNKNOWN;
+		return HttpStatusCodes.UNKNOWN;
 	}
 }

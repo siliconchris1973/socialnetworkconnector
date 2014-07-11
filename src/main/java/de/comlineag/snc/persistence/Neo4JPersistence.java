@@ -14,12 +14,12 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
 import de.comlineag.snc.constants.HttpErrorMessages;
-import de.comlineag.snc.constants.HttpStatusCode;
+import de.comlineag.snc.constants.HttpStatusCodes;
 import de.comlineag.snc.constants.Neo4JConstants;
 import de.comlineag.snc.constants.RelationshipTypes;
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
-import de.comlineag.snc.handler.ConfigurationEncryptionHandler;
+import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.neo4j.Relation;
 import de.comlineag.snc.neo4j.TraversalDefinition;
 import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
@@ -81,7 +81,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private ConfigurationEncryptionHandler configurationEncryptionProvider = new ConfigurationEncryptionHandler();
+	private ConfigurationCryptoHandler configurationEncryptionProvider = new ConfigurationCryptoHandler();
 		
 	public Neo4JPersistence() {
 		// initialize the necessary variables from applicationContext.xml for server connection
@@ -171,7 +171,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 				
 				mPost.setRequestEntity(requestEntity);
 				int status = client.executeMethod(mPost);
-				HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(status);
+				HttpStatusCodes statusCode = HttpStatusCodes.getHttpStatusCode(status);
 				
 				// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
 				if (!statusCode.isOk()){
@@ -251,7 +251,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	
 				mPost.setRequestEntity(requestEntity);
 				int status = client.executeMethod(mPost);
-				HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(status);
+				HttpStatusCodes statusCode = HttpStatusCodes.getHttpStatusCode(status);
 				
 				// in case everything is fine, neo4j should return 200. any other case needs to be investigated
 				if (!statusCode.isOk()){
@@ -335,7 +335,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 		try {	
 			mPost.setRequestEntity(requestEntity);
 			int status = client.executeMethod(mPost);
-			HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(status);
+			HttpStatusCodes statusCode = HttpStatusCodes.getHttpStatusCode(status);
 			
 			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
 			if (!statusCode.isOk()){
@@ -418,7 +418,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 		try {	
 			mPost.setRequestEntity(requestEntity);
 			int status = client.executeMethod(mPost);
-			HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(status);
+			HttpStatusCodes statusCode = HttpStatusCodes.getHttpStatusCode(status);
 			
 			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
 			if (!statusCode.isOk()){
@@ -476,7 +476,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 		try {	
 			mPost.setRequestEntity(requestEntity);
 			int status = client.executeMethod(mPost);
-			HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(status);
+			HttpStatusCodes statusCode = HttpStatusCodes.getHttpStatusCode(status);
 			
 			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
 			if (!statusCode.isOk()){
@@ -648,17 +648,17 @@ public class Neo4JPersistence implements IPersistenceManager {
 	/**
 	 * @description returns the server status
 	 */
-	public HttpStatusCode getServerStatus(){
+	public HttpStatusCodes getServerStatus(){
 		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
 		nodePointUrl = dbServerUrl + this.location + Neo4JConstants.NODE_LOC;
 
 		// initialize the return value and whether this is acceptable or not.
-		HttpStatusCode status = HttpStatusCode.UNKNOWN;
+		HttpStatusCodes status = HttpStatusCodes.UNKNOWN;
 
         try{
 	        HttpClient client = new HttpClient();
 	        GetMethod mGet =   new GetMethod(dbServerUrl);
-	        status = HttpStatusCode.getHttpStatusCode(client.executeMethod(mGet));
+	        status = HttpStatusCodes.getHttpStatusCode(client.executeMethod(mGet));
 	        
 	        if (!status.isOk()){
 	        	logger.warn(HttpErrorMessages.getHttpErrorText(status.getErrorCode()));

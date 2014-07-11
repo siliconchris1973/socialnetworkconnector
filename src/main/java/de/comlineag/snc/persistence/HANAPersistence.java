@@ -12,11 +12,11 @@ import org.odata4j.core.OEntity;
 import org.odata4j.core.OProperties;
 
 import de.comlineag.snc.constants.SocialNetworks;
-import de.comlineag.snc.crypto.GenericEncryptionException;
+import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
-import de.comlineag.snc.handler.ConfigurationEncryptionHandler;
-import de.comlineag.snc.handler.DataEncryptionHandler;
+import de.comlineag.snc.handler.ConfigurationCryptoHandler;
+import de.comlineag.snc.handler.DataCryptoHandler;
 import de.comlineag.snc.helper.DataHelper;
 import de.comlineag.snc.constants.HanaDataConstants;
 
@@ -75,9 +75,9 @@ public class HANAPersistence implements IPersistenceManager {
 	
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private ConfigurationEncryptionHandler configurationEncryptionProvider = new ConfigurationEncryptionHandler();
+	private ConfigurationCryptoHandler configurationEncryptionProvider = new ConfigurationCryptoHandler();
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private DataEncryptionHandler dataEncryptionProvider = new DataEncryptionHandler();
+	private DataCryptoHandler dataEncryptionProvider = new DataCryptoHandler();
 
 	
 	public HANAPersistence() {}
@@ -114,7 +114,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * 				<Property Name="plAround_longitude" Type="Edm.String" MaxLength="40"/>
 	 * 				<Property Name="plAround_latitude" Type="Edm.String" MaxLength="40"/>
 	 * 
-	 * @throws GenericEncryptionException 
+	 * @throws GenericCryptoException 
 	 * 
 	 */
 	public void savePosts(PostData postData) {
@@ -219,7 +219,7 @@ public class HANAPersistence implements IPersistenceManager {
 			try {
 				user = configurationEncryptionProvider.decryptValue(this.user);
 				password = configurationEncryptionProvider.decryptValue(this.pass);
-			} catch (GenericEncryptionException e) {
+			} catch (GenericCryptoException e) {
 				logger.error("EXCEPTION :: could not decrypt user and/or password" + e.getMessage(), e);
 			}
             
@@ -295,7 +295,7 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (SQLException le){
 			logger.error("EXCEPTION :: JDBC call failed, post ("+postData.getSnId()+"-"+postData.getId()+") not inserted " + le.getLocalizedMessage());
 			le.printStackTrace();
-		} catch (GenericEncryptionException e) {
+		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with "+ dataEncryptionProvider.getClass().getSimpleName() + e.getMessage(), e);
 		}
 	}
@@ -325,7 +325,7 @@ public class HANAPersistence implements IPersistenceManager {
 				ODataConsumer.Builder builder = ODataConsumer.newBuilder(postURI);
 				builder.setClientBehaviors(bAuth);
 				postService = builder.build();
-			} catch (GenericEncryptionException e) {
+			} catch (GenericCryptoException e) {
 				logger.error("EXCEPTION :: could not decrypt user and/or password. " + e.getMessage(), e);
 			}
 		}
@@ -381,7 +381,7 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (RuntimeException e) {
 			logger.error("EXCEPTION :: could not create post ("+postData.getSnId()+"-"+postData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
-		} catch (GenericEncryptionException e) {
+		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataEncryptionProvider.getClass().getSimpleName() + e.getMessage(), e);
 		}
 	}
@@ -407,7 +407,7 @@ public class HANAPersistence implements IPersistenceManager {
 			try {
 				user = configurationEncryptionProvider.decryptValue(this.user);
 				password = configurationEncryptionProvider.decryptValue(this.pass);
-			} catch (GenericEncryptionException e) {
+			} catch (GenericCryptoException e) {
 				logger.error("EXCEPTION :: could not decrypt user and/or password" + e.getMessage(), e);
 			}
             
@@ -454,7 +454,7 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (SQLException le){
 			logger.error("EXCEPTION :: JDBC call failed, user ("+userData.getSnId()+"-"+userData.getId()+") not inserted " + le.getLocalizedMessage());
 			le.printStackTrace();
-		} catch (GenericEncryptionException e) {
+		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataEncryptionProvider.getClass().getSimpleName() + e.getMessage(), e);
 		}
 	}
@@ -481,7 +481,7 @@ public class HANAPersistence implements IPersistenceManager {
 				ODataConsumer.Builder builder = ODataConsumer.newBuilder(userURI);
 				builder.setClientBehaviors(bAuth);
 				userService = builder.build();
-			} catch (GenericEncryptionException e) {
+			} catch (GenericCryptoException e) {
 				logger.error("EXCEPTION :: could not decrypt user and/or password. " + e.getMessage(), e);
 			}
 		}
@@ -521,7 +521,7 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (RuntimeException e) {
 			logger.error("ERROR :: Could not create user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
-		} catch (GenericEncryptionException e) {
+		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataEncryptionProvider.getClass().getSimpleName() + e.getMessage(), e);
 		}
 	}
@@ -551,7 +551,7 @@ public class HANAPersistence implements IPersistenceManager {
 			try {
 				user = configurationEncryptionProvider.decryptValue(this.user);
 				password = configurationEncryptionProvider.decryptValue(this.pass);
-			} catch (GenericEncryptionException e) {
+			} catch (GenericCryptoException e) {
 				logger.error("EXCEPTION :: could not decrypt user and/or password with " + configurationEncryptionProvider.getClass().getSimpleName() + e.getMessage(), e);
 			}
             
@@ -622,7 +622,7 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (SQLException le){
 			logger.error("EXCEPTION :: JDBC call failed, post ("+postData.getSnId()+"-"+postData.getId()+") not inserted " + le.getLocalizedMessage());
 			le.printStackTrace();
-		} catch (GenericEncryptionException e) {
+		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataEncryptionProvider.getClass().getSimpleName() + e.getMessage(), e);
 		}
 	}
@@ -654,7 +654,7 @@ public class HANAPersistence implements IPersistenceManager {
 				builder.setClientBehaviors(bAuth);
 				postService = builder.build();
 				
-			} catch (GenericEncryptionException e) {
+			} catch (GenericCryptoException e) {
 				logger.error("EXCEPTION :: could not decrypt user and/or password with " + configurationEncryptionProvider.getClass().getSimpleName() + e.getMessage(), e);
 			}
 		}
@@ -708,7 +708,7 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (RuntimeException e) {
 			logger.error("EXCEPTION :: could not update post ("+postData.getSnId()+"-"+postData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
-		} catch (GenericEncryptionException e) {
+		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataEncryptionProvider.getClass().getSimpleName() + e.getMessage(), e);
 		}
 	}
@@ -734,7 +734,7 @@ public class HANAPersistence implements IPersistenceManager {
 			try {
 				user = configurationEncryptionProvider.decryptValue(this.user);
 				password = configurationEncryptionProvider.decryptValue(this.pass);
-			} catch (GenericEncryptionException e) {
+			} catch (GenericCryptoException e) {
 				logger.error("EXCEPTION :: could not decrypt user and/or password with " + configurationEncryptionProvider.getClass().getSimpleName() + e.getMessage(), e);
 			}
             
@@ -780,7 +780,7 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (SQLException le){
 			logger.error("EXCEPTION :: JDBC call failed, user ("+userData.getSnId()+"-"+userData.getId()+") not inserted " + le.getLocalizedMessage());
 			le.printStackTrace();
-		} catch (GenericEncryptionException e) {
+		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataEncryptionProvider.getClass().getSimpleName() + e.getMessage(), e);
 		}
 	}
@@ -807,7 +807,7 @@ public class HANAPersistence implements IPersistenceManager {
 				ODataConsumer.Builder builder = ODataConsumer.newBuilder(userURI);
 				builder.setClientBehaviors(bAuth);
 				userService = builder.build();
-			} catch (GenericEncryptionException e) {
+			} catch (GenericCryptoException e) {
 				logger.error("EXCEPTION :: could not decrypt user and/or password with " + configurationEncryptionProvider.getClass().getSimpleName() + e.getMessage(), e);
 			}
 		}
@@ -843,7 +843,7 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (RuntimeException e) {
 			logger.error("ERROR :: Could not update user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
-		} catch (GenericEncryptionException e) {
+		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataEncryptionProvider.getClass().getSimpleName() + e.getMessage(), e);
 		}
 	}
@@ -988,7 +988,7 @@ public class HANAPersistence implements IPersistenceManager {
 			_user = configurationEncryptionProvider.decryptValue(this.user);
 			_pw = configurationEncryptionProvider.decryptValue(this.pass);
 			bAuth = new BasicAuthenticationBehavior(_user, _pw);
-		} catch (GenericEncryptionException e) {
+		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not decrpt values for user and passowrd " + e.getMessage());
 			return null;
 		}

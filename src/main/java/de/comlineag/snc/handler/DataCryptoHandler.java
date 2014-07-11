@@ -2,10 +2,10 @@ package de.comlineag.snc.handler;
 
 import org.apache.log4j.Logger;
 
-import de.comlineag.snc.constants.EncryptionProvider;
+import de.comlineag.snc.constants.CryptoProvider;
 import de.comlineag.snc.constants.SocialNetworks;
-import de.comlineag.snc.crypto.GenericEncryptionException;
-import de.comlineag.snc.crypto.IEncryptionProvider;
+import de.comlineag.snc.crypto.GenericCryptoException;
+import de.comlineag.snc.crypto.ICryptoProvider;
 import de.comlineag.snc.persistence.AppContext;
 
 /**
@@ -21,18 +21,18 @@ import de.comlineag.snc.persistence.AppContext;
  * 				0.2				deleted methods for set/getEntropy
  * 
  */
-public class DataEncryptionHandler { 
+public class DataCryptoHandler { 
 	
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
 		
-	protected IEncryptionProvider dataEncryptionProvider;
+	protected ICryptoProvider dataEncryptionProvider;
 	protected SocialNetworks sourceSocialNetwork;							// currently not used
-	protected EncryptionProvider sourceEncryptionProvider;					// currently not used
+	protected CryptoProvider sourceEncryptionProvider;					// currently not used
 	
 	
-	public DataEncryptionHandler() {
-		dataEncryptionProvider = (IEncryptionProvider) AppContext.Context.getBean("dataEncryptionProvider");
+	public DataCryptoHandler() {
+		dataEncryptionProvider = (ICryptoProvider) AppContext.Context.getBean("dataEncryptionProvider");
 	}
 	
 	@SuppressWarnings("unused")
@@ -48,10 +48,10 @@ public class DataEncryptionHandler {
 	 *					the value to decrypt
 	 * @return 		String
 	 * 					the return value as clear text
-	 * @throws GenericEncryptionException 
+	 * @throws GenericCryptoException 
 	 *
 	 */
-	public String decryptValue(String param) throws GenericEncryptionException {
+	public String decryptValue(String param) throws GenericCryptoException {
 		if (param == null)
 			return null;
 		
@@ -71,7 +71,7 @@ public class DataEncryptionHandler {
 	 * 					the return value as encrypted text
 	 *
 	 */
-	public String encryptValue(String param) throws GenericEncryptionException {
+	public String encryptValue(String param) throws GenericCryptoException {
 		if (param == null)
 			return null;
 		

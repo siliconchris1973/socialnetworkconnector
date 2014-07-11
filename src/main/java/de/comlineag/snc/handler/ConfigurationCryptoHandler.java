@@ -2,10 +2,10 @@ package de.comlineag.snc.handler;
 
 import org.apache.log4j.Logger;
 
-import de.comlineag.snc.constants.EncryptionProvider;
+import de.comlineag.snc.constants.CryptoProvider;
 import de.comlineag.snc.constants.SocialNetworks;
-import de.comlineag.snc.crypto.GenericEncryptionException;
-import de.comlineag.snc.crypto.IEncryptionProvider;
+import de.comlineag.snc.crypto.GenericCryptoException;
+import de.comlineag.snc.crypto.ICryptoProvider;
 import de.comlineag.snc.persistence.AppContext;
 
 /**
@@ -21,18 +21,18 @@ import de.comlineag.snc.persistence.AppContext;
  * 				0.2				deleted methods for set/getEntropy
  * 
  */
-public class ConfigurationEncryptionHandler { 
+public class ConfigurationCryptoHandler { 
 	
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
 		
-	protected IEncryptionProvider configurationEncryptionProvider;
+	protected ICryptoProvider configurationEncryptionProvider;
 	protected SocialNetworks sourceSocialNetwork;							// currently not used
-	protected EncryptionProvider sourceEncryptionProvider;					// currently not used
+	protected CryptoProvider sourceEncryptionProvider;					// currently not used
 	
 	
-	public ConfigurationEncryptionHandler() {
-		configurationEncryptionProvider = (IEncryptionProvider) AppContext.Context.getBean("configurationEncryptionProvider");
+	public ConfigurationCryptoHandler() {
+		configurationEncryptionProvider = (ICryptoProvider) AppContext.Context.getBean("configurationEncryptionProvider");
 	}
 	
 	@SuppressWarnings("unused")
@@ -48,10 +48,10 @@ public class ConfigurationEncryptionHandler {
 	 *					the value to decrypt
 	 * @return 		String
 	 * 					the return value as clear text
-	 * @throws GenericEncryptionException 
+	 * @throws GenericCryptoException 
 	 *
 	 */
-	public String decryptValue(String param) throws GenericEncryptionException {
+	public String decryptValue(String param) throws GenericCryptoException {
 		if (param.length()>20)
 			logger.trace("decrypting "+param.substring(0, 20)+"... via " + configurationEncryptionProvider.getClass().getSimpleName());
 		else
@@ -68,7 +68,7 @@ public class ConfigurationEncryptionHandler {
 	 * 					the return value as encrypted text
 	 *
 	 */
-	public String encryptValue(String param) throws GenericEncryptionException {
+	public String encryptValue(String param) throws GenericCryptoException {
 		if (param.length()>20)
 			logger.trace("encrypting "+param.substring(0, 20)+"... via " + configurationEncryptionProvider.getClass().getSimpleName());
 		else

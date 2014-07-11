@@ -23,10 +23,10 @@ import org.apache.log4j.Logger;
 import com.twitter.hbc.core.endpoint.Location;
 
 import de.comlineag.snc.constants.ConfigurationConstants;
-import de.comlineag.snc.constants.HttpStatusCode;
+import de.comlineag.snc.constants.HttpStatusCodes;
 import de.comlineag.snc.constants.SocialNetworks;
-import de.comlineag.snc.crypto.GenericEncryptionException;
-import de.comlineag.snc.handler.ConfigurationEncryptionHandler;
+import de.comlineag.snc.crypto.GenericCryptoException;
+import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.CrawlerConfiguration;
 import de.comlineag.snc.handler.FacebookParser;
 
@@ -53,7 +53,7 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private ConfigurationEncryptionHandler configurationEncryptionProvider = new ConfigurationEncryptionHandler();
+	private ConfigurationCryptoHandler configurationEncryptionProvider = new ConfigurationCryptoHandler();
 
 	// Set up your blocking queues: Be sure to size these properly based on
 	// expected TPS of your stream
@@ -83,7 +83,7 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		try {
 			_user = configurationEncryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
 			_passwd = configurationEncryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
-		} catch (GenericEncryptionException e) {
+		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: value for user or passwd is NOT base64 encrypted " + e.toString(), e);
 			System.exit(-1);
 		}
@@ -210,7 +210,7 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		writer.close();
 		out.close();
 		
-		HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
+		HttpStatusCodes statusCode = HttpStatusCodes.getHttpStatusCode(conn.getResponseCode());
 		
 		if (!statusCode.isOk()) {
 			throw new IOException(conn.getResponseMessage());
@@ -241,7 +241,7 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		HttpURLConnection conn =
 				(HttpURLConnection) url.openConnection();
 		
-		HttpStatusCode statusCode = HttpStatusCode.getHttpStatusCode(conn.getResponseCode());
+		HttpStatusCodes statusCode = HttpStatusCodes.getHttpStatusCode(conn.getResponseCode());
 		
 		if (!statusCode.isOk()) {
 			throw new IOException(conn.getResponseMessage());

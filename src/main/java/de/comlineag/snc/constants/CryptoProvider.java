@@ -17,19 +17,19 @@ package de.comlineag.snc.constants;
  * 				0.3				changed name of cryptographic providers according to class names 
  * 
  */
-public enum EncryptionProvider {
+public enum CryptoProvider {
 //	enum code			name							int / String encryptionGrade/Strength	
-	NONE 				("NullEncryptionProvider", 		0,	"none"),	// implemented
-	BASE64				("Base64EncryptionProvider", 	1,	"low"),		// implemented
-	DES					("DesEncryptionProvider", 		2,	"medium"),	// in development
+	NONE 				("NullCryptoProvider", 		0,	"none"),	// implemented
+	BASE64				("Base64CryptoProvider", 	1,	"low"),		// implemented
+	DES					("DesCryptoProvider", 		2,	"medium"),	// in development
 	DES3				("TripleDesEncryptionProvider", 3,	"good"),	// 
-	AES					("AesEncryptionProvider", 		4,	"best");	// 
+	AES					("AesCryptoProvider", 		4,	"best");	// 
 	
 	private final String name;
 	private final int encryptionGrade;
 	private final String encryptionStrength;
 	
-	private EncryptionProvider(String name, int encryptionGrade, String encryptionStrength) {
+	private CryptoProvider(String name, int encryptionGrade, String encryptionStrength) {
 		this.name = name;
 		this.encryptionGrade = encryptionGrade;
 		this.encryptionStrength = encryptionStrength;
@@ -45,20 +45,20 @@ public enum EncryptionProvider {
 		return encryptionStrength;
 	}
 	
-	public static EncryptionProvider getEncryptionProvider(int encryptionGrade){
+	public static CryptoProvider getEncryptionProvider(int encryptionGrade){
 		// run through encryption provider and determine which one of them has the desired grade
-		for (EncryptionProvider code : EncryptionProvider.values()) {
+		for (CryptoProvider code : CryptoProvider.values()) {
 			if(code.getEncryptionGrade() == encryptionGrade)
 				return code;
 		}
-		return EncryptionProvider.NONE;
+		return CryptoProvider.NONE;
 	}
-	public static EncryptionProvider getEncryptionProvider(String encryptionStrength){
+	public static CryptoProvider getEncryptionProvider(String encryptionStrength){
 		// run through encryption provider and determine which one of them has the desired strength
-		for (EncryptionProvider code : EncryptionProvider.values()) {
+		for (CryptoProvider code : CryptoProvider.values()) {
 			if(code.getEncryptionStrength() == encryptionStrength)
 				return code;
 		}
-		return EncryptionProvider.NONE;
+		return CryptoProvider.NONE;
 	}
 }

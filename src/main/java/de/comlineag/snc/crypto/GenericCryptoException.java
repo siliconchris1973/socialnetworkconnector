@@ -1,6 +1,6 @@
 package de.comlineag.snc.crypto;
 
-import de.comlineag.snc.constants.EncryptionProvider;
+import de.comlineag.snc.constants.CryptoProvider;
 
 /**
  * 
@@ -12,17 +12,17 @@ import de.comlineag.snc.constants.EncryptionProvider;
  * @description	Error to show that a value is NOT encrypted coded
  * 
  * @changelog	0.1 (Magnus)		initial version
- * 				0.2 (Chris)			renamed to GenericEncryptionException
+ * 				0.2 (Chris)			renamed to GenericCryptoException
  * 				0.3					added support for encryption providers to the super call
  * 
  */
-public class GenericEncryptionException extends Exception {
+public class GenericCryptoException extends Exception {
 	
 	private static final long serialVersionUID = 6300138787724088083L;
 	
-	public GenericEncryptionException() {}
+	public GenericCryptoException() {}
 	
-	public GenericEncryptionException(EncryptionProvider provider, String s) {
+	public GenericCryptoException(CryptoProvider provider, String s) {
 		super("The provider was unable to en/decrypt the value " + s);
 	}
 }

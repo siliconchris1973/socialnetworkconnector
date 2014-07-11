@@ -9,7 +9,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.log4j.Logger;
 
-import de.comlineag.snc.constants.EncryptionProvider;
+import de.comlineag.snc.constants.CryptoProvider;
 
 /**
  * 
@@ -25,7 +25,7 @@ import de.comlineag.snc.constants.EncryptionProvider;
  * 				0.3				removed get/setEntropy and deleted code to get initial vector from applicationContext.xml
  * 
  */
-public class DesEncryptionProvider implements IEncryptionProvider {
+public class DesCryptoProvider implements ICryptoProvider {
 
 	byte[] keyBytes;
 	byte[] ivBytes;
@@ -53,10 +53,10 @@ public class DesEncryptionProvider implements IEncryptionProvider {
 	 * 					the return value as clear text
 	 *
 	 */
-	public String decryptValue(String param) throws GenericEncryptionException {
+	public String decryptValue(String param) throws GenericCryptoException {
 
 		// wrap key data in Key/IV specs to pass to cipher
-		SecretKeySpec key = new SecretKeySpec(keyBytes, EncryptionProvider.DES.toString());
+		SecretKeySpec key = new SecretKeySpec(keyBytes, CryptoProvider.DES.toString());
 		IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 		// create the cipher with the algorithm you choose
 		// see javadoc for Cipher class for more info
@@ -69,9 +69,9 @@ public class DesEncryptionProvider implements IEncryptionProvider {
 			dec_len += cipher.doFinal(decrypted, dec_len);
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
 			e.printStackTrace();
-			throw new GenericEncryptionException(EncryptionProvider.DES, "EXCEPTION :: Parameter " + param + " not DES-encrypted: " + e.getLocalizedMessage());
+			throw new GenericCryptoException(CryptoProvider.DES, "EXCEPTION :: Parameter " + param + " not DES-encrypted: " + e.getLocalizedMessage());
 		} catch (Exception e) {
-			throw new GenericEncryptionException(EncryptionProvider.DES, "EXCEPTION :: unforseen error condition: " + e.getLocalizedMessage());
+			throw new GenericCryptoException(CryptoProvider.DES, "EXCEPTION :: unforseen error condition: " + e.getLocalizedMessage());
 		}
 		return new String(decrypted);
 	}

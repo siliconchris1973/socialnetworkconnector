@@ -9,20 +9,20 @@ import org.apache.log4j.Logger;
  * @version		0.1
  * @status		not implemented
  * 
- * @description	this is the AES (strongest) encryption provider 
+ * @description	this is the Triple DES (quite strong) encryption provider 
  * 
  * 				ATTENTION: NOT YET IMPLEMENTED
  *  
  * @changelog	0.1 (Chris)		initial version
  * 
  */
-public class AesEncryptionProvider implements IEncryptionProvider {
+public class Des3CryptoProvider implements ICryptoProvider {
 	
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
 		
 	// how long must the initial vector be
-	int MIN_INITIALVECTOR_SIZE = 256;
+	int MIN_INITIALVECTOR_SIZE = 128;
 		
 	/**
 	 * @description Decrypts a given string 
@@ -33,7 +33,7 @@ public class AesEncryptionProvider implements IEncryptionProvider {
 	 * 					the return value as clear text
 	 *
 	 */
-	public String decryptValue(String param) throws GenericEncryptionException {
+	public String decryptValue(String param) throws GenericCryptoException {
 		logger.warn("NOT YET IMPLEMENTED");
 		
 		return param;
