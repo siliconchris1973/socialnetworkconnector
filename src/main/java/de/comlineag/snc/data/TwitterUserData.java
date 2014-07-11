@@ -45,7 +45,6 @@ public final class TwitterUserData extends UserData {
 	 */
 	public TwitterUserData(JSONObject jsonObject) {
 		logger.debug("constructing new subset of data of user (TW-"  + jsonObject.get("id") + ") from twitter user-object");
-		logger.trace("  working on " + jsonObject.toString());
 		
 		// setting everything to 0 or null default value.
 		// so I can check on initialized or not initialized values for the
@@ -61,25 +60,31 @@ public final class TwitterUserData extends UserData {
 		postings_count = 0;
 		favorites_count = 0;
 		lists_and_groups_count = 0;
-		
-		setId((Long) jsonObject.get("id"));
-		setUsername((String) jsonObject.get("name"));
-		setScreenName((String) jsonObject.get("screen_name"));
-		
-		setLang((String) jsonObject.get("lang"));
-		
-		if (jsonObject.get("geoLocation") != null)
-			setGeoLocation((String) jsonObject.get("geoLocation"));
-
-		if (jsonObject.get("followers_count") != null)
-			setFollowersCount((Long) jsonObject.get("followers_count"));
-		if (jsonObject.get("friends_count") != null)
-			setFriendsCount((Long) jsonObject.get("friends_count"));
-		if (jsonObject.get("statuses_count") != null)
-			setPostingsCount((Long) jsonObject.get("statuses_count"));
-		if (jsonObject.get("favorites_count") != null)
-			setFavoritesCount((Long) jsonObject.get("favorites_count"));
-		if (jsonObject.get("lists_and_groups_count") != null)
-			setListsAndGroupsCount((Long) jsonObject.get("lists_and_groups_count"));
+		try {
+			setId((Long) jsonObject.get("id"));
+			setUsername((String) jsonObject.get("name"));
+			setScreenName((String) jsonObject.get("screen_name"));
+			
+			setLang((String) jsonObject.get("lang"));
+			
+			if (jsonObject.get("geoLocation") != null)
+				setGeoLocation((String) jsonObject.get("geoLocation"));
+	
+			if (jsonObject.get("followers_count") != null)
+				setFollowersCount((Long) jsonObject.get("followers_count"));
+			if (jsonObject.get("friends_count") != null)
+				setFriendsCount((Long) jsonObject.get("friends_count"));
+			if (jsonObject.get("statuses_count") != null)
+				setPostingsCount((Long) jsonObject.get("statuses_count"));
+			if (jsonObject.get("favorites_count") != null)
+				setFavoritesCount((Long) jsonObject.get("favorites_count"));
+			if (jsonObject.get("lists_and_groups_count") != null)
+				setListsAndGroupsCount((Long) jsonObject.get("lists_and_groups_count"));
+			
+			logger.debug("     construction finished");
+		} catch (Exception e) {
+			logger.error("EXCEPTION :: during parsing of json twitter user-object " + e.getLocalizedMessage());
+			e.printStackTrace();
+		}
 	}
 }

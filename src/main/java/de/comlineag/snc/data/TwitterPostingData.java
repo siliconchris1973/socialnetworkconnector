@@ -66,159 +66,165 @@ public final class TwitterPostingData extends PostData {
 	 *            one single post in Twitter
 	 */
 	public TwitterPostingData(JSONObject jsonObject) {
-
 		// log the startup message
 		logger.debug("constructing new subset of data of tweet (TW-"  + jsonObject.get("id") + ") from twitter post-object");
 		
 		// set all values to zero
 		initialize();
-
-		// posting ID 
-		setId((Long) jsonObject.get("id"));
 		
-		
-		// User ID
-		JSONObject user = (JSONObject) jsonObject.get("user");
-		setUserId((Long) user.get("id"));
-		
-		
-		// langauge
-		setLang((String) jsonObject.get("lang"));
-		
-		
-		// Timestamp as a string and as an object for the oDATA call
-		setTime((String) jsonObject.get("created_at"));
-		setTimestamp(DataHelper.prepareLocalDateTime(getTime(), getSnId()));
-		
-		
-		// Flag truncated - we can use this to indicate more text
-		setTruncated((Boolean) jsonObject.get("truncated"));
-		
-		
-		// content of the posting, can either be stored with or without markup elements. 
-		if (GeneralDataDefinitions.TEXT_WITH_MARKUP) {
-			setText((String) jsonObject.get("text"));
-		} else {
-			setText((String) DataHelper.stripHTML(jsonObject.get("text")));
-		}
-		// content of the raw text of the posting, can either be stored with or without markup elements. 
-		if (GeneralDataDefinitions.RAW_TEXT_WITH_MARKUP) {
-			setRawText((String) jsonObject.get("text"));
-		} else {
-			setRawText((String) DataHelper.stripHTML(jsonObject.get("text")));
-		}
-		
-		
-		// a teaser is created from the first 256 chars of the post 
-		// the persistence layer can also truncate the teaser, in case field length is smaller
-		if (GeneralDataDefinitions.TEASER_WITH_MARKUP){
-			setTeaser(getText());
-		}else{
-			setTeaser((String) DataHelper.stripHTML(getText()));
-		}
-		if (getTeaser().length() > GeneralDataDefinitions.TEASER_MAX_LENGTH)
-			setTeaser(getTeaser().substring(0, GeneralDataDefinitions.TEASER_MAX_LENGTH-3)+"...");
-		
-		
-		// a subject is created from the first 20 chars of the post 
-		// the persistence layer can also truncate the subject, in case field length is smaller
-		if (GeneralDataDefinitions.SUBJECT_WITH_MARKUP){
-			setSubject(getText());
-		}else{
-			setSubject((String) DataHelper.stripHTML(getText()));
-		}
-		if (getSubject().length() > GeneralDataDefinitions.SUBJECT_MAX_LENGTH)
-			setSubject(getSubject().substring(0, GeneralDataDefinitions.SUBJECT_MAX_LENGTH-3)+"...");
-		
-		
-		// what client posted the tweet - this is an url to possible clients on twitter
-		setClient((String) jsonObject.get("source"));
-		
-		
-		// reply information
-		if (jsonObject.get("in_reply_to_status_id") != null)
-			setInReplyTo((Long) jsonObject.get("in_reply_to_status_id"));
-		if (jsonObject.get("in_reply_to_user_id") != null)
-			setInReplyToUser((Long) jsonObject.get("in_reply_to_user_id"));
-		if (jsonObject.get("in_reply_to_screen_name") != null)
-			setInReplyToUserScreenName((String) jsonObject.get("in_reply_to_screen_name"));
-		
-		
-		/*
-		 * simple point geoLocation as given by e.g. a mobile device
-		 *
-		 * Structure
-		 *		Coordinates {
-		 * 			"type":"Point",
-		 * 			"coordinates":[-84.497553,33.944551]
-		 * 		}
-	 	 */
-		if (jsonObject.get("coordinates") != null) {
-			logger.debug("Found Coordinates " + jsonObject.get("coordinates").toString());
+		try {
+			// posting ID 
+			setId((Long) jsonObject.get("id"));
 			
-			JSONObject place = (JSONObject) jsonObject.get("coordinates");
-			LocationData twPlace = new LocationData(place);
 			
-			setGeoLongitude(twPlace.getGeoLongitude());
-			setGeoLatitude(twPlace.getGeoLatitude());
-		}
-		
-		
-		/* 
-		 * geoLocation is filled from the users profile - a complex structure
-		 *  
-		 * Structure
-		 * 		geoLocation {
-		 * 			"id":"e229de11a7eb6823",
-		 * 			"bounding_box":{
-		 * 				"type":"Polygon",
-		 * 				"coordinates":[
-		 * 						[[-84.616812,33.895088],[-84.616812,34.0011594],[-84.46746,34.0011594],[-84.46746,33.895088]]
-		 * 				]
-		 * 			},
-		 * 			"place_type":"city",
-		 * 			"name":"Marietta",
-		 * 			"attributes":{},
-		 * 			"country_code":"US",
-		 * 			"url":"https:\/\/api.twitter.com\/1.1\/geo\/id\/e229de11a7eb6823.json",
-		 * 			"country":"United States",
-		 * 			"full_name":"Marietta, GA"
-		 * 		}
-		 */
-		if (jsonObject.get("geoLocation") != null) {
-			logger.trace("Found geoLocation " + jsonObject.get("geoLocation"));
-			JSONObject place = (JSONObject) jsonObject.get("geoLocation");
-			LocationData twPlace = new LocationData(place);
+			// User ID
+			JSONObject user = (JSONObject) jsonObject.get("user");
+			setUserId((Long) user.get("id"));
 			
-			setGeoLongitude(twPlace.getGeoLongitude());
-			setGeoLatitude(twPlace.getGeoLatitude());
-			setGeoPlaceId(twPlace.getGeoPlaceId());
-			setGeoPlaceName(twPlace.getGeoPlaceName());
-			setGeoPlaceCountry(twPlace.getGeoPlaceCountry());
-			setGeoAroundLongitude(twPlace.getGeoAroundLongitude());
-			setGeoAroundLatitude(getGeoAroundLongitude());
+			
+			// langauge
+			setLang((String) jsonObject.get("lang"));
+			
+			
+			// Timestamp as a string and as an object for the oDATA call
+			setTime((String) jsonObject.get("created_at"));
+			setTimestamp(DataHelper.prepareLocalDateTime(getTime(), getSnId()));
+			
+			
+			// Flag truncated - we can use this to indicate more text
+			setTruncated((Boolean) jsonObject.get("truncated"));
+			
+			
+			// content of the posting, can either be stored with or without markup elements. 
+			if (GeneralDataDefinitions.TEXT_WITH_MARKUP) {
+				setText((String) jsonObject.get("text"));
+			} else {
+				setText((String) DataHelper.stripHTML(jsonObject.get("text")));
+			}
+			// content of the raw text of the posting, can either be stored with or without markup elements. 
+			if (GeneralDataDefinitions.RAW_TEXT_WITH_MARKUP) {
+				setRawText((String) jsonObject.get("text"));
+			} else {
+				setRawText((String) DataHelper.stripHTML(jsonObject.get("text")));
+			}
+			
+			
+			// a teaser is created from the first 256 chars of the post 
+			// the persistence layer can also truncate the teaser, in case field length is smaller
+			if (GeneralDataDefinitions.TEASER_WITH_MARKUP){
+				setTeaser(getText());
+			}else{
+				setTeaser((String) DataHelper.stripHTML(getText()));
+			}
+			if (getTeaser().length() > GeneralDataDefinitions.TEASER_MAX_LENGTH)
+				setTeaser(getTeaser().substring(0, GeneralDataDefinitions.TEASER_MAX_LENGTH-3)+"...");
+			
+			
+			// a subject is created from the first 20 chars of the post 
+			// the persistence layer can also truncate the subject, in case field length is smaller
+			if (GeneralDataDefinitions.SUBJECT_WITH_MARKUP){
+				setSubject(getText());
+			}else{
+				setSubject((String) DataHelper.stripHTML(getText()));
+			}
+			if (getSubject().length() > GeneralDataDefinitions.SUBJECT_MAX_LENGTH)
+				setSubject(getSubject().substring(0, GeneralDataDefinitions.SUBJECT_MAX_LENGTH-3)+"...");
+			
+			
+			// what client posted the tweet - this is an url to possible clients on twitter
+			setClient((String) jsonObject.get("source"));
+			
+			
+			// reply information
+			if (jsonObject.get("in_reply_to_status_id") != null)
+				setInReplyTo((Long) jsonObject.get("in_reply_to_status_id"));
+			if (jsonObject.get("in_reply_to_user_id") != null)
+				setInReplyToUser((Long) jsonObject.get("in_reply_to_user_id"));
+			if (jsonObject.get("in_reply_to_screen_name") != null)
+				setInReplyToUserScreenName((String) jsonObject.get("in_reply_to_screen_name"));
+			
+			
+			/*
+			 * simple point geoLocation as given by e.g. a mobile device
+			 *
+			 * Structure
+			 *		Coordinates {
+			 * 			"type":"Point",
+			 * 			"coordinates":[-84.497553,33.944551]
+			 * 		}
+		 	 */
+			if (jsonObject.get("coordinates") != null) {
+				logger.debug("Found Coordinates " + jsonObject.get("coordinates").toString());
+				
+				JSONObject place = (JSONObject) jsonObject.get("coordinates");
+				LocationData twPlace = new LocationData(place);
+				
+				setGeoLongitude(twPlace.getGeoLongitude());
+				setGeoLatitude(twPlace.getGeoLatitude());
+			}
+			
+			
+			/* 
+			 * geoLocation is filled from the users profile - a complex structure
+			 *  
+			 * Structure
+			 * 		geoLocation {
+			 * 			"id":"e229de11a7eb6823",
+			 * 			"bounding_box":{
+			 * 				"type":"Polygon",
+			 * 				"coordinates":[
+			 * 						[[-84.616812,33.895088],[-84.616812,34.0011594],[-84.46746,34.0011594],[-84.46746,33.895088]]
+			 * 				]
+			 * 			},
+			 * 			"place_type":"city",
+			 * 			"name":"Marietta",
+			 * 			"attributes":{},
+			 * 			"country_code":"US",
+			 * 			"url":"https:\/\/api.twitter.com\/1.1\/geo\/id\/e229de11a7eb6823.json",
+			 * 			"country":"United States",
+			 * 			"full_name":"Marietta, GA"
+			 * 		}
+			 */
+			if (jsonObject.get("geoLocation") != null) {
+				logger.trace("Found geoLocation " + jsonObject.get("geoLocation"));
+				JSONObject place = (JSONObject) jsonObject.get("geoLocation");
+				LocationData twPlace = new LocationData(place);
+				
+				setGeoLongitude(twPlace.getGeoLongitude());
+				setGeoLatitude(twPlace.getGeoLatitude());
+				setGeoPlaceId(twPlace.getGeoPlaceId());
+				setGeoPlaceName(twPlace.getGeoPlaceName());
+				setGeoPlaceCountry(twPlace.getGeoPlaceCountry());
+				setGeoAroundLongitude(twPlace.getGeoAroundLongitude());
+				setGeoAroundLatitude(getGeoAroundLongitude());
+			}
+			
+			
+			/*
+			 * 
+			 * @description	Structure of Hashtag and Symbols - not yet implemented
+			 * 
+			 * "entities": {
+			 * 		"trends":[],
+			 * 		"symbols":[],
+			 * 		"urls":[],
+			 * 		"hashtags":[{
+			 * 			"text":"SocialBrandMonitor",
+			 * 			"indices":[20,39]}],
+			 * 		"user_mentions":[]
+			 * 	}
+			 * 
+			 */
+			// TODO implement proper handling of hashtags, symbols and mentions - this currently kills the parser
+			//setHashtags((List<?>)jsonObject.get("hashtags"));
+			//setSymbols((List<?>)jsonObject.get("symbols"));
+			//setMentions((List<?>)jsonObject.get("user_mentions"));
+			
+			logger.debug("     construction finished");
+		} catch (Exception e) {
+			logger.error("EXCEPTION :: during parsing of json twitter post-object " + e.getLocalizedMessage());
+			e.printStackTrace();
 		}
-		
-		
-		/*
-		 * 
-		 * @description	Structure of Hashtag and Symbols - not yet implemented
-		 * 
-		 * "entities": {
-		 * 		"trends":[],
-		 * 		"symbols":[],
-		 * 		"urls":[],
-		 * 		"hashtags":[{
-		 * 			"text":"SocialBrandMonitor",
-		 * 			"indices":[20,39]}],
-		 * 		"user_mentions":[]
-		 * 	}
-		 * 
-		 */
-		// TODO implement proper handling of hashtags, symbols and mentions - this currently kills the parser
-		//setHashtags((List<?>)jsonObject.get("hashtags"));
-		//setSymbols((List<?>)jsonObject.get("symbols"));
-		//setMentions((List<?>)jsonObject.get("user_mentions"));
 	}
 	
 	

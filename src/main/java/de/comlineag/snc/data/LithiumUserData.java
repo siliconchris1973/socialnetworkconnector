@@ -157,9 +157,10 @@ public final class LithiumUserData extends UserData {
 			}
 			
 			setLang((String) jsonObject.get("lang"));
+			
+			logger.debug("     construction finished");
 		} catch (Exception e) {
-			logger.error("EXCEPTION :: parsing json failed " + e.getLocalizedMessage());
-			//e.printStackTrace();
+			logger.error("EXCEPTION :: during parsing of json Lithium user-object " + e.getLocalizedMessage());
 		}
 	}
 	

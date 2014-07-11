@@ -175,7 +175,6 @@ public final class LithiumPostingData extends PostData {
 		// alles auf Null und die SocialNetworkID schon mal parken
 		initialize();
 		
-		
 		try {
 			JSONParser parser = new JSONParser();
 			Object obj;
@@ -380,10 +379,12 @@ public final class LithiumPostingData extends PostData {
 			logger.trace("the label is " + jsonObjLabelsThree.get("$"));
 			*/
 			
-			// language - fix on de (German) at the moment
+			// language
 			setLang(lang);
+			
+			logger.debug("     construction finished");
 		} catch (Exception e) {
-			logger.error("EXCEPTION :: parsing json failed " + e.getLocalizedMessage());
+			logger.error("EXCEPTION :: during parsing of json Lithium post-object " + e.getLocalizedMessage());
 			e.printStackTrace();
 		}
 	}
