@@ -54,7 +54,7 @@ public class HanaDataConstants {
 	 * userName 			NVARCHAR 	128
 	 * nickName				NVARCHAR 	128
 	 * userLang 			NVARCHAR 	64
-	 * location 			NVARCHAR 	1024
+	 * geoLocation 			NVARCHAR 	1024
 	 * follower 			int
 	 * friends				int
 	 * postingscount		int

@@ -30,7 +30,7 @@ public interface IConfigurationManager<T> {
 	
 	/**
 	 * 
-	 * @description	takes a constraint category (either term, user, site, location or language) and
+	 * @description	takes a constraint category (either term, user, site, geoLocation or language) and
 	 * 				a social network identifier and returns the constraints of that category
 	 * 				for the specified social network from the configuration as an ArrayList of type T.
 	 * 

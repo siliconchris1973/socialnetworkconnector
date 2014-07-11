@@ -215,9 +215,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 							 *  }
 							 */
 							JSONObject errorReference = (JSONObject)responseObj.get(LithiumConstants.JSON_ERROR_OBJECT_TEXT);
-							logger.error("the server returned error " + errorReference.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT));
+							logger.error("the server returned an error " + errorReference.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT));
 							
-							throw new GenericCrawlerException("the server returned error " + errorReference.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT));
+							throw new GenericCrawlerException("the server returned an error " + errorReference.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT));
 						} else {
 							
 							// give the json object to the lithium parser for further processing
@@ -243,7 +243,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 										
 										String userRef = (String) ((JSONObject)authorObj).get(LithiumConstants.JSON_AUTHOR_REFERENCE);
 										JSONObject userResponse = SendObjectRequest(userRef, REST_API_URL, LithiumConstants.JSON_USER_OBJECT_IDENTIFIER);
-										logger.trace("user object: " + userResponse.toString());
 										
 										new LithiumUser(userResponse).save();
 										
@@ -324,7 +323,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			// first check if the server response is not only OK from an http point of view, but also
 			//    from the perspective of the REST API call
 			jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(LithiumConstants.JSON_STATUS_CODE_TEXT).toString());
-			logger.trace("json status code is " + responseObj.get(LithiumConstants.JSON_STATUS_CODE_TEXT) + " translates to " + jsonStatusCode);
 			
 			if(!jsonStatusCode.isOk()){
 				/*

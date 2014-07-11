@@ -25,14 +25,14 @@ import de.comlineag.snc.constants.HanaDataConstants;
  * @author 		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Connector Class
  * @version 	0.9g	- 10.07.2014
- * @status		beta
+ * @status		productive (no geo location support)
  *
  * @description handles the connectivity to the SAP HANA Systems and saves posts and users in the DB
  * 
  * @changelog	0.1 (Chris)			skeleton created
  * 				0.2	(Magnus)		savePost implemented
  * 				0.3 				saveUser implemented
- * 				0.4 				added skeleton for geo-location information
+ * 				0.4 				added skeleton for geo-geoLocation information
  * 				0.5 				added support for encrypted user and password
  * 				0.6 				bug fixing and optimization
  * 				0.7 (Chris)			first productive version, saves users and posts as is (no geo-information)
@@ -46,10 +46,9 @@ import de.comlineag.snc.constants.HanaDataConstants;
  * 				0.9e				moved insert statements for post and user to private methods
  * 				0.9f				added update methods to update an existing record
  *				0.9g				added support to honor actual field length in the database - all fields too long, will be truncated
- *
- * TODO	3. establish proper error handling (see comments in source code)
- * TODO 4. enable location support for user
- * TODO 6. find out how to get the http error code during odata calls
+ * 
+ * TODO 1. enable geoLocation support for users
+ * TODO	2. establish proper error handling and find out how to get the http error code during odata calls
  */
 public class HANAPersistence implements IPersistenceManager {
 	
@@ -72,7 +71,6 @@ public class HANAPersistence implements IPersistenceManager {
 	// data sets
 	private Long Id;
 	private SocialNetworks SN;
-	private String networkName;
 	
 	
 	private final Logger logger = Logger.getLogger(getClass().getName());
@@ -122,7 +120,7 @@ public class HANAPersistence implements IPersistenceManager {
 	public void savePosts(PostData postData) {
 		try {
 			// first check if the entry already exists
-			OEntity theData = checkIfEntryExist(postData.getSnId(), postData.getId(), "post");
+			OEntity theData = returnOEntityHandler(postData.getSnId(), postData.getId(), "post");
 			
 			// truncate all fields to maximum length allotted by HANA
 			setPostFieldLength(postData);
@@ -164,7 +162,7 @@ public class HANAPersistence implements IPersistenceManager {
 	public void saveUsers(UserData userData) {
 		try {
 			// first check if the entry already exists
-			OEntity theData = checkIfEntryExist(userData.getSnId(), userData.getId(), "user");
+			OEntity theData = returnOEntityHandler(userData.getSnId(), userData.getId(), "user");
 			
 			// then truncate all fields to maximum length allotted by HANA
 			setUserFieldLength(userData);
@@ -206,8 +204,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * @param 		PostData postData
 	 */
 	private void insertPostWithSQL(PostData postData) {
-		networkName = SocialNetworks.getNetworkNameByValue(postData.getSnId()).getType();
-		logger.info("creating "+networkName+"-post "+postData.getSnId()+"-"+postData.getId());
+		logger.info("creating post "+postData.getSnId()+"-"+postData.getId());
 		
 		// static variant to set the truncated flag - which is not used anyway at the moment
 		int truncated = (postData.getTruncated()) ? 1 : 0;
@@ -289,7 +286,7 @@ public class HANAPersistence implements IPersistenceManager {
 			@SuppressWarnings("unused")
 			int rowCount = stmt.executeUpdate();
 			
-			logger.info(networkName + "-post ("+postData.getSnId()+"-"+postData.getId()+") created");
+			logger.info("post ("+postData.getSnId()+"-"+postData.getId()+") created");
 			
 			stmt.close() ; conn.close() ;
 		
@@ -309,8 +306,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * @param 		PostData postData
 	 */
 	private void insertPostWithOData(PostData postData){
-		networkName = SocialNetworks.getNetworkNameByValue(postData.getSnId()).getType();
-		logger.info("creating "+networkName+"-post "+postData.getSnId()+"-"+postData.getId());
+		logger.info("creating post "+postData.getSnId()+"-"+postData.getId());
 		
 		// static variant to set the truncated flag - which is not used anyway at the moment
 		int truncated = (postData.getTruncated()) ? 1 : 0;
@@ -371,7 +367,7 @@ public class HANAPersistence implements IPersistenceManager {
 					
 					.execute();
 			
-			logger.info(networkName + "-post ("+postData.getSnId()+"-"+postData.getId()+") created");
+			logger.info("post ("+postData.getSnId()+"-"+postData.getId()+") created");
 		
 		/*
 		 * in case of an error during post, the following XML structure is returned as part of the exception:
@@ -397,8 +393,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * @param 		UserData userData
 	 */
 	private void insertUserWithSQL(UserData userData) {
-		networkName = SocialNetworks.getNetworkNameByValue(userData.getSnId()).getType();
-		logger.info("creating "+networkName+"-user "+userData.getSnId()+"-"+userData.getId());
+		logger.info("creating user "+userData.getSnId()+"-"+userData.getId());
 		
 		// first try to save the data via jdbc
 		try {
@@ -431,26 +426,27 @@ public class HANAPersistence implements IPersistenceManager {
             		+ ",	\"postingsCount\" "
             		+ ",	\"favoritesCount\" "
             		+ ",	\"listsAndGroupsCount\" "
+            		//+ ",	\"geoLocation\" "
             		+ ") "
-            		+ "VALUES (?,?,?,?,?,?,?,?,?,?)";
+            		+ "VALUES (?,?,?,?,?,?,?,?,?,?)"; // add a ? to the end of the line, after activating geoLocation 
 			 
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			stmt.setString(1, userData.getSnId());
 			stmt.setLong(2, userData.getId());
-			stmt.setString(2, dataEncryptionProvider.encryptValue(userData.getUsername()));
-			stmt.setString(3, dataEncryptionProvider.encryptValue(userData.getScreenName()));
-			stmt.setString(4, userData.getLang());
-			stmt.setLong(5, userData.getFollowersCount());
-			stmt.setLong(6, userData.getFriendsCount());
-			stmt.setLong(7, userData.getPostingsCount());
-			stmt.setLong(8, userData.getFavoritesCount());
-			stmt.setLong(9, userData.getListsAndGrooupsCount());
-			stmt.setString(10, userData.getSnId());
+			stmt.setString(3, dataEncryptionProvider.encryptValue(userData.getUsername()));
+			stmt.setString(4, dataEncryptionProvider.encryptValue(userData.getScreenName()));
+			stmt.setString(5, userData.getLang());
+			stmt.setLong(6, userData.getFollowersCount());
+			stmt.setLong(7, userData.getFriendsCount());
+			stmt.setLong(8, userData.getPostingsCount());
+			stmt.setLong(9, userData.getFavoritesCount());
+			stmt.setLong(10, userData.getListsAndGrooupsCount());
+			//stmt.setString(11, userData.getGeoLocation());
 			
 			@SuppressWarnings("unused")
 			int rowCount = stmt.executeUpdate();
 			
-			logger.info(networkName + "-user "+userData.getScreenName()+" ("+userData.getSnId()+"-"+userData.getId()+") created");
+			logger.info("user "+userData.getScreenName()+" ("+userData.getSnId()+"-"+userData.getId()+") created");
 			
 			stmt.close() ; conn.close() ;
 		} catch (java.lang.ClassNotFoundException le) {
@@ -470,8 +466,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * @param 		UserData userData
 	 */
 	private void insertUserWithOData(UserData userData){
-		networkName = SocialNetworks.getNetworkNameByValue(userData.getSnId()).getType();
-		logger.info("creating "+networkName+"-user "+userData.getSnId()+"-"+userData.getId());
+		logger.info("creating user "+userData.getSnId()+"-"+userData.getId());
 		
 		if (userService == null) {
 			try {
@@ -502,7 +497,7 @@ public class HANAPersistence implements IPersistenceManager {
 
 					.properties(OProperties.string("nickName", dataEncryptionProvider.encryptValue(userData.getScreenName())))
 					.properties(OProperties.string("userLang", userData.getLang()))
-					.properties(OProperties.string("location", userData.getLocation().toString()))
+					//.properties(OProperties.string("geoLocation", userData.getGeoLocation().toString()))
 
 					.properties(OProperties.int32("follower", new Integer((int) userData.getFollowersCount())))
 					.properties(OProperties.int32("friends", new Integer((int) userData.getFriendsCount())))
@@ -512,7 +507,7 @@ public class HANAPersistence implements IPersistenceManager {
 
 					.execute();
 			
-			logger.info(networkName + "-user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") created");
+			logger.info("user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") created");
 		
 		/*
 		 * in case of an error during post, the following XML structure is returned as part of the exception:
@@ -542,8 +537,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * @param 		postData
 	 */
 	private void updatePostWithSQL(PostData postData) {
-		networkName = SocialNetworks.getNetworkNameByValue(postData.getSnId()).getType();
-		logger.info("updating "+networkName+"-post "+postData.getSnId()+"-"+postData.getId());
+		logger.info("updating post "+postData.getSnId()+"-"+postData.getId());
 		// static variant to set the truncated flag - which is not used anyway at the moment
 		int truncated = (postData.getTruncated()) ? 1 : 0;
 		
@@ -620,7 +614,7 @@ public class HANAPersistence implements IPersistenceManager {
 			@SuppressWarnings("unused")
 			int rowCount = stmt.executeUpdate();
 			
-			logger.info(networkName + "-post ("+postData.getSnId()+"-"+postData.getId()+") updated");
+			logger.info("post ("+postData.getSnId()+"-"+postData.getId()+") updated");
 			
 			stmt.close() ; conn.close() ;
 		} catch (java.lang.ClassNotFoundException le) {
@@ -640,8 +634,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * @param		OEntity thePostEntity
 	 */
 	private void updatePostWithOData(PostData postData, OEntity thePostEntity){
-		networkName = SocialNetworks.getNetworkNameByValue(postData.getSnId()).getType();
-		logger.info("updating "+networkName+"-post "+postData.getSnId()+"-"+postData.getId());
+		logger.info("updating post "+postData.getSnId()+"-"+postData.getId());
 		
 		// static variant to set the truncated flag - which is not used anyway at the moment
 		int truncated = (postData.getTruncated()) ? 1 : 0;
@@ -701,7 +694,7 @@ public class HANAPersistence implements IPersistenceManager {
 					
 					.execute();
 			
-			logger.info(networkName + "-post ("+postData.getSnId()+"-"+postData.getId()+") updated");
+			logger.info("post ("+postData.getSnId()+"-"+postData.getId()+") updated");
 		
 		/*
 		 * in case of an error during post, the following XML structure is returned as part of the exception:
@@ -727,8 +720,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * @param 		userData
 	 */
 	private void updateUserWithSQL(UserData userData) {
-		networkName = SocialNetworks.getNetworkNameByValue(userData.getSnId()).getType();
-		logger.info("updating "+networkName+"-user "+userData.getSnId()+"-"+userData.getId());
+		logger.info("updating user "+userData.getSnId()+"-"+userData.getId());
 		
 		// first try to save the data via jdbc
 		try {
@@ -759,6 +751,7 @@ public class HANAPersistence implements IPersistenceManager {
             		+ ",\"postingsCount\" = ? "
             		+ ",\"favoritesCount\" = ? "
             		+ ",\"listsAndGroupsCount\" = ? "
+            		//+ ",\"geoLocation\" = ? "
             		+ ") "
             		+ "WHERE (\"sn_id\" = ? AND \"user_id\" = ?)";
 			 
@@ -772,13 +765,14 @@ public class HANAPersistence implements IPersistenceManager {
 			stmt.setLong(7, userData.getFavoritesCount());
 			stmt.setLong(8, userData.getListsAndGrooupsCount());
 			stmt.setString(9, userData.getSnId());
+			//stmt.setString(10, userData.getGeoLocation()); // activate above and this geoLocation and increase numbers below by one
 			stmt.setString(10, userData.getSnId());
 			stmt.setLong(11, userData.getId());
 			
 			@SuppressWarnings("unused")
 			int rowCount = stmt.executeUpdate();
 			
-			logger.info(networkName + "-user "+userData.getScreenName()+" ("+userData.getSnId()+"-"+userData.getId()+") created");
+			logger.info("user "+userData.getScreenName()+" ("+userData.getSnId()+"-"+userData.getId()+") created");
 			
 			stmt.close() ; conn.close() ;
 		} catch (java.lang.ClassNotFoundException le) {
@@ -798,8 +792,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * @param 		OEntity theUserEntity 
 	 */
 	private void updateUserWithOData(UserData userData, OEntity theUserEntity){
-		networkName = SocialNetworks.getNetworkNameByValue(userData.getSnId()).getType();
-		logger.info("updating "+networkName+"-user "+userData.getSnId()+"-"+userData.getId());
+		logger.info("updating user "+userData.getSnId()+"-"+userData.getId());
 		
 		if (userService == null) {
 			try {
@@ -826,7 +819,7 @@ public class HANAPersistence implements IPersistenceManager {
 
 					.properties(OProperties.string("nickName", dataEncryptionProvider.encryptValue(userData.getScreenName())))
 					.properties(OProperties.string("userLang", userData.getLang()))
-					.properties(OProperties.string("location", userData.getLocation().toString()))
+			//		.properties(OProperties.string("geoLocation", userData.getGeoLocation().toString()))
 
 					.properties(OProperties.int32("follower", new Integer((int) userData.getFollowersCount())))
 					.properties(OProperties.int32("friends", new Integer((int) userData.getFriendsCount())))
@@ -836,7 +829,7 @@ public class HANAPersistence implements IPersistenceManager {
 
 					.execute();
 			
-			logger.info(networkName + "-user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") updated");
+			logger.info("user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") updated");
 		
 		/*
 		 * in case of an error during post, the following XML structure is returned as part of the exception:
@@ -848,7 +841,7 @@ public class HANAPersistence implements IPersistenceManager {
 		 * 			</error>
 		 */
 		} catch (RuntimeException e) {
-			logger.error("ERROR :: Could not update "+networkName+"-user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
+			logger.error("ERROR :: Could not update user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
 		} catch (GenericEncryptionException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataEncryptionProvider.getClass().getSimpleName() + e.getMessage(), e);
@@ -937,9 +930,9 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("truncating user lang of " + userData.getSnId()+"-"+userData.getId() + " to " + HanaDataConstants.USERLANG_TEXT_SIZE + "! This is probably bad.");
 			userData.setLang(userData.getLang().substring(0, HanaDataConstants.USERLANG_TEXT_SIZE));
 		}
-		if (userData.getLocation() != null && userData.getLocation().length()>HanaDataConstants.USERLOCATION_TEXT_SIZE) {
-			logger.error("truncating user location of " + userData.getSnId()+"-"+userData.getId() + " to " + HanaDataConstants.USERLOCATION_TEXT_SIZE + "! This is probably bad.");
-			userData.setLocation(userData.getLocation().substring(0, HanaDataConstants.USERLOCATION_TEXT_SIZE));
+		if (userData.getGeoLocation() != null && userData.getGeoLocation().length()>HanaDataConstants.USERLOCATION_TEXT_SIZE) {
+			logger.error("truncating user geoLocation of " + userData.getSnId()+"-"+userData.getId() + " to " + HanaDataConstants.USERLOCATION_TEXT_SIZE + "! This is probably bad.");
+			userData.setGeoLocation(userData.getGeoLocation().substring(0, HanaDataConstants.USERLOCATION_TEXT_SIZE));
 		}	
 	
 	}
@@ -958,7 +951,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * 
 	 * @return 		true on success (found) or false in case of ANY error
 	 */
-	private OEntity checkIfEntryExist(String SN, Long Id, String type) {
+	private OEntity returnOEntityHandler(String SN, Long Id, String type) {
 		assert type == "user" || type == "post" : "type must be either \'user\' or \'post\'";
 		
 		/*
@@ -969,7 +962,7 @@ public class HANAPersistence implements IPersistenceManager {
 		 *  	OProperty [userName,			EdmSimpleType [Edm.String], 	Iesha],
 		 *  	OProperty [nickName,			EdmSimpleType [Edm.String], 	iesha785],
 		 *  	OProperty [userLang,			EdmSimpleType [Edm.String], 	en],
-		 *  	OProperty [location,			EdmSimpleType [Edm.String], 	null],
+		 *  	OProperty [geoLocation,			EdmSimpleType [Edm.String], 	null],
 		 *  	OProperty [follower,			EdmSimpleType [Edm.Int32], 		261],
 		 *  	OProperty [friends,				EdmSimpleType [Edm.Int32], 		1],
 		 *  	OProperty [postingsCount,		EdmSimpleType [Edm.Int32], 		209967],
@@ -978,8 +971,7 @@ public class HANAPersistence implements IPersistenceManager {
 		 *  	]
 		 */
 		
-		networkName = SocialNetworks.getNetworkNameByValue(SN.toString()).getType();
-		logger.info("checking if "+networkName+"-"+type+" "+SN+"-"+Id + " exists");
+		logger.info("checking if "+type+" "+SN+"-"+Id + " exists");
 		
 		BasicAuthenticationBehavior bAuth = null;
 		String _user = null;
@@ -1002,7 +994,7 @@ public class HANAPersistence implements IPersistenceManager {
 		}
 		
 		if ("user".equals(type)) {
-			logger.trace("searching for "+type+" " + SN.toString() + "-" + Id + " at location " + userURI);
+			logger.trace("searching for "+type+" " + SN + "-" + Id + " at location " + userURI);
 			
 			builder = ODataConsumer.newBuilder(userURI);
 			builder.setClientBehaviors(bAuth);
@@ -1013,8 +1005,7 @@ public class HANAPersistence implements IPersistenceManager {
 			// query for the user by id
 			try {
 				theDataset = userService.getEntities(entitySetName).filter("user_id eq '"+Id+"' and sn_id eq '" + SN.toString() + "'").top(1).execute().first();
-				logger.debug("found the "+type+ " " + SN +"-"+Id);
-				logger.trace("     => " + theDataset.toString());
+				logger.debug("found the " + type + " " + SN + "-" + Id + " as entity " + theDataset.getProperty("userName"));
 				
 				return theDataset;
 			} catch (RuntimeException e) {
@@ -1037,12 +1028,11 @@ public class HANAPersistence implements IPersistenceManager {
 			// query for the post by id
 			try {
 				theDataset = postService.getEntities(entitySetName).filter("post_id eq '"+Id+"' and sn_id eq '" + SN.toString() + "'").top(1).execute().first();
-				logger.debug("found the "+type+ " " + SN +"-"+Id);
-				logger.trace("     => " + theDataset.toString());
+				logger.debug("found the " + type + " " + SN + "-" + Id + " as entity " + theDataset.getProperty("id"));
 				
 				return theDataset; 
 			} catch (RuntimeException e) {
-				logger.debug("the "+type+" " + SN.toString() + "-" + Id + " does not exist");
+				logger.debug("the " + type + " " + SN.toString() + "-" + Id + " does not exist");
 				return null;
 			} catch (Exception e) {
 				logger.debug("EXCEPTION :: " + e.getLocalizedMessage());

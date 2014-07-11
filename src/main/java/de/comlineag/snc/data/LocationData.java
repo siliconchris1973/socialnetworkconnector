@@ -29,7 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @changelog	0.1 (Chris)		first initial version
  * 				0.2 			added getter and setter for geoLocation, geoAroundLongitude + geoAroundLatitude and geoCoordinates
  * 				0.3 			added new constructor for json-object 
- * 				0.4 			added constants for location object parser
+ * 				0.4 			added constants for geoLocation object parser
  * 
  * TODO 1. check if is possible to use this: http://docs.geotools.org/latest/userguide/faq.html
  * TODO 2. check if this class is ok for other social networks
@@ -39,9 +39,9 @@ public class LocationData {
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
-	// some static constants used to find the type and elements of geo the location object
+	// some static constants used to find the type and elements of geo the geoLocation object
 	private final static String GEO_LOCATION_COMPLEX_TYPE_TEXT = "geoLocation";  
-	private final static String GEO_LOCATION_SIMPLE_TYPE_TEXT = "location";
+	private final static String GEO_LOCATION_SIMPLE_TYPE_TEXT = "geoLocation";
 	private final static String GEO_LOCATION_ID_TEXT = "id";
 	private final static String GEO_LOCATION_NAME_TEXT = "name";
 	private final static String GEO_LOCATION_FULL_NAME_TEXT = "full_name";
@@ -71,7 +71,7 @@ public class LocationData {
 	
 	
 	/*
-	 * geo location as a JSON object
+	 * geo geoLocation as a JSON object
 	 * for the specification see 
 	 * 		http://geojson.org/geojson-spec.html 
 	 * 
@@ -116,7 +116,7 @@ public class LocationData {
 	
 	
 	/*
-	 * location - 	set in the form of country and name, with an optional id
+	 * geoLocation - 	set in the form of country and name, with an optional id
 	 * 
 	 * <Property Name="placeID" 	Type="Edm.String" MaxLength="16"/>
 	 * <Property Name="plName" 		Type="Edm.String" MaxLength="256"/>
@@ -139,13 +139,13 @@ public class LocationData {
 	 * @param JSONObject locationObject
 	 */
 	public LocationData(JSONObject locationObject){
-		logger.trace("json location object received: " + locationObject.toString());
+		logger.trace("json geoLocation object received: " + locationObject.toString());
 		try {
 			if(locationObject.containsKey(GEO_LOCATION_COMPLEX_TYPE_TEXT)){
-				logger.trace("found complex location of type " + GEO_LOCATION_COMPLEX_TYPE_TEXT);
+				logger.trace("found complex geoLocation of type " + GEO_LOCATION_COMPLEX_TYPE_TEXT);
 				setComplexGeoLocation(locationObject);
 			} else if(locationObject.containsKey(GEO_LOCATION_SIMPLE_TYPE_TEXT)){
-				logger.trace("found simple point location of type " + GEO_LOCATION_SIMPLE_TYPE_TEXT);
+				logger.trace("found simple point geoLocation of type " + GEO_LOCATION_SIMPLE_TYPE_TEXT);
 				setSimpleGeoLocation(locationObject);
 			} else {
 				logger.error("ERROR :: could not identify either "+GEO_LOCATION_COMPLEX_TYPE_TEXT+" (complex place) or "+GEO_LOCATION_SIMPLE_TYPE_TEXT+" (simple coordinates) - setting everything to null");
@@ -258,7 +258,7 @@ public class LocationData {
 				setGeoDefaultAsZero();
 			}
 			
-			// now let's set the received location in the latitude and longitude and also in the array simpleGeoLocation
+			// now let's set the received geoLocation in the latitude and longitude and also in the array simpleGeoLocation
 			// this is done in below method
 			setSimpleGeoLocation(new Double(rootCoordLat).toString(), new Double(rootCoordLon).toString());
 			
@@ -317,7 +317,7 @@ public class LocationData {
 			String t = new String(jsonObj.get(GEO_LOCATION_COORDINATES_TEXT).toString());
 			logger.trace("retrieved coordinates: " + t + " / " + t.substring(1, t.indexOf(",")) + " (lat) / " +t.substring(t.indexOf(",")+1,t.length()-1)+ " (long)");
 			
-			// now let's set the received location in the latitude and longitude and also in the array simpleGeoLocation
+			// now let's set the received geoLocation in the latitude and longitude and also in the array simpleGeoLocation
 			// this is done in below method
 			setSimpleGeoLocation(t.substring(1, t.indexOf(",")), t.substring(t.indexOf(",")+1,t.length()-1));
 		} catch (ParseException e) {
@@ -397,7 +397,7 @@ public class LocationData {
 		this.geoAroundLatitude = geoAroundLatitude;
 	}
 	
-	// now textual location representations
+	// now textual geoLocation representations
 	public String getGeoPlaceId() {
 		return geoPlaceId;
 	}

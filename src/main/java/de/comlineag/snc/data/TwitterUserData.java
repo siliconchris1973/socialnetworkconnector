@@ -9,7 +9,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  * @author 		Christian Guenther, Magnus Leinemann
  * @category 	data type
- * @version 	0.2
+ * @version 	0.2		- 10.07.2014
  * @status		productive
  * 
  * @description Describes a single twitter user with all relevant informations.
@@ -21,7 +21,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  *            "sn_id" String
  *            "name" String
  *            "screen_name" String
- *            "location" List
+ *            "geoLocation" List
  *            "followers_count" Long
  *            "friends_count" Long
  *            "statuses_count" Long
@@ -44,30 +44,32 @@ public final class TwitterUserData extends UserData {
 	 * @param jsonObject
 	 */
 	public TwitterUserData(JSONObject jsonObject) {
-		logger.debug("constructing new subset of data of user (ID: " + jsonObject.get("id") + ") from twitter user-object");
+		logger.debug("constructing new subset of data of user (TW-"  + jsonObject.get("id") + ") from twitter user-object");
 		logger.trace("  working on " + jsonObject.toString());
 		
 		// setting everything to 0 or null default value.
 		// so I can check on initialized or not initialized values for the
 		// posting
 		id = 0;
-		// ACHTUNG, wenn die Klasse fuer Facebook u.a. kopiert wird,
-		// dann muss dieses Value natuerlich umgesetzt werden
 		sn_id = SocialNetworks.TWITTER.getValue();
 		username = null;
 		screen_name = null;
-		location = null;
+		lang = null;
+		geoLocation = null;
 		followers_count = 0;
 		friends_count = 0;
 		postings_count = 0;
 		favorites_count = 0;
 		lists_and_groups_count = 0;
-		lang = null;
 		
 		setId((Long) jsonObject.get("id"));
 		setUsername((String) jsonObject.get("name"));
 		setScreenName((String) jsonObject.get("screen_name"));
-		setLocation((String) jsonObject.get("location"));
+		
+		setLang((String) jsonObject.get("lang"));
+		
+		if (jsonObject.get("geoLocation") != null)
+			setGeoLocation((String) jsonObject.get("geoLocation"));
 
 		if (jsonObject.get("followers_count") != null)
 			setFollowersCount((Long) jsonObject.get("followers_count"));
@@ -79,7 +81,5 @@ public final class TwitterUserData extends UserData {
 			setFavoritesCount((Long) jsonObject.get("favorites_count"));
 		if (jsonObject.get("lists_and_groups_count") != null)
 			setListsAndGroupsCount((Long) jsonObject.get("lists_and_groups_count"));
-
-		setLang((String) jsonObject.get("lang"));
 	}
 }

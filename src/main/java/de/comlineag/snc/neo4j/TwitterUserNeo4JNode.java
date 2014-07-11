@@ -34,7 +34,7 @@ public class TwitterUserNeo4JNode extends Neo4JNodeObject {
 		u.put("userName", userData.getUsername());							// {name = "userName"; sqlType = NVARCHAR; nullable = true; length = 128;},
 		u.put("nickName", userData.getScreenName());						// {name = "nickName"; sqlType = NVARCHAR; nullable = true; length = 128;},
 		u.put("userLang", userData.getLang());								// {name = "userLang"; sqlType = NVARCHAR; nullable = true; length = 64;},
-		u.put("location", userData.getLocation());							// {name = "location"; sqlType = NVARCHAR; nullable = true; length = 1024;},
+		u.put("geoLocation", userData.getGeoLocation());							// {name = "geoLocation"; sqlType = NVARCHAR; nullable = true; length = 1024;},
 		u.put("follower", userData.getFollowersCount());					// {name = "follower"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
 		u.put("friends", userData.getFriendsCount());						// {name = "friends"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
 		u.put("postingsCount", userData.getPostingsCount());				// {name = "postingsCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";},

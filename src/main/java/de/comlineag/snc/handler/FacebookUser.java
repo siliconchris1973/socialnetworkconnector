@@ -21,7 +21,7 @@ import de.comlineag.snc.data.FacebookUserData;
  *            		id 					Long 
  *            		name 				String 
  *            		screen_name 		String 
- *            		location 			List
+ *            		geoLocation 			List
  *            		followers_count		Long 
  *            		friends_count 		Long 
  *            		statuses_count 		Long
@@ -45,7 +45,7 @@ public class FacebookUser extends GenericDataManager<FacebookUserData> {
 	 * 
 	 * key="cl_userID" value="id" key="cl_userName" value="name"
 	 * key="cl_userScreenName" value="screen_name" key="cl_userLocation"
-	 * value="location" key="cl_userFollower" value="followers_count"
+	 * value="geoLocation" key="cl_userFollower" value="followers_count"
 	 * key="cl_userFriends" value="friends_count" key="cl_userPostingsCount"
 	 * value="statuses_count" key="cl_userFavoritesCount"
 	 * value="favourites_count" key="cl_userListsAndGroupsCount"

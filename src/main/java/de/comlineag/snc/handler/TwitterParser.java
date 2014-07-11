@@ -24,7 +24,7 @@ import org.json.simple.parser.ParseException;
  * @changelog	0.1 (Chris)		first skeleton
  * 				0.2 (Maic)		added support for list of posts	(no retweeted yet)
  * 				0.3 (Magnus)	added support for list of users and decode user
- * 				0.4	(Chris)		added support to save geo location information to the db
+ * 				0.4	(Chris)		added support to save geo geoLocation information to the db
  * 
  * @TODO 1. add support for retweeted tweets
  */

@@ -15,7 +15,7 @@ import de.comlineag.snc.helper.DataHelper;
  * @author 		Christian Guenther, Magnus Leinemann
  * @category 	data type
  * @version 	0.9a		- 10.07.2014
- * @status		productive (but some fields are missing)
+ * @status		beta (but some fields are missing)
  * 
  * @description Describes a single twitter posting with all relevant informations.
  *              The class shall be used to make all methods handling a twitter
@@ -41,15 +41,18 @@ import de.comlineag.snc.helper.DataHelper;
  * @changelog	0.1 (Chris)		class created
  * 				0.2 (Magnus)	added all simple fields
  * 				0.3 (Chris)		added constant for social network
- * 				0.4 (Magnus)	work on geo location
+ * 				0.4 (Magnus)	work on geo geoLocation
  * 				0.5 			skeleton for symbols, hashtags and mentions - as of v1.1 still not implemented
- * 				0.6 			first productive version without geo location and hashtag, symbols, mentions
+ * 				0.6 			first productive version without geo geoLocation and hashtag, symbols, mentions
  * 				0.7 (Chris)		minor bugfixings
- * 				0.8 			geo location services and datatypes are now in their own class TwitterLocationData
- * 				0.9 			changed geo location to make use of simple class LocationData and added teaser as substring of post
+ * 				0.8 			geo geoLocation services and datatypes are now in their own class TwitterLocationData
+ * 				0.9 			changed geo geoLocation to make use of simple class LocationData and added teaser as substring of post
  * 				0.9a			field length on teaser and subject and stripping of html for text
  * 				0.9b			Symbols, Hashtags and Mentions - yet to come
  * 
+ * @TODO 1. create code for hashtags
+ * @TODO 2. create code for symbols
+ * @TODO 3. create code for mentions
  */
 
 public final class TwitterPostingData extends PostData {
@@ -65,8 +68,7 @@ public final class TwitterPostingData extends PostData {
 	public TwitterPostingData(JSONObject jsonObject) {
 
 		// log the startup message
-		logger.debug("constructing new subset of data of tweet (ID: " + jsonObject.get("id") + ") from twitter post-object");
-		logger.trace("  working on " + jsonObject.toString());
+		logger.debug("constructing new subset of data of tweet (TW-"  + jsonObject.get("id") + ") from twitter post-object");
 		
 		// set all values to zero
 		initialize();
@@ -143,7 +145,7 @@ public final class TwitterPostingData extends PostData {
 		
 		
 		/*
-		 * simple point location as given by e.g. a mobile device
+		 * simple point geoLocation as given by e.g. a mobile device
 		 *
 		 * Structure
 		 *		Coordinates {

@@ -44,7 +44,7 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 	@SuppressWarnings("unchecked")
 	@Override
 	public ArrayList<T> getConstraint(String category, SocialNetworks SN) {
-		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "location")  : "ERROR :: can only accept term, site, user, language or location as category";
+		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "geoLocation")  : "ERROR :: can only accept term, site, user, language or geoLocation as category";
 		
 		logger.warn("no type safety guranteed for configuration elements - consider using xml or db configuration");
 		return (ArrayList<T>)getDataFromIni(category, SN);

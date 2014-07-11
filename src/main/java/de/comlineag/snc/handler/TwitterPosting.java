@@ -8,7 +8,7 @@ import de.comlineag.snc.data.TwitterPostingData;
  * 
  * @author 		Magnus Leinemann
  * @category 	Handler
- * @version		0.1
+ * @version		0.1		- 10.07.2014
  * @status		productive
  * 
  * @description Implementation of the twitter posting manager - extends

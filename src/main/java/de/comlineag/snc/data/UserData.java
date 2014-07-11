@@ -4,7 +4,7 @@ package de.comlineag.snc.data;
  * 
  * @author		Magnus Leinemann, Christian Guenther
  * @category	Data Class
- * @version		0.3
+ * @version		0.4		- 11.07.2014
  * @status		productive
  * 
  * @description core data type for the User Data
@@ -12,6 +12,7 @@ package de.comlineag.snc.data;
  * @changelog	0.1	(Magnus)	class created according to twitter user needs
  * 				0.2 (Chris)		added fields for counters
  * 				0.3				added fields average_rating_value, average_posting_rating_value and average_posting_ratio for Lithium user 
+ * 				0.4				changed field name from location to geoLocation
  * 
  * TODO 1. check if we need more/other fields for other social networks
  */
@@ -21,7 +22,7 @@ public class UserData {
 	protected String sn_id;							// the social network id from enum SocialNetworks
 	protected String username;						// the actual user name, might be different from the screen name 
 	protected String screen_name;					// the username as shown on the network (sometimes named nick name)
-	protected String location;						// a simple location representation (like a town, or country name)
+	protected String geoLocation;					// a simple geo location representation (like a town, or country name)
 	protected long followers_count;					// how many people is the user following
 	protected long friends_count;					// how many friends does the user have
 	protected long postings_count;					// how many posts did the user write
@@ -61,11 +62,11 @@ public class UserData {
 		this.screen_name = screenName;
 	}
 	
-	public String getLocation() {
-		return location;
+	public String getGeoLocation() {
+		return geoLocation;
 	}
-	public void setLocation(String location) {
-		this.location = location;
+	public void setGeoLocation(String geoLocation) {
+		this.geoLocation = geoLocation;
 	}
 	
 	public long getFollowersCount() {
@@ -123,7 +124,6 @@ public class UserData {
 	public void setFavoritesCount(long favoritesCount) {
 		this.favorites_count = favoritesCount;
 	}
-	
 	
 	public String getLang() {
 		return lang;

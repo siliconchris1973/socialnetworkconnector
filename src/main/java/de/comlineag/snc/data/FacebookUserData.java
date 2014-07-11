@@ -21,7 +21,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  *            "sn_id" String
  *            "name" String
  *            "screen_name" String
- *            "location" List
+ *            "geoLocation" List
  *            "followers_count" Long
  *            "friends_count" Long
  *            "statuses_count" Long
@@ -56,7 +56,7 @@ public final class FacebookUserData extends UserData {
 		sn_id = SocialNetworks.FACEBOOK.getValue();
 		username = null;
 		screen_name = null;
-		location = null;
+		geoLocation = null;
 		followers_count = 0;
 		friends_count = 0;
 		postings_count = 0;
@@ -67,7 +67,7 @@ public final class FacebookUserData extends UserData {
 		setId((Long) jsonObject.get("id"));
 		setUsername((String) jsonObject.get("name"));
 		setScreenName((String) jsonObject.get("screen_name"));
-		setLocation((String) jsonObject.get("location"));
+		setGeoLocation((String) jsonObject.get("geoLocation"));
 		if (jsonObject.get("followers_count") != null)
 			setFollowersCount((Long) jsonObject.get("followers_count"));
 		if (jsonObject.get("friends_count") != null)

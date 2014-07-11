@@ -52,7 +52,7 @@ public class XMLFileConfigurationPersistence<T> implements IConfigurationManager
 	// general invocation for every constraint
 	@Override
 	public ArrayList<T> getConstraint(String category, SocialNetworks SN) {
-		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "location")  : "ERROR :: can only accept term, site, user, language or location as category";
+		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "geoLocation")  : "ERROR :: can only accept term, site, user, language or geoLocation as category";
 		
 		return (ArrayList<T>) getDataFromXml(category, SN);
 	}

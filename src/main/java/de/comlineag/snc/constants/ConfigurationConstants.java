@@ -23,7 +23,7 @@ public class ConfigurationConstants {
 	public static final String CONSTRAINT_SITE_TEXT					= "site";
 	public static final String CONSTRAINT_BOARD_TEXT				= "board";
 	public static final String CONSTRAINT_BLOG_TEXT					= "blog";
-	public static final String CONSTRAINT_LOCATION_TEXT				= "location";
+	public static final String CONSTRAINT_LOCATION_TEXT				= "geoLocation";
 	
 	// these values are for job details from within applicationContext.xml 
 	// connection end points
@@ -42,7 +42,7 @@ public class ConfigurationConstants {
 	
 	// these values are only needed by file-based db systems, such as Neo4J 
 	public static final String DB_PATH_KEY 							= "db_path";
-	public static final String LOCATION_KEY 						= "location";
+	public static final String LOCATION_KEY 						= "geoLocation";
 	
 	// cryptographic keys for authentication (introduced for twitter api)
 	public static final String AUTHENTICATION_CLIENT_ID_KEY 		= "consumerKey";

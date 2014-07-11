@@ -38,7 +38,7 @@ import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
  * @changelog	0.1 (Chris)		initial version as copy from HANAPersistence
  * 				0.2 			insert of post
  * 				0.3				insert of user
- * 				0.4				query for location
+ * 				0.4				query for geoLocation
  * 				0.5				create relationship between nodes
  * 				0.6 			bugfixing and wrap up
  * 				0.7 			skeleton for graph traversal
@@ -47,7 +47,7 @@ import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
  * 
  * TODO 1. implement code to check if a node already exists prior inserting one
  * TODO 2. implement code for graph traversal
- * TODO 3. check implementation of geo location
+ * TODO 3. check implementation of geo geoLocation
  */
 public class Neo4JPersistence implements IPersistenceManager {
 	
@@ -129,7 +129,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 			p.put("truncated", postData.getTruncated());					// Property Name="truncated" Type="Edm.Byte" DefaultValue="0"					--> true or false
 			p.put("client", postData.getClient()); 							// OBSOLETE Name="client" Type="Edm.String" MaxLength="2048"
 			
-			// TODO check implementation of geo location
+			// TODO check implementation of geo geoLocation
 			if (postData.getGeoLongitude() != null) 
 				p.put("geoLocation_longitude", postData.getGeoLongitude());	// Property Name="geoLocation_longitude" Type="Edm.String" MaxLength="40"
 			if (postData.getGeoLatitude() != null)
@@ -180,7 +180,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 					logger.info("SUCCESS :: node for post " + postData.getId() + " successfully created");
 					
 					output = mPost.getResponseBodyAsString();
-					Header locationHeader =  mPost.getResponseHeader("location");
+					Header locationHeader =  mPost.getResponseHeader("geoLocation");
 					
 					toNodeLocationUri = locationHeader.getValue();
 					toNodeId = getNodeIdFromLocation(toNodeLocationUri);
@@ -235,7 +235,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 			u.put("userName", userData.getUsername());							// {name = "userName"; sqlType = NVARCHAR; nullable = true; length = 128;},
 			u.put("nickName", userData.getScreenName());						// {name = "nickName"; sqlType = NVARCHAR; nullable = true; length = 128;},
 			u.put("userLang", userData.getLang());								// {name = "userLang"; sqlType = NVARCHAR; nullable = true; length = 64;},
-			u.put("location", userData.getLocation());							// {name = "location"; sqlType = NVARCHAR; nullable = true; length = 1024;},
+			u.put("geoLocation", userData.getGeoLocation());							// {name = "geoLocation"; sqlType = NVARCHAR; nullable = true; length = 1024;},
 			u.put("follower", userData.getFollowersCount());					// {name = "follower"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
 			u.put("friends", userData.getFriendsCount());						// {name = "friends"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
 			u.put("postingsCount", userData.getPostingsCount());				// {name = "postingsCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
@@ -260,7 +260,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 					logger.info("SUCCESS :: node for user " + userData.getScreenName() + " successfully created");
 					
 					output = mPost.getResponseBodyAsString( );
-					Header locationHeader = mPost.getResponseHeader("location");
+					Header locationHeader = mPost.getResponseHeader("geoLocation");
 					
 					fromNodeLocationUri = locationHeader.getValue();
 					fromNodeId = getNodeIdFromLocation(fromNodeLocationUri);
@@ -344,10 +344,10 @@ public class Neo4JPersistence implements IPersistenceManager {
 				logger.info("SUCCESS :: connection between node " + fromNodeId + " and node " + toNodeId + " created");
 				
 				output = mPost.getResponseBodyAsString();
-				Header locationHeader =  mPost.getResponseHeader("location");
+				Header locationHeader =  mPost.getResponseHeader("geoLocation");
 				mPost.releaseConnection( );
 				
-				logger.trace("status = " + status + " / location = " + locationHeader.getValue() + " \n output = " + output);
+				logger.trace("status = " + status + " / geoLocation = " + locationHeader.getValue() + " \n output = " + output);
 			}
 		} catch(Exception e) {
 			logger.error("EXCEPTION :: Creating connection of type " + relationshipType + " between node ( " + fromNodeUri + ") and node (" + toNodeUri + ")  " + e.getMessage());
@@ -355,8 +355,8 @@ public class Neo4JPersistence implements IPersistenceManager {
 	}
 	
 	/**
-	 * @description receives a location URL and returns the ID
-	 * 				the location URL MUST be of the form <protocol>://<servername>:<port>/<path>/<id>
+	 * @description receives a geoLocation URL and returns the ID
+	 * 				the geoLocation URL MUST be of the form <protocol>://<servername>:<port>/<path>/<id>
 	 * 				IMPORTTANT: the node-id must be the last part of the URL, otherwise an exception is thrown 
 	 * @param toNodeLocationUri
 	 * @return toNodeId
@@ -425,11 +425,11 @@ public class Neo4JPersistence implements IPersistenceManager {
 				logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
 			} else {
 				output = mPost.getResponseBodyAsString();
-				Header locationHeader =  mPost.getResponseHeader("location");
+				Header locationHeader =  mPost.getResponseHeader("geoLocation");
 				mPost.releaseConnection( );
 				
-				logger.debug("SUCCESS :: found the node at location " + locationHeader.getValue());
-				logger.trace("status = " + status + " / location = " + locationHeader.getValue() + " \n output = " + output);
+				logger.debug("SUCCESS :: found the node at geoLocation " + locationHeader.getValue());
+				logger.trace("status = " + status + " / geoLocation = " + locationHeader.getValue() + " \n output = " + output);
 				
 				return locationHeader.getValue();
 			}
@@ -483,11 +483,11 @@ public class Neo4JPersistence implements IPersistenceManager {
 				logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
 			} else {
 				output = mPost.getResponseBodyAsString();
-				Header locationHeader =  mPost.getResponseHeader("location");
+				Header locationHeader =  mPost.getResponseHeader("geoLocation");
 				mPost.releaseConnection( );
 				
 				logger.info("SUCCESS :: added label " + label + " to the node " + nodeUri + Neo4JConstants.LABEL_LOC);
-				logger.trace("status = " + status + " / location = " + locationHeader.getValue() + " \n output = " + output);
+				logger.trace("status = " + status + " / geoLocation = " + locationHeader.getValue() + " \n output = " + output);
 			}
 		} catch(Exception e) {
 			logger.error("EXCEPTION :: adding label to the node: " + e.getMessage());

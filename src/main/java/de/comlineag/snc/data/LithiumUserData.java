@@ -11,7 +11,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * @author 		Christian Guenther
  * @category 	data type
  * @version 	0.4
- * @status		productive but some fields are missing
+ * @status		productive
  * 
  * @description Describes a single lithium user with all relevant informations.
  *              The class shall be used to make all methods handling a lithium
@@ -22,7 +22,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  *            "sn_id" String
  *            "name" String
  *            "screen_name" String
- *            "location" List
+ *            "geoLocation" List
  *            "followers_count" Long
  *            "friends_count" Long
  *            "statuses_count" Long
@@ -33,9 +33,9 @@ import de.comlineag.snc.constants.SocialNetworks;
  * @changelog	0.1 (Chris)		first initial version as copy from TwitterUserData
  * 				0.2 			added parsing of 2nd and 3rd level of json string
  * 				0.3 			bugfixing
- * 				0.4 			first productive version
+ * 				0.4 			first productive version - without geo geoLocation
  * 
- * TODO 1. implement geo location support for users
+ * TODO 1. implement geo geoLocation support for users
  * TODO 2. check if user profile can and shall be used
  * TODO 3. check if we need to support for the anonymous and deleted flag
  * TODO 4. add support for average_rating_value, average_posting_rating_value and average_posting_ratio
@@ -94,7 +94,7 @@ public final class LithiumUserData extends UserData {
 	 * @param jsonObject
 	 */
 	public LithiumUserData(JSONObject jsonObject) {
-		logger.debug("constructing new subset of data of user from lithium user-object");
+		logger.debug("constructing new subset of data of user (LT-"  + jsonObject.get("id") + ") from lithium user-object");
 		//logger.trace("  working on " + jsonObject.toString());
 		
 		// alles auf Null und die SocialNetworkID schon mal parken
@@ -127,7 +127,7 @@ public final class LithiumUserData extends UserData {
 			setScreenName((String) jsonObjLogin.get("$"));
 			
 			
-			// we are using the location field for the user profile icon
+			// we are using the geoLocation field for the user profile icon
 			// Structure
 			//	{}profiles
 			//		{}profile
@@ -135,9 +135,26 @@ public final class LithiumUserData extends UserData {
 			//				name : "url_icon"
 			//				type : "string"
 			//				$ : "/t5/image/serverpage/image-id/563i1FE178F1680E09BF/image-size/avatar?v=mpbl-1&px=64"
-			//setLocation((String) jsonObject.get("location"));
+			obj = parser.parse(jsonObject.get("profiles").toString());
+			JSONObject jsonObjProfiles = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			
+			if (jsonObjProfiles != null){
+				logger.trace("jsonObjProfiles found");
+				// second level - get profile
+				JSONParser parserProfile = new JSONParser();
+				Object objProfile = parserProfile.parse(jsonObjProfiles.get("profile").toString());
+				JSONObject jsonObjProfile0 = objProfile instanceof JSONObject ?(JSONObject) objProfile : null;
+				
+				if (jsonObjProfile0 != null){
+					logger.trace("jsonObjProfile0 found");
+					// third level - get element
+					JSONParser parserElement = new JSONParser();
+					Object objElement = parserElement.parse(jsonObjProfile0.get("0").toString());
+					JSONObject jsonObjElement = objElement instanceof JSONObject ?(JSONObject) objElement : null;
+					setGeoLocation((String) jsonObjElement.get("$"));
+					logger.trace("============= \ngeoLocation field for user contains " + getGeoLocation() + "\n===============");
+				}
+			}
 			
 			setLang((String) jsonObject.get("lang"));
 		} catch (Exception e) {
@@ -151,7 +168,7 @@ public final class LithiumUserData extends UserData {
 		sn_id 					= SocialNetworks.LITHIUM.getValue();
 		username 				= null;
 		screen_name 			= null;
-		location 				= null;
+		geoLocation 				= null;
 		followers_count 		= 0;
 		friends_count 			= 0;
 		postings_count 			= 0;

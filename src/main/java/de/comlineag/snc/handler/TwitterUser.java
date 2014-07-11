@@ -9,7 +9,7 @@ import de.comlineag.snc.data.TwitterUserData;
  * 
  * @author 		Christian Guenther
  * @category 	Handler
- * @version		0.1
+ * @version		0.1		- 10.07.2014
  * @status		productive
  * 
  * @description Implementation of the twitter user manager - extends

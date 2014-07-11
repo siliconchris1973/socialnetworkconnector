@@ -19,7 +19,7 @@ import de.comlineag.snc.helper.DataHelper;
  * 				The class shall be used to make all methods handling a Lithium posting type save.
  * 
  * 				ATTENTION: 	The messages in the Lithium network differ fundamentally from a Twitter 
- * 							Tweet. On the one side, there are less information (location and reply 
+ * 							Tweet. On the one side, there are less information (geoLocation and reply 
  * 							information are missing) and on the other side there are many other 
  * 							informations unknown to twitter, like kudos count, views count, board
  * 							subject, teaser and the like. So in the end, a lithium message will
@@ -170,8 +170,7 @@ public final class LithiumPostingData extends PostData {
 	 *            one single post in Lithium
 	 */
 	public LithiumPostingData(JSONObject jsonObject) {
-		logger.debug("constructing new subset of data of post from lithium post-object");
-		//logger.trace("  working on " + jsonObject.toString());
+		logger.debug("constructing new subset of data of post (LT-"  + jsonObject.get("id") + ") from lithium post-object");
 		
 		// alles auf Null und die SocialNetworkID schon mal parken
 		initialize();
