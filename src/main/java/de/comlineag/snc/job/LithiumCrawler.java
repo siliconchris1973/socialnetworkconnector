@@ -94,7 +94,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		
 		// this is just example code to show, how to interact with the CryptoProvider enum
 		String desiredStrength = "low";
-		CryptoProvider encryptionProviderToUse = CryptoProvider.getEncryptionProvider(desiredStrength);
+		CryptoProvider encryptionProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
 		logger.trace("determined " + encryptionProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
 		
 		try {
