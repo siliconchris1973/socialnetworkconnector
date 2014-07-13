@@ -78,6 +78,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// log the startup message
 		logger.info("Twitter-Crawler START");
+		int messageCount = 0;
 		
 		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 		
@@ -129,6 +130,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			
 			// Do whatever needs to be done with messages
 			for (int msgRead = 0; msgRead < 1000; msgRead++) {
+				messageCount++;
 				String msg = "";
 				try {
 					msg = msgQueue.take();
@@ -147,6 +149,6 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			logger.error("Error while processing messages", e);
 		}
 		client.stop();
-		logger.info("Twitter-Crawler END\n");
+		logger.info("Twitter-Crawler END - tracked "+messageCount+" messages\n");
 	}
 }

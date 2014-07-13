@@ -84,6 +84,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// log the startup message
 		logger.info("Lithium-Crawler START");
+		int messageCount = 0;
 		
 		// authentication to lithium
 		String _user = null;
@@ -178,7 +179,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				method.addParameter(LithiumConstants.HTTP_RESPONSE_FORMAT_COMMAND, LithiumConstants.HTTP_RESPONSE_FORMAT);
 				for (int ii = 0 ; ii < tTerms.size(); ii++ ){
 					searchTerm = tTerms.get(ii).toString();
-					logger.info("now adding searchterm " + searchTerm + " to method parameter");
+					logger.trace("now adding searchterm " + searchTerm + " to method parameter");
 					method.addParameter(LithiumConstants.SEARCH_TERM, searchTerm);
 				}
 				httpStatusCodes = HttpStatusCodes.getHttpStatusCode(client.executeMethod(method));
@@ -228,6 +229,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 						JSONArray messageArray = litParse.parseMessages(jsonString);
 						
 						for(Object messageObj : messageArray){
+							messageCount++;
 							String messageRef = (String) ((JSONObject)messageObj).get(LithiumConstants.JSON_MESSAGE_REFERENCE);
 							
 							JSONObject messageResponse = SendObjectRequest(messageRef, REST_API_URL, LithiumConstants.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
@@ -268,7 +270,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			logger.error("EXCEPTION :: Crawler Error: " + e.toString(), e);
 		}
 		
-		logger.info("Lithium-Crawler END\n");
+		logger.info("Lithium-Crawler END - tracked "+messageCount+" messages\n");
 	}
 	
 	
