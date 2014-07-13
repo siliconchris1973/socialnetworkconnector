@@ -35,11 +35,9 @@ public class DataCryptoHandler {
 		dataEncryptionProvider = (ICryptoProvider) AppContext.Context.getBean("dataEncryptionProvider");
 	}
 	
-	@SuppressWarnings("unused")
-	private static String getEncryptionProvider() {
-		return (String) AppContext.Context.getBean("dataEncryptionProvider");
+	public String getCryptoProviderName() {
+		return (String) AppContext.Context.getBean("dataEncryptionProvider").getClass().getSimpleName();
 	}
-	
 	
 	/**
 	 * @description Decrypts a given string 

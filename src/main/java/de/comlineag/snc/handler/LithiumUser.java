@@ -27,18 +27,14 @@ import de.comlineag.snc.data.LithiumUserData;
 
 public class LithiumUser extends GenericDataManager<LithiumUserData> {
 	
-	//private final Logger logger = Logger.getLogger(getClass().getName());
-	
 	public LithiumUser() {}
 	
 	private LithiumUserData data;
 
-	//private final Logger logger = Logger.getLogger(getClass().getName());
 	public LithiumUser(JSONObject jsonObject) {
 		data = new LithiumUserData(jsonObject);
 	}
 	
-	// public void save(List<LithiumUser> users){
 	public void save() {
 		persistenceManager.saveUsers(data);
 	}

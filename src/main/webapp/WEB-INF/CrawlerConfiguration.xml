@@ -58,10 +58,6 @@
 			</term>
 			<term>
 				<type>String</type>
-				<value>Ethik</value>
-			</term>
-			<term>
-				<type>String</type>
 				<value>Geld</value>
 			</term>
 			<term>
@@ -74,15 +70,31 @@
 			</term>
 			<term>
 				<type>String</type>
-				<value>Geschäft</value>
-			</term>
-			<term>
-				<type>String</type>
 				<value>Trading</value>
 			</term>
 			<term>
 				<type>String</type>
 				<value>Broker</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Finanzmarkt</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Jahreszins</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Aktienanleihe</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Fonds</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Geldanlage</value>
 			</term>
 		</constraint>
 		
@@ -227,6 +239,18 @@
 			<term>
 				<type>String</type>
 				<value>Wissenslexikon</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Geschäft</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Ethik</value>
+			</term>
+			<term>
+				<type>String</type>
+				<value>Markt</value>
 			</term>
 		</constraint>
 		

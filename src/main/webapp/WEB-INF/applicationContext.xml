@@ -29,8 +29,14 @@
 	
 	<!-- Activate Spring annotation support -->
 	<context:annotation-config />
-	<context:component-scan base-package="de.comlineag.snc.job" />
+	<context:component-scan base-package="de.comlineag.snc.constants" />
+	<context:component-scan base-package="de.comlineag.snc.crypto" />
+	<context:component-scan base-package="de.comlineag.snc.data" />
 	<context:component-scan base-package="de.comlineag.snc.handler" />
+	<context:component-scan base-package="de.comlineag.snc.helper" />
+	<context:component-scan base-package="de.comlineag.snc.job" />
+	<context:component-scan base-package="de.comlineag.snc.neo4j" />
+	<context:component-scan base-package="de.comlineag.snc.persistence" />
 	<tx:annotation-driven />
 	
 	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.persistence.ApplicationContextProvider"></bean>
@@ -192,9 +198,9 @@
 	
 	
 	
-	<!-- E N C R Y P T I O N    S E T T I N G S -->
+	<!-- C R Y P T O    S E T T I N G S -->
 	<!-- You can choose exactly one of the provided encryption provider for each category (id) -->
-	<!-- C O N F I G U R A T I O N     E N C R Y P T I O N     S E T T I N G S -->
+	<!-- C O N F I G U R A T I O N     C R Y P T O     S E T T I N G S -->
 	<!-- NULL   Encryption Provider   -   this is the bean to set the configuration encryption provider to null
 	<bean id="configurationEncryptionProvider" class="de.comlineag.snc.crypto.NullCryptoProvider"> </bean>
 	-->
@@ -209,7 +215,7 @@
 	<!-- AES    Encryption Provider   -   this is the bean to set the configuration encryption provider to AES 
 	<bean id="configurationEncryptionProvider" class="de.comlineag.snc.crypto.AesCryptoProvider"> </bean>
 	-->
-	<!-- D A T A     E N C R Y P T I O N     S E T T I N G S -->
+	<!-- D A T A     C R Y P T O     S E T T I N G S -->
 	<!-- NULL   Encryption Provider   -   this is the bean to set the data encryption provider to null -->
 	<bean id="dataEncryptionProvider" class="de.comlineag.snc.crypto.NullCryptoProvider"> </bean>
 	<!-- BASE64 Encryption Provider   -   this is the bean to set the data encryption provider to Base64 
@@ -273,7 +279,7 @@
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
 	</bean>
 	
-	<!-- N E O 4 J    P E R S I S T E N C E    (WORKS) -->
+	<!-- N E O 4 J    P E R S I S T E N C E    (WORKS in part) -->
 	<!-- 
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.Neo4JPersistence"> 
 		<property name="protocol" value="http" /> 
@@ -327,19 +333,19 @@
 			<props>
 				<!-- ThreadPool -->
 				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
-				<!-- change this to the number of crawlers (see below) or the number of cores, whichever is higher -->
+				<!-- CURRENTLY THIS MUST BE KEPT TO 1 - OTHERWISE THE DB RECEIVES MULTIPLE INSERTS FOR ONE DATASET -->
 				<prop key="org.quartz.threadPool.threadCount">1</prop>
 			</props>
 		</property>
 		<property name="triggers">
 			<list>
-				<!-- activate each crawler you want and make sure to increase the threadCount above correspondingly -->
-				<!-- <ref bean="TwitterCrawlerTrigger" /> -->
+				<!-- activate each crawler you want -->
+				<ref bean="TwitterCrawlerTrigger" />
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="FinanzforumCrawlerTrigger"/> -->
-				<ref bean="LithiumCrawlerTrigger" />
+				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
 			</list>
 		</property>
 	</bean>

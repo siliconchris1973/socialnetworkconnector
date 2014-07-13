@@ -1,6 +1,5 @@
 package de.comlineag.snc.persistence;
 
-import java.net.ConnectException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -219,11 +218,11 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			// get the user and password for the JDBC connection
 			try {
-				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getClass().getSimpleName());
+				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getCryptoProviderName());
 				user = configurationCryptoProvider.decryptValue(this.user);
 				password = configurationCryptoProvider.decryptValue(this.pass);
 			} catch (GenericCryptoException e) {
-				logger.error("EXCEPTION :: could not decrypt value for user/passwd with " + configurationCryptoProvider.getClass().getSimpleName() + ": " + e.toString(), e);
+				logger.error("EXCEPTION :: could not decrypt value for user/passwd with " + configurationCryptoProvider.getCryptoProviderName() + ": " + e.toString(), e);
 			}
             
             logger.debug("trying to insert data with jdbc url="+url+" user="+user);
@@ -299,7 +298,7 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: JDBC call failed, post ("+postData.getSnId()+"-"+postData.getId()+") not inserted " + le.getLocalizedMessage());
 			le.printStackTrace();
 		} catch (GenericCryptoException e) {
-			logger.error("EXCEPTION :: could not on-the-fly encrypt data with "+ dataCryptoProvider.getClass().getSimpleName() + e.getMessage(), e);
+			logger.error("EXCEPTION :: could not on-the-fly encrypt data with "+ dataCryptoProvider.getCryptoProviderName() + ": "+ e.getMessage(), e);
 		}
 	}
 	
@@ -317,7 +316,7 @@ public class HANAPersistence implements IPersistenceManager {
 		// in case the connection is NOT opened already, attempt to create an OData Consumer
 		if (postService == null) {
 			try {
-				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getClass().getSimpleName());
+				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getCryptoProviderName());
 				String _user = configurationCryptoProvider.decryptValue(this.user);
 				String _pw = configurationCryptoProvider.decryptValue(this.pass);
 				
@@ -330,7 +329,7 @@ public class HANAPersistence implements IPersistenceManager {
 				builder.setClientBehaviors(bAuth);
 				postService = builder.build();
 			} catch (GenericCryptoException e) {
-				logger.error("EXCEPTION :: could not decrypt value for user/passwd with " + configurationCryptoProvider.getClass().getSimpleName() + ": " + e.toString(), e);
+				logger.error("EXCEPTION :: could not decrypt value for user/passwd with " + configurationCryptoProvider.getCryptoProviderName() + ": " + e.toString(), e);
 			}
 		}
 		logger.debug("connected to service endpoint " + this.protocol+"://" + this.host + ":" + this.port + this.location + "/" + this.servicePostEndpoint);
@@ -386,7 +385,7 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: could not create post ("+postData.getSnId()+"-"+postData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
 		} catch (GenericCryptoException e) {
-			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getClass().getSimpleName() + e.getMessage(), e);
+			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 		}
 	}
 	
@@ -409,11 +408,11 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			// get the user and password for the JDBC connection
 			try {
-				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getClass().getSimpleName());
+				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getCryptoProviderName());
 				user = configurationCryptoProvider.decryptValue(this.user);
 				password = configurationCryptoProvider.decryptValue(this.pass);
 			} catch (GenericCryptoException e) {
-				logger.error("EXCEPTION :: could not decrypt value for user/passwd with " + configurationCryptoProvider.getClass().getSimpleName() + ": " + e.toString(), e);
+				logger.error("EXCEPTION :: could not decrypt value for user/passwd with " + configurationCryptoProvider.getCryptoProviderName() + ": " + e.toString(), e);
 			}
             
             logger.debug("trying to insert data with jdbc url="+url+" user="+user);
@@ -460,7 +459,7 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: JDBC call failed, user ("+userData.getSnId()+"-"+userData.getId()+") not inserted " + le.getLocalizedMessage());
 			le.printStackTrace();
 		} catch (GenericCryptoException e) {
-			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getClass().getSimpleName() + e.getMessage(), e);
+			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 		}
 	}
 	
@@ -475,7 +474,7 @@ public class HANAPersistence implements IPersistenceManager {
 		
 		if (userService == null) {
 			try {
-				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getClass().getSimpleName());
+				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getCryptoProviderName());
 				String _user = configurationCryptoProvider.decryptValue(this.user);
 				String _pw = configurationCryptoProvider.decryptValue(this.pass);
 				String baseLocation = new String(this.protocol+"://" + this.host + ":" + this.port + this.location);
@@ -488,7 +487,7 @@ public class HANAPersistence implements IPersistenceManager {
 				builder.setClientBehaviors(bAuth);
 				userService = builder.build();
 			} catch (GenericCryptoException e) {
-				logger.error("EXCEPTION :: could not decrypt value for user/passwd with " + configurationCryptoProvider.getClass().getSimpleName() + ": " + e.toString(), e);
+				logger.error("EXCEPTION :: could not decrypt value for user/passwd with " + configurationCryptoProvider.getCryptoProviderName() + ": " + e.toString(), e);
 			}
 		}
 		logger.debug("connected to service endpoint " + this.protocol+"://" + this.host + ":" + this.port + this.location + "/" + this.serviceUserEndpoint);
@@ -528,7 +527,7 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("ERROR :: Could not create user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
 		} catch (GenericCryptoException e) {
-			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getClass().getSimpleName() + e.getMessage(), e);
+			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 		}
 	}
 	
@@ -555,11 +554,11 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			// get the user and password for the JDBC connection
 			try {
-				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getClass().getSimpleName());
+				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getCryptoProviderName());
 				user = configurationCryptoProvider.decryptValue(this.user);
 				password = configurationCryptoProvider.decryptValue(this.pass);
 			} catch (GenericCryptoException e) {
-				logger.error("EXCEPTION :: could not decrypt user and/or password with " + configurationCryptoProvider.getClass().getSimpleName() + e.getMessage(), e);
+				logger.error("EXCEPTION :: could not decrypt user and/or password with " + configurationCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 			}
             
             logger.debug("trying to update data with jdbc url="+url+" user="+user);
@@ -630,7 +629,7 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: JDBC call failed, post ("+postData.getSnId()+"-"+postData.getId()+") not inserted " + le.getLocalizedMessage());
 			le.printStackTrace();
 		} catch (GenericCryptoException e) {
-			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getClass().getSimpleName() + e.getMessage(), e);
+			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 		}
 	}
 	
@@ -642,6 +641,11 @@ public class HANAPersistence implements IPersistenceManager {
 	 */
 	private void updatePostWithOData(PostData postData, OEntity thePostEntity){
 		logger.info("updating post "+postData.getSnId()+"-"+postData.getId());
+
+		// this is just example code to show, how to interact with the CryptoProvider enum
+		String desiredStrength = "low";
+		CryptoProvider cryptoProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
+		logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
 		
 		// static variant to set the truncated flag - which is not used anyway at the moment
 		int truncated = (postData.getTruncated()) ? 1 : 0;
@@ -649,7 +653,7 @@ public class HANAPersistence implements IPersistenceManager {
 		// in case the connection is NOT opened already, attempt to create an OData Consumer
 		if (postService == null) {
 			try {
-				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getClass().getSimpleName());
+				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getCryptoProviderName());
 				String _user = configurationCryptoProvider.decryptValue(this.user);
 				String _pw = configurationCryptoProvider.decryptValue(this.pass);
 				
@@ -663,7 +667,7 @@ public class HANAPersistence implements IPersistenceManager {
 				postService = builder.build();
 				
 			} catch (GenericCryptoException e) {
-				logger.error("EXCEPTION :: could not decrypt user and/or password with " + configurationCryptoProvider.getClass().getSimpleName() + e.getMessage(), e);
+				logger.error("EXCEPTION :: could not decrypt user and/or password with " + configurationCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 			}
 		}
 		logger.debug("connected to service endpoint " + this.protocol+"://" + this.host + ":" + this.port + this.location + "/" + this.servicePostEndpoint);
@@ -717,7 +721,7 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: could not update post ("+postData.getSnId()+"-"+postData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
 		} catch (GenericCryptoException e) {
-			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getClass().getSimpleName() + e.getMessage(), e);
+			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 		}
 	}
 	
@@ -730,6 +734,11 @@ public class HANAPersistence implements IPersistenceManager {
 	private void updateUserWithSQL(UserData userData) {
 		logger.info("updating user "+userData.getSnId()+"-"+userData.getId());
 		
+		// this is just example code to show, how to interact with the CryptoProvider enum
+		String desiredStrength = "low";
+		CryptoProvider cryptoProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
+		logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
+				
 		// first try to save the data via jdbc
 		try {
 			Class.forName(this.dbDriver);
@@ -740,11 +749,11 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			// get the user and password for the JDBC connection
 			try {
-				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getClass().getSimpleName());
+				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getCryptoProviderName());
 				user = configurationCryptoProvider.decryptValue(this.user);
 				password = configurationCryptoProvider.decryptValue(this.pass);
 			} catch (GenericCryptoException e) {
-				logger.error("EXCEPTION :: could not decrypt user and/or password with " + configurationCryptoProvider.getClass().getSimpleName() + e.getMessage(), e);
+				logger.error("EXCEPTION :: could not decrypt user and/or password with " + configurationCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 			}
             
             logger.debug("trying to update user "+SN+"-"+Id+" with jdbc url="+url+" user="+user);
@@ -790,7 +799,7 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: JDBC call failed, user ("+userData.getSnId()+"-"+userData.getId()+") not inserted " + le.getLocalizedMessage());
 			le.printStackTrace();
 		} catch (GenericCryptoException e) {
-			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getClass().getSimpleName() + e.getMessage(), e);
+			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 		}
 	}
 	
@@ -802,10 +811,14 @@ public class HANAPersistence implements IPersistenceManager {
 	 */
 	private void updateUserWithOData(UserData userData, OEntity theUserEntity){
 		logger.info("updating user "+userData.getSnId()+"-"+userData.getId());
-		
+		// this is just example code to show, how to interact with the CryptoProvider enum
+		String desiredStrength = "low";
+		CryptoProvider cryptoProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
+		logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
+				
 		if (userService == null) {
 			try {
-				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getClass().getSimpleName());
+				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getCryptoProviderName());
 				String _user = configurationCryptoProvider.decryptValue(this.user);
 				String _pw = configurationCryptoProvider.decryptValue(this.pass);
 				String baseLocation = new String(this.protocol+"://" + this.host + ":" + this.port + this.location);
@@ -818,7 +831,7 @@ public class HANAPersistence implements IPersistenceManager {
 				builder.setClientBehaviors(bAuth);
 				userService = builder.build();
 			} catch (GenericCryptoException e) {
-				logger.error("EXCEPTION :: could not decrypt user and/or password with " + configurationCryptoProvider.getClass().getSimpleName() + e.getMessage(), e);
+				logger.error("EXCEPTION :: could not decrypt user and/or password with " + configurationCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 			}
 		}
 		logger.debug("connected to service endpoint " + this.protocol+"://" + this.host + ":" + this.port + this.location + "/" + this.serviceUserEndpoint);
@@ -854,7 +867,7 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("ERROR :: Could not update user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
 		} catch (GenericCryptoException e) {
-			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getClass().getSimpleName() + e.getMessage(), e);
+			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 		}
 	}
 	
@@ -939,14 +952,14 @@ public class HANAPersistence implements IPersistenceManager {
 	 * @description searches for users or posts in the database and returns true if the dataset
 	 * 				exists, or false in any other case - including errors, that is!	
 	 * 
-	 * @param 		id
-	 * 					id of the user or the post
 	 * @param 		sn_id
 	 * 					shortcut of the social network as defined in enum SocialNetworks 
+	 * @param 		id
+	 * 					id of the user or the post
 	 * @param 		type
 	 * 					must be set to either post or user
 	 * 
-	 * @return 		true on success (found) or false in case of ANY error
+	 * @return 		OData entity handler to the object on success (found) or null if not found or in case of ANY error
 	 */
 	private OEntity returnOEntityHandler(String SN, Long Id, String type) {
 		assert type == "user" || type == "post" : "type must be either \'user\' or \'post\'";
@@ -968,28 +981,29 @@ public class HANAPersistence implements IPersistenceManager {
 		 *  	]
 		 */
 		
-		logger.info("searching for "+type+" with id "+SN+"-"+Id + "");
+		//logger.info("searching for "+type+" with id "+SN+"-"+Id + "");
 		
 		BasicAuthenticationBehavior bAuth = null;
 		String _user = null;
 		String _pw = null;
+		
 		String entitySetName = null;
 		OEntity theDataset = null;
 		
 		String baseLocation = new String(this.protocol + "://" + this.host + ":" + this.port + this.location);
 		
 		// this is just example code to show, how to interact with the CryptoProvider enum
-		String desiredStrength = "low";
-		CryptoProvider cryptoProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
-		logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
+		//String desiredStrength = "low";
+		//CryptoProvider cryptoProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
+		//logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
 		
 		try {
-			logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getClass().getSimpleName());
+			logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getCryptoProviderName());
 			_user = configurationCryptoProvider.decryptValue(this.user);
 			_pw = configurationCryptoProvider.decryptValue(this.pass);
 			bAuth = new BasicAuthenticationBehavior(_user, _pw);
 		} catch (GenericCryptoException e) {
-			logger.error("EXCEPTION :: could not decrypt value for user/passwd with " + configurationCryptoProvider.getClass().getSimpleName() + ": " + e.toString(), e);
+			logger.error("EXCEPTION :: could not decrypt value for user/passwd with " + configurationCryptoProvider.getCryptoProviderName() + ": " + e.toString(), e);
 			return null;
 		}
 		
@@ -997,7 +1011,7 @@ public class HANAPersistence implements IPersistenceManager {
 		if ("user".equals(type)) {
 			String userURI = new String(baseLocation + "/" + this.serviceUserEndpoint);
 		
-			logger.trace("searching for "+type+" " + SN + "-" + Id + " at location " + userURI);
+			logger.debug("searching for "+type+" " + SN + "-" + Id + " at location " + userURI);
 			
 			ODataConsumer.Builder userBuilder = ODataConsumer.newBuilder(userURI);
 			userBuilder.setClientBehaviors(bAuth);
