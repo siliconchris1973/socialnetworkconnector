@@ -139,7 +139,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				} catch (Exception ee) {
 					logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
 				}
-				logger.info("New Tweet tracked from " + msg.substring(15, 45) + "...");
+				logger.info("New Tweet tracked from " + msg.substring(15, 45) + "... / number " + messageCount + " in this job run");
 				logger.trace("   content: " + msg );
 				
 				// Jede einzelne Message wird nun an den Parser TwitterParser uebergeben

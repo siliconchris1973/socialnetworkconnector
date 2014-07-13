@@ -334,7 +334,7 @@
 				<!-- ThreadPool -->
 				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
 				<!-- CURRENTLY THIS MUST BE KEPT TO 1 - OTHERWISE THE DB RECEIVES MULTIPLE INSERTS FOR ONE DATASET -->
-				<prop key="org.quartz.threadPool.threadCount">1</prop>
+				<prop key="org.quartz.threadPool.threadCount">2</prop>
 			</props>
 		</property>
 		<property name="triggers">
@@ -345,7 +345,7 @@
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="FinanzforumCrawlerTrigger"/> -->
-				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
+				<ref bean="LithiumCrawlerTrigger" />
 			</list>
 		</property>
 	</bean>
