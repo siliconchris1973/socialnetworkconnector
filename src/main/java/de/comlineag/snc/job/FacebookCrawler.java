@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 import com.twitter.hbc.core.endpoint.Location;
 
 import de.comlineag.snc.constants.ConfigurationConstants;
+import de.comlineag.snc.constants.CryptoProvider;
 import de.comlineag.snc.constants.HttpStatusCodes;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
@@ -53,7 +54,7 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private ConfigurationCryptoHandler configurationEncryptionProvider = new ConfigurationCryptoHandler();
+	private ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
 
 	// Set up your blocking queues: Be sure to size these properly based on
 	// expected TPS of your stream
@@ -80,11 +81,18 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		// some static vars for the facebook crawler
 		String _user = null;
 		String _passwd = null;
+		
+		// this is just example code to show, how to interact with the CryptoProvider enum
+		String desiredStrength = "low";
+		CryptoProvider cryptoProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
+		logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
+				
 		try {
-			_user = configurationEncryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
-			_passwd = configurationEncryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
+			logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getClass().getSimpleName());
+			_user = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
+			_passwd = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
 		} catch (GenericCryptoException e) {
-			logger.error("EXCEPTION :: value for user or passwd is NOT base64 encrypted " + e.toString(), e);
+			logger.error("EXCEPTION :: could not decrypt value for user/passwd with " + configurationCryptoProvider.getClass().getSimpleName() + ": " + e.toString(), e);
 			System.exit(-1);
 		}
 		

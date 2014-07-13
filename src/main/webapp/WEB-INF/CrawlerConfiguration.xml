@@ -218,23 +218,23 @@
 			If no site is given, the crawler will search through the whole community. 
 		-->
 		
+		
 		<!-- 
 			track only messages (aka posts) with specific keywords
 			these constraints are added to the generic ones above 
 		-->
-		<!-- 
 		<constraint>
 			<term>
 				<type>String</type>
-				<value>Wertpapierhandel</value>
+				<value>Wissenslexikon</value>
 			</term>
 		</constraint>
-		 -->
+		
+		
 		<!-- 
 			setup a constraint against specific sites
 			these constraints are added to the generic ones above 
 		-->
-		<!-- 
 		<constraint>
 			<site>
 				<type>String</type>
@@ -265,7 +265,6 @@
 				<value>/boards/id/Sonstige-Themen</value>
 			</site>
 		</constraint>
-		-->
 		
 		
 		<!-- 

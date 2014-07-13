@@ -114,7 +114,6 @@ public final class LithiumUserData extends UserData {
 			
 			setId((Long) jsonObjId.get("$"));
 			
-			
 			// username / login and nickname, all the same at lithium
 			// Structure
 			//	{}login
@@ -125,7 +124,6 @@ public final class LithiumUserData extends UserData {
 			
 			setUsername((String) jsonObjLogin.get("$"));
 			setScreenName((String) jsonObjLogin.get("$"));
-			
 			
 			// we are using the geoLocation field for the user profile icon
 			// Structure
@@ -139,20 +137,17 @@ public final class LithiumUserData extends UserData {
 			JSONObject jsonObjProfiles = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
 			if (jsonObjProfiles != null){
-				logger.trace("jsonObjProfiles found");
 				// second level - get profile
 				JSONParser parserProfile = new JSONParser();
 				Object objProfile = parserProfile.parse(jsonObjProfiles.get("profile").toString());
 				JSONObject jsonObjProfile0 = objProfile instanceof JSONObject ?(JSONObject) objProfile : null;
 				
 				if (jsonObjProfile0 != null){
-					logger.trace("jsonObjProfile0 found");
 					// third level - get element
 					JSONParser parserElement = new JSONParser();
 					Object objElement = parserElement.parse(jsonObjProfile0.get("0").toString());
 					JSONObject jsonObjElement = objElement instanceof JSONObject ?(JSONObject) objElement : null;
 					setGeoLocation((String) jsonObjElement.get("$"));
-					logger.trace("============= \ngeoLocation field for user contains " + getGeoLocation() + "\n===============");
 				}
 			}
 			

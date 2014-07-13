@@ -37,14 +37,12 @@ import de.comlineag.snc.handler.LithiumUser;
  * 
  * @author 		Christian Guenther
  * @category 	Job
- * @version		1.1b
- * @status		beta
+ * @version		1.2		- 13.07.2014
+ * @status		Productive
  * 
- * @description this is the actual crawler for the Lithium network. It is
- *              implemented as a job and, upon execution, will connect to the
- *              Lithium REST API to search for posts that contain keywords.
- *              The keywords are sourced in by the configuration manager.
- *              The crawler also gets the user for each post and  
+ * @description this is the actual crawler for the Lithium network. It is implemenetd as a job and,
+ *              upon execution, will connect to the Lithium REST API to search for posts that contain keywords.
+ *              The keywords are sourced in by the configuration manager.  
  * 
  * @changelog	0.1 (Chris)		copy of TwitterCrawler
  * 				0.2 			try and error with xml rest api						
@@ -59,8 +57,8 @@ import de.comlineag.snc.handler.LithiumUser;
  *				1.1 			added configuration constants
  *				1.1a			moved Base64CryptoProvider in its own class
  *				1.1b			added support for different encryption provider, the actual one is set in applicationContext.xml 
+ *				1.2				changed search against rest api url to use method parameter instead of for-loop 
  *
- * TODO 1. change the double for-loop through sites and search terms to a more sophisticated solution
  */
 public class LithiumCrawler extends GenericCrawler implements Job {
 
@@ -68,7 +66,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private ConfigurationCryptoHandler configurationEncryptionProvider = new ConfigurationCryptoHandler();
+	private ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
 
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
@@ -94,15 +92,15 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		
 		// this is just example code to show, how to interact with the CryptoProvider enum
 		String desiredStrength = "low";
-		CryptoProvider encryptionProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
-		logger.trace("determined " + encryptionProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
+		CryptoProvider cryptoProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
+		logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
 		
 		try {
-			logger.trace("decrypting authorization details from job control");
-			_user = configurationEncryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
-			_passwd = configurationEncryptionProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
+			logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getClass().getSimpleName());
+			_user = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
+			_passwd = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
 		} catch (GenericCryptoException e) {
-			logger.error("EXCEPTION :: value for user or passwd is NOT base64 encrypted " + e.toString(), e);
+			logger.error("EXCEPTION :: could not decrypt value for user/passwd with " + configurationCryptoProvider.getClass().getSimpleName() + ": " + e.toString(), e);
 			System.exit(-1);
 		}
 		
@@ -155,12 +153,12 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				String t = null;
 				for (int i = 0; i < tSites.size() ; i++) {
 					t = tSites.get(i);
+					//https://wissen.cortalconsors.de:443/restapi/vc/boards/id/Girokonto-Zahlungsverkehr/search/messages
 					tSites.set(i, REST_API_URL + t + LithiumConstants.REST_MESSAGES_SEARCH_URI);
 					logger.trace("     " + tSites.get(i));
 				}
 			}
 			
-			//TODO change this simple double for-loop to something more sophisticated
 			// maybe we can use the GenericExecutorService class for this???
 			for (int i = 0 ; i < tSites.size(); i++ ){
 				// because the search endpoint can either be standard REST_API_URL or any of the configured sites, 
@@ -170,91 +168,95 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				HttpClient client = new HttpClient();
 				String searchTerm = null;
 				
+				// To perform a community-wide search for a query,  you can use the following REST API call:
+				//		http://YOURCOMMUNITYURL/<community-id>/restapi/PVC/search/messages?Q=<query>
+				//	For example:
+				//		http://community.lithium.com/lithosphere/restapi/vc/search/messages?q=testing
+				//	for Cortal Consors this would be
+				//		https://wissen.cortalconsors.de:443/restapi/vc/search/messages
+				PostMethod method = new PostMethod(postEndpoint);
+				method.addParameter(LithiumConstants.HTTP_RESPONSE_FORMAT_COMMAND, LithiumConstants.HTTP_RESPONSE_FORMAT);
 				for (int ii = 0 ; ii < tTerms.size(); ii++ ){
 					searchTerm = tTerms.get(ii).toString();
-					logger.info("now searching for " + searchTerm + " in " + postEndpoint);
-					
-					// http connection stuff to get messages per search term
-					PostMethod method = new PostMethod(postEndpoint );
-					method.addParameter(LithiumConstants.HTTP_RESPONSE_FORMAT_COMMAND, LithiumConstants.HTTP_RESPONSE_FORMAT);
+					logger.info("now adding searchterm " + searchTerm + " to method parameter");
 					method.addParameter(LithiumConstants.SEARCH_TERM, searchTerm);
-					httpStatusCodes = HttpStatusCodes.getHttpStatusCode(client.executeMethod(method));
-					if (!httpStatusCodes.isOk()){
-						if (httpStatusCodes == HttpStatusCodes.FORBIDDEN){
-							logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
-						} else {
-							logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()) + " could not connect to " + postEndpoint);
-						}
+				}
+				httpStatusCodes = HttpStatusCodes.getHttpStatusCode(client.executeMethod(method));
+				if (!httpStatusCodes.isOk()){
+					if (httpStatusCodes == HttpStatusCodes.FORBIDDEN){
+						logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
 					} else {
-						// ONLY and ONLY if the http connection was successfull, we should even try to decode a response json
-						logger.debug("http connection established (status is " + httpStatusCodes + ")");
+						logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()) + " could not connect to " + postEndpoint);
+					}
+				} else {
+					// ONLY and ONLY if the http connection was successfull, we should even try to decode a response json
+					logger.debug("http connection established (status is " + httpStatusCodes + ")");
+					
+					// now get the json and check on that
+					String jsonString = method.getResponseBodyAsString();
+					//logger.trace("our posting json in the execute loop: " + jsonString);
+					
+					// now do the check on json error details within  the returned JSON object
+					JSONParser errParser = new JSONParser();
+					Object errObj = errParser.parse(jsonString);
+					JSONObject jsonErrObj = errObj instanceof JSONObject ?(JSONObject) errObj : null;
+					if(jsonErrObj == null)
+						throw new ParseException(0, "returned json object is null");
+					JSONObject responseObj = (JSONObject)jsonErrObj.get(LithiumConstants.JSON_RESPONSE_OBJECT_TEXT);
+					jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(LithiumConstants.JSON_STATUS_CODE_TEXT).toString());
+					
+					if(!jsonStatusCode.isOk()){
+						/*
+						 *  error json structure: 
+						 *  {"response":{
+						 *  	"status":"error",
+						 *  	"error":{
+						 *  		"code":501,
+						 *  		"message":"Unbekanntes Pfadelement bei Knoten \u201Ecommunity_search_context\u201C"
+						 *  		}
+						 *  	}
+						 *  }
+						 */
+						JSONObject errorReference = (JSONObject)responseObj.get(LithiumConstants.JSON_ERROR_OBJECT_TEXT);
+						logger.error("the server returned an error " + errorReference.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT));
 						
-						// now get the json and check on that
-						String jsonString = method.getResponseBodyAsString();
-						logger.trace("our posting json in the execute loop: " + jsonString);
+						throw new GenericCrawlerException("the server returned an error " + errorReference.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT));
+					} else {
 						
-						// now do the check on json error details within  the returned JSON object
-						JSONParser errParser = new JSONParser();
-						Object errObj = errParser.parse(jsonString);
-						JSONObject jsonErrObj = errObj instanceof JSONObject ?(JSONObject) errObj : null;
-						if(jsonErrObj == null)
-							throw new ParseException(0, "returned json object is null");
-						JSONObject responseObj = (JSONObject)jsonErrObj.get(LithiumConstants.JSON_RESPONSE_OBJECT_TEXT);
-						jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(LithiumConstants.JSON_STATUS_CODE_TEXT).toString());
+						// give the json object to the lithium parser for further processing
+						LithiumParser litParse = new LithiumParser();
+						JSONArray messageArray = litParse.parseMessages(jsonString);
 						
-						if(!jsonStatusCode.isOk()){
-							/*
-							 *  error json structure: 
-							 *  {"response":{
-							 *  	"status":"error",
-							 *  	"error":{
-							 *  		"code":501,
-							 *  		"message":"Unbekanntes Pfadelement bei Knoten \u201Ecommunity_search_context\u201C"
-							 *  		}
-							 *  	}
-							 *  }
-							 */
-							JSONObject errorReference = (JSONObject)responseObj.get(LithiumConstants.JSON_ERROR_OBJECT_TEXT);
-							logger.error("the server returned an error " + errorReference.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT));
+						for(Object messageObj : messageArray){
+							String messageRef = (String) ((JSONObject)messageObj).get(LithiumConstants.JSON_MESSAGE_REFERENCE);
 							
-							throw new GenericCrawlerException("the server returned an error " + errorReference.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT));
-						} else {
-							
-							// give the json object to the lithium parser for further processing
-							LithiumParser litParse = new LithiumParser();
-							JSONArray messageArray = litParse.parseMessages(jsonString);
-							
-							for(Object messageObj : messageArray){
-								String messageRef = (String) ((JSONObject)messageObj).get(LithiumConstants.JSON_MESSAGE_REFERENCE);
+							JSONObject messageResponse = SendObjectRequest(messageRef, REST_API_URL, LithiumConstants.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
+							if (messageResponse != null) {
+								// first save the message
+								new LithiumPosting(messageResponse).save();
 								
-								JSONObject messageResponse = SendObjectRequest(messageRef, REST_API_URL, LithiumConstants.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
-								if (messageResponse != null) {
-									// first save the message
-									new LithiumPosting(messageResponse).save();
+								// now get the user from REST url and save it also
+								try {
+									JSONParser parser = new JSONParser();
+									Object obj = parser.parse(messageResponse.toString());
+									JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+									if(jsonObj == null)
+										throw new ParseException(0, "returned json object is null");
+									JSONObject authorObj = (JSONObject)jsonObj.get(LithiumConstants.JSON_AUTHOR_OBJECT_IDENTIFIER);
 									
-									// now get the user from REST url and save it also
-									try {
-										JSONParser parser = new JSONParser();
-										Object obj = parser.parse(messageResponse.toString());
-										JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
-										if(jsonObj == null)
-											throw new ParseException(0, "returned json object is null");
-										JSONObject authorObj = (JSONObject)jsonObj.get(LithiumConstants.JSON_AUTHOR_OBJECT_IDENTIFIER);
-										
-										String userRef = (String) ((JSONObject)authorObj).get(LithiumConstants.JSON_AUTHOR_REFERENCE);
-										JSONObject userResponse = SendObjectRequest(userRef, REST_API_URL, LithiumConstants.JSON_USER_OBJECT_IDENTIFIER);
-										
-										new LithiumUser(userResponse).save();
-										
-									} catch (ParseException e) {
-										logger.error("EXCEPTION :: could not retrieve user from message object " + e.getLocalizedMessage());
-										e.printStackTrace();
-									} // try catch
-								} // if message response is != null
-							}// for loop over message array
-						}// is json ok
-					}// is http ok
-				}// loop over search terms.exe
+									String userRef = (String) ((JSONObject)authorObj).get(LithiumConstants.JSON_AUTHOR_REFERENCE);
+									JSONObject userResponse = SendObjectRequest(userRef, REST_API_URL, LithiumConstants.JSON_USER_OBJECT_IDENTIFIER);
+									
+									new LithiumUser(userResponse).save();
+									
+								} catch (ParseException e) {
+									logger.error("EXCEPTION :: could not retrieve user from message object " + e.getLocalizedMessage());
+									e.printStackTrace();
+								} // try catch
+							} // if message response is != null
+						}// for loop over message array
+					}// is json ok
+				}// is http ok
 			}// loop over sites
 		} catch (HttpException e) {
 			logger.error("EXCEPTION :: HTTP Error: " + e.toString(), e);
