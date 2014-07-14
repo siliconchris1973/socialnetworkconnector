@@ -11,7 +11,6 @@ import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OProperties;
 
-import de.comlineag.snc.constants.CryptoProvider;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.data.PostData;
@@ -26,7 +25,7 @@ import de.comlineag.snc.constants.HanaDataConstants;
  * @author 		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Connector Class
  * @version 	0.9g	- 10.07.2014
- * @status		productive (no geo location support)
+ * @status		productive
  *
  * @description handles the connectivity to the SAP HANA Systems and saves and updates posts and users in the DB
  * 
@@ -48,12 +47,18 @@ import de.comlineag.snc.constants.HanaDataConstants;
  * 				0.9f				added update methods to update an existing record
  *				0.9g				added support to honor actual field length in the database - all fields too long, will be truncated
  * 
- * TODO 3. enable geoLocation support for users
- * TODO	2. establish proper error handling and find out how to get the HTTP error code during OData calls
- * TODO 1. fix crawler bug, that causes the persistence to insert a post multiple times
+ * TODO 1. fix crawler bug, that causes the persistence to try to insert a post or user multiple times
  * 			This bug has something to do with the number of threads provided by the Quartz job control
  * 			In case 1 thread is provided, everything is fine, but if 2 threads are provided (as needed if two crawler
- * 			run - Twitter and Lithium) the Twitter crawler tries to insert some posts more then once. 
+ * 			run - Twitter and Lithium) the Twitter crawler tries to insert some posts more then once - an attempt 
+ * 			obviously doomed. We log the following error: 
+ * 				could not create post (TW-488780024691322880): Expected status 201, found 400
+ * 			and the hana db returns this message:
+ * 				Service exception: unique constraint violated.
+ * 
+ * TODO	2. establish proper error handling and find out how to get the HTTP error code during OData calls
+ * TODO 3. enable geoLocation support for users
+ * 
  */
 public class HANAPersistence implements IPersistenceManager {
 	
@@ -893,7 +898,7 @@ public class HANAPersistence implements IPersistenceManager {
 		if (postData.getRawText() != null && postData.getRawText().length()>HanaDataConstants.POSTING_TEXT_SIZE) {
 			logger.warn("truncating raw text of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.POSTING_TEXT_SIZE);
 			
-			postData.setRawText((String) DataHelper.truncateHtmlWords(postData.getRawText().substring(0, (HanaDataConstants.POSTING_TEXT_SIZE-5)), (HanaDataConstants.POSTING_TEXT_SIZE-1)));
+			postData.setRawText((String) DataHelper.htmlTruncator(postData.getRawText().substring(0, (HanaDataConstants.POSTING_TEXT_SIZE-5)), (HanaDataConstants.POSTING_TEXT_SIZE-1)));
 			logger.debug("     truncated raw text now has " + postData.getRawText().length() + " characters");
 		}
 		if (postData.getTeaser() != null && postData.getTeaser().length()>HanaDataConstants.TEASER_TEXT_SIZE) {

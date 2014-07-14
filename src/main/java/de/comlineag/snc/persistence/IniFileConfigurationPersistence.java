@@ -14,8 +14,8 @@ import java.util.ArrayList;
 /**
  * @author		Christian Guenther
  * @category	Persistence manager
- * @version		0.7
- * @status		productive
+ * @version		0.7a	- 14.07.2014
+ * @status		productive - but some functions are still missing
  * 
  * 
  * @description	A very simple configuration manager for the crawler using flat ini files for the configuration
@@ -30,6 +30,8 @@ import java.util.ArrayList;
  *				0.5 			changed naming convention for constraints according to XMLFileConfiguration
  *				0.6 			changed methods according to IConfigurationManager version 0.3
  *				0.7 			added warning to unimplemented methods
+ *				0.7a			Added method parameter customer. Has no effect here but needed
+ * 								for XMLFileCustomerSpecificConfiguration
  *  
  *  TODO 1. implement code to insert/update a value
  */
@@ -43,14 +45,14 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public ArrayList<T> getConstraint(String category, SocialNetworks SN) {
+	public ArrayList<T> getConstraint(String category, SocialNetworks SN, String customer) {
 		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "geoLocation")  : "ERROR :: can only accept term, site, user, language or geoLocation as category";
 		
-		logger.warn("no type safety guranteed for configuration elements - consider using xml or db configuration");
-		return (ArrayList<T>)getDataFromIni(category, SN);
+		logger.warn("no customer and network specific configuration and no type safety guranteed - consider using xml or db configuration");
+		return (ArrayList<T>)getDataFromIni(category);
 	}
 	
-	private ArrayList<String> getDataFromIni(String section, SocialNetworks SN) {
+	private ArrayList<String> getDataFromIni(String section) {
 		ArrayList<String> ar = new ArrayList<String>();
 		Ini ini = null;
 		

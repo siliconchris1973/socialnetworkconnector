@@ -60,6 +60,9 @@
 					entries for server, protocol and location are taken from constants 
 					from the hbc twitter api 
 				-->
+				
+				<!-- first customer specific implementation -->
+				<entry key="customer" value="CortalConsors" />
 			</map>
 		</property>
 		<property name="durability" value="true" />
@@ -99,6 +102,9 @@
 				<entry key="port" value="443" />
 				<entry key="server_url" value="wissen.cortalconsors.de" />
 				<entry key="rest_api_loc" value="/restapi/vc" />
+				
+				<!-- first customer specific implementation -->
+				<entry key="customer" value="CortalConsors" />
 			</map>
 		</property>
 		<property name="durability" value="true" />
@@ -135,9 +141,12 @@
 				<!-- with these entries the url to the rest api and graph engine is generated -->
 				<entry key="protocol" value="https" />
 				<entry key="port" value="443" />
-				<entry key="server_url" value="facebook.com" />
+				<entry key="server_url" value="graph.facebook.com" />
 				<entry key="graph_api_loc" value="/graph" />
 				<entry key="rest_api_loc" value="/restapi/" />
+				
+				<!-- first customer specific implementation -->
+				<entry key="customer" value="CortalConsors" />
 			</map>
 		</property>
 		<property name="durability" value="true" />
@@ -175,6 +184,11 @@
 				<entry key="server_url"	value="google.com" /> 
 				<entry key="graph_api_loc" value="/graph" /> 
 				<entry key="rest_api_loc" value="/restapi/" /> 
+				
+-->
+				<!-- first customer specific implementation -->
+<!--
+				<entry key="customer" value="CortalConsors" />
 			</map> 
 		</property> 
 		<property name="durability" value="true" /> 
@@ -269,13 +283,23 @@
 	</bean> 
 	-->
 	
-	<!-- this is the bean to get the crawler configuration from an xml file -->
+	
+	<!-- this is the bean to get the crawler configuration specific for individual customers from an xml file
+		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR DIFFERENT CUSTOMERS) -->
+	<bean id="configurationManager" class="de.comlineag.snc.persistence.XMLFileCustomerSpecificConfigurationPersistence"> 
+		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CustomerSpecificCrawlerConfiguration.xml" /> 
+	</bean> 
+	
+	<!-- this is the bean to get the crawler configuration from an xml file 
+		(WORKS BUT NO CUSTOMER SPECIFIC CONFIGURATION POSSIBLE)	-->
+	<!-- 
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.XMLFileConfigurationPersistence"> 
 		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration.xml" /> 
 	</bean> 
-	
+	-->
+	 
 	<!-- this is the bean to get the crawler configuration from an ini file 
-		(WORKS WITH RESTRICTIONS - NO CRAWLER SPECIFIC CONFIG POSSIBLE) -->
+		(WORKS WITH RESTRICTIONS - NO CUSTOMER AND NO CRAWLER SPECIFIC CONFIGURATION POSSIBLE) -->
 	<!--
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.IniFileConfigurationPersistence">
 		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration.ini" />

@@ -2,6 +2,7 @@ package de.comlineag.snc.persistence;
 
 import org.apache.log4j.Logger;
 
+import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.SocialNetworks;
 
 import java.io.IOException;
@@ -20,7 +21,7 @@ import org.w3c.dom.NodeList;
 /**
  * @author		Christian Guenther
  * @category	Persistence manager
- * @version		0.5
+ * @version		0.5a	- 14.07.2014
  * @status		productive but some functions are missing
  * 
  * @description	A configuration manager for the crawler using structured xml files for the configuration
@@ -32,6 +33,9 @@ import org.w3c.dom.NodeList;
  * 				0.3 			changed XML parsing to XPath
  * 				0.4 			added warnings to unimplemented methods
  * 				0.5 			added support for generic type conversion on T
+ * 				0.5a 			scope identifiers are now taken from ConfigurationConstants 
+ * 								Added method parameter customer. Has no effect here but needed
+ * 								for XMLFileCustomerSpecificConfiguration
  *  
  *  TODO 1. implement code for missing methods
  */
@@ -39,21 +43,16 @@ public class XMLFileConfigurationPersistence<T> implements IConfigurationManager
 	
 	// the path to the configuration file
 	private String configDbHandler;
-	final String scopeIdentifier = "scope";
-	final String constraintIdentifier = "constraint";
-	final String valueIdentifier = "value";
-	final String rootIdentifier = "configurations";
-	final String singleConfigurationIdentifier = "configuration";
-	final String scopeOnAllIdentifier = "ALL";
 	
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	// general invocation for every constraint
 	@Override
-	public ArrayList<T> getConstraint(String category, SocialNetworks SN) {
+	public ArrayList<T> getConstraint(String category, SocialNetworks SN, String customer) {
 		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "geoLocation")  : "ERROR :: can only accept term, site, user, language or geoLocation as category";
 		
+		logger.warn("no customer specific configuration - consider using xml or db configuration with customer extension");
 		return (ArrayList<T>) getDataFromXml(category, SN);
 	}
 	
@@ -72,14 +71,14 @@ public class XMLFileConfigurationPersistence<T> implements IConfigurationManager
 			XPath xpath = xPathfactory.newXPath();
 			
 			// first step is to get all general constraints 
-			String expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+scopeOnAllIdentifier+"']/"+constraintIdentifier+"/"+section+"/"+valueIdentifier;
+			String expression = "/"+ConfigurationConstants.rootIdentifier+"/"+ConfigurationConstants.singleConfigurationIdentifier+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.scopeOnAllIdentifier+"']/"+ConfigurationConstants.constraintIdentifier+"/"+section+"/"+ConfigurationConstants.valueIdentifier;
 			NodeList nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + ": \r");
 			for (int i = 0 ; i < nodeList.getLength() ; i++) 
 				ar.add((T) nodeList.item(i).getTextContent());
 			
 			// second step is to get all constraints for the specified social network 
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+SN+"']/"+constraintIdentifier+"/"+section+"/"+valueIdentifier;
+			expression = "/"+ConfigurationConstants.rootIdentifier+"/"+ConfigurationConstants.singleConfigurationIdentifier+"[@"+ConfigurationConstants.scopeIdentifier+"='"+SN+"']/"+ConfigurationConstants.constraintIdentifier+"/"+section+"/"+ConfigurationConstants.valueIdentifier;
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
 			for (int i = 0 ; i < nodeList.getLength() ; i++)

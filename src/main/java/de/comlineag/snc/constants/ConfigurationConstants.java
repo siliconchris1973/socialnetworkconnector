@@ -16,14 +16,7 @@ package de.comlineag.snc.constants;
  * 
  */
 public class ConfigurationConstants {
-	// these values are section names within the configuration db 
-	public static final String CONSTRAINT_TERM_TEXT					= "term";
-	public static final String CONSTRAINT_USER_TEXT					= "user";
-	public static final String CONSTRAINT_LANGUAGE_TEXT				= "language";
-	public static final String CONSTRAINT_SITE_TEXT					= "site";
-	public static final String CONSTRAINT_BOARD_TEXT				= "board";
-	public static final String CONSTRAINT_BLOG_TEXT					= "blog";
-	public static final String CONSTRAINT_LOCATION_TEXT				= "geoLocation";
+	// the following are basic terms as constants defining entries n the various xml files
 	
 	// these values are for job details from within applicationContext.xml 
 	// connection end points
@@ -53,4 +46,53 @@ public class ConfigurationConstants {
 	// basic authentication with username and password
 	public static final String AUTHENTICATION_USER_KEY 				= "user";
 	public static final String AUTHENTICATION_PASSWORD_KEY 			= "passwd";
+	
+	
+	// these values are section names within the configuration db 
+	public static final String CONSTRAINT_TERM_TEXT					= "term";
+	public static final String CONSTRAINT_USER_TEXT					= "user";
+	public static final String CONSTRAINT_LANGUAGE_TEXT				= "language";
+	public static final String CONSTRAINT_SITE_TEXT					= "site";
+	public static final String CONSTRAINT_BOARD_TEXT				= "board";
+	public static final String CONSTRAINT_BLOG_TEXT					= "blog";
+	public static final String CONSTRAINT_LOCATION_TEXT				= "geoLocation";
+	
+	/*	XML structure
+		<configurations>
+			<configuration>
+				<customer name="CustomerName">
+					<name>
+						<type>String</type>
+						<value>customer name</value>
+					</name>
+					<matchcode>
+						<type>String</type>
+						<value>CN</value>
+					</matchcode>
+					<entry scope="some used identifier">
+						<type>String</type>
+						<value>value</value>
+					</entry>
+					<constraints scope="ALL">
+						<constraint>
+							<term>
+								<type>String</type>
+								<value>value</value>
+							</term>
+						</constraint>
+					</constraints>
+				</customer>
+			</configuration>
+		</configurations>
+	*/ // XML Schema identifiers
+	public static final String rootIdentifier 						= "configurations";
+	public static final String singleConfigurationIdentifier 		= "configuration";
+	public static final String customerIdentifier 					= "customer";
+	public static final String customerNameIdentifier				= "name";
+	public static final String customerNameForAllIdentifier 		= "ALL";
+	public static final String constraintIdentifier 				= "constraints";
+	public static final String scopeIdentifier 						= "scope";
+	public static final String scopeOnAllIdentifier 				= "ALL";
+	public static final String singleConstraintIdentifier 			= "constraint";
+	public static final String valueIdentifier 						= "value";
 }

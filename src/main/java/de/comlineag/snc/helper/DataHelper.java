@@ -134,7 +134,8 @@ public class DataHelper {
 	    }
 	    */
 	    String result = "";
-	    boolean trimmed = false;
+	    @SuppressWarnings("unused")
+		boolean trimmed = false;
 	    
 	    /*
 	     * This pattern creates tokens, where each line starts with the tag.
@@ -169,7 +170,8 @@ public class DataHelper {
 
 	    // splits all html-tags to scanable lines
 	    Matcher tagMatcher =  tagPattern.matcher(text);
-	    int numTags = tagMatcher.groupCount();
+	    @SuppressWarnings("unused")
+		int numTags = tagMatcher.groupCount();
 	    
 	    int totalLength = 0;
 	    List<String> openTags = new ArrayList<String>();
@@ -335,7 +337,7 @@ public class DataHelper {
 		if (words <= length)
 			return html;
 		StringBuilder out = new StringBuilder(html.substring(0, endTextPos));
-		for (String tag: openTags)
+		for (@SuppressWarnings("unused") String tag: openTags)
 			out.append("");
 		
 		return out.toString();

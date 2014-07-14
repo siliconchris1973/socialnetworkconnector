@@ -2,15 +2,13 @@ package de.comlineag.snc.handler;
 
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
-
 import de.comlineag.snc.constants.SocialNetworks;
 
 /**
  * 
  * @author 		Christian Guenther
  * @category	handler
- * @version		0.5 	- 13.07.2014
+ * @version		0.5a 	- 13.07.2014
  * @status		productive
  * 
  * @description	invokes the configuration manager as defined in applicationContext.xml
@@ -25,30 +23,25 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  * @param <T>
  * 
- * @changelog	0.1 first initial version with terms, languages, sites, locations and users
- * 				0.2 added getConfigurationElement and setConfigurationElement
- *				0.3	added support for SocialNetwork specific configuration
- *				0.4 changed method calls according to IConfigurationManager version 0.3
- *				0.5 added generic type arguments
+ * @changelog	0.1 (Chris)		first initial version with terms, languages, sites, locations and users
+ * 				0.2 			added getConfigurationElement and setConfigurationElement
+ *				0.3				added support for SocialNetwork specific configuration
+ *				0.4 			changed method calls according to IConfigurationManager version 0.3
+ *				0.5 			added generic type arguments
+ *				0.5a			added parameter for customer
  * 
  * TODO 1. check if there is a better way for arbitrary data types AND type safety
  */
 public class CrawlerConfiguration<T> extends GenericConfigurationManager {
-	// Logger Instanz
-	private final Logger logger = Logger.getLogger(getClass().getName());
-		
-	@SuppressWarnings("unchecked")
-	public ArrayList<T> getConstraint(String category, SocialNetworks SN) {
-		logger.debug("retrieving "+category+" configuration for " +SN+ " via " + configurationManager.getClass().getSimpleName());
-		return (ArrayList<T>) configurationManager.getConstraint(category , SN);
-	}
 	
+	@SuppressWarnings("unchecked")
+	public ArrayList<T> getConstraint(String category, SocialNetworks SN, String customer) {
+		return (ArrayList<T>) configurationManager.getConstraint(category , SN, customer);
+	}
 	public String getConfigurationElement(String key, String path){
-		logger.debug("retrieving "+key+"  from " +path+ " via " + configurationManager.getClass().getSimpleName());
 		return configurationManager.getConfigurationElement(key, path);
 	}
 	public void setConfigurationElement(String key, String value, String path){
-		logger.debug("setting "+key+" = "+value+" at " +path+ " via " + configurationManager.getClass().getSimpleName());
 		configurationManager.setConfigurationElement(key, value, path);
 	}
 	public void writeNewConfiguration(String xml){

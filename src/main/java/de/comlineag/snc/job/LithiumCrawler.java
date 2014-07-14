@@ -59,6 +59,8 @@ import de.comlineag.snc.handler.LithiumUser;
  *				1.1b			added support for different encryption provider, the actual one is set in applicationContext.xml 
  *				1.2				changed search against rest api url to use method parameter instead of for-loop 
  *
+ * TODO 1. find out and fix the following warning:
+ * 			HttpMethodBase - Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
  */
 public class LithiumCrawler extends GenericCrawler implements Job {
 
@@ -82,8 +84,12 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	 *  
 	 */
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		
+		// set the customer we start the crawler for
+		String curCustomer = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier);
+		
 		// log the startup message
-		logger.info("Lithium-Crawler START");
+		logger.info("Lithium-Crawler START for " + curCustomer);
 		int messageCount = 0;
 		
 		// authentication to lithium
@@ -122,10 +128,10 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		
 		// THESE VALUES ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND SITES (aka boards)
 		logger.trace("retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, SocialNetworks.LITHIUM); 
-		ArrayList<String> tUsers = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_USER_TEXT, SocialNetworks.LITHIUM);
-		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_LANGUAGE_TEXT, SocialNetworks.LITHIUM); 
-		ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_SITE_TEXT, SocialNetworks.LITHIUM);
+		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, SocialNetworks.LITHIUM, curCustomer); 
+		ArrayList<String> tUsers = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_USER_TEXT, SocialNetworks.LITHIUM, curCustomer);
+		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_LANGUAGE_TEXT, SocialNetworks.LITHIUM, curCustomer); 
+		ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_SITE_TEXT, SocialNetworks.LITHIUM, curCustomer);
 		
 		// simple log output
 		if (tTerms.size()>0)

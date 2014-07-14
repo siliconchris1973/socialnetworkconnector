@@ -29,8 +29,8 @@ import de.comlineag.snc.handler.TwitterParser;
  *
  * @author 		Christian Guenther
  * @category 	Job
- * @version		0.9a		
- * @status		productive		- error while inserting data
+ * @version		0.9b		- 14.07.2014
+ * @status		productive	- occasional error while inserting data
  *
  * @description this is the actual crawler of the twitter network. It is
  *              implemented as a job and, upon execution, will connect to the
@@ -47,12 +47,19 @@ import de.comlineag.snc.handler.TwitterParser;
  *				0.8					added support for SocialNetwork specific configuration
  *				0.9					added constants for configuration retrieval
  *				0.9a (Maic)			Fixed the "crawler stop and no clean restart" bug
+ *				0.9b				added parameter for customer specific configuration
  *
- * TODO 1. fix crawler bug, that causes the persistence to insert a post multiple times
+ * TODO 1. fix crawler bug, that causes the persistence to try to insert a post or user multiple times
  * 			This bug has something to do with the number of threads provided by the Quartz job control
  * 			In case 1 thread is provided, everything is fine, but if 2 threads are provided (as needed if two crawler
- * 			run - Twitter and Lithium) the Twitter crawler tries to insert some posts more then once.
+ * 			run - Twitter and Lithium) the Twitter crawler tries to insert some posts more then once - an attempt 
+ * 			obviously doomed. We log the following error: 
+ * 				could not create post (TW-488780024691322880): Expected status 201, found 400
+ * 			and the hana db returns this message:
+ * 				Service exception: unique constraint violated.
  * 
+ * TODO 2. find out and fix the following warning:
+ * 			HttpMethodBase - Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
  */
 public class TwitterCrawler extends GenericCrawler implements Job {
 
@@ -65,7 +72,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	@SuppressWarnings("unused")
 	private final BlockingQueue<Event> eventQueue;
 	private final TwitterParser post;
-
+	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
 	private String smallLogMessage = "";
@@ -81,18 +88,21 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		// set the customer we start the crawler for
+		String curCustomer = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier);
+		
 		// log the startup message
-		logger.info("Twitter-Crawler START");
+		logger.info("Twitter-Crawler START for " + curCustomer);
 		int messageCount = 0;
 		
 		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 		
-		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
+		// THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
 		logger.info("retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, SocialNetworks.TWITTER);
-		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_LANGUAGE_TEXT, SocialNetworks.TWITTER);
-		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(ConfigurationConstants.CONSTRAINT_USER_TEXT, SocialNetworks.TWITTER);
-		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(ConfigurationConstants.CONSTRAINT_LOCATION_TEXT, SocialNetworks.TWITTER);
+		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, SocialNetworks.TWITTER, curCustomer);
+		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_LANGUAGE_TEXT, SocialNetworks.TWITTER, curCustomer);
+		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(ConfigurationConstants.CONSTRAINT_USER_TEXT, SocialNetworks.TWITTER, curCustomer);
+		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(ConfigurationConstants.CONSTRAINT_LOCATION_TEXT, SocialNetworks.TWITTER, curCustomer);
 		
 		// log output AND setup of the filter end point
 		if (tTerms.size()>0) {
