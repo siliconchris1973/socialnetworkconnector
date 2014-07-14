@@ -28,7 +28,7 @@ import de.comlineag.snc.constants.HanaDataConstants;
  * @version 	0.9g	- 10.07.2014
  * @status		productive (no geo location support)
  *
- * @description handles the connectivity to the SAP HANA Systems and saves posts and users in the DB
+ * @description handles the connectivity to the SAP HANA Systems and saves and updates posts and users in the DB
  * 
  * @changelog	0.1 (Chris)			skeleton created
  * 				0.2	(Magnus)		savePost implemented
@@ -43,13 +43,17 @@ import de.comlineag.snc.constants.HanaDataConstants;
  * 									terminate the crawler or not
  * 				0.9b				moved Base64Encryption in its own class
  * 				0.9c				added support for different encryption provider, the actual one is set in applicationContext.xml 
- * 				0.9d				added support to en/decrypt parts of the data (posting text and username)
+ * 				0.9d				added support to en/decrypt parts of the data (posting text and user name currently) on the fly
  * 				0.9e				moved insert statements for post and user to private methods
  * 				0.9f				added update methods to update an existing record
  *				0.9g				added support to honor actual field length in the database - all fields too long, will be truncated
  * 
- * TODO 1. enable geoLocation support for users
- * TODO	2. establish proper error handling and find out how to get the http error code during odata calls
+ * TODO 3. enable geoLocation support for users
+ * TODO	2. establish proper error handling and find out how to get the HTTP error code during OData calls
+ * TODO 1. fix crawler bug, that causes the persistence to insert a post multiple times
+ * 			This bug has something to do with the number of threads provided by the Quartz job control
+ * 			In case 1 thread is provided, everything is fine, but if 2 threads are provided (as needed if two crawler
+ * 			run - Twitter and Lithium) the Twitter crawler tries to insert some posts more then once. 
  */
 public class HANAPersistence implements IPersistenceManager {
 	
@@ -643,9 +647,9 @@ public class HANAPersistence implements IPersistenceManager {
 		logger.info("updating post "+postData.getSnId()+"-"+postData.getId());
 
 		// this is just example code to show, how to interact with the CryptoProvider enum
-		String desiredStrength = "low";
-		CryptoProvider cryptoProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
-		logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
+		//String desiredStrength = "low";
+		//CryptoProvider cryptoProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
+		//logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
 		
 		// static variant to set the truncated flag - which is not used anyway at the moment
 		int truncated = (postData.getTruncated()) ? 1 : 0;
@@ -735,9 +739,9 @@ public class HANAPersistence implements IPersistenceManager {
 		logger.info("updating user "+userData.getSnId()+"-"+userData.getId());
 		
 		// this is just example code to show, how to interact with the CryptoProvider enum
-		String desiredStrength = "low";
-		CryptoProvider cryptoProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
-		logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
+		//String desiredStrength = "low";
+		//CryptoProvider cryptoProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
+		//logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
 				
 		// first try to save the data via jdbc
 		try {
@@ -811,11 +815,12 @@ public class HANAPersistence implements IPersistenceManager {
 	 */
 	private void updateUserWithOData(UserData userData, OEntity theUserEntity){
 		logger.info("updating user "+userData.getSnId()+"-"+userData.getId());
+		
 		// this is just example code to show, how to interact with the CryptoProvider enum
-		String desiredStrength = "low";
-		CryptoProvider cryptoProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
-		logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
-				
+		//String desiredStrength = "low";
+		//CryptoProvider cryptoProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
+		//logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
+		
 		if (userService == null) {
 			try {
 				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getCryptoProviderName());
@@ -849,7 +854,7 @@ public class HANAPersistence implements IPersistenceManager {
 					.properties(OProperties.int32("postingsCount", new Integer((int) userData.getPostingsCount())))
 					.properties(OProperties.int32("favoritesCount", new Integer((int) userData.getFavoritesCount())))
 					.properties(OProperties.int32("listsAndGroupsCount", new Integer((int) userData.getListsAndGrooupsCount())))
-
+					
 					.execute();
 			
 			logger.info("user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") updated");
@@ -871,9 +876,13 @@ public class HANAPersistence implements IPersistenceManager {
 		}
 	}
 	
+	
 	/**
-	 * @description	truncates fields to the maximum length allowed by HANA DB
+	 * 
+	 * @description	truncates fields of post data to the maximum length allowed by HANA DB
+	 * 
 	 * @param 		postData
+	 * 
 	 */
 	private void setPostFieldLength(PostData postData){
 		if (postData.getText() != null && postData.getText().length()>HanaDataConstants.POSTING_TEXT_SIZE) {
@@ -925,8 +934,11 @@ public class HANAPersistence implements IPersistenceManager {
 		}
 	}
 	/**
-	 * @description	truncates fields to the maximum length allowed by HANA DB
+	 * 
+	 * @description	truncates fields of user data to the maximum length allowed by HANA DB
+	 * 
 	 * @param 		userData
+	 * 
 	 */
 	private void setUserFieldLength(UserData userData){
 		if (userData.getUsername() != null && userData.getUsername().length()>HanaDataConstants.USERNAME_TEXT_SIZE) {

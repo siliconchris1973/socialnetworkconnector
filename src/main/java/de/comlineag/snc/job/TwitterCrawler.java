@@ -29,8 +29,8 @@ import de.comlineag.snc.handler.TwitterParser;
  *
  * @author 		Christian Guenther
  * @category 	Job
- * @version		0.9a
- * @status		beta
+ * @version		0.9a		
+ * @status		productive		- error while inserting data
  *
  * @description this is the actual crawler of the twitter network. It is
  *              implemented as a job and, upon execution, will connect to the
@@ -48,6 +48,11 @@ import de.comlineag.snc.handler.TwitterParser;
  *				0.9					added constants for configuration retrieval
  *				0.9a (Maic)			Fixed the "crawler stop and no clean restart" bug
  *
+ * TODO 1. fix crawler bug, that causes the persistence to insert a post multiple times
+ * 			This bug has something to do with the number of threads provided by the Quartz job control
+ * 			In case 1 thread is provided, everything is fine, but if 2 threads are provided (as needed if two crawler
+ * 			run - Twitter and Lithium) the Twitter crawler tries to insert some posts more then once.
+ * 
  */
 public class TwitterCrawler extends GenericCrawler implements Job {
 
@@ -83,7 +88,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 		
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
-		logger.trace("retrieving restrictions from configuration db");
+		logger.info("retrieving restrictions from configuration db");
 		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, SocialNetworks.TWITTER);
 		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_LANGUAGE_TEXT, SocialNetworks.TWITTER);
 		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(ConfigurationConstants.CONSTRAINT_USER_TEXT, SocialNetworks.TWITTER);
@@ -107,8 +112,6 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			endpoint.locations(tLocas);
 		}
 		
-		logger.info("new twitter crawler instantiated - restricted to track " + smallLogMessage);
-		
 		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_CLIENT_ID_KEY),
 											(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_CLIENT_SECRET_KEY),
 											(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_TOKEN_ID_KEY),
@@ -120,13 +123,14 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		try {
 			// Establish a connection
 			try {
+				logger.debug("crawler connecting to endpoint " + Constants.STREAM_HOST + client.getEndpoint().getURI());
 				client.connect();
 			} catch (Exception e) {
 				logger.error("EXCEPTION :: connecting to " + Constants.STREAM_HOST + " failed: " + e.getMessage(), e);
 				client.stop();
 			}
 			
-			logger.debug("crawler connection endpoint is " + Constants.STREAM_HOST + client.getEndpoint().getURI());
+			logger.info("new twitter crawler instantiated - restricted to track " + smallLogMessage);
 			
 			// Do whatever needs to be done with messages
 			for (int msgRead = 0; msgRead < 1000; msgRead++) {

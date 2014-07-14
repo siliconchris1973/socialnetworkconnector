@@ -13,8 +13,8 @@ import org.json.simple.parser.ParseException;
  * 
  * @author 		Christian Guenther, Maic Rittmeier, Magnus Leinemann
  * @category 	Parser
- * @version		0.4
- * @status		open todos
+ * @version		0.4			- 14.07.2014
+ * @status		productive
  * 
  * @description TwitterParser is the implementation of the generic parser for Twitter.
  * 				It decodes a tweet, passed along as a JSON String, calls the specific 
@@ -26,7 +26,6 @@ import org.json.simple.parser.ParseException;
  * 				0.3 (Magnus)	added support for list of users and decode user
  * 				0.4	(Chris)		added support to save geo geoLocation information to the db
  * 
- * @TODO 1. add support for retweeted tweets
  */
 public final class TwitterParser extends GenericParser {
 
@@ -56,7 +55,6 @@ public final class TwitterParser extends GenericParser {
 			users.add(user);
 			
 			// retweeted posts need to go in message array as well
-			//TODO check if a retweeted message is REALLY added
 			JSONObject jsonReTweeted = (JSONObject) jsonTweetResource.get("retweeted_status");
 			if (jsonReTweeted != null) {
 				logger.debug("retweet found - adding to message queue");

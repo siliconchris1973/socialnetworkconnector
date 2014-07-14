@@ -21,22 +21,22 @@ import de.comlineag.snc.persistence.AppContext;
  * 				0.2				deleted methods for set/getEntropy
  * 
  */
-public class ConfigurationCryptoHandler { 
+public class SearchCryptoHandler { 
 	
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
 		
-	protected ICryptoProvider configurationCryptoProvider;
+	protected ICryptoProvider searchCryptoProvider;
 	protected SocialNetworks sourceSocialNetwork;							// currently not used
 	protected CryptoProvider sourceEncryptionProvider;					// currently not used
 	
 	
-	public ConfigurationCryptoHandler() {
-		configurationCryptoProvider = (ICryptoProvider) AppContext.Context.getBean("configurationCryptoProvider");
+	public SearchCryptoHandler() {
+		searchCryptoProvider = (ICryptoProvider) AppContext.Context.getBean("searchCryptoProvider");
 	}
 	
 	public String getCryptoProviderName() {
-		return (String) AppContext.Context.getBean("configurationCryptoProvider").getClass().getSimpleName();
+		return (String) AppContext.Context.getBean("searchCryptoProvider").getClass().getSimpleName();
 	}
 	
 	/**
@@ -51,10 +51,10 @@ public class ConfigurationCryptoHandler {
 	 */
 	public String decryptValue(String param) throws GenericCryptoException {
 		if (param.length()>20)
-			logger.trace("decrypting "+param.substring(0, 20)+"... via " + configurationCryptoProvider.getClass().getSimpleName());
+			logger.trace("decrypting "+param.substring(0, 20)+"... via " + searchCryptoProvider.getClass().getSimpleName());
 		else
-			logger.trace("decrypting "+param+" via " + configurationCryptoProvider.getClass().getSimpleName());
-		return configurationCryptoProvider.decryptValue(param);
+			logger.trace("decrypting "+param+" via " + searchCryptoProvider.getClass().getSimpleName());
+		return searchCryptoProvider.decryptValue(param);
 	}
 	
 	/**
@@ -68,9 +68,9 @@ public class ConfigurationCryptoHandler {
 	 */
 	public String encryptValue(String param) throws GenericCryptoException {
 		if (param.length()>20)
-			logger.trace("encrypting "+param.substring(0, 20)+"... via " + configurationCryptoProvider.getClass().getSimpleName());
+			logger.trace("encrypting "+param.substring(0, 20)+"... via " + searchCryptoProvider.getClass().getSimpleName());
 		else
-			logger.trace("encrypting "+param+" via " + configurationCryptoProvider.getClass().getSimpleName());
-		return configurationCryptoProvider.encryptValue(param);
+			logger.trace("encrypting "+param+" via " + searchCryptoProvider.getClass().getSimpleName());
+		return searchCryptoProvider.encryptValue(param);
 	}
 }

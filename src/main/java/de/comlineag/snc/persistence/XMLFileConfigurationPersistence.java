@@ -85,7 +85,7 @@ public class XMLFileConfigurationPersistence<T> implements IConfigurationManager
 			for (int i = 0 ; i < nodeList.getLength() ; i++)
 				ar.add((T) nodeList.item(i).getTextContent());
 			
-			logger.debug("    " + ar.toString());
+			logger.trace("    " + ar.toString());
 		} catch (IOException e) {
 			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
 			System.exit(-1);
@@ -114,7 +114,7 @@ public class XMLFileConfigurationPersistence<T> implements IConfigurationManager
 	@Override
 	public void writeNewConfiguration(String xml) {
 		// TODO implement writeNewConfiguration
-		logger.warn("The method writeNewConfiguration is not yet implemented");
+		logger.warn("The method writeNewConfiguration is not yet implemented for configuration type xml-file");
 	}
 	
 	// getter and setter for the configuration path

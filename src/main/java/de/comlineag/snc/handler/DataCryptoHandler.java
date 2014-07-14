@@ -26,17 +26,17 @@ public class DataCryptoHandler {
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
 		
-	protected ICryptoProvider dataEncryptionProvider;
+	protected ICryptoProvider dataCryptoProvider;
 	protected SocialNetworks sourceSocialNetwork;							// currently not used
 	protected CryptoProvider sourceEncryptionProvider;					// currently not used
 	
 	
 	public DataCryptoHandler() {
-		dataEncryptionProvider = (ICryptoProvider) AppContext.Context.getBean("dataEncryptionProvider");
+		dataCryptoProvider = (ICryptoProvider) AppContext.Context.getBean("dataCryptoProvider");
 	}
 	
 	public String getCryptoProviderName() {
-		return (String) AppContext.Context.getBean("dataEncryptionProvider").getClass().getSimpleName();
+		return (String) AppContext.Context.getBean("dataCryptoProvider").getClass().getSimpleName();
 	}
 	
 	/**
@@ -54,10 +54,10 @@ public class DataCryptoHandler {
 			return null;
 		
 		if (param.length()>20)
-			logger.trace("in-stream decrypting \""+param.substring(0, 20)+"...\" via " + dataEncryptionProvider.getClass().getSimpleName());
+			logger.trace("in-stream decrypting \""+param.substring(0, 20)+"...\" via " + dataCryptoProvider.getClass().getSimpleName());
 		else
-			logger.trace("in-stream decrypting \""+param+"\" via " + dataEncryptionProvider.getClass().getSimpleName());
-		return dataEncryptionProvider.decryptValue(param);
+			logger.trace("in-stream decrypting \""+param+"\" via " + dataCryptoProvider.getClass().getSimpleName());
+		return dataCryptoProvider.decryptValue(param);
 	}
 	
 	/**
@@ -74,9 +74,9 @@ public class DataCryptoHandler {
 			return null;
 		
 		if (param.length()>20)
-			logger.trace("in-stream encrypting \""+param.substring(0, 20)+"...\" via " + dataEncryptionProvider.getClass().getSimpleName());
+			logger.trace("in-stream encrypting \""+param.substring(0, 20)+"...\" via " + dataCryptoProvider.getClass().getSimpleName());
 		else
-			logger.trace("in-stream encrypting \""+param+"\" via " + dataEncryptionProvider.getClass().getSimpleName());
-		return dataEncryptionProvider.encryptValue(param);
+			logger.trace("in-stream encrypting \""+param+"\" via " + dataCryptoProvider.getClass().getSimpleName());
+		return dataCryptoProvider.encryptValue(param);
 	}
 }
