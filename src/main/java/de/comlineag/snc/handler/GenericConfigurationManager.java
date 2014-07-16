@@ -8,7 +8,7 @@ import de.comlineag.snc.persistence.IConfigurationManager;
  * 
  * @author		Christian Guenther
  * @category	Handler
- * @version		0.4
+ * @version		0.3		- 08.07.2014
  * @status		productive
  * 
  * @description GenericConfigurationManager is the abstract base class for the 
@@ -17,9 +17,9 @@ import de.comlineag.snc.persistence.IConfigurationManager;
  * 				actual configuration manager - like CrawlerConfiguration.
  * 
  * @changelog	0.1 (Chris)		first version as copy from GenericDataManager
- * 				0.2 			added @SuppressWarnings to get rid of exclamation mark
- *				0.3				added support for SocialNetwork specific configuration
- *				0.4 			added support for generic type casting
+ * 				0.1a 			added @SuppressWarnings to get rid of exclamation mark
+ *				0.2				added support for SocialNetwork specific configuration
+ *				0.3 			added support for generic type casting
  *
  */
 public abstract class GenericConfigurationManager {

@@ -71,7 +71,7 @@ public class XMLFileConfigurationPersistence<T> implements IConfigurationManager
 			XPath xpath = xPathfactory.newXPath();
 			
 			// first step is to get all general constraints 
-			String expression = "/"+ConfigurationConstants.rootIdentifier+"/"+ConfigurationConstants.singleConfigurationIdentifier+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.scopeOnAllIdentifier+"']/"+ConfigurationConstants.constraintIdentifier+"/"+section+"/"+ConfigurationConstants.valueIdentifier;
+			String expression = "/"+ConfigurationConstants.rootIdentifier+"/"+ConfigurationConstants.singleConfigurationIdentifier+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.scopeOnAllValue+"']/"+ConfigurationConstants.constraintIdentifier+"/"+section+"/"+ConfigurationConstants.valueIdentifier;
 			NodeList nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + ": \r");
 			for (int i = 0 ; i < nodeList.getLength() ; i++) 

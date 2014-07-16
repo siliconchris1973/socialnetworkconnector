@@ -4,7 +4,7 @@ package de.comlineag.snc.constants;
  * 
  * @author 		Christian Guenther
  * @category	helper class
- * @version 	0.2		- 10.07.2014
+ * @version 	0.3		- 14.07.2014
  * @status		productive
  * 
  * @description provides constants for use by the Social Network crawler and parser. 
@@ -13,6 +13,7 @@ package de.comlineag.snc.constants;
  *
  * @changelog	0.1 (Chris)		class created
  * 				0.2 			changed everything to static
+ * 				0.3				added structure elements for customer specific crawler configuration xml
  * 
  */
 public class ConfigurationConstants {
@@ -57,7 +58,7 @@ public class ConfigurationConstants {
 	public static final String CONSTRAINT_BLOG_TEXT					= "blog";
 	public static final String CONSTRAINT_LOCATION_TEXT				= "geoLocation";
 	
-	/*	XML structure
+	/* structure of customer specific configuration xml
 		<configurations>
 			<configuration>
 				<customer name="CustomerName">
@@ -89,10 +90,10 @@ public class ConfigurationConstants {
 	public static final String singleConfigurationIdentifier 		= "configuration";
 	public static final String customerIdentifier 					= "customer";
 	public static final String customerNameIdentifier				= "name";
-	public static final String customerNameForAllIdentifier 		= "ALL";
+	public static final String customerNameForAllValue 				= "ALL";
 	public static final String constraintIdentifier 				= "constraints";
 	public static final String scopeIdentifier 						= "scope";
-	public static final String scopeOnAllIdentifier 				= "ALL";
+	public static final String scopeOnAllValue 						= "ALL";
 	public static final String singleConstraintIdentifier 			= "constraint";
 	public static final String valueIdentifier 						= "value";
 }

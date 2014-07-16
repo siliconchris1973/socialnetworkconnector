@@ -8,7 +8,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  * @author 		Christian Guenther
  * @category	interface
- * @version		0.5		- 14.07.2014
+ * @version		0.5			- 14.07.2014
  * @status		productive
  * 
  * @description	The interface IConfigurationManager must be implemented by all configuration
@@ -31,9 +31,10 @@ public interface IConfigurationManager<T> {
 	
 	/**
 	 * 
-	 * @description	takes a constraint category (either term, user, site, geoLocation or language) and
-	 * 				a social network identifier and returns the constraints of that category
-	 * 				for the specified social network from the configuration as an ArrayList of type T.
+	 * @description	takes a constraint category (either term, user, site, geoLocation or language),
+	 * 				a social network identifier and a customer name (or null) and returns the constraints 
+	 * 				of that category for the specified social network for the specified customer from 
+	 * 				the configuration as an ArrayList of type T.
 	 * 
 	 * @param 		constraint
 	 * @param 		SN
@@ -42,23 +43,27 @@ public interface IConfigurationManager<T> {
 	public abstract ArrayList<T> getConstraint(String constraint, SocialNetworks SN, String customer);
 	
 	/**
+	 * @description	returns the value of a single configuration element
 	 * 
-	 * @param key
-	 * @param path
-	 * @return
+	 * @param 		key
+	 * @param		path
+	 * @return 		String
 	 */
 	public abstract String getConfigurationElement(String key, String path);
 		
 	/**
+	 * @description	sets the value of a single configuration element
 	 * 
-	 * @param key
-	 * @param value
-	 * @param path
+	 * @param 		key
+	 * @param 		value
+	 * @param 		path
 	 */
 	public abstract void setConfigurationElement(String key, String value, String path);
 	/**
+	 * @description	writes a complete new configuration xml file to the path and file name
+	 * 				configured in applicationContext.xml
 	 * 
-	 * @param xml
+	 * @param 		xml
 	 */
 	public abstract void writeNewConfiguration(String xml);
 }

@@ -71,9 +71,9 @@ public class XMLFileCustomerSpecificConfigurationPersistence<T> implements IConf
 			expression = "/"+ConfigurationConstants.rootIdentifier+"/"
 					+ConfigurationConstants.singleConfigurationIdentifier+"/"
 					+ConfigurationConstants.customerIdentifier
-											+"[@"+ConfigurationConstants.customerNameIdentifier+"='"+ConfigurationConstants.customerNameForAllIdentifier+"']/"
+											+"[@"+ConfigurationConstants.customerNameIdentifier+"='"+ConfigurationConstants.customerNameForAllValue+"']/"
 					+ConfigurationConstants.constraintIdentifier
-											+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.scopeOnAllIdentifier+"']/"
+											+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.scopeOnAllValue+"']/"
 					+ConfigurationConstants.singleConstraintIdentifier+"/"
 					+section+"/"
 					+ConfigurationConstants.valueIdentifier;
@@ -86,7 +86,7 @@ public class XMLFileCustomerSpecificConfigurationPersistence<T> implements IConf
 			expression = "/"+ConfigurationConstants.rootIdentifier+"/"
 					+ConfigurationConstants.singleConfigurationIdentifier+"/"
 					+ConfigurationConstants.customerIdentifier
-											+"[@"+ConfigurationConstants.customerNameIdentifier+"='"+ConfigurationConstants.customerNameForAllIdentifier+"']/"
+											+"[@"+ConfigurationConstants.customerNameIdentifier+"='"+ConfigurationConstants.customerNameForAllValue+"']/"
 					+ConfigurationConstants.constraintIdentifier
 											+"[@"+ConfigurationConstants.scopeIdentifier+"='"+SN+"']/"
 					+ConfigurationConstants.singleConstraintIdentifier+"/"
@@ -103,7 +103,7 @@ public class XMLFileCustomerSpecificConfigurationPersistence<T> implements IConf
 								+ConfigurationConstants.customerIdentifier
 														+"[@"+ConfigurationConstants.customerNameIdentifier+"='"+customer+"']/"
 								+ConfigurationConstants.constraintIdentifier
-														+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.scopeOnAllIdentifier+"']/"
+														+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.scopeOnAllValue+"']/"
 								+ConfigurationConstants.singleConstraintIdentifier+"/"
 								+section+"/"
 								+ConfigurationConstants.valueIdentifier;
