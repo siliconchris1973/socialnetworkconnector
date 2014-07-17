@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+	This is the xml configuration file for the social network connector.
+	
+	The XML can be used to setup either customer or domain specific configurations or  
+	a combination of the two. For any combination (domain and customer) you can always 
+	also add a section with scope="ALL" resulting in this section being applied to 
+	all domains or all customers respectively.
+	
+	There are three examples in this directory:
+	*	The configuration file CustomerSpecificConfiguration.xml is an example for a bank 
+		called  cortal consors and has no domain specific part. 
+	*	The xml DomainSpecificCrawlerConfiguration.xml contains the exact same crawler 
+		setup, but with ONLY a domain approach. 
+	*	Finally the configuration CustomerAndDomainCrawlerConfiguration.xml is an example 
+		for a setup with domain specific and customer specific configuration elements.
+	
+	You can take one of these examples and adjust it to your needs. Then edit  
+	applicationContext.xml, activate ComplexXmlConfigurationPersistence as the 
+	configuration manager and enter the name of the configuration file. 
+	
+	
+	the general structure is as follows
+	<configurations>
+		<configuration scope=[customer / domain]>
+			<customer/domain scope=[ALL, name]
+				<name>
+					<type>String</type>
+					<value>ALL</value>
+				</name>
+				<category>
+					<type>String</type>
+					<value>customer/domain</value>
+				</category>
+				
+				<constraint>
+					<ANY one of term, langauage, user, site or geo location>
+						<type>data type - e.g. String</type>
+						<value>what to track/restrict to</value>
+					</user>
+				</constraint>
+			</customer>
+		</configuration>
+	</configurations>
+  
+-->
+
+<configurations>
+	<!-- this section can be used to setup crawler configurations for domains -->
+	<configuration scope="domain">
+		<!-- If you want to setup crawler constraints that apply to all domains, use this section -->
+		<domain name="ALL">
+			<name>
+				<type>String</type>
+				<value>ALL</value>
+			</name>
+			<category>
+				<type>String</type>
+				<value>domain</value>
+			</category>
+			<!-- CONSTRAINTS CONFIGURATION -->
+			
+			<!-- you can also put in constraints per crawler - identified by their network id -->
+			<constraints scope="ALL">
+				<!-- track only messages (aka posts) with specific keywords -->
+				<!-- 
+				<constraint>
+					<term>
+						<type>String</type>
+						<value>YourKeyWord</value>
+					</term>
+				</constraint>
+				-->
+				
+				<!-- track only messages (aka posts) in specific languages -->
+				<!-- 
+				<constraint>
+					<language>
+						<type>String</type>
+						<value>de</value>
+					</language>
+				</constraint>
+				-->
+				
+				
+				<!-- setup a constraint against specific sites -->
+				<!-- 
+				<constraint>
+					<site>
+						<type>url</type>
+						<value>http://example.com/track/only/me/and/no/one/else</value>
+					</site>
+				</constraint>
+				-->
+				
+				
+				<!-- setup a constraint against specific geografical regions -->
+				<!-- NOT YET IMPLEMENTED 
+				<constraint>
+					<location>
+						<type>String</type>
+						<value>DE</value>
+					</location>
+				</constraint>
+				-->
+			</constraints>
+		</domain>
+		<!-- end of ALL domain -->
+		
+		<!-- the banking domain  -->
+		<domain name="banking">
+			<name>
+				<type>String</type>
+				<value>Banking</value>
+			</name>
+			<category>
+				<type>String</type>
+				<value>domain</value>
+			</category>
+			<!-- CONSTRAINTS CONFIGURATION -->
+			<!-- you can also put in constraints per crawler - identified by their network id -->
+			
+			<!-- these constraints apply to all crawler -->
+			<constraints scope="ALL">
+				<!-- track only messages (aka posts) with specific keywords -->
+				<constraint>
+					<term>
+						<type>String</type>
+						<value>Aktien</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Tagesgeld</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Depot</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Wertpapier</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Börse</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Wertpapierhandel</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Trading</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Broker</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Finanzmarkt</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Aktienanleihe</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Fonds</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Geldanlage</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Girokonto</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Kreditkarte</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Sparkarte</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Girocard</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Maestro</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Visa</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Mastercard</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>American Express</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>HBCI</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Geld</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Währung</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Devisen</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Jahreszins</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Sollzins</value>
+					</term>
+				</constraint>
+			</constraints>
+			<!-- end of constraints for all crawler -->
+			
+			<!-- START OF TWITTER CONFIG -->
+			<!-- specific configuration for TWITTER crawler -->
+			<constraints scope="TW">
+				<!-- 
+					track only messages (aka posts) with specific keywords
+					these constraints are added to the generic ones above 
+				-->
+				<constraint>
+					<term>
+						<type>String</type>
+						<value>Cortal Consors</value>
+					</term>
+				</constraint>
+				 
+				
+				<!-- 
+					track only messages (aka posts) in specific languages 
+					these constraints are added to the generic ones above
+				-->
+				<constraint>
+					<language>
+						<type>String</type>
+						<value>de</value>
+					</language>
+					<language>
+						<type>String</type>
+						<value>en</value>
+					</language>
+					<language>
+						<type>String</type>
+						<value>it</value>
+					</language>
+					<language>
+						<type>String</type>
+						<value>es</value>
+					</language>
+					<language>
+						<type>String</type>
+						<value>fr</value>
+					</language>
+				</constraint>
+			</constraints>
+			<!-- END OF TWITTER CONSTRAINTS -->
+			
+			<!-- Lithium specific configuration -->
+			<constraints scope="LT">
+				<!-- 
+					search for messages (aka posts) with specific keywords
+					these constraints are added to the generic ones above 
+				-->
+				<constraint>
+					<term>
+						<type>String</type>
+						<value>Wissenslexikon</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Geschäft</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Ethik</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Markt</value>
+					</term>
+				</constraint>
+				
+				<!-- 
+					Setup a constraint against specific sites or boards as they are called.
+					Be aware that you should NOT add server-part and rest-api part to these uris
+					as these values are taken from applicationContext.xml. For the same reason no 
+					rest-api search uri part should be appended.
+					You will, however, need to prepend the actual board with /boards/id/.
+					
+					If no site is given, the crawler will search through the whole community. 
+				-->
+				<constraint>
+					<site>
+						<type>String</type>
+						<value>/boards/id/Girokonto-Zahlungsverkehr</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>/boards/id/Sparen-und-Anlegen</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>/boards/id/Wertpapierhandel</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>/boards/id/Finanzieren</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>/boards/id/FeedbackAnregungen</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>/boards/id/ExperteFrageAntwort</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>/boards/id/Sonstige-Themen</value>
+					</site>
+				</constraint>
+			</constraints>
+		</domain>
+		<!-- end of banking domain -->
+	</configuration>
+	<!-- end of domain configuration section -->
+</configurations>

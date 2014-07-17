@@ -1,6 +1,9 @@
 package de.comlineag.snc.persistence;
 
 import org.apache.log4j.Logger;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.SocialNetworks;
@@ -21,39 +24,54 @@ import org.w3c.dom.NodeList;
 /**
  * @author		Christian Guenther
  * @category	Persistence manager
- * @version		0.1		- 14.07.2014
+ * @version		0.1		- 16.07.2014
  * @status		productive but some functions are missing
  * 
  * @description	A configuration manager for the crawler using structured xml files for the configuration
- * 				and with the ability to configure individual crawler for different customers
+ * 				and with the ability to configure individual crawler for different domains
  *
  * @param <T>
  * 
- * @changelog	0.1 (Chris)		copy of XMLFileConfigurationPersistence - Revision 0.5
+ * @changelog	0.1 (Chris)		copy of XMLFileCustomerSpecificConfigurationPersistence - Revision 0.2
  *  
  *  TODO 1. implement code for missing methods - see below
  */
-public class XMLFileCustomerSpecificConfigurationPersistence<T> implements IConfigurationManager<T>  {
+public class ComplexXmlConfigurationPersistence<T> implements IConfigurationManager<T>  {
 	
 	// the path to the configuration file
 	private String configDbHandler;
+	private String domain = null;
+	private String customer = null;
+	private JSONParser parser = new JSONParser();
+	private Object obj = null;
 	
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	// general invocation for every constraint
 	@Override
-	public ArrayList<T> getConstraint(String category, SocialNetworks SN, String customer) {
+	public ArrayList<T> getConstraint(String category, SocialNetworks SN, JSONObject configurationScope) {
 		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "geoLocation")  : "ERROR :: can only accept term, site, user, language or geoLocation as category";
-		assert (customer != "CortalConsors" && customer != "COMLINE") : "ERROR :: while in development, can only accept CortalConsors or COMLINE as customer identifier";
 		
-		return (ArrayList<T>) getDataFromXml(category, SN, customer);
+		// get configuration scope - that is doman and customer
+		try {
+			obj = parser.parse(configurationScope.toString());
+			JSONObject jsonObject = (JSONObject) obj;
+			domain = (String) jsonObject.get("domain");
+			customer = (String) jsonObject.get("customer"); 
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		return (ArrayList<T>) getDataFromXml(category, SN);
 	}
 	
 	@SuppressWarnings("unchecked")
-	private ArrayList<T> getDataFromXml(String section, SocialNetworks SN, String customer) {
+	private ArrayList<T> getDataFromXml(String section, SocialNetworks SN) {
+		
 		ArrayList<T> ar = new ArrayList<T>();
-		logger.debug("reading constraints for "+customer+" on " + section + " for network " + SN.toString() + " from configuration file " + getConfigDbHandler());
+		logger.debug("reading constraints for "+customer+" in "+domain+" on " + section + " for network " + SN.toString() + " from configuration file " + getConfigDbHandler());
 		
 		try {
 			File file = new File(getConfigDbHandler());
@@ -67,9 +85,78 @@ public class XMLFileCustomerSpecificConfigurationPersistence<T> implements IConf
 			String expression = null;
 			NodeList nodeList = null;
 			
-			// first step is to get all constraints for all customers within a specified social network 
+			// first step is to get all constraints for all domains within a specified social network 
 			expression = "/"+ConfigurationConstants.rootIdentifier+"/"
-					+ConfigurationConstants.singleConfigurationIdentifier+"/"
+					+ConfigurationConstants.singleConfigurationIdentifier
+											+"[@"+ConfigurationConstants.scopeIdentifier+"='domain']/"
+					+ConfigurationConstants.domainIdentifier
+											+"[@"+ConfigurationConstants.domainNameIdentifier+"='"+ConfigurationConstants.domainNameForAllValue+"']/"
+					+ConfigurationConstants.constraintIdentifier
+											+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.scopeOnAllValue+"']/"
+					+ConfigurationConstants.singleConstraintIdentifier+"/"
+					+section+"/"
+					+ConfigurationConstants.valueIdentifier;
+			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
+			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
+			for (int i = 0 ; i < nodeList.getLength() ; i++)
+				ar.add((T) nodeList.item(i).getTextContent());
+			
+			// second step is to get all constraints for all domains within a specified social network 
+			expression = "/"+ConfigurationConstants.rootIdentifier+"/"
+					+ConfigurationConstants.singleConfigurationIdentifier
+											+"[@"+ConfigurationConstants.scopeIdentifier+"='domain']/"
+					+ConfigurationConstants.domainIdentifier
+											+"[@"+ConfigurationConstants.domainNameIdentifier+"='"+ConfigurationConstants.domainNameForAllValue+"']/"
+					+ConfigurationConstants.constraintIdentifier
+											+"[@"+ConfigurationConstants.scopeIdentifier+"='"+SN+"']/"
+					+ConfigurationConstants.singleConstraintIdentifier+"/"
+					+section+"/"
+					+ConfigurationConstants.valueIdentifier;
+			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
+			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
+			for (int i = 0 ; i < nodeList.getLength() ; i++)
+				ar.add((T) nodeList.item(i).getTextContent());
+			
+			// third step is to get all general constraints 
+			expression = "/"+ConfigurationConstants.rootIdentifier+"/"
+								+ConfigurationConstants.singleConfigurationIdentifier
+														+"[@"+ConfigurationConstants.scopeIdentifier+"='domain']/"
+								+ConfigurationConstants.domainIdentifier
+														+"[@"+ConfigurationConstants.domainNameIdentifier+"='"+domain+"']/"
+								+ConfigurationConstants.constraintIdentifier
+														+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.scopeOnAllValue+"']/"
+								+ConfigurationConstants.singleConstraintIdentifier+"/"
+								+section+"/"
+								+ConfigurationConstants.valueIdentifier;
+			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
+			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + ": \r");
+			for (int i = 0 ; i < nodeList.getLength() ; i++) 
+				ar.add((T) nodeList.item(i).getTextContent());
+			
+			// fourth step is to get all constraints for the specified social network 
+			expression = "/"+ConfigurationConstants.rootIdentifier+"/"
+					+ConfigurationConstants.singleConfigurationIdentifier
+											+"[@"+ConfigurationConstants.scopeIdentifier+"='domain']/"
+					+ConfigurationConstants.domainIdentifier
+											+"[@"+ConfigurationConstants.domainNameIdentifier+"='"+domain+"']/"
+					+ConfigurationConstants.constraintIdentifier
+											+"[@"+ConfigurationConstants.scopeIdentifier+"='"+SN+"']/"
+					+ConfigurationConstants.singleConstraintIdentifier+"/"
+					+section+"/"
+					+ConfigurationConstants.valueIdentifier;
+			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
+			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
+			for (int i = 0 ; i < nodeList.getLength() ; i++)
+				ar.add((T) nodeList.item(i).getTextContent());
+			
+			
+			
+			
+			// AND NOW FOR CUSTOMER
+			// first step is to get all constraints for all domains within a specified social network 
+			expression = "/"+ConfigurationConstants.rootIdentifier+"/"
+					+ConfigurationConstants.singleConfigurationIdentifier
+											+"[@"+ConfigurationConstants.scopeIdentifier+"='customer']/"
 					+ConfigurationConstants.customerIdentifier
 											+"[@"+ConfigurationConstants.customerNameIdentifier+"='"+ConfigurationConstants.customerNameForAllValue+"']/"
 					+ConfigurationConstants.constraintIdentifier
@@ -84,7 +171,8 @@ public class XMLFileCustomerSpecificConfigurationPersistence<T> implements IConf
 			
 			// second step is to get all constraints for all customers within a specified social network 
 			expression = "/"+ConfigurationConstants.rootIdentifier+"/"
-					+ConfigurationConstants.singleConfigurationIdentifier+"/"
+					+ConfigurationConstants.singleConfigurationIdentifier
+											+"[@"+ConfigurationConstants.scopeIdentifier+"='customer']/"
 					+ConfigurationConstants.customerIdentifier
 											+"[@"+ConfigurationConstants.customerNameIdentifier+"='"+ConfigurationConstants.customerNameForAllValue+"']/"
 					+ConfigurationConstants.constraintIdentifier
@@ -99,7 +187,8 @@ public class XMLFileCustomerSpecificConfigurationPersistence<T> implements IConf
 			
 			// third step is to get all general constraints 
 			expression = "/"+ConfigurationConstants.rootIdentifier+"/"
-								+ConfigurationConstants.singleConfigurationIdentifier+"/"
+								+ConfigurationConstants.singleConfigurationIdentifier
+														+"[@"+ConfigurationConstants.scopeIdentifier+"='customer']/"
 								+ConfigurationConstants.customerIdentifier
 														+"[@"+ConfigurationConstants.customerNameIdentifier+"='"+customer+"']/"
 								+ConfigurationConstants.constraintIdentifier
@@ -114,7 +203,8 @@ public class XMLFileCustomerSpecificConfigurationPersistence<T> implements IConf
 			
 			// fourth step is to get all constraints for the specified social network 
 			expression = "/"+ConfigurationConstants.rootIdentifier+"/"
-					+ConfigurationConstants.singleConfigurationIdentifier+"/"
+					+ConfigurationConstants.singleConfigurationIdentifier
+											+"[@"+ConfigurationConstants.scopeIdentifier+"='customer']/"
 					+ConfigurationConstants.customerIdentifier
 											+"[@"+ConfigurationConstants.customerNameIdentifier+"='"+customer+"']/"
 					+ConfigurationConstants.constraintIdentifier

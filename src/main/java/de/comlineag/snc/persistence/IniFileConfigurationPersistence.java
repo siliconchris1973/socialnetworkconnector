@@ -3,6 +3,7 @@ package de.comlineag.snc.persistence;
 import org.apache.log4j.Logger;
 import org.ini4j.Ini;
 import org.ini4j.InvalidIniFormatException;
+import org.json.simple.JSONObject;
 
 import de.comlineag.snc.constants.SocialNetworks;
 
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 /**
  * @author		Christian Guenther
  * @category	Persistence manager
- * @version		0.7a	- 14.07.2014
+ * @version		0.7b	- 17.07.2014
  * @status		productive - but some functions are still missing
  * 
  * 
@@ -32,6 +33,7 @@ import java.util.ArrayList;
  *				0.7 			added warning to unimplemented methods
  *				0.7a			Added method parameter customer. Has no effect here but needed
  * 								for XMLFileCustomerSpecificConfiguration
+ * 				0.7b			Adapted signature to match JSON Object instead of String for customer
  *  
  *  TODO 1. implement code to insert/update a value
  */
@@ -45,7 +47,7 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public ArrayList<T> getConstraint(String category, SocialNetworks SN, String customer) {
+	public ArrayList<T> getConstraint(String category, SocialNetworks SN, JSONObject configurationScope) {
 		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "geoLocation")  : "ERROR :: can only accept term, site, user, language or geoLocation as category";
 		
 		logger.warn("no customer and network specific configuration and no type safety guranteed - consider using xml or db configuration");

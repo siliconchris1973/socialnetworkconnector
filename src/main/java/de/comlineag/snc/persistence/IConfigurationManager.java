@@ -2,13 +2,15 @@ package de.comlineag.snc.persistence;
 
 import java.util.ArrayList;
 
+import org.json.simple.JSONObject;
+
 import de.comlineag.snc.constants.SocialNetworks;
 
 /**
  * 
  * @author 		Christian Guenther
  * @category	interface
- * @version		0.5			- 14.07.2014
+ * @version		0.5a			- 17.07.2014
  * @status		productive
  * 
  * @description	The interface IConfigurationManager must be implemented by all configuration
@@ -24,6 +26,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 				0.4 			added generic type T to getConstraint, so that we can return String or 
  * 								Long or whatever we need
  * 				0.5				Added possibility to pass a customer name for customer specific configurations
+ * 				0.5a			changed method signature to use JSON object for customer and domain instead of String
  *
  */
 public interface IConfigurationManager<T> {
@@ -40,7 +43,7 @@ public interface IConfigurationManager<T> {
 	 * @param 		SN
 	 * @return		ArrayList<T>
 	 */
-	public abstract ArrayList<T> getConstraint(String constraint, SocialNetworks SN, String customer);
+	public abstract ArrayList<T> getConstraint(String constraint, SocialNetworks SN, JSONObject configurationScope);
 	
 	/**
 	 * @description	returns the value of a single configuration element

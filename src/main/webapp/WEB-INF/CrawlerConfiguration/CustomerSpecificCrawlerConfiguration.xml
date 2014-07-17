@@ -2,38 +2,66 @@
 <!-- 
 	This is the xml configuration file for the social network connector.
 	
-	It is used to setup customer specific configurations. General 
-	constraints on what to track is sourced in via CrawlerConfiguration.xml
-	in this file, you can setup customer and constraints specific to these
-	customers.
+	The XML can be used to setup either customer or domain specific configurations or  
+	a combination of the two. For any combination (domain and customer) you can always 
+	also add a section with scope="ALL" resulting in this section being applied to 
+	all domains or all customers respectively.
+	
+	There are three examples in this directory:
+	*	The configuration file CustomerSpecificConfiguration.xml is an example for a bank 
+		called  cortal consors and has no domain specific part. 
+	*	The xml DomainSpecificCrawlerConfiguration.xml contains the exact same crawler 
+		setup, but with ONLY a domain approach. 
+	*	Finally the configuration CustomerAndDomainCrawlerConfiguration.xml is an example 
+		for a setup with domain specific and customer specific configuration elements.
+	
+	You can take one of these examples and adjust it to your needs. Then edit  
+	applicationContext.xml, activate ComplexXmlConfigurationPersistence as the 
+	configuration manager and enter the name of the configuration file. 
+	
+	
+	the general structure is as follows
+	<configurations>
+		<configuration scope=[customer / domain]>
+			<customer/domain scope=[ALL, name]
+				<name>
+					<type>String</type>
+					<value>ALL</value>
+				</name>
+				<category>
+					<type>String</type>
+					<value>customer/domain</value>
+				</category>
+				
+				<constraint>
+					<ANY one of term, langauage, user, site or geo location>
+						<type>data type - e.g. String</type>
+						<value>what to track/restrict to</value>
+					</user>
+				</constraint>
+			</customer>
+		</configuration>
+	</configurations>
+  
 -->
 <configurations>
-	<configuration>
+	<!-- this section can be used to setup crawler configurations for customer -->
+	<!-- for domain specific configurations see below -->
+	<configuration scope="customer">
 		<!-- If you want to setup crawler constraints that apply to all customers, use this section -->
-		<!-- 
+		 
 		<customer name="ALL">
 			<name>
 				<type>String</type>
-				<value>All customers</value>
+				<value>ALL</value>
 			</name>
-			
-			<matchcode>
+			<category>
 				<type>String</type>
-				<value>XY</value>
-			</matchcode>
+				<value>customer</value>
+			</category>
+			
 			<constraints scope="ALL">
-				<constraint>
-					<term>
-						<type>String</type>
-						<value>love</value>
-					</term>
-				</constraint>
-				<constraint>
-					<location>
-						<type>String</type>
-						<value>DE</value>
-					</location>
-				</constraint>
+				<!-- put any constraints that apply to all customers AND all network crawler in here -->
 			</constraints>
 		</customer>
 		-->
@@ -46,24 +74,16 @@
 				<type>String</type>
 				<value>Cortal Consors</value>
 			</name>
-			
-			<matchcode>
+			<category>
 				<type>String</type>
-				<value>CC</value>
-			</matchcode>
-			
-			<entry scope="CC_COMMUNITY_ID">
-				<type>String</type>
-				<value>hiaeh67457</value>
-			</entry>
+				<value>customer</value>
+			</category>
 			
 			
 			<!-- CONSTRAINTS CONFIGURATION -->
-			<!-- START OF GENERIC CONSTRAINTS -->
+			<!-- constraints that apply to all network crawler -->
 			<constraints scope="ALL">
-			
 				<!-- track only messages (aka posts) with specific keywords -->
-				
 				<constraint>
 					<term>
 						<type>String</type>
@@ -75,27 +95,11 @@
 					</term>
 					<term>
 						<type>String</type>
-						<value>Trading</value>
-					</term>
-					<term>
-						<type>String</type>
 						<value>Depot</value>
 					</term>
 					<term>
 						<type>String</type>
-						<value>Girokonto</value>
-					</term>
-					<term>
-						<type>String</type>
 						<value>Wertpapier</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Kreditkarte</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>HBCI</value>
 					</term>
 					<term>
 						<type>String</type>
@@ -104,18 +108,6 @@
 					<term>
 						<type>String</type>
 						<value>Wertpapierhandel</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Geld</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Währung</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Devisen</value>
 					</term>
 					<term>
 						<type>String</type>
@@ -131,10 +123,6 @@
 					</term>
 					<term>
 						<type>String</type>
-						<value>Jahreszins</value>
-					</term>
-					<term>
-						<type>String</type>
 						<value>Aktienanleihe</value>
 					</term>
 					<term>
@@ -145,42 +133,65 @@
 						<type>String</type>
 						<value>Geldanlage</value>
 					</term>
-				</constraint>
-				
-				
-				<!-- track only messages (aka posts) in specific languages -->
-				<!-- is done specifically for twitter - see below
-				<constraint>
-					<language>
+					<term>
 						<type>String</type>
-						<value>de</value>
-					</language>
-				</constraint>
-				-->
-				
-				
-				<!-- setup a constraint against specific sites -->
-				<!-- is only necessary for lithium - see below
-				<constraint>
-					<site>
-						<type>url</type>
-						<value>http://example.com/track/only/me/and/no/one/else</value>
-					</site>
-				</constraint>
-				-->
-				
-				
-				<!-- setup a constraint against specific geografical regions -->
-				<!-- NOT YET IMPLEMENTED 
-				<constraint>
-					<location>
+						<value>Girokonto</value>
+					</term>
+					<term>
 						<type>String</type>
-						<value>DE</value>
-					</location>
+						<value>Kreditkarte</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Sparkarte</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Girocard</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Maestro</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Visa</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Mastercard</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>American Express</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>HBCI</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Geld</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Währung</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Devisen</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Jahreszins</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Sollzins</value>
+					</term>
 				</constraint>
-				-->
 			</constraints>
-			<!-- END OF GENERIC CONFIG -->
+			<!-- end of section for all crawler -->
 			
 			
 			
@@ -193,12 +204,6 @@
 				-->
 				 
 				<constraint>
-				<!--
-					<term>
-						<type>String</type>
-						<value>TestingTheCode</value>
-					</term>
-				-->
 					<term>
 						<type>String</type>
 						<value>Cortal Consors</value>
@@ -232,36 +237,6 @@
 						<value>fr</value>
 					</language>
 				</constraint>
-				
-				
-				<!-- 
-					setup a constraint to track only messages (aka posts) by specific user
-					these constraints are added to the generic ones above 
-				-->
-				<!-- 
-				<constraint>
-					<user>
-						<type>Long</type>
-						<value>754994</value>
-					</user>
-				</constraint>
-				-->
-				 
-				
-				<!-- 
-					setup a constraint against specific geografical regions
-					these constraints are added to the generic ones above
-					
-					NOT YET IMPLEMENTED 
-				-->
-				<!--  
-				<constraint>
-					<location>
-						<type>String</type>
-						<value>DE</value>
-					</location>
-				</constraint>
-				-->
 			</constraints>
 			<!-- END OF TWITTER CONSTRAINTS -->
 			
@@ -277,36 +252,6 @@
 					You will, however, need to prepend the actual board with /boards/id/.
 					
 					If no site is given, the crawler will search through the whole community. 
-				-->
-				
-				
-				<!-- 
-					track only messages (aka posts) with specific keywords
-					these constraints are added to the generic ones above 
-				-->
-				<constraint>
-					<term>
-						<type>String</type>
-						<value>Wissenslexikon</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Geschäft</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Ethik</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Markt</value>
-					</term>
-				</constraint>
-				
-				
-				<!-- 
-					setup a constraint against specific sites
-					these constraints are added to the generic ones above 
 				-->
 				<constraint>
 					<site>
@@ -339,67 +284,28 @@
 					</site>
 				</constraint>
 				
-				
 				<!-- 
-					track only messages (aka posts) in specific languages 
-					these constraints are added to the generic ones above
-					
-					NOT YET IMPLEMENTED
-				-->
-				<!--
-				<constraint>
-					<language>
-						<type>String</type>
-						<value>de</value>
-					</language>
-					<language>
-						<type>String</type>
-						<value>en</value>
-					</language>
-					<language>
-						<type>String</type>
-						<value>it</value>
-					</language>
-					<language>
-						<type>String</type>
-						<value>es</value>
-					</language>
-					<language>
-						<type>String</type>
-						<value>fr</value>
-					</language>
-				</constraint>
-				-->
-				
-				
-				<!-- 
-					setup a constraint to track only messages (aka posts) by specific user
+					track only messages (aka posts) with specific keywords
 					these constraints are added to the generic ones above 
 				-->
-				<!-- 
 				<constraint>
-					<user>
+					<term>
 						<type>String</type>
-						<value>CortalConsors</value>
-					</user>
-				</constraint>
-				-->
-				
-				
-				<!-- 
-					setup a constraint against specific geografical regions
-					these constraints are added to the generic ones above
-					
-					NOT YET IMPLEMENTED 
-				-->
-				<!--  
-				<constraint>
-					<location>
+						<value>Wissenslexikon</value>
+					</term>
+					<term>
 						<type>String</type>
-						<value>DE</value>
-					</location>
+						<value>Geschäft</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Ethik</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Markt</value>
+					</term>
 				</constraint>
-				-->
 			</constraints>
 			<!-- END OF LITHIUM CONSTRAINTS -->
 		</customer>
@@ -413,11 +319,15 @@
 				<type>String</type>
 				<value>COMLINE</value>
 			</name>
-			
-			<matchcode>
+			<category>
 				<type>String</type>
-				<value>CO</value>
-			</matchcode>
+				<value>customer</value>
+			</category>
+			
+			<!-- CONSTRAINTS -->
+			<constraints scope="ALL">
+				<!-- put in here all  -->
+			</constraints>
 		</customer>
 		<!-- COMLINE -->
 	</configuration>

@@ -1,14 +1,14 @@
 package de.comlineag.snc.handler;
 
 import java.util.ArrayList;
-
+import org.json.simple.JSONObject;
 import de.comlineag.snc.constants.SocialNetworks;
 
 /**
  * 
  * @author 		Christian Guenther
  * @category	handler
- * @version		0.5a 	- 13.07.2014
+ * @version		0.5b 	- 17.07.2014
  * @status		productive
  * 
  * @description	invokes the configuration manager as defined in applicationContext.xml
@@ -29,14 +29,15 @@ import de.comlineag.snc.constants.SocialNetworks;
  *				0.4 			changed method calls according to IConfigurationManager version 0.3
  *				0.5 			added generic type arguments
  *				0.5a			added parameter for customer
+ *				0.5b			changed signatur to use JSON Object instead of String for customer
  * 
  * TODO 1. check if there is a better way for arbitrary data types AND type safety
  */
 public class CrawlerConfiguration<T> extends GenericConfigurationManager {
 	
 	@SuppressWarnings("unchecked")
-	public ArrayList<T> getConstraint(String category, SocialNetworks SN, String customer) {
-		return (ArrayList<T>) configurationManager.getConstraint(category , SN, customer);
+	public ArrayList<T> getConstraint(String category, SocialNetworks SN, JSONObject configurationScope) {
+		return (ArrayList<T>) configurationManager.getConstraint(category , SN, configurationScope);
 	}
 	public String getConfigurationElement(String key, String path){
 		return configurationManager.getConfigurationElement(key, path);

@@ -91,6 +91,9 @@ public class ConfigurationConstants {
 	public static final String customerIdentifier 					= "customer";
 	public static final String customerNameIdentifier				= "name";
 	public static final String customerNameForAllValue 				= "ALL";
+	public static final String domainIdentifier 					= "domain";
+	public static final String domainNameIdentifier					= "name";
+	public static final String domainNameForAllValue 				= "ALL";
 	public static final String constraintIdentifier 				= "constraints";
 	public static final String scopeIdentifier 						= "scope";
 	public static final String scopeOnAllValue 						= "ALL";

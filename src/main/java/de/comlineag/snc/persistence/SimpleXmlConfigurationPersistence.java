@@ -1,6 +1,7 @@
 package de.comlineag.snc.persistence;
 
 import org.apache.log4j.Logger;
+import org.json.simple.JSONObject;
 
 import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.SocialNetworks;
@@ -21,7 +22,7 @@ import org.w3c.dom.NodeList;
 /**
  * @author		Christian Guenther
  * @category	Persistence manager
- * @version		0.5a	- 14.07.2014
+ * @version		0.6		- 17.07.2014
  * @status		productive but some functions are missing
  * 
  * @description	A configuration manager for the crawler using structured xml files for the configuration
@@ -36,10 +37,12 @@ import org.w3c.dom.NodeList;
  * 				0.5a 			scope identifiers are now taken from ConfigurationConstants 
  * 								Added method parameter customer. Has no effect here but needed
  * 								for XMLFileCustomerSpecificConfiguration
+ * 				0.6				renamed to SimpleXmlConfigurationPersistence and changed signature
+ * 								to use JSON Object instead of String for customer
  *  
  *  TODO 1. implement code for missing methods
  */
-public class XMLFileConfigurationPersistence<T> implements IConfigurationManager<T>  {
+public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManager<T>  {
 	
 	// the path to the configuration file
 	private String configDbHandler;
@@ -49,7 +52,7 @@ public class XMLFileConfigurationPersistence<T> implements IConfigurationManager
 	
 	// general invocation for every constraint
 	@Override
-	public ArrayList<T> getConstraint(String category, SocialNetworks SN, String customer) {
+	public ArrayList<T> getConstraint(String category, SocialNetworks SN, JSONObject configurationScope) {
 		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "geoLocation")  : "ERROR :: can only accept term, site, user, language or geoLocation as category";
 		
 		logger.warn("no customer specific configuration - consider using xml or db configuration with customer extension");

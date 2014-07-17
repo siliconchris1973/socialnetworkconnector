@@ -5,6 +5,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
+import org.json.simple.JSONObject;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -88,10 +89,16 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		// set the customer we start the crawler for
-		String curCustomer = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier);
+		// generate the json to pass to the configuration persistence
+		JSONObject configurationScope = new JSONObject();
+		configurationScope.put(ConfigurationConstants.domainIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.domainIdentifier));
+		configurationScope.put(ConfigurationConstants.customerIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.domainIdentifier));
+		configurationScope.put("SN_ID", SocialNetworks.TWITTER);
 		
 		// log the startup message
+		// set the customer we start the crawler for
+		String curCustomer = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier);
+				
 		logger.info("Twitter-Crawler START for " + curCustomer);
 		int messageCount = 0;
 		
@@ -99,10 +106,10 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		
 		// THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
 		logger.info("retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, SocialNetworks.TWITTER, curCustomer);
-		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_LANGUAGE_TEXT, SocialNetworks.TWITTER, curCustomer);
-		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(ConfigurationConstants.CONSTRAINT_USER_TEXT, SocialNetworks.TWITTER, curCustomer);
-		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(ConfigurationConstants.CONSTRAINT_LOCATION_TEXT, SocialNetworks.TWITTER, curCustomer);
+		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, SocialNetworks.TWITTER, configurationScope);
+		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_LANGUAGE_TEXT, SocialNetworks.TWITTER, configurationScope);
+		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(ConfigurationConstants.CONSTRAINT_USER_TEXT, SocialNetworks.TWITTER, configurationScope);
+		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(ConfigurationConstants.CONSTRAINT_LOCATION_TEXT, SocialNetworks.TWITTER, configurationScope);
 		
 		// log output AND setup of the filter end point
 		if (tTerms.size()>0) {

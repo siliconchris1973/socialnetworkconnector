@@ -8,6 +8,10 @@
 	The constraints are combined with AND. That means, that a term added in 
 	a configuration for one network, say twitter, is added to the constraints 
 	from the general configuration. 
+	
+	This xml file belongs to the configuration manager SimpleXMConfigurationPersistence
+	from applicationContext.xml. To use it, adapt it to your needs and activate 
+	the corresponding section in applicationContext.xml.
 -->
 <configurations>
 	<!-- START OF GENERIC CONFIG -->
