@@ -12,8 +12,10 @@
 		called  cortal consors and has no domain specific part. 
 	*	The xml DomainSpecificCrawlerConfiguration.xml contains the exact same crawler 
 		setup, but with ONLY a domain approach. 
-	*	Finally the configuration CustomerAndDomainCrawlerConfiguration.xml is an example 
+	*	the configuration CustomerAndDomainCrawlerConfiguration.xml is an example 
 		for a setup with domain specific and customer specific configuration elements.
+	*	and finally this file DomainWithCustomerCrawlerConfiguration.xml shows how
+		to setup a hierarchical structure of domain and customer
 	
 	You can take one of these examples and adjust it to your needs. Then edit  
 	applicationContext.xml, activate ComplexXmlConfigurationPersistence as the 
@@ -23,7 +25,7 @@
 	the general structure is as follows
 	<configurations>
 		<configuration scope=[customer / domain]>
-			<customer/domain scope=[ALL, name]
+			<customer/domain name=[ALL, name]
 				<name>
 					<type>String</type>
 					<value>ALL</value>
