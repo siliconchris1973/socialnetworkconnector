@@ -314,7 +314,7 @@
 		
 		
 		<!-- COMLINE -->
-		<customer>
+		<customer name="Comline">
 			<name>
 				<type>String</type>
 				<value>COMLINE</value>

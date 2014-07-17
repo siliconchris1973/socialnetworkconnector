@@ -5,8 +5,6 @@ import org.ini4j.Ini;
 import org.ini4j.InvalidIniFormatException;
 import org.json.simple.JSONObject;
 
-import de.comlineag.snc.constants.SocialNetworks;
-
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,7 +31,7 @@ import java.util.ArrayList;
  *				0.7 			added warning to unimplemented methods
  *				0.7a			Added method parameter customer. Has no effect here but needed
  * 								for XMLFileCustomerSpecificConfiguration
- * 				0.7b			Adapted signature to match JSON Object instead of String for customer
+ * 				0.7b			Adapted signature to match JSON Object instead of String 
  *  
  *  TODO 1. implement code to insert/update a value
  */
@@ -47,10 +45,12 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public ArrayList<T> getConstraint(String category, SocialNetworks SN, JSONObject configurationScope) {
+	public ArrayList<T> getConstraint(String category, JSONObject configurationScope) {
 		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "geoLocation")  : "ERROR :: can only accept term, site, user, language or geoLocation as category";
 		
-		logger.warn("no customer and network specific configuration and no type safety guranteed - consider using xml or db configuration");
+		logger.warn("no customer and network specific configuration and no type safety guranteed - consider using simple or complex xml or db configuration manager");
+		logger.debug("reading constraints on " + category + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")-1));
+		
 		return (ArrayList<T>)getDataFromIni(category);
 	}
 	

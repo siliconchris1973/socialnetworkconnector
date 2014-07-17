@@ -258,7 +258,7 @@
 		
 		
 		<!-- COMLINE -->
-		<customer>
+		<customer name="COMLINE">
 			<name>
 				<type>String</type>
 				<value>COMLINE</value>
@@ -340,7 +340,7 @@
 		<!-- end of ALL domain -->
 		
 		<!-- the banking domain  -->
-		<domain name="banking">
+		<domain name="Banking">
 			<name>
 				<type>String</type>
 				<value>Banking</value>

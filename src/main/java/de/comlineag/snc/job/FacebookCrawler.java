@@ -58,8 +58,8 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		// generate the json to pass to the configuration persistence
 		JSONObject configurationScope = new JSONObject();
 		configurationScope.put(ConfigurationConstants.domainIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.domainIdentifier));
-		configurationScope.put(ConfigurationConstants.customerIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.domainIdentifier));
-		configurationScope.put("SN_ID", SocialNetworks.FACEBOOK);
+		configurationScope.put(ConfigurationConstants.customerIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier));
+		configurationScope.put("SN_ID", "\""+SocialNetworks.FACEBOOK+"\"");
 				
 		// set the customer we start the crawler for
 		String curCustomer = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier);		
@@ -71,10 +71,10 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		
 		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
 		logger.info("retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, SocialNetworks.FACEBOOK, configurationScope);
-		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_LANGUAGE_TEXT, SocialNetworks.FACEBOOK, configurationScope);
-		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(ConfigurationConstants.CONSTRAINT_USER_TEXT, SocialNetworks.FACEBOOK, configurationScope);
-		//ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(ConfigurationConstants.CONSTRAINT_LOCATION_TEXT, SocialNetworks.FACEBOOK, configurationScope);
+		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, configurationScope);
+		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_LANGUAGE_TEXT, configurationScope);
+		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(ConfigurationConstants.CONSTRAINT_USER_TEXT, configurationScope);
+		//ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(ConfigurationConstants.CONSTRAINT_LOCATION_TEXT, configurationScope);
 		
 		// log output AND setup of the filter end point
 		if (tTerms.size()>0) {

@@ -2,6 +2,8 @@ package de.comlineag.snc.persistence;
 
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.SocialNetworks;
@@ -46,23 +48,35 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 	
 	// the path to the configuration file
 	private String configDbHandler;
+	private JSONParser parser = new JSONParser();
+	private String SN = null;
+	private Object obj = null;
 	
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	// general invocation for every constraint
 	@Override
-	public ArrayList<T> getConstraint(String category, SocialNetworks SN, JSONObject configurationScope) {
+	public ArrayList<T> getConstraint(String category, JSONObject configurationScope) {
 		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "geoLocation")  : "ERROR :: can only accept term, site, user, language or geoLocation as category";
 		
-		logger.warn("no customer specific configuration - consider using xml or db configuration with customer extension");
+		// get configuration scope - that is doman and customer
+		try {
+			obj = parser.parse(configurationScope.toString());
+			JSONObject jsonObject = (JSONObject) obj;
+			SN = (String) jsonObject.get("SN_ID");
+		} catch (ParseException e1) {
+			logger.error("ERROR :: could not parse configurationScope jason " + e1.getLocalizedMessage());
+		}
+		
+		logger.warn("no customer or domain specific configuration - consider using complex xml or db configuration manager");
 		return (ArrayList<T>) getDataFromXml(category, SN);
 	}
 	
 	@SuppressWarnings("unchecked")
-	private ArrayList<T> getDataFromXml(String section, SocialNetworks SN) {
+	private ArrayList<T> getDataFromXml(String section, String SN) {
 		ArrayList<T> ar = new ArrayList<T>();
-		logger.debug("reading constraints on " + section + " for network " + SN.toString() + " from configuration file " + getConfigDbHandler());
+		logger.debug("reading constraints on " + section + " for network " + SN.toString() + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")-1));
 		
 		try {
 			File file = new File(getConfigDbHandler());

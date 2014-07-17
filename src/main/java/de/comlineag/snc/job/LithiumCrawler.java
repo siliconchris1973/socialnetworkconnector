@@ -87,8 +87,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		// generate the json to pass to the configuration persistence
 		JSONObject configurationScope = new JSONObject();
 		configurationScope.put(ConfigurationConstants.domainIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.domainIdentifier));
-		configurationScope.put(ConfigurationConstants.customerIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.domainIdentifier));
-		configurationScope.put("SN_ID", SocialNetworks.LITHIUM);
+		configurationScope.put(ConfigurationConstants.customerIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier));
+		configurationScope.put("SN_ID", "\""+SocialNetworks.LITHIUM+"\"");
 		
 		// set the customer we start the crawler for
 		String curCustomer = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier);
@@ -133,10 +133,10 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		
 		// THESE VALUES ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND SITES (aka boards)
 		logger.trace("retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, SocialNetworks.LITHIUM, configurationScope); 
-		ArrayList<String> tUsers = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_USER_TEXT, SocialNetworks.LITHIUM, configurationScope);
-		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_LANGUAGE_TEXT, SocialNetworks.LITHIUM, configurationScope); 
-		ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_SITE_TEXT, SocialNetworks.LITHIUM, configurationScope);
+		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, configurationScope); 
+		ArrayList<String> tUsers = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_USER_TEXT, configurationScope);
+		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_LANGUAGE_TEXT, configurationScope); 
+		ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_SITE_TEXT, configurationScope);
 		
 		// simple log output
 		if (tTerms.size()>0)

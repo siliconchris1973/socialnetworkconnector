@@ -6,7 +6,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import de.comlineag.snc.constants.ConfigurationConstants;
-import de.comlineag.snc.constants.SocialNetworks;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,6 +42,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	private String domain = null;
 	private String customer = null;
 	private JSONParser parser = new JSONParser();
+	private String SN = null;
 	private Object obj = null;
 	
 	// Logger Instanz
@@ -50,7 +50,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	
 	// general invocation for every constraint
 	@Override
-	public ArrayList<T> getConstraint(String category, SocialNetworks SN, JSONObject configurationScope) {
+	public ArrayList<T> getConstraint(String category, JSONObject configurationScope) {
 		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "geoLocation")  : "ERROR :: can only accept term, site, user, language or geoLocation as category";
 		
 		// get configuration scope - that is doman and customer
@@ -59,19 +59,22 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			JSONObject jsonObject = (JSONObject) obj;
 			domain = (String) jsonObject.get("domain");
 			customer = (String) jsonObject.get("customer"); 
+			SN = (String) jsonObject.get("SN_ID");
+			
+			logger.trace("received the following json as configurationScope: " + configurationScope.toString());
+			
 		} catch (ParseException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			logger.error("ERROR :: could not parse configurationScope jason " + e1.getLocalizedMessage());
 		}
 		
 		return (ArrayList<T>) getDataFromXml(category, SN);
 	}
 	
 	@SuppressWarnings("unchecked")
-	private ArrayList<T> getDataFromXml(String section, SocialNetworks SN) {
+	private ArrayList<T> getDataFromXml(String section, String SN) {
 		
 		ArrayList<T> ar = new ArrayList<T>();
-		logger.debug("reading constraints for "+customer+" in "+domain+" on " + section + " for network " + SN.toString() + " from configuration file " + getConfigDbHandler());
+		logger.debug("reading constraints for "+customer+" in "+domain+" on " + section + " for network " + SN.toString() + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")-1));
 		
 		try {
 			File file = new File(getConfigDbHandler());
