@@ -30,7 +30,7 @@ import de.comlineag.snc.handler.TwitterParser;
  *
  * @author 		Christian Guenther
  * @category 	Job
- * @version		0.9b		- 14.07.2014
+ * @version		0.9c		- 17.07.2014
  * @status		productive	- occasional error while inserting data
  *
  * @description this is the actual crawler of the twitter network. It is
@@ -48,7 +48,8 @@ import de.comlineag.snc.handler.TwitterParser;
  *				0.8					added support for SocialNetwork specific configuration
  *				0.9					added constants for configuration retrieval
  *				0.9a (Maic)			Fixed the "crawler stop and no clean restart" bug
- *				0.9b				added parameter for customer specific configuration
+ *				0.9b (Chris)		added parameter for customer specific configuration
+ *				0.9c				changed method signature for crawler configuration to match JSON object
  *
  * TODO 1. fix crawler bug, that causes the persistence to try to insert a post or user multiple times
  * 			This bug has something to do with the number of threads provided by the Quartz job control
@@ -87,13 +88,14 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		post = new TwitterParser();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// generate the json to pass to the configuration persistence
 		JSONObject configurationScope = new JSONObject();
-		configurationScope.put(ConfigurationConstants.domainIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.domainIdentifier));
-		configurationScope.put(ConfigurationConstants.customerIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier));
-		configurationScope.put("SN_ID", "\""+SocialNetworks.TWITTER+"\"");
+		configurationScope.put((String) ConfigurationConstants.domainIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.domainIdentifier));
+		configurationScope.put((String) ConfigurationConstants.customerIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier));
+		configurationScope.put((String) "SN_ID", (String) "\""+SocialNetworks.TWITTER+"\"");
 		
 		// log the startup message
 		// set the customer we start the crawler for

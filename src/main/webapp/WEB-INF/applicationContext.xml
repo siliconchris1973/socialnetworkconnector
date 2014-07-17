@@ -39,8 +39,19 @@
 	<context:component-scan base-package="de.comlineag.snc.persistence" />
 	<tx:annotation-driven />
 	
-	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.persistence.ApplicationContextProvider"></bean>
+	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.handler.ApplicationContextProvider"></bean>
 	
+	<!-- D O M A I N    A N D    C U S T O M E R    D R I V E N    R U N T I M E    S E T U P -->
+	<bean name="DomainDrivenConfiguration"
+		class="de.comlineag.snc.handler.DomainDrivenConfiguration">
+		<!-- first customer specific implementation -->
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="customer" value="CortalConsors" />
+				<entry key="domain" value="Banking" />
+			</map>
+		</property>
+	</bean>
 	
 	
 	<!-- C R A W L E R    S E T T I N G S 				-->

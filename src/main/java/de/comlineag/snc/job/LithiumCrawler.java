@@ -83,12 +83,13 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	 * @description	this is the actual crawler implementation for the lithium network
 	 *  
 	 */
+	@SuppressWarnings("unchecked")
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// generate the json to pass to the configuration persistence
 		JSONObject configurationScope = new JSONObject();
-		configurationScope.put(ConfigurationConstants.domainIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.domainIdentifier));
-		configurationScope.put(ConfigurationConstants.customerIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier));
-		configurationScope.put("SN_ID", "\""+SocialNetworks.LITHIUM+"\"");
+		configurationScope.put((String) ConfigurationConstants.domainIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.domainIdentifier));
+		configurationScope.put((String) ConfigurationConstants.customerIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier));
+		configurationScope.put((String) "SN_ID", (String)"\""+SocialNetworks.LITHIUM+"\"");
 		
 		// set the customer we start the crawler for
 		String curCustomer = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier);

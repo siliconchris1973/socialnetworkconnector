@@ -1,4 +1,4 @@
-package de.comlineag.snc.persistence;
+package de.comlineag.snc.handler;
 
 import org.springframework.context.ApplicationContext;
 

@@ -6,7 +6,6 @@ import de.comlineag.snc.constants.CryptoProvider;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.crypto.ICryptoProvider;
-import de.comlineag.snc.persistence.AppContext;
 
 /**
  * 

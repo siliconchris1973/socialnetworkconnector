@@ -53,13 +53,14 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		post = new FacebookParser();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// generate the json to pass to the configuration persistence
 		JSONObject configurationScope = new JSONObject();
-		configurationScope.put(ConfigurationConstants.domainIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.domainIdentifier));
-		configurationScope.put(ConfigurationConstants.customerIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier));
-		configurationScope.put("SN_ID", "\""+SocialNetworks.FACEBOOK+"\"");
+		configurationScope.put((String) ConfigurationConstants.domainIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.domainIdentifier));
+		configurationScope.put((String) ConfigurationConstants.customerIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier));
+		configurationScope.put((String) "SN_ID", (String) "\""+SocialNetworks.FACEBOOK+"\"");
 				
 		// set the customer we start the crawler for
 		String curCustomer = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier);		

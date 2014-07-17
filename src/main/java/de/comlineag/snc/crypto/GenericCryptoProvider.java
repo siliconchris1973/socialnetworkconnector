@@ -2,7 +2,7 @@ package de.comlineag.snc.crypto;
 
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.CryptoProvider;
-import de.comlineag.snc.persistence.AppContext;
+import de.comlineag.snc.handler.AppContext;
 
 /**
  * 
