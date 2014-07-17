@@ -49,7 +49,7 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "geoLocation")  : "ERROR :: can only accept term, site, user, language or geoLocation as category";
 		
 		logger.warn("no customer and network specific configuration and no type safety guranteed - consider using simple or complex xml or db configuration manager");
-		logger.debug("reading constraints on " + category + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")-1));
+		logger.debug("reading constraints on " + category + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")+1));
 		
 		return (ArrayList<T>)getDataFromIni(category);
 	}

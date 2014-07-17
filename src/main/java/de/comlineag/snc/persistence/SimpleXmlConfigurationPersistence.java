@@ -76,7 +76,7 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 	@SuppressWarnings("unchecked")
 	private ArrayList<T> getDataFromXml(String section, String SN) {
 		ArrayList<T> ar = new ArrayList<T>();
-		logger.debug("reading constraints on " + section + " for network " + SN.toString() + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")-1));
+		logger.debug("reading constraints on " + section + " for network " + SN.toString() + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")+1));
 		
 		try {
 			File file = new File(getConfigDbHandler());

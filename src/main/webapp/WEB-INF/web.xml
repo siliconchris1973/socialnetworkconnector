@@ -15,7 +15,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
-	<display-name>Social Network Connector - Crawler</display-name>
+	<display-name>Social Network Connector</display-name>
 
 	<!-- Servlet Filters ================================================ -->
 
@@ -46,8 +46,20 @@
 	</listener>
 
 	<!-- Servlet Configuration ========================================== -->
+	<!-- setup the domain driven configuration context 
+	<listener>
+        <listener-class>DomainDrivenConfiguration</listener-class>
+    </listener>
 
-
+ 	<context-param>
+    	<param-name>domain</param-name>
+    	<param-value>banking</param-value>
+  	</context-param>
+  	<context-param>
+    	<param-name>customer</param-name>
+    	<param-value>CortalConsors</param-value>
+  	</context-param>
+   -->
 	<!-- URL space mappings ============================================= -->
 
 

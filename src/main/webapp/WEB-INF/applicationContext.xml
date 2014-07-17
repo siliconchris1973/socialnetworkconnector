@@ -42,10 +42,11 @@
 	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.handler.ApplicationContextProvider"></bean>
 	
 	<!-- D O M A I N    A N D    C U S T O M E R    D R I V E N    R U N T I M E    S E T U P -->
-	<bean name="DomainDrivenConfiguration"
+	<bean name="DomainDrivenConfigurationDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.snc.handler.DomainDrivenConfiguration" />
 		<property name="Durability" value="true"/>
+		<!-- <property name="Concurrent" value="false" /> --> 
 		<!-- <property name="Singleton" value="true"/> -->
 		
 		<property name="jobDataAsMap">
@@ -57,14 +58,8 @@
 	</bean>
 	<bean id="DomainDrivenConfigurationTrigger"
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
-		<property name="jobDetail" ref="DomainDrivenConfiguration" />
-		<!-- 1 second delay after startup -->
+		<property name="jobDetail" ref="DomainDrivenConfigurationDetail" />
 		<property name="startDelay" value="1000" />
-		<!-- repeat the job every 
-							5000 - 50 seconds 
-							6000 - 1 minutes 
-							15000 - 2,5 minutes (round about) 
-							60000 - 10 minutes -->
 		<property name="repeatInterval" value="60000" />
 	</bean>
 	
@@ -75,6 +70,8 @@
 	<bean name="TwitterCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.snc.job.TwitterCrawler" />
+		<!-- <property name="concurrent" value="false" /> -->
+		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map>
 				<!-- These are the security tokens for the twitter API -->
@@ -87,14 +84,8 @@
 					entries for server, protocol and location are taken from constants 
 					from the hbc twitter api 
 				-->
-				
-				<!-- first customer specific implementation 
-				<entry key="customer" value="CortalConsors" />
-				<entry key="domain" value="Banking" />
-				-->
 			</map>
 		</property>
-		<property name="durability" value="true" />
 	</bean>
 	<bean id="TwitterCrawlerTrigger"
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
@@ -114,6 +105,8 @@
 	<bean name="LithiumCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.snc.job.LithiumCrawler" />
+		<!-- <property name="concurrent" value="false" /> -->
+		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map>
 				<!-- These are security tokens -->
@@ -131,23 +124,13 @@
 				<entry key="port" value="443" />
 				<entry key="server_url" value="wissen.cortalconsors.de" />
 				<entry key="rest_api_loc" value="/restapi/vc" />
-				
-				<!-- first customer specific implementation -->
-				<entry key="customer" value="CortalConsors" />
-				<entry key="domain" value="Banking" />
 			</map>
 		</property>
-		<property name="durability" value="true" />
 	</bean>
 	<bean id="LithiumCrawlerTrigger"
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
 		<property name="jobDetail" ref="LithiumCrawlerDetail" />
-		<!-- 1 second delay after startup -->
 		<property name="startDelay" value="1000" />
-		<!-- repeat the job every 	5000 - 50 seconds 
-									6000 - 1 minutes 
-									15000 - 2,5 minutes (round about) 
-									30000 - 5 minutes -->
 		<property name="repeatInterval" value="150000" />
 	</bean>
 	
@@ -156,6 +139,8 @@
 	<bean name="FacebookCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.snc.job.FacebookCrawler" />
+		<!-- <property name="concurrent" value="false" /> -->
+		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map>
 				<!-- These are security tokens -->
@@ -174,13 +159,8 @@
 				<entry key="server_url" value="graph.facebook.com" />
 				<entry key="graph_api_loc" value="/graph" />
 				<entry key="rest_api_loc" value="/restapi/" />
-				
-				<!-- first customer specific implementation -->
-				<entry key="customer" value="CortalConsors" />
-				<entry key="domain" value="Banking" />
 			</map>
 		</property>
-		<property name="durability" value="true" />
 	</bean>
 	<bean id="FacebookCrawlerTrigger"
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
@@ -200,6 +180,8 @@
 <!--  
 	<bean name="GoogleCrawlerDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean"> 
 		<property name="jobClass" value="de.comlineag.snc.job.GoogleCrawler" /> 
+		<property name="concurrent" value="false" />
+		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map> 
 				<entry key="consumerKey" value="" /> 
@@ -412,7 +394,7 @@
 				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
 				<!-- currently, if this is set to a value higher than 1, the twitter crawler sometimes 
 						encounters exceptions during db insert or update -->
-				<prop key="org.quartz.threadPool.threadCount">2</prop>
+				<prop key="org.quartz.threadPool.threadCount">3</prop>
 			</props>
 		</property>
 		<property name="triggers">
@@ -426,7 +408,7 @@
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="FinanzforumCrawlerTrigger"/> -->
-				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
+				 <ref bean="LithiumCrawlerTrigger" /> 
 			</list>
 		</property>
 	</bean>

@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationContextAware;
  * 
  * @author 		Magnus Leinemann
  * @category 	Configuration Manager
- * @version 	0.1
+ * @version 	0.1			- 10.03.2014
  * @status		productive
  *  
  * @description Wiring the ApplicationContext into a static method and 
