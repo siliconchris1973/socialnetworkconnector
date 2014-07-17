@@ -27,6 +27,7 @@ import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.CrawlerConfiguration;
+import de.comlineag.snc.handler.DomainDrivenConfiguration;
 import de.comlineag.snc.handler.GenericCrawlerException;
 import de.comlineag.snc.handler.LithiumParser;
 import de.comlineag.snc.handler.LithiumPosting;
@@ -85,14 +86,11 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	 */
 	@SuppressWarnings("unchecked")
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		// generate the json to pass to the configuration persistence
-		JSONObject configurationScope = new JSONObject();
-		configurationScope.put((String) ConfigurationConstants.domainIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.domainIdentifier));
-		configurationScope.put((String) ConfigurationConstants.customerIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier));
+		JSONObject configurationScope = DomainDrivenConfiguration.getDomainSetup();
 		configurationScope.put((String) "SN_ID", (String)"\""+SocialNetworks.LITHIUM+"\"");
 		
 		// set the customer we start the crawler for
-		String curCustomer = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier);
+		String curCustomer = (String) configurationScope.get(ConfigurationConstants.customerIdentifier);
 		
 		// log the startup message
 		logger.info("Lithium-Crawler START for " + curCustomer);

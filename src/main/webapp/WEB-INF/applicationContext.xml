@@ -43,8 +43,11 @@
 	
 	<!-- D O M A I N    A N D    C U S T O M E R    D R I V E N    R U N T I M E    S E T U P -->
 	<bean name="DomainDrivenConfiguration"
-		class="de.comlineag.snc.handler.DomainDrivenConfiguration">
-		<!-- first customer specific implementation -->
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="de.comlineag.snc.handler.DomainDrivenConfiguration" />
+		<property name="Durability" value="true"/>
+		<!-- <property name="Singleton" value="true"/> -->
+		
 		<property name="jobDataAsMap">
 			<map>
 				<entry key="customer" value="CortalConsors" />
@@ -52,6 +55,19 @@
 			</map>
 		</property>
 	</bean>
+	<bean id="DomainDrivenConfigurationTrigger"
+		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="DomainDrivenConfiguration" />
+		<!-- 1 second delay after startup -->
+		<property name="startDelay" value="1000" />
+		<!-- repeat the job every 
+							5000 - 50 seconds 
+							6000 - 1 minutes 
+							15000 - 2,5 minutes (round about) 
+							60000 - 10 minutes -->
+		<property name="repeatInterval" value="60000" />
+	</bean>
+	
 	
 	
 	<!-- C R A W L E R    S E T T I N G S 				-->
@@ -72,9 +88,10 @@
 					from the hbc twitter api 
 				-->
 				
-				<!-- first customer specific implementation -->
+				<!-- first customer specific implementation 
 				<entry key="customer" value="CortalConsors" />
 				<entry key="domain" value="Banking" />
+				-->
 			</map>
 		</property>
 		<property name="durability" value="true" />
@@ -400,6 +417,8 @@
 		</property>
 		<property name="triggers">
 			<list>
+				<ref bean="DomainDrivenConfigurationTrigger" />
+				
 				<!-- activate each crawler you want and make sure to increase the threadCount number 
 						above according to the number of activated crawlers -->
 				<ref bean="TwitterCrawlerTrigger" />
@@ -407,7 +426,7 @@
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="FinanzforumCrawlerTrigger"/> -->
-				<ref bean="LithiumCrawlerTrigger" />
+				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
 			</list>
 		</property>
 	</bean>

@@ -14,6 +14,7 @@ import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.FacebookConstants;
 import de.comlineag.snc.handler.CrawlerConfiguration;
+import de.comlineag.snc.handler.DomainDrivenConfiguration;
 import de.comlineag.snc.handler.FacebookParser;
 
 /**
@@ -56,14 +57,11 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		// generate the json to pass to the configuration persistence
-		JSONObject configurationScope = new JSONObject();
-		configurationScope.put((String) ConfigurationConstants.domainIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.domainIdentifier));
-		configurationScope.put((String) ConfigurationConstants.customerIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier));
+		JSONObject configurationScope = DomainDrivenConfiguration.getDomainSetup();
 		configurationScope.put((String) "SN_ID", (String) "\""+SocialNetworks.FACEBOOK+"\"");
 				
 		// set the customer we start the crawler for
-		String curCustomer = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier);		
+		String curCustomer = (String) configurationScope.get(ConfigurationConstants.customerIdentifier);		
 		
 		// log the startup message
 		logger.info("Facebook-Crawler START for " + curCustomer);

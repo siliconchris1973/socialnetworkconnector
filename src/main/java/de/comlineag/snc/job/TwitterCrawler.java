@@ -24,6 +24,7 @@ import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.TwitterConstants;
 import de.comlineag.snc.handler.CrawlerConfiguration;
+import de.comlineag.snc.handler.DomainDrivenConfiguration;
 import de.comlineag.snc.handler.TwitterParser;
 
 /**
@@ -88,18 +89,16 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		post = new TwitterParser();
 	}
 	
-	@SuppressWarnings("unchecked")
+	
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		// generate the json to pass to the configuration persistence
-		JSONObject configurationScope = new JSONObject();
-		configurationScope.put((String) ConfigurationConstants.domainIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.domainIdentifier));
-		configurationScope.put((String) ConfigurationConstants.customerIdentifier, (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier));
+		
+		JSONObject configurationScope = DomainDrivenConfiguration.getDomainSetup();
 		configurationScope.put((String) "SN_ID", (String) "\""+SocialNetworks.TWITTER+"\"");
 		
 		// log the startup message
 		// set the customer we start the crawler for
-		String curCustomer = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.customerIdentifier);
+		String curCustomer = (String) configurationScope.get(ConfigurationConstants.customerIdentifier);
 				
 		logger.info("Twitter-Crawler START for " + curCustomer);
 		int messageCount = 0;
