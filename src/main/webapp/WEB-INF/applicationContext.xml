@@ -41,28 +41,27 @@
 	
 	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.handler.ApplicationContextProvider"></bean>
 	
+	
+	
 	<!-- D O M A I N    A N D    C U S T O M E R    D R I V E N    R U N T I M E    S E T U P -->
-	<bean name="DomainDrivenConfigurationDetail"
+	<bean name="GeneralConfigurationDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="de.comlineag.snc.handler.DomainDrivenConfiguration" />
+		<property name="jobClass" value="de.comlineag.snc.handler.GeneralConfiguration" />
 		<property name="Durability" value="true"/>
 		<!-- <property name="Concurrent" value="false" /> --> 
 		<!-- <property name="Singleton" value="true"/> -->
-		
 		<property name="jobDataAsMap">
 			<map>
-				<entry key="customer" value="CortalConsors" />
-				<entry key="domain" value="Banking" />
+				<entry key="configFile" value="src/main/webapp/WEB-INF/GeneralConfiguration.xml" />
 			</map>
 		</property>
 	</bean>
-	<bean id="DomainDrivenConfigurationTrigger"
+	<bean id="GeneralConfigurationTrigger"
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
-		<property name="jobDetail" ref="DomainDrivenConfigurationDetail" />
-		<property name="startDelay" value="1000" />
+		<property name="jobDetail" ref="GeneralConfigurationDetail" />
+		<property name="startDelay" value="0" />
 		<property name="repeatInterval" value="60000" />
 	</bean>
-	
 	
 	
 	<!-- C R A W L E R    S E T T I N G S 				-->
@@ -204,7 +203,6 @@
 				<entry key="customer" value="CortalConsors" />
 			</map> 
 		</property> 
-		<property name="durability" value="true" /> 
 	</bean> 
 	<bean id="GoogleCrawlerTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean"> 
 		<property name="jobDetail" ref="GoogleCrawlerDetail" />
@@ -296,31 +294,41 @@
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" /> 
 	</bean> 
 	-->
-	
-	<!-- this is the bean to get the crawler configuration specific for individual customers AND domains from an xml file
-		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR DIFFERENT CUSTOMERS and DOMAINS) -->
-	<bean id="configurationManager" class="de.comlineag.snc.persistence.ComplexXmlConfigurationPersistence"> 
-		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/CustomerAndDomainCrawlerConfiguration.xml" /> 
-		<!-- <property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/CustomerSpecificCrawlerConfiguration.xml" /> -->
-		<!-- <property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/DomainSpecificCrawlerConfiguration.xml" /> -->
+
+	<!-- this is the bean to get the crawler configuration specific for individual domains AND customers from an xml file
+		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR EITHER CUSTOMER OR DOMAIN) -->
+<!-- 
+	<bean id="configurationManager" class="de.comlineag.snc.persistence.DomainConfigurationPersistence"> 
+		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/DomainWithCustomerCrawlerConfiguration.xml" /> 
 	</bean> 
- 
+-->
+
+	
+	<!-- this is the bean to get the crawler configuration specific for individual customers OR domains from an xml file
+		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR EITHER CUSTOMER OR DOMAIN) -->
+<!-- 
+	<bean id="configurationManager" class="de.comlineag.snc.persistence.ComplexXmlConfigurationPersistence"> 
+		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/CustomerSpecificCrawlerConfiguration.xml" /> 
+--> 
+		<!-- <property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/DomainSpecificCrawlerConfiguration.xml" /> -->
+<!-- 
+	</bean> 
+-->
 	
 	<!-- this is the bean to get the crawler configuration from an xml file 
 		(WORKS BUT NO CUSTOMER SPECIFIC CONFIGURATION POSSIBLE)	-->
-<!-- 
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.SimpleXmlConfigurationPersistence"> 
 		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/SimpleCrawlerConfiguration.xml" /> 
-	</bean> 
--->
+	</bean>
+	
 	 
 	<!-- this is the bean to get the crawler configuration from an ini file 
 		(WORKS WITH RESTRICTIONS - NO CUSTOMER AND NO CRAWLER SPECIFIC CONFIGURATION POSSIBLE) -->
-<!--
+<!-- 
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.IniFileConfigurationPersistence">
 		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/CrawlerConfiguration.ini" />
 	</bean>
--->
+ -->
 	
 	<!-- P E R S I S T E N C E    S E T T I N G S -->
 	<!-- You may choose exactly one of the provided persistence manager -->
@@ -399,7 +407,8 @@
 		</property>
 		<property name="triggers">
 			<list>
-				<ref bean="DomainDrivenConfigurationTrigger" />
+				<!-- this is the basic configuration for the social network connector -->
+				<ref bean="GeneralConfigurationTrigger" />
 				
 				<!-- activate each crawler you want and make sure to increase the threadCount number 
 						above according to the number of activated crawlers -->
@@ -408,7 +417,7 @@
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="FinanzforumCrawlerTrigger"/> -->
-				 <ref bean="LithiumCrawlerTrigger" /> 
+				<ref bean="LithiumCrawlerTrigger" /> 
 			</list>
 		</property>
 	</bean>

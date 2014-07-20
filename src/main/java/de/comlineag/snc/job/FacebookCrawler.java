@@ -6,6 +6,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -14,7 +15,7 @@ import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.FacebookConstants;
 import de.comlineag.snc.handler.CrawlerConfiguration;
-import de.comlineag.snc.handler.DomainDrivenConfiguration;
+import de.comlineag.snc.handler.GeneralConfiguration;
 import de.comlineag.snc.handler.FacebookParser;
 
 /**
@@ -28,10 +29,15 @@ import de.comlineag.snc.handler.FacebookParser;
  *              implemented as a job and, upon execution, will connect to the
  *              Facebook api to grab new messages as they are created on the
  *              network.
+ *              
+ * @limitation	Currently the class uses annotation @DisallowConcurrentExecution
+ *              because we can't let the job run multiple times for the sake of 
+ *              data consistency - this will be resolved in version 1.1 
  *
  * @changelog	0.1 (Chris)			copied from TwitterCrawler Revision 0.9a
  *
  */
+@DisallowConcurrentExecution 
 public class FacebookCrawler extends GenericCrawler implements Job {
 
 	// Logger Instanz
@@ -57,7 +63,7 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		JSONObject configurationScope = DomainDrivenConfiguration.getDomainSetup();
+		JSONObject configurationScope = GeneralConfiguration.getDomainSetup();
 		configurationScope.put((String) "SN_ID", (String) "\""+SocialNetworks.FACEBOOK+"\"");
 				
 		// set the customer we start the crawler for

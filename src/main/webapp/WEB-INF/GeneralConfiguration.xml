@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+	This is the xml configuration file for the social network connector.
+	
+	It is used to setup general options for the runtime behaviour of the SNC
+-->
+<configurations>
+	<!-- START OF DOMAIN AND CUASTOMER CONFIG -->
+	<configuration scope="domain">
+		<domain name="Banking">
+			<name>Banking</name>
+			<type>String</type>
+			<value>Banking</value>
+			
+			<!-- set to false in case no domain/customer specific setup is needed -->
+			<isActive>
+				<type>boolean</type>
+				<value>true</value>
+			</isActive>
+			<priority>
+				<type>int</type>
+				<value>0</value>
+			</priority>
+			
+			<!-- customer entries within domain -->
+			<customer name="CortalConsors">
+				<name>Cortal Consors</name>
+				<type>String</type>
+				<value>CortalConsors</value>
+				<isActive>
+					<type>boolean</type>
+					<value>true</value>
+				</isActive>
+				<priority>
+					<type>int</type>
+					<value>0</value>
+				</priority>
+			</customer>
+		</domain>
+	</configuration>
+	
+	
+	<!-- START OF RUNTIME CONFIG -->
+	<configuration scope="runtime">
+		<param name="WarnOnSimpleConfigOption">
+			<type>boolean</type>
+			<value>true</value>
+		</param>
+		<param name="WarnOnSimpleXmlConfigOption">
+			<type>boolean</type>
+			<value>true</value>
+		</param>
+	</configuration>
+</configurations>

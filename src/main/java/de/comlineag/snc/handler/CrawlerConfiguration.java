@@ -2,7 +2,6 @@ package de.comlineag.snc.handler;
 
 import java.util.ArrayList;
 import org.json.simple.JSONObject;
-import de.comlineag.snc.constants.SocialNetworks;
 
 /**
  * 
@@ -29,7 +28,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  *				0.4 			changed method calls according to IConfigurationManager version 0.3
  *				0.5 			added generic type arguments
  *				0.5a			added parameter for customer
- *				0.5b			changed signatur to use JSON Object instead of String
+ *				0.5b			changed signature to use JSON Object instead of String
  * 
  * TODO 1. check if there is a better way for arbitrary data types AND type safety
  */

@@ -9,6 +9,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -27,7 +28,7 @@ import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.CrawlerConfiguration;
-import de.comlineag.snc.handler.DomainDrivenConfiguration;
+import de.comlineag.snc.handler.GeneralConfiguration;
 import de.comlineag.snc.handler.GenericCrawlerException;
 import de.comlineag.snc.handler.LithiumParser;
 import de.comlineag.snc.handler.LithiumPosting;
@@ -44,6 +45,10 @@ import de.comlineag.snc.handler.LithiumUser;
  * @description this is the actual crawler for the Lithium network. It is implemenetd as a job and,
  *              upon execution, will connect to the Lithium REST API to search for posts that contain keywords.
  *              The keywords are sourced in by the configuration manager.  
+ * 
+ * @limitation	Currently the class uses annotation @DisallowConcurrentExecution
+ *              because we can't let the job run multiple times for the sake of 
+ *              data consistency - this will be resolved in version 1.1 
  * 
  * @changelog	0.1 (Chris)		copy of TwitterCrawler
  * 				0.2 			try and error with xml rest api						
@@ -63,6 +68,7 @@ import de.comlineag.snc.handler.LithiumUser;
  * TODO 1. find out and fix the following warning:
  * 			HttpMethodBase - Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
  */
+@DisallowConcurrentExecution 
 public class LithiumCrawler extends GenericCrawler implements Job {
 
 	// Logger Instanz
@@ -86,8 +92,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	 */
 	@SuppressWarnings("unchecked")
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		JSONObject configurationScope = DomainDrivenConfiguration.getDomainSetup();
-		configurationScope.put((String) "SN_ID", (String)"\""+SocialNetworks.LITHIUM+"\"");
+		JSONObject configurationScope = GeneralConfiguration.getDomainSetup();
+		configurationScope.put((String) "SN_ID", (String) SocialNetworks.LITHIUM.toString());
 		
 		// set the customer we start the crawler for
 		String curCustomer = (String) configurationScope.get(ConfigurationConstants.customerIdentifier);

@@ -6,7 +6,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import de.comlineag.snc.constants.ConfigurationConstants;
-import de.comlineag.snc.constants.SocialNetworks;
+import de.comlineag.snc.handler.GeneralConfiguration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,18 +58,23 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 	// general invocation for every constraint
 	@Override
 	public ArrayList<T> getConstraint(String category, JSONObject configurationScope) {
-		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "geoLocation")  : "ERROR :: can only accept term, site, user, language or geoLocation as category";
+		assert (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category))  : "ERROR :: can only accept term, site, user, language or geoLocation as category";
+		
+		if (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category)) 
+			logger.warn("received "+category+" as category, but can only process term, site, user, language or geoLocation");
 		
 		// get configuration scope - that is doman and customer
 		try {
 			obj = parser.parse(configurationScope.toString());
 			JSONObject jsonObject = (JSONObject) obj;
 			SN = (String) jsonObject.get("SN_ID");
+			
+			if ((GeneralConfiguration.getCustomerIsActive() || GeneralConfiguration.getDomainIsActive()) && GeneralConfiguration.getWarnOnSimpleXmlConfig())
+				logger.warn("no customer or domain specific configuration possible - consider using complex xml or db configuration manager\nyou can turn off this warning by setting WARN_ON_SIMPLE_XML_CONFIG to false in " + GeneralConfiguration.getConfigFile().substring(GeneralConfiguration.getConfigFile().lastIndexOf("/")+1));
 		} catch (ParseException e1) {
-			logger.error("ERROR :: could not parse configurationScope jason " + e1.getLocalizedMessage());
+			logger.error("ERROR :: could not parse configurationScope json " + e1.getLocalizedMessage());
 		}
 		
-		logger.warn("no customer or domain specific configuration - consider using complex xml or db configuration manager");
 		return (ArrayList<T>) getDataFromXml(category, SN);
 	}
 	
@@ -88,14 +93,14 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 			XPath xpath = xPathfactory.newXPath();
 			
 			// first step is to get all general constraints 
-			String expression = "/"+ConfigurationConstants.rootIdentifier+"/"+ConfigurationConstants.singleConfigurationIdentifier+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.scopeOnAllValue+"']/"+ConfigurationConstants.constraintIdentifier+"/"+section+"/"+ConfigurationConstants.valueIdentifier;
+			String expression = "/"+ConfigurationConstants.rootIdentifier+"/"+ConfigurationConstants.singleConfigurationIdentifier+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.scopeOnAllValue+"']/"+ConfigurationConstants.singleConstraintIdentifier+"/"+section+"/"+ConfigurationConstants.valueIdentifier;
 			NodeList nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + ": \r");
 			for (int i = 0 ; i < nodeList.getLength() ; i++) 
 				ar.add((T) nodeList.item(i).getTextContent());
 			
 			// second step is to get all constraints for the specified social network 
-			expression = "/"+ConfigurationConstants.rootIdentifier+"/"+ConfigurationConstants.singleConfigurationIdentifier+"[@"+ConfigurationConstants.scopeIdentifier+"='"+SN+"']/"+ConfigurationConstants.constraintIdentifier+"/"+section+"/"+ConfigurationConstants.valueIdentifier;
+			expression = "/"+ConfigurationConstants.rootIdentifier+"/"+ConfigurationConstants.singleConfigurationIdentifier+"[@"+ConfigurationConstants.scopeIdentifier+"='"+SN+"']/"+ConfigurationConstants.singleConstraintIdentifier+"/"+section+"/"+ConfigurationConstants.valueIdentifier;
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
 			for (int i = 0 ; i < nodeList.getLength() ; i++)

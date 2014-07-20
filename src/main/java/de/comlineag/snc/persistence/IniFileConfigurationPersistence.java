@@ -1,5 +1,6 @@
 package de.comlineag.snc.persistence;
 
+import de.comlineag.snc.handler.GeneralConfiguration;
 import org.apache.log4j.Logger;
 import org.ini4j.Ini;
 import org.ini4j.InvalidIniFormatException;
@@ -46,17 +47,27 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 	@SuppressWarnings("unchecked")
 	@Override
 	public ArrayList<T> getConstraint(String category, JSONObject configurationScope) {
-		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "geoLocation")  : "ERROR :: can only accept term, site, user, language or geoLocation as category";
+		assert (!"term".equals(category) && !"site".equals(category) && !"language".equals(category)) : "ERROR :: can only use term, site and language";
 		
-		logger.warn("no customer and network specific configuration and no type safety guranteed - consider using simple or complex xml or db configuration manager");
-		logger.debug("reading constraints on " + category + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")+1));
-		
-		return (ArrayList<T>)getDataFromIni(category);
+		if (!"term".equals(category) && !"site".equals(category) && !"language".equals(category)) {
+			logger.warn("received "+category+" as category, but can only process term, site and language");
+			ArrayList<String> ar = new ArrayList<String>();
+			return (ArrayList<T>)ar;
+		} else {
+			logger.debug("reading constraints on " + category + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")+1));
+			if ((GeneralConfiguration.getCustomerIsActive() || GeneralConfiguration.getDomainIsActive()) && GeneralConfiguration.getWarnOnSimpleConfig())
+				logger.warn("no customer and network specific configuration and no type safety guranteed - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + GeneralConfiguration.getConfigFile().substring(GeneralConfiguration.getConfigFile().lastIndexOf("/")+1));
+			
+			return (ArrayList<T>)getDataFromIni(category);
+		}
 	}
 	
 	private ArrayList<String> getDataFromIni(String section) {
 		ArrayList<String> ar = new ArrayList<String>();
 		Ini ini = null;
+		
+		if (!"term".equals(section) && !"site".equals(section) && !"language".equals(section))
+			return ar;
 		
 		try {
 			ini = new Ini(new FileReader((String)getConfigDbHandler()));

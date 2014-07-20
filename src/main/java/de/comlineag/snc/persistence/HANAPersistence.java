@@ -19,11 +19,12 @@ import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.DataCryptoHandler;
 import de.comlineag.snc.helper.DataHelper;
 import de.comlineag.snc.constants.HanaDataConstants;
+import de.comlineag.snc.persistence.JsonFilePersistence;
 
 /**
  *
  * @author 		Magnus Leinemann, Christian Guenther, Thomas Nowak
- * @category 	Connector Class
+ * @category 	Persistence Manager
  * @version 	0.9g	- 10.07.2014
  * @status		productive
  *
@@ -393,6 +394,10 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (RuntimeException e) {
 			logger.error("EXCEPTION :: could not create post ("+postData.getSnId()+"-"+postData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
+			
+			// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+			@SuppressWarnings("unused")
+			JsonFilePersistence failsave = new JsonFilePersistence(postData);
 		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 		}
@@ -535,6 +540,10 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (RuntimeException e) {
 			logger.error("ERROR :: Could not create user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
+			
+			// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+			@SuppressWarnings("unused")
+			JsonFilePersistence failsave = new JsonFilePersistence(userData);
 		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 		}
@@ -979,7 +988,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * @return 		OData entity handler to the object on success (found) or null if not found or in case of ANY error
 	 */
 	private OEntity returnOEntityHandler(String SN, Long Id, String type) {
-		assert type == "user" || type == "post" : "type must be either \'user\' or \'post\'";
+		assert (!"user".equals(type) && !"post".equals(type)) : "ERROR :: type must be either \'user\' or \'post\'";
 		
 		/*
 		 *  OEntity-Structure might be useful to find out field dimensions prior inserting dataset 

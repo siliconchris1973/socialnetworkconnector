@@ -355,11 +355,6 @@
 			</location>
 		</constraint>
 		-->
-		
-		<entry scope="CC_COMMUNITY_ID">
-			<type>String</type>
-			<value>hiaeh67457</value>
-		</entry>
 	</configuration>
 	<!-- END OF LITHIUM CONFIG -->
 </configurations>

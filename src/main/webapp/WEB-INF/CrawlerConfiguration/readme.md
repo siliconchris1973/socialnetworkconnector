@@ -22,17 +22,15 @@ Simple XML configuration
 Is a simple xml based file. With this, on top of what the ini file based option gives you, you get the ability to setup all 5 categories (term, user, language, site and geo location). The constraints can be configured per network or for all networks.
 Constraints given in the section for ALL networks are appended to the constraints provided for a specific network (e.g. Twitter) and the different crawlers are then instantiated with the combined constraints (or search parameter). 
 The standard configuration file is
-	* CrawlerConfiguration.xml
+	* SimpleCrawlerConfiguration.xml
 
 
-Complex XML configuration
+Complex XML and Domain Driven configuration
 puts additional possibilities to simple xml configuration. With this option, you can setup a configuration for a structure based on a business (or interest) domain and one or more customers plus constraints for any combination of crawlers. A domain is an area of business, like banking or group of people sharing the same interest). The domain acts as the top level structure and can as such be used to define common track criteria for an entire line of business. A customer belongs to a domain and therefore inherits all constraints based on the domain.
 
-The domain and customer are not configured in the crawler configuration xml file but only referenced therein. They can be found in the bean configuration file applicationContext.xml in the section for DomainDrivenConfiguration.
+The domain and customer are not configured in the crawler configuration xml file but only referenced therein. They can be found in the bean configuration file GeneralConfiguration.xml in the section for domain and customer configuration.
 
-With complex xml configuration you get the possibility for a complex domain-customer structure. But you don't have to use such a a complex structure. You can also just opt for one or more customers without a domain or one or more domains without a customer.
-
-For your convenience and to give an example on how to use complex xml file crawler configuration, there exist 4 example files:
+With complex xml configuration you get the possibility for a complex domain-customer structure. But you don't have to use such a a complex structure. You can also just opt for one or more customers without a domain or one or more domains without a customer. For this scenario, your convenience and to give an example on how to use complex xml file crawler configuration, I provided 3 example files:
 	* CustomerSpecificCrawlerConfiguration.xml
 	shows how to setup the crawler for different customers but 
 	without a domain
@@ -41,9 +39,14 @@ For your convenience and to give an example on how to use complex xml file crawl
 	without any individual customers
 	* CustomerAndDomainCrawlerConfiguration.xml
 	shows how to setup a domain and a customer with common and
-	specific constraints
+	specific constraints but no hierarchy.
+
+
+Domain Driven Configuration
+To setup a hierarchy between domain and customer, the 4th option  DomainDrivenConfiguration is used. You activate it by choosing DomainDrivenConfiguration in applicationContext.xml and setting the configuration file. 
+The standard configuration file is:
 	* DomainWithCustomerCrawlerConfiguration.xml
-	shows how to setup a domain as top level element with two
+	It shows how to setup a domain as top level element with two
 	customer as sub structure with common and	specific constraints
 
 Please take a look at the configuration files itself for an explanation on how to setup constraints according to your needs.

@@ -51,7 +51,10 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	// general invocation for every constraint
 	@Override
 	public ArrayList<T> getConstraint(String category, JSONObject configurationScope) {
-		assert (category != "term" && category != "site" && category != "user" && category != "language" && category != "geoLocation")  : "ERROR :: can only accept term, site, user, language or geoLocation as category";
+		assert (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category))  : "ERROR :: can only accept term, site, user, language or geoLocation as category";
+		
+		if (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category)) 
+			logger.warn("received "+category+" as category, but can only process term, site, user, language or geoLocation");
 		
 		// get configuration scope - that is doman and customer
 		try {
@@ -122,15 +125,15 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			
 			// third step is to get all general constraints 
 			expression = "/"+ConfigurationConstants.rootIdentifier+"/"
-								+ConfigurationConstants.singleConfigurationIdentifier
-														+"[@"+ConfigurationConstants.scopeIdentifier+"='domain']/"
-								+ConfigurationConstants.domainIdentifier
-														+"[@"+ConfigurationConstants.domainNameIdentifier+"='"+domain+"']/"
-								+ConfigurationConstants.constraintIdentifier
-														+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.scopeOnAllValue+"']/"
-								+ConfigurationConstants.singleConstraintIdentifier+"/"
-								+section+"/"
-								+ConfigurationConstants.valueIdentifier;
+					+ConfigurationConstants.singleConfigurationIdentifier
+											+"[@"+ConfigurationConstants.scopeIdentifier+"='domain']/"
+					+ConfigurationConstants.domainIdentifier
+											+"[@"+ConfigurationConstants.domainNameIdentifier+"='"+domain+"']/"
+					+ConfigurationConstants.constraintIdentifier
+											+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.scopeOnAllValue+"']/"
+					+ConfigurationConstants.singleConstraintIdentifier+"/"
+					+section+"/"
+					+ConfigurationConstants.valueIdentifier;
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + ": \r");
 			for (int i = 0 ; i < nodeList.getLength() ; i++) 

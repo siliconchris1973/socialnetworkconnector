@@ -6,6 +6,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -24,7 +25,7 @@ import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.TwitterConstants;
 import de.comlineag.snc.handler.CrawlerConfiguration;
-import de.comlineag.snc.handler.DomainDrivenConfiguration;
+import de.comlineag.snc.handler.GeneralConfiguration;
 import de.comlineag.snc.handler.TwitterParser;
 
 /**
@@ -38,6 +39,10 @@ import de.comlineag.snc.handler.TwitterParser;
  *              implemented as a job and, upon execution, will connect to the
  *              twitter api to grab new tweets as they are created on the
  *              network.
+ *
+ * @limitation	Currently the class uses annotation @DisallowConcurrentExecution
+ *              because we can't let the job run multiple times for the sake of 
+ *              data consistency - this will be resolved in version 1.1 
  *
  * @changelog	0.1 (Chris)			first skeleton against rest-api
  * 				0.2	(Maic)			static version retrieves posts
@@ -64,6 +69,7 @@ import de.comlineag.snc.handler.TwitterParser;
  * TODO 2. find out and fix the following warning:
  * 			HttpMethodBase - Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
  */
+@DisallowConcurrentExecution 
 public class TwitterCrawler extends GenericCrawler implements Job {
 
 	// Logger Instanz
@@ -93,8 +99,8 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		
-		JSONObject configurationScope = DomainDrivenConfiguration.getDomainSetup();
-		configurationScope.put((String) "SN_ID", (String) "\""+SocialNetworks.TWITTER+"\"");
+		JSONObject configurationScope = GeneralConfiguration.getDomainSetup();
+		configurationScope.put((String) "SN_ID", (String) SocialNetworks.TWITTER.toString());
 		
 		// log the startup message
 		// set the customer we start the crawler for
