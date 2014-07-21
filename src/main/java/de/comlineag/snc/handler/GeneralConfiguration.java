@@ -15,7 +15,9 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import de.comlineag.snc.constants.ConfigurationConstants;
 
@@ -52,6 +54,7 @@ public final class GeneralConfiguration implements Job {
 	// holds domain specific information
 	private static JSONObject crawlerConfigurationScope = new JSONObject();
 	
+	// information about the domain and customer setup
 	private static String domain;
 	private static String customer;
 	private static boolean domainIsActive;
@@ -63,7 +66,58 @@ public final class GeneralConfiguration implements Job {
 	private static boolean WARN_ON_SIMPLE_CONFIG = true;
 	private static boolean WARN_ON_SIMPLE_XML_CONFIG = true;
 	
-	// this is used if triggered by job control 
+	// these values are section names within the configuration db 
+	private static String CONSTRAINT_TERM_TEXT					= "term";
+	private static String CONSTRAINT_USER_TEXT					= "user";
+	private static String CONSTRAINT_LANGUAGE_TEXT				= "language";
+	private static String CONSTRAINT_SITE_TEXT					= "site";
+	private static String CONSTRAINT_BOARD_TEXT					= "board";
+	private static String CONSTRAINT_BLOG_TEXT					= "blog";
+	private static String CONSTRAINT_LOCATION_TEXT				= "geoLocation";
+	
+	/* structure of customer specific configuration xml
+		<configurations>
+			<configuration>
+				<customer name="CustomerName">
+					<name>
+						<type>String</type>
+						<value>customer name</value>
+					</name>
+					<matchcode>
+						<type>String</type>
+						<value>CN</value>
+					</matchcode>
+					<entry scope="some used identifier">
+						<type>String</type>
+						<value>value</value>
+					</entry>
+					<constraints scope="ALL">
+						<constraint>
+							<term>
+								<type>String</type>
+								<value>value</value>
+							</term>
+						</constraint>
+					</constraints>
+				</customer>
+			</configuration>
+		</configurations>
+	*/ // XML Schema identifiers
+	private static String rootIdentifier 						= "configurations";
+	private static String singleConfigurationIdentifier 		= "configuration";
+	private static String customerIdentifier 					= "customer";
+	private static String customerNameIdentifier				= "name";
+	private static String customerNameForAllValue 			= "ALL";
+	private static String domainIdentifier 					= "domain";
+	private static String domainNameIdentifier				= "name";
+	private static String domainNameForAllValue 				= "ALL";
+	private static String constraintIdentifier 				= "constraints";
+	private static String scopeIdentifier 					= "scope";
+	private static String scopeOnAllValue 					= "ALL";
+	private static String singleConstraintIdentifier 			= "constraint";
+	private static String valueIdentifier 					= "value";
+	
+	
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		setConfigFile((String) arg0.getJobDetail().getJobDataMap().get("configFile"));
 		logger.debug("using configuration file from job control " + arg0.getJobDetail().getJobDataMap().get("configFile"));
@@ -71,7 +125,7 @@ public final class GeneralConfiguration implements Job {
 		// set the configuration scope in globally available variables
 		setConfiguration();
 		
-		logger.info("retrieved domain ("+ crawlerConfigurationScope.get(ConfigurationConstants.domainIdentifier) +" with priority "+crawlerConfigurationScope.get("domainPriority")+") and customer ("+ crawlerConfigurationScope.get(ConfigurationConstants.customerIdentifier)+" with priority "+crawlerConfigurationScope.get("customerPriority")+")");
+		logger.info("retrieved domain ("+ crawlerConfigurationScope.get(domainIdentifier) +" with priority "+crawlerConfigurationScope.get("domainPriority")+") and customer ("+ crawlerConfigurationScope.get(customerIdentifier)+" with priority "+crawlerConfigurationScope.get("customerPriority")+")");
 	}
 	
 	private void setConfiguration(){
@@ -88,17 +142,36 @@ public final class GeneralConfiguration implements Job {
 			String expression = null;
 			Node node = null; 
 			
+			// before anything else, set the basic layout of the configuration file
+			try {
+				expression = "/configurations/configuration[@scope='XmlLayout']";
+				NodeList configs = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
+				for (int i = 0; i < configs.getLength(); i++) {
+				      Element confi = (Element) configs.item(i);
+				      String guestName = xpath.evaluate("guest/name", confi);
+				      String guestCredit = xpath.evaluate("guest/credit", confi);
+
+				      System.out.println(confi.getAttribute("weekday") + ", " + confi.getAttribute("date") + " - "
+				          + guestName + " (" + guestCredit + ")");
+				    }
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			
+			
 			// first step is to get the domain
-			expression = "/"+ConfigurationConstants.rootIdentifier+"/"+ConfigurationConstants.singleConfigurationIdentifier+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.domainIdentifier+"']/"+ConfigurationConstants.domainIdentifier+"/"+ConfigurationConstants.valueIdentifier;
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+domainIdentifier+"']/"+domainIdentifier+"/"+valueIdentifier;
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.error("Did not receive any information from " + configFile + " using expression " + expression);
 			} else {
-				crawlerConfigurationScope.put((String) ConfigurationConstants.domainIdentifier, (String) node.getTextContent());
+				crawlerConfigurationScope.put((String) domainIdentifier, (String) node.getTextContent());
 				setDomain((String) node.getTextContent());
 			}
 			// and the corresponding is active status
-			expression = "/"+ConfigurationConstants.rootIdentifier+"/"+ConfigurationConstants.singleConfigurationIdentifier+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.domainIdentifier+"']/"+ConfigurationConstants.domainIdentifier+"[@"+ConfigurationConstants.domainNameIdentifier+"='"+getDomain()+"']/isActive/"+ConfigurationConstants.valueIdentifier;
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+domainIdentifier+"']/"+domainIdentifier+"[@"+domainNameIdentifier+"='"+getDomain()+"']/isActive/"+valueIdentifier;
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.warn("did not receive a domain activation - setting to false");
@@ -113,7 +186,7 @@ public final class GeneralConfiguration implements Job {
 			logger.trace("the domain is active " + getDomainIsActiveAsString());
 			
 			// and the corresponding priority
-			expression = "/"+ConfigurationConstants.rootIdentifier+"/"+ConfigurationConstants.singleConfigurationIdentifier+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.domainIdentifier+"']/"+ConfigurationConstants.domainIdentifier+"[@"+ConfigurationConstants.domainNameIdentifier+"='"+getDomain()+"']/priority/"+ConfigurationConstants.valueIdentifier;
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+domainIdentifier+"']/"+domainIdentifier+"[@"+domainNameIdentifier+"='"+getDomain()+"']/priority/"+valueIdentifier;
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.warn("did not receive a domain priority - setting to 0");
@@ -125,15 +198,15 @@ public final class GeneralConfiguration implements Job {
 			logger.trace("the domain has priority " + getDomainPriority());
 			
 			// second step is to get the customer
-			expression = "/"+ConfigurationConstants.rootIdentifier+"/"+ConfigurationConstants.singleConfigurationIdentifier+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.domainIdentifier+"']/"+ConfigurationConstants.domainIdentifier+"[@"+ConfigurationConstants.domainNameIdentifier+"='"+getDomain()+"']/"+ConfigurationConstants.customerIdentifier+"/"+ConfigurationConstants.valueIdentifier;
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+domainIdentifier+"']/"+domainIdentifier+"[@"+domainNameIdentifier+"='"+getDomain()+"']/"+customerIdentifier+"/"+valueIdentifier;
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.error("Did not receive any information from " + configFile + " using expression " + expression);
 			} else {
-				crawlerConfigurationScope.put((String) ConfigurationConstants.customerIdentifier, (String) node.getTextContent());
+				crawlerConfigurationScope.put((String) customerIdentifier, (String) node.getTextContent());
 				setCustomer((String) node.getTextContent());
 			}
-			expression = "/"+ConfigurationConstants.rootIdentifier+"/"+ConfigurationConstants.singleConfigurationIdentifier+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.domainIdentifier+"']/"+ConfigurationConstants.domainIdentifier+"[@"+ConfigurationConstants.domainNameIdentifier+"='"+getDomain()+"']/"+ConfigurationConstants.customerIdentifier+"[@"+ConfigurationConstants.customerNameIdentifier+"='"+getCustomer()+"']/isActive/"+ConfigurationConstants.valueIdentifier;
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+domainIdentifier+"']/"+domainIdentifier+"[@"+domainNameIdentifier+"='"+getDomain()+"']/"+customerIdentifier+"[@"+customerNameIdentifier+"='"+getCustomer()+"']/isActive/"+valueIdentifier;
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.warn("did not receive a customer activation - setting to false");
@@ -148,7 +221,7 @@ public final class GeneralConfiguration implements Job {
 			logger.trace("the customer is active " + getCustomerIsActiveAsString());
 			
 			// and the corresponding priority
-			expression = "/"+ConfigurationConstants.rootIdentifier+"/"+ConfigurationConstants.singleConfigurationIdentifier+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.domainIdentifier+"']/"+ConfigurationConstants.domainIdentifier+"[@"+ConfigurationConstants.domainNameIdentifier+"='"+getDomain()+"']/"+ConfigurationConstants.customerIdentifier+"[@"+ConfigurationConstants.customerNameIdentifier+"='"+getCustomer()+"']/priority/"+ConfigurationConstants.valueIdentifier;
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+domainIdentifier+"']/"+domainIdentifier+"[@"+domainNameIdentifier+"='"+getDomain()+"']/"+customerIdentifier+"[@"+customerNameIdentifier+"='"+getCustomer()+"']/priority/"+valueIdentifier;
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.warn("did not receive a customer priority - setting to 0");
@@ -162,7 +235,7 @@ public final class GeneralConfiguration implements Job {
 			
 			
 			// third set boolean values for warnings
-			expression = "/"+ConfigurationConstants.rootIdentifier+"/"+ConfigurationConstants.singleConfigurationIdentifier+"[@"+ConfigurationConstants.scopeIdentifier+"='runtime']/param[@name='WarnOnSimpleConfigOption']/"+ConfigurationConstants.valueIdentifier;
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='WarnOnSimpleConfigOption']/"+valueIdentifier;
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.warn("Did not receive any information from " + configFile + " using expression " + expression);
@@ -173,7 +246,7 @@ public final class GeneralConfiguration implements Job {
 				else
 					setWarnOnSimpleConfig(false);
 			}
-			expression = "/"+ConfigurationConstants.rootIdentifier+"/"+ConfigurationConstants.singleConfigurationIdentifier+"[@"+ConfigurationConstants.scopeIdentifier+"='runtime']/param[@name='WarnOnSimpleXmlConfigOption']/"+ConfigurationConstants.valueIdentifier;
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='WarnOnSimpleXmlConfigOption']/"+valueIdentifier;
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.warn("Did not receive any information from " + configFile + " using expression " + expression);
@@ -287,5 +360,85 @@ public final class GeneralConfiguration implements Job {
 			GeneralConfiguration.customerIsActive = true;
 		else
 			GeneralConfiguration.customerIsActive = false;
+	}
+
+	public static String getRootidentifier() {
+		return rootIdentifier;
+	}
+
+	public static String getSingleconfigurationidentifier() {
+		return singleConfigurationIdentifier;
+	}
+
+	public static String getCustomeridentifier() {
+		return customerIdentifier;
+	}
+
+	public static String getCustomernameidentifier() {
+		return customerNameIdentifier;
+	}
+
+	public static String getCustomernameforallvalue() {
+		return customerNameForAllValue;
+	}
+
+	public static String getDomainidentifier() {
+		return domainIdentifier;
+	}
+
+	public static String getDomainnameidentifier() {
+		return domainNameIdentifier;
+	}
+
+	public static String getDomainnameforallvalue() {
+		return domainNameForAllValue;
+	}
+
+	public static String getConstraintidentifier() {
+		return constraintIdentifier;
+	}
+
+	public static String getScopeidentifier() {
+		return scopeIdentifier;
+	}
+
+	public static String getScopeonallvalue() {
+		return scopeOnAllValue;
+	}
+
+	public static String getSingleconstraintidentifier() {
+		return singleConstraintIdentifier;
+	}
+
+	public static String getValueidentifier() {
+		return valueIdentifier;
+	}
+
+	public static String getConstraintTermText() {
+		return CONSTRAINT_TERM_TEXT;
+	}
+
+	public static String getConstraintUserText() {
+		return CONSTRAINT_USER_TEXT;
+	}
+
+	public static String getConstraintLanguageText() {
+		return CONSTRAINT_LANGUAGE_TEXT;
+	}
+
+	public static String getConstraintSiteText() {
+		return CONSTRAINT_SITE_TEXT;
+	}
+
+	public static String getConstraintBoardText() {
+		return CONSTRAINT_BOARD_TEXT;
+	}
+
+	public static String getConstraintBlogText() {
+		return CONSTRAINT_BLOG_TEXT;
+	}
+
+	public static String getConstraintLocationText() {
+		return CONSTRAINT_LOCATION_TEXT;
 	}
 }

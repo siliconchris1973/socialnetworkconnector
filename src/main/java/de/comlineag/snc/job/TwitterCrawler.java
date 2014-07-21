@@ -96,6 +96,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		
@@ -104,8 +105,8 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		
 		// log the startup message
 		// set the customer we start the crawler for
-		String curCustomer = (String) configurationScope.get(ConfigurationConstants.customerIdentifier);
-				
+		String curCustomer = (String) configurationScope.get(GeneralConfiguration.getCustomeridentifier());
+		
 		logger.info("Twitter-Crawler START for " + curCustomer);
 		int messageCount = 0;
 		
@@ -113,10 +114,10 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		
 		// THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
 		logger.info("retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_TERM_TEXT, configurationScope);
-		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(ConfigurationConstants.CONSTRAINT_LANGUAGE_TEXT, configurationScope);
-		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(ConfigurationConstants.CONSTRAINT_USER_TEXT, configurationScope);
-		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(ConfigurationConstants.CONSTRAINT_LOCATION_TEXT, configurationScope);
+		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(GeneralConfiguration.getConstraintTermText(), configurationScope);
+		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(GeneralConfiguration.getConstraintLanguageText(), configurationScope);
+		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(GeneralConfiguration.getConstraintUserText(), configurationScope);
+		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(GeneralConfiguration.getConstraintLocationText(), configurationScope);
 		
 		// log output AND setup of the filter end point
 		if (tTerms.size()>0) {

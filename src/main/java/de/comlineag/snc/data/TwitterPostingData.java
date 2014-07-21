@@ -8,20 +8,22 @@ import org.json.simple.JSONObject;
 
 import de.comlineag.snc.constants.GeneralDataDefinitions;
 import de.comlineag.snc.constants.SocialNetworks;
+import de.comlineag.snc.handler.GeneralConfiguration;
 import de.comlineag.snc.helper.DataHelper;
 
 /**
  * 
  * @author 		Christian Guenther, Magnus Leinemann
  * @category 	data type
- * @version 	0.9a		- 10.07.2014
- * @status		beta (but some fields are missing)
+ * @version 	0.9b		- 20.07.2014
+ * @status		in production (but some fields are missing)
  * 
  * @description Describes a single twitter posting with all relevant informations.
  *              The class shall be used to make all methods handling a twitter
  *              posting type save.
  * 
  * @param <JSonObject>
+ * 			  "domain" List
  *            "id" Long
  *            "sn_id" String
  *            "created_at" String
@@ -48,7 +50,8 @@ import de.comlineag.snc.helper.DataHelper;
  * 				0.8 			geo geoLocation services and datatypes are now in their own class TwitterLocationData
  * 				0.9 			changed geo geoLocation to make use of simple class LocationData and added teaser as substring of post
  * 				0.9a			field length on teaser and subject and stripping of html for text
- * 				0.9b			Symbols, Hashtags and Mentions - yet to come
+ * 				0.9b			added domain
+ * 				0.9c			Symbols, Hashtags and Mentions - yet to come
  * 
  * @TODO 1. create code for hashtags
  * @TODO 2. create code for symbols
@@ -58,7 +61,8 @@ import de.comlineag.snc.helper.DataHelper;
 public final class TwitterPostingData extends PostData {
 
 	private final Logger logger = Logger.getLogger(getClass().getName());
-
+	private final GeneralConfiguration configuration = new GeneralConfiguration();
+	
 	/**
 	 * Constructor, based on the JSONObject sent from Twitter the Data Object is prepared
 	 * 
@@ -75,7 +79,6 @@ public final class TwitterPostingData extends PostData {
 		try {
 			// posting ID 
 			setId((Long) jsonObject.get("id"));
-			
 			
 			// User ID
 			JSONObject user = (JSONObject) jsonObject.get("user");
@@ -264,8 +267,9 @@ public final class TwitterPostingData extends PostData {
 		// posting
 		id = 0;
 		
+		domain = GeneralConfiguration.getDomain();
 		sn_id = SocialNetworks.TWITTER.getValue();
-
+		
 		text = null;
 		raw_text = null;
 		subject = null;

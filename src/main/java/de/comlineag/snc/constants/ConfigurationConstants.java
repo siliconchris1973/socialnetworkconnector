@@ -4,7 +4,7 @@ package de.comlineag.snc.constants;
  * 
  * @author 		Christian Guenther
  * @category	helper class
- * @version 	0.3		- 14.07.2014
+ * @version 	0.4		- 21.07.2014
  * @status		productive
  * 
  * @description provides constants for use by the Social Network crawler and parser. 
@@ -14,6 +14,7 @@ package de.comlineag.snc.constants;
  * @changelog	0.1 (Chris)		class created
  * 				0.2 			changed everything to static
  * 				0.3				added structure elements for customer specific crawler configuration xml
+ * 				0.4				removed structure elements for configuration - now in GeneralConfiguration.xml
  * 
  */
 public class ConfigurationConstants {
@@ -47,56 +48,4 @@ public class ConfigurationConstants {
 	// basic authentication with username and password
 	public static final String AUTHENTICATION_USER_KEY 				= "user";
 	public static final String AUTHENTICATION_PASSWORD_KEY 			= "passwd";
-	
-	
-	// these values are section names within the configuration db 
-	public static final String CONSTRAINT_TERM_TEXT					= "term";
-	public static final String CONSTRAINT_USER_TEXT					= "user";
-	public static final String CONSTRAINT_LANGUAGE_TEXT				= "language";
-	public static final String CONSTRAINT_SITE_TEXT					= "site";
-	public static final String CONSTRAINT_BOARD_TEXT				= "board";
-	public static final String CONSTRAINT_BLOG_TEXT					= "blog";
-	public static final String CONSTRAINT_LOCATION_TEXT				= "geoLocation";
-	
-	/* structure of customer specific configuration xml
-		<configurations>
-			<configuration>
-				<customer name="CustomerName">
-					<name>
-						<type>String</type>
-						<value>customer name</value>
-					</name>
-					<matchcode>
-						<type>String</type>
-						<value>CN</value>
-					</matchcode>
-					<entry scope="some used identifier">
-						<type>String</type>
-						<value>value</value>
-					</entry>
-					<constraints scope="ALL">
-						<constraint>
-							<term>
-								<type>String</type>
-								<value>value</value>
-							</term>
-						</constraint>
-					</constraints>
-				</customer>
-			</configuration>
-		</configurations>
-	*/ // XML Schema identifiers
-	public static final String rootIdentifier 						= "configurations";
-	public static final String singleConfigurationIdentifier 		= "configuration";
-	public static final String customerIdentifier 					= "customer";
-	public static final String customerNameIdentifier				= "name";
-	public static final String customerNameForAllValue 				= "ALL";
-	public static final String domainIdentifier 					= "domain";
-	public static final String domainNameIdentifier					= "name";
-	public static final String domainNameForAllValue 				= "ALL";
-	public static final String constraintIdentifier 				= "constraints";
-	public static final String scopeIdentifier 						= "scope";
-	public static final String scopeOnAllValue 						= "ALL";
-	public static final String singleConstraintIdentifier 			= "constraint";
-	public static final String valueIdentifier 						= "value";
 }

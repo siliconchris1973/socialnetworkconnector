@@ -8,6 +8,7 @@ import org.json.simple.JSONObject;
 
 import de.comlineag.snc.constants.GeneralDataDefinitions;
 import de.comlineag.snc.constants.SocialNetworks;
+import de.comlineag.snc.handler.GeneralConfiguration;
 import de.comlineag.snc.helper.DataHelper;
 
 /**
@@ -22,6 +23,7 @@ import de.comlineag.snc.helper.DataHelper;
  *              posting type save.
  * 
  * @param <JSonObject>
+ * 			  "domain" String
  *            "id" Long
  *            "sn_id" String
  *            "created_at" String
@@ -255,6 +257,7 @@ public final class FacebookPostingData extends PostData {
 		// posting
 		id = 0;
 		
+		domain = GeneralConfiguration.getDomain();
 		sn_id = SocialNetworks.FACEBOOK.getValue();
 
 		text = null;

@@ -93,14 +93,14 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 			XPath xpath = xPathfactory.newXPath();
 			
 			// first step is to get all general constraints 
-			String expression = "/"+ConfigurationConstants.rootIdentifier+"/"+ConfigurationConstants.singleConfigurationIdentifier+"[@"+ConfigurationConstants.scopeIdentifier+"='"+ConfigurationConstants.scopeOnAllValue+"']/"+ConfigurationConstants.singleConstraintIdentifier+"/"+section+"/"+ConfigurationConstants.valueIdentifier;
+			String expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getScopeonallvalue()+"']/"+GeneralConfiguration.getSingleconstraintidentifier()+"/"+section+"/"+GeneralConfiguration.getValueidentifier();
 			NodeList nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + ": \r");
 			for (int i = 0 ; i < nodeList.getLength() ; i++) 
 				ar.add((T) nodeList.item(i).getTextContent());
 			
 			// second step is to get all constraints for the specified social network 
-			expression = "/"+ConfigurationConstants.rootIdentifier+"/"+ConfigurationConstants.singleConfigurationIdentifier+"[@"+ConfigurationConstants.scopeIdentifier+"='"+SN+"']/"+ConfigurationConstants.singleConstraintIdentifier+"/"+section+"/"+ConfigurationConstants.valueIdentifier;
+			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+SN+"']/"+GeneralConfiguration.getSingleconstraintidentifier()+"/"+section+"/"+GeneralConfiguration.getValueidentifier();
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
 			for (int i = 0 ; i < nodeList.getLength() ; i++)

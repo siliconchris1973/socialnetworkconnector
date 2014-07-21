@@ -51,4 +51,91 @@
 			<value>true</value>
 		</param>
 	</configuration>
+	
+	<!-- START OF CONFIGURATION XML LAYOUT -->
+	<!-- DO NOT CHANGE ANYTHING BELOW THIS LINE, EXCEPT YOU ABSOLUTELY KNOW WHAT YOU ARE DOING -->
+	<configuration scope="XmlLayout">
+		<param name="CONSTRAINT_TERM_TEXT">
+			<type>String</type>
+			<value>term</value>
+		</param>
+		<param name="CONSTRAINT_USER_TEXT">
+			<type>String</type>
+			<value>user</value>
+		</param>
+		<param name="CONSTRAINT_LANGUAGE_TEXT">
+			<type>String</type>
+			<value>language</value>
+		</param>
+		<param name="CONSTRAINT_SITE_TEXT">
+			<type>String</type>
+			<value>site</value>
+		</param>
+		<param name="CONSTRAINT_BOARD_TEXT">
+			<type>String</type>
+			<value>board</value>
+		</param>
+		<param name="CONSTRAINT_BLOG_TEXT">
+			<type>String</type>
+			<value>blog</value>
+		</param>
+		<param name="CONSTRAINT_LOCATION_TEXT">
+			<type>String</type>
+			<value>geoLocation</value>
+		</param>
+		
+		<!-- this section contains the xml structure for the crawler configuration -->
+		<param name="rootIdentifier">
+			<type>String</type>
+			<value>configurations</value>
+		</param>
+		<param name="singleConfigurationIdentifier">
+			<type>String</type>
+			<value>configuration</value>
+		</param>
+		<param name="customerIdentifier">
+			<type>String</type>
+			<value>customer</value>
+		</param>
+		<param name="customerNameIdentifier">
+			<type>String</type>
+			<value>name</value>
+		</param>
+		<param name="customerNameForAllValue">
+			<type>String</type>
+			<value>ALL</value>
+		</param>
+		<param name="domainIdentifier">
+			<type>String</type>
+			<value>domain</value>
+		</param>
+		<param name="domainNameIdentifier">
+			<type>String</type>
+			<value>name</value>
+		</param>
+		<param name="domainNameForAllValue">
+			<type>String</type>
+			<value>ALL</value>
+		</param>
+		<param name="constraintIdentifier">
+			<type>String</type>
+			<value>constraints</value>
+		</param>
+		<param name="scopeIdentifier">
+			<type>String</type>
+			<value>scope</value>
+		</param>
+		<param name="scopeOnAllValue">
+			<type>String</type>
+			<value>ALL</value>
+		</param>
+		<param name="singleConstraintIdentifier">
+			<type>String</type>
+			<value>constraint</value>
+		</param>
+		<param name="valueIdentifier">
+			<type>String</type>
+			<value>value</value>
+		</param>
+	</configuration>
 </configurations>

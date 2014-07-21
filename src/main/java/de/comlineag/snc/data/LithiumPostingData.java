@@ -6,13 +6,14 @@ import org.json.simple.parser.JSONParser;
 
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.GeneralDataDefinitions;
+import de.comlineag.snc.handler.GeneralConfiguration;
 import de.comlineag.snc.helper.DataHelper;
 
 /**
  * 
  * @author 		Christian Guenther
  * @category 	data type
- * @version 	0.6		- 10.07.2014
+ * @version 	0.6a		- 20.07.2014
  * @status		productive
  * 
  * @description Describes a single Lithium posting with all relevant informations. 
@@ -27,6 +28,7 @@ import de.comlineag.snc.helper.DataHelper;
  * 
  * @param <JSonObject>
  * 			Our internal column name	data type	element in json object
+ *            "domain" 					String		domain
  *            "id" 						Long		id
  *            "sn_id" 					String		fixed to LT
  *            "created_at" 				String		post_time
@@ -60,6 +62,7 @@ import de.comlineag.snc.helper.DataHelper;
  * 				0.4 			added support to strip all html for text and created raw text
  * 				0.5				set the truncated flag, if posts are truncated due to length violation on MAX_NVARCHAR_SIZE
  * 				0.6				changed field handling according to new constants from GeneralDataDefinitions
+ * 				0.6a			added field domain
  * 
  * TODO 1. Add support for labels
  * TODO 3. find a new/better method to truncate html
@@ -398,7 +401,8 @@ public final class LithiumPostingData extends PostData {
 		// so I can check on initialized or not initialized values for the
 		// posting
 		id = 0;
-
+		
+		domain = GeneralConfiguration.getDomain();
 		// set social network identifier
 		sn_id = SocialNetworks.LITHIUM.getValue();
 

@@ -25,7 +25,7 @@ import de.comlineag.snc.persistence.JsonFilePersistence;
  *
  * @author 		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Persistence Manager
- * @version 	0.9g	- 10.07.2014
+ * @version 	0.9h	- 20.07.2014
  * @status		productive
  *
  * @description handles the connectivity to the SAP HANA Systems and saves and updates posts and users in the DB
@@ -47,6 +47,8 @@ import de.comlineag.snc.persistence.JsonFilePersistence;
  * 				0.9e				moved insert statements for post and user to private methods
  * 				0.9f				added update methods to update an existing record
  *				0.9g				added support to honor actual field length in the database - all fields too long, will be truncated
+ *				0.9h				added failsave method to store posts and users on disk in case db fails to save them
+ *				0.9i				added domain - at the moment simple string, should be handled as a list in the version 1.1
  * 
  * TODO 1. fix crawler bug, that causes the persistence to try to insert a post or user multiple times
  * 			This bug has something to do with the number of threads provided by the Quartz job control
@@ -57,8 +59,11 @@ import de.comlineag.snc.persistence.JsonFilePersistence;
  * 			and the hana db returns this message:
  * 				Service exception: unique constraint violated.
  * 
- * TODO	2. establish proper error handling and find out how to get the HTTP error code during OData calls
- * TODO 3. enable geoLocation support for users
+ * TODO 2. fix another erro that occasionally occurs when trying to insert a dataset in the db. This second erro 
+ * 			states taht there is a syntax error at line 0. - happens more often then error 1
+ *  
+ * TODO	3. establish proper error handling and find out how to get the HTTP error code during OData calls
+ * TODO 4. enable geoLocation support for users
  * 
  */
 public class HANAPersistence implements IPersistenceManager {
@@ -97,6 +102,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * @description save a post from social network to the HANA DB
 	 * 
 	 * @param	PostData
+	 * 				<Property Name="domain" Type="Edm.String" Nullable="false" MaxLength="1024"/>
 	 * 				<Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"/>
 	 * 				<Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"/>
 	 * 				<Property Name="user_id" Type="Edm.String" MaxLength="20"/>
@@ -241,7 +247,8 @@ public class HANAPersistence implements IPersistenceManager {
             // prepare the SQL statement
 			String sql="INSERT INTO \"CL_SBM\".\"comline.sbm.data.tables::posts_1\" "
 					+ "("
-					+ "		\"sn_id\" "
+					+ "     \"sn_id\" "
+					+ ",	\"sn_id\" "
 					+ ",	\"post_id\" "
 					+ ",	\"user_id\" "
 					+ ",	\"timestamp\" "
@@ -265,35 +272,36 @@ public class HANAPersistence implements IPersistenceManager {
 					+ ",	\"plAround_longitude\" "
 					+ ",	\"plAround_latitude\" "
 					+ ") "
-					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?"
+					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?"
 					+ ")";
 			
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			logger.trace("    SQL: "+sql);
 			
-			stmt.setString(1, postData.getSnId());
-			stmt.setLong(2, new Long(postData.getId()));
-			stmt.setLong(3,new Long(postData.getUserId()));
-			stmt.setTimestamp(4,new Timestamp((postData.getTimestamp().toDateTime(DateTimeZone.UTC)).getMillis() ));
-			stmt.setString(5, postData.getLang());
-			stmt.setString(6, dataCryptoProvider.encryptValue(postData.getText()));
-			stmt.setString(7, dataCryptoProvider.encryptValue(postData.getRawText()));
-			stmt.setString(8, dataCryptoProvider.encryptValue(postData.getTeaser()));
-			stmt.setString(9, dataCryptoProvider.encryptValue(postData.getSubject()));
-			stmt.setLong(10, postData.getViewCount());
-			stmt.setLong(11, postData.getFavoriteCount());
-			stmt.setString(12, postData.getClient());
-			stmt.setInt(13, truncated);
-			stmt.setLong(14, postData.getInReplyTo());
-			stmt.setLong(15, postData.getInReplyToUser());
-			stmt.setString(16, postData.getInReplyToUserScreenName());
-			stmt.setString(17, postData.getGeoLongitude());
-			stmt.setString(18, postData.getGeoLatitude());
-			stmt.setString(19, postData.getGeoPlaceId());
-			stmt.setString(20, postData.getGeoPlaceName());
-			stmt.setString(21, postData.getGeoPlaceCountry());
-			stmt.setString(22, postData.getGeoAroundLongitude());
-			stmt.setString(23, postData.getGeoAroundLatitude());
+			stmt.setString(1, postData.getDomain());
+			stmt.setString(2, postData.getSnId());
+			stmt.setLong(3, new Long(postData.getId()));
+			stmt.setLong(4,new Long(postData.getUserId()));
+			stmt.setTimestamp(5,new Timestamp((postData.getTimestamp().toDateTime(DateTimeZone.UTC)).getMillis() ));
+			stmt.setString(6, postData.getLang());
+			stmt.setString(7, dataCryptoProvider.encryptValue(postData.getText()));
+			stmt.setString(8, dataCryptoProvider.encryptValue(postData.getRawText()));
+			stmt.setString(9, dataCryptoProvider.encryptValue(postData.getTeaser()));
+			stmt.setString(10, dataCryptoProvider.encryptValue(postData.getSubject()));
+			stmt.setLong(11, postData.getViewCount());
+			stmt.setLong(12, postData.getFavoriteCount());
+			stmt.setString(13, postData.getClient());
+			stmt.setInt(14, truncated);
+			stmt.setLong(15, postData.getInReplyTo());
+			stmt.setLong(16, postData.getInReplyToUser());
+			stmt.setString(17, postData.getInReplyToUserScreenName());
+			stmt.setString(18, postData.getGeoLongitude());
+			stmt.setString(19, postData.getGeoLatitude());
+			stmt.setString(20, postData.getGeoPlaceId());
+			stmt.setString(21, postData.getGeoPlaceName());
+			stmt.setString(22, postData.getGeoPlaceCountry());
+			stmt.setString(23, postData.getGeoAroundLongitude());
+			stmt.setString(24, postData.getGeoAroundLatitude());
 			
 			@SuppressWarnings("unused")
 			int rowCount = stmt.executeUpdate();
@@ -349,6 +357,7 @@ public class HANAPersistence implements IPersistenceManager {
 		OEntity newPost = null;
 		try {
 			postService.createEntity("post")
+					.properties(OProperties.string("domain", postData.getDomain()))
 					.properties(OProperties.string("sn_id", postData.getSnId()))
 					.properties(OProperties.string("post_id", new String(new Long(postData.getId()).toString())))
 					.properties(OProperties.string("user_id", new String(new Long(postData.getUserId()).toString())))
@@ -585,6 +594,7 @@ public class HANAPersistence implements IPersistenceManager {
             // prepare the SQL statement
             String sql="UPDATE \"CL_SBM\".\"comline.sbm.data.tables::posts_1\" "
 					+ " SET ("
+					+ "\"domain\" = ? "
 					+ "\"user_id\" = ? "
 					+ ",\"timestamp\" = ? "
 					+ ",\"postLang\" = ? "
@@ -611,29 +621,30 @@ public class HANAPersistence implements IPersistenceManager {
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			logger.trace("SQL: "+sql);
 			
-			stmt.setLong(1,new Long(postData.getUserId()));
-			stmt.setTimestamp(2,new Timestamp((postData.getTimestamp().toDateTime(DateTimeZone.UTC)).getMillis() ));
-			stmt.setString(3, postData.getLang());
-			stmt.setString(4, dataCryptoProvider.encryptValue(postData.getText()));
-			stmt.setString(5, dataCryptoProvider.encryptValue(postData.getRawText()));
-			stmt.setString(6, dataCryptoProvider.encryptValue(postData.getTeaser()));
-			stmt.setString(7, dataCryptoProvider.encryptValue(postData.getSubject()));
-			stmt.setLong(8, postData.getViewCount());
-			stmt.setLong(9, postData.getFavoriteCount());
-			stmt.setString(10, postData.getClient());
-			stmt.setInt(11, truncated);
-			stmt.setLong(12, postData.getInReplyTo());
-			stmt.setLong(13, postData.getInReplyToUser());
-			stmt.setString(14, postData.getInReplyToUserScreenName());
-			stmt.setString(15, postData.getGeoLongitude());
-			stmt.setString(16, postData.getGeoLatitude());
-			stmt.setString(17, postData.getGeoPlaceId());
-			stmt.setString(18, postData.getGeoPlaceName());
-			stmt.setString(19, postData.getGeoPlaceCountry());
-			stmt.setString(20, postData.getGeoAroundLongitude());
-			stmt.setString(21, postData.getGeoAroundLatitude());
-			stmt.setString(22, postData.getSnId());
-			stmt.setLong(23, new Long(postData.getId()));
+			stmt.setString(1, postData.getDomain());
+			stmt.setLong(2,new Long(postData.getUserId()));
+			stmt.setTimestamp(3,new Timestamp((postData.getTimestamp().toDateTime(DateTimeZone.UTC)).getMillis() ));
+			stmt.setString(4, postData.getLang());
+			stmt.setString(5, dataCryptoProvider.encryptValue(postData.getText()));
+			stmt.setString(6, dataCryptoProvider.encryptValue(postData.getRawText()));
+			stmt.setString(7, dataCryptoProvider.encryptValue(postData.getTeaser()));
+			stmt.setString(8, dataCryptoProvider.encryptValue(postData.getSubject()));
+			stmt.setLong(9, postData.getViewCount());
+			stmt.setLong(10, postData.getFavoriteCount());
+			stmt.setString(11, postData.getClient());
+			stmt.setInt(12, truncated);
+			stmt.setLong(13, postData.getInReplyTo());
+			stmt.setLong(14, postData.getInReplyToUser());
+			stmt.setString(15, postData.getInReplyToUserScreenName());
+			stmt.setString(16, postData.getGeoLongitude());
+			stmt.setString(17, postData.getGeoLatitude());
+			stmt.setString(18, postData.getGeoPlaceId());
+			stmt.setString(19, postData.getGeoPlaceName());
+			stmt.setString(20, postData.getGeoPlaceCountry());
+			stmt.setString(21, postData.getGeoAroundLongitude());
+			stmt.setString(22, postData.getGeoAroundLatitude());
+			stmt.setString(23, postData.getSnId());
+			stmt.setLong(24, new Long(postData.getId()));
 			
 			@SuppressWarnings("unused")
 			int rowCount = stmt.executeUpdate();
@@ -695,6 +706,7 @@ public class HANAPersistence implements IPersistenceManager {
 			postService.updateEntity(thePostEntity) 
 					//.properties(OProperties.string("sn_id", postData.getSnId()))
 					//.properties(OProperties.string("post_id", new String(new Long(postData.getId()).toString())))
+					.properties(OProperties.string("domain", postData.getDomain()))
 					.properties(OProperties.string("user_id", new String(new Long(postData.getUserId()).toString())))
 					.properties(OProperties.datetime("timestamp", postData.getTimestamp()))
 					.properties(OProperties.string("postLang", postData.getLang()))
