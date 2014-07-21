@@ -2,7 +2,14 @@
 <!-- 
 	This is the xml configuration file for the social network connector.
 	
-	It is used to setup general options for the runtime behaviour of the SNC
+	It is used to setup general options for the runtime behavior of the SNC
+	First of all the domain and customer this specific instance of the SNC 
+	is started for, is configured here.
+	Then you can configure certain runtime behavior for the SNC in here. For 
+	example, you can configure if the system shall create a json file on disk
+	in case the creation of a dataset in the db fails.
+	Third, the XML structure for the configuration files of the actual crawler
+	is configured in this file - but you are discouraged changing this.   
 -->
 <configurations>
 	<!-- START OF DOMAIN AND CUASTOMER CONFIG -->
@@ -50,7 +57,25 @@
 			<type>boolean</type>
 			<value>true</value>
 		</param>
+		<param name="CreatePostJsonOnError">
+			<type>boolean</type>
+			<value>true</value>
+		</param>
+		<param name="CreateUserJsonOnError">
+			<type>boolean</type>
+			<value>true</value>
+		</param>
+		<param name="CreatePostJsonOnSuccess">
+			<type>boolean</type>
+			<value>true</value>
+		</param>
+		<param name="CreateUserJsonOnSuccess">
+			<type>boolean</type>
+			<value>false</value>
+		</param>
 	</configuration>
+	
+	
 	
 	<!-- START OF CONFIGURATION XML LAYOUT -->
 	<!-- DO NOT CHANGE ANYTHING BELOW THIS LINE, EXCEPT YOU ABSOLUTELY KNOW WHAT YOU ARE DOING -->

@@ -17,6 +17,7 @@ import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.DataCryptoHandler;
+import de.comlineag.snc.handler.GeneralConfiguration;
 import de.comlineag.snc.helper.DataHelper;
 import de.comlineag.snc.constants.HanaDataConstants;
 import de.comlineag.snc.persistence.JsonFilePersistence;
@@ -390,7 +391,13 @@ public class HANAPersistence implements IPersistenceManager {
 					.execute();
 			
 			logger.info("post ("+postData.getSnId()+"-"+postData.getId()+") created");
-		
+			
+			if (GeneralConfiguration.isCREATE_POST_JSON_ON_SUCCESS()) {
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(postData);
+			}
+			
 		/*
 		 * in case of an error during post, the following XML structure is returned as part of the exception:
 		 * 		<?xml version="1.0" encoding="utf-8" standalone="yes"?>
@@ -404,9 +411,11 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: could not create post ("+postData.getSnId()+"-"+postData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
 			
-			// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
-			@SuppressWarnings("unused")
-			JsonFilePersistence failsave = new JsonFilePersistence(postData);
+			if (GeneralConfiguration.isCREATE_POST_JSON_ON_ERROR()) {
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(postData);
+			}
 		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 		}
@@ -537,6 +546,11 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			logger.info("user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") created");
 		
+			if (GeneralConfiguration.isCREATE_USER_JSON_ON_SUCCESS()){
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(userData);
+			}
 		/*
 		 * in case of an error during post, the following XML structure is returned as part of the exception:
 		 * 		<?xml version="1.0" encoding="utf-8" standalone="yes"?>
@@ -550,9 +564,11 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("ERROR :: Could not create user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
 			
-			// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
-			@SuppressWarnings("unused")
-			JsonFilePersistence failsave = new JsonFilePersistence(userData);
+			if (GeneralConfiguration.isCREATE_USER_JSON_ON_ERROR()){
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(userData);
+			}
 		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 		}
