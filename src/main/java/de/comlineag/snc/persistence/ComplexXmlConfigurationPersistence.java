@@ -5,7 +5,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.handler.GeneralConfiguration;
 
 import java.io.IOException;
@@ -19,12 +18,13 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
  * @author		Christian Guenther
  * @category	Persistence manager
- * @version		0.1		- 16.07.2014
+ * @version		0.2		- 22.07.2014
  * @status		productive but some functions are missing
  * 
  * @description	A configuration manager for the crawler using structured xml files for the configuration
@@ -33,6 +33,7 @@ import org.w3c.dom.NodeList;
  * @param <T>
  * 
  * @changelog	0.1 (Chris)		copy of XMLFileCustomerSpecificConfigurationPersistence - Revision 0.2
+ * 				0.2				added parts from GeneralConfiguration (domain and customer)
  *  
  *  TODO 1. implement code for missing methods - see below
  */
@@ -40,11 +41,17 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	
 	// the path to the configuration file
 	private String configDbHandler;
-	private String domain = null;
-	private String customer = null;
 	private JSONParser parser = new JSONParser();
 	private String SN = null;
 	private Object obj = null;
+	
+	private String domain = null;
+	private String customer = null;
+	private boolean domainIsActive = false;
+	private boolean customerIsActive = false;
+	private int domainPriority = 0;
+	private int customerPriority = 0;
+	private JSONObject crawlerConfigurationScope = new JSONObject();
 	
 	// Logger Instanz
 	private final Logger logger = Logger.getLogger(getClass().getName());
@@ -263,5 +270,165 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	}
 	public void setConfigDbHandler(String configDbHandler) {
 		this.configDbHandler = configDbHandler;
+	}
+	
+	
+	@Override
+	public JSONObject getCrawlerConfiurationScope() {
+		try {
+			File file = new File("src/main/java/webapp/WEB-INF/GeneralConfiguration.xml");
+			
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(file);
+			
+			XPathFactory xPathfactory = XPathFactory.newInstance();
+			XPath xpath = xPathfactory.newXPath();
+			
+			String expression = null;
+			Node node = null; 
+			
+			// first step is to get the domain
+			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"+GeneralConfiguration.getDomainidentifier()+"/"+GeneralConfiguration.getValueidentifier();
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.error("Did not receive any information using expression " + expression);
+			} else {
+				crawlerConfigurationScope.put((String) GeneralConfiguration.getDomainidentifier(), (String) node.getTextContent());
+				setDomain((String) node.getTextContent());
+			}
+			
+			// whether or not it is active
+			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/isActive/"+GeneralConfiguration.getValueidentifier();
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("did not receive a domain activation - setting to false");
+				setDomainIsActive(false);
+			} else {
+				if ("true".equals(node.getTextContent()))
+					setDomainIsActive(true);
+				else
+					setDomainIsActive(false);
+			}
+			// and the corresponding priority
+			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/priority/"+GeneralConfiguration.getValueidentifier();
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("did not receive a domain priority - setting to 0");
+				setDomainPriority((int) 0);
+			} else {
+				setDomainPriority(Integer.parseInt(node.getTextContent()));
+			}
+			crawlerConfigurationScope.put((String) "domainIsActive", (boolean) getDomainIsActive());
+			crawlerConfigurationScope.put((String) "domainPriority", (int) getDomainPriority());
+			logger.debug("the domain "+getDomain()+" is active " + getDomainIsActiveAsString() + "and has priority "+ getDomainPriority());
+			
+			
+			// second step is to get the customer
+			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/"+GeneralConfiguration.getCustomeridentifier()+"/"+GeneralConfiguration.getValueidentifier();
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.error("Did not receive any information using expression " + expression);
+			} else {
+				crawlerConfigurationScope.put((String) GeneralConfiguration.getCustomeridentifier(), (String) node.getTextContent());
+				setCustomer((String) node.getTextContent());
+			}
+			// whether or not it is active
+			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/"+GeneralConfiguration.getCustomeridentifier()+"[@"+GeneralConfiguration.getCustomernameidentifier()+"='"+getCustomer()+"']/isActive/"+GeneralConfiguration.getValueidentifier();
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("did not receive a customer activation - setting to false");
+				setCustomerIsActive(false);
+			} else {
+				if ("true".equals(node.getTextContent()))
+					setCustomerIsActive(true);
+				else
+					setCustomerIsActive(false);
+			}
+			// and the corresponding priority
+			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/"+GeneralConfiguration.getCustomeridentifier()+"[@"+GeneralConfiguration.getCustomernameidentifier()+"='"+getCustomer()+"']/priority/"+GeneralConfiguration.getValueidentifier();
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("did not receive a customer priority - setting to 0");
+				setCustomerPriority((int) 0);
+			} else {
+				setCustomerPriority(Integer.parseInt(node.getTextContent()));
+			}
+			crawlerConfigurationScope.put((String) "customerIsActive", (boolean) getCustomerIsActive());
+			crawlerConfigurationScope.put((String) "customerPriority", (int) getCustomerPriority());
+			logger.debug("the customer "+getCustomer()+" is active " + getCustomerIsActiveAsString() + " and has priority " + getCustomerPriority());
+			
+			
+		} catch (Exception e) {
+			logger.error("EXCEPTION :: could not get crawler configuration " + e.getLocalizedMessage());
+		}
+		return crawlerConfigurationScope;
+	}
+	// getter and setter for above method data
+	@Override
+	public String getDomain() {
+		return domain;
+	}
+	@Override
+	public String getCustomer() {
+		return customer;
+	}
+	@Override
+	public void setDomain(String domain) {
+		this.domain = domain;
+	}
+	@Override
+	public void setCustomer(String customer) {
+		this.customer = customer;
+	}
+	private int getCustomerPriority() {
+		return customerPriority;
+	}
+	private void setCustomerPriority(int i) {
+		customerPriority = i;
+	}
+
+	private int getDomainPriority() {
+		return domainPriority;
+	}
+
+	private void setDomainPriority(int i) {
+		domainPriority = i;
+	}
+	public boolean getDomainIsActive(){
+		return domainIsActive;
+	}
+	public void setDomainIsActive(boolean isActive){
+		domainIsActive = isActive;
+	}
+	public boolean getCustomerIsActive(){
+		return customerIsActive;
+	}
+	public void setCustomerIsActive(boolean isActive){
+		customerIsActive = isActive;
+	}
+	public String getDomainIsActiveAsString(){
+		if (domainIsActive)
+			return "true";
+		else
+			return "false";
+	}
+	public void setDomainIsActive(String isActive){
+		if ("isActive".equals("true"))
+			domainIsActive = true;
+		else
+			domainIsActive = false;
+	}
+	public String getCustomerIsActiveAsString(){
+		if (customerIsActive)
+			return "true";
+		else
+			return "false";
+	}
+	public void setCustomerIsActive(String isActive){
+		if ("isActive".equals("true"))
+			customerIsActive = true;
+		else
+			customerIsActive = false;
 	}
 }

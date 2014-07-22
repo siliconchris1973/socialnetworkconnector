@@ -1,6 +1,7 @@
 package de.comlineag.snc.persistence;
 
 import de.comlineag.snc.handler.GeneralConfiguration;
+
 import org.apache.log4j.Logger;
 import org.ini4j.Ini;
 import org.ini4j.InvalidIniFormatException;
@@ -55,7 +56,8 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 			return (ArrayList<T>)ar;
 		} else {
 			logger.debug("reading constraints on " + category + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")+1));
-			if ((GeneralConfiguration.getCustomerIsActive() || GeneralConfiguration.getDomainIsActive()) && GeneralConfiguration.getWarnOnSimpleConfig())
+			//if ((GeneralConfiguration.getCustomerIsActive() || GeneralConfiguration.getDomainIsActive()) && GeneralConfiguration.getWarnOnSimpleConfig())
+			if (GeneralConfiguration.getWarnOnSimpleConfig())
 				logger.warn("no customer and network specific configuration and no type safety guranteed - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + GeneralConfiguration.getConfigFile().substring(GeneralConfiguration.getConfigFile().lastIndexOf("/")+1));
 			
 			return (ArrayList<T>)getDataFromIni(category);
@@ -113,5 +115,26 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 	public void writeNewConfiguration(String xml) {
 		//TODO implement code
 		logger.warn("The method writeNewConfiguration from XML is currently not supported on configuration type ini-file");
+	}
+	@Override
+	public String getDomain() {
+		return "undefined";
+	}
+	@Override
+	public void setDomain(String domain) {}
+
+	@Override
+	public String getCustomer() {
+		return "undefined";
+	}
+	@Override
+	public void setCustomer(String customer) {}
+
+	@Override
+	public JSONObject getCrawlerConfiurationScope() {
+		JSONObject crawlerConfigurationScope = new JSONObject();
+		crawlerConfigurationScope.put((String) GeneralConfiguration.getDomainidentifier(), (String) "undefined");
+		crawlerConfigurationScope.put((String) GeneralConfiguration.getCustomeridentifier(), (String) "undefined");
+		return crawlerConfigurationScope;
 	}
 }

@@ -59,12 +59,14 @@ public final class GeneralConfiguration implements Job {
 	private static JSONObject crawlerConfigurationScope = new JSONObject();
 	
 	// information about the domain and customer setup
+	/*
 	private static String domain;
 	private static String customer;
 	private static boolean domainIsActive;
 	private static boolean customerIsActive;
 	private static int domainPriority;
 	private static int customerPriority;
+	*/
 	
 	// some publicly available runtime informations
 	private static boolean WARN_ON_SIMPLE_CONFIG = true;
@@ -124,6 +126,7 @@ public final class GeneralConfiguration implements Job {
 			String expression = null;
 			Node node = null; 
 			
+			/*
 			// first step is to get the domain
 			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+domainIdentifier+"']/"+domainIdentifier+"/"+valueIdentifier;
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
@@ -192,7 +195,7 @@ public final class GeneralConfiguration implements Job {
 			crawlerConfigurationScope.put((String) "customerIsActive", (boolean) getCustomerIsActive());
 			crawlerConfigurationScope.put((String) "customerPriority", (int) getCustomerPriority());
 			logger.debug("the customer "+getCustomer()+" is active " + getCustomerIsActiveAsString() + " and has priority " + getCustomerPriority());
-			
+			*/
 			
 			
 			// third set boolean values of runtime environment
@@ -278,6 +281,7 @@ public final class GeneralConfiguration implements Job {
 		}
 	}
 	
+	/*
 	private int getCustomerPriority() {
 		return GeneralConfiguration.customerPriority;
 	}
@@ -292,7 +296,8 @@ public final class GeneralConfiguration implements Job {
 	private void setDomainPriority(int i) {
 		GeneralConfiguration.domainPriority = i;
 	}
-
+	*/
+	
 	// return the json with the configured domains and customers
 	public static JSONObject getDomainSetup() {
 		return crawlerConfigurationScope;
@@ -310,6 +315,7 @@ public final class GeneralConfiguration implements Job {
 	}
 	
 	// for domain and customer data
+	/*
 	public static String getDomain(){
 		return GeneralConfiguration.domain;
 	}
@@ -358,6 +364,7 @@ public final class GeneralConfiguration implements Job {
 		else
 			GeneralConfiguration.customerIsActive = false;
 	}
+	*/
 	
 	// for configuration xml structure
 	public static String getRootidentifier() {

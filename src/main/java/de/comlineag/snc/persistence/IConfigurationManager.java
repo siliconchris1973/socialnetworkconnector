@@ -32,6 +32,21 @@ public interface IConfigurationManager<T> {
 	
 	
 	/**
+	 * @description returns the active domain
+	 */
+	public abstract String getDomain();
+	public abstract void setDomain(String domain);
+	/**
+	 * @description returns the active domain
+	 */
+	public abstract String getCustomer();
+	public abstract void setCustomer(String customer);
+	/**
+	 * @description returns a json with domain and customer
+	 */
+	public abstract JSONObject getCrawlerConfiurationScope();
+	
+	/**
 	 * 
 	 * @description	takes a constraint category (either term, user, site, geoLocation or language),
 	 * 				a social network identifier and a customer name (or null) and returns the constraints 
