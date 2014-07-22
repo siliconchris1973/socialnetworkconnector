@@ -1,23 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
-	This is the xml configuration file for the social network connector.
-	
 	The XML can be used to setup either customer or domain specific configurations or  
 	a combination of the two. For any combination (domain and customer) you can always 
 	also add a section with scope="ALL" resulting in this section being applied to 
 	all domains or all customers respectively.
 	
 	There are three examples in this directory:
-	*	The configuration file CustomerSpecificConfiguration.xml is an example for a bank 
-		called  cortal consors and has no domain specific part. 
+	*	The configuration file CustomerSpecificConfiguration.xml is the skeleton for 
+		your customer oriented setup 
 	*	The xml DomainSpecificCrawlerConfiguration.xml contains the exact same crawler 
 		setup, but with ONLY a domain approach. 
 	*	the configuration CustomerAndDomainCrawlerConfiguration.xml is an example 
 		for a setup with domain specific and customer specific configuration elements.
 	
+	*	The CortalConsorsSpecificCrawlerConfiguration.xml is an example for a bank 
+		called  cortal consors and has no domain specific part. 
+	*	The xml BankingSpecificCrawlerConfiguration.xml contains the exact same crawler 
+		setup, but with ONLY a domain approach. 
+	
 	NOT YET IMPLEMENTED:
-	*	and finally this file DomainWithCustomerCrawlerConfiguration.xml shows how
-		to setup a hierarchical structure of domain and customer 
+	*	and finally the file DomainWithCustomerCrawlerConfiguration.xml shows how
+		to setup a hierarchical structure of domain and customer
 	
 	You can take one of these examples and adjust it to your needs. Then edit  
 	applicationContext.xml, activate ComplexXmlConfigurationPersistence as the 
@@ -27,7 +30,7 @@
 	the general structure is as follows
 	<configurations>
 		<configuration scope=[customer / domain]>
-			<customer/domain name=[ALL, name]
+			<customer/domain scope=[ALL, name]
 				<name>
 					<type>String</type>
 					<value>ALL</value>
@@ -46,7 +49,6 @@
 			</customer>
 		</configuration>
 	</configurations>
-  
 -->
 <configurations>
 	<!-- this section can be used to setup crawler configurations for domains -->

@@ -306,21 +306,19 @@
 	
 	<!-- this is the bean to get the crawler configuration specific for individual customers OR domains from an xml file
 		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR EITHER CUSTOMER OR DOMAIN) -->
-<!-- 
+ 
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.ComplexXmlConfigurationPersistence"> 
-		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/CustomerSpecificCrawlerConfiguration.xml" /> 
---> 
-		<!-- <property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/DomainSpecificCrawlerConfiguration.xml" /> -->
-<!-- 
+		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/CortalConsorsSpecificCrawlerConfiguration.xml" />
 	</bean> 
--->
+
 	
 	<!-- this is the bean to get the crawler configuration from an xml file 
 		(WORKS BUT NO CUSTOMER SPECIFIC CONFIGURATION POSSIBLE)	-->
+<!-- 
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.SimpleXmlConfigurationPersistence"> 
 		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/SimpleCrawlerConfiguration.xml" /> 
 	</bean>
-	
+-->
 	 
 	<!-- this is the bean to get the crawler configuration from an ini file 
 		(WORKS WITH RESTRICTIONS - NO CUSTOMER AND NO CRAWLER SPECIFIC CONFIGURATION POSSIBLE) -->

@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
-	This is the xml configuration file for the social network connector.
-	
 	The XML can be used to setup either customer or domain specific configurations or  
 	a combination of the two. For any combination (domain and customer) you can always 
 	also add a section with scope="ALL" resulting in this section being applied to 
 	all domains or all customers respectively.
 	
 	There are three examples in this directory:
-	*	The configuration file CustomerSpecificConfiguration.xml is an example for a bank 
-		called  cortal consors and has no domain specific part. 
+	*	The configuration file CustomerSpecificConfiguration.xml is the skeleton for 
+		your customer oriented setup 
 	*	The xml DomainSpecificCrawlerConfiguration.xml contains the exact same crawler 
 		setup, but with ONLY a domain approach. 
 	*	the configuration CustomerAndDomainCrawlerConfiguration.xml is an example 
 		for a setup with domain specific and customer specific configuration elements.
-	*	and finally this file DomainWithCustomerCrawlerConfiguration.xml shows how
+	
+	*	The CortalConsorsSpecificCrawlerConfiguration.xml is an example for a bank 
+		called  cortal consors and has no domain specific part. 
+	*	The xml BankingSpecificCrawlerConfiguration.xml contains the exact same crawler 
+		setup, but with ONLY a domain approach. 
+	
+	NOT YET IMPLEMENTED:
+	*	and finally the file DomainWithCustomerCrawlerConfiguration.xml shows how
 		to setup a hierarchical structure of domain and customer
 	
 	You can take one of these examples and adjust it to your needs. Then edit  
@@ -25,7 +30,7 @@
 	the general structure is as follows
 	<configurations>
 		<configuration scope=[customer / domain]>
-			<customer/domain name=[ALL, name]
+			<customer/domain scope=[ALL, name]
 				<name>
 					<type>String</type>
 					<value>ALL</value>
@@ -44,7 +49,6 @@
 			</customer>
 		</configuration>
 	</configurations>
-  
 -->
 <configurations>
 	<!-- this section can be used to setup crawler configurations for customer -->
@@ -69,12 +73,12 @@
 		-->
 		
 		
-		<!-- Cortal Consors -->
-		<customer name="CortalConsors">
+		<!-- Your Customer START -->
+		<customer name="YourCustomer">
 			<!-- CUSTOMER SETUP -->
 			<name>
 				<type>String</type>
-				<value>Cortal Consors</value>
+				<value>Your customer</value>
 			</name>
 			<category>
 				<type>String</type>
@@ -89,51 +93,7 @@
 				<constraint>
 					<term>
 						<type>String</type>
-						<value>Aktien</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Tagesgeld</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Depot</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Wertpapier</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Börse</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Wertpapierhandel</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Trading</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Broker</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Finanzmarkt</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Aktienanleihe</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Fonds</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Geldanlage</value>
+						<value>Your Term</value>
 					</term>
 				</constraint>
 			</constraints>
@@ -152,7 +112,7 @@
 				<constraint>
 					<term>
 						<type>String</type>
-						<value>Cortal Consors</value>
+						<value>EG your customer name</value>
 					</term>
 				</constraint>
 				 
@@ -202,31 +162,7 @@
 				<constraint>
 					<site>
 						<type>String</type>
-						<value>/boards/id/Girokonto-Zahlungsverkehr</value>
-					</site>
-					<site>
-						<type>String</type>
-						<value>/boards/id/Sparen-und-Anlegen</value>
-					</site>
-					<site>
-						<type>String</type>
-						<value>/boards/id/Wertpapierhandel</value>
-					</site>
-					<site>
-						<type>String</type>
-						<value>/boards/id/Finanzieren</value>
-					</site>
-					<site>
-						<type>String</type>
-						<value>/boards/id/FeedbackAnregungen</value>
-					</site>
-					<site>
-						<type>String</type>
-						<value>/boards/id/ExperteFrageAntwort</value>
-					</site>
-					<site>
-						<type>String</type>
-						<value>/boards/id/Sonstige-Themen</value>
+						<value>/boards/id/a_specific_baord</value>
 					</site>
 				</constraint>
 				
@@ -237,45 +173,13 @@
 				<constraint>
 					<term>
 						<type>String</type>
-						<value>Wissenslexikon</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Geschäft</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Ethik</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Markt</value>
+						<value>Some more terms</value>
 					</term>
 				</constraint>
 			</constraints>
 			<!-- END OF LITHIUM CONSTRAINTS -->
 		</customer>
-		<!-- Cortal Consors -->
-		
-		
-		
-		<!-- COMLINE -->
-		<customer name="COMLINE">
-			<name>
-				<type>String</type>
-				<value>COMLINE</value>
-			</name>
-			<category>
-				<type>String</type>
-				<value>customer</value>
-			</category>
-			
-			<!-- CONSTRAINTS -->
-			<constraints scope="ALL">
-				<!-- put in here all  -->
-			</constraints>
-		</customer>
-		<!-- COMLINE -->
+		<!-- Your Customer END -->
 	</configuration>
 	<!-- end of customer configuration section -->
 	
@@ -342,10 +246,10 @@
 		<!-- end of ALL domain -->
 		
 		<!-- the banking domain  -->
-		<domain name="Banking">
+		<domain name="YourDomain">
 			<name>
 				<type>String</type>
-				<value>Banking</value>
+				<value>YourDomain</value>
 			</name>
 			<category>
 				<type>String</type>
@@ -360,59 +264,7 @@
 				<constraint>
 					<term>
 						<type>String</type>
-						<value>Girokonto</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Kreditkarte</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Sparkarte</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Girocard</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Maestro</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Visa</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Mastercard</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>American Express</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>HBCI</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Geld</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Währung</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Devisen</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Jahreszins</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Sollzins</value>
+						<value>SomeDomainRelatedTerms</value>
 					</term>
 				</constraint>
 				
