@@ -9,6 +9,17 @@
 	a configuration for one network, say twitter, is added to the constraints 
 	from the general configuration. 
 	
+	Every configuration file contains a section in which the domain and customer
+	structure is setup. Even if your scenario uses SimpleXmlConfigurationPersistence and
+	therefore has no possibility to make use of domain and/or customer, the information
+	needs to stay in the file, or you will get warnings in the crawler log.
+	
+	Every configuration file also has a very small section at the end, in which the file
+	type is specified. This type needs to correspond to the chosen configuration persistence
+	manager and you should therefore leave it as is. You must also make sure to copy and
+	edit the xml files in accordance with the chosen manager - otherwise the crawler will
+	bail out and you receive an error.
+	
 	This xml file belongs to the configuration manager SimpleXMConfigurationPersistence
 	from applicationContext.xml. To use it, adapt it to your needs and activate 
 	the corresponding section in applicationContext.xml.
@@ -18,93 +29,17 @@
 	<configuration scope="ALL">
 	
 		<!-- track only messages (aka posts) with specific keywords -->
-		
+		<!-- 
 		<constraint>
 			<term>
 				<type>String</type>
-				<value>Aktien</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Tagesgeld</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Trading</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Depot</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Girokonto</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Wertpapier</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Kreditkarte</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>HBCI</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Börse</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Wertpapierhandel</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Geld</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Währung</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Devisen</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Trading</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Broker</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Finanzmarkt</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Jahreszins</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Aktienanleihe</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Fonds</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Geldanlage</value>
+				<value>YourTerm</value>
 			</term>
 		</constraint>
-		
+		 -->
 		
 		<!-- track only messages (aka posts) in specific languages -->
-		<!-- is done specifically for twitter - see below
+		<!-- 
 		<constraint>
 			<language>
 				<type>String</type>
@@ -115,7 +50,7 @@
 		
 		
 		<!-- setup a constraint against specific sites -->
-		<!-- is only necessary for lithium - see below
+		<!-- 
 		<constraint>
 			<site>
 				<type>url</type>
@@ -146,24 +81,20 @@
 			track only messages (aka posts) with specific keywords
 			these constraints are added to the generic ones above 
 		-->
-		 
-		<constraint>
 		<!--
+		<constraint>
 			<term>
 				<type>String</type>
 				<value>TestingTheCode</value>
 			</term>
-		-->
-			<term>
-				<type>String</type>
-				<value>Cortal Consors</value>
-			</term>
 		</constraint>
+		-->
 		 
 		
 		<!-- 
 			track only messages (aka posts) in specific languages 
 			these constraints are added to the generic ones above
+			- minimal recommended language pack ->
 		-->
 		<constraint>
 			<language>
@@ -239,60 +170,28 @@
 			track only messages (aka posts) with specific keywords
 			these constraints are added to the generic ones above 
 		-->
+		<!-- 
 		<constraint>
 			<term>
 				<type>String</type>
-				<value>Wissenslexikon</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Geschäft</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Ethik</value>
-			</term>
-			<term>
-				<type>String</type>
-				<value>Markt</value>
+				<value>Some Words</value>
 			</term>
 		</constraint>
+		-->
 		
 		
 		<!-- 
-			setup a constraint against specific sites
-			these constraints are added to the generic ones above 
+			setup a constraint against specific sites in the lithium
+			network. if not set, the complete community is scanned 
 		-->
+		<!--
 		<constraint>
 			<site>
 				<type>String</type>
-				<value>/boards/id/Girokonto-Zahlungsverkehr</value>
-			</site>
-			<site>
-				<type>String</type>
-				<value>/boards/id/Sparen-und-Anlegen</value>
-			</site>
-			<site>
-				<type>String</type>
-				<value>/boards/id/Wertpapierhandel</value>
-			</site>
-			<site>
-				<type>String</type>
-				<value>/boards/id/Finanzieren</value>
-			</site>
-			<site>
-				<type>String</type>
-				<value>/boards/id/FeedbackAnregungen</value>
-			</site>
-			<site>
-				<type>String</type>
-				<value>/boards/id/ExperteFrageAntwort</value>
-			</site>
-			<site>
-				<type>String</type>
-				<value>/boards/id/Sonstige-Themen</value>
+				<value>/boards/id/a_board_id_within_lithium</value>
 			</site>
 		</constraint>
+		-->
 		
 		
 		<!-- 
@@ -306,22 +205,6 @@
 			<language>
 				<type>String</type>
 				<value>de</value>
-			</language>
-			<language>
-				<type>String</type>
-				<value>en</value>
-			</language>
-			<language>
-				<type>String</type>
-				<value>it</value>
-			</language>
-			<language>
-				<type>String</type>
-				<value>es</value>
-			</language>
-			<language>
-				<type>String</type>
-				<value>fr</value>
 			</language>
 		</constraint>
 		-->
@@ -357,4 +240,52 @@
 		-->
 	</configuration>
 	<!-- END OF LITHIUM CONFIG -->
+	
+	
+	
+	
+	<!-- DO NOT, I REPEAT DO NOT EDIT OR DELETE THIS ENTRY -->
+	<!-- I MEAN IT, UNDER NO CIRCUMSTANCES CHANGE ANYTHING BELOW THIS LINE -->
+	<configuration scope="configFileType">
+		<type>SimpleXmlConfigurationPersistence</type>
+	</configuration>
+	<!-- 
+		START OF DOMAIN AND CUSTOMER CONFIG
+		you do not need to setup the domain and customer structure here.
+		but this section must stay in the configuration file
+	-->
+	<configuration scope="domainStructure">
+		<domainStructure>
+			<domain name="undefined">
+				<name>undefined</name>
+				<type>String</type>
+				<value>undefined</value>
+				
+				<!-- set to false in case no domain/customer specific setup is needed -->
+				<isActive>
+					<type>boolean</type>
+					<value>false</value>
+				</isActive>
+				<priority>
+					<type>int</type>
+					<value>0</value>
+				</priority>
+				
+				<!-- customer entries within domain -->
+				<customer name="undefined">
+					<name>undefined</name>
+					<type>String</type>
+					<value>undefined</value>
+					<isActive>
+						<type>boolean</type>
+						<value>false</value>
+					</isActive>
+					<priority>
+						<type>int</type>
+						<value>0</value>
+					</priority>
+				</customer>
+			</domain>
+		</domainStructure>
+	</configuration>
 </configurations>

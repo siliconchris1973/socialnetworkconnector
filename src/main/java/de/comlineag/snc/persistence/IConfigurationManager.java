@@ -44,7 +44,7 @@ public interface IConfigurationManager<T> {
 	/**
 	 * @description returns a json with domain and customer
 	 */
-	public abstract JSONObject getCrawlerConfiurationScope();
+	public abstract JSONObject getCrawlerConfigurationScope();
 	
 	/**
 	 * 

@@ -47,4 +47,13 @@ public class CrawlerConfiguration<T> extends GenericConfigurationManager {
 	public void writeNewConfiguration(String xml){
 		configurationManager.writeNewConfiguration(xml);
 	}
+	public String getDomain(){
+		return configurationManager.getDomain();
+	}
+	public String getCustomer(){
+		return configurationManager.getCustomer();
+	}
+	public JSONObject getCrawlerConfigurationScope(){
+		return configurationManager.getCrawlerConfigurationScope();
+	}
 }

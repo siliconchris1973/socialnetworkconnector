@@ -9,14 +9,14 @@ import org.joda.time.LocalDateTime;
  * 
  * @author 		Magnus Leinemann, Christian Guenther
  * @category 	data class
- * @version 	0.2a		- 20.07.2014
+ * @version 	0.2a		- 23.07.2014
  * @status		productive
  * 
  * @description Data Class representing a Post from the OData Service
  * 
  * @changelog	0.1 (Magnus)	class created according to twitter user needs
  * 				0.2 (Chris)		added field raw-text for Lithium postings which contain html and we strip that in the field text
- * 				0.2a				added domain
+ * 				0.2a			added domain and customer
  * 
  * TODO 1. the domain should be stored as a list
  */
@@ -27,8 +27,8 @@ public class PostData {
 	 * domain (stored as json within the db) e.g. banking
 	 * <Property Name="domain" Type="Edm.String" Nullable="false" MaxLength="1024"/>
 	 */
-	protected String domain; // string identifying the domain of interest, this post was tracked for
-	
+	protected String domain; 	// string identifying the domain of interest, this post was tracked for
+	protected String customer;
 	/**
 	 * SocialNetworkID e.g. TW, FB
 	 * <Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"/>
@@ -144,14 +144,20 @@ public class PostData {
 	protected List<?> mentions;
 	
 	// getter and setter
-	
-	// TODO change this to working list
 	public String getDomain() {
 		return domain;
 	}
-	public void setDomain(String domain) {
-		this.domain = domain;
+	public void setDomain(String dom) {
+		this.domain = dom;
 	}
+	
+	public String getCustomer() {
+		return customer;
+	}
+	public void setCustomer(String sub) {
+		this.customer = sub;
+	}
+	
 	public long getId() {
 		return id;
 	}

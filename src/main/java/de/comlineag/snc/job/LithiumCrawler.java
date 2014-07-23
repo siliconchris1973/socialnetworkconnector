@@ -92,14 +92,25 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	 */
 	@SuppressWarnings("unchecked")
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		JSONObject configurationScope = GeneralConfiguration.getDomainSetup();
+		JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
 		configurationScope.put((String) "SN_ID", (String) SocialNetworks.LITHIUM.toString());
 		
-		// set the customer we start the crawler for
+		// set the customer we start the crawler for and log the startup message
+		String curDomain = (String) configurationScope.get(GeneralConfiguration.getDomainidentifier());
 		String curCustomer = (String) configurationScope.get(GeneralConfiguration.getCustomeridentifier());
 		
-		// log the startup message
-		logger.info("Lithium-Crawler START for " + curCustomer);
+		if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
+			logger.info("Lithium-Crawler START");
+		} else {
+			if (!"undefined".equals(curDomain) && !"undefined".equals(curCustomer)) {
+				logger.info("Lithium-Crawler START for " + curCustomer + " in " + curDomain);
+			} else {
+				if (!"undefined".equals(curDomain))
+					logger.info("Lithium-Crawler START for " + curDomain);
+				else
+					logger.info("Lithium-Crawler START for " + curCustomer);
+			}
+		}
 		int messageCount = 0;
 		
 		// authentication to lithium

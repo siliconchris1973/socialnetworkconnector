@@ -4,7 +4,7 @@ package de.comlineag.snc.data;
  * 
  * @author		Magnus Leinemann, Christian Guenther
  * @category	Data Class
- * @version		0.4		- 11.07.2014
+ * @version		0.4a		- 23.07.2014
  * @status		productive
  * 
  * @description core data type for the User Data
@@ -13,12 +13,15 @@ package de.comlineag.snc.data;
  * 				0.2 (Chris)		added fields for counters
  * 				0.3				added fields average_rating_value, average_posting_rating_value and average_posting_ratio for Lithium user 
  * 				0.4				changed field name from location to geoLocation
+ * 				0.4a			added fields for domain and customer
  * 
  * TODO 1. check if we need more/other fields for other social networks
  */
 public class UserData {
 
 	protected long id;								// the id of the positng within the social network
+	protected String domain;						// in which domain context was the user tracked
+	protected String customer;						// in which customer context was the user tracked
 	protected String sn_id;							// the social network id from enum SocialNetworks
 	protected String username;						// the actual user name, might be different from the screen name 
 	protected String screen_name;					// the username as shown on the network (sometimes named nick name)
@@ -131,5 +134,18 @@ public class UserData {
 	public void setLang(String lang) {
 		this.lang = lang;
 	}
-
+	
+	public String getDomain() {
+		return lang;
+	}
+	public void setDomain(String dom) {
+		this.domain = dom;
+	}
+	
+	public String getCustomer() {
+		return customer;
+	}
+	public void setCustomer(String sub) {
+		this.customer = sub;
+	}
 }

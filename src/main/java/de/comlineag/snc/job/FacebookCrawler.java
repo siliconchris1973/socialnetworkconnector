@@ -63,7 +63,7 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		JSONObject configurationScope = GeneralConfiguration.getDomainSetup();
+		JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
 		configurationScope.put((String) "SN_ID", (String) "\""+SocialNetworks.FACEBOOK+"\"");
 				
 		// set the customer we start the crawler for

@@ -6,6 +6,7 @@ import org.json.simple.parser.JSONParser;
 
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.GeneralDataDefinitions;
+import de.comlineag.snc.handler.CrawlerConfiguration;
 import de.comlineag.snc.handler.GeneralConfiguration;
 import de.comlineag.snc.helper.DataHelper;
 
@@ -402,7 +403,8 @@ public final class LithiumPostingData extends PostData {
 		// posting
 		id = 0;
 		
-		domain = GeneralConfiguration.getDomain();
+		domain = new CrawlerConfiguration<String>().getDomain();
+		customer = new CrawlerConfiguration<String>().getCustomer();
 		// set social network identifier
 		sn_id = SocialNetworks.LITHIUM.getValue();
 

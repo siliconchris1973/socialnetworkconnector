@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
+	This is the xml configuration file for the social network connector.
+	
 	The XML can be used to setup either customer or domain specific configurations or  
 	a combination of the two. For any combination (domain and customer) you can always 
 	also add a section with scope="ALL" resulting in this section being applied to 
@@ -13,11 +15,6 @@
 	*	the configuration CustomerAndDomainCrawlerConfiguration.xml is an example 
 		for a setup with domain specific and customer specific configuration elements.
 	
-	*	The CortalConsorsSpecificCrawlerConfiguration.xml is an example for a bank 
-		called  cortal consors and has no domain specific part. 
-	*	The xml BankingSpecificCrawlerConfiguration.xml contains the exact same crawler 
-		setup, but with ONLY a domain approach. 
-	
 	NOT YET IMPLEMENTED:
 	*	and finally the file DomainWithCustomerCrawlerConfiguration.xml shows how
 		to setup a hierarchical structure of domain and customer
@@ -26,8 +23,19 @@
 	applicationContext.xml, activate ComplexXmlConfigurationPersistence as the 
 	configuration manager and enter the name of the configuration file. 
 	
+	Every configuration file contains a section in which the domain and customer
+	structure is setup. Even if your scenario uses SimpleXmlConfigurationPersistence and
+	therefore has no possibility to make use of domain and/or customer, the information
+	needs to stay in the file, or you will get warnings in the crawler log.
 	
-	the general structure is as follows
+	Every configuration file also has a very small section at the end, in which the file
+	type is specified. This type needs to correspond to the chosen configuration persistence
+	manager and you should therefore leave it as is. You must also make sure to copy and
+	edit the xml files in accordance with the chosen manager - otherwise the crawler will
+	bail out and you receive an error.
+	
+	
+	the general structure of a configuration constraint is as follows
 	<configurations>
 		<configuration scope=[customer / domain]>
 			<customer/domain scope=[ALL, name]
@@ -51,6 +59,47 @@
 	</configurations>
 -->
 <configurations>
+	<!-- 
+		START OF DOMAIN AND CUSTOMER CONFIG
+		you need to setup the domain and customer structure here,
+		before using it later in the configuration file 
+	-->
+	<configuration scope="domainStructure">
+		<domainStructure>
+			<domain name="YourDomain">
+				<name>The name</name>
+				<type>String</type>
+				<value>TheNameWithoutBlanks</value>
+				
+				<!-- set to false in case no domain/customer specific setup is needed -->
+				<isActive>
+					<type>boolean</type>
+					<value>true</value>
+				</isActive>
+				<priority>
+					<type>int</type>
+					<value>0</value>
+				</priority>
+				
+				<!-- customer entries within domain -->
+				<customer name="YourCustomer">
+					<name>The name</name>
+					<type>String</type>
+					<value>TheNameWithoutBlanks</value>
+					<isActive>
+						<type>boolean</type>
+						<value>true</value>
+					</isActive>
+					<priority>
+						<type>int</type>
+						<value>0</value>
+					</priority>
+				</customer>
+			</domain>
+		</domainStructure>
+	</configuration>
+
+
 	<!-- this section can be used to setup crawler configurations for customer -->
 	<!-- for domain specific configurations see below -->
 	<configuration scope="customer">
@@ -306,4 +355,10 @@
 		<!-- end of banking domain -->
 	</configuration>
 	<!-- end of domain configuration section -->
+	
+	<!-- DO NOT, I REPEAT DO NOT EDIT OR DELETE THIS ENTRY -->
+	<!-- I MEAN IT, UNDER NO CIRCUMSTANCES CHANGE ANYTHING BELOW THIS LINE -->
+	<configuration scope="configFileType">
+		<type>ComplexXmlConfigurationPersistence</type>
+	</configuration>
 </configurations>

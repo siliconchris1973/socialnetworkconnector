@@ -12,41 +12,6 @@
 	is configured in this file - but you are discouraged changing this.   
 -->
 <configurations>
-	<!-- START OF DOMAIN AND CUASTOMER CONFIG -->
-	<configuration scope="domain">
-		<domain name="Banking">
-			<name>Banking</name>
-			<type>String</type>
-			<value>Banking</value>
-			
-			<!-- set to false in case no domain/customer specific setup is needed -->
-			<isActive>
-				<type>boolean</type>
-				<value>true</value>
-			</isActive>
-			<priority>
-				<type>int</type>
-				<value>0</value>
-			</priority>
-			
-			<!-- customer entries within domain -->
-			<customer name="CortalConsors">
-				<name>Cortal Consors</name>
-				<type>String</type>
-				<value>CortalConsors</value>
-				<isActive>
-					<type>boolean</type>
-					<value>true</value>
-				</isActive>
-				<priority>
-					<type>int</type>
-					<value>0</value>
-				</priority>
-			</customer>
-		</domain>
-	</configuration>
-	
-	
 	<!-- START OF RUNTIME CONFIG -->
 	<configuration scope="runtime">
 		<param name="WarnOnSimpleConfigOption">
@@ -133,6 +98,10 @@
 		<param name="domainIdentifier">
 			<type>String</type>
 			<value>domain</value>
+		</param>
+		<param name="domainStructureIdentifier">
+			<type>String</type>
+			<value>domainStructure</value>
 		</param>
 		<param name="domainNameIdentifier">
 			<type>String</type>

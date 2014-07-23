@@ -51,6 +51,47 @@
 	</configurations>
 -->
 <configurations>
+	<!-- 
+		START OF DOMAIN AND CUSTOMER CONFIG
+		you need to setup the domain and customer structure here,
+		before using it later in the configuration file 
+	-->
+	<configuration scope="domainStructure">
+		<domainStructure>
+			<domain name="YourDomain">
+				<name>The name</name>
+				<type>String</type>
+				<value>TheNameWithoutBlanks</value>
+				
+				<!-- set to false in case no domain/customer specific setup is needed -->
+				<isActive>
+					<type>boolean</type>
+					<value>false</value>
+				</isActive>
+				<priority>
+					<type>int</type>
+					<value>0</value>
+				</priority>
+				
+				<!-- customer entries within domain -->
+				<customer name="YourCustomer">
+					<name>The name</name>
+					<type>String</type>
+					<value>TheNameWithoutBlanks</value>
+					<isActive>
+						<type>boolean</type>
+						<value>false</value>
+					</isActive>
+					<priority>
+						<type>int</type>
+						<value>0</value>
+					</priority>
+				</customer>
+			</domain>
+		</domainStructure>
+	</configuration>
+	
+	
 	<!-- this section can be used to setup crawler configurations for domains -->
 	<configuration scope="domain">
 		<!-- the banking domain  -->
@@ -320,4 +361,10 @@
 		<!-- end of banking domain -->
 	</configuration>
 	<!-- end of domain configuration section -->
+	
+	<!-- DO NOT, I REPEAT DO NOT EDIT OR DELETE THIS ENTRY -->
+	<!-- I MEAN IT, UNDER NO CIRCUMSTANCES CHANGE ANYTHING BELOW THIS LINE -->
+	<configuration scope="configFileType">
+		<type>DomainXmlConfigurationPersistence</type>
+	</configuration>
 </configurations>

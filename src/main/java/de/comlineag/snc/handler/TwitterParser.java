@@ -24,7 +24,7 @@ import org.json.simple.parser.ParseException;
  * @changelog	0.1 (Chris)		first skeleton
  * 				0.2 (Maic)		added support for list of posts	(no retweeted yet)
  * 				0.3 (Magnus)	added support for list of users and decode user
- * 				0.4	(Chris)		added support to save geo geoLocation information to the db
+ * 				0.4	(Chris)		fixed retweet bug
  * 
  */
 public final class TwitterParser extends GenericParser {
@@ -48,11 +48,6 @@ public final class TwitterParser extends GenericParser {
 			JSONObject jsonTweetResource = (JSONObject) parser.parse(strTweet);
 			TwitterPosting posting = new TwitterPosting(jsonTweetResource);
 			postings.add(posting);
-
-			// now users
-			JSONObject jsonUser = (JSONObject) jsonTweetResource.get("user");
-			TwitterUser user = new TwitterUser(jsonUser);
-			users.add(user);
 			
 			// retweeted posts need to go in message array as well
 			JSONObject jsonReTweeted = (JSONObject) jsonTweetResource.get("retweeted_status");
@@ -61,6 +56,11 @@ public final class TwitterParser extends GenericParser {
 				logger.trace("    retweeted message: " + jsonReTweeted.toString());
 				postings.add(new TwitterPosting(jsonReTweeted));
 			}
+			
+			// now users
+			JSONObject jsonUser = (JSONObject) jsonTweetResource.get("user");
+			TwitterUser user = new TwitterUser(jsonUser);
+			users.add(user);
 			
 		} catch (ParseException e) {
 			logger.error("EXCEPTION :: " + e.getMessage() + " " + e);

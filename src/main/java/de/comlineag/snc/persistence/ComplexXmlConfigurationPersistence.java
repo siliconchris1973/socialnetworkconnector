@@ -64,18 +64,18 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 		if (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category)) 
 			logger.warn("received "+category+" as category, but can only process term, site, user, language or geoLocation");
 		
-		// get configuration scope - that is doman and customer
+		// first check, if the correct configuration file type was specified and if not, bail out the hard way
+		if (!isConfigFileCorrect()){
+			System.exit(-1);
+		}
+		
+		// get configuration scope
 		try {
 			obj = parser.parse(configurationScope.toString());
 			JSONObject jsonObject = (JSONObject) obj;
-			domain = (String) jsonObject.get("domain");
-			customer = (String) jsonObject.get("customer"); 
 			SN = (String) jsonObject.get("SN_ID");
-			
-			logger.trace("received the following json as configurationScope: " + configurationScope.toString());
-			
 		} catch (ParseException e1) {
-			logger.error("ERROR :: could not parse configurationScope jason " + e1.getLocalizedMessage());
+			logger.error("ERROR :: could not parse configurationScope json " + e1.getLocalizedMessage());
 		}
 		
 		return (ArrayList<T>) getDataFromXml(category, SN);
@@ -102,7 +102,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			// first step is to get all constraints for all domains within a specified social network 
 			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"
 					+GeneralConfiguration.getSingleconfigurationidentifier()
-											+"[@"+GeneralConfiguration.getScopeidentifier()+"='domain']/"
+											+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"
 					+GeneralConfiguration.getDomainidentifier()
 											+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+GeneralConfiguration.getDomainnameforallvalue()+"']/"
 					+GeneralConfiguration.getConstraintidentifier()
@@ -111,14 +111,14 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 					+section+"/"
 					+GeneralConfiguration.getValueidentifier();
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
-			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
+			//logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
 			for (int i = 0 ; i < nodeList.getLength() ; i++)
 				ar.add((T) nodeList.item(i).getTextContent());
 			
 			// second step is to get all constraints for all domains within a specified social network 
 			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"
 					+GeneralConfiguration.getSingleconfigurationidentifier()
-											+"[@"+GeneralConfiguration.getScopeidentifier()+"='domain']/"
+											+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"
 					+GeneralConfiguration.getDomainidentifier()
 											+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+GeneralConfiguration.getDomainnameforallvalue()+"']/"
 					+GeneralConfiguration.getConstraintidentifier()
@@ -127,14 +127,14 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 					+section+"/"
 					+GeneralConfiguration.getValueidentifier();
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
-			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
+			//logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
 			for (int i = 0 ; i < nodeList.getLength() ; i++)
 				ar.add((T) nodeList.item(i).getTextContent());
 			
 			// third step is to get all general constraints 
 			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"
 					+GeneralConfiguration.getSingleconfigurationidentifier()
-											+"[@"+GeneralConfiguration.getScopeidentifier()+"='domain']/"
+											+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"
 					+GeneralConfiguration.getDomainidentifier()
 											+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+domain+"']/"
 					+GeneralConfiguration.getConstraintidentifier()
@@ -143,14 +143,14 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 					+section+"/"
 					+GeneralConfiguration.getValueidentifier();
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
-			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + ": \r");
+			//logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + ": \r");
 			for (int i = 0 ; i < nodeList.getLength() ; i++) 
 				ar.add((T) nodeList.item(i).getTextContent());
 			
 			// fourth step is to get all constraints for the specified social network 
 			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"
 					+GeneralConfiguration.getSingleconfigurationidentifier()
-											+"[@"+GeneralConfiguration.getScopeidentifier()+"='domain']/"
+											+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"
 					+GeneralConfiguration.getDomainidentifier()
 											+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+domain+"']/"
 					+GeneralConfiguration.getConstraintidentifier()
@@ -159,7 +159,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 					+section+"/"
 					+GeneralConfiguration.getValueidentifier();
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
-			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
+			//logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
 			for (int i = 0 ; i < nodeList.getLength() ; i++)
 				ar.add((T) nodeList.item(i).getTextContent());
 			
@@ -170,7 +170,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			// first step is to get all constraints for all domains within a specified social network 
 			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"
 					+GeneralConfiguration.getSingleconfigurationidentifier()
-											+"[@"+GeneralConfiguration.getScopeidentifier()+"='customer']/"
+											+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getCustomeridentifier()+"']/"
 					+GeneralConfiguration.getCustomeridentifier()
 											+"[@"+GeneralConfiguration.getCustomernameidentifier()+"='"+GeneralConfiguration.getCustomernameforallvalue()+"']/"
 					+GeneralConfiguration.getConstraintidentifier()
@@ -179,14 +179,14 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 					+section+"/"
 					+GeneralConfiguration.getValueidentifier();
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
-			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
+			//logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
 			for (int i = 0 ; i < nodeList.getLength() ; i++)
 				ar.add((T) nodeList.item(i).getTextContent());
 			
 			// second step is to get all constraints for all customers within a specified social network 
 			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"
 					+GeneralConfiguration.getSingleconfigurationidentifier()
-											+"[@"+GeneralConfiguration.getScopeidentifier()+"='customer']/"
+											+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getCustomeridentifier()+"']/"
 					+GeneralConfiguration.getCustomeridentifier()
 											+"[@"+GeneralConfiguration.getCustomernameidentifier()+"='"+GeneralConfiguration.getCustomernameforallvalue()+"']/"
 					+GeneralConfiguration.getConstraintidentifier()
@@ -195,14 +195,14 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 					+section+"/"
 					+GeneralConfiguration.getValueidentifier();
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
-			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
+			//logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
 			for (int i = 0 ; i < nodeList.getLength() ; i++)
 				ar.add((T) nodeList.item(i).getTextContent());
 			
 			// third step is to get all general constraints 
 			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"
 								+GeneralConfiguration.getSingleconfigurationidentifier()
-														+"[@"+GeneralConfiguration.getScopeidentifier()+"='customer']/"
+														+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getCustomeridentifier()+"']/"
 								+GeneralConfiguration.getCustomeridentifier()
 														+"[@"+GeneralConfiguration.getCustomernameidentifier()+"='"+customer+"']/"
 								+GeneralConfiguration.getConstraintidentifier()
@@ -211,14 +211,14 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 								+section+"/"
 								+GeneralConfiguration.getValueidentifier();
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
-			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + ": \r");
+			//logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + ": \r");
 			for (int i = 0 ; i < nodeList.getLength() ; i++) 
 				ar.add((T) nodeList.item(i).getTextContent());
 			
 			// fourth step is to get all constraints for the specified social network 
 			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"
 					+GeneralConfiguration.getSingleconfigurationidentifier()
-											+"[@"+GeneralConfiguration.getScopeidentifier()+"='customer']/"
+											+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getCustomeridentifier()+"']/"
 					+GeneralConfiguration.getCustomeridentifier()
 											+"[@"+GeneralConfiguration.getCustomernameidentifier()+"='"+customer+"']/"
 					+GeneralConfiguration.getConstraintidentifier()
@@ -227,11 +227,11 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 					+section+"/"
 					+GeneralConfiguration.getValueidentifier();
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
-			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
+			//logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
 			for (int i = 0 ; i < nodeList.getLength() ; i++)
 				ar.add((T) nodeList.item(i).getTextContent());
 			
-			
+			logger.debug("found " + ar.size() + " constraints on " + section);
 			logger.trace("    " + ar.toString());
 		} catch (IOException e) {
 			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
@@ -274,9 +274,9 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	
 	
 	@Override
-	public JSONObject getCrawlerConfiurationScope() {
+	public JSONObject getCrawlerConfigurationScope() {
 		try {
-			File file = new File("src/main/java/webapp/WEB-INF/GeneralConfiguration.xml");
+			File file = new File(getConfigDbHandler());
 			
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
@@ -287,19 +287,24 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			
 			String expression = null;
 			Node node = null; 
+			String basicStructure = "/"+GeneralConfiguration.getRootidentifier()+"/"
+										+GeneralConfiguration.getSingleconfigurationidentifier()
+											+"[@"+GeneralConfiguration.getScopeidentifier()+"='"
+												+GeneralConfiguration.getDomainstructureidentifier()+"']/"
+										+GeneralConfiguration.getDomainstructureidentifier();
 			
 			// first step is to get the domain
-			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"+GeneralConfiguration.getDomainidentifier()+"/"+GeneralConfiguration.getValueidentifier();
+			expression = basicStructure + "/"+GeneralConfiguration.getDomainidentifier()+"/"+GeneralConfiguration.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
-				logger.error("Did not receive any information using expression " + expression);
+				logger.error("Did not receive information on the domain using expression " + expression);
 			} else {
 				crawlerConfigurationScope.put((String) GeneralConfiguration.getDomainidentifier(), (String) node.getTextContent());
 				setDomain((String) node.getTextContent());
 			}
 			
 			// whether or not it is active
-			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/isActive/"+GeneralConfiguration.getValueidentifier();
+			expression = basicStructure + "/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/isActive/"+GeneralConfiguration.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.warn("did not receive a domain activation - setting to false");
@@ -311,7 +316,10 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 					setDomainIsActive(false);
 			}
 			// and the corresponding priority
-			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/priority/"+GeneralConfiguration.getValueidentifier();
+			expression = basicStructure + "/"+GeneralConfiguration.getDomainidentifier()
+													+"[@"+GeneralConfiguration.getDomainnameidentifier()
+															+"='"+getDomain()+"']"
+												+ "/priority/"+GeneralConfiguration.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.warn("did not receive a domain priority - setting to 0");
@@ -321,20 +329,20 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			}
 			crawlerConfigurationScope.put((String) "domainIsActive", (boolean) getDomainIsActive());
 			crawlerConfigurationScope.put((String) "domainPriority", (int) getDomainPriority());
-			logger.debug("the domain "+getDomain()+" is active " + getDomainIsActiveAsString() + "and has priority "+ getDomainPriority());
+			logger.debug("the domain "+getDomain()+" is active " + getDomainIsActiveAsString() + " and has priority "+ getDomainPriority());
 			
 			
 			// second step is to get the customer
-			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/"+GeneralConfiguration.getCustomeridentifier()+"/"+GeneralConfiguration.getValueidentifier();
+			expression = basicStructure + "/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/"+GeneralConfiguration.getCustomeridentifier()+"/"+GeneralConfiguration.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
-				logger.error("Did not receive any information using expression " + expression);
+				logger.error("Did not receive information on customer using expression " + expression);
 			} else {
 				crawlerConfigurationScope.put((String) GeneralConfiguration.getCustomeridentifier(), (String) node.getTextContent());
 				setCustomer((String) node.getTextContent());
 			}
 			// whether or not it is active
-			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/"+GeneralConfiguration.getCustomeridentifier()+"[@"+GeneralConfiguration.getCustomernameidentifier()+"='"+getCustomer()+"']/isActive/"+GeneralConfiguration.getValueidentifier();
+			expression = basicStructure + "/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/"+GeneralConfiguration.getCustomeridentifier()+"[@"+GeneralConfiguration.getCustomernameidentifier()+"='"+getCustomer()+"']/isActive/"+GeneralConfiguration.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.warn("did not receive a customer activation - setting to false");
@@ -346,7 +354,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 					setCustomerIsActive(false);
 			}
 			// and the corresponding priority
-			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/"+GeneralConfiguration.getCustomeridentifier()+"[@"+GeneralConfiguration.getCustomernameidentifier()+"='"+getCustomer()+"']/priority/"+GeneralConfiguration.getValueidentifier();
+			expression = basicStructure + "/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/"+GeneralConfiguration.getCustomeridentifier()+"[@"+GeneralConfiguration.getCustomernameidentifier()+"='"+getCustomer()+"']/priority/"+GeneralConfiguration.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.warn("did not receive a customer priority - setting to 0");
@@ -357,7 +365,6 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			crawlerConfigurationScope.put((String) "customerIsActive", (boolean) getCustomerIsActive());
 			crawlerConfigurationScope.put((String) "customerPriority", (int) getCustomerPriority());
 			logger.debug("the customer "+getCustomer()+" is active " + getCustomerIsActiveAsString() + " and has priority " + getCustomerPriority());
-			
 			
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: could not get crawler configuration " + e.getLocalizedMessage());
@@ -430,5 +437,42 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			customerIsActive = true;
 		else
 			customerIsActive = false;
+	}
+	
+	// check to see, if provided configuration file is correct for chosen configuration manager
+	public boolean isConfigFileCorrect(){
+		try {
+			File file = new File(getConfigDbHandler());
+			
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(file);
+			
+			XPathFactory xPathfactory = XPathFactory.newInstance();
+			XPath xpath = xPathfactory.newXPath();
+			
+			String expression = null;
+			Node node = null; 
+			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"
+										+GeneralConfiguration.getSingleconfigurationidentifier()
+											+"[@"+GeneralConfiguration.getScopeidentifier()+"='"
+												+GeneralConfiguration.getConfigFileTypeIdentifier()+"']/type";
+										
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.error("Did not receive any information using expression " + expression);
+				return false;
+			} else {
+				if (this.getClass().getSimpleName().equals(node.getTextContent())) {
+					logger.debug("provied xml configuration file is of type " + node.getTextContent());
+					return true;
+				} else {
+					logger.error("ERROR :: wrong type of configuration file provided. I need "+this.getClass().getSimpleName()+" but got "+node.getTextContent()+". Check applicationContext.xml to see, if the configuration persistence manager is pointed to the right file");
+					return false;
+				}
+			}
+		} catch (Exception e) {
+			return false;
+		}
 	}
 }

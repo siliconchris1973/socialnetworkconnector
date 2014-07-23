@@ -8,6 +8,7 @@ import org.json.simple.JSONObject;
 
 import de.comlineag.snc.constants.GeneralDataDefinitions;
 import de.comlineag.snc.constants.SocialNetworks;
+import de.comlineag.snc.handler.CrawlerConfiguration;
 import de.comlineag.snc.handler.GeneralConfiguration;
 import de.comlineag.snc.helper.DataHelper;
 
@@ -267,7 +268,8 @@ public final class TwitterPostingData extends PostData {
 		// posting
 		id = 0;
 		
-		domain = GeneralConfiguration.getDomain();
+		domain = new CrawlerConfiguration<String>().getDomain();
+		customer = new CrawlerConfiguration<String>().getCustomer();
 		sn_id = SocialNetworks.TWITTER.getValue();
 		
 		text = null;

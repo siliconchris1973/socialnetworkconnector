@@ -73,7 +73,7 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 		if (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category)) 
 			logger.warn("received "+category+" as category, but can only process term, site, user, language or geoLocation");
 		
-		// get configuration scope - that is doman and customer
+		// get configuration scope
 		try {
 			obj = parser.parse(configurationScope.toString());
 			JSONObject jsonObject = (JSONObject) obj;
@@ -84,6 +84,11 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 				logger.warn("no customer or domain specific configuration possible - consider using complex xml or db configuration manager\nyou can turn off this warning by setting WARN_ON_SIMPLE_XML_CONFIG to false in " + GeneralConfiguration.getConfigFile().substring(GeneralConfiguration.getConfigFile().lastIndexOf("/")+1));
 		} catch (ParseException e1) {
 			logger.error("ERROR :: could not parse configurationScope json " + e1.getLocalizedMessage());
+		}
+		
+		// first check, if the correct configuration file type was specified and if not, bail out the hard way
+		if (!isConfigFileCorrect()){
+			System.exit(-1);
 		}
 		
 		return (ArrayList<T>) getDataFromXml(category, SN);
@@ -158,9 +163,15 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 	}
 
 	@Override
-	public JSONObject getCrawlerConfiurationScope() {
+	public JSONObject getCrawlerConfigurationScope() {
+		crawlerConfigurationScope.put((String) GeneralConfiguration.getDomainidentifier(), (String) "undefined");
+		setDomain((String) "undefined");
+		crawlerConfigurationScope.put((String) GeneralConfiguration.getCustomeridentifier(), (String) "undefined");
+		setCustomer((String) "undefined");
+			
+		/*
 		try {
-			File file = new File("src/main/java/webapp/WEB-INF/GeneralConfiguration.xml");
+			File file = new File(getConfigDbHandler());
 			
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
@@ -171,9 +182,10 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 			
 			String expression = null;
 			Node node = null; 
+			String basicStructure = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainstructureidentifier()+"']/"+GeneralConfiguration.getDomainstructureidentifier();
 			
 			// first step is to get the domain
-			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"+GeneralConfiguration.getDomainidentifier()+"/"+GeneralConfiguration.getValueidentifier();
+			expression = basicStructure + "/"+GeneralConfiguration.getDomainidentifier()+"/"+GeneralConfiguration.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.error("Did not receive any information using expression " + expression);
@@ -183,7 +195,7 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 			}
 			
 			// whether or not it is active
-			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/isActive/"+GeneralConfiguration.getValueidentifier();
+			expression = basicStructure + GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/isActive/"+GeneralConfiguration.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.warn("did not receive a domain activation - setting to false");
@@ -195,7 +207,7 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 					setDomainIsActive(false);
 			}
 			// and the corresponding priority
-			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/priority/"+GeneralConfiguration.getValueidentifier();
+			expression = basicStructure + GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/priority/"+GeneralConfiguration.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.warn("did not receive a domain priority - setting to 0");
@@ -209,7 +221,7 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 			
 			
 			// second step is to get the customer
-			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/"+GeneralConfiguration.getCustomeridentifier()+"/"+GeneralConfiguration.getValueidentifier();
+			expression = basicStructure + GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/"+GeneralConfiguration.getCustomeridentifier()+"/"+GeneralConfiguration.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.error("Did not receive any information using expression " + expression);
@@ -218,7 +230,7 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 				setCustomer((String) node.getTextContent());
 			}
 			// whether or not it is active
-			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/"+GeneralConfiguration.getCustomeridentifier()+"[@"+GeneralConfiguration.getCustomernameidentifier()+"='"+getCustomer()+"']/isActive/"+GeneralConfiguration.getValueidentifier();
+			expression = basicStructure + GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/"+GeneralConfiguration.getCustomeridentifier()+"[@"+GeneralConfiguration.getCustomernameidentifier()+"='"+getCustomer()+"']/isActive/"+GeneralConfiguration.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.warn("did not receive a customer activation - setting to false");
@@ -230,7 +242,7 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 					setCustomerIsActive(false);
 			}
 			// and the corresponding priority
-			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"+GeneralConfiguration.getSingleconfigurationidentifier()+"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getDomainidentifier()+"']/"+GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/"+GeneralConfiguration.getCustomeridentifier()+"[@"+GeneralConfiguration.getCustomernameidentifier()+"='"+getCustomer()+"']/priority/"+GeneralConfiguration.getValueidentifier();
+			expression = basicStructure + GeneralConfiguration.getDomainidentifier()+"[@"+GeneralConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/"+GeneralConfiguration.getCustomeridentifier()+"[@"+GeneralConfiguration.getCustomernameidentifier()+"='"+getCustomer()+"']/priority/"+GeneralConfiguration.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.warn("did not receive a customer priority - setting to 0");
@@ -242,10 +254,10 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 			crawlerConfigurationScope.put((String) "customerPriority", (int) getCustomerPriority());
 			logger.debug("the customer "+getCustomer()+" is active " + getCustomerIsActiveAsString() + " and has priority " + getCustomerPriority());
 			
-			
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: could not get crawler configuration " + e.getLocalizedMessage());
 		}
+		*/
 		return crawlerConfigurationScope;
 	}
 	// getter and setter for above method data
@@ -271,11 +283,9 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 	private void setCustomerPriority(int i) {
 		customerPriority = i;
 	}
-
 	private int getDomainPriority() {
 		return domainPriority;
 	}
-
 	private void setDomainPriority(int i) {
 		domainPriority = i;
 	}
@@ -314,5 +324,42 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 			customerIsActive = true;
 		else
 			customerIsActive = false;
+	}
+	
+	// check to see, if provided configuration file is correct for chosen configuration manager
+	public boolean isConfigFileCorrect(){
+		try {
+			File file = new File(getConfigDbHandler());
+			
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(file);
+			
+			XPathFactory xPathfactory = XPathFactory.newInstance();
+			XPath xpath = xPathfactory.newXPath();
+			
+			String expression = null;
+			Node node = null; 
+			expression = "/"+GeneralConfiguration.getRootidentifier()+"/"
+										+GeneralConfiguration.getSingleconfigurationidentifier()
+											+"[@"+GeneralConfiguration.getScopeidentifier()+"='"
+												+GeneralConfiguration.getConfigFileTypeIdentifier()+"']/type";
+										
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.error("Did not receive any information using expression " + expression);
+				return false;
+			} else {
+				if (this.getClass().getSimpleName().equals(node.getTextContent())) {
+					logger.debug("provied xml configuration file is of type " + node.getTextContent());
+					return true;
+				} else {
+					logger.error("ERROR :: wrong type of configuration file provided. I need "+this.getClass().getSimpleName()+" but got "+node.getTextContent()+". Check applicationContext.xml to see, if the configuration persistence manager is pointed to the right file");
+					return false;
+				}
+			}
+		} catch (Exception e) {
+			return false;
+		}
 	}
 }

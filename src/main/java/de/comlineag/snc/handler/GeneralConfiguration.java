@@ -55,19 +55,6 @@ public final class GeneralConfiguration implements Job {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	private static String configFile = "src/main/webapp/WEB-INF/GeneralConfiguration.xml";
 	
-	// holds domain specific information
-	private static JSONObject crawlerConfigurationScope = new JSONObject();
-	
-	// information about the domain and customer setup
-	/*
-	private static String domain;
-	private static String customer;
-	private static boolean domainIsActive;
-	private static boolean customerIsActive;
-	private static int domainPriority;
-	private static int customerPriority;
-	*/
-	
 	// some publicly available runtime informations
 	private static boolean WARN_ON_SIMPLE_CONFIG = true;
 	private static boolean WARN_ON_SIMPLE_XML_CONFIG = true;
@@ -92,6 +79,7 @@ public final class GeneralConfiguration implements Job {
 	private static String customerNameIdentifier			= "name";
 	private static String customerNameForAllValue 			= "ALL";
 	private static String domainIdentifier 					= "domain";
+	private static String domainStructureIdentifier 		= "domainStructure";
 	private static String domainNameIdentifier				= "name";
 	private static String domainNameForAllValue 			= "ALL";
 	private static String constraintIdentifier 				= "constraints";
@@ -99,7 +87,7 @@ public final class GeneralConfiguration implements Job {
 	private static String scopeOnAllValue 					= "ALL";
 	private static String singleConstraintIdentifier 		= "constraint";
 	private static String valueIdentifier 					= "value";
-	
+	private static String configFileTypeIdentifier			= "configFileType";
 	
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		setConfigFile((String) arg0.getJobDetail().getJobDataMap().get("configFile"));
@@ -107,11 +95,8 @@ public final class GeneralConfiguration implements Job {
 		
 		// set the configuration scope in globally available variables
 		setConfiguration();
-		
-		logger.info("retrieved domain ("+ crawlerConfigurationScope.get(domainIdentifier) +" with priority "+crawlerConfigurationScope.get("domainPriority")+") and customer ("+ crawlerConfigurationScope.get(customerIdentifier)+" with priority "+crawlerConfigurationScope.get("customerPriority")+")");
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void setConfiguration(){
 		try {
 			File file = new File(getConfigFile());
@@ -126,79 +111,7 @@ public final class GeneralConfiguration implements Job {
 			String expression = null;
 			Node node = null; 
 			
-			/*
-			// first step is to get the domain
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+domainIdentifier+"']/"+domainIdentifier+"/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.error("Did not receive any information from " + configFile + " using expression " + expression);
-			} else {
-				crawlerConfigurationScope.put((String) domainIdentifier, (String) node.getTextContent());
-				setDomain((String) node.getTextContent());
-			}
-			// whether or not it is active
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+domainIdentifier+"']/"+domainIdentifier+"[@"+domainNameIdentifier+"='"+getDomain()+"']/isActive/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("did not receive a domain activation - setting to false");
-				setDomainIsActive(false);
-			} else {
-				if ("true".equals(node.getTextContent()))
-					setDomainIsActive(true);
-				else
-					setDomainIsActive(false);
-			}
-			// and the corresponding priority
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+domainIdentifier+"']/"+domainIdentifier+"[@"+domainNameIdentifier+"='"+getDomain()+"']/priority/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("did not receive a domain priority - setting to 0");
-				setDomainPriority((int) 0);
-			} else {
-				setDomainPriority(Integer.parseInt(node.getTextContent()));
-			}
-			crawlerConfigurationScope.put((String) "domainIsActive", (boolean) getDomainIsActive());
-			crawlerConfigurationScope.put((String) "domainPriority", (int) getDomainPriority());
-			logger.debug("the domain "+getDomain()+" is active " + getDomainIsActiveAsString() + "and has priority "+ getDomainPriority());
-			
-			
-			// second step is to get the customer
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+domainIdentifier+"']/"+domainIdentifier+"[@"+domainNameIdentifier+"='"+getDomain()+"']/"+customerIdentifier+"/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.error("Did not receive any information from " + configFile + " using expression " + expression);
-			} else {
-				crawlerConfigurationScope.put((String) customerIdentifier, (String) node.getTextContent());
-				setCustomer((String) node.getTextContent());
-			}
-			// whether or not it is active
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+domainIdentifier+"']/"+domainIdentifier+"[@"+domainNameIdentifier+"='"+getDomain()+"']/"+customerIdentifier+"[@"+customerNameIdentifier+"='"+getCustomer()+"']/isActive/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("did not receive a customer activation - setting to false");
-				setCustomerIsActive(false);
-			} else {
-				if ("true".equals(node.getTextContent()))
-					setCustomerIsActive(true);
-				else
-					setCustomerIsActive(false);
-			}
-			// and the corresponding priority
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+domainIdentifier+"']/"+domainIdentifier+"[@"+domainNameIdentifier+"='"+getDomain()+"']/"+customerIdentifier+"[@"+customerNameIdentifier+"='"+getCustomer()+"']/priority/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("did not receive a customer priority - setting to 0");
-				setCustomerPriority((int) 0);
-			} else {
-				setCustomerPriority(Integer.parseInt(node.getTextContent()));
-			}
-			crawlerConfigurationScope.put((String) "customerIsActive", (boolean) getCustomerIsActive());
-			crawlerConfigurationScope.put((String) "customerPriority", (int) getCustomerPriority());
-			logger.debug("the customer "+getCustomer()+" is active " + getCustomerIsActiveAsString() + " and has priority " + getCustomerPriority());
-			*/
-			
-			
-			// third set boolean values of runtime environment
+			// set boolean values of runtime environment
 			// WarnOnSimpleConfig
 			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='WarnOnSimpleConfigOption']/"+valueIdentifier;
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
@@ -281,31 +194,6 @@ public final class GeneralConfiguration implements Job {
 		}
 	}
 	
-	/*
-	private int getCustomerPriority() {
-		return GeneralConfiguration.customerPriority;
-	}
-	private void setCustomerPriority(int i) {
-		GeneralConfiguration.customerPriority = i;
-	}
-
-	private int getDomainPriority() {
-		return GeneralConfiguration.domainPriority;
-	}
-
-	private void setDomainPriority(int i) {
-		GeneralConfiguration.domainPriority = i;
-	}
-	*/
-	
-	// return the json with the configured domains and customers
-	public static JSONObject getDomainSetup() {
-		return crawlerConfigurationScope;
-	}
-	
-	
-	
-	
 	// getter and setter for the configuration path
 	public static String getConfigFile() {
 		return GeneralConfiguration.configFile;
@@ -313,58 +201,6 @@ public final class GeneralConfiguration implements Job {
 	public static void setConfigFile(String configFile) {
 		GeneralConfiguration.configFile = configFile;
 	}
-	
-	// for domain and customer data
-	/*
-	public static String getDomain(){
-		return GeneralConfiguration.domain;
-	}
-	public static void setDomain(String domain){
-		GeneralConfiguration.domain = domain;
-	}
-	public static String getCustomer(){
-		return GeneralConfiguration.customer;
-	}
-	public static void setCustomer(String customer){
-		GeneralConfiguration.customer = customer;
-	}
-	public static boolean getDomainIsActive(){
-		return GeneralConfiguration.domainIsActive;
-	}
-	public static void setDomainIsActive(boolean isActive){
-		GeneralConfiguration.domainIsActive = isActive;
-	}
-	public static boolean getCustomerIsActive(){
-		return GeneralConfiguration.customerIsActive;
-	}
-	public static void setCustomerIsActive(boolean isActive){
-		GeneralConfiguration.customerIsActive = isActive;
-	}
-	public static String getDomainIsActiveAsString(){
-		if (GeneralConfiguration.domainIsActive)
-			return "true";
-		else
-			return "false";
-	}
-	public static void setDomainIsActive(String isActive){
-		if ("isActive".equals("true"))
-			GeneralConfiguration.domainIsActive = true;
-		else
-			GeneralConfiguration.domainIsActive = false;
-	}
-	public static String getCustomerIsActiveAsString(){
-		if (GeneralConfiguration.customerIsActive)
-			return "true";
-		else
-			return "false";
-	}
-	public static void setCustomerIsActive(String isActive){
-		if ("isActive".equals("true"))
-			GeneralConfiguration.customerIsActive = true;
-		else
-			GeneralConfiguration.customerIsActive = false;
-	}
-	*/
 	
 	// for configuration xml structure
 	public static String getRootidentifier() {
@@ -384,6 +220,9 @@ public final class GeneralConfiguration implements Job {
 	}
 	public static String getDomainidentifier() {
 		return domainIdentifier;
+	}
+	public static String getDomainstructureidentifier() {
+		return domainStructureIdentifier;
 	}
 	public static String getDomainnameidentifier() {
 		return domainNameIdentifier;
@@ -427,7 +266,13 @@ public final class GeneralConfiguration implements Job {
 	public static String getConstraintLocationText() {
 		return CONSTRAINT_LOCATION_TEXT;
 	}
-	
+	public static String getConfigFileTypeIdentifier() {
+		return configFileTypeIdentifier;
+	}
+	public static void setConfigFileTypeIdentifier(
+			String configFileTypeIdentifier) {
+		GeneralConfiguration.configFileTypeIdentifier = configFileTypeIdentifier;
+	}
 	
 	// for runtime state 
 	public static boolean getWarnOnSimpleConfig() {

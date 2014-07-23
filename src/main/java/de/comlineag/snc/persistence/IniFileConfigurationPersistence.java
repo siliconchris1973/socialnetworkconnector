@@ -131,7 +131,7 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 	public void setCustomer(String customer) {}
 
 	@Override
-	public JSONObject getCrawlerConfiurationScope() {
+	public JSONObject getCrawlerConfigurationScope() {
 		JSONObject crawlerConfigurationScope = new JSONObject();
 		crawlerConfigurationScope.put((String) GeneralConfiguration.getDomainidentifier(), (String) "undefined");
 		crawlerConfigurationScope.put((String) GeneralConfiguration.getCustomeridentifier(), (String) "undefined");

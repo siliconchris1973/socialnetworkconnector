@@ -33,7 +33,7 @@ import de.comlineag.snc.handler.TwitterParser;
  * @author 		Christian Guenther
  * @category 	Job
  * @version		0.9c		- 17.07.2014
- * @status		productive	- occasional error while inserting data
+ * @status		productive	but with occasional error while inserting data
  *
  * @description this is the actual crawler of the twitter network. It is
  *              implemented as a job and, upon execution, will connect to the
@@ -59,9 +59,9 @@ import de.comlineag.snc.handler.TwitterParser;
  *
  * TODO 1. fix crawler bug, that causes the persistence to try to insert a post or user multiple times
  * 			This bug has something to do with the number of threads provided by the Quartz job control
- * 			In case 1 thread is provided, everything is fine, but if 2 threads are provided (as needed if two crawler
- * 			run - Twitter and Lithium) the Twitter crawler tries to insert some posts more then once - an attempt 
- * 			obviously doomed. We log the following error: 
+ * 			In case 1 thread is provided, everything is fine, but if 2 or possibly more threads are provided 
+ * 			(as needed when multiple crawler are started) the Twitter crawler tries to insert some posts more 
+ * 			then once - an attempt obviously doomed to fail. We log the following error: 
  * 				could not create post (TW-488780024691322880): Expected status 201, found 400
  * 			and the hana db returns this message:
  * 				Service exception: unique constraint violated.
@@ -100,14 +100,25 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		
-		JSONObject configurationScope = GeneralConfiguration.getDomainSetup();
+		JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
 		configurationScope.put((String) "SN_ID", (String) SocialNetworks.TWITTER.toString());
 		
-		// log the startup message
-		// set the customer we start the crawler for
+		// set the customer we start the crawler for and log the startup message
+		String curDomain = (String) configurationScope.get(GeneralConfiguration.getDomainidentifier());
 		String curCustomer = (String) configurationScope.get(GeneralConfiguration.getCustomeridentifier());
 		
-		logger.info("Twitter-Crawler START for " + curCustomer);
+		if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
+			logger.info("Twitter-Crawler START");
+		} else {
+			if (!"undefined".equals(curDomain) && !"undefined".equals(curCustomer)) {
+				logger.info("Twitter-Crawler START for " + curCustomer + " in " + curDomain);
+			} else {
+				if (!"undefined".equals(curDomain))
+					logger.info("Twitter-Crawler START for " + curDomain);
+				else
+					logger.info("Twitter-Crawler START for " + curCustomer);
+			}
+		}
 		int messageCount = 0;
 		
 		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
