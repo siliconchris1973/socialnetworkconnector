@@ -5,7 +5,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import de.comlineag.snc.handler.GeneralConfiguration;
+import de.comlineag.snc.appstate.GeneralConfiguration;
 
 import java.io.IOException;
 import java.util.ArrayList;

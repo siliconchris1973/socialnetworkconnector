@@ -1,4 +1,4 @@
-package de.comlineag.snc.handler;
+package de.comlineag.snc.appstate;
 
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.persistence.IConfigurationManager;

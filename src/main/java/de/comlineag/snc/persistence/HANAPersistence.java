@@ -11,13 +11,13 @@ import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OProperties;
 
+import de.comlineag.snc.appstate.GeneralConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.DataCryptoHandler;
-import de.comlineag.snc.handler.GeneralConfiguration;
 import de.comlineag.snc.helper.DataHelper;
 import de.comlineag.snc.constants.HanaDataConstants;
 import de.comlineag.snc.persistence.JsonFilePersistence;
@@ -161,7 +161,7 @@ public class HANAPersistence implements IPersistenceManager {
 					Class.forName(this.dbDriver);
 					updatePostWithSQL(postData);
 				} catch (java.lang.ClassNotFoundException le) {
-					// in case the jdbc library is not available, fall back to OData to update the post
+					// in case the jdbc library is not available, fall back to OData to save the post
 					updatePostWithOData(postData, theData);
 				} 
 			}

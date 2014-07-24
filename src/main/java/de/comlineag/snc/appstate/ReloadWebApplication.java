@@ -1,4 +1,4 @@
-package de.comlineag.snc.helper;
+package de.comlineag.snc.appstate;
 
 import java.io.BufferedReader;
 import java.io.IOException;

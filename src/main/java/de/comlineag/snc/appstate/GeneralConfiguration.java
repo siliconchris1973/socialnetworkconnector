@@ -1,4 +1,4 @@
-package de.comlineag.snc.handler;
+package de.comlineag.snc.appstate;
 
 import java.io.File;
 import java.io.IOException;

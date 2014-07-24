@@ -18,96 +18,96 @@ import org.joda.time.LocalDateTime;
  * 				0.2 (Chris)		added field raw-text for Lithium postings which contain html and we strip that in the field text
  * 				0.2a			added domain and customer
  * 
- * TODO 1. the domain should be stored as a list
  */
 
 public class PostData {
 
-	/**
+	/*
 	 * domain (stored as json within the db) e.g. banking
 	 * <Property Name="domain" Type="Edm.String" Nullable="false" MaxLength="1024"/>
 	 */
 	protected String domain; 	// string identifying the domain of interest, this post was tracked for
-	protected String customer;
-	/**
+	protected String customer;	// same for customer
+	
+	/*
 	 * SocialNetworkID e.g. TW, FB
 	 * <Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"/>
 	 */
 	protected String sn_id; // string identifying the social network - taken from SocialNetworks enum
 
-	/**
+	/*
 	 * the ID of the current Post in the Social Network
 	 * <Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"/>
 	 */
 	protected long id; // ID from the social network
 
-	/**
+	/*
 	 * User ID of the posting user
 	 * <Property Name="user_id" Type="Edm.String" MaxLength="20"/>
 	 */
 	protected long userId;
 
-	/**
+	/*
 	 * post Text
 	 * <Property Name="text" Type="Edm.String" DefaultValue="" MaxLength="5000"/>
 	 */
 	protected String text;
 
-	/**
+	/*
 	 * post Text with html elements
 	 * <Property Name="raw_text" Type="Edm.String" DefaultValue="" MaxLength="5000"/>
 	 */
 	protected String raw_text;
 	
-	/**
+	/*
 	 * a teaser (short version) of the post
 	 * <Property Name="teaser" Type="Edm.String" MaxLength="256"/>
 	 */
 	protected String teaser;
 	
-	/**
+	/*
 	 * a subject of the post
 	 * <Property Name="subject" Type="Edm.String" MaxLength="20"/>
 	 */
 	protected String subject;
 	
-	/**
+	/*
 	 * Language of post
 	 * <Property Name="postLang" Type="Edm.String" MaxLength="64"/>
 	 */
 	protected String lang;
 		
-	/**
+	/*
 	 * count of views
 	 * <Property Name="viewcount" Type="Edm.int"/>
 	 */
 	protected long viewcount;
 	
-	/**
-	 * count of favoritecount
+	/*
+	 * count of favorite 
 	 * <Property Name="favoritecount" Type="Edm.int"/>
 	 */
 	protected long favoritecount;
 	
-	/**
+	/*
 	 * Timestamp
 	 * <Property Name="timestamp" Type="Edm.DateTime"/>
 	 */
 	protected String time;
 	protected LocalDateTime timestamp;
 
-	/**
-	 * used Client for posting
+	/*
+	 * Client for posting
 	 * <Property Name="client" Type="Edm.String" MaxLength="2048"/>
 	 */
 	protected String posted_from_client;
 
-	/**
+	/*
 	 * <Property Name="truncated" Type="Edm.Byte" DefaultValue="0"/>
 	 */
 	protected Boolean truncated;
 
-	/**
+	/*
 	 * Metadata for post replies
 	 * <Property Name="inReplyTo" Type="Edm.String" MaxLength="20"/>
 	 * <Property Name="inReplyToUserID" Type="Edm.String" MaxLength="20"/>
@@ -117,7 +117,7 @@ public class PostData {
 	protected long in_reply_to_user;
 	protected String in_reply_to_user_screen_name;
 
-	/**
+	/*
 	 * Coordinates
 	 * <Property Name="geoLocation_longitude" Type="Edm.String" MaxLength="40"/>
 	 * <Property Name="geoLocation_latitude" Type="Edm.String" MaxLength="40"/>
@@ -132,13 +132,16 @@ public class PostData {
 	protected String geoPlaceName;
 	protected String geoPlaceCountry;
 
-	/**
+	/*
 	 * <Property Name="plAround_longitude" Type="Edm.String" MaxLength="40"/>
 	 * <Property Name="plAround_latitude" Type="Edm.String" MaxLength="40"/>
 	 */
 	protected String geoAroundLongitude;
 	protected String geoAroundLatitude;
 	
+	/*
+	 * 
+	 */
 	protected List<?> hashtags;
 	protected List<?> symbols;
 	protected List<?> mentions;

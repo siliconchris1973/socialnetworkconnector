@@ -22,7 +22,7 @@
 	
 	<groupId>de.comlineag.snc</groupId>
 	<artifactId>SocialNetworkConnector</artifactId>
-	<version>0.2.3-SNAPSHOT</version>
+	<version>0.2.4-SNAPSHOT</version>
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -53,7 +53,7 @@
 							<maxIdleTime>30000</maxIdleTime>
 						</connector>
 					</connectors>
-					<webAppSourceDirectory>${project.build.directory}/${pom.artifactId}-${pom.version}</webAppSourceDirectory>
+					<webAppSourceDirectory>${project.build.directory}/${project.artifactId}-${project.version}</webAppSourceDirectory>
 					<contextPath>/</contextPath>
 				</configuration>
 			</plugin>
@@ -115,13 +115,28 @@
 			<version>1.2.17</version>
 		</dependency>
 		
-		<!-- to get the servlet container 
+		
+		<!-- to get the servlet container --> 
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.1.0</version>
 		</dependency>
-		-->
+		
+		
+		<!-- To work with java server faces -->
+		<dependency>
+			<groupId>com.sun.faces</groupId>
+			<artifactId>jsf-api</artifactId>
+			<version>2.1.11</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.faces</groupId>
+			<artifactId>jsf-impl</artifactId>
+			<version>2.1.11</version>
+		</dependency>
+		
+		
 		
 		<!-- to work with the twitter api -->
 		<dependency>
@@ -134,7 +149,8 @@
 			<artifactId>hbc-twitter4j</artifactId> <!-- or hbc-twitter4j -->
 			<version>2.0.0</version> <!-- or whatever the latest version is -->
 		</dependency>
-
+		
+		
 		<!-- to work with json objects -->
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
@@ -147,14 +163,14 @@
 			<artifactId>geojson-jackson</artifactId>
 			<version>1.1</version>
 		</dependency>
-
+		
 		<!-- to work with OData interfaces -->
 		<dependency>
 			<groupId>org.odata4j</groupId>
 			<artifactId>odata4j</artifactId>
 			<version>0.5</version>
 		</dependency>
-
+		
 		<!-- to work with the neo4j graph database -->
 		<dependency>
 			<groupId>org.neo4j</groupId>
@@ -167,7 +183,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
+		
 		<!-- to work with http connections -->
 		<dependency>
 			<groupId>commons-httpclient</groupId>
@@ -186,7 +202,7 @@
 			<version>4.2.3</version>
 			<scope>compile</scope>
 		</dependency>
-
+		
 		<!-- to strip all html elements from a text -->
 		<dependency>
 			<groupId>org.jsoup</groupId>
@@ -207,17 +223,17 @@
 			<artifactId>ini4j</artifactId>
 			<version>0.3.3</version>
 		</dependency>
-
+		
 		<!-- external JDBC Driver for HANA -->
 		<dependency>
 			<groupId>ngdbc</groupId>
 			<artifactId>ngdbc</artifactId>
 			<version>1.00.68</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/lib/ngdbc.jar</systemPath>
+			<systemPath>/Applications/eclipse/plugins/ngdbc.jar</systemPath>
 		</dependency>
 	</dependencies>
-
+	
 	<organization>
 		<name>COMLINE AG</name>
 		<url>www.comlineag.de</url>

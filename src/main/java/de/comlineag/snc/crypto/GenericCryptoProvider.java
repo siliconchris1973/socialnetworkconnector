@@ -1,8 +1,8 @@
 package de.comlineag.snc.crypto;
 
+import de.comlineag.snc.appstate.AppContext;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.CryptoProvider;
-import de.comlineag.snc.handler.AppContext;
 
 /**
  * 

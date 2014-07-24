@@ -1,4 +1,4 @@
-package de.comlineag.snc.handler;
+package de.comlineag.snc.appstate;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

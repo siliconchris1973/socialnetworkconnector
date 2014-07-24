@@ -39,14 +39,14 @@
 	<context:component-scan base-package="de.comlineag.snc.persistence" />
 	<tx:annotation-driven />
 	
-	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.handler.ApplicationContextProvider"></bean>
+	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.appstate.ApplicationContextProvider"></bean>
 	
 	
 	
-	<!-- D O M A I N    A N D    C U S T O M E R    D R I V E N    R U N T I M E    S E T U P -->
+	<!-- R U N T I M E    S E T T I N G S -->
 	<bean name="GeneralConfigurationDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="de.comlineag.snc.handler.GeneralConfiguration" />
+		<property name="jobClass" value="de.comlineag.snc.appstate.GeneralConfiguration" />
 		<property name="Durability" value="true"/>
 		<!-- <property name="Concurrent" value="false" /> --> 
 		<!-- <property name="Singleton" value="true"/> -->
@@ -60,7 +60,7 @@
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
 		<property name="jobDetail" ref="GeneralConfigurationDetail" />
 		<property name="startDelay" value="0" />
-		<property name="repeatInterval" value="60000" />
+		<property name="repeatInterval" value="120000" />
 	</bean>
 	
 	
@@ -410,7 +410,7 @@
 				
 				<!-- activate each crawler you want and make sure to increase the threadCount number 
 						above according to the number of activated crawlers -->
-				<ref bean="TwitterCrawlerTrigger" />
+				<!-- <ref bean="TwitterCrawlerTrigger" /> -->
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->

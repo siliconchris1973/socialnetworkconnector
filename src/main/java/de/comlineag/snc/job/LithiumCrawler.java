@@ -18,6 +18,8 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.log4j.Logger;
 
+import de.comlineag.snc.appstate.CrawlerConfiguration;
+import de.comlineag.snc.appstate.GeneralConfiguration;
 import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.CryptoProvider;
 import de.comlineag.snc.constants.HttpErrorMessages;
@@ -27,8 +29,6 @@ import de.comlineag.snc.constants.LithiumStatusCode;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
-import de.comlineag.snc.handler.CrawlerConfiguration;
-import de.comlineag.snc.handler.GeneralConfiguration;
 import de.comlineag.snc.handler.GenericCrawlerException;
 import de.comlineag.snc.handler.LithiumParser;
 import de.comlineag.snc.handler.LithiumPosting;

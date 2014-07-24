@@ -21,11 +21,11 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 
+import de.comlineag.snc.appstate.CrawlerConfiguration;
+import de.comlineag.snc.appstate.GeneralConfiguration;
 import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.TwitterConstants;
-import de.comlineag.snc.handler.CrawlerConfiguration;
-import de.comlineag.snc.handler.GeneralConfiguration;
 import de.comlineag.snc.handler.TwitterParser;
 
 /**

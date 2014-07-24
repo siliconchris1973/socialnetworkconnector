@@ -46,22 +46,15 @@
 	</listener>
 
 	<!-- Servlet Configuration ========================================== -->
-	<!-- setup the domain driven configuration context 
-	<listener>
-        <listener-class>DomainDrivenConfiguration</listener-class>
-    </listener>
-
- 	<context-param>
-    	<param-name>domain</param-name>
-    	<param-value>banking</param-value>
-  	</context-param>
-  	<context-param>
-    	<param-name>customer</param-name>
-    	<param-value>CortalConsors</param-value>
-  	</context-param>
-   -->
+	
+	
+	
 	<!-- URL space mappings ============================================= -->
-
+	<welcome-file-list>
+		<welcome-file>start.html</welcome-file>
+		<welcome-file>start.htm</welcome-file>
+		<welcome-file>start.jsp</welcome-file>
+	</welcome-file-list>
 
 </web-app>
         

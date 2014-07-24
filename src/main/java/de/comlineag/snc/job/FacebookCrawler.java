@@ -11,11 +11,11 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import de.comlineag.snc.appstate.CrawlerConfiguration;
+import de.comlineag.snc.appstate.GeneralConfiguration;
 import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.FacebookConstants;
-import de.comlineag.snc.handler.CrawlerConfiguration;
-import de.comlineag.snc.handler.GeneralConfiguration;
 import de.comlineag.snc.handler.FacebookParser;
 
 /**

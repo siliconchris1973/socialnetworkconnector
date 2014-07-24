@@ -1,6 +1,6 @@
 package de.comlineag.snc.persistence;
 
-import de.comlineag.snc.handler.GeneralConfiguration;
+import de.comlineag.snc.appstate.GeneralConfiguration;
 
 import org.apache.log4j.Logger;
 import org.ini4j.Ini;

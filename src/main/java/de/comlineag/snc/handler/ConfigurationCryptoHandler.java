@@ -2,6 +2,7 @@ package de.comlineag.snc.handler;
 
 import org.apache.log4j.Logger;
 
+import de.comlineag.snc.appstate.AppContext;
 import de.comlineag.snc.constants.CryptoProvider;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
