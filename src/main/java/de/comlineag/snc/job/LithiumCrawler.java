@@ -91,8 +91,12 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	 *  
 	 */
 	@SuppressWarnings("unchecked")
+	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
+		
+		CrawlerConfiguration<?> lithiumConfig = new CrawlerConfiguration();
+		//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
+		JSONObject configurationScope = lithiumConfig.getCrawlerConfigurationScope();
 		configurationScope.put((String) "SN_ID", (String) SocialNetworks.LITHIUM.toString());
 		
 		// set the customer we start the crawler for and log the startup message

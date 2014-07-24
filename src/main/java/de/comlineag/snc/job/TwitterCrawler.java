@@ -100,7 +100,9 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		
-		JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
+		CrawlerConfiguration<?> twitterConfig = new CrawlerConfiguration();
+		//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
+		JSONObject configurationScope = twitterConfig.getCrawlerConfigurationScope();
 		configurationScope.put((String) "SN_ID", (String) SocialNetworks.TWITTER.toString());
 		
 		// set the customer we start the crawler for and log the startup message
@@ -129,6 +131,13 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(GeneralConfiguration.getConstraintLanguageText(), configurationScope);
 		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(GeneralConfiguration.getConstraintUserText(), configurationScope);
 		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(GeneralConfiguration.getConstraintLocationText(), configurationScope);
+		
+		/*
+		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(GeneralConfiguration.getConstraintTermText(), configurationScope);
+		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(GeneralConfiguration.getConstraintLanguageText(), configurationScope);
+		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(GeneralConfiguration.getConstraintUserText(), configurationScope);
+		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(GeneralConfiguration.getConstraintLocationText(), configurationScope);
+		*/
 		
 		// log output AND setup of the filter end point
 		if (tTerms.size()>0) {

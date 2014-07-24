@@ -22,7 +22,7 @@
 	
 	<groupId>de.comlineag.snc</groupId>
 	<artifactId>SocialNetworkConnector</artifactId>
-	<version>0.2.4-SNAPSHOT</version>
+	<version>0.2.5-SNAPSHOT</version>
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -59,6 +59,10 @@
 			</plugin>
 
 			<!-- THIS IS DEPENDENCY FOR THE TOMCAT APPLICATION SERVER -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>tomcat-maven-plugin</artifactId>
+			</plugin>
 			<!-- 
 			<plugin> 
 				<groupId>org.apache.tomcat.maven</groupId> 
@@ -116,26 +120,63 @@
 		</dependency>
 		
 		
-		<!-- to get the servlet container --> 
+		<!-- to get the servlet container 
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.1.0</version>
 		</dependency>
-		
+		-->
 		
 		<!-- To work with java server faces -->
 		<dependency>
 			<groupId>com.sun.faces</groupId>
 			<artifactId>jsf-api</artifactId>
-			<version>2.1.11</version>
+			<version>2.0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.faces</groupId>
 			<artifactId>jsf-impl</artifactId>
-			<version>2.1.11</version>
+			<version>2.0.2</version>
+		</dependency>
+		<!-- should be provided - no need for dependency -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
+		 
+		<!-- should be provided - no need for dependency 
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
+		 -->
+		
+		<!-- solve method not found error in tomcat -->	
+		<dependency>
+			<groupId>org.glassfish.web</groupId>
+			<artifactId>el-impl</artifactId>
+			<version>2.2</version>
 		</dependency>
 		
+		<!-- to work with element lists in JSF? should be provided - no need for dependency 
+		<dependency>
+			<groupId>com.sun.el</groupId>
+			<artifactId>el-ri</artifactId>
+			<version>1.0</version>
+		</dependency>
+		 --> 
+		
+		<!-- transactional support -->
+		<dependency>
+			<groupId>javax.transaction</groupId>
+			<artifactId>jta</artifactId>
+			<version>1.1</version>
+		</dependency>
+		 
 		
 		
 		<!-- to work with the twitter api -->
@@ -164,6 +205,7 @@
 			<version>1.1</version>
 		</dependency>
 		
+		
 		<!-- to work with OData interfaces -->
 		<dependency>
 			<groupId>org.odata4j</groupId>
@@ -171,18 +213,6 @@
 			<version>0.5</version>
 		</dependency>
 		
-		<!-- to work with the neo4j graph database -->
-		<dependency>
-			<groupId>org.neo4j</groupId>
-			<artifactId>neo4j</artifactId>
-			<version>2.0.3</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>neo4j-cypher-compiler-1.9</artifactId>
-					<groupId>org.neo4j</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
 		
 		<!-- to work with http connections -->
 		<dependency>
@@ -203,12 +233,14 @@
 			<scope>compile</scope>
 		</dependency>
 		
+		
 		<!-- to strip all html elements from a text -->
 		<dependency>
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
 			<version>1.7.2</version>
 		</dependency>
+		
 		
 		<!-- used by truncateHtml from dataHelper -->
 		<dependency>
@@ -217,6 +249,7 @@
 			<version>3.3.2</version>
 		</dependency>
 		
+		
 		<!-- To read the crawler configuration from an ini file -->
 		<dependency>
 			<groupId>org.ini4j</groupId>
@@ -224,7 +257,22 @@
 			<version>0.3.3</version>
 		</dependency>
 		
-		<!-- external JDBC Driver for HANA -->
+		
+		<!-- to work with the neo4j graph database -->
+		<dependency>
+			<groupId>org.neo4j</groupId>
+			<artifactId>neo4j</artifactId>
+			<version>2.0.3</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>neo4j-cypher-compiler-1.9</artifactId>
+					<groupId>org.neo4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		
+		<!-- to work with SAP HANA - external JDBC Driver -->
 		<dependency>
 			<groupId>ngdbc</groupId>
 			<artifactId>ngdbc</artifactId>

@@ -29,6 +29,7 @@
 	
 	<!-- Activate Spring annotation support -->
 	<context:annotation-config />
+	<context:component-scan base-package="de.comlineag.snc.appstate" />
 	<context:component-scan base-package="de.comlineag.snc.constants" />
 	<context:component-scan base-package="de.comlineag.snc.crypto" />
 	<context:component-scan base-package="de.comlineag.snc.data" />
@@ -400,7 +401,7 @@
 				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
 				<!-- currently, if this is set to a value higher than 1, the twitter crawler sometimes 
 						encounters exceptions during db insert or update -->
-				<prop key="org.quartz.threadPool.threadCount">1</prop>
+				<prop key="org.quartz.threadPool.threadCount">3</prop>
 			</props>
 		</property>
 		<property name="triggers">
@@ -410,12 +411,12 @@
 				
 				<!-- activate each crawler you want and make sure to increase the threadCount number 
 						above according to the number of activated crawlers -->
-				<!-- <ref bean="TwitterCrawlerTrigger" /> -->
+				<!--  <ref bean="TwitterCrawlerTrigger" />  -->
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="FinanzforumCrawlerTrigger"/> -->
-				<!-- <ref bean="LithiumCrawlerTrigger" /> --> 
+				<!--  <ref bean="LithiumCrawlerTrigger" /> -->  
 			</list>
 		</property>
 	</bean>

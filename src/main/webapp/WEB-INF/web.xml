@@ -11,16 +11,68 @@
 	language governing permissions and limitations under the License. -->
 
 <!-- - This is the Cocoon web-app configurations file - - $Id$ -->
-<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+<web-app 
+	xmlns="http://java.sun.com/xml/ns/j2ee"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="2.5" >
 
 	<display-name>Social Network Connector</display-name>
-
-	<!-- Servlet Filters ================================================ -->
-
-
+	<!-- Welcome page -->
+	<welcome-file-list>
+		<welcome-file>start.html</welcome-file>
+	</welcome-file-list>
+	
+	
+	<!-- Change to "Production" when you are ready to deploy -->
+	<context-param>
+		<param-name>javax.faces.PROJECT_STAGE</param-name>
+		<param-value>Development</param-value>
+	</context-param>
+	
+	<!-- Welcome page
+	<welcome-file-list>
+		<welcome-file>faces/start.xhtml</welcome-file>
+	</welcome-file-list>
+	 -->
+	 
+	<!-- start JSF -->
+	<servlet>
+		<servlet-name>Faces Servlet</servlet-name>
+		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	
+	
+	<!-- Map these files with JSF --> 
+	<servlet-mapping>
+		<servlet-name>Faces Servlet</servlet-name>
+		<url-pattern>/faces/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Faces Servlet</servlet-name>
+		<url-pattern>*.jsf</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Faces Servlet</servlet-name>
+		<url-pattern>*.faces</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Faces Servlet</servlet-name>
+		<url-pattern>*.xhtml</url-pattern>
+	</servlet-mapping>
+	
+	
 	<!-- Servlet Context Listener ======================================= -->
+	<!-- JSF listener -->
+	<listener>
+		<listener-class>
+			org.quartz.ee.servlet.QuartzInitializerListener
+		</listener-class>
+	</listener>
+	
+	 
+	<!-- log listener -->
 	<context-param>
 		<param-name>log4jConfigLocation</param-name>
 		<param-value>/WEB-INF/log4j.xml</param-value>
@@ -28,6 +80,7 @@
 	<listener>
 		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
 	</listener>
+	
 	<!--
 		Declare Spring context listener which sets up the Spring Application 
 		Context 
@@ -44,17 +97,16 @@
 	<listener>
 		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
 	</listener>
-
-	<!-- Servlet Configuration ========================================== -->
-	
 	
 	
 	<!-- URL space mappings ============================================= -->
+	<!-- 
 	<welcome-file-list>
+		<welcome-file>start.xhtml</welcome-file>
 		<welcome-file>start.html</welcome-file>
 		<welcome-file>start.htm</welcome-file>
 		<welcome-file>start.jsp</welcome-file>
 	</welcome-file-list>
-
+	 -->
 </web-app>
         
