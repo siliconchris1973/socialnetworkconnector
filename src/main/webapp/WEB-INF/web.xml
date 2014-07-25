@@ -18,11 +18,11 @@
 	version="2.5" >
 
 	<display-name>Social Network Connector</display-name>
-	<!-- Welcome page -->
+	<!-- Welcome page 
 	<welcome-file-list>
 		<welcome-file>start.html</welcome-file>
 	</welcome-file-list>
-	
+	-->
 	
 	<!-- Change to "Production" when you are ready to deploy 
 	<context-param>

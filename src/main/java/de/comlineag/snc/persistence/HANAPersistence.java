@@ -99,7 +99,10 @@ public class HANAPersistence implements IPersistenceManager {
 	private DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
 
 	
-	public HANAPersistence() {}
+	public HANAPersistence() {
+		@SuppressWarnings("unused")
+		final HanaConfiguration hanaConfig = new HanaConfiguration();
+	}
 
 	/**
 	 * @description save a post from social network to the HANA DB
@@ -187,6 +190,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * @param		UserData
 	 */
 	public void saveUsers(UserData userData) {
+		
 		try {
 			// first check if the entry already exists
 			OEntity theData = returnOEntityHandler(userData.getSnId(), userData.getId(), "user");

@@ -28,26 +28,31 @@
 		<param name="CreatePostJsonOnError">
 			<type>boolean</type>
 			<value>true</value>
+			<constant>CREATE_POST_JSON_ON_ERROR</constant>
 		</param>
 		<!-- save a json file with the user data in case creating it in persistence fails -->
 		<param name="CreateUserJsonOnError">
 			<type>boolean</type>
 			<value>true</value>
+			<constant>CREATE_USER_JSON_ON_ERROR</constant>
 		</param>
 		<!-- save a json file with the post data after creating it in persistence -->
 		<param name="CreatePostJsonOnSuccess">
 			<type>boolean</type>
 			<value>true</value>
+			<constant>CREATE_POST_JSON_ON_SUCCESS</constant>
 		</param>
 		<!-- save a json file with the user data after creating it in persistence -->
 		<param name="CreateUserJsonOnSuccess">
 			<type>boolean</type>
 			<value>false</value>
+			<constant>CREATE_USER_JSON_ON_SUCCESS</constant>
 		</param>
 		<!-- stop the SNC in case connecting to persistence fails -->
 		<param name="ExitOnPersistenceFailure">
 			<type>boolean</type>
 			<value>true</value>
+			<constant>STOP_SNC_ON_PERSISTENCE_FAILURE</constant>
 		</param>
 	</configuration>
 	

@@ -22,8 +22,16 @@ import org.quartz.impl.matchers.GroupMatcher;
 
 /**
  * 
- * @author Christian Guenther
+ * @author 		Christian Guenther
+ * @category	Scheduler
+ * @version		0.1			- 27.07.2014
+ * @status		in development
  * 
+ * @description	This is the manual scheduler used for the SNC Crawler When in production it is
+ * 				used to start/stop the crawler jobs from a JSF (Java Server Faces) site.
+ * 
+ * @changelog	class created as inspired by 
+ * 				http://www.mkyong.com/jsf2/how-to-trigger-a-quartz-job-manually-jsf-2-example/
  *
  */
 @ManagedBean(name = "scheduler")
