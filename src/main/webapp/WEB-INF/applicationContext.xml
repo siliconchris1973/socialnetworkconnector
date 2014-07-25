@@ -338,7 +338,7 @@
 		<property name="jdbcPort" value="30015" />
 		<property name="protocol" value="http" />
 		<property name="dbDriver" value="com.sap.db.jdbc.Driver" />
-		<property name="location" value="/comline/sbm/services" />
+		<property name="location" value="/comline/saa/services" />
 		<property name="serviceUserEndpoint" value="saveUser.xsodata" />
 		<property name="servicePostEndpoint" value="savePost.xsodata" />
 		<property name="user" value="U0JNX0VYVA==" />

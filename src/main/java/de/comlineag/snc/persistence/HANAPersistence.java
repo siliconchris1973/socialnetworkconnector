@@ -373,7 +373,7 @@ public class HANAPersistence implements IPersistenceManager {
             java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
 			
             // prepare the SQL statement
-			String sql="INSERT INTO \"CL_SBM\".\"comline.sbm.data.tables::posts_1\" "
+			String sql="INSERT INTO \""+HanaConfiguration.getSCHEMA_NAME()+"\".\""+HanaConfiguration.getPATH_TO_TABLES()+"::"+HanaConfiguration.getPOSTS_TABLE()+"\" "
 					+ "("
 					+ "     \"sn_id\" "
 					+ ",	\"sn_id\" "
@@ -576,7 +576,7 @@ public class HANAPersistence implements IPersistenceManager {
             logger.debug("trying to insert data with jdbc url="+url+" user="+user);
             
             java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
-            String sql="INSERT INTO \"CL_SBM\".\"comline.sbm.data.tables::users\" "
+            String sql="INSERT INTO \""+HanaConfiguration.getSCHEMA_NAME()+"\".\""+HanaConfiguration.getPATH_TO_TABLES()+"::"+HanaConfiguration.getUSERS_TABLE()+"\" "
             		+ "("
             		+ "		\"sn_id\" "
             		+ ",	\"user_id\" "
@@ -732,7 +732,7 @@ public class HANAPersistence implements IPersistenceManager {
             java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
 			
             // prepare the SQL statement
-            String sql="UPDATE \"CL_SBM\".\"comline.sbm.data.tables::posts_1\" "
+            String sql="UPDATE \""+HanaConfiguration.getSCHEMA_NAME()+"\".\""+HanaConfiguration.getPATH_TO_TABLES()+"::"+HanaConfiguration.getPOSTS_TABLE()+"\" "
 					+ " SET ("
 					+ "\"domain\" = ? "
 					+ "\"user_id\" = ? "
@@ -928,7 +928,7 @@ public class HANAPersistence implements IPersistenceManager {
             logger.debug("trying to update user "+SN+"-"+Id+" with jdbc url="+url+" user="+user);
             
             java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
-            String sql="UPDATE \"CL_SBM\".\"comline.sbm.data.tables::users\" "
+            String sql="UPDATE \""+HanaConfiguration.getSCHEMA_NAME()+"\".\""+HanaConfiguration.getPATH_TO_TABLES()+"::"+HanaConfiguration.getUSERS_TABLE()+"\" "
             		+ " SET ("
             		+ ",\"userName\" = ? "
             		+ ",\"nickName\" = ? "
