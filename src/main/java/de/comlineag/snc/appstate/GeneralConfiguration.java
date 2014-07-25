@@ -62,6 +62,7 @@ public final class GeneralConfiguration implements Job {
 	private static boolean CREATE_USER_JSON_ON_ERROR = true;
 	private static boolean CREATE_POST_JSON_ON_SUCCESS = true;
 	private static boolean CREATE_USER_JSON_ON_SUCCESS = true;
+	private static boolean STOP_SNC_ON_PERSISTENCE_FAILURE = false;
 	
 	// these values are section names within the configuration db 
 	private static String CONSTRAINT_TERM_TEXT				= "term";
@@ -183,6 +184,18 @@ public final class GeneralConfiguration implements Job {
 					setCREATE_USER_JSON_ON_SUCCESS(true);
 				else
 					setCREATE_USER_JSON_ON_SUCCESS(false);
+			}
+			// STOP_SNC_ON_PERSISTENCE_FAILURE
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='ExitOnPersistenceFailure']/"+valueIdentifier;
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("Did not receive any information from " + configFile + " using expression " + expression);
+				setSTOP_SNC_ON_PERSISTENCE_FAILURE(false);
+			} else {
+				if ("true".equals(node.getTextContent()))
+					setSTOP_SNC_ON_PERSISTENCE_FAILURE(true);
+				else
+					setSTOP_SNC_ON_PERSISTENCE_FAILURE(false);
 			}
 		} catch (IOException e) {
 			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
@@ -315,5 +328,12 @@ public final class GeneralConfiguration implements Job {
 	public static void setCREATE_USER_JSON_ON_SUCCESS(
 			boolean cREATE_USER_JSON_ON_SUCCESS) {
 		CREATE_USER_JSON_ON_SUCCESS = cREATE_USER_JSON_ON_SUCCESS;
+	}
+	public static boolean isSTOP_SNC_ON_PERSISTENCE_FAILURE() {
+		return STOP_SNC_ON_PERSISTENCE_FAILURE;
+	}
+	public static void setSTOP_SNC_ON_PERSISTENCE_FAILURE(
+			boolean sTOP_SNC_ON_PERSISTENCE_FAILURE) {
+		STOP_SNC_ON_PERSISTENCE_FAILURE = sTOP_SNC_ON_PERSISTENCE_FAILURE;
 	}
 }

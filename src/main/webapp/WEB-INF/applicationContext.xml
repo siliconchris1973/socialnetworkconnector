@@ -130,7 +130,7 @@
 	<bean id="LithiumCrawlerTrigger"
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
 		<property name="jobDetail" ref="LithiumCrawlerDetail" />
-		<property name="startDelay" value="1000" />
+		<property name="startDelay" value="2000" />
 		<property name="repeatInterval" value="150000" />
 	</bean>
 	
@@ -166,7 +166,7 @@
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
 		<property name="jobDetail" ref="FacebookCrawlerDetail" />
 		<!-- 1 second delay after startup -->
-		<property name="startDelay" value="1000" />
+		<property name="startDelay" value="1500" />
 		<!-- repeat the job every 
 							5000 - 50 seconds 
 							6000 - 1 minutes 
@@ -411,12 +411,12 @@
 				
 				<!-- activate each crawler you want and make sure to increase the threadCount number 
 						above according to the number of activated crawlers -->
-				<!--  <ref bean="TwitterCrawlerTrigger" />  -->
+				<ref bean="TwitterCrawlerTrigger" />
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="FinanzforumCrawlerTrigger"/> -->
-				<!--  <ref bean="LithiumCrawlerTrigger" /> -->  
+				<ref bean="LithiumCrawlerTrigger" />
 			</list>
 		</property>
 	</bean>

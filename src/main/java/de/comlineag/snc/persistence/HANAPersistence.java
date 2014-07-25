@@ -11,6 +11,8 @@ import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OProperties;
 
+import com.sun.jersey.api.client.ClientHandlerException;
+
 import de.comlineag.snc.appstate.GeneralConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
@@ -26,7 +28,7 @@ import de.comlineag.snc.persistence.JsonFilePersistence;
  *
  * @author 		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Persistence Manager
- * @version 	0.9h	- 20.07.2014
+ * @version 	0.9i	- 20.07.2014
  * @status		productive
  *
  * @description handles the connectivity to the SAP HANA Systems and saves and updates posts and users in the DB
@@ -60,8 +62,8 @@ import de.comlineag.snc.persistence.JsonFilePersistence;
  * 			and the hana db returns this message:
  * 				Service exception: unique constraint violated.
  * 
- * TODO 2. fix another erro that occasionally occurs when trying to insert a dataset in the db. This second erro 
- * 			states taht there is a syntax error at line 0. - happens more often then error 1
+ * TODO 2. fix another error that occasionally occurs when trying to insert a dataset in the db. This second error 
+ * 			states that there is a syntax error at line 0. - happens more often then error 1
  *  
  * TODO	3. establish proper error handling and find out how to get the HTTP error code during OData calls
  * TODO 4. enable geoLocation support for users
@@ -165,10 +167,17 @@ public class HANAPersistence implements IPersistenceManager {
 					updatePostWithOData(postData, theData);
 				} 
 			}
+		} catch (ClientHandlerException e) {
+			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
+			logger.error("EXCEPTION :: could not connect to HANA system " + e.getLocalizedMessage());
+			if (GeneralConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
+				System.exit(-1);
 		} catch (Exception le) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: unforseen error condition processing post "+postData.getSnId()+"-"+postData.getId()+": " + le.getLocalizedMessage());
 			le.printStackTrace();
+			if (GeneralConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
+				System.exit(-1);
 		}
 	}
 	
@@ -204,11 +213,129 @@ public class HANAPersistence implements IPersistenceManager {
 					updateUserWithOData(userData, theData);
 				} 
 			}
+		} catch (ClientHandlerException e) {
+			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
+			logger.error("EXCEPTION :: could not connect to HANA system " + e.getLocalizedMessage());
+			if (GeneralConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
+				System.exit(-1);
 		} catch (Exception le) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: unforseen error condition processing user "+userData.getSnId()+"-"+userData.getId()+": " + le.getLocalizedMessage());
 			le.printStackTrace();
+			if (GeneralConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
+				System.exit(-1);
 		}
+	}
+	
+	
+	/**
+	 * 
+	 * @description searches for users or posts in the database and returns an OData handler to it
+	 * 				or null in any other case - including errors, that is!	
+	 * 
+	 * @param 		sn_id
+	 * 					shortcut of the social network as defined in enum SocialNetworks 
+	 * @param 		id
+	 * 					id of the user or the post
+	 * @param 		type
+	 * 					must be set to either post or user
+	 * 
+	 * @return 		OData entity handler to the object on success (found) or null if not found or in case of ANY error
+	 */
+	private OEntity returnOEntityHandler(String SN, Long Id, String type) {
+		assert (!"user".equals(type) && !"post".equals(type)) : "ERROR :: type must be either \'user\' or \'post\'";
+		
+		/*
+		 *  OEntity-Structure might be useful to find out field dimensions prior inserting dataset 
+		 *  	[
+		 *  	OProperty [sn_id,				EdmSimpleType [Edm.String], 	TW],
+		 *  	OProperty [user_id,				EdmSimpleType [Edm.String], 	2443766328],
+		 *  	OProperty [userName,			EdmSimpleType [Edm.String], 	Iesha],
+		 *  	OProperty [nickName,			EdmSimpleType [Edm.String], 	iesha785],
+		 *  	OProperty [userLang,			EdmSimpleType [Edm.String], 	en],
+		 *  	OProperty [geoLocation,			EdmSimpleType [Edm.String], 	null],
+		 *  	OProperty [follower,			EdmSimpleType [Edm.Int32], 		261],
+		 *  	OProperty [friends,				EdmSimpleType [Edm.Int32], 		1],
+		 *  	OProperty [postingsCount,		EdmSimpleType [Edm.Int32], 		209967],
+		 *  	OProperty [favoritesCount,		EdmSimpleType [Edm.Int32], 		0],
+		 *  	OProperty [listsAndGroupsCount,	EdmSimpleType [Edm.Int32], 		0]
+		 *  	]
+		 */
+		
+		//logger.info("searching for "+type+" with id "+SN+"-"+Id + "");
+		
+		BasicAuthenticationBehavior bAuth = null;
+		String _user = null;
+		String _pw = null;
+		
+		OEntity theDataset = null;
+		
+		String baseLocation = new String(this.protocol + "://" + this.host + ":" + this.port + this.location);
+		
+		// this is just example code to show, how to interact with the CryptoProvider enum
+		//String desiredStrength = "low";
+		//CryptoProvider cryptoProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
+		//logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
+		
+		try {
+			logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getCryptoProviderName());
+			_user = configurationCryptoProvider.decryptValue(this.user);
+			_pw = configurationCryptoProvider.decryptValue(this.pass);
+			bAuth = new BasicAuthenticationBehavior(_user, _pw);
+		} catch (GenericCryptoException e) {
+			logger.error("EXCEPTION :: could not decrypt value for user/passwd with " + configurationCryptoProvider.getCryptoProviderName() + ": " + e.toString(), e);
+			return null;
+		}
+		
+		// looking for user
+		if ("user".equals(type)) {
+			String userURI = new String(baseLocation + "/" + this.serviceUserEndpoint);
+		
+			logger.debug("searching for "+type+" " + SN + "-" + Id + " at location " + userURI);
+			
+			ODataConsumer.Builder userBuilder = ODataConsumer.newBuilder(userURI);
+			userBuilder.setClientBehaviors(bAuth);
+			userService = userBuilder.build();
+			
+			// query for the user by id
+			try {
+				theDataset = userService.getEntities(type).filter("user_id eq '"+Id+"' and sn_id eq '" + SN.toString() + "'").top(1).execute().firstOrNull();
+			} catch (RuntimeException e) {
+				logger.warn("runtime exception while searching for " + type + " " + SN + "-" + Id + " ... retrying");
+				theDataset = userService.getEntities(type).filter("user_id eq '"+Id+"' and sn_id eq '" + SN.toString() + "'").top(1).execute().firstOrNull();
+			} catch (Exception e) {
+				logger.debug("EXCEPTION :: " + e.getLocalizedMessage());
+				e.printStackTrace();
+			}
+		// looking for ppst not user
+		} else {
+			String postURI = new String(baseLocation + "/" + this.servicePostEndpoint);
+			
+			logger.trace("searching for "+type+" " + SN.toString() + "-" + Id + " at location " + postURI);
+			
+			ODataConsumer.Builder postBuilder = ODataConsumer.newBuilder(postURI);
+			postBuilder.setClientBehaviors(bAuth);
+			postService = postBuilder.build();
+			
+			// query for the post by id
+			try {
+				theDataset = postService.getEntities(type).filter("post_id eq '"+Id+"' and sn_id eq '" + SN.toString() + "'").top(1).execute().firstOrNull();
+			} catch (RuntimeException e) {
+				logger.warn("runtime exception while searching for " + type + " " + SN + "-" + Id + " ... retrying");
+				theDataset = postService.getEntities(type).filter("post_id eq '"+Id+"' and sn_id eq '" + SN.toString() + "'").top(1).execute().firstOrNull();
+			} catch (Exception e) {
+				logger.error("EXCEPTION :: " + e.getLocalizedMessage());
+				e.printStackTrace();
+			}
+		}
+		
+		// check value of dataSet (for debugging) and return it
+		if (theDataset == null)
+			logger.info("the " + type + " " + SN.toString() + "-" + Id + " does not exist");
+		else 
+			logger.debug("found the " + type + " " + SN + "-" + Id);
+		
+		return theDataset;
 	}
 	
 	
@@ -421,7 +548,6 @@ public class HANAPersistence implements IPersistenceManager {
 		}
 	}
 	
-	
 	/**
 	 * @description	insert user with SQL
 	 * 
@@ -494,7 +620,6 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 		}
 	}
-	
 	
 	/**
 	 * @description	insert user with OData
@@ -573,7 +698,6 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 		}
 	}
-	
 	
 	
 	//
@@ -770,7 +894,6 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 		}
 	}
-	
 	
 	/**
 	 * @description	update user with SQL
@@ -1001,121 +1124,6 @@ public class HANAPersistence implements IPersistenceManager {
 		}
 	}
 	
-	/**
-	 * 
-	 * @description searches for users or posts in the database and returns true if the dataset
-	 * 				exists, or false in any other case - including errors, that is!	
-	 * 
-	 * @param 		sn_id
-	 * 					shortcut of the social network as defined in enum SocialNetworks 
-	 * @param 		id
-	 * 					id of the user or the post
-	 * @param 		type
-	 * 					must be set to either post or user
-	 * 
-	 * @return 		OData entity handler to the object on success (found) or null if not found or in case of ANY error
-	 */
-	private OEntity returnOEntityHandler(String SN, Long Id, String type) {
-		assert (!"user".equals(type) && !"post".equals(type)) : "ERROR :: type must be either \'user\' or \'post\'";
-		
-		/*
-		 *  OEntity-Structure might be useful to find out field dimensions prior inserting dataset 
-		 *  	[
-		 *  	OProperty [sn_id,				EdmSimpleType [Edm.String], 	TW],
-		 *  	OProperty [user_id,				EdmSimpleType [Edm.String], 	2443766328],
-		 *  	OProperty [userName,			EdmSimpleType [Edm.String], 	Iesha],
-		 *  	OProperty [nickName,			EdmSimpleType [Edm.String], 	iesha785],
-		 *  	OProperty [userLang,			EdmSimpleType [Edm.String], 	en],
-		 *  	OProperty [geoLocation,			EdmSimpleType [Edm.String], 	null],
-		 *  	OProperty [follower,			EdmSimpleType [Edm.Int32], 		261],
-		 *  	OProperty [friends,				EdmSimpleType [Edm.Int32], 		1],
-		 *  	OProperty [postingsCount,		EdmSimpleType [Edm.Int32], 		209967],
-		 *  	OProperty [favoritesCount,		EdmSimpleType [Edm.Int32], 		0],
-		 *  	OProperty [listsAndGroupsCount,	EdmSimpleType [Edm.Int32], 		0]
-		 *  	]
-		 */
-		
-		//logger.info("searching for "+type+" with id "+SN+"-"+Id + "");
-		
-		BasicAuthenticationBehavior bAuth = null;
-		String _user = null;
-		String _pw = null;
-		
-		String entitySetName = null;
-		OEntity theDataset = null;
-		
-		String baseLocation = new String(this.protocol + "://" + this.host + ":" + this.port + this.location);
-		
-		// this is just example code to show, how to interact with the CryptoProvider enum
-		//String desiredStrength = "low";
-		//CryptoProvider cryptoProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
-		//logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
-		
-		try {
-			logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getCryptoProviderName());
-			_user = configurationCryptoProvider.decryptValue(this.user);
-			_pw = configurationCryptoProvider.decryptValue(this.pass);
-			bAuth = new BasicAuthenticationBehavior(_user, _pw);
-		} catch (GenericCryptoException e) {
-			logger.error("EXCEPTION :: could not decrypt value for user/passwd with " + configurationCryptoProvider.getCryptoProviderName() + ": " + e.toString(), e);
-			return null;
-		}
-		
-		// looking for user
-		if ("user".equals(type)) {
-			String userURI = new String(baseLocation + "/" + this.serviceUserEndpoint);
-		
-			logger.debug("searching for "+type+" " + SN + "-" + Id + " at location " + userURI);
-			
-			ODataConsumer.Builder userBuilder = ODataConsumer.newBuilder(userURI);
-			userBuilder.setClientBehaviors(bAuth);
-			userService = userBuilder.build();
-			
-			entitySetName = "user";
-			
-			// query for the user by id
-			try {
-				theDataset = userService.getEntities(entitySetName).filter("user_id eq '"+Id+"' and sn_id eq '" + SN.toString() + "'").top(1).execute().firstOrNull();
-			} catch (RuntimeException e) {
-				logger.warn("runtime exception while searching for " + type + " " + SN + "-" + Id + " ... retrying");
-				theDataset = userService.getEntities(entitySetName).filter("user_id eq '"+Id+"' and sn_id eq '" + SN.toString() + "'").top(1).execute().firstOrNull();
-			} catch (Exception e) {
-				logger.debug("EXCEPTION :: " + e.getLocalizedMessage());
-				e.printStackTrace();
-			}
-		// looking for ppst not user
-		} else {
-			String postURI = new String(baseLocation + "/" + this.servicePostEndpoint);
-			
-			logger.trace("searching for "+type+" " + SN.toString() + "-" + Id + " at location " + postURI);
-			
-			ODataConsumer.Builder postBuilder = ODataConsumer.newBuilder(postURI);
-			postBuilder.setClientBehaviors(bAuth);
-			postService = postBuilder.build();
-			
-			entitySetName = "post";
-			
-			// query for the post by id
-			try {
-				theDataset = postService.getEntities(entitySetName).filter("post_id eq '"+Id+"' and sn_id eq '" + SN.toString() + "'").top(1).execute().firstOrNull();
-			} catch (RuntimeException e) {
-				logger.warn("runtime exception while searching for " + type + " " + SN + "-" + Id + " ... retrying");
-				theDataset = postService.getEntities(entitySetName).filter("post_id eq '"+Id+"' and sn_id eq '" + SN.toString() + "'").top(1).execute().firstOrNull();
-			} catch (Exception e) {
-				logger.error("EXCEPTION :: " + e.getLocalizedMessage());
-				e.printStackTrace();
-			}
-		}
-		
-		// check value of dataSet (for debugging) and return it
-		if (theDataset == null)
-			logger.info("the " + type + " " + SN.toString() + "-" + Id + " does not exist");
-		else 
-			logger.debug("found the " + type + " " + SN + "-" + Id);
-		
-		return theDataset;
-	}
-		
 	
 	// getter and setter 
 	public String getHost() {

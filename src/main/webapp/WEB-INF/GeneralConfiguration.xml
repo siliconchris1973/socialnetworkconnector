@@ -14,29 +14,40 @@
 <configurations>
 	<!-- START OF RUNTIME CONFIG -->
 	<configuration scope="runtime">
+		<!-- show warning in case the simple INI file configuration is used -->
 		<param name="WarnOnSimpleConfigOption">
 			<type>boolean</type>
 			<value>true</value>
 		</param>
+		<!-- show warning in case the simple XML file configuration is used -->
 		<param name="WarnOnSimpleXmlConfigOption">
 			<type>boolean</type>
 			<value>true</value>
 		</param>
+		<!-- save a json file with the post data in case creating it in persistence fails -->
 		<param name="CreatePostJsonOnError">
 			<type>boolean</type>
 			<value>true</value>
 		</param>
+		<!-- save a json file with the user data in case creating it in persistence fails -->
 		<param name="CreateUserJsonOnError">
 			<type>boolean</type>
 			<value>true</value>
 		</param>
+		<!-- save a json file with the post data after creating it in persistence -->
 		<param name="CreatePostJsonOnSuccess">
 			<type>boolean</type>
 			<value>true</value>
 		</param>
+		<!-- save a json file with the user data after creating it in persistence -->
 		<param name="CreateUserJsonOnSuccess">
 			<type>boolean</type>
 			<value>false</value>
+		</param>
+		<!-- stop the SNC in case connecting to persistence fails -->
+		<param name="ExitOnPersistenceFailure">
+			<type>boolean</type>
+			<value>true</value>
 		</param>
 	</configuration>
 	
