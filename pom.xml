@@ -121,34 +121,25 @@
 		</dependency>
 		
 		
-		<!-- to get the servlet container 
+		<!-- to get the servlet container --> 
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.1.0</version>
 		</dependency>
-		-->
+		
 		
 		<!-- To work with java server faces -->
 		<dependency>
 			<groupId>com.sun.faces</groupId>
 			<artifactId>jsf-api</artifactId>
-			<version>2.0.2</version>
+			<version>2.2.7</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.faces</groupId>
 			<artifactId>jsf-impl</artifactId>
-			<version>2.0.2</version>
+			<version>2.2.7</version>
 		</dependency>
-		<!-- should be provided - no need for dependency -->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>2.5</version>
-			<scope>provided</scope>
-		</dependency>
-		 
-		<!-- should be provided - no need for dependency --> 
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>jstl</artifactId>
@@ -160,17 +151,16 @@
 		<dependency>
 			<groupId>org.glassfish.web</groupId>
 			<artifactId>el-impl</artifactId>
-			<version>2.2</version>
+			<version>2.2.1-b05</version>
 		</dependency>
 		
-		<!-- to work with element lists in JSF? should be provided - no need for dependency -->
+		<!-- to work with element lists in JSF? -->
 		<dependency>
 			<groupId>com.sun.el</groupId>
 			<artifactId>el-ri</artifactId>
 			<version>1.0</version>
 		</dependency>
 		 
-		
 		<!-- transactional support -->
 		<dependency>
 			<groupId>javax.transaction</groupId>
