@@ -13,18 +13,28 @@ import de.comlineag.snc.handler.DataCryptoHandler;
  *
  * @author 		Christian Guenther
  * @category 	Persistence Manager
- * @version 	0.1	- 20.07.2014
+ * @version 	0.2	- 25.07.2014
  * @status		productive
  *
- * @description fallback persistence to store JSON files on disk - called up in case saving to db fails
+ * @description persistence manager to simply save JSON files on disk 
+ * 				it can either be used stand alone, if activated as persistence manager in
+ * 				applicationContext.xml, or it is used as a fall back solution in case
+ * 				storing the data in one of the other available persistence manager fails.
+ * 				To activate it as a fall back, the keys
+ * 					CreatePostJsonOnError		- create a post json on error  
+ * 					CreateUserJsonOnError		- create a user json on error
+ * 					CreatePostJsonOnSuccess		- create a post json on success as well
+ * 					CreateUserJsonOnSuccess		- create a user json on success as well
+ * 				from GeneralConfiguration.xml must be set to true. 
  * 
  * @changelog	0.1 (Chris)			class created
+ * 				0.2					changed class to implement IPersistenceManager
  * 
  */
-public class JsonFilePersistence {
+public class JsonFilePersistence implements IPersistenceManager {
 	
 	// Servicelocation 
-	private String savePoint = "./json"; 
+	private String savePoint = "./json";
 	
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
@@ -33,9 +43,68 @@ public class JsonFilePersistence {
 	
 	public JsonFilePersistence() {}
 
-	//public void savePosts(PostData postData) {
-	@SuppressWarnings("unchecked")
+	/**
+	 * @description	constructor to save a post from social network to the file-system
+	 * @param		PostData
+	 */
 	public JsonFilePersistence(PostData postData) {
+		savePosts(postData);
+	}
+	
+	/**
+	 * @description	constructor to save a user from social network to the file-system
+	 * @param		UserData
+	 */
+	public JsonFilePersistence(UserData userData) {
+		saveUsers(userData);
+	}
+	
+	
+	
+	/**
+	 * @description	save a user from social network to the file-system
+	 * @param		UserData
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public void saveUsers(UserData userData) {
+		FileWriter file;
+		try {
+			// first check if the entry already exists
+			file = new FileWriter(savePoint+"/user_"+userData.getSnId()+userData.getId()+".json");
+			
+			JSONObject obj = new JSONObject();
+			obj.put("sn_id", userData.getSnId());
+			obj.put("user_id", userData.getId());
+			obj.put("userName", userData.getUsername());
+			obj.put("nickName", userData.getScreenName());
+			obj.put("userLang", userData.getLang());
+			obj.put("geoLocation", userData.getGeoLocation().toString());
+			obj.put("follower", userData.getFollowersCount());
+			obj.put("friends", userData.getFriendsCount());
+			obj.put("postingsCount", userData.getPostingsCount());
+			obj.put("favoritesCount", userData.getFavoritesCount());
+			obj.put("listsAndGroupsCount", userData.getListsAndGrooupsCount());
+						
+			file.write(dataCryptoProvider.encryptValue(obj.toJSONString()));
+			logger.info("Successfully copied JSON user object for "+userData.getSnId()+"-"+userData.getId()+" to File...");
+	        
+	        file.flush();
+			file.close();
+		} catch (Exception le) {
+			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
+			logger.error("EXCEPTION :: unforseen error condition processing user "+userData.getSnId()+"-"+userData.getId()+": " + le.getLocalizedMessage());
+			le.printStackTrace();
+		}
+	}
+
+	/**
+	 * @description	save a post from social network to the file-system
+	 * @param		PostData
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public void savePosts(PostData postData) {
 		FileWriter file;
 		try {
 			file = new FileWriter(savePoint+"/post_"+postData.getSnId()+postData.getId()+".json");
@@ -83,40 +152,10 @@ public class JsonFilePersistence {
 	}
 	
 	
-	/**
-	 * @description	save a user from social network to the HANA DB
-	 * @param		UserData
-	 */
-	//public void saveUsers(UserData userData) {
-	@SuppressWarnings("unchecked")
-	public JsonFilePersistence(UserData userData) {
-		FileWriter file;
-		try {
-			// first check if the entry already exists
-			file = new FileWriter(savePoint+"/user_"+userData.getSnId()+userData.getId()+".json");
-			
-			JSONObject obj = new JSONObject();
-			obj.put("sn_id", userData.getSnId());
-			obj.put("user_id", userData.getId());
-			obj.put("userName", userData.getUsername());
-			obj.put("nickName", userData.getScreenName());
-			obj.put("userLang", userData.getLang());
-			obj.put("geoLocation", userData.getGeoLocation().toString());
-			obj.put("follower", userData.getFollowersCount());
-			obj.put("friends", userData.getFriendsCount());
-			obj.put("postingsCount", userData.getPostingsCount());
-			obj.put("favoritesCount", userData.getFavoritesCount());
-			obj.put("listsAndGroupsCount", userData.getListsAndGrooupsCount());
-						
-			file.write(dataCryptoProvider.encryptValue(obj.toJSONString()));
-			logger.info("Successfully copied JSON user object for "+userData.getSnId()+"-"+userData.getId()+" to File...");
-	        
-	        file.flush();
-			file.close();
-		} catch (Exception le) {
-			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
-			logger.error("EXCEPTION :: unforseen error condition processing user "+userData.getSnId()+"-"+userData.getId()+": " + le.getLocalizedMessage());
-			le.printStackTrace();
-		}
+	public String getPath() {
+		return savePoint;
+	}
+	public void setPath(String path){
+		this.savePoint = path;
 	}
 }

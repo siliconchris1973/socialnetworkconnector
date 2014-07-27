@@ -164,7 +164,7 @@ public final class LithiumUserData extends UserData {
 		sn_id 					= SocialNetworks.LITHIUM.getValue();
 		username 				= null;
 		screen_name 			= null;
-		geoLocation 				= null;
+		geoLocation 			= "";
 		followers_count 		= 0;
 		friends_count 			= 0;
 		postings_count 			= 0;

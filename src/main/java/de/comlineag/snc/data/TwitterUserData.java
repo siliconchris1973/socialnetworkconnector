@@ -87,7 +87,7 @@ public final class TwitterUserData extends UserData {
 		username = null;
 		screen_name = null;
 		lang = null;
-		geoLocation = null;
+		geoLocation = "";
 		followers_count = 0;
 		friends_count = 0;
 		postings_count = 0;

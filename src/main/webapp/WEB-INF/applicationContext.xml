@@ -329,9 +329,19 @@
 	</bean>
  -->
 	
+	
+	
 	<!-- P E R S I S T E N C E    S E T T I N G S -->
 	<!-- You may choose exactly one of the provided persistence manager -->
+	<!-- F I L E S Y S T E M    J S O N    P E R S I S T E N C E    (WORKS) --> 
+	<!-- This one simply stores all posts and users as json files on disk -->
+	<bean id="persistenceManager" class="de.comlineag.snc.persistence.JsonFilePersistence"> 
+		<property name="path" value="./json" /> 
+	</bean> 
+	
+	
 	<!-- H A N A    P E R S I S T E N C E    (WORKS) -->
+	<!--
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.HANAPersistence">
 		<property name="host" value="192.168.131.30" />
 		<property name="port" value="8000" />
@@ -344,6 +354,7 @@
 		<property name="user" value="U0JNX0VYVA==" />
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
 	</bean>
+	-->
 	
 	<!-- N E O 4 J    P E R S I S T E N C E    (WORKS in part) -->
 	<!-- 
