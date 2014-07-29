@@ -40,14 +40,15 @@ public class SchedulerBean implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	// Logger Instanz
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	//private final Logger logger = Logger.getLogger(getClass().getName());
 
 	private Scheduler scheduler;
 	
 	private List<QuartzJob> quartzJobList = new ArrayList<QuartzJob>();
 	
 	public SchedulerBean() throws SchedulerException {
-		logger.trace("scheduler bean started");
+		//logger.trace("scheduler bean started");
+		System.out.print("scheduler bean started");
 		
 		ServletContext servletContext = (ServletContext) FacesContext
 				.getCurrentInstance().getExternalContext().getContext();
@@ -73,7 +74,8 @@ public class SchedulerBean implements Serializable {
 						.getTriggersOfJob(jobKey);
 				Date nextFireTime = triggers.get(0).getNextFireTime();
 				
-				logger.trace("found " + jobName + " in " + jobGroup + " scheduled to start " + nextFireTime);
+				//logger.trace("found " + jobName + " in " + jobGroup + " scheduled to start " + nextFireTime);
+				System.out.print("found " + jobName + " in " + jobGroup + " scheduled to start " + nextFireTime);
 				
 				quartzJobList.add(new QuartzJob(jobName, jobGroup, nextFireTime));
 			}

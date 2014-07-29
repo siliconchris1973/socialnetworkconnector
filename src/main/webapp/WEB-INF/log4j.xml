@@ -13,8 +13,7 @@
 
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 	<!-- 
-		This is the logging configuration file for SNC 
-		it will log 
+		This is the logging configuration file for SNC - it can (if configured) log
 					all job logs to comlineag-loggerSNC.log 
 					all persistence logs to comlineag-loggerSNC_Persistence.log 
 					all Twitter logs to comlineag-loggerSNC_Twitter.log 

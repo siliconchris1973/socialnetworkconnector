@@ -191,7 +191,14 @@
 			<value>geoLocation</value>
 		</param>
 		
-		<!-- this section contains the xml structure for the crawler configuration -->
+		
+		
+		<!-- this section contains the xml structure for the crawler configuration
+			 for compatibility reasons the first 4 (root-, singleConfiguration-,
+			 value- and scopeIdentifier CAN NOT BE CHANGED! even if you do so here,
+			 this won't have any effect as they need are hard coded in the 
+			 GeneralConfiguration class. 
+		 -->
 		<param name="rootIdentifier">
 			<type>String</type>
 			<value>configurations</value>
@@ -200,6 +207,15 @@
 			<type>String</type>
 			<value>configuration</value>
 		</param>
+		<param name="valueIdentifier">
+			<type>String</type>
+			<value>value</value>
+		</param>
+		<param name="scopeIdentifier">
+			<type>String</type>
+			<value>scope</value>
+		</param>
+		<!-- changing these values will become possible (in revision 1.1) to reflect XML layout changes -->
 		<param name="customerIdentifier">
 			<type>String</type>
 			<value>customer</value>
@@ -232,10 +248,6 @@
 			<type>String</type>
 			<value>constraints</value>
 		</param>
-		<param name="scopeIdentifier">
-			<type>String</type>
-			<value>scope</value>
-		</param>
 		<param name="scopeOnAllValue">
 			<type>String</type>
 			<value>ALL</value>
@@ -244,9 +256,9 @@
 			<type>String</type>
 			<value>constraint</value>
 		</param>
-		<param name="valueIdentifier">
+		<param name="codeIdentifier">
 			<type>String</type>
-			<value>value</value>
+			<value>code</value>
 		</param>
 	</configuration>
 </configurations>

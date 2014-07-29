@@ -87,17 +87,21 @@ public final class GeneralConfiguration implements Job {
 	private static String scopeOnAllValue 					= "ALL";
 	private static String singleConstraintIdentifier 		= "constraint";
 	private static String valueIdentifier 					= "value";
+	private static String codeIdentifier 					= "code";
 	private static String configFileTypeIdentifier			= "configFileType";
 	
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		setConfigFile((String) arg0.getJobDetail().getJobDataMap().get("configFile"));
-		logger.debug("using configuration file from job control " + arg0.getJobDetail().getJobDataMap().get("configFile"));
+		logger.debug("setting global configuration parameters using configuration file " + arg0.getJobDetail().getJobDataMap().get("configFile") + " from job control");
 		
 		// set the configuration scope in globally available variables
-		setConfiguration();
+		setXmlLayout();
+		setRuntimeConfiguration();
 	}
 	
-	private void setConfiguration(){
+	private void setRuntimeConfiguration(){
+		logger.trace("setting runtime definitions ...");
+		
 		try {
 			File file = new File(getConfigFile());
 			
@@ -116,7 +120,7 @@ public final class GeneralConfiguration implements Job {
 			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='WarnOnSimpleConfigOption']/"+valueIdentifier;
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
-				logger.warn("Did not receive any information from " + configFile + " using expression " + expression);
+				logger.warn("Did not receive any information for WarnOnSimpleConfig from " + configFile + " using expression " + expression);
 				setWarnOnSimpleConfig(true);
 			} else {
 				if ("true".equals(node.getTextContent()))
@@ -128,7 +132,7 @@ public final class GeneralConfiguration implements Job {
 			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='WarnOnSimpleXmlConfigOption']/"+valueIdentifier;
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
-				logger.warn("Did not receive any information from " + configFile + " using expression " + expression);
+				logger.warn("Did not receive any information for WarnOnSimpleXmlConfig from " + configFile + " using expression " + expression);
 				setWarnOnSimpleXmlConfig(true);
 			} else {
 				if ("true".equals(node.getTextContent()))
@@ -140,7 +144,7 @@ public final class GeneralConfiguration implements Job {
 			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='CreatePostJsonOnError']/"+valueIdentifier;
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
-				logger.warn("Did not receive any information from " + configFile + " using expression " + expression);
+				logger.warn("Did not receive any information for CREATE_POST_JSON_ON_ERROR from " + configFile + " using expression " + expression);
 				setCREATE_POST_JSON_ON_ERROR(true);
 			} else {
 				if ("true".equals(node.getTextContent()))
@@ -152,7 +156,7 @@ public final class GeneralConfiguration implements Job {
 			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='CreateUserJsonOnError']/"+valueIdentifier;
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
-				logger.warn("Did not receive any information from " + configFile + " using expression " + expression);
+				logger.warn("Did not receive any information for CREATE_USER_JSON_ON_ERROR from " + configFile + " using expression " + expression);
 				setCREATE_USER_JSON_ON_ERROR(true);
 			} else {
 				if ("true".equals(node.getTextContent()))
@@ -164,7 +168,7 @@ public final class GeneralConfiguration implements Job {
 			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='CreatePostJsonOnSuccess']/"+valueIdentifier;
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
-				logger.warn("Did not receive any information from " + configFile + " using expression " + expression);
+				logger.warn("Did not receive any information for CREATE_POST_JSON_ON_SUCCESS from " + configFile + " using expression " + expression);
 				setCREATE_POST_JSON_ON_SUCCESS(true);
 			} else {
 				if ("true".equals(node.getTextContent()))
@@ -176,7 +180,7 @@ public final class GeneralConfiguration implements Job {
 			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='CreateUserJsonOnSuccess']/"+valueIdentifier;
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
-				logger.warn("Did not receive any information from " + configFile + " using expression " + expression);
+				logger.warn("Did not receive any information for CREATE_USER_JSON_ON_SUCCESS from " + configFile + " using expression " + expression);
 				setCREATE_USER_JSON_ON_SUCCESS(true);
 			} else {
 				if ("true".equals(node.getTextContent()))
@@ -188,7 +192,7 @@ public final class GeneralConfiguration implements Job {
 			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='ExitOnPersistenceFailure']/"+valueIdentifier;
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
-				logger.warn("Did not receive any information from " + configFile + " using expression " + expression);
+				logger.warn("Did not receive any information for STOP_SNC_ON_PERSISTENCE_FAILURE from " + configFile + " using expression " + expression);
 				setSTOP_SNC_ON_PERSISTENCE_FAILURE(false);
 			} else {
 				if ("true".equals(node.getTextContent()))
@@ -196,6 +200,93 @@ public final class GeneralConfiguration implements Job {
 				else
 					setSTOP_SNC_ON_PERSISTENCE_FAILURE(false);
 			}
+			
+			logger.trace("    WarnOnSimpleConfig is " + getWarnOnSimpleConfig() + 
+						" / WarnOnSimpleXmlConfig " + getWarnOnSimpleXmlConfig() + 
+						" / CREATE_POST_JSON_ON_ERROR is " + isCREATE_POST_JSON_ON_ERROR() + 
+						" / CREATE_USER_JSON_ON_ERROR is " + isCREATE_USER_JSON_ON_ERROR() +
+						" / CREATE_POST_JSON_ON_SUCCESS is " + isCREATE_POST_JSON_ON_SUCCESS() + 
+						" / CREATE_USER_JSON_ON_SUCCESS is " + isCREATE_USER_JSON_ON_SUCCESS());
+		} catch (IOException e) {
+			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
+			System.exit(-1);
+		} catch (Exception e) {
+			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
+			e.printStackTrace();
+			System.exit(-1);
+		}
+	}
+	
+	private void setXmlLayout(){
+		try {
+			File file = new File(getConfigFile());
+			
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(file);
+			
+			XPathFactory xPathfactory = XPathFactory.newInstance();
+			XPath xpath = xPathfactory.newXPath();
+			
+			String expression = null;
+			Node node = null; 
+			
+			// set text identifiers for the constraints from XML file 
+			// CONSTRAINT_TERM_TEXT
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='XmlLayout']/"
+					+ "param[@name='CONSTRAINT_TERM_TEXT']/"+valueIdentifier;
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("Did not receive any information for CONSTRAINT_TERM_TEXT from " + configFile + " using expression " + expression);
+			} else {
+				setCONSTRAINT_TERM_TEXT(node.getTextContent());
+			}
+			// CONSTRAINT_USER_TEXT
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='XmlLayout']/"
+					+ "param[@name='CONSTRAINT_USER_TEXT']/"+valueIdentifier;
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("Did not receive any information for CONSTRAINT_USER_TEXT from " + configFile + " using expression " + expression);
+			} else {
+				setCONSTRAINT_USER_TEXT(node.getTextContent());
+			}
+			// CONSTRAINT_SITE_TEXT
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='XmlLayout']/"
+					+ "param[@name='CONSTRAINT_SITE_TEXT']/"+valueIdentifier;
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("Did not receive any information for CONSTRAINT_SITE_TEXT from " + configFile + " using expression " + expression);
+			} else {
+				setCONSTRAINT_SITE_TEXT(node.getTextContent());
+			}
+			// CONSTRAINT_BOARD_TEXT
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='XmlLayout']/"
+					+ "param[@name='CONSTRAINT_BOARD_TEXT']/"+valueIdentifier;
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("Did not receive any information for CONSTRAINT_BOARD_TEXT from " + configFile + " using expression " + expression);
+			} else {
+				setCONSTRAINT_BOARD_TEXT(node.getTextContent());
+			}
+			// CONSTRAINT_BLOG_TEXT
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='XmlLayout']/"
+					+ "param[@name='CONSTRAINT_BLOG_TEXT']/"+valueIdentifier;
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("Did not receive any information for CONSTRAINT_BLOG_TEXT from " + configFile + " using expression " + expression);
+			} else {
+				setCONSTRAINT_BLOG_TEXT(node.getTextContent());
+			}
+			// CONSTRAINT_LOCATION_TEXT
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='XmlLayout']/"
+					+ "param[@name='CONSTRAINT_LOCATION_TEXT']/"+valueIdentifier;
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("Did not receive any information for CONSTRAINT_LOCATION_TEXT from " + configFile + " using expression " + expression);
+			} else {
+				setCONSTRAINT_LOCATION_TEXT(node.getTextContent());
+			}
+			
 		} catch (IOException e) {
 			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
 			System.exit(-1);
@@ -215,6 +306,26 @@ public final class GeneralConfiguration implements Job {
 	}
 	
 	// for configuration xml structure
+	private void setCONSTRAINT_TERM_TEXT(final String s){
+		GeneralConfiguration.CONSTRAINT_TERM_TEXT = s;
+	}
+	private void setCONSTRAINT_USER_TEXT(final String s){
+		GeneralConfiguration.CONSTRAINT_USER_TEXT = s;
+	}
+	private void setCONSTRAINT_SITE_TEXT(final String s){
+		GeneralConfiguration.CONSTRAINT_SITE_TEXT = s;
+	}
+	private void setCONSTRAINT_BOARD_TEXT(final String s){
+		GeneralConfiguration.CONSTRAINT_BOARD_TEXT = s;
+	}
+	private void setCONSTRAINT_BLOG_TEXT(final String s){
+		GeneralConfiguration.CONSTRAINT_BLOG_TEXT = s;
+	}
+	private void setCONSTRAINT_LOCATION_TEXT(final String s){
+		GeneralConfiguration.CONSTRAINT_LOCATION_TEXT = s;
+	}
+	
+	// getter for the xml structure
 	public static String getRootidentifier() {
 		return rootIdentifier;
 	}
@@ -241,6 +352,9 @@ public final class GeneralConfiguration implements Job {
 	}
 	public static String getDomainnameforallvalue() {
 		return domainNameForAllValue;
+	}
+	public static String getCodeidentifier() {
+		return codeIdentifier;
 	}
 	public static String getConstraintidentifier() {
 		return constraintIdentifier;
