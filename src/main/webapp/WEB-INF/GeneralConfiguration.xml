@@ -39,7 +39,7 @@
 		<!-- save a json file with the post data after creating it in persistence -->
 		<param name="CreatePostJsonOnSuccess">
 			<type>boolean</type>
-			<value>true</value>
+			<value>false</value>
 			<constant>CREATE_POST_JSON_ON_SUCCESS</constant>
 		</param>
 		<!-- save a json file with the user data after creating it in persistence -->
@@ -56,6 +56,107 @@
 		</param>
 	</configuration>
 	
+	
+	<!-- This section defines the social networks which can be used
+	
+		 You normally do not need to change anything in here except
+		 for the Lithium network. Lithium is special in that it can
+		 be hosted by a company for their own domain of interest. 
+		 Therefore, post- and user-id's are not globally unique and
+		 you have to define your own 2-letter code for each Lithium
+		 network to crawl for each customer. Failing to do so could
+		 lead to a situation where two Lithium networks are crawled
+		 for two different customers and both try to insert a post 
+		 with the same id.
+	-->
+	<configuration scope="socialNetworkDefinition">
+		<network name="LITHIUM">
+			<code>CC</code>
+			<name>Lithium</name>
+			<description>Lithium forum by Cortal Consors</description>
+			<domain>https://wissen.cortalconsors.de</domain>
+		</network>
+		<network name="FINANZFORUM">
+			<code>FI</code>
+			<name>Finanzforum</name>
+			<description>Finanzforum</description>
+			<domain>bugmenot.com</domain>
+		</network>
+		
+		<!-- below this line the standard social networks are defined -->
+		<network name="ALL">
+			<code>AL</code>
+			<name>All</name>
+			<description>All networks</description>
+			<domain>bugmenot.com</domain>
+		</network>
+		<network name="UNKNOWN">
+			<code>XY</code>
+			<name>Unknown</name>
+			<description>Unknown network</description>
+			<domain>bugmenot.com</domain>
+		</network>
+		<network name="TWITTER">
+			<code>TW</code>
+			<name>Twitter</name>
+			<description>Twitter</description>
+			<domain>twitter.com</domain>
+		</network>
+		<network name="FACEBOOK">
+			<code>FB</code>
+			<name>Facebook</name>
+			<description>Facebook</description>
+			<domain>facebook.com</domain>
+		</network>
+		<network name="GOOGLE+">
+			<code>GP</code>
+			<name>Google+</name>
+			<description>Google +</description>
+			<domain>plus.google.com</domain>
+		</network>
+		<network name="LINKEDIN">
+			<code>LI</code>
+			<name>Linkedin</name>
+			<description>Linkedin</description>
+			<domain>linkedin.com</domain>
+		</network>
+		<network name="XING">
+			<code>XI</code>
+			<name>XING</name>
+			<description>Xing</description>
+			<domain>xing.com</domain>
+		</network>
+		<network name="STREAMWORK">
+			<code>SW</code>
+			<name>Streamwork</name>
+			<description>Streamwork</description>
+			<domain>streamwork.com</domain>
+		</network>
+		<network name="INSTAGRAM">
+			<code>IN</code>
+			<name>Instagram</name>
+			<description>Instagram</description>
+			<domain>instagram.com</domain>
+		</network>
+		<network name="FOURSQUARE">
+			<code>FS</code>
+			<name>Foursquare</name>
+			<description>Foursquare</description>
+			<domain>foursquare.com</domain>
+		</network>
+		<network name="YOUTUBE">
+			<code>YT</code>
+			<name>Youtube</name>
+			<description>Youtube</description>
+			<domain>youtube.com</domain>
+		</network>
+		<network name="STACKOVERFLOW">
+			<code>SO</code>
+			<name>Stack Overflow</name>
+			<description>Stack Overflow - developer forum</description>
+			<domain>stackoverflow.com</domain>
+		</network>
+	</configuration>
 	
 	
 	<!-- START OF CONFIGURATION XML LAYOUT -->

@@ -87,6 +87,9 @@
 				</configuration> 
 			</plugin> 
 			-->
+			
+			<!-- JBoss Application Server -->
+			
 		</plugins>
 	</build>
 
@@ -139,6 +142,7 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.1.0</version>
+			<scope>provided</scope>
 		</dependency>
 		-->
 		<!-- satisfy dependency on JSF  -->
@@ -154,6 +158,7 @@
 			<groupId>com.sun.faces</groupId>
 			<artifactId>jsf-api</artifactId>
 			<version>2.2.7</version>
+			<scope>provided</scope>
 		</dependency>
 		
 		<!-- -->
@@ -161,12 +166,15 @@
 			<groupId>com.sun.faces</groupId>
 			<artifactId>jsf-impl</artifactId>
 			<version>2.2.7</version>
+			<scope>provided</scope>
 		</dependency>
+		
 		<!--  -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>jstl</artifactId>
 			<version>1.2</version>
+			<scope>provided</scope>
 		</dependency>
 		
 		
@@ -175,6 +183,7 @@
 			<groupId>org.glassfish.web</groupId>
 			<artifactId>el-impl</artifactId>
 			<version>2.2.1-b05</version>
+			<scope>provided</scope>
 		</dependency>
 		-->
 		
@@ -183,6 +192,7 @@
 			<groupId>com.sun.el</groupId>
 			<artifactId>el-ri</artifactId>
 			<version>1.0</version>
+			<scope>provided</scope>
 		</dependency>
 		-->
 			
@@ -191,6 +201,7 @@
 			<groupId>javax.transaction</groupId>
 			<artifactId>jta</artifactId>
 			<version>1.1</version>
+			<scope>provided</scope>
 		</dependency>
 		-->
 		

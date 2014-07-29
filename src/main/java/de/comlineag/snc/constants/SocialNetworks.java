@@ -4,7 +4,7 @@ package de.comlineag.snc.constants;
  * 
  * @author 		Christian Guenther
  * @category 	enum
- * @version 	0.6
+ * @version 	0.7			- 28.07.2014
  * @status		productive
  * 
  * @description contains an enumeration with shortcuts referencing the social networks
@@ -15,6 +15,7 @@ package de.comlineag.snc.constants;
  * 				0.4 			added lithium
  * 				0.5 			added youtube and finanzforum
  * 				0.6 			added ALL as an indicator for xml configuration for all networks
+ * 				0.7				moved definition of the networks to GeneralConfiguration.xml 
  * 
  */
 public enum SocialNetworks {
