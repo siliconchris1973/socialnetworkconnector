@@ -33,7 +33,14 @@
 	
 	
 	<properties>
+		<!-- source encoding for the project got us rid of that annoying error messages in eclipse -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	
+		<!-- Deployment properties for the jboss as application server 7.1.1 -->
+		<jboss-as.deploy.hostname>localhost</jboss-as.deploy.hostname>  <!-- Where to deploy. -->
+		<jboss-as.deploy.user>admin</jboss-as.deploy.user>
+		<jboss-as.deploy.pass>${myproject.deploy.pass.prod}</jboss-as.deploy.pass>
+		<plugin.war.warName>${project.build.finalName}</plugin.war.warName>
 	</properties>
 	
 	<build>
@@ -50,7 +57,6 @@
 			</plugin>
 
 			<!-- JETTY APPLICATION SERVER -->
-			<!-- 
 			<plugin>
 				<groupId>org.mortbay.jetty</groupId>
 				<artifactId>maven-jetty-plugin</artifactId>
@@ -66,18 +72,14 @@
 					<contextPath>/</contextPath>
 				</configuration>
 			</plugin>
-			 -->
 			 
 			<!-- DEFAULT TOMCAT APPLICATION SERVER -->
-			<!-- 
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>tomcat-maven-plugin</artifactId>
 			</plugin>
-			-->
 			
 			<!-- TOMCAT 7 APPLICATION SERVER -->
-			<!-- 
 			<plugin> 
 				<groupId>org.apache.tomcat.maven</groupId> 
 				<artifactId>tomcat7-maven-plugin</artifactId> 
@@ -94,13 +96,28 @@
 					<contextPath>/</contextPath> 
 				</configuration> 
 			</plugin> 
-			-->
 			
 			<!-- JBoss Application Server -->
             <plugin>
                 <groupId>org.jboss.as.plugins</groupId>
                 <artifactId>jboss-as-maven-plugin</artifactId>
                 <version>7.1.1.Final</version>
+				<configuration>
+					<!--  
+					<project></project> 
+                	<jbossHome>/opt/jboss/standalone</jbossHome> 
+					<port>9999</port> 
+					<serverName>default</serverName>
+					 -->
+					<force>true</force>
+					<hostname>${jboss-as.deploy.hostname}</hostname>
+					<username>${jboss-as.deploy.user}</username>
+					<password>${jboss-as.deploy.pass.prod}</password>
+					<fileNames>
+						<fileName>target/${plugin.war.warName}.war</fileName>
+						<!-- <fileName>target/SocialNetworkConnector.war</fileName> -->
+					</fileNames>
+				</configuration>
                 <!-- make sure the sap hana jdbc driver is deployed as well -->
                 <!-- 
                 <executions>

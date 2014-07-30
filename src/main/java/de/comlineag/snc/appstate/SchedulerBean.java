@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/*
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
+*/
 
 import org.apache.log4j.Logger;
 import org.quartz.JobKey;
@@ -34,10 +36,10 @@ import org.quartz.impl.matchers.GroupMatcher;
  * 				http://www.mkyong.com/jsf2/how-to-trigger-a-quartz-job-manually-jsf-2-example/
  *
  */
-@ManagedBean(name = "scheduler")
-@SessionScoped
+//@ManagedBean(name = "scheduler")
+//@SessionScoped
 public class SchedulerBean implements Serializable {
-	
+/*
 	private static final long serialVersionUID = 1L;
 	// Logger Instanz
 	//private final Logger logger = Logger.getLogger(getClass().getName());
@@ -125,4 +127,5 @@ public class SchedulerBean implements Serializable {
 			this.nextFireTime = nextFireTime;
 		}
 	}
+*/
 }
