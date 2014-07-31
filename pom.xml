@@ -108,7 +108,7 @@
             <plugin>
                 <groupId>org.jboss.as.plugins</groupId>
                 <artifactId>jboss-as-maven-plugin</artifactId>
-                <version>7.1.1.Final</version>
+                <version>7.5.Final</version>
 				<configuration>
 					<project></project> 
                 	<jbossHome>/opt/jboss/standalone</jbossHome> 
@@ -127,7 +127,7 @@
 					 -->
 				</configuration>
                 <executions>
-                	<!-- make sure the sap hana jdbc driver is deployed as well -->
+                	<!-- make sure the sap hana jdbc driver is deployed as well 
                     <execution>
                         <phase>install</phase>
                         <goals>
@@ -139,7 +139,7 @@
                             <name>ngdbc.jar</name>
                         </configuration>
                     </execution>
-                
+                	-->
 					<!-- Undeploy the application on clean -->
 					<execution>
 						<id>undeploy</id>
@@ -152,7 +152,7 @@
 						</configuration>
 					</execution>
 					
-					<!-- deploy application on install -->
+					<!-- deploy application during install phase -->
 					<execution>
                         <id>deploy</id>
                         <phase>install</phase>
@@ -201,14 +201,14 @@
 		</dependency>
 		
 		
-		<!-- get basic java ee7 up and running 		
+		<!-- get basic java ee7 up and running -->
 		<dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-api</artifactId>
 			<version>7.0</version>
 			<scope>provided</scope>
 		</dependency>
-		-->
+		
 		<!-- javax web api
 		<dependency>
 			<groupId>javax</groupId>
@@ -390,11 +390,25 @@
 		
 		<!-- to work with SAP HANA - external JDBC Driver -->
 		<dependency>
-			<groupId>ngdbc</groupId>
+			<groupId>com.sap</groupId>
 			<artifactId>ngdbc</artifactId>
 			<version>1.00.68</version>
-			<scope>system</scope>
-			<systemPath>/Applications/eclipse/plugins/ngdbc.jar</systemPath>
+			
 		</dependency>
 	</dependencies>
+
+	<!-- a local repository for the external ngdbc.jar for sap hana -->
+	<repositories>
+		<repository>
+			<id>repo</id>
+			<releases>
+				<enabled>true</enabled>
+				<checksumPolicy>ignore</checksumPolicy>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<url>file://${project.basedir}/repo</url>
+		</repository>
+	</repositories>
 </project>
