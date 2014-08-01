@@ -397,7 +397,7 @@
 		-->
 	</dependencies>
 
-	<!-- a local repository for the external ngdbc.jar for sap hana -->
+	<!-- a local maven repository - currently only for the external ngdbc.jar for sap hana -->
 	<repositories>
 		<repository>
 			<id>repo</id>

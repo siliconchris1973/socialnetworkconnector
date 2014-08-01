@@ -43,29 +43,64 @@
 	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.appstate.ApplicationContextProvider"></bean>
 	
 	
-	
-	<!-- R U N T I M E    S E T T I N G S -->
-	<bean name="GeneralConfigurationDetail"
-		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="de.comlineag.snc.appstate.GeneralConfiguration" />
-		<property name="Durability" value="true"/>
-		<!-- <property name="Concurrent" value="false" /> --> 
-		<!-- <property name="Singleton" value="true"/> -->
-		<property name="jobDataAsMap">
-			<map>
-				<entry key="configFile" value="src/main/webapp/WEB-INF/GeneralConfiguration.xml" />
-			</map>
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- J O B    C O N T R O L    S E T T I N G S -->
+	<!-- this is the section in which to turn on/off the different crawler -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="autoStartup">
+			<value>true</value>
+		</property>
+
+		<property name="overwriteExistingJobs">
+			<value>true</value>
+		</property>
+
+		<property name="waitForJobsToCompleteOnShutdown">
+			<!-- changed value from true to false, due to reported shutdown issues -->
+			<value>false</value>
+		</property>
+
+		<property name="quartzProperties">
+			<props>
+				<!-- ThreadPool -->
+				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
+				<!-- currently, if this is set to a value higher than 1, the twitter crawler sometimes 
+						encounters exceptions during db insert or update -->
+				<prop key="org.quartz.threadPool.threadCount">3</prop>
+			</props>
+		</property>
+		<property name="triggers">
+			<list>
+				<!-- MUST STAY ACTIVATED
+					this is the basic configuration for the social network connector -->
+				<ref bean="GeneralConfigurationTrigger" />
+				
+				<!-- ACTIVATE/DEACTIVATE AT WILL -->
+				<!-- activate each crawler you want and make sure to increase the threadCount number 
+						above according to the number of activated crawlers -->
+				<ref bean="TwitterCrawlerTrigger" />
+				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
+				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
+				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
+				<!-- <ref bean="FinanzforumCrawlerTrigger"/> -->
+				<ref bean="LithiumCrawlerTrigger" />
+			</list>
 		</property>
 	</bean>
-	<bean id="GeneralConfigurationTrigger"
-		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
-		<property name="jobDetail" ref="GeneralConfigurationDetail" />
-		<property name="startDelay" value="0" />
-		<property name="repeatInterval" value="120000" />
-	</bean>
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- END OF JOB CONTROL SECTION - END OF JOB CONTROL SECTION - END OF JOB CONTROL  -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	
 	
-	<!-- C R A W L E R    S E T T I N G S 				-->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- C R A W L E R    S E T T I N G S                                              -->
+	<!-- YOU NORMALLY DO NOT NEED TO ACTIVATE/DEACTIVATE A CRAWLER HERE, BUT YOU MAY 
+		 NEED TO ADAPT KEYS AND THE LIKE. FOR EXAMPLE, TWITTER USES 4 KEYS TO AUTHORIZE
+		 THE CRAWLER (FACEBOOK ALSO) AND LITHIUM, ON THE OTHER HAND, MAY NEED TO GET THE
+		 URL AND SERVER NAME ETC. ADAPTED. -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	
 	<!-- T W I T T E R    C R A W L E R    (WORKS)		-->
 	<bean name="TwitterCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
@@ -221,11 +256,139 @@
 		<property name="repeatInterval" value="150000" /> 
 	</bean> 
 -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- END OF CRAWLER SECTION - END OF CRAWLER SECTION - END OF CRAWLER SECTION - EN -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	
 	
 	
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- C O N F I G U R A T I O N    S E T T I N G S -->
+	<!-- You may choose exactly one of the provided configuration manager -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	
+	<!-- this is the bean to get the crawler configuration from the HANA (TO BE IMPLEMENETED) -->
+	<!-- 
+	<bean id="configurationManager" class="de.comlineag.snc.persistence.HANAConfigurationPersistence"> 
+		<property name="protocol" value="http" /> 
+		<property name="host" value="192.168.131.30" /> 
+		<property name="port" value="8000" /> 
+		<property name="jdbcPort" value="30015" /> 
+		
+		<property name="location" value="/comline/snc/services" /> 
+		<property name="user" value="U0JNX0VYVA==" /> 
+		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" /> 
+	</bean> 
+	-->
+
+	<!-- this is the bean to get the crawler configuration specific for individual domains AND customers from an xml file
+		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR EITHER CUSTOMER OR DOMAIN) -->
+<!-- 
+	<bean id="configurationManager" class="de.comlineag.snc.persistence.DomainConfigurationPersistence"> 
+		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/DomainWithCustomerCrawlerConfiguration.xml" /> 
+	</bean> 
+-->
+	
+	<!-- this is the bean to get the crawler configuration specific for individual customers OR domains from an xml file
+		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR EITHER CUSTOMER OR DOMAIN) -->
+ 
+	<bean id="configurationManager" class="de.comlineag.snc.persistence.ComplexXmlConfigurationPersistence"> 
+		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/CortalConsorsSpecificCrawlerConfiguration.xml" />
+	</bean> 
+	
+	<!-- this is the bean to get the crawler configuration from an xml file 
+		(WORKS BUT NO CUSTOMER SPECIFIC CONFIGURATION POSSIBLE)	-->
+<!-- 
+	<bean id="configurationManager" class="de.comlineag.snc.persistence.SimpleXmlConfigurationPersistence"> 
+		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/SimpleCrawlerConfiguration.xml" /> 
+	</bean>
+-->
+	 
+	<!-- this is the bean to get the crawler configuration from an ini file 
+		(WORKS WITH RESTRICTIONS - NO CUSTOMER AND NO CRAWLER SPECIFIC CONFIGURATION POSSIBLE) -->
+<!-- 
+	<bean id="configurationManager" class="de.comlineag.snc.persistence.IniFileConfigurationPersistence">
+		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/CrawlerConfiguration.ini" />
+	</bean>
+ -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- END OF CONFIGURATION SECTION - END OF CONFIGURATION SECTION - END OF CONFIGUR -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	
+	
+	
+	
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- P E R S I S T E N C E    S E T T I N G S -->
+	<!-- You may choose exactly one of the provided persistence manager -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	
+	<!-- F I L E S Y S T E M    J S O N    P E R S I S T E N C E    (WORKS) --> 
+	<!-- This one simply stores all posts and users as json files on disk -->
+	<!--
+	<bean id="persistenceManager" class="de.comlineag.snc.persistence.JsonFilePersistence"> 
+		<property name="path" value="./json" /> 
+	</bean> 
+	-->
+	
+	<!-- H A N A    P E R S I S T E N C E    (WORKS) -->
+	<bean id="persistenceManager" class="de.comlineag.snc.persistence.HANAPersistence">
+		<property name="host" value="192.168.131.30" />
+		<property name="port" value="8000" />
+		<property name="jdbcPort" value="30015" />
+		<property name="protocol" value="http" />
+		<property name="dbDriver" value="com.sap.db.jdbc.Driver" />
+		<property name="location" value="/comline/saa/services" />
+		<property name="serviceUserEndpoint" value="saveUser.xsodata" />
+		<property name="servicePostEndpoint" value="savePost.xsodata" />
+		<property name="user" value="U0JNX0VYVA==" />
+		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
+	</bean>
+	
+	<!-- N E O 4 J    P E R S I S T E N C E    (WORKS in part) -->
+	<!-- 
+	<bean id="persistenceManager" class="de.comlineag.snc.persistence.Neo4JPersistence"> 
+		<property name="protocol" value="http" /> 
+		<property name="host" value="localhost" /> 
+		<property name="port" value="7474" /> 
+		<property name="location" value="/db/data" /> 
+		<property name="db_path" value="/db/data" /> 
+	</bean> 
+	-->
+	
+	<!-- N E O 4 J    E M B E D D E D    P E R S I S T E N C E    (TO BE IMPLEMENETED) -->
+	<!--
+	<bean id="persistenceManager" 
+		class="de.comlineag.snc.persistence.Neo4JEmbeddedPersistence"> 
+		<property name="protocol" value="t.b.d." /> 
+		<property name="host" value="localhost" /> 
+		<property name="port" value="7474" /> 
+		<property name="location" value="/db/data" /> 
+		<property name="db_path" value="/db/data" /> 
+	</bean> 
+	-->
+
+	<!-- M A P D B    P E R S I S T E N C E    (TO BE IMPLEMENTED) -->
+	<!-- 
+	<bean id="persistenceManager" class="de.comlineag.snc.persistence.MapDBPersistence"> 
+		<property name="protocol" value="t.b.d." /> 
+		<property name="host" value="localhost"	/> 
+		<property name="port" value="t.b.d." /> 
+		<property name="location" value="/db/data" /> 
+		<property name="db_path" value="/db/data" /> 
+	</bean> 
+	-->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- END OF PERSISTENCE SECTION - END OF PERSISTENCE SECTION - END OF PERSISTENCE  -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	
+	
+	
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	<!-- C R Y P T O    S E T T I N G S -->
 	<!-- You can choose exactly one of the available crypto provider for each category (id) -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	
 	<!-- C O N F I G U R A T I O N     C R Y P T O     S E T T I N G S     - used to encrypt data for the persistence connection -->
 	<!-- NULL   Crypto Provider   -   this is the bean to set the configuration encryption provider to null
 	<bean id="configurationCryptoProvider" class="de.comlineag.snc.crypto.NullCryptoProvider"> </bean>
@@ -277,159 +440,32 @@
 	<!-- AES    Crypto Provider   -   this is the bean to set the data encryption provider to AES 
 	<bean id="searchCryptoProvider" class="de.comlineag.snc.crypto.AesCryptoProvider"> </bean>
 	-->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- END OF CRYPTO SECTION - END OF CRYPTO SECTION - END OF CRYPTO SECTION - END O -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	
 	
-	<!-- C O N F I G U R A T I O N    S E T T I N G S -->
-	<!-- You may choose exactly one of the provided configuration manager -->
 	
-	<!-- this is the bean to get the crawler configuration from the HANA (TO BE IMPLEMENETED) -->
-	<!-- 
-	<bean id="configurationManager" class="de.comlineag.snc.persistence.HANAConfigurationPersistence"> 
-		<property name="protocol" value="http" /> 
-		<property name="host" value="192.168.131.30" /> 
-		<property name="port" value="8000" /> 
-		<property name="jdbcPort" value="30015" /> 
-		
-		<property name="location" value="/comline/snc/services" /> 
-		<property name="user" value="U0JNX0VYVA==" /> 
-		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" /> 
-	</bean> 
-	-->
-
-	<!-- this is the bean to get the crawler configuration specific for individual domains AND customers from an xml file
-		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR EITHER CUSTOMER OR DOMAIN) -->
-<!-- 
-	<bean id="configurationManager" class="de.comlineag.snc.persistence.DomainConfigurationPersistence"> 
-		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/DomainWithCustomerCrawlerConfiguration.xml" /> 
-	</bean> 
--->
-
-	
-	<!-- this is the bean to get the crawler configuration specific for individual customers OR domains from an xml file
-		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR EITHER CUSTOMER OR DOMAIN) -->
- 
-	<bean id="configurationManager" class="de.comlineag.snc.persistence.ComplexXmlConfigurationPersistence"> 
-		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/CortalConsorsSpecificCrawlerConfiguration.xml" />
-	</bean> 
-
-	
-	<!-- this is the bean to get the crawler configuration from an xml file 
-		(WORKS BUT NO CUSTOMER SPECIFIC CONFIGURATION POSSIBLE)	-->
-<!-- 
-	<bean id="configurationManager" class="de.comlineag.snc.persistence.SimpleXmlConfigurationPersistence"> 
-		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/SimpleCrawlerConfiguration.xml" /> 
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- NO NEED TO CHANGE ANYTHING BELOW THIS LINE - BE VERY CAREFUL WHAT YOU DO HERE -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- R U N T I M E    S E T T I N G S -->
+	<bean name="GeneralConfigurationDetail"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="de.comlineag.snc.appstate.GeneralConfiguration" />
+		<property name="Durability" value="true"/>
+		<!-- <property name="Concurrent" value="false" /> --> 
+		<!-- <property name="Singleton" value="true"/> -->
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="configFile" value="src/main/webapp/WEB-INF/GeneralConfiguration.xml" />
+			</map>
+		</property>
 	</bean>
--->
-	 
-	<!-- this is the bean to get the crawler configuration from an ini file 
-		(WORKS WITH RESTRICTIONS - NO CUSTOMER AND NO CRAWLER SPECIFIC CONFIGURATION POSSIBLE) -->
-<!-- 
-	<bean id="configurationManager" class="de.comlineag.snc.persistence.IniFileConfigurationPersistence">
-		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/CrawlerConfiguration.ini" />
-	</bean>
- -->
-	
-	
-	
-	<!-- P E R S I S T E N C E    S E T T I N G S -->
-	<!-- You may choose exactly one of the provided persistence manager -->
-	<!-- F I L E S Y S T E M    J S O N    P E R S I S T E N C E    (WORKS) --> 
-	<!-- This one simply stores all posts and users as json files on disk -->
-	<!--
-	<bean id="persistenceManager" class="de.comlineag.snc.persistence.JsonFilePersistence"> 
-		<property name="path" value="./json" /> 
-	</bean> 
-	-->
-	
-	<!-- H A N A    P E R S I S T E N C E    (WORKS) -->
-
-	<bean id="persistenceManager" class="de.comlineag.snc.persistence.HANAPersistence">
-		<property name="host" value="192.168.131.30" />
-		<property name="port" value="8000" />
-		<property name="jdbcPort" value="30015" />
-		<property name="protocol" value="http" />
-		<property name="dbDriver" value="com.sap.db.jdbc.Driver" />
-		<property name="location" value="/comline/saa/services" />
-		<property name="serviceUserEndpoint" value="saveUser.xsodata" />
-		<property name="servicePostEndpoint" value="savePost.xsodata" />
-		<property name="user" value="U0JNX0VYVA==" />
-		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
-	</bean>
-	
-	
-	<!-- N E O 4 J    P E R S I S T E N C E    (WORKS in part) -->
-	<!-- 
-	<bean id="persistenceManager" class="de.comlineag.snc.persistence.Neo4JPersistence"> 
-		<property name="protocol" value="http" /> 
-		<property name="host" value="localhost" /> 
-		<property name="port" value="7474" /> 
-		<property name="location" value="/db/data" /> 
-		<property name="db_path" value="/db/data" /> 
-	</bean> 
-	-->
-	
-	<!-- N E O 4 J    E M B E D D E D    P E R S I S T E N C E    (TO BE IMPLEMENETED) -->
-	<!--
-	<bean id="persistenceManager" 
-		class="de.comlineag.snc.persistence.Neo4JEmbeddedPersistence"> 
-		<property name="protocol" value="t.b.d." /> 
-		<property name="host" value="localhost" /> 
-		<property name="port" value="7474" /> 
-		<property name="location" value="/db/data" /> 
-		<property name="db_path" value="/db/data" /> 
-	</bean> 
-	-->
-
-	<!-- M A P D B    P E R S I S T E N C E    (TO BE IMPLEMENTED) -->
-	<!-- 
-	<bean id="persistenceManager" class="de.comlineag.snc.persistence.MapDBPersistence"> 
-		<property name="protocol" value="t.b.d." /> 
-		<property name="host" value="localhost"	/> 
-		<property name="port" value="t.b.d." /> 
-		<property name="location" value="/db/data" /> 
-		<property name="db_path" value="/db/data" /> 
-	</bean> 
-	-->
-
-
-	<!-- J O B    C O N T R O L    S E T T I N G S -->
-	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-		<property name="autoStartup">
-			<value>true</value>
-		</property>
-
-		<property name="overwriteExistingJobs">
-			<value>true</value>
-		</property>
-
-		<property name="waitForJobsToCompleteOnShutdown">
-			<!-- changed value from true to false, due to reported shutdown issues -->
-			<value>false</value>
-		</property>
-
-		<property name="quartzProperties">
-			<props>
-				<!-- ThreadPool -->
-				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
-				<!-- currently, if this is set to a value higher than 1, the twitter crawler sometimes 
-						encounters exceptions during db insert or update -->
-				<prop key="org.quartz.threadPool.threadCount">3</prop>
-			</props>
-		</property>
-		<property name="triggers">
-			<list>
-				<!-- this is the basic configuration for the social network connector -->
-				<ref bean="GeneralConfigurationTrigger" />
-				
-				<!-- activate each crawler you want and make sure to increase the threadCount number 
-						above according to the number of activated crawlers -->
-				<ref bean="TwitterCrawlerTrigger" />
-				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
-				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
-				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
-				<!-- <ref bean="FinanzforumCrawlerTrigger"/> -->
-				<ref bean="LithiumCrawlerTrigger" />
-			</list>
-		</property>
+	<bean id="GeneralConfigurationTrigger"
+		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="GeneralConfigurationDetail" />
+		<property name="startDelay" value="0" />
+		<property name="repeatInterval" value="120000" />
 	</bean>
 </beans>
