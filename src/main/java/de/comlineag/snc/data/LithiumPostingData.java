@@ -5,7 +5,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
-import de.comlineag.snc.appstate.GeneralConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.GeneralDataDefinitions;
 import de.comlineag.snc.helper.DataHelper;

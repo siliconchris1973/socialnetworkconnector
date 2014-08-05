@@ -6,7 +6,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import de.comlineag.snc.appstate.GeneralConfiguration;
-import de.comlineag.snc.constants.ConfigurationConstants;
 
 import java.io.IOException;
 import java.util.ArrayList;

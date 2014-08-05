@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
-import de.comlineag.snc.appstate.GeneralConfiguration;
 import de.comlineag.snc.constants.GeneralDataDefinitions;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.helper.DataHelper;
