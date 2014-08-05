@@ -118,5 +118,21 @@
 		<welcome-file>start.jsp</welcome-file>
 	</welcome-file-list>
 	 -->
+	
+	<!-- Added because of a deployment error on JBoss-AS 7.1.1 which mentions duplicate JAX RS implementations
+		 see this link: http://stackoverflow.com/questions/6953516/deploying-a-jersey-webapp-on-jboss-as-7  
+	-->	 
+	<context-param>
+		<param-name>resteasy.scan</param-name>
+		<param-value>false</param-value>
+	</context-param>
+	<context-param>
+		<param-name>resteasy.scan.providers</param-name>
+		<param-value>false</param-value>
+	</context-param>
+	<context-param>
+		<param-name>resteasy.scan.resources</param-name>
+		<param-value>false</param-value>
+	</context-param>
 </web-app>
         
