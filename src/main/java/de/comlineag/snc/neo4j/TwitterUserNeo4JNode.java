@@ -2,7 +2,9 @@ package de.comlineag.snc.neo4j;
 
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.json.simple.JSONObject;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -15,7 +17,7 @@ import de.comlineag.snc.data.UserData;
 
 public class TwitterUserNeo4JNode extends Neo4JNodeObject {
 	
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	private UserData userData = new UserData();
 	private JSONObject u = new JSONObject();

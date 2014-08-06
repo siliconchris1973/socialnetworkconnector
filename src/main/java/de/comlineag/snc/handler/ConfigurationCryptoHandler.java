@@ -1,6 +1,7 @@
 package de.comlineag.snc.handler;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.comlineag.snc.appstate.AppContext;
 import de.comlineag.snc.constants.CryptoProvider;
@@ -23,8 +24,7 @@ import de.comlineag.snc.crypto.ICryptoProvider;
  */
 public class ConfigurationCryptoHandler { 
 	
-	// Logger Instanz
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LogManager.getLogger(getClass().getName());
 		
 	protected ICryptoProvider configurationCryptoProvider;
 	protected SocialNetworks sourceSocialNetwork;							// currently not used

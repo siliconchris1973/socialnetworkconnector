@@ -9,7 +9,9 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -54,7 +56,7 @@ public enum SocialNetworks {
 	private final String value;
 	private final String type;
 	
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	private SocialNetworks(final String value, final String type) {
 		this.value = value;

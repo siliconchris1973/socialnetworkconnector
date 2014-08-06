@@ -3,7 +3,9 @@ package de.comlineag.snc.data;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.geojson.GeoJsonObject;
 import org.geojson.LineString;
 import org.geojson.LngLatAlt;
@@ -36,8 +38,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class LocationData {
 	
-	// Logger Instanz
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	// some static constants used to find the type and elements of geo the geoLocation object
 	private final static String GEO_LOCATION_COMPLEX_TYPE_TEXT = "geoLocation";  

@@ -7,7 +7,8 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.comlineag.snc.constants.CryptoProvider;
 
@@ -41,7 +42,7 @@ public class DesCryptoProvider implements ICryptoProvider {
 	int MIN_INITIALVECTOR_SIZE = 64;
 	
 	// Logger Instanz
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	
 	/**

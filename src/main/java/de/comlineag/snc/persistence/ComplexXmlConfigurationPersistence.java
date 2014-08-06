@@ -1,6 +1,8 @@
 package de.comlineag.snc.persistence;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -53,8 +55,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	private int customerPriority = 0;
 	private JSONObject crawlerConfigurationScope = new JSONObject();
 	
-	// Logger Instanz
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	// general invocation for every constraint
 	@Override

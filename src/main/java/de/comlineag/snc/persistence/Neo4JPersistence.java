@@ -10,7 +10,10 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.json.simple.JSONObject;
 
 import de.comlineag.snc.constants.HttpErrorMessages;
@@ -77,8 +80,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	private String fromNodeLocationUri;
 	private Long fromNodeId;
 	
-	// setup the logging
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
 	private ConfigurationCryptoHandler configurationEncryptionProvider = new ConfigurationCryptoHandler();

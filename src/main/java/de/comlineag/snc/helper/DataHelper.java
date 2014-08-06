@@ -8,7 +8,9 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
@@ -40,7 +42,7 @@ import de.comlineag.snc.constants.SocialNetworks;
 
 public class DataHelper {
 	
-	private static Logger logger = Logger.getLogger("de.comlineag.snc.data.DataHelper");
+	private static Logger logger = LogManager.getLogger("de.comlineag.snc.helper.DataHelper");
 	
 	/**
 	 * 

@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.json.simple.JSONObject;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -72,8 +74,7 @@ import de.comlineag.snc.handler.TwitterParser;
 @DisallowConcurrentExecution 
 public class TwitterCrawler extends GenericCrawler implements Job {
 
-	// Logger Instanz
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LogManager.getLogger(getClass().getName());
 
 	// Set up your blocking queues: Be sure to size these properly based on
 	// expected TPS of your stream

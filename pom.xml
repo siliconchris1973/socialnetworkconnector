@@ -48,6 +48,7 @@
 	
 	<build>
 		<plugins>
+			<!-- the actual maven plugin for build and deployment -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -57,8 +58,39 @@
 					<target>1.7</target>
 					<!-- to overcome a nasty heap memory issue -->
             		<argLine>-Xmx1024m</argLine>
+            		
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<mainClass>mainclass</mainClass>
+						</manifest>
+					</archive>
 				</configuration>
 			</plugin>
+			
+			<!-- work with dependencies, not provided on target app-server - NOT SUPPORTED BY m2e ??? --> 
+<!-- 
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+-->
 			
 			<!-- 
 				application server configuration - this is where you want to define your app-server of choice 
@@ -173,102 +205,108 @@
             </plugin>
  -->
  			
- 			<!-- GLASSFISH APPLICATION SERVER -->
- <!-- 
+ 			<!-- GLASSFISH EMBEDDED APP-SERVER -->
+ 			<plugin>
+				<groupId>org.glassfish.embedded</groupId>
+				<artifactId>maven-embedded-glassfish-plugin</artifactId>
+				<version>3.1.2.2</version>
+				<configuration>
+					<app>target/${project.artifactId}-${project.version}</app>
+					<port>8282</port>
+					<contextRoot>${project.artifactId}</contextRoot>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.glassfish.main</groupId>
+						<artifactId>simple-glassfish-api</artifactId>
+						<version>4.0-b79</version>
+					</dependency>
+					<dependency>
+						<groupId>org.glassfish.main.extras</groupId>
+						<artifactId>glassfish-embedded-all</artifactId>
+						<version>4.0-b83</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+ 			
+ 			
+ 			<!-- GLASSFISH STANDALONE APPLICATION SERVER -->
  			<plugin>
 				<groupId>org.glassfish.maven.plugin</groupId>
 				<artifactId>maven-glassfish-plugin</artifactId>
 				<version>4.0</version>
+				
 				<configuration>
 					<glassfishDirectory>/opt/glassfish4</glassfishDirectory>
 					<user>admin</user>
 					<adminPassword>admin123</adminPassword>
+					
+					<app>SocialNetworkConnector.war</app>
+					
 					<autoCreate>true</autoCreate>
 					<debug>true</debug>
 					<echo>false</echo>
 					<terse>true</terse>
- -->
- <!-- 
-					<domain>
-                        <name>SNC</name>
-                        <adminPort>4848</adminPort>
-                        <httpPort>8080</httpPort>
-                        <httpsPort>8443</httpsPort>
-                        <iiopPort>3700</iiopPort>
-                        <jmsPort>7676</jmsPort>
-                        <reuse>false</reuse>
-                        <jvmOptions>
-                            <option>-Djava.security.auth.login.config=${project.build.testOutputDirectory}/login.conf</option>
-                        </jvmOptions>
-                        <properties>
-                            <property>
-                                <name>server.log-service.file</name>
-                                <value>${domain.log.dir}/server.log</value>
-                            </property>
-                        </properties>
-					</domain>
- -->
- <!-- 
+					<executions>
+						<execution>
+							<phase>install</phase>
+							<goals>
+								<goal>deploy</goal>
+							</goals>
+						</execution>
+					</executions>
 				</configuration>
  			</plugin>
-  -->
 		</plugins>
 	</build>
-	<!-- END OF APPLICATION SERVER DEPENDENCIES -->
-
-
+	<!-- END OF APPLICATION SERVER PLUGINS -->
+	
+	<!-- Dependencies for the project -->
 	<dependencies>
+		<!-- as mentioned by Till Wohlatz to overcome build error -->
+		<dependency> 
+			<groupId>org.eclipse.persistence</groupId> 
+			<artifactId>eclipselink</artifactId> 
+			<version>2.5.0-RC1</version> 
+			<exclusions> 
+				<exclusion> 
+					<groupId>org.eclipse.persistence</groupId> 
+					<artifactId>commonj.sdo</artifactId> 
+				</exclusion> 
+			</exclusions>           
+		</dependency>
+		
+		
+		<!-- SPRING AND QUARTZ -->
 		<!-- basic dependencies for the job control -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
-			<version>4.0.2.RELEASE</version>
+			<version>4.0.6.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
-			<version>4.0.2.RELEASE</version>
+			<version>4.0.6.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-tx</artifactId>
-			<version>4.0.2.RELEASE</version>
+			<version>4.0.6.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context-support</artifactId>
-			<version>4.0.2.RELEASE</version>
+			<version>4.0.6.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
 			<version>2.2.1</version>
 		</dependency>
-
-		<!-- our logging mechanism -->
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-		</dependency>
 		
 		
-		<!-- get basic java ee7 up and running -->
-		<dependency>
-			<groupId>javax</groupId>
-			<artifactId>javaee-api</artifactId>
-			<version>7.0</version>
-			<scope>provided</scope>
-		</dependency>
-		
-		<!-- javax web api -->
-		<dependency>
-			<groupId>javax</groupId>
-			<artifactId>javaee-web-api</artifactId>
-			<version>7.0</version>
-			<scope>provided</scope>
-		</dependency>
-		
+		<!-- GUI - JAVA SERVER FACES -->
 		<!-- this is the javax servlet API  
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -347,19 +385,57 @@
 		-->
 		
 		
+		<!-- NETWORK CONNECTION -->
 		<!-- to work with the twitter api -->
 		<dependency>
 			<groupId>com.twitter</groupId>
 			<artifactId>hbc-core</artifactId> <!-- or hbc-twitter4j -->
-			<version>2.0.0</version> <!-- or whatever the latest version is -->
+			<version>2.2.0</version> <!-- or whatever the latest version is -->
 		</dependency>
 		<dependency>
 			<groupId>com.twitter</groupId>
 			<artifactId>hbc-twitter4j</artifactId> <!-- or hbc-twitter4j -->
-			<version>2.0.0</version> <!-- or whatever the latest version is -->
+			<version>2.2.0</version> <!-- or whatever the latest version is -->
 		</dependency>
 		
 		
+		<!-- HTTP AND OTHER PROTOCOL CONNECTION AND TRANSPORT -->
+		<!-- to work with http connections -->
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.3.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpmime</artifactId>
+			<version>4.3.4</version>
+		</dependency>
+		
+		<!-- to work with OData interfaces -->
+		<dependency>
+			<groupId>org.odata4j</groupId>
+			<artifactId>odata4j</artifactId>
+			<version>0.5</version>
+		</dependency>
+		
+		<!-- to work with odata calls and catch the ClientException -->
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>2.11</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- I think I only need this for the HttpErrorMessages and my own HttpStatusCodeImplementation -->
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+			<version>3.1</version>
+		</dependency>
+		
+		
+		<!-- DATA MANIPULATION -->
 		<!-- to work with json objects -->
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
@@ -370,45 +446,15 @@
 		<dependency>
 			<groupId>de.grundid.opendatalab</groupId>
 			<artifactId>geojson-jackson</artifactId>
-			<version>1.1</version>
+			<version>1.2</version>
 		</dependency>
-		
-		
-		<!-- to work with OData interfaces -->
-		<dependency>
-			<groupId>org.odata4j</groupId>
-			<artifactId>odata4j</artifactId>
-			<version>0.5</version>
-		</dependency>
-		
-		
-		<!-- to work with http connections -->
-		<dependency>
-			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
-			<version>3.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>4.2.3</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpmime</artifactId>
-			<version>4.2.3</version>
-			<scope>compile</scope>
-		</dependency>
-		
 		
 		<!-- to strip all html elements from a text -->
 		<dependency>
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.7.2</version>
+			<version>1.7.3</version>
 		</dependency>
-		
 		
 		<!-- used by truncateHtml from dataHelper -->
 		<dependency>
@@ -418,13 +464,39 @@
 		</dependency>
 		
 		
+		<!-- RUNTIME ENVIRONMENT -->
+		<!-- our logging mechanism -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.0</version>
+		</dependency>
+		
+		<!-- get basic java ee7 up and running -->
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<version>7.0</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- javax web api -->
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-web-api</artifactId>
+			<version>7.0</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		
+		
+		<!-- PERSISTENCE LAYER -->
 		<!-- To read the crawler configuration from an ini file -->
 		<dependency>
 			<groupId>org.ini4j</groupId>
 			<artifactId>ini4j</artifactId>
 			<version>0.3.3</version>
 		</dependency>
-		
 		
 		<!-- to work with the neo4j graph database -->
 		<dependency>
@@ -438,7 +510,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
 		
 		<!-- to work with SAP HANA - external JDBC Driver 
 		<dependency>
@@ -463,4 +534,18 @@
 			<url>file://${project.basedir}/repo</url>
 		</repository>
 	</repositories>
+	
+	<!-- Plugin repository for Glasshfish -->
+	<pluginRepositories>
+		<pluginRepository>
+			<id>maven.java.net</id>
+			<name>Java.net Repository for Maven</name>
+			<url>https://maven.java.net/content/groups/promoted/</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>maven2-repository.dev.java.net</id>
+			<name>Java.net Repository for Maven</name>
+			<url>http://download.java.net/maven/glassfish/</url>
+		</pluginRepository>
+	</pluginRepositories>
 </project>

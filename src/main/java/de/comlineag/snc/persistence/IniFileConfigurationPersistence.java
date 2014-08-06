@@ -2,7 +2,9 @@ package de.comlineag.snc.persistence;
 
 import de.comlineag.snc.appstate.GeneralConfiguration;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.ini4j.Ini;
 import org.ini4j.InvalidIniFormatException;
 import org.json.simple.JSONObject;
@@ -42,8 +44,7 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 	// the path to the configuration file
 	private String configDbHandler;
 	
-	// Logger Instanz
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LogManager.getLogger(getClass().getName());
 
 	@SuppressWarnings("unchecked")
 	@Override

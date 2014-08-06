@@ -2,7 +2,9 @@ package de.comlineag.snc.handler;
 
 import java.io.InputStream;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -36,7 +38,7 @@ import de.comlineag.snc.constants.LithiumStatusCode;
  */
 public final class LithiumParser extends GenericParser {
 
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	public LithiumParser() {}
 

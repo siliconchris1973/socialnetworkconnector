@@ -3,8 +3,12 @@ package de.comlineag.snc.neo4j;
 import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.json.simple.JSONObject;
+
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Direction;
@@ -28,8 +32,7 @@ import org.neo4j.graphdb.Traverser.Order;
  */
 abstract class Neo4JNodeObject implements Node {
 	
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	
+	private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	// these are used to find a single node in the graph
 	private String locationUri;

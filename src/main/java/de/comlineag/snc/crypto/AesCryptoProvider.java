@@ -1,6 +1,7 @@
 package de.comlineag.snc.crypto;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * 
@@ -19,7 +20,7 @@ import org.apache.log4j.Logger;
 public class AesCryptoProvider implements ICryptoProvider {
 	
 	// Logger Instanz
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LogManager.getLogger(getClass().getName());
 		
 	// how long must the initial vector be
 	int MIN_INITIALVECTOR_SIZE = 256;

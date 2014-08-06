@@ -12,7 +12,9 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 */
 
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -42,7 +44,7 @@ public class SchedulerBean implements Serializable {
 /*
 	private static final long serialVersionUID = 1L;
 	// Logger Instanz
-	//private final Logger logger = Logger.getLogger(getClass().getName());
+	//private final Logger logger = LogManager.getLogger(getClass().getName());
 
 	private Scheduler scheduler;
 	

@@ -4,14 +4,17 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
+import com.sun.jersey.api.client.ClientHandlerException;
+
 import org.joda.time.DateTimeZone;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.odata4j.consumer.ODataConsumer;
 import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OProperties;
-
-import com.sun.jersey.api.client.ClientHandlerException;
 
 import de.comlineag.snc.appstate.GeneralConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
@@ -92,7 +95,8 @@ public class HANAPersistence implements IPersistenceManager {
 	private SocialNetworks SN;
 	
 	
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LogManager.getLogger(getClass().getName());
+	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
 	private ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 

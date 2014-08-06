@@ -3,7 +3,9 @@ package de.comlineag.snc.data;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.json.simple.JSONObject;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
@@ -48,7 +50,7 @@ import de.comlineag.snc.helper.DataHelper;
 
 public final class FacebookPostingData extends PostData {
 
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LogManager.getLogger(getClass().getName());
 
 	/**
 	 * Constructor, based on the JSONObject sent from Facebook the Data Object is prepared

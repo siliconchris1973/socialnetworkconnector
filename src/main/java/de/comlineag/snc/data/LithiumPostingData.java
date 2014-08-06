@@ -1,6 +1,8 @@
 package de.comlineag.snc.data;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -162,7 +164,7 @@ import de.comlineag.snc.helper.DataHelper;
 
 public final class LithiumPostingData extends PostData {
 	
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	public LithiumPostingData(){}
 	

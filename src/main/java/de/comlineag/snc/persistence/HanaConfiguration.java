@@ -9,7 +9,9 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -28,8 +30,8 @@ import org.w3c.dom.Node;
  */
 public final class HanaConfiguration {
 	
-	// Logger Instanz
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LogManager.getLogger(getClass().getName());
+	
 	private static String configFile = "src/main/webapp/WEB-INF/HANA_Configuration.xml";
 	
 	private static String PATH_TO_TABLES = "comline.saa.data.tables";

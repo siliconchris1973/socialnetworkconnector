@@ -16,7 +16,9 @@ import org.quartz.JobExecutionException;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.GeneralConfiguration;
@@ -71,8 +73,7 @@ import de.comlineag.snc.handler.LithiumUser;
 @DisallowConcurrentExecution 
 public class LithiumCrawler extends GenericCrawler implements Job {
 
-	// Logger Instanz
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
 	private ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();

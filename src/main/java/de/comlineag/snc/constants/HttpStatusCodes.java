@@ -17,6 +17,10 @@ import org.apache.http.HttpResponse;
  * @changelog	0.1 (Chris)		class created
  * 				0.2 			query on whether a status code is ok or not
  * 
+ * @TODO 1. try to get HttpStatus from org.apache.httpcomponents.httpclient 
+ * 			instead of org.apache.commons.httpclient.HttpStatus. This way we would get
+ * 			rid of an additional dependency
+ * 
  */
 public enum HttpStatusCodes {
 	UNKNOWN 						(-1												, false),

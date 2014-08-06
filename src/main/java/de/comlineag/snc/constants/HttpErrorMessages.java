@@ -13,6 +13,10 @@ import org.apache.commons.httpclient.HttpStatus;
  *
  * @changelog	0.1 (Chris)		class created
  * 				0.2 			changed text elements
+ *
+ * @TODO 1. try to get HttpStatus from org.apache.httpcomponents.httpclient 
+ * 			instead of org.apache.commons.httpclient.HttpStatus. This way we would get
+ * 			rid of an additional dependency
  * 
  */
 public class HttpErrorMessages { // extends Exception {
