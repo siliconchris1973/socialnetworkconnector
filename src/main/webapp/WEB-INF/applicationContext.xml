@@ -348,7 +348,21 @@
 	 -->
 	 
 	<!-- C O U C H D B    P E R S I S T E N C E    (in progress) -->
+	<!-- 
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.CouchDbPersistence">
+		<property name="host" value="localhost" />
+		<property name="port" value="8000" />
+		<property name="protocol" value="http" />
+		<property name="location" value="/comline/saa/services" />
+		<property name="serviceUserEndpoint" value="saveUser.xsodata" />
+		<property name="servicePostEndpoint" value="savePost.xsodata" />
+		<property name="user" value="admin" />
+		<property name="pass" value="admin1234" />
+	</bean>
+	 -->
+	
+	<!-- R I A K - D B    P E R S I S T E N C E    (in progress) -->
+	<bean id="persistenceManager" class="de.comlineag.snc.persistence.RiakDbPersistence">
 		<property name="host" value="localhost" />
 		<property name="port" value="8000" />
 		<property name="protocol" value="http" />
