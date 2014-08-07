@@ -35,7 +35,7 @@ public class RiakDbPersistence implements IPersistenceManager {
 	private String location;
 	private String serviceUserEndpoint;
 	private String servicePostEndpoint;
-	// OData client endpoints
+	// Rest client endpoints
 	private static String userService;
 	private static String postService;
 		
@@ -255,7 +255,7 @@ public class RiakDbPersistence implements IPersistenceManager {
 		// static variant to set the truncated flag - which is not used anyway at the moment
 		int truncated = (postData.getTruncated()) ? 1 : 0;
 		
-		// in case the connection is NOT opened already, attempt to create an OData Consumer
+		// in case the connection is NOT opened already, attempt to create an Rest Consumer
 		if (postService == null) {
 			try {
 				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getCryptoProviderName());
@@ -273,7 +273,7 @@ public class RiakDbPersistence implements IPersistenceManager {
 		}
 		logger.debug("connected to service endpoint " + this.protocol+"://" + this.host + ":" + this.port + this.location + "/" + this.servicePostEndpoint);
 		
-		// now build the OData statement and execute it against the connection endpoint
+		// now build the Rest statement and execute it against the connection endpoint
 		@SuppressWarnings("unused")
 		String newPost = null;
 		try {
@@ -413,7 +413,7 @@ public class RiakDbPersistence implements IPersistenceManager {
 	// the actual methods to update posts and users
 	//
 	/**
-	 * @description	update post with OData
+	 * @description	update post with Rest
 	 * 
 	 * @param 		PostData postData
 	 * @param		OEntity thePostEntity
@@ -429,7 +429,7 @@ public class RiakDbPersistence implements IPersistenceManager {
 		// static variant to set the truncated flag - which is not used anyway at the moment
 		int truncated = (postData.getTruncated()) ? 1 : 0;
 		
-		// in case the connection is NOT opened already, attempt to create an OData Consumer
+		// in case the connection is NOT opened already, attempt to create an Rest Consumer
 		if (postService == null) {
 			try {
 				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getCryptoProviderName());
@@ -446,7 +446,7 @@ public class RiakDbPersistence implements IPersistenceManager {
 		}
 		logger.debug("connected to service endpoint " + this.protocol+"://" + this.host + ":" + this.port + this.location + "/" + this.servicePostEndpoint);
 		
-		// now build the OData statement and execute it against the connection endpoint
+		// now build the Rest statement and execute it against the connection endpoint
 		try {
 			/* 
 					//.properties(OProperties.string("sn_id", postData.getSnId()))
@@ -502,7 +502,7 @@ public class RiakDbPersistence implements IPersistenceManager {
 	
 	
 	/**
-	 * @description	update user with OData
+	 * @description	update user with Rest
 	 * 
 	 * @param 		UserData userData
 	 * @param 		OEntity theUserEntity 

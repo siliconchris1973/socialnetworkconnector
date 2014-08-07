@@ -331,8 +331,7 @@
 	</bean> 
 	-->
 	
-	<!-- H A N A    P E R S I S T E N C E    (WORKS) -->
-	<!-- 
+	<!-- H A N A    P E R S I S T E N C E    (WORKS) --> 
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.HANAPersistence">
 		<property name="host" value="192.168.131.30" />
 		<property name="port" value="8000" />
@@ -345,7 +344,7 @@
 		<property name="user" value="U0JNX0VYVA==" />
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
 	</bean>
-	 -->
+	
 	 
 	<!-- C O U C H D B    P E R S I S T E N C E    (in progress) -->
 	<!-- 
@@ -362,6 +361,7 @@
 	 -->
 	
 	<!-- R I A K - D B    P E R S I S T E N C E    (in progress) -->
+	<!-- 
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.RiakDbPersistence">
 		<property name="host" value="localhost" />
 		<property name="port" value="8000" />
@@ -372,7 +372,8 @@
 		<property name="user" value="admin" />
 		<property name="pass" value="admin1234" />
 	</bean>
-	
+	-->
+	 
 	<!-- N E O 4 J    P E R S I S T E N C E    (WORKS in part) -->
 	<!-- 
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.Neo4JPersistence"> 
