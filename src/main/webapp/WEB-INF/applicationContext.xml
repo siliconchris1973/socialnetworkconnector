@@ -109,6 +109,9 @@
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map>
+				<!-- The 2-digit shortcut for the social network at hand - appended to the user- and post-ids in the db to form a unique key -->
+				<entry key="networkMatchcode" value="TW"/>
+				
 				<!-- These are the security tokens for the twitter API -->
 				<entry key="consumerKey" value="zlGuAavBH2T23hIm57l8WA" />
 				<entry key="consumerSecret" value="xzqH6lLWnXLvlHJooNDaCDXlzJzv976JcWt8y2eyHBk" />
@@ -144,6 +147,10 @@
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map>
+				<!-- The 2-digit shortcut for the social network at hand - appended to the user- and post-ids in the db to form a unique key -->
+				<!-- CHANGE THIS, IN CASE YOU WANT TO SETUP MULTIPLE AND DIFFERENT LITHIUM NETWORK CRAWLER IN PARALLEL!!! -->
+				<entry key="networkMatchcode" value="CC"/>
+				
 				<!-- These are security tokens -->
 				<entry key="consumerKey" value="" />
 				<entry key="consumerSecret" value="" />
@@ -178,6 +185,9 @@
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map>
+				<!-- The 2-digit shortcut for the social network at hand - appended to the user- and post-ids in the db to form a unique key -->
+				<entry key="networkMatchcode" value="FB"/>
+				
 				<!-- These are security tokens -->
 				<entry key="consumerKey" value="" />
 				<entry key="consumerSecret" value="" />
@@ -219,6 +229,8 @@
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map> 
+				<entry key="networkMatchcode" value="GP"/>
+				
 				<entry key="consumerKey" value="" /> 
 				<entry key="consumerSecret" value="" /> 
 				<entry key="token" value="" /> 
@@ -296,7 +308,7 @@
 		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/CortalConsorsSpecificCrawlerConfiguration.xml" />
 	</bean> 
 	
-	<!-- this is the bean to get the crawler configuration from an xml file 
+	<!-- this is the bean to get the crawler configuration from a simple xml file 
 		(WORKS BUT NO CUSTOMER SPECIFIC CONFIGURATION POSSIBLE)	-->
 <!-- 
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.SimpleXmlConfigurationPersistence"> 

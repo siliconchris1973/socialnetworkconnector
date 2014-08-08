@@ -14,7 +14,7 @@ import org.quartz.spi.TriggerFiredBundle;
  * @status		in development
  * 
  * @description	this class is used to setup the overall configuration of the SNC.
- * 				In this fall the domain driven and/or customer driven configuration for 
+ * 				In this case the domain driven and/or customer driven configuration for 
  * 				crawler but also runtime configuration options, like whether or not 
  * 				to warn on weak encryption or simple configuration options. 
  * 				It is instantiated by the job control from applicationContext.xml and 

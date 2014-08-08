@@ -22,7 +22,7 @@ import de.comlineag.snc.crypto.ICryptoProvider;
  * 				0.2				deleted methods for set/getEntropy
  * 
  */
-public class SearchCryptoHandler { 
+public class SearchConfigurationCryptoHandler { 
 	
 	private final Logger logger = LogManager.getLogger(getClass().getName());
 		
@@ -31,7 +31,7 @@ public class SearchCryptoHandler {
 	protected CryptoProvider sourceEncryptionProvider;					// currently not used
 	
 	
-	public SearchCryptoHandler() {
+	public SearchConfigurationCryptoHandler() {
 		searchCryptoProvider = (ICryptoProvider) AppContext.Context.getBean("searchCryptoProvider");
 	}
 	
