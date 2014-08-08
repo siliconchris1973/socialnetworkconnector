@@ -35,15 +35,6 @@
 	<properties>
 		<!-- source encoding for the project got us rid of that annoying error messages in eclipse -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	
-		<!-- Deployment properties for the jboss as application server 7.1.1 -->
-		<!--
-		<jboss-as.deploy.hostname>localhost</jboss-as.deploy.hostname>
-		<jboss-as.deploy.user>admin</jboss-as.deploy.user>
-		<jboss-as.deploy.pass>gaga3n+M</jboss-as.deploy.pass> 
-		<jboss-as.deploy.pass>${myproject.deploy.pass.prod}</jboss-as.deploy.pass>
-		<plugin.war.warName>${project.build.finalName}</plugin.war.warName>
-		-->
 	</properties>
 	
 	<build>
@@ -96,6 +87,7 @@
 				application server configuration - this is where you want to define your app-server of choice 
 			-->
 			<!-- JETTY APPLICATION SERVER --> 
+<!-- 
 			<plugin>
 				<groupId>org.mortbay.jetty</groupId>
 				<artifactId>maven-jetty-plugin</artifactId>
@@ -111,17 +103,9 @@
 					<contextPath>/</contextPath>
 				</configuration>
 			</plugin>
-			
+-->
 					
-			<!-- DEFAULT TOMCAT APPLICATION SERVER --> 
-<!--
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>tomcat-maven-plugin</artifactId>
-			</plugin>
---> 
-			
-			
+
 			<!-- TOMCAT 7 APPLICATION SERVER -->
 			<!-- CAUSES THIS ERROR AT THE MOMENT:
 					The POM for org.apache.tomcat.maven:tomcat7-maven-plugin:jar:2.3 is missing, no dependency information available -->
@@ -143,67 +127,10 @@
 				</configuration>
 			</plugin> 
 -->
-			
-			
-			<!-- JBOSS-AS 7.1.1 APPLICATION SERVER -->
-<!-- 
-            <plugin>
-                <groupId>org.jboss.as.plugins</groupId>
-                <artifactId>jboss-as-maven-plugin</artifactId>
-                <version>7.5.Final</version>
-				<configuration>
-					<project>snc</project> 
-                	<jbossHome>/opt/jboss/standalone</jbossHome> 
-					<port>9999</port> 
-					<name>SocialNetworkConnector.war</name>
-					<username>admin</username>
-					<password>gaga3n+M</password>
-				</configuration>
-                <executions>
- -->
-                	<!-- make sure the sap hana jdbc driver is deployed as well  --> 
-<!-- 
-                    <execution>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>deploy-artifact</goal>
-                        </goals>
-                        <configuration>
-                            <groupId>sap</groupId>
-                            <artifactId>hana</artifactId>
-                            <name>ngdbc.jar</name>
-                        </configuration>
-                    </execution>
--->
-					<!-- Undeploy the application on clean -->
-<!-- 
-					<execution>
-						<id>undeploy</id>
-						<phase>clean</phase>
-						<goals>
-							<goal>undeploy</goal>
-						</goals>
-						<configuration>
-							<ignoreMissingDeployment>true</ignoreMissingDeployment>
-						</configuration>
-					</execution>
- -->
-					<!-- deploy application during install phase -->
-<!-- 
-					<execution>
-                        <id>deploy</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>deploy</goal>
-                        </goals>
-                    </execution>
- -->
- <!-- 
-				</executions>
-            </plugin>
- -->
+
  			
  			<!-- GLASSFISH EMBEDDED APP-SERVER -->
+<!-- 
  			<plugin>
 				<groupId>org.glassfish.embedded</groupId>
 				<artifactId>maven-embedded-glassfish-plugin</artifactId>
@@ -226,12 +153,13 @@
 					</dependency>
 				</dependencies>
 			</plugin>
- 			
+ -->		
  			
  			<!-- GLASSFISH STANDALONE APPLICATION SERVER -->
+<!-- 
  			<plugin>
-				<groupId>org.glassfish.maven.plugin</groupId>
-				<artifactId>maven-glassfish-plugin</artifactId>
+				<groupId>org.glassfish.main.common</groupId>
+				<artifactId>glassfish-api</artifactId>
 				<version>4.0</version>
 				
 				<configuration>
@@ -255,6 +183,7 @@
 					</executions>
 				</configuration>
  			</plugin>
+-->
 		</plugins>
 	</build>
 	<!-- END OF APPLICATION SERVER PLUGINS -->
@@ -383,7 +312,7 @@
 		-->
 		
 		
-		<!-- NETWORK CONNECTION -->
+		<!-- SOCIAL NETWORK CONNECTION -->
 		<!-- to work with the twitter api -->
 		<dependency>
 			<groupId>com.twitter</groupId>
@@ -409,6 +338,13 @@
 			<artifactId>httpmime</artifactId>
 			<version>4.3.4</version>
 		</dependency>
+		<!-- TODO get rid of this. it is only needed for the HttpErrorMessages and HttpStatusCode Implementation 
+		-->
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+			<version>3.1</version>
+		</dependency>
 		
 		<!-- to work with OData interfaces -->
 		<dependency>
@@ -423,13 +359,6 @@
 			<artifactId>jersey-client</artifactId>
 			<version>2.11</version>
 			<scope>provided</scope>
-		</dependency>
-		
-		<!-- I think I only need this for the HttpErrorMessages and my own HttpStatusCodeImplementation -->
-		<dependency>
-			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
-			<version>3.1</version>
 		</dependency>
 		
 		
@@ -523,13 +452,39 @@
 			</exclusions>
 		</dependency>
 		
-		<!-- to work with SAP HANA - external JDBC Driver 
+		
+		<!-- to work with the riak ring-db system -->
+<!-- 
+		<dependency>
+			<groupId>com.basho.riak</groupId>
+			<artifactId>riak-client</artifactId>
+			<version>2.0.0.RC1</version>
+		</dependency>
+-->	
+		
+		<!-- activate to work with SAP HANA - external JDBC Driver --> 
+<!--
 		<dependency>
 			<groupId>com.sap</groupId>
 			<artifactId>ngdbc</artifactId>
 			<version>1.00.68</version>
 		</dependency>
-		-->
+-->
+
+		<!-- activate to work with cassandra db system -->
+<!-- 
+		<dependency>
+			<groupId>com.datastax.cassandra</groupId>
+			<artifactId>cassandra-driver-core</artifactId>
+			<version>1.0.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+-->
 	</dependencies>
 
 	<!-- a local maven repository - currently only for the external ngdbc.jar for sap hana -->

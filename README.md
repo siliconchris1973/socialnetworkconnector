@@ -12,7 +12,7 @@ applicationContext.xml is used to setup the basic runtime environment of SNC, li
 
 
 CrawlerConfiguration
-In CrawlerConfiguration you'll find the files to configure and adapt the crawler to your needs. take a look at the read me.md file there.
+In CrawlerConfiguration you'll find the files to configure and adapt the crawler to your needs. take a look at the readme.md file there.
 
 
 GeneralConfiguration.xml 
