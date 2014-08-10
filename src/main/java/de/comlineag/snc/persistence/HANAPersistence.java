@@ -8,8 +8,9 @@ import com.sun.jersey.api.client.ClientHandlerException;
 
 import org.joda.time.DateTimeZone;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 import org.odata4j.consumer.ODataConsumer;
 import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
@@ -94,8 +95,11 @@ public class HANAPersistence implements IPersistenceManager {
 	private Long Id;
 	private SocialNetworks SN;
 	
+	// we use simple org.apache.log4j.Logger for lgging
+	private final Logger logger = Logger.getLogger(getClass().getName());
+	// in case you want a log-manager use this line and change the import above
+	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
-	private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
 	private ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();

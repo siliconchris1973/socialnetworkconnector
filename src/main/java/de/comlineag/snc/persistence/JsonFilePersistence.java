@@ -2,8 +2,9 @@ package de.comlineag.snc.persistence;
 
 import java.io.FileWriter;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 import org.json.simple.JSONObject;
 
@@ -38,8 +39,11 @@ public class JsonFilePersistence implements IPersistenceManager {
 	// Servicelocation 
 	private String savePoint = "./json";
 	
-	private final Logger logger = LogManager.getLogger(getClass().getName());
-	
+	// we use simple org.apache.log4j.Logger for lgging
+	private final Logger logger = Logger.getLogger(getClass().getName());
+	// in case you want a log-manager use this line and change the import above
+	//private final Logger logger = LogManager.getLogger(getClass().getName());
+		
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
 	private DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
 

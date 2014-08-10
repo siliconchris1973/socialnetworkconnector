@@ -1,7 +1,8 @@
 package de.comlineag.snc.crypto;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  * 
@@ -19,8 +20,10 @@ import org.apache.logging.log4j.LogManager;
  */
 public class Des3CryptoProvider implements ICryptoProvider {
 	
-	// Logger Instanz
-	private final Logger logger = LogManager.getLogger(getClass().getName());
+	// we use simple org.apache.log4j.Logger for lgging
+	private final Logger logger = Logger.getLogger(getClass().getName());
+	// in case you want a log-manager use this line and change the import above
+	//private final Logger logger = LogManager.getLogger(getClass().getName());
 		
 	// how long must the initial vector be
 	int MIN_INITIALVECTOR_SIZE = 128;

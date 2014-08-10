@@ -22,7 +22,7 @@
 	
 	<groupId>de.comlineag.snc</groupId>
 	<artifactId>SocialNetworkConnector</artifactId>
-	<version>0.2.5-SNAPSHOT</version>
+	<version>0.2.6-SNAPSHOT</version>
 	
 	<organization>
 		<name>COMLINE AG</name>
@@ -316,13 +316,22 @@
 		
 		
 		<!-- RUNTIME ENVIRONMENT -->
-		<!-- our logging mechanism -->
+		<!-- the logging mechanism - you can either use org.apache.logging.log4j or log4j. in latter case 
+			 if you change this, however, be sure to edit ALL classes with logging and change import and 
+			 instantiation of logging
+		-->
+<!-- 
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
 			<version>2.0</version>
 		</dependency>
-		
+-->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
 		<!-- Xerces Dependencies to parse the log4j.xml: xercesImpl.jar and xml-apis.jar -->
 		<dependency>
 			<groupId>xerces</groupId>
@@ -332,14 +341,15 @@
 		</dependency>
 		<dependency>
 			<groupId>xml-apis</groupId>
-			<artifactId>xml-apis</artifactId>
+			<artifactId>xml-apis</artifactId> 
 			<!-- xml-apis was relocated from version 2.0.2 to 1.0.b2  
 				 while group- and artifact-id stayed the same, does 
 				 not make any sense to me, but that is what mvn says -->
 			<version>1.0.b2</version>
 			<scope>provided</scope>
 		</dependency>
-		
+
+
 		<!-- get basic java ee7 up and running 
 		<dependency>
 			<groupId>javax</groupId>

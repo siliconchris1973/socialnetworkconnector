@@ -2,8 +2,9 @@ package de.comlineag.snc.persistence;
 
 import de.comlineag.snc.appstate.GeneralConfiguration;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 import org.ini4j.Ini;
 import org.ini4j.InvalidIniFormatException;
@@ -44,8 +45,11 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 	// the path to the configuration file
 	private String configDbHandler;
 	
-	private final Logger logger = LogManager.getLogger(getClass().getName());
-
+	// we use simple org.apache.log4j.Logger for lgging
+	private final Logger logger = Logger.getLogger(getClass().getName());
+	// in case you want a log-manager use this line and change the import above
+	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public ArrayList<T> getConstraint(String category, JSONObject configurationScope) {

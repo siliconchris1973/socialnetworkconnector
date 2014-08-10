@@ -9,8 +9,9 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -51,8 +52,11 @@ import org.w3c.dom.Node;
 @DisallowConcurrentExecution
 public final class GeneralConfiguration implements Job {
 	
-	// Logger Instanz
-	private final Logger logger = LogManager.getLogger(getClass().getName());
+	// we use simple org.apache.log4j.Logger for lgging
+	private final Logger logger = Logger.getLogger(getClass().getName());
+	// in case you want a log-manager use this line and change the import above
+	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	
 	private static String configFile = "src/main/webapp/WEB-INF/GeneralConfiguration.xml";
 	
 	// some publicly available runtime informations

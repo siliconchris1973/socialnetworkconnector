@@ -1,7 +1,8 @@
 package de.comlineag.snc.data;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 import org.json.simple.JSONObject;
 
@@ -37,8 +38,11 @@ import de.comlineag.snc.constants.SocialNetworks;
 
 public final class FacebookUserData extends UserData {
 
-	private final Logger logger = LogManager.getLogger(getClass().getName());
-
+	// we use simple org.apache.log4j.Logger for lgging
+	private final Logger logger = Logger.getLogger(getClass().getName());
+	// in case you want a log-manager use this line and change the import above
+	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	
 	/**
 	 * Constructor, based on the JSONObject sent from Facebook the Data Object is prepared
 	 * 

@@ -11,8 +11,9 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 import org.json.simple.JSONObject;
 
@@ -53,6 +54,10 @@ import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
  * TODO 3. check implementation of geo geoLocation
  */
 public class Neo4JPersistence implements IPersistenceManager {
+	// we use simple org.apache.log4j.Logger for lgging
+	private final Logger logger = Logger.getLogger(getClass().getName());
+	// in case you want a log-manager use this line and change the import above
+	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	// Servicelocation
 	private String host;
@@ -79,8 +84,6 @@ public class Neo4JPersistence implements IPersistenceManager {
 	// contains ID and position of a node within the graph - used as the origin of a relationship (edge between nodes)
 	private String fromNodeLocationUri;
 	private Long fromNodeId;
-	
-	private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
 	private ConfigurationCryptoHandler configurationEncryptionProvider = new ConfigurationCryptoHandler();

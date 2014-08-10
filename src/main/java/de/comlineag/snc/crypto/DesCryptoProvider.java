@@ -7,8 +7,9 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 import de.comlineag.snc.constants.CryptoProvider;
 
@@ -27,7 +28,13 @@ import de.comlineag.snc.constants.CryptoProvider;
  * 
  */
 public class DesCryptoProvider implements ICryptoProvider {
-
+	
+	// we use simple org.apache.log4j.Logger for lgging
+	private final Logger logger = Logger.getLogger(getClass().getName());
+	// in case you want a log-manager use this line and change the import above
+	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	
+	
 	byte[] keyBytes;
 	byte[] ivBytes;
 	
@@ -40,10 +47,6 @@ public class DesCryptoProvider implements ICryptoProvider {
 	
 	// how long must the initial vector be
 	int MIN_INITIALVECTOR_SIZE = 64;
-	
-	// Logger Instanz
-	private final Logger logger = LogManager.getLogger(getClass().getName());
-	
 	
 	/**
 	 * @description Decrypts a given string 
