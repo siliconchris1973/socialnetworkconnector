@@ -89,7 +89,9 @@ public final class FacebookUserData extends UserData {
 		// so I can check on initialized or not initialized values for the
 		// posting
 		id = 0;
-		sn_id = SocialNetworks.FACEBOOK.getValue();
+		//sn_id = SocialNetworks.FACEBOOK.getValue();
+		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "FACEBOOK");
+		
 		username = null;
 		screen_name = null;
 		lang = null;

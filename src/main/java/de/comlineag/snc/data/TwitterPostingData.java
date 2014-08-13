@@ -277,7 +277,8 @@ public final class TwitterPostingData extends PostData {
 		
 		domain = new CrawlerConfiguration<String>().getDomain();
 		customer = new CrawlerConfiguration<String>().getCustomer();
-		sn_id = SocialNetworks.TWITTER.getValue();
+		//sn_id = SocialNetworks.TWITTER.getValue();
+		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "TWITTER");
 		
 		text = null;
 		raw_text = null;

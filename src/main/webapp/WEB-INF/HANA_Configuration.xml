@@ -7,13 +7,17 @@
 	anything on the given layout of the database, but it is not recommended
 	to do so. 
 	
+	
 	What is of utmost importance is the layout of this file itself.
 	 
 	- - -		DO NOT CHANGE THE LAYOUT OF THIS FILE!		- - -
 	
 	In contrast to all other configuration files, the layout of this file
 	is not adaptable. That is, the path to the elements is hardcoded and
-	not configured via GeneralConfiguration.xml section XmlLayout! 
+	not configured via GeneralConfiguration.xml section XmlLayout! As a
+	consequence, if you change the layout of this file and hope to adapt 
+	those changes in GeneralConfiguration, your attempt will fail and the 
+	HANA persistence layer will cease to work.
 -->
 <configurations>
 	<configuration scope="DbLayout">

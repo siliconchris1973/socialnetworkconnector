@@ -167,7 +167,8 @@ public final class LithiumUserData extends UserData {
 	
 	private void initialize(){
 		id 						= 0;
-		sn_id 					= SocialNetworks.LITHIUM.getValue();
+		//sn_id 					= SocialNetworks.LITHIUM.getValue();
+		sn_id 					= SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM");
 		username 				= null;
 		screen_name 			= null;
 		geoLocation 			= "";

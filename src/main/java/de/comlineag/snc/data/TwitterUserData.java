@@ -89,7 +89,8 @@ public final class TwitterUserData extends UserData {
 		// so I can check on initialized or not initialized values for the
 		// posting
 		id = 0;
-		sn_id = SocialNetworks.TWITTER.getValue();
+		//sn_id = SocialNetworks.TWITTER.getValue();
+		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "TWITTER");
 		username = null;
 		screen_name = null;
 		lang = null;

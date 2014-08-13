@@ -68,7 +68,7 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
-		configurationScope.put((String) "SN_ID", (String) "\""+SocialNetworks.FACEBOOK+"\"");
+		configurationScope.put((String) "SN_ID", (String) "\""+SocialNetworks.getSocialNetworkConfigElement("code", "FACEBOOK")+"\"");
 				
 		// set the customer we start the crawler for
 		String curCustomer = (String) configurationScope.get(GeneralConfiguration.getCustomeridentifier());		

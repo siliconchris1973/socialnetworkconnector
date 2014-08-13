@@ -108,7 +108,8 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		CrawlerConfiguration<?> twitterConfig = new CrawlerConfiguration();
 		//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
 		JSONObject configurationScope = twitterConfig.getCrawlerConfigurationScope();
-		configurationScope.put((String) "SN_ID", (String) SocialNetworks.TWITTER.toString());
+		configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", "TWITTER"));
+		
 		
 		// set the customer we start the crawler for and log the startup message
 		String curDomain = (String) configurationScope.get(GeneralConfiguration.getDomainidentifier());

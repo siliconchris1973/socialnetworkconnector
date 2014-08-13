@@ -102,7 +102,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		CrawlerConfiguration<?> lithiumConfig = new CrawlerConfiguration();
 		//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
 		JSONObject configurationScope = lithiumConfig.getCrawlerConfigurationScope();
-		configurationScope.put((String) "SN_ID", (String) SocialNetworks.LITHIUM.toString());
+
+		configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM"));
 		
 		// set the customer we start the crawler for and log the startup message
 		String curDomain = (String) configurationScope.get(GeneralConfiguration.getDomainidentifier());

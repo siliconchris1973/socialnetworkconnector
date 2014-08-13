@@ -2,17 +2,18 @@
 <!-- 
 	This is the xml configuration file for the social network connector.
 	
-	It is used to setup general options for the runtime behavior of the SNC
-	First of all the domain and customer this specific instance of the SNC 
-	is started for, is configured here.
-	Then you can configure certain runtime behavior for the SNC in here. For 
-	example, you can configure if the system shall create a json file on disk
-	in case the creation of a dataset in the db fails.
+	It is used to setup general options for the runtime behavior of the SNC.
+	You can, for example, configure if the system shall create a json file 
+	on disk, in case the creation of a dataset in the db fails.
+	
+	Additionally the available social networks together with specific parameters
+	are defined in here.
+	
 	Third, the XML structure for the configuration files of the actual crawler
 	is configured in this file - but you are discouraged changing this.   
 -->
 <configurations>
-	<!-- START OF RUNTIME CONFIG -->
+	<!-- RUNTIME CONFIGURATION -->
 	<configuration scope="runtime">
 		<!-- show warning in case the simple INI file configuration is used -->
 		<param name="WarnOnSimpleConfigOption">
@@ -57,8 +58,12 @@
 	</configuration>
 	
 	
+	<!-- SOCIAL NETWORK DEFINITIONS -->
 	<!-- This section defines the social networks which can be used
-	
+		 You can define values for a 2-digit code, a name, a domain
+		 and description and whether or the network is supported or
+		 not for each social network to crawl.
+		 
 		 You normally do not need to change anything in here except
 		 for the Lithium network. Lithium is special in that it can
 		 be hosted by a company for their own domain of interest. 
@@ -66,101 +71,135 @@
 		 you have to define your own 2-letter code for each Lithium
 		 network to crawl for each customer. Failing to do so could
 		 lead to a situation where two Lithium networks are crawled
-		 for two different customers and both try to insert a post 
-		 with the same id.
+		 and both try to insert a post with the same combination of
+		 code and id - say CC-1295 for example.
 	-->
 	<configuration scope="socialNetworkDefinition">
 		<network name="LITHIUM">
+			<!-- change this code for every customer -->
 			<code>CC</code>
 			<name>Lithium</name>
+			<!-- change this description for every customer -->
 			<description>Lithium forum by Cortal Consors</description>
+			<!-- change the url to the location of the lithium network in use by customer -->
 			<domain>https://wissen.cortalconsors.de</domain>
+			<supported>YES</supported>
 		</network>
 		<network name="FINANZFORUM">
 			<code>FI</code>
 			<name>Finanzforum</name>
 			<description>Finanzforum</description>
 			<domain>bugmenot.com</domain>
+			<supported>NO</supported>
 		</network>
 		
 		<!-- below this line the standard social networks are defined -->
-		<network name="ALL">
-			<code>AL</code>
-			<name>All</name>
-			<description>All networks</description>
-			<domain>bugmenot.com</domain>
-		</network>
-		<network name="UNKNOWN">
-			<code>XY</code>
-			<name>Unknown</name>
-			<description>Unknown network</description>
-			<domain>bugmenot.com</domain>
-		</network>
 		<network name="TWITTER">
 			<code>TW</code>
 			<name>Twitter</name>
 			<description>Twitter</description>
 			<domain>twitter.com</domain>
+			<supported>YES</supported>
 		</network>
 		<network name="FACEBOOK">
 			<code>FB</code>
 			<name>Facebook</name>
 			<description>Facebook</description>
 			<domain>facebook.com</domain>
+			<supported>NO</supported>
 		</network>
 		<network name="GOOGLE+">
 			<code>GP</code>
 			<name>Google+</name>
-			<description>Google +</description>
+			<description>Google+ - Facebook a la Google</description>
 			<domain>plus.google.com</domain>
+			<supported>NO</supported>
 		</network>
 		<network name="LINKEDIN">
 			<code>LI</code>
 			<name>Linkedin</name>
 			<description>Linkedin</description>
 			<domain>linkedin.com</domain>
+			<supported>NO</supported>
 		</network>
 		<network name="XING">
 			<code>XI</code>
 			<name>XING</name>
 			<description>Xing</description>
 			<domain>xing.com</domain>
+			<supported>NO</supported>
 		</network>
 		<network name="STREAMWORK">
 			<code>SW</code>
 			<name>Streamwork</name>
-			<description>Streamwork</description>
+			<description>Streamwork - SAP's own social network community</description>
 			<domain>streamwork.com</domain>
+			<supported>NO</supported>
 		</network>
 		<network name="INSTAGRAM">
 			<code>IN</code>
 			<name>Instagram</name>
-			<description>Instagram</description>
+			<description>Instagram - take a look at what I shot</description>
 			<domain>instagram.com</domain>
+			<supported>NO</supported>
 		</network>
 		<network name="FOURSQUARE">
 			<code>FS</code>
 			<name>Foursquare</name>
-			<description>Foursquare</description>
+			<description>Foursquare - where am I and what do I do</description>
 			<domain>foursquare.com</domain>
+			<supported>NO</supported>
 		</network>
 		<network name="YOUTUBE">
 			<code>YT</code>
 			<name>Youtube</name>
 			<description>Youtube</description>
 			<domain>youtube.com</domain>
+			<supported>NO</supported>
 		</network>
 		<network name="STACKOVERFLOW">
 			<code>SO</code>
 			<name>Stack Overflow</name>
 			<description>Stack Overflow - developer forum</description>
 			<domain>stackoverflow.com</domain>
+			<supported>NO</supported>
+		</network>
+		<network name="PHOTOBUCKET">
+			<code>PH</code>
+			<name>Photobucket</name>
+			<description>Photobucket - a photographer community</description>
+			<domain>photobucket.com</domain>
+			<supported>NO</supported>
+		</network>
+		<network name="PINTEREST">
+			<code>PI</code>
+			<name>Pinterest</name>
+			<description>Pinterest - a general I like network</description>
+			<domain>pinterest.com</domain>
+			<supported>NO</supported>
+		</network>
+		<network name="ALL">
+			<code>AL</code>
+			<name>All</name>
+			<description>All networks</description>
+			<domain>bugmenot.com</domain>
+			<supported>NO</supported>
+		</network>
+		<network name="UNKNOWN">
+			<code>XY</code>
+			<name>Unknown</name>
+			<description>Unknown network</description>
+			<domain>bugmenot.com</domain>
+			<supported>NO</supported>
 		</network>
 	</configuration>
 	
 	
-	<!-- START OF CONFIGURATION XML LAYOUT -->
+	<!-- XML LAYOUT CONFIGURATION -->
 	<!-- DO NOT CHANGE ANYTHING BELOW THIS LINE, EXCEPT YOU ABSOLUTELY KNOW WHAT YOU ARE DOING -->
+	<!-- the values in this section define how the crawler configuration xml files are structured.
+		 To change any of these values is discouraged but possible to reflect changes in the xml 
+		 configuration layout. -->
 	<configuration scope="XmlLayout">
 		<param name="CONSTRAINT_TERM_TEXT">
 			<type>String</type>
@@ -193,72 +232,83 @@
 		
 		
 		
-		<!-- this section contains the xml structure for the crawler configuration
-			 for compatibility reasons the first 4 (root-, singleConfiguration-,
-			 value- and scopeIdentifier CAN NOT BE CHANGED! even if you do so here,
-			 this won't have any effect as they need are hard coded in the 
-			 GeneralConfiguration class. 
-		 -->
-		<param name="rootIdentifier">
-			<type>String</type>
-			<value>configurations</value>
-		</param>
-		<param name="singleConfigurationIdentifier">
-			<type>String</type>
-			<value>configuration</value>
-		</param>
-		<param name="valueIdentifier">
-			<type>String</type>
-			<value>value</value>
-		</param>
-		<param name="scopeIdentifier">
-			<type>String</type>
-			<value>scope</value>
-		</param>
-		<!-- changing these values will become possible (in revision 1.1) to reflect XML layout changes -->
-		<param name="customerIdentifier">
+		<!-- this section contains the xml structure for the crawler configuration -->
+		<!-- changing these values WILL become possible (in revision 1.1) to reflect XML layout changes
+			 as of the moment, August 2014, these values are NOT changeable, as the GeneralConfiguration-class
+			 lacks the code to parse this section of the xml file! -->
+		<param name="customerIdentifier"> <!-- changeable -->
 			<type>String</type>
 			<value>customer</value>
 		</param>
-		<param name="customerNameIdentifier">
+		<param name="customerNameIdentifier"> <!-- changeable -->
 			<type>String</type>
 			<value>name</value>
 		</param>
-		<param name="customerNameForAllValue">
+		<param name="customerNameForAllValue"> <!-- changeable -->
 			<type>String</type>
 			<value>ALL</value>
 		</param>
-		<param name="domainIdentifier">
+		<param name="domainIdentifier"> <!-- changeable -->
 			<type>String</type>
 			<value>domain</value>
 		</param>
-		<param name="domainStructureIdentifier">
+		<param name="domainStructureIdentifier"> <!-- changeable -->
 			<type>String</type>
 			<value>domainStructure</value>
 		</param>
-		<param name="domainNameIdentifier">
+		<param name="domainNameIdentifier"> <!-- changeable -->
 			<type>String</type>
 			<value>name</value>
 		</param>
-		<param name="domainNameForAllValue">
+		<param name="domainNameForAllValue"> <!-- changeable -->
 			<type>String</type>
 			<value>ALL</value>
 		</param>
-		<param name="constraintIdentifier">
+		<param name="constraintIdentifier"> <!-- changeable -->
 			<type>String</type>
 			<value>constraints</value>
 		</param>
-		<param name="scopeOnAllValue">
+		<param name="scopeOnAllValue"> <!-- changeable -->
 			<type>String</type>
 			<value>ALL</value>
 		</param>
-		<param name="singleConstraintIdentifier">
+		<param name="singleConstraintIdentifier"> <!-- changeable -->
 			<type>String</type>
 			<value>constraint</value>
 		</param>
-		<param name="codeIdentifier">
+		<param name="codeIdentifier"> <!-- changeable -->
 			<type>String</type>
 			<value>code</value>
+		</param>
+		<param name="socialNetworkIdentifier"> <!-- changeable -->
+			<type>String</type>
+			<value>socialNetworkDefinition</value>
+		</param>
+		<param name="socialNetworkNameIdentifier"> <!-- changeable -->
+			<type>String</type>
+			<value>network</value>
+		</param>
+		
+		<!-- for compatibility reasons these last 4 layout elements (root-, 
+			 singleConfiguration-, value- and scopeIdentifier) CAN NOT BE CHANGED! 
+			 even if you do so here, this won't have any effect as they need to be 
+			 and are hard coded in the GeneralConfiguration class. 
+		 -->
+		<param name="rootIdentifier"> <!-- not changeable -->
+			<type>String</type>
+			<value>configurations</value>
+		</param>
+		<param name="singleConfigurationIdentifier"> <!-- not changeable -->
+			<type>String</type>
+			<value>configuration</value>
+		</param>
+		<param name="valueIdentifier"> <!-- not changeable -->
+			<type>String</type>
+			<value>value</value>
+		</param>
+		<param name="scopeIdentifier"> <!-- not changeable -->
+			<type>String</type>
+			<value>scope</value>
 		</param>
 	</configuration>
 </configurations>

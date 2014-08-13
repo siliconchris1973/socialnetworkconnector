@@ -19,6 +19,8 @@ import org.quartz.JobExecutionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import de.comlineag.snc.constants.SocialNetworks;
+
 
 /**
  * 
@@ -94,6 +96,10 @@ public final class GeneralConfiguration implements Job {
 	private static String valueIdentifier 					= "value";
 	private static String codeIdentifier 					= "code";
 	private static String configFileTypeIdentifier			= "configFileType";
+	
+	private static String socialNetworkConfiguration		= "socialNetworkDefinition";
+	private static String socialNetworkIdentifier			= "network";
+	private static String socialNetworkName					= "name";
 	
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		setConfigFile((String) arg0.getJobDetail().getJobDataMap().get("configFile"));
@@ -220,6 +226,11 @@ public final class GeneralConfiguration implements Job {
 			e.printStackTrace();
 			System.exit(-1);
 		}
+		
+		
+		// instantiate the social networks class
+		logger.trace("initializing social network defintitions");
+		SocialNetworks sn = SocialNetworks.getInstance();
 	}
 	
 	private void setXmlLayout(){
@@ -453,5 +464,31 @@ public final class GeneralConfiguration implements Job {
 	public static void setSTOP_SNC_ON_PERSISTENCE_FAILURE(
 			boolean sTOP_SNC_ON_PERSISTENCE_FAILURE) {
 		STOP_SNC_ON_PERSISTENCE_FAILURE = sTOP_SNC_ON_PERSISTENCE_FAILURE;
+	}
+
+	public static String getSocialNetworkConfiguration() {
+		return socialNetworkConfiguration;
+	}
+
+	public static void setSocialNetworkConfiguration(
+			String socialNetworkConfiguration) {
+		GeneralConfiguration.socialNetworkConfiguration = socialNetworkConfiguration;
+	}
+
+	public static String getSocialNetworkIdentifier() {
+		return socialNetworkIdentifier;
+	}
+
+	public static void setSocialNetworkIdentifier(
+			String socialNetworkIdentifier) {
+		GeneralConfiguration.socialNetworkIdentifier = socialNetworkIdentifier;
+	}
+
+	public static String getSocialNetworkName() {
+		return socialNetworkName;
+	}
+
+	public static void setSocialNetworkName(String socialNetworkName) {
+		GeneralConfiguration.socialNetworkName = socialNetworkName;
 	}
 }

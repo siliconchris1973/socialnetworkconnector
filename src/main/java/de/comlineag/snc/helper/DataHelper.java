@@ -69,12 +69,12 @@ public class DataHelper {
 		
 		try {
 
-			if (_snId.equalsIgnoreCase(SocialNetworks.TWITTER.getValue())) {
+			if (_snId.equalsIgnoreCase(SocialNetworks.getSocialNetworkConfigElement("code", "TWITTER"))) {
 				logger.debug("formatting date time for use with twitter");
 				snPattern = "EEE MMM d H:m:s Z yyyy";
 				// the date time format for twitter must be set to US, otherwise english designators will not be translated correctly
 				snLocale = Locale.US;
-			} else if (_snId.equalsIgnoreCase(SocialNetworks.LITHIUM.getValue())) {
+			} else if (_snId.equalsIgnoreCase(SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM"))) {
 				logger.debug("formatting date time for use with Lithium");
 				// 2014-01-08T12:21:42+00:00
 				// date time pattern provided by Thomas Nowak

@@ -21,8 +21,8 @@ import de.comlineag.snc.helper.DataHelper;
  * @version 	0.1		- 10.07.2014
  * @status		in development
  * 
- * @description Describes a single facebook posting with all relevant informations.
- *              The class shall be used to make all methods handling a facebook
+ * @description Describes a single Facebook posting with all relevant informations.
+ *              The class shall be used to make all methods handling a Facebook
  *              posting type save.
  * 
  * @param <JSonObject>
@@ -265,8 +265,9 @@ public final class FacebookPostingData extends PostData {
 		
 		domain = new CrawlerConfiguration<String>().getDomain();
 		customer = new CrawlerConfiguration<String>().getCustomer();
-		sn_id = SocialNetworks.FACEBOOK.getValue();
-
+		//sn_id = SocialNetworks.FACEBOOK.getValue();
+		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "FACEBOOK");
+		
 		text = null;
 		raw_text = null;
 		subject = null;
