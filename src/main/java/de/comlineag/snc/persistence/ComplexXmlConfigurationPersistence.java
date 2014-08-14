@@ -469,7 +469,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 				return false;
 			} else {
 				if (this.getClass().getSimpleName().equals(node.getTextContent())) {
-					logger.debug("provied xml configuration file is of type " + node.getTextContent());
+					logger.trace("provided xml configuration file is of type " + node.getTextContent());
 					return true;
 				} else {
 					logger.error("ERROR :: wrong type of configuration file provided. I need "+this.getClass().getSimpleName()+" but got "+node.getTextContent()+". Check applicationContext.xml to see, if the configuration persistence manager is pointed to the right file");

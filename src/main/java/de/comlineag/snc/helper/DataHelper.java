@@ -44,7 +44,7 @@ import de.comlineag.snc.constants.SocialNetworks;
 public class DataHelper {
 	
 	// we use simple org.apache.log4j.Logger for lgging
-	private static Logger logger = Logger.getLogger("DataHelper");
+	private static Logger logger = Logger.getLogger("de.comlineag.snc.helper.DataHelper");
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
