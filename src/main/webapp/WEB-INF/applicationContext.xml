@@ -297,7 +297,7 @@
 		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR EITHER CUSTOMER OR DOMAIN) -->
 <!-- 
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.DomainConfigurationPersistence"> 
-		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/DomainWithCustomerCrawlerConfiguration.xml" /> 
+		<property name="configDbHandler" value="src/main/webapp/WEB-INF/SNC_Crawler_Configuration/DomainWithCustomerCrawlerConfiguration.xml" /> 
 	</bean> 
 -->
 	
@@ -305,14 +305,14 @@
 		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR EITHER CUSTOMER OR DOMAIN) -->
  
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.ComplexXmlConfigurationPersistence"> 
-		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/CortalConsorsSpecificCrawlerConfiguration.xml" />
+		<property name="configDbHandler" value="src/main/webapp/WEB-INF/SNC_Crawler_Configuration/CortalConsorsSpecificCrawlerConfiguration.xml" />
 	</bean> 
 	
 	<!-- this is the bean to get the crawler configuration from a simple xml file 
 		(WORKS BUT NO CUSTOMER SPECIFIC CONFIGURATION POSSIBLE)	-->
 <!-- 
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.SimpleXmlConfigurationPersistence"> 
-		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/SimpleCrawlerConfiguration.xml" /> 
+		<property name="configDbHandler" value="src/main/webapp/WEB-INF/SNC_Crawler_Configuration/SimpleCrawlerConfiguration.xml" /> 
 	</bean>
 -->
 	 
@@ -320,7 +320,7 @@
 		(WORKS WITH RESTRICTIONS - NO CUSTOMER AND NO CRAWLER SPECIFIC CONFIGURATION POSSIBLE) -->
 <!-- 
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.IniFileConfigurationPersistence">
-		<property name="configDbHandler" value="src/main/webapp/WEB-INF/CrawlerConfiguration/CrawlerConfiguration.ini" />
+		<property name="configDbHandler" value="src/main/webapp/WEB-INF/SNC_Crawler_Configuration/CrawlerConfiguration.ini" />
 	</bean>
  -->
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
@@ -493,13 +493,13 @@
 	<!-- R U N T I M E    S E T T I N G S -->
 	<bean name="GeneralConfigurationDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="de.comlineag.snc.appstate.GeneralConfiguration" />
+		<property name="jobClass" value="de.comlineag.snc.appstate.RuntimeConfiguration" />
 		<property name="Durability" value="true"/>
 		<!-- <property name="Concurrent" value="false" /> --> 
 		<!-- <property name="Singleton" value="true"/> -->
 		<property name="jobDataAsMap">
 			<map>
-				<entry key="configFile" value="src/main/webapp/WEB-INF/GeneralConfiguration.xml" />
+				<entry key="configFile" value="src/main/webapp/WEB-INF/SNC_Runtime_Configuration.xml" />
 			</map>
 		</property>
 	</bean>

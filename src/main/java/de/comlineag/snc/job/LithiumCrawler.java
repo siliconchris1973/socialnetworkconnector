@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.Logger;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
-import de.comlineag.snc.appstate.GeneralConfiguration;
+import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.CryptoProvider;
 import de.comlineag.snc.constants.HttpErrorMessages;
@@ -106,8 +106,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM"));
 		
 		// set the customer we start the crawler for and log the startup message
-		String curDomain = (String) configurationScope.get(GeneralConfiguration.getDomainidentifier());
-		String curCustomer = (String) configurationScope.get(GeneralConfiguration.getCustomeridentifier());
+		String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
+		String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
 		
 		if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
 			logger.info("Lithium-Crawler START");
@@ -159,10 +159,10 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		
 		// THESE VALUES ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND SITES (aka boards)
 		logger.trace("retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(GeneralConfiguration.getConstraintTermText(), configurationScope); 
-		ArrayList<String> tUsers = new CrawlerConfiguration<String>().getConstraint(GeneralConfiguration.getConstraintUserText(), configurationScope);
-		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(GeneralConfiguration.getConstraintLanguageText(), configurationScope); 
-		ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(GeneralConfiguration.getConstraintSiteText(), configurationScope);
+		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope); 
+		ArrayList<String> tUsers = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
+		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope); 
+		ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintSiteText(), configurationScope);
 		
 		// simple log output
 		if (tTerms.size()>0)

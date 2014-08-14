@@ -17,7 +17,7 @@ import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OProperties;
 
-import de.comlineag.snc.appstate.GeneralConfiguration;
+import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.data.PostData;
@@ -181,13 +181,13 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (ClientHandlerException e) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: could not connect to HANA system " + e.getLocalizedMessage());
-			if (GeneralConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
+			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
 				System.exit(-1);
 		} catch (Exception le) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: unforseen error condition processing post "+postData.getSnId()+"-"+postData.getId()+": " + le.getLocalizedMessage());
 			le.printStackTrace();
-			if (GeneralConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
+			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
 				System.exit(-1);
 		}
 	}
@@ -228,13 +228,13 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (ClientHandlerException e) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: could not connect to HANA system " + e.getLocalizedMessage());
-			if (GeneralConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
+			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
 				System.exit(-1);
 		} catch (Exception le) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: unforseen error condition processing user "+userData.getSnId()+"-"+userData.getId()+": " + le.getLocalizedMessage());
 			le.printStackTrace();
-			if (GeneralConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
+			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
 				System.exit(-1);
 		}
 	}
@@ -531,7 +531,7 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			logger.info("post ("+postData.getSnId()+"-"+postData.getId()+") created");
 			
-			if (GeneralConfiguration.isCREATE_POST_JSON_ON_SUCCESS()) {
+			if (RuntimeConfiguration.isCREATE_POST_JSON_ON_SUCCESS()) {
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
 				JsonFilePersistence failsave = new JsonFilePersistence(postData);
@@ -550,7 +550,7 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: could not create post ("+postData.getSnId()+"-"+postData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
 			
-			if (GeneralConfiguration.isCREATE_POST_JSON_ON_ERROR()) {
+			if (RuntimeConfiguration.isCREATE_POST_JSON_ON_ERROR()) {
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
 				JsonFilePersistence failsave = new JsonFilePersistence(postData);
@@ -683,7 +683,7 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			logger.info("user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") created");
 		
-			if (GeneralConfiguration.isCREATE_USER_JSON_ON_SUCCESS()){
+			if (RuntimeConfiguration.isCREATE_USER_JSON_ON_SUCCESS()){
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
 				JsonFilePersistence failsave = new JsonFilePersistence(userData);
@@ -701,7 +701,7 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("ERROR :: Could not create user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
 			
-			if (GeneralConfiguration.isCREATE_USER_JSON_ON_ERROR()){
+			if (RuntimeConfiguration.isCREATE_USER_JSON_ON_ERROR()){
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
 				JsonFilePersistence failsave = new JsonFilePersistence(userData);

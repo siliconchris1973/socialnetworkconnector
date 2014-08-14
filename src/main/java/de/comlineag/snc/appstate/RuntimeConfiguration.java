@@ -30,36 +30,34 @@ import de.comlineag.snc.constants.SocialNetworks;
  * @status		productive but still with limitations
  * 
  * @description	this class is used to setup the overall configuration of the SNC.
- * 				In this fall the domain driven and/or customer driven configuration for 
- * 				crawler but also runtime configuration options, like whether or not 
- * 				to warn on weak encryption or simple configuration options. 
- * 				It is instantiated by the job control from applicationContext.xml and 
- * 				sets the currently used domain and customer. 
- * 				These values in turn are then accessed by the actual crawler
- * 				and passed to the crawler configuration handler to receive the correct 
- * 				constraints from the crawler configuration.
+ * 				All runtime configuration options, like whether or not to warn on 
+ * 				weak encryption or simple configuration options, are configured via 
+ * 				this class. 
+ * 				It is instantiated by the job control from applicationContext.xml 
+ * 				
  * 
- * @limitation	xml structure is not fetched from GeneralConfiguration.xml but hard coded
+ * @limitation	xml structure is not fetched from RuntimeConfiguration.xml but hard coded
  * 
  * @changelog	0.1 (Chris) 	class created
  * 				0.1a			renamed to GeneralConfiguration
- * 				0.2				added own configuration file GeneralConfiguration.xml
+ * 				0.2				added own configuration file RuntimeConfiguration.xml
  * 				0.3				added xml structure of crawler configuration file
- * 								and create json on user or post creation error 
+ * 								and create json on user or post creation error
+ * 				0.3a			renamed to RuntimeConfiguration 
  *
- * TODO 1. get the xml layout structure elements from GeneralConfiguration.xml
+ * TODO 1. get the xml layout structure elements from RuntimeConfiguration.xml
  * TODO 2. use nodelist instead of single expressions for each node
  * 
  */
 @DisallowConcurrentExecution
-public final class GeneralConfiguration implements Job {
+public final class RuntimeConfiguration implements Job {
 	
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
-	private static String configFile = "src/main/webapp/WEB-INF/GeneralConfiguration.xml";
+	private static String configFile = "src/main/webapp/WEB-INF/SNC_Runtime_Configuration.xml";
 	
 	// some publicly available runtime informations
 	private static boolean WARN_ON_SIMPLE_CONFIG = true;
@@ -315,30 +313,30 @@ public final class GeneralConfiguration implements Job {
 	
 	// getter and setter for the configuration path
 	public static String getConfigFile() {
-		return GeneralConfiguration.configFile;
+		return RuntimeConfiguration.configFile;
 	}
 	public static void setConfigFile(String configFile) {
-		GeneralConfiguration.configFile = configFile;
+		RuntimeConfiguration.configFile = configFile;
 	}
 	
 	// for configuration xml structure
 	private void setCONSTRAINT_TERM_TEXT(final String s){
-		GeneralConfiguration.CONSTRAINT_TERM_TEXT = s;
+		RuntimeConfiguration.CONSTRAINT_TERM_TEXT = s;
 	}
 	private void setCONSTRAINT_USER_TEXT(final String s){
-		GeneralConfiguration.CONSTRAINT_USER_TEXT = s;
+		RuntimeConfiguration.CONSTRAINT_USER_TEXT = s;
 	}
 	private void setCONSTRAINT_SITE_TEXT(final String s){
-		GeneralConfiguration.CONSTRAINT_SITE_TEXT = s;
+		RuntimeConfiguration.CONSTRAINT_SITE_TEXT = s;
 	}
 	private void setCONSTRAINT_BOARD_TEXT(final String s){
-		GeneralConfiguration.CONSTRAINT_BOARD_TEXT = s;
+		RuntimeConfiguration.CONSTRAINT_BOARD_TEXT = s;
 	}
 	private void setCONSTRAINT_BLOG_TEXT(final String s){
-		GeneralConfiguration.CONSTRAINT_BLOG_TEXT = s;
+		RuntimeConfiguration.CONSTRAINT_BLOG_TEXT = s;
 	}
 	private void setCONSTRAINT_LOCATION_TEXT(final String s){
-		GeneralConfiguration.CONSTRAINT_LOCATION_TEXT = s;
+		RuntimeConfiguration.CONSTRAINT_LOCATION_TEXT = s;
 	}
 	
 	// getter for the xml structure
@@ -413,22 +411,22 @@ public final class GeneralConfiguration implements Job {
 	}
 	public static void setConfigFileTypeIdentifier(
 			String configFileTypeIdentifier) {
-		GeneralConfiguration.configFileTypeIdentifier = configFileTypeIdentifier;
+		RuntimeConfiguration.configFileTypeIdentifier = configFileTypeIdentifier;
 	}
 	
 	// for runtime state 
 	public static boolean getWarnOnSimpleConfig() {
-		return GeneralConfiguration.WARN_ON_SIMPLE_CONFIG;
+		return RuntimeConfiguration.WARN_ON_SIMPLE_CONFIG;
 	}
 	public static void setWarnOnSimpleConfig(boolean wARN_ON_SIMPLE_CONFIG) {
-		GeneralConfiguration.WARN_ON_SIMPLE_CONFIG = wARN_ON_SIMPLE_CONFIG;
+		RuntimeConfiguration.WARN_ON_SIMPLE_CONFIG = wARN_ON_SIMPLE_CONFIG;
 	}
 
 	public static boolean getWarnOnSimpleXmlConfig() {
-		return GeneralConfiguration.WARN_ON_SIMPLE_XML_CONFIG;
+		return RuntimeConfiguration.WARN_ON_SIMPLE_XML_CONFIG;
 	}
 	public static void setWarnOnSimpleXmlConfig(boolean wARN_ON_SIMPLE_XML_CONFIG) {
-		GeneralConfiguration.WARN_ON_SIMPLE_XML_CONFIG = wARN_ON_SIMPLE_XML_CONFIG;
+		RuntimeConfiguration.WARN_ON_SIMPLE_XML_CONFIG = wARN_ON_SIMPLE_XML_CONFIG;
 	}
 	public static boolean isCREATE_POST_JSON_ON_ERROR() {
 		return CREATE_POST_JSON_ON_ERROR;
@@ -472,7 +470,7 @@ public final class GeneralConfiguration implements Job {
 
 	public static void setSocialNetworkConfiguration(
 			String socialNetworkConfiguration) {
-		GeneralConfiguration.socialNetworkConfiguration = socialNetworkConfiguration;
+		RuntimeConfiguration.socialNetworkConfiguration = socialNetworkConfiguration;
 	}
 
 	public static String getSocialNetworkIdentifier() {
@@ -481,7 +479,7 @@ public final class GeneralConfiguration implements Job {
 
 	public static void setSocialNetworkIdentifier(
 			String socialNetworkIdentifier) {
-		GeneralConfiguration.socialNetworkIdentifier = socialNetworkIdentifier;
+		RuntimeConfiguration.socialNetworkIdentifier = socialNetworkIdentifier;
 	}
 
 	public static String getSocialNetworkName() {
@@ -489,6 +487,6 @@ public final class GeneralConfiguration implements Job {
 	}
 
 	public static void setSocialNetworkName(String socialNetworkName) {
-		GeneralConfiguration.socialNetworkName = socialNetworkName;
+		RuntimeConfiguration.socialNetworkName = socialNetworkName;
 	}
 }

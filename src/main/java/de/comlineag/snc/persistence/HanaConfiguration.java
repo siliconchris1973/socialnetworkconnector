@@ -26,7 +26,7 @@ import org.w3c.dom.Node;
  * 
  * @description	this class is used to setup schema and db layout of the SAP HANA DB
  * 
- * @changelog	0.1 (Chris) 	class created as copy from GeneralConfiguration Version 0.3
+ * @changelog	0.1 (Chris) 	class created as copy from RuntimeConfiguration Version 0.3
  *
  */
 public final class HanaConfiguration {
@@ -36,7 +36,7 @@ public final class HanaConfiguration {
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
-	private static String configFile = "src/main/webapp/WEB-INF/HANA_Configuration.xml";
+	private static String configFile = "src/main/webapp/WEB-INF/SNC_HANA_Configuration.xml";
 	
 	private static String PATH_TO_TABLES = "comline.saa.data.tables";
 	private static String SCHEMA_NAME = "CL_SAA";

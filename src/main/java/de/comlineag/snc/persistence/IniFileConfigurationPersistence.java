@@ -1,6 +1,6 @@
 package de.comlineag.snc.persistence;
 
-import de.comlineag.snc.appstate.GeneralConfiguration;
+import de.comlineag.snc.appstate.RuntimeConfiguration;
 
 import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
@@ -61,9 +61,9 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 			return (ArrayList<T>)ar;
 		} else {
 			logger.debug("reading constraints on " + category + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")+1));
-			//if ((GeneralConfiguration.getCustomerIsActive() || GeneralConfiguration.getDomainIsActive()) && GeneralConfiguration.getWarnOnSimpleConfig())
-			if (GeneralConfiguration.getWarnOnSimpleConfig())
-				logger.warn("no customer and network specific configuration and no type safety guranteed - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + GeneralConfiguration.getConfigFile().substring(GeneralConfiguration.getConfigFile().lastIndexOf("/")+1));
+			//if ((RuntimeConfiguration.getCustomerIsActive() || RuntimeConfiguration.getDomainIsActive()) && RuntimeConfiguration.getWarnOnSimpleConfig())
+			if (RuntimeConfiguration.getWarnOnSimpleConfig())
+				logger.warn("no customer and network specific configuration and no type safety guranteed - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + RuntimeConfiguration.getConfigFile().substring(RuntimeConfiguration.getConfigFile().lastIndexOf("/")+1));
 			
 			return (ArrayList<T>)getDataFromIni(category);
 		}
@@ -138,8 +138,8 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 	@Override
 	public JSONObject getCrawlerConfigurationScope() {
 		JSONObject crawlerConfigurationScope = new JSONObject();
-		crawlerConfigurationScope.put((String) GeneralConfiguration.getDomainidentifier(), (String) "undefined");
-		crawlerConfigurationScope.put((String) GeneralConfiguration.getCustomeridentifier(), (String) "undefined");
+		crawlerConfigurationScope.put((String) RuntimeConfiguration.getDomainidentifier(), (String) "undefined");
+		crawlerConfigurationScope.put((String) RuntimeConfiguration.getCustomeridentifier(), (String) "undefined");
 		return crawlerConfigurationScope;
 	}
 }

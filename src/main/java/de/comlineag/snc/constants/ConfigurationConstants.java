@@ -14,7 +14,7 @@ package de.comlineag.snc.constants;
  * @changelog	0.1 (Chris)		class created
  * 				0.2 			changed everything to static
  * 				0.3				added structure elements for customer specific crawler configuration xml
- * 				0.4				removed structure elements for configuration - now in GeneralConfiguration.xml
+ * 				0.4				removed structure elements for configuration - now in RuntimeConfiguration.xml
  * 
  */
 public class ConfigurationConstants {

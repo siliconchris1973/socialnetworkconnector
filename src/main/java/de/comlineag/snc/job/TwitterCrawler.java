@@ -25,7 +25,7 @@ import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
-import de.comlineag.snc.appstate.GeneralConfiguration;
+import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.TwitterConstants;
@@ -112,8 +112,8 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		
 		
 		// set the customer we start the crawler for and log the startup message
-		String curDomain = (String) configurationScope.get(GeneralConfiguration.getDomainidentifier());
-		String curCustomer = (String) configurationScope.get(GeneralConfiguration.getCustomeridentifier());
+		String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
+		String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
 		
 		if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
 			logger.info("Twitter-Crawler START");
@@ -133,16 +133,16 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		
 		// THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
 		logger.info("retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(GeneralConfiguration.getConstraintTermText(), configurationScope);
-		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(GeneralConfiguration.getConstraintLanguageText(), configurationScope);
-		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(GeneralConfiguration.getConstraintUserText(), configurationScope);
-		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(GeneralConfiguration.getConstraintLocationText(), configurationScope);
+		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope);
+		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope);
+		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
+		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(RuntimeConfiguration.getConstraintLocationText(), configurationScope);
 		
 		/*
-		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(GeneralConfiguration.getConstraintTermText(), configurationScope);
-		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(GeneralConfiguration.getConstraintLanguageText(), configurationScope);
-		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(GeneralConfiguration.getConstraintUserText(), configurationScope);
-		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(GeneralConfiguration.getConstraintLocationText(), configurationScope);
+		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope);
+		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope);
+		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
+		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(RuntimeConfiguration.getConstraintLocationText(), configurationScope);
 		*/
 		
 		// log output AND setup of the filter end point

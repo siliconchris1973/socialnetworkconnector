@@ -7,6 +7,7 @@
 		<title>Social Network Connector start page</title>
 	</head>
 	<body>
-
+		This is the Social Network Connector runtime monitoring and configuration site<br>
+		
 	</body>
 </html>

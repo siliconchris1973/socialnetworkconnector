@@ -19,7 +19,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import de.comlineag.snc.appstate.GeneralConfiguration;
+import de.comlineag.snc.appstate.RuntimeConfiguration;
 
 /**
  * 
@@ -36,7 +36,7 @@ import de.comlineag.snc.appstate.GeneralConfiguration;
  * 				0.4 			added lithium
  * 				0.5 			added youtube and finanzforum
  * 				0.6 			added ALL as an indicator for xml configuration for all networks
- * 				0.7				moved definition of the networks to GeneralConfiguration.xml and made enum a class
+ * 				0.7				moved definition of the networks to RuntimeConfiguration.xml and made enum a class
  * 
  */
 public final class SocialNetworks {
@@ -46,7 +46,7 @@ public final class SocialNetworks {
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 
-	private static String configFile = "src/main/webapp/WEB-INF/GeneralConfiguration.xml";
+	private static String configFile = "src/main/webapp/WEB-INF/SNC_Runtime_Configuration.xml";
 	
 	
 	// a (hidden) class variable whos type is of its own class - used to see, if we are already instantiated
@@ -87,13 +87,13 @@ public final class SocialNetworks {
 	 * @TODO check if we can eliminate the XML parsing for every call of the method
 	 * 		 and instead retrieve the name from an internal structure which is 
 	 * 		 setup for every social network during first instantiation of this class - maybe
-	 * 		 during startup of the snc via a call from GeneralConfiguration class  
+	 * 		 during startup of the snc via a call from RuntimeConfiguration class  
 	 */
 	public static String getSocialNetworkConfigElement(String key, String snname){
 		assert ("code".equals(key) && "name".equals(key) && "description".equals(key) && "domain".equals(key) && "supported".equals(key)) : "ERROR :: can only accept code, name, description, domain or supported as key";
 		
 		try {
-			File file = new File(GeneralConfiguration.getConfigFile());
+			File file = new File(RuntimeConfiguration.getConfigFile());
 			
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
@@ -115,16 +115,16 @@ public final class SocialNetworks {
 			//		<supported>YES</supported>
 			//	</network>
 			// /configurations/configuration[@scope=socialNetworkDefinition]/network[@name='TWITTER']/code
-			expression = "/"+GeneralConfiguration.getRootidentifier()+"/" +
-						GeneralConfiguration.getSingleconfigurationidentifier() +
-							"[@"+GeneralConfiguration.getScopeidentifier()+"='"+GeneralConfiguration.getSocialNetworkConfiguration()+"']/" + 
-						GeneralConfiguration.getSocialNetworkIdentifier() + 
-							"[@"+GeneralConfiguration.getSocialNetworkName()+"='"+snname+"']/"+
+			expression = "/"+RuntimeConfiguration.getRootidentifier()+"/" +
+						RuntimeConfiguration.getSingleconfigurationidentifier() +
+							"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getSocialNetworkConfiguration()+"']/" + 
+						RuntimeConfiguration.getSocialNetworkIdentifier() + 
+							"[@"+RuntimeConfiguration.getSocialNetworkName()+"='"+snname+"']/"+
 						key;
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
-				logger.error("Did not receive any node information on "+key+" for social network "+snname+" from " + GeneralConfiguration.getConfigFile() + " using expression " + expression);
+				logger.error("Did not receive any node information on "+key+" for social network "+snname+" from " + RuntimeConfiguration.getConfigFile() + " using expression " + expression);
 				return null;
 			} else {
 				return node.getTextContent();
@@ -151,9 +151,9 @@ public final class SocialNetworks {
 	 */
 	public static void ParseSocialNetworkDefinition(){
 		try {
-			logger.debug("retrieving all social network definitions from configuration file " + GeneralConfiguration.getConfigFile());
+			logger.debug("retrieving all social network definitions from configuration file " + RuntimeConfiguration.getConfigFile());
 			
-			File file = new File(GeneralConfiguration.getConfigFile());
+			File file = new File(RuntimeConfiguration.getConfigFile());
 			
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
@@ -167,15 +167,15 @@ public final class SocialNetworks {
 			NodeList nodeList = null;
 			
 			// get a list of all social networks from XML file 
-			expression = "/"+GeneralConfiguration.getRootidentifier()+"/" +
-						GeneralConfiguration.getSingleconfigurationidentifier() +
-						"[@"+GeneralConfiguration.getScopeidentifier()+"="+GeneralConfiguration.getSocialNetworkConfiguration()+"]"; 
-						//"network[@name='TWITTER']/"+GeneralConfiguration.getCodeidentifier();
+			expression = "/"+RuntimeConfiguration.getRootidentifier()+"/" +
+						RuntimeConfiguration.getSingleconfigurationidentifier() +
+						"[@"+RuntimeConfiguration.getScopeidentifier()+"="+RuntimeConfiguration.getSocialNetworkConfiguration()+"]"; 
+						//"network[@name='TWITTER']/"+RuntimeConfiguration.getCodeidentifier();
 			
 			// work with the nodeset containing the social networks 
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			if (nodeList == null) {
-				logger.error("Did not receive any nodeset information for social networks from " + GeneralConfiguration.getConfigFile() + " using expression " + expression);
+				logger.error("Did not receive any nodeset information for social networks from " + RuntimeConfiguration.getConfigFile() + " using expression " + expression);
 			} else {
 				logger.trace("working on nodeset with length "+nodeList.getLength()+"::");
 				for (int i = 0; i < nodeList.getLength(); i++){
@@ -206,61 +206,6 @@ public final class SocialNetworks {
 		}
 	}
 	
-	/**
-	 * @description	retrieves the corresponding 2-digit code for a given social network name
-	 * 
-	 * @param 		name (name of the social network in uppper case)
-	 * @return		2-digit code of the social network or null in case of error
-	 * 
-	 * @TODO check if we can eliminate the XML parsing for every call of the method
-	 * 		 and instead retrieve the 2-digit code from an internal structure which is 
-	 * 		 setup for every social network during first instantiation of this class - maybe
-	 * 		 during startup of the snc via a call from GeneralConfiguration class  
-	
-	public static String returnSNCode(String name){
-		try {
-			logger.trace("retrieving 2-digit code fro social network " + name);
-			
-			File file = new File(GeneralConfiguration.getConfigFile());
-			
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.parse(file);
-			
-			XPathFactory xPathfactory = XPathFactory.newInstance();
-			XPath xpath = xPathfactory.newXPath();
-			
-			String expression = null;
-			Node node = null;
-			
-			// get a list of all social networks from XML file 
-			expression = "/"+GeneralConfiguration.getRootidentifier()+"/" +
-						GeneralConfiguration.getSingleconfigurationidentifier() +
-							"[@"+GeneralConfiguration.getScopeidentifier()+"="+GeneralConfiguration.getSocialNetworkConfiguration()+"]" +
-						GeneralConfiguration.getSocialNetworkIdentifier() + 
-							"[@"+GeneralConfiguration.getSocialNetworkName()+"='"+name+"']/"+
-						GeneralConfiguration.getCodeidentifier();
-			
-			// work with the node containing the social networks 
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.error("Did not receive any node information for social network from " + GeneralConfiguration.getConfigFile() + " using expression " + expression);
-				return null;
-			} else {
-				return node.getTextContent();
-			}
-			
-		} catch (IOException e) {
-			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(-1);
-		} catch (Exception e) {
-			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			e.printStackTrace();
-			System.exit(-1);
-		}
-		return null;
-	}
-	 */
 	
 	
 	/**
@@ -273,7 +218,7 @@ public final class SocialNetworks {
 	 * @description	contains an enumeration with shortcuts referencing the social networks
 	 * 
 	 * @Deprecated	Instead of using the enum, please make use of the class methods and
-	 * 				setup all relevant social networks in General>Configuration.xml
+	 * 				setup all relevant social networks in SNC_Runtime_Configuration.xml
 	 */
 	@Deprecated
 	private static enum SocialNetworkDefs{

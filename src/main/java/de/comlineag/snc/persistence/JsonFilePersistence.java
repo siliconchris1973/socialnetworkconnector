@@ -28,7 +28,7 @@ import de.comlineag.snc.handler.DataCryptoHandler;
  * 					CreateUserJsonOnError		- create a user json on error
  * 					CreatePostJsonOnSuccess		- create a post json on success as well
  * 					CreateUserJsonOnSuccess		- create a user json on success as well
- * 				from GeneralConfiguration.xml must be set to true. 
+ * 				from RuntimeConfiguration.xml must be set to true. 
  * 
  * @changelog	0.1 (Chris)			class created
  * 				0.2					changed class to implement IPersistenceManager

@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
-import de.comlineag.snc.appstate.GeneralConfiguration;
+import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.GeneralDataDefinitions;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.helper.DataHelper;
@@ -69,7 +69,7 @@ public final class TwitterPostingData extends PostData {
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
-	private final GeneralConfiguration configuration = new GeneralConfiguration();
+	private final RuntimeConfiguration configuration = new RuntimeConfiguration();
 	
 	/**
 	 * Constructor, based on the JSONObject sent from Twitter the Data Object is prepared
