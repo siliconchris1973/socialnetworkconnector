@@ -17,17 +17,13 @@
 	version="2.5" >
 
 	<display-name>Social Network Connector</display-name>
-	<!-- Welcome page -->
-	<welcome-file-list>
-		<welcome-file>index.jsp</welcome-file>
-	</welcome-file-list>
 	
-	<!-- Servlet Context Listener ======================================= -->
-	<!-- setup the servlet container for our spring mvc administration web app.
-		 The file snc-administration-servlet.xml (also to be found in this same 
-		 directory) contains the bean definitions (plain old Java objects) used 
-		 by the DispatcherServlet. It is the WebApplicationContext where all 
-		 web-related components go. -->
+	<!-- DEFINE SERVLET CONTEXT LISTENER ======================================= -->
+	
+	<!-- Declare Spring MVC web application servlet listener -->
+	<!-- The file Administration-servlet.xml (also to be found in this same 
+		 directory) contains the bean definitions used by the DispatcherServlet. 
+		 It is the WebApplicationContext where all web-related components go. -->
 	<servlet>
 		<servlet-name>Administration</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -37,22 +33,28 @@
 		<servlet-name>Administration</servlet-name>
 		<url-pattern>/admin/*</url-pattern>
 	</servlet-mapping>
+	<!-- Welcome page -->
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
 	
 	
 	<!-- log listener -->
+	<listener>
+		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+	</listener>
 	<context-param>
 		<param-name>log4jConfigLocation</param-name>
 		<param-value>/WEB-INF/log4j.xml</param-value>
 	</context-param>
-	<listener>
-		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
-	</listener>
+	
 	
 	<!-- Declare Spring context listener which sets up the Spring Application Context -->
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
-
+	
+	
 	<!-- Declare Spring request listener which sets up the required RequestAttributes 
 		 to support Springs and Cocoon custom bean scopes like the request scope or
 		 the session scope. -->
@@ -65,7 +67,5 @@
 	<listener>
 		<listener-class>org.quartz.ee.servlet.QuartzInitializerListener</listener-class>
 	</listener>
-	
-	<!-- URL space mappings ============================================= -->
 </web-app>
         
