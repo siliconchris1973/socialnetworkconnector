@@ -204,16 +204,10 @@
 		</dependency>
 		
 		
-		<!-- SPRING AND QUARTZ -->
-		<!-- basic dependencies for the job control -->
+		<!-- the basic SPRING framework -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
-			<version>4.0.6.RELEASE</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-web</artifactId>
 			<version>4.0.6.RELEASE</version>
 		</dependency>
 		<dependency>
@@ -226,31 +220,42 @@
 			<artifactId>spring-context-support</artifactId>
 			<version>4.0.6.RELEASE</version>
 		</dependency>
+		
+		
+		<!-- GUI - SPRING MVC -->
 		<dependency>
-			<groupId>org.quartz-scheduler</groupId>
-			<artifactId>quartz</artifactId>
-			<version>2.2.1</version>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>4.0.6.RELEASE</version>
 		</dependency>
-		
-		
-		<!-- GUI - JAVA SERVER FACES -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>4.0.6.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
+			<scope>provided</scope>
+		</dependency>
 		
 		
 		<!-- SOCIAL NETWORK CONNECTION -->
 		<!-- to work with the twitter api -->
 		<dependency>
 			<groupId>com.twitter</groupId>
-			<artifactId>hbc-core</artifactId> <!-- or hbc-twitter4j -->
-			<version>2.2.0</version> <!-- or whatever the latest version is -->
+			<artifactId>hbc-core</artifactId> 
+			<version>2.2.0</version> 
 		</dependency>
 		<dependency>
 			<groupId>com.twitter</groupId>
-			<artifactId>hbc-twitter4j</artifactId> <!-- or hbc-twitter4j -->
-			<version>2.2.0</version> <!-- or whatever the latest version is -->
+			<artifactId>hbc-twitter4j</artifactId> 
+			<version>2.2.0</version> 
 		</dependency>
 		
 		
-		<!-- HTTP AND OTHER PROTOCOL CONNECTION AND TRANSPORT -->
+		<!-- TRANSPORT AND CONNECTION PROTOCOL -->
 		<!-- to work with http connections -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
@@ -262,8 +267,7 @@
 			<artifactId>httpmime</artifactId>
 			<version>4.3.4</version>
 		</dependency>
-		<!-- TODO get rid of this. it is only needed for the HttpErrorMessages and HttpStatusCode Implementation 
-		-->
+		<!-- TODO get rid of this. it is only needed for the HttpErrorMessages and HttpStatusCode Implementation -->
 		<dependency>
 			<groupId>commons-httpclient</groupId>
 			<artifactId>commons-httpclient</artifactId>
@@ -316,9 +320,16 @@
 		
 		
 		<!-- RUNTIME ENVIRONMENT -->
-		<!-- the logging mechanism - you can either use org.apache.logging.log4j or log4j. in latter case 
-			 if you change this, however, be sure to edit ALL classes with logging and change import and 
-			 instantiation of logging
+		<!-- used for the job control -->
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz</artifactId>
+			<version>2.2.1</version>
+		</dependency>
+		
+		<!-- the logging mechanism - you can either use org.apache.logging.log4j or log4j. in case you opt 
+			 for org.apache.logging.log4j, be sure to edit ALL classes with logging and change import and 
+			 instantiation of logging - so I would recommend to stick with simple log4j
 		-->
 <!-- 
 		<dependency>
@@ -422,6 +433,25 @@
 			</exclusions>
 		</dependency>
 -->
+		<!-- the community driven cassandra implemenation -->
+<!-- 
+		<dependency>
+    		<groupId>org.apache.cassandra</groupId>
+    		<artifactId>cassandra-all</artifactId>
+    		<version>0.8.1</version>
+			
+			<exclusions>
+				<exclusion> 
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+				<exclusion> 
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+-->
 	</dependencies>
 
 	<!-- a local maven repository - currently only for the external ngdbc.jar for sap hana -->
@@ -439,7 +469,7 @@
 		</repository>
 	</repositories>
 	
-	<!-- Plugin repository for Glasshfish -->
+	<!-- Plugin repository for Glasshfish 
 	<pluginRepositories>
 		<pluginRepository>
 			<id>maven.java.net</id>
@@ -452,4 +482,5 @@
 			<url>http://download.java.net/maven/glassfish/</url>
 		</pluginRepository>
 	</pluginRepositories>
+	-->
 </project>

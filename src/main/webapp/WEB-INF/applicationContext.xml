@@ -29,15 +29,15 @@
 	
 	<!-- Activate Spring annotation support -->
 	<context:annotation-config />
-	<context:component-scan base-package="de.comlineag.snc.appstate" />
-	<context:component-scan base-package="de.comlineag.snc.constants" />
-	<context:component-scan base-package="de.comlineag.snc.crypto" />
-	<context:component-scan base-package="de.comlineag.snc.data" />
-	<context:component-scan base-package="de.comlineag.snc.handler" />
-	<context:component-scan base-package="de.comlineag.snc.helper" />
-	<context:component-scan base-package="de.comlineag.snc.job" />
-	<context:component-scan base-package="de.comlineag.snc.neo4j" />
-	<context:component-scan base-package="de.comlineag.snc.persistence" />
+		<context:component-scan base-package="de.comlineag.snc.appstate" />
+		<context:component-scan base-package="de.comlineag.snc.constants" />
+		<context:component-scan base-package="de.comlineag.snc.crypto" />
+		<context:component-scan base-package="de.comlineag.snc.data" />
+		<context:component-scan base-package="de.comlineag.snc.handler" />
+		<context:component-scan base-package="de.comlineag.snc.helper" />
+		<context:component-scan base-package="de.comlineag.snc.job" />
+		<context:component-scan base-package="de.comlineag.snc.neo4j" />
+		<context:component-scan base-package="de.comlineag.snc.persistence" />
 	<tx:annotation-driven />
 	
 	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.appstate.ApplicationContextProvider"></bean>

@@ -230,8 +230,6 @@ public final class TwitterPostingData extends PostData {
 			//setHashtags((List<?>)jsonObject.get("hashtags"));
 			//setSymbols((List<?>)jsonObject.get("symbols"));
 			//setMentions((List<?>)jsonObject.get("user_mentions"));
-			
-			logger.debug("     construction finished");
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: during parsing of json twitter post-object " + e.getLocalizedMessage());
 			e.printStackTrace();

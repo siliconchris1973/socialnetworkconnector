@@ -219,7 +219,6 @@ public final class FacebookPostingData extends PostData {
 			//setSymbols((List<?>)jsonObject.get("symbols"));
 			//setMentions((List<?>)jsonObject.get("user_mentions"));
 			
-			logger.debug("     construction finished");
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: during parsing of json facebook post-object " + e.getLocalizedMessage());
 			e.printStackTrace();

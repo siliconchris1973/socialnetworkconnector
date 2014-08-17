@@ -76,8 +76,6 @@ public final class TwitterUserData extends UserData {
 				setFavoritesCount((Long) jsonObject.get("favorites_count"));
 			if (jsonObject.get("lists_and_groups_count") != null)
 				setListsAndGroupsCount((Long) jsonObject.get("lists_and_groups_count"));
-			
-			logger.debug("     construction finished");
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: during parsing of json twitter user-object " + e.getLocalizedMessage());
 			e.printStackTrace();

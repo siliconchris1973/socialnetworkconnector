@@ -77,7 +77,6 @@ public final class FacebookUserData extends UserData {
 			if (jsonObject.get("lists_and_groups_count") != null)
 				setListsAndGroupsCount((Long) jsonObject.get("lists_and_groups_count"));
 			
-			logger.debug("     construction finished");
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: during parsing of json facebook user-object " + e.getLocalizedMessage());
 			e.printStackTrace();

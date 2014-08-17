@@ -391,7 +391,6 @@ public final class LithiumPostingData extends PostData {
 			// language
 			setLang(lang);
 			
-			logger.debug("     construction finished");
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: during parsing of json Lithium post-object " + e.getLocalizedMessage());
 			e.printStackTrace();

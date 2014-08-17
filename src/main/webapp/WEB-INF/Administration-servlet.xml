@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+	This file contains the bean definitions (plain old Java objects) used by the DispatcherServlet. 
+	It is the WebApplicationContext where all web-related components go. The name of this file is 
+	determined by the value of the <servlet-name/> element from the 'web.xml', with '-servlet' 
+	appended to it (hence 'Administration-servlet.xml'). This is the standard naming convention 
+	used with Spring's Web MVC framework. 
+	
+	Upon initialization of a DispatcherServlet, Spring MVC looks for a file named [servlet-name]-servlet.xml 
+	in the WEB-INF directory of your web application and creates the beans defined there, overriding 
+	the definitions of any beans defined with the same name in the global scope.
+ -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+  <!-- the application context definition for the spring mvc DispatcherServlet -->
+
+  <bean name="/index.jsp" class="de.comlineag.snc.appstate.RuntimeController"/>
+
+</beans>
