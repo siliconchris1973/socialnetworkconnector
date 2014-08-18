@@ -52,7 +52,7 @@
 		<!-- stop the SNC in case connecting to persistence fails -->
 		<param name="ExitOnPersistenceFailure">
 			<type>boolean</type>
-			<value>true</value>
+			<value>false</value>
 			<constant>STOP_SNC_ON_PERSISTENCE_FAILURE</constant>
 		</param>
 	</configuration>
