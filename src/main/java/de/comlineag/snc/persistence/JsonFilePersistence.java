@@ -106,7 +106,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 		FileWriter file;
 		try {
 			// first check if the entry already exists
-			file = new FileWriter(savePoint+"/"+objectTypeToSave+"_"+userData.getSnId()+userData.getId()+"-"+objectStatusPriorSaving+".json");
+			file = new FileWriter(savePoint+"/"+objectTypeToSave+"_"+userData.getSnId()+"-"+userData.getId()+"_"+objectStatusPriorSaving+".json");
 			
 			JSONObject obj = new JSONObject();
 			obj.put("sn_id", userData.getSnId());
@@ -147,7 +147,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 		
 		FileWriter file;
 		try {
-			file = new FileWriter(savePoint+"/"+objectTypeToSave+"_"+postData.getSnId()+postData.getId()+"-"+objectStatusPriorSaving+".json");
+			file = new FileWriter(savePoint+"/"+objectTypeToSave+"_"+postData.getSnId()+"-"+postData.getId()+"_"+objectStatusPriorSaving+".json");
 			
 			JSONObject obj = new JSONObject();
 			obj.put("sn_id", postData.getSnId());
