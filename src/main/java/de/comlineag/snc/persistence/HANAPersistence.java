@@ -32,7 +32,7 @@ import de.comlineag.snc.persistence.JsonFilePersistence;
  *
  * @author 		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Persistence Manager
- * @version 	0.9i	- 20.07.2014
+ * @version 	0.9j	- 20.07.2014
  * @status		productive
  *
  * @description handles the connectivity to the SAP HANA Systems and saves and updates posts and users in the DB
@@ -56,6 +56,8 @@ import de.comlineag.snc.persistence.JsonFilePersistence;
  *				0.9g				added support to honor actual field length in the database - all fields too long, will be truncated
  *				0.9h				added failsave method to store posts and users on disk in case db fails to save them
  *				0.9i				added domain - at the moment simple string, should be handled as a list in the version 1.1
+ *				0.9j				added support for objectStatus. can be new, old, ok or fail. the field is used by FsCrawler to determine
+ *									if an object shall be uploaded to persistence db or now  
  * 
  * TODO 1. fix crawler bug, that causes the persistence to try to insert a post or user multiple times
  * 			This bug has something to do with the number of threads provided by the Quartz job control
@@ -181,6 +183,14 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (ClientHandlerException e) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: could not connect to HANA system " + e.getLocalizedMessage());
+			if (RuntimeConfiguration.isCREATE_POST_JSON_ON_ERROR()) {
+				logger.debug("insert failed - storing object in backup directory for later processing");
+				postData.setObjectStatus("fail");
+				
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(postData);
+			}
 			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
 				System.exit(-1);
 		} catch (Exception le) {
@@ -189,7 +199,7 @@ public class HANAPersistence implements IPersistenceManager {
 			le.printStackTrace();
 			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
 				System.exit(-1);
-		}
+		} 
 	}
 	
 	
@@ -228,6 +238,14 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (ClientHandlerException e) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: could not connect to HANA system " + e.getLocalizedMessage());
+			if (RuntimeConfiguration.isCREATE_USER_JSON_ON_ERROR()) {
+				logger.debug("insert failed - storing object in backup directory for later processing");
+				userData.setObjectStatus("fail");
+				
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(userData);
+			}
 			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
 				System.exit(-1);
 		} catch (Exception le) {
@@ -449,12 +467,28 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.info("post ("+postData.getSnId()+"-"+postData.getId()+") created");
 			
 			stmt.close() ; conn.close() ;
-		
+			
+			if (RuntimeConfiguration.isCREATE_POST_JSON_ON_SUCCESS()) {
+				postData.setObjectStatus("ok");
+				
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(postData);
+			}
 		} catch (java.lang.ClassNotFoundException le) {
 			logger.warn("jdbc not available - this should normally not happen, as jdbc is checked before calling this method");
 		} catch (SQLException le){
 			logger.error("EXCEPTION :: JDBC call failed, post ("+postData.getSnId()+"-"+postData.getId()+") not inserted " + le.getLocalizedMessage());
 			le.printStackTrace();
+			/*
+			if (RuntimeConfiguration.isCREATE_POST_JSON_ON_ERROR()) {
+				postData.setObjectStatus("fail");
+				
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(postData);
+			}
+			*/
 		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with "+ dataCryptoProvider.getCryptoProviderName() + ": "+ e.getMessage(), e);
 		}
@@ -532,6 +566,8 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.info("post ("+postData.getSnId()+"-"+postData.getId()+") created");
 			
 			if (RuntimeConfiguration.isCREATE_POST_JSON_ON_SUCCESS()) {
+				postData.setObjectStatus("ok");
+				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
 				JsonFilePersistence failsave = new JsonFilePersistence(postData);
@@ -551,6 +587,9 @@ public class HANAPersistence implements IPersistenceManager {
 			e.printStackTrace();
 			
 			if (RuntimeConfiguration.isCREATE_POST_JSON_ON_ERROR()) {
+				logger.debug("insert failed - storing object in backup directory for later processing");
+				postData.setObjectStatus("fail");
+				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
 				JsonFilePersistence failsave = new JsonFilePersistence(postData);
@@ -623,11 +662,28 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.info("user "+userData.getScreenName()+" ("+userData.getSnId()+"-"+userData.getId()+") created");
 			
 			stmt.close() ; conn.close() ;
+			
+			if (RuntimeConfiguration.isCREATE_USER_JSON_ON_SUCCESS()){
+				userData.setObjectStatus("ok");
+				
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(userData);
+			}
 		} catch (java.lang.ClassNotFoundException le) {
 			logger.warn("jdbc not available");
 		} catch (SQLException le){
 			logger.error("EXCEPTION :: JDBC call failed, user ("+userData.getSnId()+"-"+userData.getId()+") not inserted " + le.getLocalizedMessage());
 			le.printStackTrace();
+			/*
+			if (RuntimeConfiguration.isCREATE_USER_JSON_ON_ERROR()){
+				userData.setObjectStatus("fail");
+				
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(userData);
+			}
+			*/
 		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 		}
@@ -684,6 +740,8 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.info("user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") created");
 		
 			if (RuntimeConfiguration.isCREATE_USER_JSON_ON_SUCCESS()){
+				userData.setObjectStatus("ok");
+				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
 				JsonFilePersistence failsave = new JsonFilePersistence(userData);
@@ -702,6 +760,9 @@ public class HANAPersistence implements IPersistenceManager {
 			e.printStackTrace();
 			
 			if (RuntimeConfiguration.isCREATE_USER_JSON_ON_ERROR()){
+				logger.debug("insert failed - storing object in backup directory for later processing");
+				userData.setObjectStatus("fail");
+				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
 				JsonFilePersistence failsave = new JsonFilePersistence(userData);
@@ -804,11 +865,28 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.info("post ("+postData.getSnId()+"-"+postData.getId()+") updated");
 			
 			stmt.close() ; conn.close() ;
+			
+			if (RuntimeConfiguration.isCREATE_POST_JSON_ON_SUCCESS()){
+				postData.setObjectStatus("ok");
+				
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(postData);
+			}
 		} catch (java.lang.ClassNotFoundException le) {
 			logger.warn("jdbc not available - this should normally not happen, as jdbc is checked before calling this method");
 		} catch (SQLException le){
 			logger.error("EXCEPTION :: JDBC call failed, post ("+postData.getSnId()+"-"+postData.getId()+") not inserted " + le.getLocalizedMessage());
 			le.printStackTrace();
+			/*
+			if (RuntimeConfiguration.isCREATE_POST_JSON_ON_ERROR()){
+				postData.setObjectStatus("fail");
+				
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(postData);
+			}
+			*/
 		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 		}
@@ -889,7 +967,15 @@ public class HANAPersistence implements IPersistenceManager {
 					.execute();
 			
 			logger.info("post ("+postData.getSnId()+"-"+postData.getId()+") updated");
-		
+			
+			if (RuntimeConfiguration.isCREATE_POST_JSON_ON_SUCCESS()){
+				postData.setObjectStatus("ok");
+				
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(postData);
+			}
+			
 		/*
 		 * in case of an error during post, the following XML structure is returned as part of the exception:
 		 * 		<?xml version="1.0" encoding="utf-8" standalone="yes"?>
@@ -902,9 +988,18 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (RuntimeException e) {
 			logger.error("EXCEPTION :: could not update post ("+postData.getSnId()+"-"+postData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
+			
+			if (RuntimeConfiguration.isCREATE_POST_JSON_ON_ERROR()){
+				logger.debug("update failed - storing object in backup directory for later processing");
+				postData.setObjectStatus("fail");
+				
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(postData);
+			}
 		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
-		}
+		} 
 	}
 	
 	/**
@@ -974,11 +1069,28 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.info("user "+userData.getScreenName()+" ("+userData.getSnId()+"-"+userData.getId()+") created");
 			
 			stmt.close() ; conn.close() ;
+			
+			if (RuntimeConfiguration.isCREATE_USER_JSON_ON_SUCCESS()){
+				userData.setObjectStatus("ok");
+				
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(userData);
+			}
 		} catch (java.lang.ClassNotFoundException le) {
 			logger.warn("jdbc not available");
 		} catch (SQLException le){
 			logger.error("EXCEPTION :: JDBC call failed, user ("+userData.getSnId()+"-"+userData.getId()+") not inserted " + le.getLocalizedMessage());
 			le.printStackTrace();
+			/*
+			if (RuntimeConfiguration.isCREATE_USER_JSON_ON_ERROR()){
+				userData.setObjectStatus("fail");
+				
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(userData);
+			}
+			*/
 		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 		}
@@ -1035,7 +1147,14 @@ public class HANAPersistence implements IPersistenceManager {
 					.execute();
 			
 			logger.info("user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") updated");
-		
+			
+			if (RuntimeConfiguration.isCREATE_USER_JSON_ON_SUCCESS()){
+				userData.setObjectStatus("ok");
+				
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(userData);
+			}
 		/*
 		 * in case of an error during post, the following XML structure is returned as part of the exception:
 		 * 		<?xml version="1.0" encoding="utf-8" standalone="yes"?>
@@ -1048,6 +1167,14 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (RuntimeException e) {
 			logger.error("ERROR :: Could not update user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
+			if (RuntimeConfiguration.isCREATE_USER_JSON_ON_ERROR()){
+				logger.debug("update failed - storing object in backup directory for later processing");
+				userData.setObjectStatus("fail");
+				
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(userData);
+			}
 		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
 		}

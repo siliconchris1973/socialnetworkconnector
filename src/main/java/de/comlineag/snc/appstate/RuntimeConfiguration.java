@@ -26,7 +26,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  * @author 		Christina Guenther
  * @category	handler
- * @revision	0.3			- 21.07.2014
+ * @revision	0.3a		- 21.07.2014
  * @status		productive but still with limitations
  * 
  * @description	this class is used to setup the overall configuration of the SNC.
@@ -59,7 +59,7 @@ public final class RuntimeConfiguration implements Job {
 	
 	private static String configFile = "src/main/webapp/WEB-INF/SNC_Runtime_Configuration.xml";
 	
-	// some publicly available runtime informations
+	// some important and static runtime informations
 	private static boolean WARN_ON_SIMPLE_CONFIG = true;
 	private static boolean WARN_ON_SIMPLE_XML_CONFIG = true;
 	private static boolean CREATE_POST_JSON_ON_ERROR = true;
@@ -67,6 +67,9 @@ public final class RuntimeConfiguration implements Job {
 	private static boolean CREATE_POST_JSON_ON_SUCCESS = true;
 	private static boolean CREATE_USER_JSON_ON_SUCCESS = true;
 	private static boolean STOP_SNC_ON_PERSISTENCE_FAILURE = false;
+	
+	private static String JSON_BACKUP_STORAGE_PATH = "./json";
+	private static String JSON_BACKUP_FILE_PATTERN = "%TYPE%_%SOCIALNETWORKCODE%%NUMERICALID%-%STATUS%.json";
 	
 	// these values are section names within the configuration db 
 	private static String CONSTRAINT_TERM_TEXT				= "term";
@@ -197,6 +200,24 @@ public final class RuntimeConfiguration implements Job {
 				else
 					setCREATE_USER_JSON_ON_SUCCESS(false);
 			}
+			// JSON_BACKUP_STORAGE_PATH
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='JsonBackupStoragePath']/"+valueIdentifier;
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("Did not receive any information for JSON_BACKUP_STORAGE_PATH from " + configFile + " using expression " + expression);
+			} else {
+				setJSON_BACKUP_STORAGE_PATH(node.getTextContent());
+			}
+			
+			// JSON_BACKUP_FILE_PATTERN
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='JsonBackupFilePattern']/"+valueIdentifier;
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("Did not receive any information for JSON_BACKUP_FILE_PATTERN from " + configFile + " using expression " + expression);
+			} else {
+				setJSON_BACKUP_FILE_PATTERN(node.getTextContent());
+			}
+			
 			// STOP_SNC_ON_PERSISTENCE_FAILURE
 			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='ExitOnPersistenceFailure']/"+valueIdentifier;
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
@@ -215,7 +236,8 @@ public final class RuntimeConfiguration implements Job {
 						" / CREATE_POST_JSON_ON_ERROR is " + isCREATE_POST_JSON_ON_ERROR() + 
 						" / CREATE_USER_JSON_ON_ERROR is " + isCREATE_USER_JSON_ON_ERROR() +
 						" / CREATE_POST_JSON_ON_SUCCESS is " + isCREATE_POST_JSON_ON_SUCCESS() + 
-						" / CREATE_USER_JSON_ON_SUCCESS is " + isCREATE_USER_JSON_ON_SUCCESS());
+						" / CREATE_USER_JSON_ON_SUCCESS is " + isCREATE_USER_JSON_ON_SUCCESS()
+					);
 		} catch (IOException e) {
 			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
 			System.exit(-1);
@@ -488,5 +510,23 @@ public final class RuntimeConfiguration implements Job {
 
 	public static void setSocialNetworkName(String socialNetworkName) {
 		RuntimeConfiguration.socialNetworkName = socialNetworkName;
+	}
+
+	public static String getJSON_BACKUP_STORAGE_PATH() {
+		return JSON_BACKUP_STORAGE_PATH;
+	}
+
+	public static void setJSON_BACKUP_STORAGE_PATH(
+			String jSON_BACKUP_STORAGE_PATH) {
+		JSON_BACKUP_STORAGE_PATH = jSON_BACKUP_STORAGE_PATH;
+	}
+
+	public static String getJSON_BACKUP_FILE_PATTERN() {
+		return JSON_BACKUP_FILE_PATTERN;
+	}
+
+	public static void setJSON_BACKUP_FILE_PATTERN(
+			String jSON_BACKUP_FILE_PATTERN) {
+		JSON_BACKUP_FILE_PATTERN = jSON_BACKUP_FILE_PATTERN;
 	}
 }

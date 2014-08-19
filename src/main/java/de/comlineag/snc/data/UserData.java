@@ -35,6 +35,7 @@ public class UserData {
 	protected float average_posting_rating_value;	// how the postings of the user is rated by others
 	protected float average_posting_ratio;			// how many posts per year
 	protected String lang;							// default language of the user
+	protected String objectStatus;					// can be new, old, ok or fail
 
 	// getter and setter
 	public long getId() {
@@ -147,5 +148,12 @@ public class UserData {
 	}
 	public void setCustomer(String sub) {
 		this.customer = sub;
+	}
+	
+	public String getObjectStatus() {
+		return objectStatus;
+	}
+	public void setObjectStatus(String ostatus) {
+		this.objectStatus = ostatus;
 	}
 }

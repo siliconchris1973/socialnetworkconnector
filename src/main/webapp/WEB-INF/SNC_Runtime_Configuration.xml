@@ -49,12 +49,28 @@
 			<value>false</value>
 			<constant>CREATE_USER_JSON_ON_SUCCESS</constant>
 		</param>
-		<!-- stop the SNC in case connecting to persistence fails -->
+		<!-- the path to the directory under which to save the json-files -->
+		<param name="JsonBackupStoragePath">
+			<type>String</type>
+			<value>./json</value>
+			<constant>JSON_BACKUP_STORAGE_PATH</constant>
+		</param>
+		<!-- how the files shall be named - THIS CAN'T BE CHANGED. IT IS JUST HERE TO SHOW THE NAMING CONVENTION IN USE -->
+		<param name="JsonBackupFilePattern">
+			<type>String</type>
+			<value>%TYPE%_%SOCIALNETWORKCODE%%NUMERICALID%-%STATUS%.json</value>
+			<constant>JSON_BACKUP_FILE_PATTERN</constant>
+		</param>
+		
+		<!-- stop the SNC in case connecting to persistence fails and is thus unable to save posts and users?
+			 Consequently, setting this to true is only useful, in case you do not setup the FsCrawler (see
+			 applicationContext.xml) plus you do not save failed posts and users to disk - as configured with 
+			 above parameters. -->
 		<param name="ExitOnPersistenceFailure">
 			<type>boolean</type>
 			<value>false</value>
 			<constant>STOP_SNC_ON_PERSISTENCE_FAILURE</constant>
-		</param>
+		</param>		
 	</configuration>
 	
 	

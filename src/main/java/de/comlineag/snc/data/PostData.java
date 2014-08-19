@@ -21,7 +21,8 @@ import org.joda.time.LocalDateTime;
  */
 
 public class PostData {
-
+	protected String objectStatus;	// can be new, old, ok or fail
+	
 	/*
 	 * domain (stored as json within the db) e.g. banking
 	 * <Property Name="domain" Type="Edm.String" Nullable="false" MaxLength="1024"/>
@@ -350,5 +351,12 @@ public class PostData {
 	}
 	public void setGeoAroundLatitude(String geoAroundLatitude) {
 		this.geoAroundLatitude = geoAroundLatitude;
+	}
+	
+	public String getObjectStatus() {
+		return objectStatus;
+	}
+	public void setObjectStatus(String ostatus) {
+		this.objectStatus = ostatus;
 	}
 }

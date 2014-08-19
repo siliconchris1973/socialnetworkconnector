@@ -109,9 +109,6 @@
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map>
-				<!-- The 2-digit shortcut for the social network at hand - appended to the user- and post-ids in the db to form a unique key -->
-				<entry key="networkMatchcode" value="TW"/>
-				
 				<!-- These are the security tokens for the twitter API -->
 				<entry key="consumerKey" value="zlGuAavBH2T23hIm57l8WA" />
 				<entry key="consumerSecret" value="xzqH6lLWnXLvlHJooNDaCDXlzJzv976JcWt8y2eyHBk" />
@@ -147,10 +144,6 @@
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map>
-				<!-- The 2-digit shortcut for the social network at hand - appended to the user- and post-ids in the db to form a unique key -->
-				<!-- CHANGE THIS, IN CASE YOU WANT TO SETUP MULTIPLE AND DIFFERENT LITHIUM NETWORK CRAWLER IN PARALLEL!!! -->
-				<entry key="networkMatchcode" value="CC"/>
-				
 				<!-- These are security tokens -->
 				<entry key="consumerKey" value="" />
 				<entry key="consumerSecret" value="" />
@@ -185,9 +178,6 @@
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map>
-				<!-- The 2-digit shortcut for the social network at hand - appended to the user- and post-ids in the db to form a unique key -->
-				<entry key="networkMatchcode" value="FB"/>
-				
 				<!-- These are security tokens -->
 				<entry key="consumerKey" value="" />
 				<entry key="consumerSecret" value="" />
@@ -229,8 +219,6 @@
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map> 
-				<entry key="networkMatchcode" value="GP"/>
-				
 				<entry key="consumerKey" value="" /> 
 				<entry key="consumerSecret" value="" /> 
 				<entry key="token" value="" /> 
@@ -268,6 +256,27 @@
 		<property name="repeatInterval" value="150000" /> 
 	</bean> 
 -->
+
+	<!-- F S    C R A W L E R    (IN DEVELOPMENT)		-->
+	<bean name="FsCrawlerDetail"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="de.comlineag.snc.job.FsCrawler" />
+		<!-- <property name="concurrent" value="false" /> -->
+		<property name="durability" value="true" />
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="directory" value="./json" />
+			</map>
+		</property>
+	</bean>
+	<bean id="FsCrawlerTrigger"
+		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="FsCrawlerDetail" />
+		<!-- seconds of delay after startup -->
+		<property name="startDelay" value="30000" />
+		<!-- repeat the job every 15 minutes -->
+		<property name="repeatInterval" value="90000" />
+	</bean>
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	<!-- END OF CRAWLER SECTION - END OF CRAWLER SECTION - END OF CRAWLER SECTION - EN -->
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->

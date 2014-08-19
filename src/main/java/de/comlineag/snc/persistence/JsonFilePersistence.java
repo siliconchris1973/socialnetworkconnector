@@ -1,5 +1,6 @@
 package de.comlineag.snc.persistence;
 
+import java.io.File;
 import java.io.FileWriter;
 
 import org.apache.log4j.Logger;
@@ -8,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import org.json.simple.JSONObject;
 
+import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
 import de.comlineag.snc.handler.DataCryptoHandler;
@@ -17,7 +19,7 @@ import de.comlineag.snc.handler.DataCryptoHandler;
  * @author 		Christian Guenther
  * @category 	Persistence Manager
  * @version 	0.2	- 25.07.2014
- * @status		productive
+ * @objectStatusPriorSaving		productive
  *
  * @description persistence manager to simply save JSON files on disk 
  * 				it can either be used stand alone, if activated as persistence manager in
@@ -36,8 +38,10 @@ import de.comlineag.snc.handler.DataCryptoHandler;
  */
 public class JsonFilePersistence implements IPersistenceManager {
 	
-	// Servicelocation 
-	private String savePoint = "./json";
+	// define where and the files shall be saved
+	private String savePoint = RuntimeConfiguration.getJSON_BACKUP_STORAGE_PATH();
+	private String objectStatusPriorSaving; // was storing of the object prior saving to disk (e.g. n a db) successful (ok) or not (fail)
+	private String objectTypeToSave;		// can either be user or post
 	
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
@@ -46,15 +50,28 @@ public class JsonFilePersistence implements IPersistenceManager {
 		
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
 	private DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
-
 	
-	public JsonFilePersistence() {}
-
+	
+	public JsonFilePersistence() {
+		logger.debug("checking if storage directory "+savePoint+" exists");
+		File f = new File(savePoint);
+		if (!f.isDirectory()) {
+			// create the json diretory
+			f.mkdir();
+		}
+	}
+	
 	/**
 	 * @description	constructor to save a post from social network to the file-system
 	 * @param		PostData
 	 */
 	public JsonFilePersistence(PostData postData) {
+		logger.debug("checking if storage directory "+savePoint+" exists");
+		File f = new File(savePoint);
+		if (!f.isDirectory()) {
+			// create the json diretory
+			f.mkdir();
+		}
 		savePosts(postData);
 	}
 	
@@ -63,6 +80,12 @@ public class JsonFilePersistence implements IPersistenceManager {
 	 * @param		UserData
 	 */
 	public JsonFilePersistence(UserData userData) {
+		logger.debug("checking if storage directory "+savePoint+" exists");
+		File f = new File(savePoint);
+		if (!f.isDirectory()) {
+			// create the json diretory
+			f.mkdir();
+		}
 		saveUsers(userData);
 	}
 	
@@ -75,10 +98,15 @@ public class JsonFilePersistence implements IPersistenceManager {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void saveUsers(UserData userData) {
+		objectTypeToSave = "user";
+		objectStatusPriorSaving = userData.getObjectStatus(); // ok or fail
+		if (objectStatusPriorSaving == null)
+			objectStatusPriorSaving = "ok";
+		
 		FileWriter file;
 		try {
 			// first check if the entry already exists
-			file = new FileWriter(savePoint+"/user_"+userData.getSnId()+userData.getId()+".json");
+			file = new FileWriter(savePoint+"/"+objectTypeToSave+"_"+userData.getSnId()+userData.getId()+"-"+objectStatusPriorSaving+".json");
 			
 			JSONObject obj = new JSONObject();
 			obj.put("sn_id", userData.getSnId());
@@ -112,9 +140,14 @@ public class JsonFilePersistence implements IPersistenceManager {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void savePosts(PostData postData) {
+		objectTypeToSave = "post";
+		objectStatusPriorSaving = postData.getObjectStatus(); // ok or fail
+		if (objectStatusPriorSaving == null)
+			objectStatusPriorSaving = "ok";
+		
 		FileWriter file;
 		try {
-			file = new FileWriter(savePoint+"/post_"+postData.getSnId()+postData.getId()+".json");
+			file = new FileWriter(savePoint+"/"+objectTypeToSave+"_"+postData.getSnId()+postData.getId()+"-"+objectStatusPriorSaving+".json");
 			
 			JSONObject obj = new JSONObject();
 			obj.put("sn_id", postData.getSnId());
@@ -156,13 +189,5 @@ public class JsonFilePersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: unforseen error condition processing post "+postData.getSnId()+"-"+postData.getId()+": " + le.getLocalizedMessage());
 			le.printStackTrace();
 		}
-	}
-	
-	
-	public String getPath() {
-		return savePoint;
-	}
-	public void setPath(String path){
-		this.savePoint = path;
 	}
 }
