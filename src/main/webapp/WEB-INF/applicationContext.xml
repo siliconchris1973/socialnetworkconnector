@@ -81,12 +81,12 @@
 				<!-- ACTIVATE/DEACTIVATE AT WILL 
 					activate each crawler you want and make sure to increase the threadCount number 
 					above according to the number of activated crawlers -->
-				<ref bean="TwitterCrawlerTrigger" />
+				<!-- <ref bean="TwitterCrawlerTrigger" /> -->
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="FinanzforumCrawlerTrigger"/> -->
-				<ref bean="LithiumCrawlerTrigger" />
+				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
 				
 				<!-- SHOULD STAY ACTIVE
 					this is the failsave crawler. It scans through a backup directory (typically ./json)
@@ -109,7 +109,7 @@
 	     YOU NORMALLY DO NOT NEED TO ACTIVATE/DEACTIVATE A CRAWLER HERE, BUT YOU MAY 
 		 NEED TO ADAPT KEYS AND THE LIKE. FOR EXAMPLE, TWITTER USES 4 KEYS TO AUTHORIZE
 		 THE CRAWLER (FACEBOOK ALSO) AND LITHIUM, ON THE OTHER HAND, MAY NEED TO GET THE
-		 URL AND SERVER NAME ETC. ADAPTED. -->
+		 URL AND SERVER NAME ETC. ADAPTED.
 	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	
 	<!-- T W I T T E R    C R A W L E R    (WORKS)		-->
@@ -243,27 +243,12 @@
 				<entry key="server_url"	value="google.com" /> 
 				<entry key="graph_api_loc" value="/graph" /> 
 				<entry key="rest_api_loc" value="/restapi/" /> 
-				
--->
-				<!-- first customer specific implementation -->
-<!--
-				<entry key="customer" value="CortalConsors" />
 			</map> 
 		</property> 
 	</bean> 
 	<bean id="GoogleCrawlerTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean"> 
 		<property name="jobDetail" ref="GoogleCrawlerDetail" />
---> 
-		<!-- 1 second delay after startup -->
-<!-- 
 		<property name="startDelay" value="1000" />
---> 
-		<!-- repeat the job every 
-							5000 - 50 seconds 
-							6000 - 1 minutes 
-							15000 - 2,5 minutes (round about) 
-							30000 - 5 minutes -->
-<!-- 
 		<property name="repeatInterval" value="150000" /> 
 	</bean> 
 -->
@@ -280,9 +265,7 @@
 	<bean id="FsCrawlerTrigger"
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
 		<property name="jobDetail" ref="FsCrawlerDetail" />
-		<!-- seconds of delay after startup -->
 		<property name="startDelay" value="30000" />
-		<!-- repeat the job every 15 minutes -->
 		<property name="repeatInterval" value="90000" />
 	</bean>
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -340,9 +323,9 @@
 		<property name="configDbHandler" value="src/main/webapp/WEB-INF/SNC_Crawler_Configuration/CrawlerConfiguration.ini" />
 	</bean>
  -->
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-	<!-- END OF CONFIGURATION SECTION - END OF CONFIGURATION SECTION - END OF CONFIGUR -->
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+	     END OF CONFIGURATION SECTION - END OF CONFIGURATION SECTION - END OF CONFIGUR 
+	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	
 	
 	
@@ -478,7 +461,7 @@
 	<!-- <bean id="dataCryptoProvider" class="de.comlineag.snc.crypto.Base64CryptoProvider"> </bean> -->
 	
 	<!-- DES    Crypto Provider   -   this is the bean to set the data encryption provider to DES -->
-	<!--<bean id="dataCryptoProvider" class="de.comlineag.snc.crypto.DesCryptoProvider"> 
+	<!-- <bean id="dataCryptoProvider" class="de.comlineag.snc.crypto.DesCryptoProvider"> 
 			<property name="initialVector"dfhjhgcfngcfhcecf4tcdgc5vtrgvhtdzvcgcdbzvt5cxhvxtycsvtsctyvzs5zcc5zzvhcdht></property>
 		</bean> 
 	-->
@@ -491,7 +474,7 @@
 	
 	
 	<!-- S E A R C H     C R Y P T O     S E T T I N G S
-		 used to encrypt the search constraints from the crawler configuration-->
+		 used to encrypt the search constraints from the crawler configuration -->
 	<!-- NULL   Crypto Provider   -   this is the bean to set the search encryption provider to null -->
 	<bean id="searchCryptoProvider" class="de.comlineag.snc.crypto.NullCryptoProvider"> </bean>
 	
@@ -499,7 +482,7 @@
 	<!-- <bean id="searchCryptoProvider" class="de.comlineag.snc.crypto.Base64CryptoProvider"> </bean> -->
 	
 	<!-- DES    Crypto Provider   -   this is the bean to set the data encryption provider to DES -->
-	<!--<bean id="searchCryptoProvider" class="de.comlineag.snc.crypto.DesCryptoProvider"> 
+	<!-- <bean id="searchCryptoProvider" class="de.comlineag.snc.crypto.DesCryptoProvider"> 
 			<property name="initialVector"dfhjhgcfngcfhcecf4tcdgc5vtrgvhtdzvcgcdbzvt5cxhvxtycsvtsctyvzs5zcc5zzvhcdht></property>
 		</bean>
 	-->
