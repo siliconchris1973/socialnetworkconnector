@@ -18,7 +18,7 @@ import de.comlineag.snc.handler.DataCryptoHandler;
  *
  * @author 		Christian Guenther
  * @category 	Persistence Manager
- * @version 	0.2	- 25.07.2014
+ * @version 	0.2a			- 25.07.2014
  * @objectStatusPriorSaving		productive
  *
  * @description persistence manager to simply save JSON files on disk 
@@ -32,8 +32,9 @@ import de.comlineag.snc.handler.DataCryptoHandler;
  * 					CreateUserJsonOnSuccess		- create a user json on success as well
  * 				from RuntimeConfiguration.xml must be set to true. 
  * 
- * @changelog	0.1 (Chris)			class created
- * 				0.2					changed class to implement IPersistenceManager
+ * @changelog	0.1 (Chris)		class created
+ * 				0.2				changed class to implement IPersistenceManager
+ * 				0.2a			changed file pattern naming to TYPE_SCCODE-NUMBER_STATUS.json (e.g.: post_TW-34567_fail.json)
  * 
  */
 public class JsonFilePersistence implements IPersistenceManager {
@@ -53,7 +54,6 @@ public class JsonFilePersistence implements IPersistenceManager {
 	
 	
 	public JsonFilePersistence() {
-		logger.debug("checking if storage directory "+savePoint+" exists");
 		File f = new File(savePoint);
 		if (!f.isDirectory()) {
 			// create the json diretory
@@ -66,7 +66,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 	 * @param		PostData
 	 */
 	public JsonFilePersistence(PostData postData) {
-		logger.debug("checking if storage directory "+savePoint+" exists");
+		logger.trace("checking if storage directory "+savePoint+" exists");
 		File f = new File(savePoint);
 		if (!f.isDirectory()) {
 			// create the json diretory
@@ -80,7 +80,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 	 * @param		UserData
 	 */
 	public JsonFilePersistence(UserData userData) {
-		logger.debug("checking if storage directory "+savePoint+" exists");
+		logger.trace("checking if storage directory "+savePoint+" exists");
 		File f = new File(savePoint);
 		if (!f.isDirectory()) {
 			// create the json diretory
@@ -106,7 +106,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 		FileWriter file;
 		try {
 			// first check if the entry already exists
-			file = new FileWriter(savePoint+"/"+objectTypeToSave+"_"+userData.getSnId()+"-"+userData.getId()+"_"+objectStatusPriorSaving+".json");
+			file = new FileWriter(savePoint+File.separator+objectTypeToSave+"_"+userData.getSnId()+"-"+userData.getId()+"_"+objectStatusPriorSaving+".json");
 			
 			JSONObject obj = new JSONObject();
 			obj.put("sn_id", userData.getSnId());
@@ -147,7 +147,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 		
 		FileWriter file;
 		try {
-			file = new FileWriter(savePoint+"/"+objectTypeToSave+"_"+postData.getSnId()+"-"+postData.getId()+"_"+objectStatusPriorSaving+".json");
+			file = new FileWriter(savePoint+File.separator+objectTypeToSave+"_"+postData.getSnId()+"-"+postData.getId()+"_"+objectStatusPriorSaving+".json");
 			
 			JSONObject obj = new JSONObject();
 			obj.put("sn_id", postData.getSnId());

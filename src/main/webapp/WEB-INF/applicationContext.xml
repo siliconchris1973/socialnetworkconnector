@@ -43,10 +43,10 @@
 	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.appstate.ApplicationContextProvider"></bean>
 	
 	
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-	<!-- J O B    C O N T R O L    S E T T I N G S -->
-	<!-- this is the section in which to turn on/off the different crawler -->
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+	     J O B    C O N T R O L    S E T T I N G S  -  J O B    C O N T R O L    S E T
+	     this is the section in which to turn on/off the different crawler 
+	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="autoStartup">
 			<value>true</value>
@@ -66,40 +66,51 @@
 				<!-- ThreadPool -->
 				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
 				<!-- currently, if this is set to a value higher than 1, the twitter crawler sometimes 
-						encounters exceptions during db insert or update -->
-				<prop key="org.quartz.threadPool.threadCount">3</prop>
+					encounters exceptions during db insert or update. -->
+				<prop key="org.quartz.threadPool.threadCount">2</prop>
 			</props>
 		</property>
 		<property name="triggers">
 			<list>
-				<!-- MUST STAY ACTIVATED
-					this is the basic configuration for the social network connector -->
+				<!-- MUST STAY ACTIVE
+					this is the basic configuration for the social network connector if you deactivate it,
+					the SNC will cease to function as no information regarding the runtime environment
+					of the SNC can be retrieved by the other components of the SNC -->
 				<ref bean="GeneralConfigurationTrigger" />
 				
-				<!-- ACTIVATE/DEACTIVATE AT WILL -->
-				<!-- activate each crawler you want and make sure to increase the threadCount number 
-						above according to the number of activated crawlers -->
+				<!-- ACTIVATE/DEACTIVATE AT WILL 
+					activate each crawler you want and make sure to increase the threadCount number 
+					above according to the number of activated crawlers -->
 				<ref bean="TwitterCrawlerTrigger" />
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="FinanzforumCrawlerTrigger"/> -->
 				<ref bean="LithiumCrawlerTrigger" />
+				
+				<!-- SHOULD STAY ACTIVE
+					this is the failsave crawler. It scans through a backup directory (typically ./json)
+					and retries to insert/update all posts and users (stored within there as json files)
+					into the actual persistence manager (e.g. HANA or Neo4J. It is therefore a saveguard
+					for the runtime environment of the social network connector. 
+					You should only deactivate it in case you do not save the posts and users of failed
+					inserts in a backup directory, in which case there would be no sense scanning it :-) -->
+				<ref bean="FsCrawlerTrigger" />
 			</list>
 		</property>
 	</bean>
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-	<!-- END OF JOB CONTROL SECTION - END OF JOB CONTROL SECTION - END OF JOB CONTROL  -->
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+	     END OF JOB CONTROL SECTION - END OF JOB CONTROL SECTION - END OF JOB CONTROL
+	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	
 	
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-	<!-- C R A W L E R    S E T T I N G S                                              -->
-	<!-- YOU NORMALLY DO NOT NEED TO ACTIVATE/DEACTIVATE A CRAWLER HERE, BUT YOU MAY 
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+	     C R A W L E R    S E T T I N G S  -  C R A W L E R    S E T T I N G S  -  C R                                              
+	     YOU NORMALLY DO NOT NEED TO ACTIVATE/DEACTIVATE A CRAWLER HERE, BUT YOU MAY 
 		 NEED TO ADAPT KEYS AND THE LIKE. FOR EXAMPLE, TWITTER USES 4 KEYS TO AUTHORIZE
 		 THE CRAWLER (FACEBOOK ALSO) AND LITHIUM, ON THE OTHER HAND, MAY NEED TO GET THE
 		 URL AND SERVER NAME ETC. ADAPTED. -->
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	
 	<!-- T W I T T E R    C R A W L E R    (WORKS)		-->
 	<bean name="TwitterCrawlerDetail"
@@ -263,11 +274,8 @@
 		<property name="jobClass" value="de.comlineag.snc.job.FsCrawler" />
 		<!-- <property name="concurrent" value="false" /> -->
 		<property name="durability" value="true" />
-		<property name="jobDataAsMap">
-			<map>
-				<entry key="directory" value="./json" />
-			</map>
-		</property>
+		<!-- the properties for this specific crawler, namely and only the directory to parse, 
+			 is taken from SNC_Runtime_Configuration.xml -->
 	</bean>
 	<bean id="FsCrawlerTrigger"
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
@@ -277,16 +285,16 @@
 		<!-- repeat the job every 15 minutes -->
 		<property name="repeatInterval" value="90000" />
 	</bean>
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-	<!-- END OF CRAWLER SECTION - END OF CRAWLER SECTION - END OF CRAWLER SECTION - EN -->
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+	     END OF CRAWLER SECTION - END OF CRAWLER SECTION - END OF CRAWLER SECTION - EN 
+	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	
 	
 	
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-	<!-- C O N F I G U R A T I O N    S E T T I N G S -->
-	<!-- You may choose exactly one of the provided configuration manager -->
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+	     C O N F I G U R A T I O N    S E T T I N G S  -  C O N F I G U R A T I O N  S    
+	     You may choose exactly one of the provided configuration manager 
+	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	
 	<!-- this is the bean to get the crawler configuration from the HANA (TO BE IMPLEMENETED) -->
 	<!-- 
@@ -339,20 +347,24 @@
 	
 	
 	
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-	<!-- P E R S I S T E N C E    S E T T I N G S -->
-	<!-- You may choose exactly one of the provided persistence manager -->
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	     P E R S I S T E N C E    S E T T I N G S  -  P E R S I S T E N C E    S E T T
+	     You may choose exactly one of the provided persistence manager 
+	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	
-	<!-- F I L E S Y S T E M    J S O N    P E R S I S T E N C E    (WORKS) --> 
-	<!-- This one simply stores all posts and users as json files on disk -->
+	<!-- F I L E S Y S T E M    J S O N    P E R S I S T E N C E    (WORKS)  
+	     This one simply stores all posts and users as json files on disk. If you activate
+	     this storage manager, you should DEFINATELY turn off the FsCrawler in the Job 
+	     control section above, otherwise your system will store and scan the ./json 
+	     directory with no end in sight -->
 	<!--
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.JsonFilePersistence"> 
 		<property name="path" value="./json" /> 
 	</bean> 
 	-->
 	
-	<!-- H A N A    P E R S I S T E N C E    (WORKS) --> 
+	<!-- H A N A    P E R S I S T E N C E    (WORKS) 
+		 bla bla bla --> 
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.HANAPersistence">
 		<property name="host" value="192.168.131.30" />
 		<property name="port" value="8000" />
@@ -428,77 +440,85 @@
 		<property name="db_path" value="/db/data" /> 
 	</bean> 
 	-->
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-	<!-- END OF PERSISTENCE SECTION - END OF PERSISTENCE SECTION - END OF PERSISTENCE  -->
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+	     END OF PERSISTENCE SECTION - END OF PERSISTENCE SECTION - END OF PERSISTENCE  
+	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	
 	
 	
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-	<!-- C R Y P T O    S E T T I N G S -->
-	<!-- You can choose exactly one of the available crypto provider for each category (id) -->
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+	     C R Y P T O    S E T T I N G S  -  C R Y P T O    S E T T I N G S  -  C R Y P   
+	     You can choose exactly one of the available crypto provider for each category (id) 
+	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	
-	<!-- C O N F I G U R A T I O N     C R Y P T O     S E T T I N G S     - used to encrypt data for the persistence connection -->
-	<!-- NULL   Crypto Provider   -   this is the bean to set the configuration encryption provider to null
-	<bean id="configurationCryptoProvider" class="de.comlineag.snc.crypto.NullCryptoProvider"> </bean>
-	-->
+	<!-- C O N F I G U R A T I O N     C R Y P T O     S E T T I N G S 
+		 used to encrypt configuration settings for the persistence connection --> 
+	<!-- NULL   Crypto Provider   -   this is the bean to set the configuration encryption provider to null -->
+	<!-- <bean id="configurationCryptoProvider" class="de.comlineag.snc.crypto.NullCryptoProvider"> </bean> -->
+	
 	<!-- BASE64 Crypto Provider   -   this is the bean to set the configuration encryption provider to Base64 -->
 	<bean id="configurationCryptoProvider" class="de.comlineag.snc.crypto.Base64CryptoProvider"> </bean>
-	<!-- DES    Crypto Provider   -   this is the bean to set the configuration encryption provider to DES
-	<bean id="configurationCryptoProvider" class="de.comlineag.snc.crypto.DesCryptoProvider"> </bean>
-	 -->
-	<!-- 3DES   Crypto Provider   -   this is the bean to set the configuration encryption provider to Triple DES
-	<bean id="configurationCryptoProvider" class="de.comlineag.snc.crypto.Des3CryptoProvider"> </bean>
-	 -->
-	<!-- AES    Crypto Provider   -   this is the bean to set the configuration encryption provider to AES 
-	<bean id="configurationCryptoProvider" class="de.comlineag.snc.crypto.AesCryptoProvider"> </bean>
-	-->
 	
-	<!-- D A T A     C R Y P T O     S E T T I N G S     - used to encrypt the data in the persistence (DB) -->
+	<!-- DES    Crypto Provider   -   this is the bean to set the configuration encryption provider to DES -->
+	<!-- <bean id="configurationCryptoProvider" class="de.comlineag.snc.crypto.DesCryptoProvider"> </bean> -->
+	
+	<!-- 3DES   Crypto Provider   -   this is the bean to set the configuration encryption provider to Triple DES -->
+	<!-- <bean id="configurationCryptoProvider" class="de.comlineag.snc.crypto.Des3CryptoProvider"> </bean> -->
+	
+	<!-- AES    Crypto Provider   -   this is the bean to set the configuration encryption provider to AES -->
+	<!-- <bean id="configurationCryptoProvider" class="de.comlineag.snc.crypto.AesCryptoProvider"> </bean> -->
+	
+	
+	<!-- D A T A     C R Y P T O     S E T T I N G S
+		 used to encrypt the data in the persistence (DB) -->
 	<!-- NULL   Crypto Provider   -   this is the bean to set the data encryption provider to null -->
 	<bean id="dataCryptoProvider" class="de.comlineag.snc.crypto.NullCryptoProvider"> </bean>
-	<!-- BASE64 Crypto Provider   -   this is the bean to set the data encryption provider to Base64 
-	<bean id="dataCryptoProvider" class="de.comlineag.snc.crypto.Base64CryptoProvider"> </bean>
-	-->
-	<!-- DES    Crypto Provider   -   this is the bean to set the data encryption provider to DES
-	<bean id="dataCryptoProvider" class="de.comlineag.snc.crypto.DesCryptoProvider"> 
-		<property name="initialVector"dfhjhgcfngcfhcecf4tcdgc5vtrgvhtdzvcgcdbzvt5cxhvxtycsvtsctyvzs5zcc5zzvhcdht></property>
-	</bean>
-	 -->
-	<!-- 3DES   Crypto Provider   -   this is the bean to set the data encryption provider to Triple DES
-	<bean id="dataCryptoProvider" class="de.comlineag.snc.crypto.Des3CryptoProvider"> </bean>
-	 -->
-	<!-- AES    Crypto Provider   -   this is the bean to set the data encryption provider to AES 
-	<bean id="dataCryptoProvider" class="de.comlineag.snc.crypto.AesCryptoProvider"> </bean>
+	
+	<!-- BASE64 Crypto Provider   -   this is the bean to set the data encryption provider to Base64 -->
+	<!-- <bean id="dataCryptoProvider" class="de.comlineag.snc.crypto.Base64CryptoProvider"> </bean> -->
+	
+	<!-- DES    Crypto Provider   -   this is the bean to set the data encryption provider to DES -->
+	<!--<bean id="dataCryptoProvider" class="de.comlineag.snc.crypto.DesCryptoProvider"> 
+			<property name="initialVector"dfhjhgcfngcfhcecf4tcdgc5vtrgvhtdzvcgcdbzvt5cxhvxtycsvtsctyvzs5zcc5zzvhcdht></property>
+		</bean> 
 	-->
 	
-	<!-- S E A R C H     C R Y P T O     S E T T I N G S     - used to encrypt the search constraints from crawler configuration-->
+	<!-- 3DES   Crypto Provider   -   this is the bean to set the data encryption provider to Triple DES -->
+	<!-- <bean id="dataCryptoProvider" class="de.comlineag.snc.crypto.Des3CryptoProvider"> </bean> -->
+	
+	<!-- AES    Crypto Provider   -   this is the bean to set the data encryption provider to AES -->
+	<!-- <bean id="dataCryptoProvider" class="de.comlineag.snc.crypto.AesCryptoProvider"> </bean> -->
+	
+	
+	<!-- S E A R C H     C R Y P T O     S E T T I N G S
+		 used to encrypt the search constraints from the crawler configuration-->
 	<!-- NULL   Crypto Provider   -   this is the bean to set the search encryption provider to null -->
 	<bean id="searchCryptoProvider" class="de.comlineag.snc.crypto.NullCryptoProvider"> </bean>
-	<!-- BASE64 Crypto Provider   -   this is the bean to set the data encryption provider to Base64 
-	<bean id="searchCryptoProvider" class="de.comlineag.snc.crypto.Base64CryptoProvider"> </bean>
+	
+	<!-- BASE64 Crypto Provider   -   this is the bean to set the data encryption provider to Base64 --> 
+	<!-- <bean id="searchCryptoProvider" class="de.comlineag.snc.crypto.Base64CryptoProvider"> </bean> -->
+	
+	<!-- DES    Crypto Provider   -   this is the bean to set the data encryption provider to DES -->
+	<!--<bean id="searchCryptoProvider" class="de.comlineag.snc.crypto.DesCryptoProvider"> 
+			<property name="initialVector"dfhjhgcfngcfhcecf4tcdgc5vtrgvhtdzvcgcdbzvt5cxhvxtycsvtsctyvzs5zcc5zzvhcdht></property>
+		</bean>
 	-->
-	<!-- DES    Crypto Provider   -   this is the bean to set the data encryption provider to DES
-	<bean id="searchCryptoProvider" class="de.comlineag.snc.crypto.DesCryptoProvider"> 
-		<property name="initialVector"dfhjhgcfngcfhcecf4tcdgc5vtrgvhtdzvcgcdbzvt5cxhvxtycsvtsctyvzs5zcc5zzvhcdht></property>
-	</bean>
-	 -->
-	<!-- 3DES   Crypto Provider   -   this is the bean to set the data encryption provider to Triple DES
-	<bean id="searchCryptoProvider" class="de.comlineag.snc.crypto.Des3CryptoProvider"> </bean>
-	 -->
-	<!-- AES    Crypto Provider   -   this is the bean to set the data encryption provider to AES 
-	<bean id="searchCryptoProvider" class="de.comlineag.snc.crypto.AesCryptoProvider"> </bean>
-	-->
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-	<!-- END OF CRYPTO SECTION - END OF CRYPTO SECTION - END OF CRYPTO SECTION - END O -->
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	
+	<!-- 3DES   Crypto Provider   -   this is the bean to set the data encryption provider to Triple DES -->
+	<!-- <bean id="searchCryptoProvider" class="de.comlineag.snc.crypto.Des3CryptoProvider"> </bean> -->
+	
+	<!-- AES    Crypto Provider   -   this is the bean to set the data encryption provider to AES -->
+	<!-- <bean id="searchCryptoProvider" class="de.comlineag.snc.crypto.AesCryptoProvider"> </bean> -->
+	
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	     END OF CRYPTO SECTION - END OF CRYPTO SECTION - END OF CRYPTO SECTION - END O
+	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	
 	
 	
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-	<!-- NO NEED TO CHANGE ANYTHING BELOW THIS LINE - BE VERY CAREFUL WHAT YOU DO HERE -->
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	     NO NEED TO CHANGE ANYTHING BELOW THIS LINE - BE VERY CAREFUL WHAT YOU DO HERE
+	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	<!-- R U N T I M E    S E T T I N G S -->
 	<bean name="GeneralConfigurationDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">

@@ -183,6 +183,7 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (ClientHandlerException e) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: could not connect to HANA system " + e.getLocalizedMessage());
+			
 			if (RuntimeConfiguration.isCREATE_POST_JSON_ON_ERROR()) {
 				logger.debug("insert failed - storing object in backup directory for later processing");
 				postData.setObjectStatus("fail");
@@ -191,12 +192,23 @@ public class HANAPersistence implements IPersistenceManager {
 				@SuppressWarnings("unused")
 				JsonFilePersistence failsave = new JsonFilePersistence(postData);
 			}
+			
 			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
 				System.exit(-1);
 		} catch (Exception le) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: unforseen error condition processing post "+postData.getSnId()+"-"+postData.getId()+": " + le.getLocalizedMessage());
 			le.printStackTrace();
+			
+			if (RuntimeConfiguration.isCREATE_POST_JSON_ON_ERROR()) {
+				logger.debug("insert failed - storing object in backup directory for later processing");
+				postData.setObjectStatus("fail");
+				
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(postData);
+			}
+			
 			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
 				System.exit(-1);
 		} 
@@ -238,6 +250,7 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (ClientHandlerException e) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: could not connect to HANA system " + e.getLocalizedMessage());
+			
 			if (RuntimeConfiguration.isCREATE_USER_JSON_ON_ERROR()) {
 				logger.debug("insert failed - storing object in backup directory for later processing");
 				userData.setObjectStatus("fail");
@@ -246,12 +259,23 @@ public class HANAPersistence implements IPersistenceManager {
 				@SuppressWarnings("unused")
 				JsonFilePersistence failsave = new JsonFilePersistence(userData);
 			}
+			
 			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
 				System.exit(-1);
 		} catch (Exception le) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: unforseen error condition processing user "+userData.getSnId()+"-"+userData.getId()+": " + le.getLocalizedMessage());
 			le.printStackTrace();
+			
+			if (RuntimeConfiguration.isCREATE_USER_JSON_ON_ERROR()) {
+				logger.debug("insert failed - storing object in backup directory for later processing");
+				userData.setObjectStatus("fail");
+				
+				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+				@SuppressWarnings("unused")
+				JsonFilePersistence failsave = new JsonFilePersistence(userData);
+			}
+			
 			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
 				System.exit(-1);
 		}
