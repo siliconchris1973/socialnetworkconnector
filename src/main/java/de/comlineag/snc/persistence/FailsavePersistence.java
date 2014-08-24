@@ -37,7 +37,7 @@ import de.comlineag.snc.handler.DataCryptoHandler;
  * 				0.2a			changed file pattern naming to TYPE_SCCODE-NUMBER_STATUS.json (e.g.: post_TW-34567_fail.json)
  * 
  */
-public class JsonFilePersistence implements IPersistenceManager {
+public class FailsavePersistence implements IPersistenceManager {
 	
 	// define where and the files shall be saved
 	private String savePoint = RuntimeConfiguration.getJSON_BACKUP_STORAGE_PATH();
@@ -53,7 +53,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 	private DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
 	
 	
-	public JsonFilePersistence() {
+	public FailsavePersistence() {
 		File f = new File(savePoint);
 		if (!f.isDirectory()) {
 			// create the json diretory
@@ -65,7 +65,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 	 * @description	constructor to save a post from social network to the file-system
 	 * @param		PostData
 	 */
-	public JsonFilePersistence(PostData postData) {
+	public FailsavePersistence(PostData postData) {
 		logger.trace("checking if storage directory "+savePoint+" exists");
 		File f = new File(savePoint);
 		if (!f.isDirectory()) {
@@ -79,7 +79,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 	 * @description	constructor to save a user from social network to the file-system
 	 * @param		UserData
 	 */
-	public JsonFilePersistence(UserData userData) {
+	public FailsavePersistence(UserData userData) {
 		logger.trace("checking if storage directory "+savePoint+" exists");
 		File f = new File(savePoint);
 		if (!f.isDirectory()) {
@@ -90,35 +90,6 @@ public class JsonFilePersistence implements IPersistenceManager {
 	}
 	
 	
-	/**
-	 * @description	constructor to save a post from social network to the file-system
-	 * @param		PostData
-	 */
-	public JsonFilePersistence(JSONObject json) {
-		logger.trace("checking if storage directory "+savePoint+" exists");
-		File f = new File(savePoint);
-		if (!f.isDirectory()) {
-			// create the json diretory
-			f.mkdir();
-		}
-		
-		String fileName = System.currentTimeMillis()+"_"+objectStatusPriorSaving+".json";
-		
-		if (objectStatusPriorSaving == null)
-			objectStatusPriorSaving = "ok";
-		
-		FileWriter file;
-		try {
-			logger.info("saving json file " + fileName);
-			file = new FileWriter(savePoint+File.separator+fileName);
-			file.write(dataCryptoProvider.encryptValue(json.toJSONString()));
-			file.flush();
-			file.close();
-		} catch (Exception e) {
-			logger.error("EXCEPTION :: could not save json to file " + fileName + ": " + e.getLocalizedMessage());
-			e.printStackTrace();
-		}
-	}
 	
 	/**
 	 * @description	save a user from social network to the file-system

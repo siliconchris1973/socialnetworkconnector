@@ -12,6 +12,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import de.comlineag.snc.persistence.JsonFilePersistence;
+
 /**
  * 
  * @author 		Christian Guenther, Maic Rittmeier, Magnus Leinemann
@@ -53,7 +55,13 @@ public final class TwitterParser extends GenericParser {
 			// first posts (tweets)
 			JSONObject jsonTweetResource = (JSONObject) parser.parse(strTweet);
 			TwitterPosting posting = new TwitterPosting(jsonTweetResource);
+			
+			// add posting to list
 			postings.add(posting);
+			
+			// placing failsave method here, so that the original data object is stored on file
+			// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
+			// intialize faile save persistence
 			
 			// retweeted posts need to go in message array as well
 			JSONObject jsonReTweeted = (JSONObject) jsonTweetResource.get("retweeted_status");

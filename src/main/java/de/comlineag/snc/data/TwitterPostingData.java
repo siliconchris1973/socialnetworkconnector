@@ -19,8 +19,8 @@ import de.comlineag.snc.helper.DataHelper;
  * 
  * @author 		Christian Guenther, Magnus Leinemann
  * @category 	data type
- * @version 	0.9b		- 20.07.2014
- * @status		in production (but some fields are missing)
+ * @version 	0.9c		- 20.07.2014
+ * @status		in production (but some fields are still missing)
  * 
  * @description Describes a single twitter posting with all relevant informations.
  *              The class shall be used to make all methods handling a twitter
@@ -28,7 +28,7 @@ import de.comlineag.snc.helper.DataHelper;
  * 
  * @param <JSonObject>
  * 			  "domain" List
- *            "id" Long
+ *            "id" Long - sometimes also post_id
  *            "sn_id" String
  *            "created_at" String
  *            "text" String
@@ -55,7 +55,8 @@ import de.comlineag.snc.helper.DataHelper;
  * 				0.9 			changed geo geoLocation to make use of simple class LocationData and added teaser as substring of post
  * 				0.9a			field length on teaser and subject and stripping of html for text
  * 				0.9b			added domain
- * 				0.9c			Symbols, Hashtags and Mentions - yet to come
+ * 				0.9c			bug fixing for the id and post_id issue (sometimes, id is post_id as it seems)
+ * 				0.9d			Symbols, Hashtags and Mentions - yet to come
  * 
  * @TODO 1. create code for hashtags
  * @TODO 2. create code for symbols
@@ -78,15 +79,18 @@ public final class TwitterPostingData extends PostData {
 	 *            one single post in Twitter
 	 */
 	public TwitterPostingData(JSONObject jsonObject) {
-		// log the startup message
-		logger.debug("constructing new subset of data of tweet (TW-"  + jsonObject.get("id") + ") from twitter post-object");
-		
 		// set all values to zero
 		initialize();
 		
 		try {
-			// posting ID 
-			setId((Long) jsonObject.get("id"));
+			// posting ID - is either id or post_id
+			if (jsonObject.get("id")==null)
+				setId((Long) jsonObject.get("post_id"));
+			else 
+				setId((Long) jsonObject.get("id"));
+			
+			// log the startup message
+			logger.debug("constructing new subset of data of tweet (TW-"  + id + ") from twitter post-object");
 			
 			// User ID
 			JSONObject user = (JSONObject) jsonObject.get("user");
@@ -107,6 +111,7 @@ public final class TwitterPostingData extends PostData {
 			
 			
 			// content of the posting, can either be stored with or without markup elements. 
+			// TODO move this in RuntimeConfiguration and source it in from XML 
 			if (GeneralDataDefinitions.TEXT_WITH_MARKUP) {
 				setText((String) jsonObject.get("text"));
 			} else {
@@ -122,6 +127,7 @@ public final class TwitterPostingData extends PostData {
 			
 			// a teaser is created from the first 256 chars of the post 
 			// the persistence layer can also truncate the teaser, in case field length is smaller
+			// TODO move this in RuntimeConfiguration and source it in from XML 
 			if (GeneralDataDefinitions.TEASER_WITH_MARKUP){
 				setTeaser(getText());
 			}else{
@@ -133,6 +139,7 @@ public final class TwitterPostingData extends PostData {
 			
 			// a subject is created from the first 20 chars of the post 
 			// the persistence layer can also truncate the subject, in case field length is smaller
+			// TODO move this in RuntimeConfiguration and source it in from XML 
 			if (GeneralDataDefinitions.SUBJECT_WITH_MARKUP){
 				setSubject(getText());
 			}else{
@@ -207,7 +214,7 @@ public final class TwitterPostingData extends PostData {
 				setGeoPlaceName(twPlace.getGeoPlaceName());
 				setGeoPlaceCountry(twPlace.getGeoPlaceCountry());
 				setGeoAroundLongitude(twPlace.getGeoAroundLongitude());
-				setGeoAroundLatitude(getGeoAroundLongitude());
+				setGeoAroundLatitude(twPlace.getGeoAroundLongitude());
 			}
 			
 			

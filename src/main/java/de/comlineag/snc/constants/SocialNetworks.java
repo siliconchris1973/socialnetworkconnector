@@ -149,7 +149,7 @@ public final class SocialNetworks {
 	 * 
 	 * @TODO write the function code :-) 
 	 */
-	public static void ParseSocialNetworkDefinition(){
+	private static void ParseSocialNetworkDefinition(){
 		try {
 			logger.debug("retrieving all social network definitions from configuration file " + RuntimeConfiguration.getConfigFile());
 			

@@ -1,5 +1,6 @@
 package de.comlineag.snc.data;
 
+
 /**
  * 
  * @author		Magnus Leinemann, Christian Guenther
@@ -36,7 +37,9 @@ public class UserData {
 	protected float average_posting_ratio;			// how many posts per year
 	protected String lang;							// default language of the user
 	protected String objectStatus;					// can be new, old, ok or fail
-
+	
+	
+	
 	// getter and setter
 	public long getId() {
 		return id;

@@ -151,6 +151,8 @@ public class HANAPersistence implements IPersistenceManager {
 	 * 
 	 */
 	public void savePosts(PostData postData) {
+		logger.trace("savePosts called");
+		
 		try {
 			// first check if the entry already exists
 			OEntity theData = returnOEntityHandler(postData.getSnId(), postData.getId(), "post");
@@ -184,7 +186,7 @@ public class HANAPersistence implements IPersistenceManager {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: could not connect to HANA system " + e.getLocalizedMessage());
 			
-			if (RuntimeConfiguration.isCREATE_POST_JSON_ON_ERROR()) {
+			if (!RuntimeConfiguration.isCREATE_POST_JSON_ON_ERROR()) {
 				logger.debug("insert failed - storing object in backup directory for later processing");
 				postData.setObjectStatus("fail");
 				
@@ -220,6 +222,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * @param		UserData
 	 */
 	public void saveUsers(UserData userData) {
+		logger.trace("saveUsers called");
 		
 		try {
 			// first check if the entry already exists

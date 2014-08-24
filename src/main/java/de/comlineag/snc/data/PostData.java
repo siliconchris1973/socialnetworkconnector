@@ -2,26 +2,46 @@ package de.comlineag.snc.data;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.geojson.GeoJsonObject;
+import org.json.simple.JSONObject;
 import org.joda.time.LocalDateTime;
+
+import de.comlineag.snc.appstate.RuntimeConfiguration;
+import de.comlineag.snc.helper.DataHelper;
 
 /**
  * 
  * @author 		Magnus Leinemann, Christian Guenther
  * @category 	data class
- * @version 	0.2a		- 23.07.2014
+ * @version 	0.3				- 22.08.2014
  * @status		productive
  * 
  * @description Data Class representing a Post from the OData Service
  * 
  * @changelog	0.1 (Magnus)	class created according to twitter user needs
- * 				0.2 (Chris)		added field raw-text for Lithium postings which contain html and we strip that in the field text
+ * 				0.2 (Chris)		added field raw-text for Lithium postings which contain html 
+ * 								- the markups are stripped for the normal text field
  * 				0.2a			added domain and customer
+ * 				0.3				added method to fill all values from a passed json string 
+ * 								first use case is the FsCrawler, which creates a posData object 
+ * 								from a stored json file and then invokes the persistence layer  
  * 
+ * TODO move GeneralDataDefinitions to RuntimeConfiguration and source it in from XML 
  */
 
 public class PostData {
-	protected String objectStatus;	// can be new, old, ok or fail
+	// we use simple org.apache.log4j.Logger for lgging
+	private final Logger logger = Logger.getLogger(getClass().getName());
+	// in case you want a log-manager use this line and change the import above
+	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	
+	private final RuntimeConfiguration configuration = new RuntimeConfiguration();
+	
+	/*
+	 * was the object initially saved correctly by the persistence manager or not 
+	 */
+	protected String objectStatus;	// can be ok or fail
 	
 	/*
 	 * domain (stored as json within the db) e.g. banking
@@ -141,11 +161,13 @@ public class PostData {
 	protected String geoAroundLatitude;
 	
 	/*
-	 * 
+	 * hashtags, symbols and mentions - yet to be implemenetd
 	 */
 	protected List<?> hashtags;
 	protected List<?> symbols;
 	protected List<?> mentions;
+	
+	
 	
 	// getter and setter
 	public String getDomain() {

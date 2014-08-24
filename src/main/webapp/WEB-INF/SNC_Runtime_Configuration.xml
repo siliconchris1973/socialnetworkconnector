@@ -49,17 +49,11 @@
 			<value>false</value>
 			<constant>CREATE_USER_JSON_ON_SUCCESS</constant>
 		</param>
-		<!-- the path to the directory under which to save the json-files -->
+		<!-- the path to the directory under which to save the json-files - must be in sync with entry in applicationContext.xml -->
 		<param name="JsonBackupStoragePath">
 			<type>String</type>
 			<value>./json</value>
 			<constant>JSON_BACKUP_STORAGE_PATH</constant>
-		</param>
-		<!-- how the files shall be named - THIS CAN'T BE CHANGED. IT IS JUST HERE TO SHOW THE NAMING CONVENTION IN USE -->
-		<param name="JsonBackupFilePattern">
-			<type>String</type>
-			<value>%TYPE%_%SOCIALNETWORKCODE%%NUMERICALID%-%STATUS%.json</value>
-			<constant>JSON_BACKUP_FILE_PATTERN</constant>
 		</param>
 		
 		<!-- stop the SNC in case connecting to persistence fails and is thus unable to save posts and users?
@@ -91,6 +85,8 @@
 		 code and id - say CC-1295 for example.
 	-->
 	<configuration scope="socialNetworkDefinition">
+		<!-- change this code for every customer -->
+		<network name="CC"><name>LITHIUM</name></network>
 		<network name="LITHIUM">
 			<!-- change this code for every customer -->
 			<code>CC</code>
@@ -101,6 +97,8 @@
 			<domain>https://wissen.cortalconsors.de</domain>
 			<supported>YES</supported>
 		</network>
+		
+		<network name="FI"><name>FINAZFORUM</name></network>
 		<network name="FINANZFORUM">
 			<code>FI</code>
 			<name>Finanzforum</name>
@@ -110,6 +108,7 @@
 		</network>
 		
 		<!-- below this line the standard social networks are defined -->
+		<network name="TW"><name>TWITTER</name></network>
 		<network name="TWITTER">
 			<code>TW</code>
 			<name>Twitter</name>
@@ -117,6 +116,8 @@
 			<domain>twitter.com</domain>
 			<supported>YES</supported>
 		</network>
+		
+		<network name="FB"><name>FACEBOOK</name></network>
 		<network name="FACEBOOK">
 			<code>FB</code>
 			<name>Facebook</name>
@@ -124,6 +125,8 @@
 			<domain>facebook.com</domain>
 			<supported>NO</supported>
 		</network>
+		
+		<network name="GP"><name>GOOGLE+</name></network>
 		<network name="GOOGLE+">
 			<code>GP</code>
 			<name>Google+</name>
@@ -131,6 +134,8 @@
 			<domain>plus.google.com</domain>
 			<supported>NO</supported>
 		</network>
+		
+		<network name="LI"><name>LINKEDIN</name></network>
 		<network name="LINKEDIN">
 			<code>LI</code>
 			<name>Linkedin</name>
@@ -138,6 +143,8 @@
 			<domain>linkedin.com</domain>
 			<supported>NO</supported>
 		</network>
+		
+		<network name="XI"><name>XING</name></network>
 		<network name="XING">
 			<code>XI</code>
 			<name>XING</name>
@@ -145,6 +152,8 @@
 			<domain>xing.com</domain>
 			<supported>NO</supported>
 		</network>
+		
+		<network name="SW"><name>STREAMWORK</name></network>
 		<network name="STREAMWORK">
 			<code>SW</code>
 			<name>Streamwork</name>
@@ -152,6 +161,8 @@
 			<domain>streamwork.com</domain>
 			<supported>NO</supported>
 		</network>
+		
+		<network name="IN"><name>INSTAGRAM</name></network>
 		<network name="INSTAGRAM">
 			<code>IN</code>
 			<name>Instagram</name>
@@ -159,6 +170,8 @@
 			<domain>instagram.com</domain>
 			<supported>NO</supported>
 		</network>
+		
+		<network name="FS"><name>FOURSQUARE</name></network>
 		<network name="FOURSQUARE">
 			<code>FS</code>
 			<name>Foursquare</name>
@@ -166,6 +179,8 @@
 			<domain>foursquare.com</domain>
 			<supported>NO</supported>
 		</network>
+		
+		<network name="YT"><name>YOUTUBE</name></network>
 		<network name="YOUTUBE">
 			<code>YT</code>
 			<name>Youtube</name>
@@ -173,6 +188,8 @@
 			<domain>youtube.com</domain>
 			<supported>NO</supported>
 		</network>
+		
+		<network name="SO"><name>STACKOVERFLOW</name></network>
 		<network name="STACKOVERFLOW">
 			<code>SO</code>
 			<name>Stack Overflow</name>
@@ -180,6 +197,8 @@
 			<domain>stackoverflow.com</domain>
 			<supported>NO</supported>
 		</network>
+		
+		<network name="PH"><name>PHOTOBUCKET</name></network>
 		<network name="PHOTOBUCKET">
 			<code>PH</code>
 			<name>Photobucket</name>
@@ -187,6 +206,8 @@
 			<domain>photobucket.com</domain>
 			<supported>NO</supported>
 		</network>
+		
+		<network name="PI"><name>PINTEREST</name></network>
 		<network name="PINTEREST">
 			<code>PI</code>
 			<name>Pinterest</name>
@@ -194,6 +215,17 @@
 			<domain>pinterest.com</domain>
 			<supported>NO</supported>
 		</network>
+		
+		<network name="GH"><name>GITHUB</name></network>
+		<network name="GITHUB">
+			<code>GH</code>
+			<name>GitHub</name>
+			<description>A source code management system</description>
+			<domain>github.com</domain>
+			<supported>NO</supported>
+		</network>
+		
+		<network name="AL"><name>ALL</name></network>
 		<network name="ALL">
 			<code>AL</code>
 			<name>All</name>
@@ -201,6 +233,8 @@
 			<domain>bugmenot.com</domain>
 			<supported>NO</supported>
 		</network>
+		
+		<network name="XY"><name>UNKNOWN</name></network>
 		<network name="UNKNOWN">
 			<code>XY</code>
 			<name>Unknown</name>
@@ -211,11 +245,56 @@
 	</configuration>
 	
 	
-	<!-- XML LAYOUT CONFIGURATION -->
 	<!-- DO NOT CHANGE ANYTHING BELOW THIS LINE, EXCEPT YOU ABSOLUTELY KNOW WHAT YOU ARE DOING -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- GENERAL DATA DEFINITIONS AND DB SCHEMA LAYOUT -->
+	<configuration scope="DataDefinitions">
+		<param name="teaserWithMarkup">
+			<type>boolean</type>
+			<value>false</value>
+			<constant>TEASER_WITH_MARKUP</constant>
+		</param>
+		<param name="teaserMaxLength">
+			<type>int</type>
+			<value>256</value>
+			<constant>TEASER_MAX_LENGTH</constant>
+		</param>
+		<param name="teaserMinLength">
+			<type>int</type>
+			<value>20</value>
+			<constant>TEASER_MIN_LENGTH</constant>
+		</param>
+		<param name="subjectWithMarkup">
+			<type>boolean</type>
+			<value>false</value>
+			<constant>SUBJECT_WITH_MARKUP</constant>
+		</param>
+		<param name="subjectMaxLength">
+			<type>int</type>
+			<value>20</value>
+			<constant>SUBJECT_MAX_LENGTH</constant>
+		</param>
+		<param name="subjectMinLength">
+			<type>int</type>
+			<value>7</value>
+			<constant>SUBJECT_MIN_LENGTH</constant>
+		</param>
+		<param name="textWithMarkup">
+			<type>boolean</type>
+			<value>false</value>
+			<constant>TEXT_WITH_MARKUP</constant>
+		</param>
+		<param name="rawTextWithMarkup">
+			<type>boolean</type>
+			<value>true</value>
+			<constant>RAW_TEXT_WITH_MARKUP</constant>
+		</param>
+	</configuration>
+	
+	<!-- XML LAYOUT CONFIGURATION -->
 	<!-- the values in this section define how the crawler configuration xml files are structured.
-		 To change any of these values is discouraged but possible to reflect changes in the xml 
-		 configuration layout. -->
+		 Changing any of these values is possible to reflect changes in the xml configuration layout
+		 but it is highly discouraged. -->
 	<configuration scope="XmlLayout">
 		<param name="CONSTRAINT_TERM_TEXT">
 			<type>String</type>
@@ -250,7 +329,7 @@
 		
 		<!-- this section contains the xml structure for the crawler configuration -->
 		<!-- changing these values WILL become possible (in revision 1.1) to reflect XML layout changes
-			 as of the moment, August 2014, these values are NOT changeable, as the GeneralConfiguration-class
+			 as of the moment, August 2014, these values are NOT changeable, as the RuntimeConfiguration-class
 			 lacks the code to parse this section of the xml file! -->
 		<param name="customerIdentifier"> <!-- changeable -->
 			<type>String</type>

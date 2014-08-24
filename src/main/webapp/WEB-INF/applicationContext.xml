@@ -67,20 +67,17 @@
 				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
 				<!-- currently, if this is set to a value higher than 1, the twitter crawler sometimes 
 					encounters exceptions during db insert or update. -->
-				<prop key="org.quartz.threadPool.threadCount">2</prop>
+				<prop key="org.quartz.threadPool.threadCount">4</prop>
 			</props>
 		</property>
 		<property name="triggers">
 			<list>
-				<!-- MUST STAY ACTIVE
-					this is the basic configuration for the social network connector if you deactivate it,
-					the SNC will cease to function as no information regarding the runtime environment
-					of the SNC can be retrieved by the other components of the SNC -->
-				<ref bean="GeneralConfigurationTrigger" />
-				
-				<!-- ACTIVATE/DEACTIVATE AT WILL 
-					activate each crawler you want and make sure to increase the threadCount number 
-					above according to the number of activated crawlers -->
+				<!-- SOCIAL NETWORK CRAWLER
+					activate each crawler you want the SNC to scan through. 
+					Make sure to set the threadCount number above according to the number of activated 
+					crawlers. The total number of threads must include the number of actual crawlers in
+					this section plus the FsCrawler below and the GeneralConfgurationTrigger - resulting 
+					in number of crawlers plus 2 as the threadcount -->
 				<!-- <ref bean="TwitterCrawlerTrigger" /> -->
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
@@ -88,14 +85,22 @@
 				<!-- <ref bean="FinanzforumCrawlerTrigger"/> -->
 				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
 				
-				<!-- SHOULD STAY ACTIVE
-					this is the failsave crawler. It scans through a backup directory (typically ./json)
+				
+				<!-- FILESYSTEM CRAWLER - SAFEGUARD
+					this is the fail save crawler. It scans through a backup directory (typically ./json)
 					and retries to insert/update all posts and users (stored within there as json files)
-					into the actual persistence manager (e.g. HANA or Neo4J. It is therefore a saveguard
+					into the actual persistence manager (e.g. HANA or Neo4J. It is therefore a save guard
 					for the runtime environment of the social network connector. 
 					You should only deactivate it in case you do not save the posts and users of failed
-					inserts in a backup directory, in which case there would be no sense scanning it :-) -->
+					inserts in a backup directory (can be configured in SNC_Runtime_Configuration.xml), 
+					in which case there would be no sense scanning it :-) -->
 				<ref bean="FsCrawlerTrigger" />
+				
+				<!-- RUNTIME CONFIGURATION
+					this is the basic configuration for the social network connector if you deactivate it,
+					the SNC will cease to function as no information regarding the runtime environment
+					of the SNC can be retrieved by the other components of the SNC -->
+				<ref bean="RuntimeConfigurationTrigger" />
 			</list>
 		</property>
 	</bean>
@@ -259,13 +264,18 @@
 		<property name="jobClass" value="de.comlineag.snc.job.FsCrawler" />
 		<!-- <property name="concurrent" value="false" /> -->
 		<property name="durability" value="true" />
-		<!-- the properties for this specific crawler, namely and only the directory to parse, 
-			 is taken from SNC_Runtime_Configuration.xml -->
+		<property name="jobDataAsMap">
+			<map> 
+				<entry key="fileNamePattern" value=".*_fail.json" />
+				<entry key="savePoint" value="./json"/> 
+			</map>
+		</property>
 	</bean>
 	<bean id="FsCrawlerTrigger"
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
 		<property name="jobDetail" ref="FsCrawlerDetail" />
-		<property name="startDelay" value="30000" />
+		<!-- <property name="startDelay" value="30000" /> -->
+		<property name="startDelay" value="30" />
 		<property name="repeatInterval" value="90000" />
 	</bean>
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -503,7 +513,7 @@
 	     NO NEED TO CHANGE ANYTHING BELOW THIS LINE - BE VERY CAREFUL WHAT YOU DO HERE
 	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	<!-- R U N T I M E    S E T T I N G S -->
-	<bean name="GeneralConfigurationDetail"
+	<bean name="RuntimeConfigurationDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.snc.appstate.RuntimeConfiguration" />
 		<property name="Durability" value="true"/>
@@ -515,10 +525,10 @@
 			</map>
 		</property>
 	</bean>
-	<bean id="GeneralConfigurationTrigger"
+	<bean id="RuntimeConfigurationTrigger"
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
-		<property name="jobDetail" ref="GeneralConfigurationDetail" />
-		<property name="startDelay" value="0" />
+		<property name="jobDetail" ref="RuntimeConfigurationDetail" />
+		<property name="startDelay" value="1" />
 		<property name="repeatInterval" value="120000" />
 	</bean>
 </beans>
