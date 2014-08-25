@@ -69,7 +69,6 @@ public final class RuntimeConfiguration implements Job {
 	private static boolean STOP_SNC_ON_PERSISTENCE_FAILURE = false;
 	
 	private static String JSON_BACKUP_STORAGE_PATH = "./json";
-	private static String JSON_BACKUP_FILE_PATTERN = "%TYPE%_%SOCIALNETWORKCODE%%NUMERICALID%-%STATUS%.json";
 	
 	// these values are section names within the configuration db 
 	private static String CONSTRAINT_TERM_TEXT				= "term";
@@ -207,15 +206,6 @@ public final class RuntimeConfiguration implements Job {
 				logger.warn("Did not receive any information for JSON_BACKUP_STORAGE_PATH from " + configFile + " using expression " + expression);
 			} else {
 				setJSON_BACKUP_STORAGE_PATH(node.getTextContent());
-			}
-			
-			// JSON_BACKUP_FILE_PATTERN
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='JsonBackupFilePattern']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for JSON_BACKUP_FILE_PATTERN from " + configFile + " using expression " + expression);
-			} else {
-				setJSON_BACKUP_FILE_PATTERN(node.getTextContent());
 			}
 			
 			// STOP_SNC_ON_PERSISTENCE_FAILURE
@@ -519,14 +509,5 @@ public final class RuntimeConfiguration implements Job {
 	public static void setJSON_BACKUP_STORAGE_PATH(
 			String jSON_BACKUP_STORAGE_PATH) {
 		JSON_BACKUP_STORAGE_PATH = jSON_BACKUP_STORAGE_PATH;
-	}
-
-	public static String getJSON_BACKUP_FILE_PATTERN() {
-		return JSON_BACKUP_FILE_PATTERN;
-	}
-
-	public static void setJSON_BACKUP_FILE_PATTERN(
-			String jSON_BACKUP_FILE_PATTERN) {
-		JSON_BACKUP_FILE_PATTERN = jSON_BACKUP_FILE_PATTERN;
 	}
 }

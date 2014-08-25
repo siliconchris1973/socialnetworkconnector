@@ -93,7 +93,7 @@
 					for the runtime environment of the social network connector. 
 					You should only deactivate it in case you do not save the posts and users of failed
 					inserts in a backup directory (can be configured in SNC_Runtime_Configuration.xml), 
-					in which case there would be no sense scanning it :-) -->
+					in which case there would be no sense scanning :-) -->
 				<ref bean="FsCrawlerTrigger" />
 				
 				<!-- RUNTIME CONFIGURATION
@@ -217,7 +217,7 @@
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
 		<property name="jobDetail" ref="FacebookCrawlerDetail" />
 		<!-- 1 second delay after startup -->
-		<property name="startDelay" value="1500" />
+		<property name="startDelay" value="1000" />
 		<!-- repeat the job every 
 							5000 - 50 seconds 
 							6000 - 1 minutes 
@@ -257,27 +257,6 @@
 		<property name="repeatInterval" value="150000" /> 
 	</bean> 
 -->
-
-	<!-- F S    C R A W L E R    (IN DEVELOPMENT)		-->
-	<bean name="FsCrawlerDetail"
-		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="de.comlineag.snc.job.FsCrawler" />
-		<!-- <property name="concurrent" value="false" /> -->
-		<property name="durability" value="true" />
-		<property name="jobDataAsMap">
-			<map> 
-				<entry key="fileNamePattern" value=".*_fail.json" />
-				<entry key="savePoint" value="./json"/> 
-			</map>
-		</property>
-	</bean>
-	<bean id="FsCrawlerTrigger"
-		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
-		<property name="jobDetail" ref="FsCrawlerDetail" />
-		<!-- <property name="startDelay" value="30000" /> -->
-		<property name="startDelay" value="30" />
-		<property name="repeatInterval" value="90000" />
-	</bean>
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 	     END OF CRAWLER SECTION - END OF CRAWLER SECTION - END OF CRAWLER SECTION - EN 
 	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
@@ -352,12 +331,11 @@
 	     directory with no end in sight -->
 	<!--
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.JsonFilePersistence"> 
-		<property name="path" value="./json" /> 
+		<property name="path" value="json" /> 
 	</bean> 
 	-->
 	
-	<!-- H A N A    P E R S I S T E N C E    (WORKS) 
-		 bla bla bla --> 
+	<!-- H A N A    P E R S I S T E N C E    (WORKS) --> 
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.HANAPersistence">
 		<property name="host" value="192.168.131.30" />
 		<property name="port" value="8000" />
@@ -510,8 +488,30 @@
 	
 	
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	     NO NEED TO CHANGE ANYTHING BELOW THIS LINE - BE VERY CAREFUL WHAT YOU DO HERE
+	     NO NEED TO CHANGE ANYTHING BELOW THIS LINE - IF YOU DO CHANGE ANYTHING BE VERY
+	     CAREFUL WHAT YOU DO HERE - IF YOU CHANGE ANYTHING IT MIGHT BRAKE THE CONNECTOR 
 	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- F S    C R A W L E R    (IN DEVELOPMENT)		-->
+	<bean name="FsCrawlerDetail"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="de.comlineag.snc.job.FsCrawler" />
+		<!-- <property name="concurrent" value="false" /> -->
+		<property name="durability" value="true" />
+		<property name="jobDataAsMap">
+			<map> 
+				<entry key="fileNamePattern" value=".*_fail.json" />
+				<entry key="savePoint" value="json"/> 
+			</map>
+		</property>
+	</bean>
+	<bean id="FsCrawlerTrigger"
+		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="FsCrawlerDetail" />
+		<!-- <property name="startDelay" value="30000" /> -->
+		<property name="startDelay" value="300" />
+		<property name="repeatInterval" value="90000" />
+	</bean>
+	
 	<!-- R U N T I M E    S E T T I N G S -->
 	<bean name="RuntimeConfigurationDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
