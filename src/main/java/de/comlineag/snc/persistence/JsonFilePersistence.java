@@ -109,11 +109,15 @@ public class JsonFilePersistence implements IPersistenceManager {
 		
 		FileWriter file;
 		try {
-			logger.info("saving json file " + fileName);
-			file = new FileWriter(savePoint+File.separator+fileName);
-			file.write(dataCryptoProvider.encryptValue(json.toJSONString()));
-			file.flush();
-			file.close();
+			// only save the file, if it does not exist already
+			File f1 = new File(savePoint+File.separator+fileName);
+			if (!f1.isFile()) {
+				logger.info("saving json file " + fileName);
+				file = new FileWriter(savePoint+File.separator+fileName);
+				file.write(dataCryptoProvider.encryptValue(json.toJSONString()));
+				file.flush();
+				file.close();
+			}
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: could not save json to file " + fileName + ": " + e.getLocalizedMessage());
 			e.printStackTrace();
@@ -132,33 +136,39 @@ public class JsonFilePersistence implements IPersistenceManager {
 		if (objectStatusPriorSaving == null)
 			objectStatusPriorSaving = "ok";
 		
-		FileWriter file;
-		try {
-			// first check if the entry already exists
-			file = new FileWriter(savePoint+File.separator+objectTypeToSave+"_"+userData.getSnId()+"-"+userData.getId()+"_"+objectStatusPriorSaving+".json");
+		// first check if the entry already exists
+		File f1 = new File(savePoint+File.separator+objectTypeToSave+"_"+userData.getSnId()+"-"+userData.getId()+"_"+objectStatusPriorSaving+".json");
+		if (!f1.isFile() || f1.getTotalSpace()<1) {
 			
-			JSONObject obj = new JSONObject();
-			obj.put("sn_id", userData.getSnId());
-			obj.put("user_id", new Long(userData.getId()).toString());
-			obj.put("userName", userData.getUsername());
-			obj.put("nickName", userData.getScreenName());
-			obj.put("userLang", userData.getLang());
-			obj.put("geoLocation", userData.getGeoLocation().toString());
-			obj.put("follower", new Long(userData.getFollowersCount()).toString());
-			obj.put("friends", new Long(userData.getFriendsCount()).toString());
-			obj.put("postingsCount", new Long(userData.getPostingsCount()).toString());
-			obj.put("favoritesCount", new Long(userData.getFavoritesCount()).toString());
-			obj.put("listsAndGroupsCount", new Long(userData.getListsAndGrooupsCount()).toString());
-						
-			file.write(dataCryptoProvider.encryptValue(obj.toJSONString()));
-			logger.info("Successfully copied JSON user object for "+userData.getSnId()+"-"+userData.getId()+" to File...");
-	        
-	        file.flush();
-			file.close();
-		} catch (Exception le) {
-			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
-			logger.error("EXCEPTION :: unforseen error condition processing user "+userData.getSnId()+"-"+userData.getId()+": " + le.getLocalizedMessage());
-			le.printStackTrace();
+			FileWriter file;
+			try {
+				file = new FileWriter(savePoint+File.separator+objectTypeToSave+"_"+userData.getSnId()+"-"+userData.getId()+"_"+objectStatusPriorSaving+".json");
+				
+				JSONObject obj = new JSONObject();
+				obj.put("sn_id", userData.getSnId());
+				obj.put("user_id", new Long(userData.getId()).toString());
+				obj.put("userName", userData.getUsername());
+				obj.put("nickName", userData.getScreenName());
+				obj.put("userLang", userData.getLang());
+				obj.put("geoLocation", userData.getGeoLocation().toString());
+				obj.put("follower", new Long(userData.getFollowersCount()).toString());
+				obj.put("friends", new Long(userData.getFriendsCount()).toString());
+				obj.put("postingsCount", new Long(userData.getPostingsCount()).toString());
+				obj.put("favoritesCount", new Long(userData.getFavoritesCount()).toString());
+				obj.put("listsAndGroupsCount", new Long(userData.getListsAndGrooupsCount()).toString());
+							
+				file.write(dataCryptoProvider.encryptValue(obj.toJSONString()));
+				logger.info("Successfully copied JSON user object for "+userData.getSnId()+"-"+userData.getId()+" to File...");
+		        
+		        file.flush();
+				file.close();
+			} catch (Exception le) {
+				// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
+				logger.error("EXCEPTION :: unforseen error condition processing user "+userData.getSnId()+"-"+userData.getId()+": " + le.getLocalizedMessage());
+				le.printStackTrace();
+			}
+		} else {
+			logger.debug("the file "+objectTypeToSave+"_"+userData.getSnId()+"-"+userData.getId()+"_"+objectStatusPriorSaving+".json"+" already exists - not saving");
 		}
 	}
 
@@ -174,49 +184,55 @@ public class JsonFilePersistence implements IPersistenceManager {
 		if (objectStatusPriorSaving == null)
 			objectStatusPriorSaving = "ok";
 		
-		FileWriter file;
-		try {
-			file = new FileWriter(savePoint+File.separator+objectTypeToSave+"_"+postData.getSnId()+"-"+postData.getId()+"_"+objectStatusPriorSaving+".json");
+		File f1 = new File(savePoint+File.separator+objectTypeToSave+"_"+postData.getSnId()+"-"+postData.getId()+"_"+objectStatusPriorSaving+".json");
+		if (!f1.isFile() || f1.getTotalSpace()<1) {
 			
-			JSONObject obj = new JSONObject();
-			obj.put("sn_id", postData.getSnId());
-			obj.put("post_id", postData.getId());
-			obj.put("user_id", postData.getUserId());
-			obj.put("timestamp", postData.getTimestamp().toString());
-			obj.put("postLang", postData.getLang());
-			
-			obj.put("text", postData.getText());
-			obj.put("raw_text", postData.getRawText());
-			obj.put("teaser", postData.getTeaser());
-			obj.put("subject", postData.getSubject());
-			
-			obj.put("viewcount", new Long(postData.getViewCount()).toString());
-			obj.put("favoritecount", new Long(postData.getFavoriteCount()).toString());
-			
-			obj.put("client", postData.getClient());
-			obj.put("truncated", new Boolean(postData.getTruncated()).toString());
-
-			obj.put("inReplyTo", postData.getInReplyTo());
-			obj.put("inReplyToUserID", new Long(postData.getInReplyToUser()).toString());
-			obj.put("inReplyToScreenName", postData.getInReplyToUserScreenName());
-			
-			obj.put("geoLocation_longitude", postData.getGeoLongitude());
-			obj.put("geoLocation_latitude", postData.getGeoLatitude());
-			obj.put("placeID", postData.getGeoPlaceId());
-			obj.put("plName",  postData.getGeoPlaceName());
-			obj.put("plCountry", postData.getGeoPlaceCountry());
-			obj.put("plAround_longitude", postData.getGeoAroundLongitude());
-			obj.put("plAround_latitude", postData.getGeoAroundLatitude());
-			
-			file.write(dataCryptoProvider.encryptValue(obj.toJSONString()));
-	        logger.info("Successfully copied JSON post object for "+postData.getSnId()+"-"+postData.getId()+" to File...");
-	        
-	        file.flush();
-			file.close();
-		} catch (Exception le) {
-			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
-			logger.error("EXCEPTION :: unforseen error condition processing post "+postData.getSnId()+"-"+postData.getId()+": " + le.getLocalizedMessage());
-			le.printStackTrace();
+			FileWriter file;
+			try {
+				file = new FileWriter(savePoint+File.separator+objectTypeToSave+"_"+postData.getSnId()+"-"+postData.getId()+"_"+objectStatusPriorSaving+".json");
+				
+				JSONObject obj = new JSONObject();
+				obj.put("sn_id", postData.getSnId());
+				obj.put("post_id", postData.getId());
+				obj.put("user_id", postData.getUserId());
+				obj.put("timestamp", postData.getTimestamp().toString());
+				obj.put("postLang", postData.getLang());
+				
+				obj.put("text", postData.getText());
+				obj.put("raw_text", postData.getRawText());
+				obj.put("teaser", postData.getTeaser());
+				obj.put("subject", postData.getSubject());
+				
+				obj.put("viewcount", new Long(postData.getViewCount()).toString());
+				obj.put("favoritecount", new Long(postData.getFavoriteCount()).toString());
+				
+				obj.put("client", postData.getClient());
+				obj.put("truncated", new Boolean(postData.getTruncated()).toString());
+	
+				obj.put("inReplyTo", postData.getInReplyTo());
+				obj.put("inReplyToUserID", new Long(postData.getInReplyToUser()).toString());
+				obj.put("inReplyToScreenName", postData.getInReplyToUserScreenName());
+				
+				obj.put("geoLocation_longitude", postData.getGeoLongitude());
+				obj.put("geoLocation_latitude", postData.getGeoLatitude());
+				obj.put("placeID", postData.getGeoPlaceId());
+				obj.put("plName",  postData.getGeoPlaceName());
+				obj.put("plCountry", postData.getGeoPlaceCountry());
+				obj.put("plAround_longitude", postData.getGeoAroundLongitude());
+				obj.put("plAround_latitude", postData.getGeoAroundLatitude());
+				
+				file.write(dataCryptoProvider.encryptValue(obj.toJSONString()));
+		        logger.info("Successfully copied JSON post object for "+postData.getSnId()+"-"+postData.getId()+" to File...");
+		        
+		        file.flush();
+				file.close();
+			} catch (Exception le) {
+				// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
+				logger.error("EXCEPTION :: unforseen error condition processing post "+postData.getSnId()+"-"+postData.getId()+": " + le.getLocalizedMessage());
+				le.printStackTrace();
+			}
+		} else {
+			logger.debug("the file "+objectTypeToSave+"_"+postData.getSnId()+"-"+postData.getId()+"_"+objectStatusPriorSaving+".json"+" already exists - not saving");
 		}
 	}
 }

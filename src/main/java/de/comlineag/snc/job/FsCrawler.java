@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,6 +23,7 @@ import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
 import de.comlineag.snc.handler.DataCryptoHandler;
+import de.comlineag.snc.persistence.HANAPersistence;
 
 /**
  * 
@@ -39,6 +42,8 @@ import de.comlineag.snc.handler.DataCryptoHandler;
  */
 public class FsCrawler implements Job {
 	String fileName = null;
+	String JsonBackupStoragePath = "json";
+	String fileNamePattern = ".*_fail.json";
     boolean bName = false;
     int allObjectsCount = 0;
     int postObjectsCount = 0;
@@ -47,7 +52,8 @@ public class FsCrawler implements Job {
     String networkName = null;
     PostData pData = new PostData();
     UserData uData = new UserData();
-    
+    HANAPersistence hana = new HANAPersistence();
+	
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
@@ -63,11 +69,11 @@ public class FsCrawler implements Job {
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException{
 		logger.info("FileSystem-Crawler START");
-		String savePoint = (String) arg0.getJobDetail().getJobDataMap().get("savePoint");
-		String fileNamePattern = (String) arg0.getJobDetail().getJobDataMap().get("fileNamePattern");
+		JsonBackupStoragePath = (String) arg0.getJobDetail().getJobDataMap().get("JsonBackupStoragePath");
+		fileNamePattern = (String) arg0.getJobDetail().getJobDataMap().get("fileNamePattern");
 		
 		try {
-			File dir = new File(savePoint);
+			File dir = new File(JsonBackupStoragePath);
 			File[] files = dir.listFiles();
 			
 			for (File f : files) {
@@ -81,21 +87,21 @@ public class FsCrawler implements Job {
 				if (bName) {
 					allObjectsCount++;
 					
-					parseContent(savePoint, fileName);
+					try {
+						parseContent(JsonBackupStoragePath, fileName);
+					} catch (ParseException e) {
+						logger.warn("could not parse json, skipping file " + fileName);
+					}
 	            }
 	        }
 		} catch (IOException e) {
-			logger.warn("Could not read file " + fileName);
+			logger.warn("Could not read file " + fileName + " - " + e.getLocalizedMessage());
 		} catch (GenericCryptoException e) {
-			logger.error("Could not decrypt content of file " + fileName);
-			e.printStackTrace();
-		} catch (ParseException e) {
-			logger.error("EXCEPTION :: could not parse json twObject from file " + fileName);
+			logger.error("Could not decrypt content of file " + fileName + " - " + e.getLocalizedMessage());
 			e.printStackTrace();
 		}
 		
 		logger.info("FileSystem-Crawler END - processed "+allObjectsCount+" objects (successfully processed "+postObjectsCount+" post(s) and "+userObjectsCount+" user(s))\n");
-		//System.exit(-1);
 	}
 	
 	
@@ -108,7 +114,7 @@ public class FsCrawler implements Job {
 		String entryType = fileName.substring(0, first);
 		
 		// TODO check why the crawler does not work correctly in case the dataCryptoProvider is activated
-		//Object obj = dataCryptoProvider.decryptValue(parser.parse(new FileReader(savePoint+File.separator+fileName)).toString());
+		//Object obj = dataCryptoProvider.decryptValue(parser.parse(new FileReader(JsonBackupStoragePath+File.separator+fileName)).toString());
 		Object obj = parser.parse(new FileReader(savePoint+File.separator+fileName));
 		JSONObject jsonObject = (JSONObject) obj;
 		
@@ -127,11 +133,9 @@ public class FsCrawler implements Job {
 			// now create a new PostData object from the json content of the file
 			setPostDataFromJson(jsonObject);
 			logger.trace("data type initialized");
-			
+				
 			// after creating a new PostData object from json content, store it in the persistence layer
-			//HANAPersistence hana = new HANAPersistence();
-			//hana.savePosts(pData)
-			
+			hana.savePosts(pData);
 		} else if ("user".equals(entryType)) {
 			userObjectsCount++;
 			logger.debug("working on user " + 
@@ -143,8 +147,7 @@ public class FsCrawler implements Job {
 			logger.trace("data type initialized");
 			
 			// after creating a new UserData object from json content, store it in the persistence layer
-			//HANAPersistence hana = new HANAPersistence();
-			//hana.savePosts(uData)
+			hana.saveUsers(uData);
 		} else {
 			logger.warn("unrecognized entry type " + entryType + " encountered - ignoring file " + fileName);
 		}
@@ -164,7 +167,7 @@ public class FsCrawler implements Job {
 	 * @return			UserData object
 	 */
 	private void setUserDataFromJson(JSONObject jsonObject) { 
-		logger.debug("setting UserData Object from json file content");
+		logger.debug("creating UserData Object from json file " + fileName);
 		/*  
 		 * JSON Structure
 		 *  {
@@ -183,60 +186,60 @@ public class FsCrawler implements Job {
 		 *  }
 		 */
 		if (jsonObject.get("sn_id") != null) {
-			logger.trace("    sn_id");
+			logger.trace("    sn_id\t"+jsonObject.get("sn_id").toString());
 			uData.setSnId((String) jsonObject.get("sn_id"));
 		}
 		
 		if (jsonObject.get("id") == null) {
-			logger.trace("    user_id");
+			logger.trace("    user_id\t"+jsonObject.get("user_id").toString());
 			uData.setId(Long.parseLong(jsonObject.get("user_id").toString()));
 		} else {
-			logger.trace("setting id");
+			logger.trace("setting id\t"+jsonObject.get("id").toString());
 			uData.setId(Long.parseLong(jsonObject.get("id").toString()));
 		}
 		
 		if (jsonObject.get("userName") != null) {
-			logger.trace("    userName");
+			logger.trace("    userName\t"+jsonObject.get("userName").toString());
 			uData.setUsername((String) jsonObject.get("userName"));
 		}
 		
 		if (jsonObject.get("nickName") != null) {
-			logger.trace("    nickName");
+			logger.trace("    nickName\t"+jsonObject.get("nickName").toString());
 			uData.setScreenName((String) jsonObject.get("nickName"));
 		}
 		
 		if (jsonObject.get("userLang") != null) {
-			logger.trace("    userLang");
+			logger.trace("    userLang\t"+jsonObject.get("userLang").hashCode());
 			uData.setLang((String) jsonObject.get("userLang"));
 		}
 		
 		if (jsonObject.get("follower") != null) {
-			logger.trace("    follower");
+			logger.trace("    follower\t"+Long.parseLong(jsonObject.get("follower").toString()));
 			uData.setFollowersCount(Long.parseLong(jsonObject.get("follower").toString()));
 		}
 		
 		if (jsonObject.get("friends") != null) {
-			logger.trace("    friends");
+			logger.trace("    friends\t"+Long.parseLong(jsonObject.get("friends").toString()));
 			uData.setFriendsCount(Long.parseLong(jsonObject.get("friends").toString()));
 		}
 		
 		if (jsonObject.get("postingsCount") != null) {
-			logger.trace("    postingsCount");
+			logger.trace("    postingsCount\t"+Long.parseLong(jsonObject.get("postingsCount").toString()));
 			uData.setPostingsCount(Long.parseLong(jsonObject.get("postingsCount").toString()));
 		}
 		
 		if (jsonObject.get("favoritesCount") != null) {
-			logger.trace("    favoritesCount");
+			logger.trace("    favoritesCount\t"+Long.parseLong(jsonObject.get("favoritesCount").toString()));
 			uData.setFavoritesCount(Long.parseLong(jsonObject.get("favoritesCount").toString()));
 		}
 		
 		if (jsonObject.get("listsAndGroupsCount") != null) {
-			logger.trace("    listsAndGroupsCount");
+			logger.trace("    listsAndGroupsCount\t"+Long.parseLong(jsonObject.get("listsAndGroupsCount").toString()));
 			uData.setListsAndGroupsCount(Long.parseLong(jsonObject.get("listsAndGroupsCount").toString()));
 		}
 		
 		if (jsonObject.get("geoLocation") != null) {
-			logger.trace("    geoLocation");
+			logger.trace("    geoLocation\t"+jsonObject.get("geoLocation"));
 			uData.setGeoLocation((String) jsonObject.get("geoLocation"));
 		}
 	}
@@ -248,7 +251,7 @@ public class FsCrawler implements Job {
 	 * @return			PostData object
 	 */
 	private void setPostDataFromJson(JSONObject jsonObject){
-		logger.debug("setting PostData Object from json file content");
+		logger.debug("creating PostData Object from json file " + fileName);
 		/*
 		 * JSON Structure
 		 * {
@@ -281,30 +284,30 @@ public class FsCrawler implements Job {
 			}
 		 */
 		if (jsonObject.get("sn_id") != null) {
-			logger.trace("    sn_id");
+			logger.trace("    sn_id \t" + jsonObject.get("sn_id").toString());
 			pData.setSnId((String) jsonObject.get("sn_id"));
 		}
 		
 		if (jsonObject.get("id") == null) {
-			logger.trace("    post_id");
+			logger.trace("    post_id \t" + Long.parseLong(jsonObject.get("post_id").toString()));
 			pData.setId(Long.parseLong(jsonObject.get("post_id").toString()));
 		} else {
-			logger.trace("    id");
+			logger.trace("    id \t" + jsonObject.get("id").toString());
 			pData.setId(Long.parseLong(jsonObject.get("id").toString()));
 		}
 		
 		if (jsonObject.get("postLang") != null) {
-			logger.trace("    postLang");
+			logger.trace("    postLang \t" + jsonObject.get("postLang").toString());
 			pData.setLang((String) jsonObject.get("postLang"));
 		}
 		
 		if (jsonObject.get("client") != null) {
-			logger.trace("    client");
-			pData.setTime((String) jsonObject.get("client"));
+			logger.trace("    client \t" + jsonObject.get("client").toString());
+			pData.setClient((String) jsonObject.get("client"));
 		}
 		
 		if (jsonObject.get("truncated") != null) {
-			logger.trace("    truncated");
+			logger.trace("    truncated " + jsonObject.get("truncated").toString());
 			if ("true".equals(jsonObject.get("truncated")))
 				pData.setTruncated((Boolean) true);
 			else
@@ -312,47 +315,51 @@ public class FsCrawler implements Job {
 		}
 		
 		if (jsonObject.get("text") != null) {
-			logger.trace("    text");
+			logger.trace("    text\t" + jsonObject.get("text").toString().substring(0, 20) + "...");
 			pData.setText((String) jsonObject.get("text"));
 		}
 		
 		if (jsonObject.get("raw_text") != null) {
-			logger.trace("    raw_text");
+			logger.trace("    raw_text\t" + jsonObject.get("raw_text").toString().substring(0, 20) + "...");
 			pData.setRawText((String) jsonObject.get("raw_text"));
 		}
 		
 		if (jsonObject.get("teaser") != null) {
-			logger.trace("    teaser");
+			logger.trace("    teaser\t" + jsonObject.get("teaser").toString());
 			pData.setTeaser((String) jsonObject.get("teaser"));
 		}
 		
 		if (jsonObject.get("subject") != null) {
-			logger.trace("    subject");
+			logger.trace("    subject\t" + jsonObject.get("subject").toString());
 			pData.setSubject((String) jsonObject.get("subject"));
 		}
 		
 		// TODO check what source is
-		//if (jsonObject.get("source") != null)
-		//	pData.setClient((String) jsonObject.get("source"));
+		if (jsonObject.get("source") != null){
+			logger.trace("    source\t" + jsonObject.get("source").toString());
+			pData.setClient((String) jsonObject.get("source"));
+		}
 		
-		// TODO ::: repair timestamp
 		if (jsonObject.get("timestamp") != null) {
-			logger.trace("    timestamp");
-			pData.setTimestamp((LocalDateTime) jsonObject.get("timestamp"));
+			String timestring = jsonObject.get("timestamp").toString();
+			LocalDateTime timetime = new LocalDateTime(timestring);
+			
+			logger.trace("    timestamp\t" + timestring);
+			pData.setTimestamp((LocalDateTime) timetime);
 		}
 		
 		if (jsonObject.get("inReplyToStatusID") != null) {
-			logger.trace("    inReplyToStatusID");
+			logger.trace("    inReplyToStatusID\t" + Long.parseLong(jsonObject.get("inReplyToStatusID").toString()));
 			pData.setInReplyTo(Long.parseLong(jsonObject.get("inReplyToStatusID").toString()));
 		}
 		
 		if (jsonObject.get("inReplyToUserID") != null) {
-			logger.trace("    inReplyToUserID");
+			logger.trace("    inReplyToUserID\t" + Long.parseLong(jsonObject.get("inReplyToUserID").toString()));
 			pData.setInReplyToUser(Long.parseLong(jsonObject.get("inReplyToUserID").toString()));
 		}
 		
 		if (jsonObject.get("inReplyToScreenName") != null) {
-			logger.trace("    inReplyToScreenName");
+			logger.trace("    inReplyToScreenName\t" + jsonObject.get("inReplyToScreenName").toString());
 			pData.setInReplyToUserScreenName((String) jsonObject.get("inReplyToScreenName"));
 		}
 		

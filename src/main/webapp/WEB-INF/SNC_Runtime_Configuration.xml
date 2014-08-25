@@ -13,17 +13,22 @@
 	is configured in this file - but you are discouraged changing this.   
 -->
 <configurations>
-	<!-- RUNTIME CONFIGURATION -->
+	<!-- R U N T I M E   C O N F I G U R A T I O N
+		 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		 This section contains options to change/modify the general runtime behavior of the SNC
+	-->
 	<configuration scope="runtime">
 		<!-- show warning in case the simple INI file configuration is used -->
 		<param name="WarnOnSimpleConfigOption">
 			<type>boolean</type>
 			<value>true</value>
+			<constant>WARN_ON_SIMPLE_CONFIG_OPTION</constant>
 		</param>
 		<!-- show warning in case the simple XML file configuration is used -->
 		<param name="WarnOnSimpleXmlConfigOption">
 			<type>boolean</type>
 			<value>true</value>
+			<constant>WARN_ON_SIMPLE_XML_CONFIG_OPTION</constant>
 		</param>
 		<!-- save a json file with the post data in case creating it in persistence fails -->
 		<param name="CreatePostJsonOnError">
@@ -49,10 +54,10 @@
 			<value>false</value>
 			<constant>CREATE_USER_JSON_ON_SUCCESS</constant>
 		</param>
-		<!-- the path to the directory under which to save the json-files - must be in sync with entry in applicationContext.xml -->
+		<!-- the path to the directory under which to save the json-files - must be in sync with the entry in applicationContext.xml -->
 		<param name="JsonBackupStoragePath">
 			<type>String</type>
-			<value>./json</value>
+			<value>json</value>
 			<constant>JSON_BACKUP_STORAGE_PATH</constant>
 		</param>
 		
@@ -68,22 +73,20 @@
 	</configuration>
 	
 	
-	<!-- SOCIAL NETWORK DEFINITIONS -->
-	<!-- This section defines the social networks which can be used
-		 You can define values for a 2-digit code, a name, a domain
-		 and description and whether or the network is supported or
-		 not for each social network to crawl.
+	
+	<!-- S O C I A L   N E T W O R K   D E F I N I T I O N S
+		 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+	     This section defines the social networks which can be used
+		 You can define values for a 2-digit code, a name, a domain and description plus if the network is supported 
+		 or not, for each social network to crawl.
+		 For each network you need to define two entries. One identified by the name of the network and the other 
+		 defined by the 2 digit code.
 		 
-		 You normally do not need to change anything in here except
-		 for the Lithium network. Lithium is special in that it can
-		 be hosted by a company for their own domain of interest. 
-		 Therefore, post- and user-id's are not globally unique and
-		 you have to define your own 2-letter code for each Lithium
-		 network to crawl for each customer. Failing to do so could
-		 lead to a situation where two Lithium networks are crawled
-		 and both try to insert a post with the same combination of
-		 code and id - say CC-1295 for example.
-	-->
+		 You normally do not need to change anything in here except for the Lithium network. Lithium is special in 
+		 that it can be hosted by a company for their own domain of interest. Therefore, post- and user-id's are 
+		 not globally unique and you HAVE to define your own 2-letter code for each Lithium network to crawl. 
+		 Failing to do so could lead to a situation where two Lithium networks are crawled and both try to insert 
+		 a post with the same combination of code and id - say CC-1295 for example. -->
 	<configuration scope="socialNetworkDefinition">
 		<!-- change this code for every customer -->
 		<network name="CC"><name>LITHIUM</name></network>
@@ -107,7 +110,8 @@
 			<supported>NO</supported>
 		</network>
 		
-		<!-- below this line the standard social networks are defined -->
+		
+		<!-- below this line the standard social networks are defined and it is highly discouraged to change any of them -->
 		<network name="TW"><name>TWITTER</name></network>
 		<network name="TWITTER">
 			<code>TW</code>
@@ -245,25 +249,33 @@
 	</configuration>
 	
 	
-	<!-- DO NOT CHANGE ANYTHING BELOW THIS LINE, EXCEPT YOU ABSOLUTELY KNOW WHAT YOU ARE DOING -->
-	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-	<!-- GENERAL DATA DEFINITIONS AND DB SCHEMA LAYOUT -->
+	<!-- DO NOT CHANGE ANYTHING BELOW THIS LINE, EXCEPT YOU ABSOLUTELY KNOW WHAT YOU ARE DOING
+	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	     
+	     G E N E R A L   D A T A   D E F I N I T I O N S
+	     In this section you can define how long certain fields of are, for example
+	     how long a teaser is and if a teaser shall be saved with markup elements or not. 
+	     -->
 	<configuration scope="DataDefinitions">
+		<!-- shall a teaser be saved with or without html markup elements -->
 		<param name="teaserWithMarkup">
 			<type>boolean</type>
 			<value>false</value>
 			<constant>TEASER_WITH_MARKUP</constant>
 		</param>
+		<!-- how long shall a teaser be at max -->
 		<param name="teaserMaxLength">
 			<type>int</type>
 			<value>256</value>
 			<constant>TEASER_MAX_LENGTH</constant>
 		</param>
+		<!-- what shall the minimal length of a teaser be? -->
 		<param name="teaserMinLength">
 			<type>int</type>
 			<value>20</value>
 			<constant>TEASER_MIN_LENGTH</constant>
 		</param>
+		<!-- shall the subject of a post be saved with or without html markup elements -->
 		<param name="subjectWithMarkup">
 			<type>boolean</type>
 			<value>false</value>
@@ -279,11 +291,15 @@
 			<value>7</value>
 			<constant>SUBJECT_MIN_LENGTH</constant>
 		</param>
+		<!-- shall the posts be saved with or without html markup elements - this should usually be kept false
+			 the text-field of the database is normally only used for the semantic analysis and therefore does
+			 not need any markups -->
 		<param name="textWithMarkup">
 			<type>boolean</type>
 			<value>false</value>
 			<constant>TEXT_WITH_MARKUP</constant>
 		</param>
+		<!-- shall the raw text field contain text with html markup elements - this should usually be kept true -->
 		<param name="rawTextWithMarkup">
 			<type>boolean</type>
 			<value>true</value>
@@ -291,8 +307,8 @@
 		</param>
 	</configuration>
 	
-	<!-- XML LAYOUT CONFIGURATION -->
-	<!-- the values in this section define how the crawler configuration xml files are structured.
+	<!-- X M L   L A Y O U T   C O N F I G U R A T I O N
+	     the values in this section define how the crawler configuration xml files are structured.
 		 Changing any of these values is possible to reflect changes in the xml configuration layout
 		 but it is highly discouraged. -->
 	<configuration scope="XmlLayout">
@@ -327,8 +343,8 @@
 		
 		
 		
-		<!-- this section contains the xml structure for the crawler configuration -->
-		<!-- changing these values WILL become possible (in revision 1.1) to reflect XML layout changes
+		<!-- this section contains the xml structure for the crawler configuration
+		     changing these values WILL become possible (in revision 1.1) to reflect XML layout changes
 			 as of the moment, August 2014, these values are NOT changeable, as the RuntimeConfiguration-class
 			 lacks the code to parse this section of the xml file! -->
 		<param name="customerIdentifier"> <!-- changeable -->
@@ -384,10 +400,11 @@
 			<value>network</value>
 		</param>
 		
-		<!-- for compatibility reasons these last 4 layout elements (root-, 
+		<!-- 
+			 for stability and startup reasons these last 4 layout elements (root-, 
 			 singleConfiguration-, value- and scopeIdentifier) CAN NOT BE CHANGED! 
 			 even if you do so here, this won't have any effect as they need to be 
-			 and are hard coded in the GeneralConfiguration class. 
+			 and are hard coded in the RuntimeConfiguration class. 
 		 -->
 		<param name="rootIdentifier"> <!-- not changeable -->
 			<type>String</type>

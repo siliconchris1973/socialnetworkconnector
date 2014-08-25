@@ -500,7 +500,8 @@
 		<property name="jobDataAsMap">
 			<map> 
 				<entry key="fileNamePattern" value=".*_fail.json" />
-				<entry key="savePoint" value="json"/> 
+				<!-- make absolutely sure, that this entry has the same value in SNC_Runtime_Configuration.xml -->
+				<entry key="JsonBackupStoragePath" value="json"/> 
 			</map>
 		</property>
 	</bean>
