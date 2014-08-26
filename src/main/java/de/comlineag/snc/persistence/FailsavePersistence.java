@@ -119,7 +119,7 @@ public class FailsavePersistence implements IPersistenceManager {
 			obj.put("friends", new Long(userData.getFriendsCount()).toString());
 			obj.put("postingsCount", new Long(userData.getPostingsCount()).toString());
 			obj.put("favoritesCount", new Long(userData.getFavoritesCount()).toString());
-			obj.put("listsAndGroupsCount", new Long(userData.getListsAndGrooupsCount()).toString());
+			obj.put("listsAndGroupsCount", new Long(userData.getListsAndGroupsCount()).toString());
 						
 			file.write(dataCryptoProvider.encryptValue(obj.toJSONString()));
 			logger.info("Successfully copied JSON user object for "+userData.getSnId()+"-"+userData.getId()+" to File...");

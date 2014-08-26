@@ -120,31 +120,27 @@ public class FsCrawler implements Job {
 		
 		networkCode = (String) jsonObject.get("sn_id");
 		networkName = SocialNetworks.getSocialNetworkConfigElement("name", networkCode);
-		logger.info("initializing "+networkName+" parser for json object");
-					
+		logger.info("initializing "+networkName+" parser for json "+entryType+" object " + fileName.substring(first+1, second));
+				
 		// currently, the SNC is able to work with two distinct twObject types, users and posts and therefore
 		// we should only encounter files for these two types, if not, someone's playing tricks with us.
 		if ("post".equals(entryType)) {
 			postObjectsCount++;
-			logger.debug("working on post " + 
-					fileName.substring(first+1, second) );
 			logger.trace("   content of file : " + jsonObject.toString());
 			
 			// now create a new PostData object from the json content of the file
 			setPostDataFromJson(jsonObject);
-			logger.trace("data type initialized");
+			logger.trace(entryType + " data type initialized");
 				
 			// after creating a new PostData object from json content, store it in the persistence layer
 			hana.savePosts(pData);
 		} else if ("user".equals(entryType)) {
 			userObjectsCount++;
-			logger.debug("working on user " + 
-					fileName.substring(first+1, second) );
 			logger.trace("   content of file : " + jsonObject.toString());
 			
 			// now create a new UserData object from the json content of the file
 			setUserDataFromJson(jsonObject);
-			logger.trace("data type initialized");
+			logger.trace(entryType + " data type initialized");
 			
 			// after creating a new UserData object from json content, store it in the persistence layer
 			hana.saveUsers(uData);
@@ -171,7 +167,10 @@ public class FsCrawler implements Job {
 		/*  
 		 * JSON Structure
 		 *  {
-		 *  	"sn_id":"CC"
+		 *  	"objectStatus":"fail",
+		 *  	"domain":"null",
+		 *  	"customer":"null",
+		 *  	"sn_id":"CC",
 		 *  	"user_id":"9",
 		 *  	"userName":"Cortal_Consors",
 		 *  	"nickName":"Cortal_Consors",
@@ -181,10 +180,22 @@ public class FsCrawler implements Job {
 		 *  	"follower":"0",
 		 *  	"userLang":null,
 		 *  	"listsAndGroupsCount":"0",
-		 *  	"geoLocation":"",
-
+		 *  	"geoLocation":""
 		 *  }
 		 */
+		if (jsonObject.get("domain") != null) {
+			logger.trace("    domain\t"+jsonObject.get("domain").toString());
+			uData.setDomain((String) jsonObject.get("domain"));
+		}
+		if (jsonObject.get("customer") != null) {
+			logger.trace("    customer\t"+jsonObject.get("customer").toString());
+			uData.setCustomer((String) jsonObject.get("customer"));
+		}
+		if (jsonObject.get("objectStatus") != null) {
+			logger.trace("    objectStatus\t"+jsonObject.get("objectStatus").toString());
+			uData.setObjectStatus((String) jsonObject.get("objectStatus"));
+		}
+		
 		if (jsonObject.get("sn_id") != null) {
 			logger.trace("    sn_id\t"+jsonObject.get("sn_id").toString());
 			uData.setSnId((String) jsonObject.get("sn_id"));
@@ -194,7 +205,7 @@ public class FsCrawler implements Job {
 			logger.trace("    user_id\t"+jsonObject.get("user_id").toString());
 			uData.setId(Long.parseLong(jsonObject.get("user_id").toString()));
 		} else {
-			logger.trace("setting id\t"+jsonObject.get("id").toString());
+			logger.trace("    id\t"+jsonObject.get("id").toString());
 			uData.setId(Long.parseLong(jsonObject.get("id").toString()));
 		}
 		
@@ -255,34 +266,54 @@ public class FsCrawler implements Job {
 		/*
 		 * JSON Structure
 		 * {
-		 * 		"user_id":"9",
-				"sn_id":"CC"
-				"post_id":"5017",
-				"postLang":"de",
-				
-				"inReplyTo":"0",
-				"inReplyToUserID":"0",
-				"inReplyToScreenName":"null",
-				"client":"\/boards\/id\/Boersenlexikon",
-				"timestamp":"2014-01-15T16:14:30.000",
-				"favoritecount":"0",
-				"viewcount":"74",
-				"truncated":"false",
-				
-				"geoLocation_longitude":"null",
-				"geoLocation_latitude":"null",
-				"plAround_longitude":"null",
-				"plAround_latitude":"null",
-				"plCountry":"null",
-				"plName":"null",
-				"placeID":"null",
-				
-				"text":"Junge Aktien sind die bei einer Kapitalerh?hung neu ausgegebenen Aktien. Sie sind f?r das laufende Gesch?ftsjahr nicht bzw. noch nicht voll dividendenberechtigt. Nach erster Gewinnaussch?ttung f?llt der Zusatz \"jung\" weg. Die bisherigen Gesellschafter haben einen rechtlichen Anspruch auf den Bezug solcher jungen Aktien, wobei sich der Umfang nach der Zahl ihrer alten Aktien richtet. Gegenteil: alte Aktien",
-				"raw_text":"<DIV class=\"lia-message-template-content-zone\">Junge Aktien sind die bei einer Kapitalerh?hung neu ausgegebenen Aktien. Sie sind f?r das laufende Gesch?ftsjahr nicht bzw. noch nicht voll dividendenberechtigt. Nach erster Gewinnaussch?ttung f?llt der Zusatz \"jung\" weg. Die bisherigen Gesellschafter haben einen rechtlichen Anspruch auf den Bezug solcher jungen Aktien, wobei sich der Umfang nach der Zahl ihrer alten Aktien richtet. Gegenteil: alte Aktien\n<\/DIV>",
-				"teaser":"Junge Aktien sind die bei einer Kapitalerh?hung neu ausgegebenen Aktien. Sie sind f?r das laufende Gesch?ftsjahr nicht bzw. noch nicht voll dividendenberechtigt. Nach erster Gewinnaussch?ttung f?llt der Zusatz \"jung\" weg. Die bisherigen Gesellschafter h...",
-				"subject":"Junge Aktien",
-			}
+		 * "domain":"null",
+		 * "customer":"null",
+		 * "objectStatus":"fail",
+		 * "sn_id":"CC"
+		 * "post_id":"5017",
+		 * "user_id":"9",
+		 * 
+		 * "postLang":"de",
+		 * 
+		 * "inReplyTo":"0",
+		 * "inReplyToUserID":"0",
+		 * "inReplyToScreenName":"null",
+		 * 
+		 * "client":"\/boards\/id\/Boersenlexikon",
+		 * 
+		 * "timestamp":"2014-01-15T16:14:30.000",
+		 * 
+		 * "favoritecount":"0",
+		 * "viewcount":"74",
+		 * "truncated":"false",
+		 * 
+		 * "geoLocation_longitude":"null",
+		 * "geoLocation_latitude":"null",
+		 * "plAround_longitude":"null",
+		 * "plAround_latitude":"null",
+		 * "plCountry":"null",
+		 * "plName":"null",
+		 * "placeID":"null",
+		 * 
+		 * "text":"Junge Aktien sind die bei einer Kapitalerh?hung...",
+		 * "raw_text":"<DIV class=\"lia-message-template-content-zone\">Junge ...",
+		 * "teaser":"Junge Aktien sind die bei einer Kapitalerh?hung neu ...",
+		 * "subject":"Junge Aktien",
+		 * }
 		 */
+		if (jsonObject.get("domain") != null) {
+			logger.trace("    domain\t" + jsonObject.get("domain").toString());
+			pData.setSnId((String) jsonObject.get("domain"));
+		}
+		if (jsonObject.get("customer") != null) {
+			logger.trace("    customer\t" + jsonObject.get("customer").toString());
+			pData.setSnId((String) jsonObject.get("customer"));
+		}
+		if (jsonObject.get("objectStatus") != null) {
+			logger.trace("    objectStatus\t" + jsonObject.get("objectStatus").toString());
+			pData.setSnId((String) jsonObject.get("objectStatus"));
+		}
+		
 		if (jsonObject.get("sn_id") != null) {
 			logger.trace("    sn_id \t" + jsonObject.get("sn_id").toString());
 			pData.setSnId((String) jsonObject.get("sn_id"));
@@ -315,22 +346,22 @@ public class FsCrawler implements Job {
 		}
 		
 		if (jsonObject.get("text") != null) {
-			logger.trace("    text\t" + jsonObject.get("text").toString().substring(0, 20) + "...");
+			logger.trace("    text\t" + jsonObject.get("text").toString().length());
 			pData.setText((String) jsonObject.get("text"));
 		}
 		
 		if (jsonObject.get("raw_text") != null) {
-			logger.trace("    raw_text\t" + jsonObject.get("raw_text").toString().substring(0, 20) + "...");
+			logger.trace("    raw_text\t" + jsonObject.get("raw_text").toString().length());
 			pData.setRawText((String) jsonObject.get("raw_text"));
 		}
 		
 		if (jsonObject.get("teaser") != null) {
-			logger.trace("    teaser\t" + jsonObject.get("teaser").toString());
+			logger.trace("    teaser\t" + jsonObject.get("teaser").toString().length());
 			pData.setTeaser((String) jsonObject.get("teaser"));
 		}
 		
 		if (jsonObject.get("subject") != null) {
-			logger.trace("    subject\t" + jsonObject.get("subject").toString());
+			logger.trace("    subject\t" + jsonObject.get("subject").toString().length());
 			pData.setSubject((String) jsonObject.get("subject"));
 		}
 		

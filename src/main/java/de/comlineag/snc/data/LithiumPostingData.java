@@ -409,6 +409,8 @@ public final class LithiumPostingData extends PostData {
 		
 		domain = new CrawlerConfiguration<String>().getDomain();
 		customer = new CrawlerConfiguration<String>().getCustomer();
+		objectStatus = "new";
+		
 		// set social network identifier
 		//sn_id = SocialNetworks.LITHIUM.getValue();
 		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM");

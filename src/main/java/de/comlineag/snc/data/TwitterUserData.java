@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import org.json.simple.JSONObject;
 
+import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
 
 /**
@@ -20,8 +21,12 @@ import de.comlineag.snc.constants.SocialNetworks;
  *              user type save.
  * 
  * @param <JSonObject>
+ * 			  "domain" String
+ * 			  "customer" String
+ * 			  "object_status" String
  *            "id" Long
  *            "sn_id" String
+ *            "lang" String
  *            "name" String
  *            "screen_name" String
  *            "geoLocation" List
@@ -30,7 +35,6 @@ import de.comlineag.snc.constants.SocialNetworks;
  *            "statuses_count" Long
  *            "favourites_count" Long
  *            "lists_and_groups_count" Long
- *            "lang" String
  *            
  * @changelog	0.1 (Magnus)	class created
  * 				0.2 (Chris)		added support for counters
@@ -97,6 +101,10 @@ public final class TwitterUserData extends UserData {
 		friends_count = 0;
 		postings_count = 0;
 		favorites_count = 0;
-		lists_and_groups_count = 0;	
+		lists_and_groups_count = 0;
+		
+		domain = new CrawlerConfiguration<String>().getDomain();
+		customer = new CrawlerConfiguration<String>().getCustomer();
+		objectStatus = "new";
 	}
 }

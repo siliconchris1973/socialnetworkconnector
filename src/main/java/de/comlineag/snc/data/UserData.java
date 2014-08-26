@@ -1,5 +1,7 @@
 package de.comlineag.snc.data;
 
+import java.lang.reflect.Field;
+
 
 /**
  * 
@@ -39,6 +41,28 @@ public class UserData {
 	protected String objectStatus;					// can be new, old, ok or fail
 	
 	
+	public String getAllContent(){
+		String u = ""
+				+ "objectStatus : " + getObjectStatus() + " / "
+				+ "sn_id : " + getSnId() + " / "
+				+ "id : " + getId() + " / "
+				+ "domain : " + getDomain() + " / "
+				+ "customer : " + getCustomer() + " / "
+				+ "username : " + getUsername() + " / "
+				+ "lang : " + getLang() + " / "
+				+ "screen name : " + getScreenName() + " / "
+				+ "geoLocation : " + getGeoLocation() + " / "
+				+ "followers count : " + getFollowersCount() + " / "
+				+ "friends count : " + getFriendsCount() + " / "
+				+ "postings count : " + getPostingsCount() + " / "
+				+ "favorites count : " + getFavoritesCount() + " / "
+				+ "lists and groups count : " + getListsAndGroupsCount() + " / "
+				+ "average rating : " + getAverageRatingValue() + " / "
+				+ "average posting rating : " + getAveragePostingRatingValue() + " / "
+				+ "average posting rating : " + getAveragePostingRating();
+		
+		return u;
+	}
 	
 	// getter and setter
 	public long getId() {
@@ -118,7 +142,7 @@ public class UserData {
 		this.average_posting_ratio = average_posting_ratio;
 	}
 	
-	public long getListsAndGrooupsCount() {
+	public long getListsAndGroupsCount() {
 		return lists_and_groups_count;
 	}
 	public void setListsAndGroupsCount(long listsAndGroupsCount) {

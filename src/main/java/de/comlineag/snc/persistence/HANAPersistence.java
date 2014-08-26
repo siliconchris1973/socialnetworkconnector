@@ -7,7 +7,6 @@ import java.sql.Timestamp;
 import com.sun.jersey.api.client.ClientHandlerException;
 
 import org.joda.time.DateTimeZone;
-
 import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
 //import org.apache.logging.log4j.Logger;
@@ -152,6 +151,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 */
 	public void savePosts(PostData postData) {
 		logger.trace("savePosts called");
+		logger.trace("    postData content " + postData.getAllContent());
 		
 		try {
 			// first check if the entry already exists
@@ -223,6 +223,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 */
 	public void saveUsers(UserData userData) {
 		logger.trace("saveUsers called");
+		logger.trace("    userData content " + userData.getAllContent());
 		
 		try {
 			// first check if the entry already exists
@@ -680,7 +681,7 @@ public class HANAPersistence implements IPersistenceManager {
 			stmt.setLong(7, userData.getFriendsCount());
 			stmt.setLong(8, userData.getPostingsCount());
 			stmt.setLong(9, userData.getFavoritesCount());
-			stmt.setLong(10, userData.getListsAndGrooupsCount());
+			stmt.setLong(10, userData.getListsAndGroupsCount());
 			//stmt.setString(11, userData.getGeoLocation());
 			
 			@SuppressWarnings("unused")
@@ -760,7 +761,7 @@ public class HANAPersistence implements IPersistenceManager {
 					.properties(OProperties.int32("friends", new Integer((int) userData.getFriendsCount())))
 					.properties(OProperties.int32("postingsCount", new Integer((int) userData.getPostingsCount())))
 					.properties(OProperties.int32("favoritesCount", new Integer((int) userData.getFavoritesCount())))
-					.properties(OProperties.int32("listsAndGroupsCount", new Integer((int) userData.getListsAndGrooupsCount())))
+					.properties(OProperties.int32("listsAndGroupsCount", new Integer((int) userData.getListsAndGroupsCount())))
 
 					.execute();
 			
@@ -1084,7 +1085,7 @@ public class HANAPersistence implements IPersistenceManager {
 			stmt.setLong(5, userData.getFriendsCount());
 			stmt.setLong(6, userData.getPostingsCount());
 			stmt.setLong(7, userData.getFavoritesCount());
-			stmt.setLong(8, userData.getListsAndGrooupsCount());
+			stmt.setLong(8, userData.getListsAndGroupsCount());
 			stmt.setString(9, userData.getSnId());
 			//stmt.setString(10, userData.getGeoLocation()); // activate above and this geoLocation and increase numbers below by one
 			stmt.setString(10, userData.getSnId());
@@ -1169,7 +1170,7 @@ public class HANAPersistence implements IPersistenceManager {
 					.properties(OProperties.int32("friends", new Integer((int) userData.getFriendsCount())))
 					.properties(OProperties.int32("postingsCount", new Integer((int) userData.getPostingsCount())))
 					.properties(OProperties.int32("favoritesCount", new Integer((int) userData.getFavoritesCount())))
-					.properties(OProperties.int32("listsAndGroupsCount", new Integer((int) userData.getListsAndGrooupsCount())))
+					.properties(OProperties.int32("listsAndGroupsCount", new Integer((int) userData.getListsAndGroupsCount())))
 					
 					.execute();
 			

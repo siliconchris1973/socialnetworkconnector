@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
 
 /**
@@ -177,5 +178,8 @@ public final class LithiumUserData extends UserData {
 		favorites_count 		= 0;
 		lists_and_groups_count	= 0;
 		lang 					= "de";
+		objectStatus = "new";
+		domain = new CrawlerConfiguration<String>().getDomain();
+		customer = new CrawlerConfiguration<String>().getCustomer();
 	}
 }

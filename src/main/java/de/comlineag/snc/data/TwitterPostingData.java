@@ -28,8 +28,10 @@ import de.comlineag.snc.helper.DataHelper;
  * 
  * @param <JSonObject>
  * 			  "domain" List
+ * 			  "customer" List
  *            "id" Long - sometimes also post_id
  *            "sn_id" String
+ *            "user_id" Long
  *            "created_at" String
  *            "text" String
  *            "source" String
@@ -280,8 +282,10 @@ public final class TwitterPostingData extends PostData {
 		// posting
 		id = 0;
 		
+		objectStatus = "new";
 		domain = new CrawlerConfiguration<String>().getDomain();
 		customer = new CrawlerConfiguration<String>().getCustomer();
+		
 		//sn_id = SocialNetworks.TWITTER.getValue();
 		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "TWITTER");
 		

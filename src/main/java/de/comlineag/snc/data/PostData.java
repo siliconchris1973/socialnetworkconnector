@@ -1,5 +1,6 @@
 package de.comlineag.snc.data;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -167,7 +168,56 @@ public class PostData {
 	protected List<?> symbols;
 	protected List<?> mentions;
 	
+	// print all fields and their values
+	public void printFields(Object obj) throws Exception {
+	    Class<?> objClass = obj.getClass();
+
+	    Field[] fields = objClass.getFields();
+	    for(Field field : fields) {
+	        String name = field.getName();
+	        Object value = field.get(obj);
+
+	        System.out.println(name + ": " + value.toString());
+	    }
+	}
 	
+	// returns a string with all initialized variables as a concatenated string
+	public String getAllContent(){
+		String p = "objectStatus : " + getObjectStatus() + " / "
+				+ "SN_ID : " + getSnId() + " / "
+				+ "ID : " + getId() + " / "
+				+ "Domain :" + getDomain()  + " / "
+				+ "Customer :" + getCustomer()  + " / "
+				+ "User Id :" + getUserId()  + " / "
+				+ "text :" + getText().length()  + " / "
+				+ "raw text :" + getRawText().length()+ " / "
+				+ "teaser :" + getTeaser().length()  + " / "
+				+ "subject :" + getSubject().length()  + " / "
+				+ "lang :" + getLang()  + " / "
+				+ "view count :" + getViewCount()  + " / "
+				+ "favorite count :" + getFavoriteCount() + " / " 
+				+ "time :" + getTime()  + " / "
+				+ "timestamp :" + getTimestamp()  + " / "
+				+ "client :" + getClient()  + " / "
+				+ "truncated :" + getTruncated()   + " / "
+				+ "in reply to post :" + getInReplyTo()  + " / "
+				+ "in reply to user id :" + getInReplyToUser()  + " / "
+				+ "in reply to user name :" + getInReplyToUserScreenName() + " / "
+				+ "longitude :" + getGeoLongitude()  + " / "
+				+ "latitude :" + getGeoLatitude() + " / " 
+				+ "place id :" + getGeoPlaceId()  + " / "
+				+ "place name :" + getGeoPlaceName()  + " / "
+				+ "place country :" + getGeoPlaceCountry() + " / " 
+				+ "around longitude :" + getGeoAroundLongitude()  + " / "
+				+ "around latitude :" + getGeoAroundLatitude();
+				
+				//protected GeoJsonObject place;
+				//protected List<?> hashtags;
+				//protected List<?> symbols;
+				//protected List<?> mentions;
+				
+		return p;
+	}
 	
 	// getter and setter
 	public String getDomain() {
