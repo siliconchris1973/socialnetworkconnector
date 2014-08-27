@@ -501,9 +501,9 @@
 			<map> 
 				<entry key="fileNamePattern" value=".*_fail.json" />
 				<!-- make absolutely sure, that this entry has the same value in SNC_Runtime_Configuration.xml -->
-				<entry key="JsonBackupStoragePath" value="json"/>
-				<entry key="ProcessedJsonBackupStoragePath" value="processedJson"/>
-				<entry key="InvalidJsonBackupStoragePath" value="invalidJson"/>
+				<entry key="JsonBackupStoragePath" value="storage/json"/>
+				<entry key="ProcessedJsonBackupStoragePath" value="storage/processedJson"/>
+				<entry key="InvalidJsonBackupStoragePath" value="storage/invalidJson"/>
 				<entry key="MoveOrDeleteProcessedJsonFiles" value="move"/>
 			</map>
 		</property>

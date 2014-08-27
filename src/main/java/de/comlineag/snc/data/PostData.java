@@ -1,15 +1,9 @@
 package de.comlineag.snc.data;
 
-import java.lang.reflect.Field;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.geojson.GeoJsonObject;
-import org.json.simple.JSONObject;
 import org.joda.time.LocalDateTime;
-
-import de.comlineag.snc.appstate.RuntimeConfiguration;
-import de.comlineag.snc.helper.DataHelper;
 
 /**
  * 
@@ -32,13 +26,6 @@ import de.comlineag.snc.helper.DataHelper;
  */
 
 public class PostData {
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
-	
-	private final RuntimeConfiguration configuration = new RuntimeConfiguration();
-	
 	/*
 	 * was the object initially saved correctly by the persistence manager or not 
 	 */
@@ -167,19 +154,6 @@ public class PostData {
 	protected List<?> hashtags;
 	protected List<?> symbols;
 	protected List<?> mentions;
-	
-	// print all fields and their values
-	public void printFields(Object obj) throws Exception {
-	    Class<?> objClass = obj.getClass();
-
-	    Field[] fields = objClass.getFields();
-	    for(Field field : fields) {
-	        String name = field.getName();
-	        Object value = field.get(obj);
-
-	        System.out.println(name + ": " + value.toString());
-	    }
-	}
 	
 	// returns a string with all initialized variables as a concatenated string
 	public String getAllContent(){

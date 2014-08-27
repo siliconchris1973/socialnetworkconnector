@@ -57,19 +57,19 @@
 		<!-- the path to the directory under which to save the json-files - must be in sync with the entry in applicationContext.xml -->
 		<param name="JsonBackupStoragePath">
 			<type>String</type>
-			<value>json</value>
+			<value>storage/json</value>
 			<constant>JSON_BACKUP_STORAGE_PATH</constant>
 		</param>
 		<!-- the path to the directory under which to save processed json-files (files processed by FsCrawler) - must be in sync with the entry in applicationContext.xml -->
 		<param name="ProcessedJsonBackupStoragePath">
 			<type>String</type>
-			<value>processedJson</value>
+			<value>storage/processedJson</value>
 			<constant>PROCESSED_JSON_BACKUP_STORAGE_PATH</constant>
 		</param>
 		<!-- the path to the directory under which to store invalid json-files - must be in sync with the entry in applicationContext.xml -->
 		<param name="InvalidJsonBackupStoragePath">
 			<type>String</type>
-			<value>invalidJson</value>
+			<value>storage/invalidJson</value>
 			<constant>INVALID_JSON_BACKUP_STORAGE_PATH</constant>
 		</param>
 		<!-- shall the crawler delete the failsave json files after processing or move the to above configured 2nd directory -->

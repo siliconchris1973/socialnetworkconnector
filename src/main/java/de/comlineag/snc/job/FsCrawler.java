@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
@@ -21,8 +24,10 @@ import org.quartz.JobExecutionException;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.data.PostData;
+import de.comlineag.snc.data.TwitterPostingData;
 import de.comlineag.snc.data.UserData;
 import de.comlineag.snc.handler.DataCryptoHandler;
+import de.comlineag.snc.handler.GenericDataManager;
 import de.comlineag.snc.persistence.HANAPersistence;
 
 /**
@@ -41,10 +46,13 @@ import de.comlineag.snc.persistence.HANAPersistence;
  * 				0.2				skeleton for parsing and passing over
  */
 public class FsCrawler implements Job {
+	private static final CopyOption REPLACE_EXISTING = null;
 	String fileName = null;
 	String JsonBackupStoragePath = "json";
 	String InvalidJsonBackupStoragePath = "invalidJson";
 	String ProcessedJsonBackupStoragePath = "processedJson";
+	Path source = null;
+	Path newdir = null;
 	String MoveOrDeleteProcessedJsonFiles = "move";
 	String fileNamePattern = ".*_fail.json";
     boolean bName = false;
@@ -84,6 +92,13 @@ public class FsCrawler implements Job {
 			
 			for (File f : files) {
 				fileName = f.getName();
+				int first = fileName.indexOf("_");
+				int second = fileName.indexOf("_", first + 1);
+				String entryType = fileName.substring(0, first);
+				
+				// first of all, check if the file really contains any data and if not, discard it
+				if (f.length()<1)
+					f.delete();
 				
 				// the FsCrawler shall only process certain files within the directory, for example
 				// only failed ones, therefore a pattern is retrieved from the xml configuration file e.g. ".*_fail.json"
@@ -94,79 +109,75 @@ public class FsCrawler implements Job {
 					allObjectsCount++;
 					
 					try {
-						parseContent(JsonBackupStoragePath, fileName);
+						// macht ein JSon Decode aus dem uebergebenen String
+						JSONParser parser = new JSONParser();
 						
-						// now, after we processed the saved files, either move or delete it
-						if ("move".equals(MoveOrDeleteProcessedJsonFiles)){
-							logger.debug("moving file " + fileName + " to " + (String) ProcessedJsonBackupStoragePath);
-							File dest = new File(ProcessedJsonBackupStoragePath+File.pathSeparator+fileName);
-							f.renameTo(dest);
-						} else if ("delete".equals(MoveOrDeleteProcessedJsonFiles)){
-							logger.debug("deleting processed file " + fileName);
-							f.delete();
-						} else { 
-							logger.error("invalid configuration parameter for MoveOrDeleteProcessedJsonFiles! Please check applicationContext.xml");
+						// TODO check why the crawler does not work correctly in case the dataCryptoProvider is activated
+						//Object obj = dataCryptoProvider.decryptValue(parser.parse(new FileReader(JsonBackupStoragePath+File.separator+fileName)).toString());
+						Object obj = parser.parse(new FileReader(JsonBackupStoragePath+File.separator+fileName));
+						JSONObject jsonObject = (JSONObject) obj;
+						
+						networkCode = (String) jsonObject.get("sn_id");
+						networkName = SocialNetworks.getSocialNetworkConfigElement("name", networkCode);
+						logger.info("initializing "+networkName+" parser for json "+entryType+" object " + fileName.substring(first+1, second));
+								
+						// currently, the SNC is able to work with two distinct twObject types, users and posts and therefore
+						// we should only encounter files for these two types, if not, someone's playing tricks with us.
+						if ("post".equals(entryType)) {
+							postObjectsCount++;
+							logger.trace("   content of file : " + jsonObject.toString());
+							
+							// now create a new PostData object from the json content of the file
+							setPostDataFromJson(jsonObject);
+							logger.trace(entryType + " data type initialized");
+								
+							// after creating a new PostData object from json content, store it in the persistence layer
+							logger.info("initializing HANA DB to save post");
+							
+							// TODO make this generic for every possible db manager
+							//persistenceManager.savePosts(pData);
+							hana.savePosts(pData);
+						} else if ("user".equals(entryType)) {
+							userObjectsCount++;
+							logger.trace("   content of file : " + jsonObject.toString());
+							
+							// now create a new UserData object from the json content of the file
+							setUserDataFromJson(jsonObject);
+							logger.trace(entryType + " data type initialized");
+							
+							// after creating a new UserData object from json content, store it in the persistence layer
+							hana.saveUsers(uData);
+						} else {
+							logger.warn("unrecognized entry type " + entryType + " encountered - ignoring file " + fileName);
 						}
 					} catch (ParseException e) {
 						logger.warn("could not parse json, moving file " + fileName + " to " + InvalidJsonBackupStoragePath);
-						File dest = new File(InvalidJsonBackupStoragePath+File.pathSeparator+fileName);
-						f.renameTo(dest);
+						if (!f.renameTo(new File(InvalidJsonBackupStoragePath+File.pathSeparator+f.getName())))
+							logger.error("could not move file " + fileName +" to " + (String) InvalidJsonBackupStoragePath);
+					}
+						
+					
+					// now, after we processed the saved files, either move or delete it
+					if ("move".equals(MoveOrDeleteProcessedJsonFiles)){
+						logger.debug("moving file " + fileName + " to " + (String) ProcessedJsonBackupStoragePath);
+						if (!f.renameTo(new File(ProcessedJsonBackupStoragePath+File.pathSeparator+f.getName())))
+							logger.error("could not move file " + fileName +" to " + (String) ProcessedJsonBackupStoragePath);
+					} else if ("delete".equals(MoveOrDeleteProcessedJsonFiles)){
+						logger.debug("deleting processed file " + fileName);
+						f.delete();
+					} else { 
+						logger.error("invalid configuration parameter for MoveOrDeleteProcessedJsonFiles! Please check applicationContext.xml");
 					}
 	            }
 	        }
 		} catch (IOException e) {
 			logger.warn("Could not read file " + fileName + " - " + e.getLocalizedMessage());
-		} catch (GenericCryptoException e) {
-			logger.error("Could not decrypt content of file " + fileName + " - " + e.getLocalizedMessage());
-			e.printStackTrace();
 		}
 		
-		logger.info("FileSystem-Crawler END - processed "+allObjectsCount+" objects (successfully processed "+postObjectsCount+" post(s) and "+userObjectsCount+" user(s))\n");
-	}
-	
-	
-	
-	private void parseContent(String savePoint, String fileName) throws FileNotFoundException, IOException, GenericCryptoException, ParseException {
-		// macht ein JSon Decode aus dem uebergebenen String
-		JSONParser parser = new JSONParser();
-		int first = fileName.indexOf("_");
-		int second = fileName.indexOf("_", first + 1);
-		String entryType = fileName.substring(0, first);
-		
-		// TODO check why the crawler does not work correctly in case the dataCryptoProvider is activated
-		//Object obj = dataCryptoProvider.decryptValue(parser.parse(new FileReader(JsonBackupStoragePath+File.separator+fileName)).toString());
-		Object obj = parser.parse(new FileReader(savePoint+File.separator+fileName));
-		JSONObject jsonObject = (JSONObject) obj;
-		
-		networkCode = (String) jsonObject.get("sn_id");
-		networkName = SocialNetworks.getSocialNetworkConfigElement("name", networkCode);
-		logger.info("initializing "+networkName+" parser for json "+entryType+" object " + fileName.substring(first+1, second));
-				
-		// currently, the SNC is able to work with two distinct twObject types, users and posts and therefore
-		// we should only encounter files for these two types, if not, someone's playing tricks with us.
-		if ("post".equals(entryType)) {
-			postObjectsCount++;
-			logger.trace("   content of file : " + jsonObject.toString());
-			
-			// now create a new PostData object from the json content of the file
-			setPostDataFromJson(jsonObject);
-			logger.trace(entryType + " data type initialized");
-				
-			// after creating a new PostData object from json content, store it in the persistence layer
-			hana.savePosts(pData);
-		} else if ("user".equals(entryType)) {
-			userObjectsCount++;
-			logger.trace("   content of file : " + jsonObject.toString());
-			
-			// now create a new UserData object from the json content of the file
-			setUserDataFromJson(jsonObject);
-			logger.trace(entryType + " data type initialized");
-			
-			// after creating a new UserData object from json content, store it in the persistence layer
-			hana.saveUsers(uData);
-		} else {
-			logger.warn("unrecognized entry type " + entryType + " encountered - ignoring file " + fileName);
-		}
+		if (allObjectsCount >0)
+			logger.info("FileSystem-Crawler END - processed "+allObjectsCount+" objects (successfully processed "+postObjectsCount+" post(s) and "+userObjectsCount+" user(s))\n");
+		else
+			logger.info("FileSystem-Crawler END - no files to process");
 	}
 	
 	

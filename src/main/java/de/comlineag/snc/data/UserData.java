@@ -1,8 +1,5 @@
 package de.comlineag.snc.data;
 
-import java.lang.reflect.Field;
-
-
 /**
  * 
  * @author		Magnus Leinemann, Christian Guenther
