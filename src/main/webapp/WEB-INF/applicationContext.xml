@@ -78,12 +78,12 @@
 					crawlers. The total number of threads must include the number of actual crawlers in
 					this section plus the FsCrawler below and the GeneralConfgurationTrigger - resulting 
 					in number of crawlers plus 2 as the threadcount -->
-				<!-- <ref bean="TwitterCrawlerTrigger" /> -->
+				<ref bean="TwitterCrawlerTrigger" />
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="FinanzforumCrawlerTrigger"/> -->
-				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
+				<ref bean="LithiumCrawlerTrigger" />
 				
 				
 				<!-- FILESYSTEM CRAWLER - SAFEGUARD
@@ -501,7 +501,10 @@
 			<map> 
 				<entry key="fileNamePattern" value=".*_fail.json" />
 				<!-- make absolutely sure, that this entry has the same value in SNC_Runtime_Configuration.xml -->
-				<entry key="JsonBackupStoragePath" value="json"/> 
+				<entry key="JsonBackupStoragePath" value="json"/>
+				<entry key="ProcessedJsonBackupStoragePath" value="processedJson"/>
+				<entry key="InvalidJsonBackupStoragePath" value="invalidJson"/>
+				<entry key="MoveOrDeleteProcessedJsonFiles" value="move"/>
 			</map>
 		</property>
 	</bean>

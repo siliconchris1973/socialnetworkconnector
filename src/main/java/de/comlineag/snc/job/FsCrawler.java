@@ -43,6 +43,9 @@ import de.comlineag.snc.persistence.HANAPersistence;
 public class FsCrawler implements Job {
 	String fileName = null;
 	String JsonBackupStoragePath = "json";
+	String InvalidJsonBackupStoragePath = "invalidJson";
+	String ProcessedJsonBackupStoragePath = "processedJson";
+	String MoveOrDeleteProcessedJsonFiles = "move";
 	String fileNamePattern = ".*_fail.json";
     boolean bName = false;
     int allObjectsCount = 0;
@@ -70,6 +73,9 @@ public class FsCrawler implements Job {
 	public void execute(JobExecutionContext arg0) throws JobExecutionException{
 		logger.info("FileSystem-Crawler START");
 		JsonBackupStoragePath = (String) arg0.getJobDetail().getJobDataMap().get("JsonBackupStoragePath");
+		InvalidJsonBackupStoragePath = (String) arg0.getJobDetail().getJobDataMap().get("InvalidJsonBackupStoragePath");
+		ProcessedJsonBackupStoragePath = (String) arg0.getJobDetail().getJobDataMap().get("ProcessedJsonBackupStoragePath");
+		MoveOrDeleteProcessedJsonFiles = (String) arg0.getJobDetail().getJobDataMap().get("MoveOrDeleteProcessedJsonFiles");
 		fileNamePattern = (String) arg0.getJobDetail().getJobDataMap().get("fileNamePattern");
 		
 		try {
@@ -89,8 +95,22 @@ public class FsCrawler implements Job {
 					
 					try {
 						parseContent(JsonBackupStoragePath, fileName);
+						
+						// now, after we processed the saved files, either move or delete it
+						if ("move".equals(MoveOrDeleteProcessedJsonFiles)){
+							logger.debug("moving file " + fileName + " to " + (String) ProcessedJsonBackupStoragePath);
+							File dest = new File(ProcessedJsonBackupStoragePath+File.pathSeparator+fileName);
+							f.renameTo(dest);
+						} else if ("delete".equals(MoveOrDeleteProcessedJsonFiles)){
+							logger.debug("deleting processed file " + fileName);
+							f.delete();
+						} else { 
+							logger.error("invalid configuration parameter for MoveOrDeleteProcessedJsonFiles! Please check applicationContext.xml");
+						}
 					} catch (ParseException e) {
-						logger.warn("could not parse json, skipping file " + fileName);
+						logger.warn("could not parse json, moving file " + fileName + " to " + InvalidJsonBackupStoragePath);
+						File dest = new File(InvalidJsonBackupStoragePath+File.pathSeparator+fileName);
+						f.renameTo(dest);
 					}
 	            }
 	        }

@@ -60,15 +60,18 @@ public final class RuntimeConfiguration implements Job {
 	private static String configFile = "src/main/webapp/WEB-INF/SNC_Runtime_Configuration.xml";
 	
 	// some important and static runtime informations
-	private static boolean WARN_ON_SIMPLE_CONFIG = true;
-	private static boolean WARN_ON_SIMPLE_XML_CONFIG = true;
-	private static boolean CREATE_POST_JSON_ON_ERROR = true;
-	private static boolean CREATE_USER_JSON_ON_ERROR = true;
-	private static boolean CREATE_POST_JSON_ON_SUCCESS = true;
-	private static boolean CREATE_USER_JSON_ON_SUCCESS = true;
-	private static boolean STOP_SNC_ON_PERSISTENCE_FAILURE = false;
-	
-	private static String JSON_BACKUP_STORAGE_PATH = "./json";
+	private static boolean WARN_ON_SIMPLE_CONFIG 			= true;
+	private static boolean WARN_ON_SIMPLE_XML_CONFIG 		= true;
+	private static boolean CREATE_POST_JSON_ON_ERROR 		= true;
+	private static boolean CREATE_USER_JSON_ON_ERROR 		= true;
+	private static boolean CREATE_POST_JSON_ON_SUCCESS 		= false;
+	private static boolean CREATE_USER_JSON_ON_SUCCESS 		= false;
+	private static boolean STOP_SNC_ON_PERSISTENCE_FAILURE 	= false;
+	// how to process json files
+	private static String JSON_BACKUP_STORAGE_PATH 				= "json";
+	private static String PROCESSED_JSON_BACKUP_STORAGE_PATH 	= "processedJson";
+	private static String INVALID_JSON_BACKUP_STORAGE_PATH 		= "invalidJson";
+	private static String MOVE_OR_DELETE_PROCESSED_JSON_FILES 	= "move";
 	
 	// these values are section names within the configuration db 
 	private static String CONSTRAINT_TERM_TEXT				= "term";
@@ -206,6 +209,30 @@ public final class RuntimeConfiguration implements Job {
 				logger.warn("Did not receive any information for JSON_BACKUP_STORAGE_PATH from " + configFile + " using expression " + expression);
 			} else {
 				setJSON_BACKUP_STORAGE_PATH(node.getTextContent());
+			}
+			// PROCESSED_JSON_BACKUP_STORAGE_PATH
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='ProcessedJsonBackupStoragePath']/"+valueIdentifier;
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("Did not receive any information for PROCESSED_JSON_BACKUP_STORAGE_PATH from " + configFile + " using expression " + expression);
+			} else {
+				setPROCESSED_JSON_BACKUP_STORAGE_PATH(node.getTextContent());
+			}
+			// INVALID_JSON_BACKUP_STORAGE_PATH
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='InvalidJsonBackupStoragePath']/"+valueIdentifier;
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("Did not receive any information for INVALID_JSON_BACKUP_STORAGE_PATH from " + configFile + " using expression " + expression);
+			} else {
+				setINVALID_JSON_BACKUP_STORAGE_PATH(node.getTextContent());
+			}
+			// MOVE_OR_DELETE_PROCESSED_JSON_FILES
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='MoveOrDeleteProcessedJsonFiles']/"+valueIdentifier;
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("Did not receive any information for MOVE_OR_DELETE_PROCESSED_JSON_FILES from " + configFile + " using expression " + expression);
+			} else {
+				setMOVE_OR_DELETE_PROCESSED_JSON_FILES(node.getTextContent());
 			}
 			
 			// STOP_SNC_ON_PERSISTENCE_FAILURE
@@ -505,9 +532,33 @@ public final class RuntimeConfiguration implements Job {
 	public static String getJSON_BACKUP_STORAGE_PATH() {
 		return JSON_BACKUP_STORAGE_PATH;
 	}
-
 	public static void setJSON_BACKUP_STORAGE_PATH(
 			String jSON_BACKUP_STORAGE_PATH) {
 		JSON_BACKUP_STORAGE_PATH = jSON_BACKUP_STORAGE_PATH;
+	}
+	public static String getPROCESSED_JSON_BACKUP_STORAGE_PATH() {
+		return PROCESSED_JSON_BACKUP_STORAGE_PATH;
+	}
+	public static void setPROCESSED_JSON_BACKUP_STORAGE_PATH(
+			String pROCESSED_JSON_BACKUP_STORAGE_PATH) {
+		PROCESSED_JSON_BACKUP_STORAGE_PATH = pROCESSED_JSON_BACKUP_STORAGE_PATH;
+	}
+
+	public static String getMOVE_OR_DELETE_PROCESSED_JSON_FILES() {
+		return MOVE_OR_DELETE_PROCESSED_JSON_FILES;
+	}
+
+	public static void setMOVE_OR_DELETE_PROCESSED_JSON_FILES(
+			String mOVE_OR_DELETE_PROCESSED_JSON_FILES) {
+		MOVE_OR_DELETE_PROCESSED_JSON_FILES = mOVE_OR_DELETE_PROCESSED_JSON_FILES;
+	}
+
+	public static String getINVALID_JSON_BACKUP_STORAGE_PATH() {
+		return INVALID_JSON_BACKUP_STORAGE_PATH;
+	}
+
+	public static void setINVALID_JSON_BACKUP_STORAGE_PATH(
+			String iNVALID_JSON_BACKUP_STORAGE_PATH) {
+		INVALID_JSON_BACKUP_STORAGE_PATH = iNVALID_JSON_BACKUP_STORAGE_PATH;
 	}
 }

@@ -60,6 +60,24 @@
 			<value>json</value>
 			<constant>JSON_BACKUP_STORAGE_PATH</constant>
 		</param>
+		<!-- the path to the directory under which to save processed json-files (files processed by FsCrawler) - must be in sync with the entry in applicationContext.xml -->
+		<param name="ProcessedJsonBackupStoragePath">
+			<type>String</type>
+			<value>processedJson</value>
+			<constant>PROCESSED_JSON_BACKUP_STORAGE_PATH</constant>
+		</param>
+		<!-- the path to the directory under which to store invalid json-files - must be in sync with the entry in applicationContext.xml -->
+		<param name="InvalidJsonBackupStoragePath">
+			<type>String</type>
+			<value>invalidJson</value>
+			<constant>INVALID_JSON_BACKUP_STORAGE_PATH</constant>
+		</param>
+		<!-- shall the crawler delete the failsave json files after processing or move the to above configured 2nd directory -->
+		<param name="MoveOrDeleteProcessedJsonFiles">
+			<type>String</type>
+			<value>move</value>
+			<constant>MOVE_OR_DELETE_PROCESSED_JSON_FILES</constant>
+		</param>
 		
 		<!-- stop the SNC in case connecting to persistence fails and is thus unable to save posts and users?
 			 Consequently, setting this to true is only useful, in case you do not setup the FsCrawler (see

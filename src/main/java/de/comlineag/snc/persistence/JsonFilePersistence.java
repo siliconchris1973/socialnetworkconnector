@@ -136,13 +136,15 @@ public class JsonFilePersistence implements IPersistenceManager {
 		if (objectStatusPriorSaving == null)
 			objectStatusPriorSaving = "ok";
 		
+		String fileName = objectTypeToSave+"_"+userData.getSnId()+"-"+userData.getId()+"_"+objectStatusPriorSaving+".json";
+		
 		// first check if the entry already exists
-		File f1 = new File(savePoint+File.separator+objectTypeToSave+"_"+userData.getSnId()+"-"+userData.getId()+"_"+objectStatusPriorSaving+".json");
+		File f1 = new File(savePoint+File.separator+fileName);
 		if (!f1.isFile() || f1.getTotalSpace()<1) {
 			
 			FileWriter file;
 			try {
-				file = new FileWriter(savePoint+File.separator+objectTypeToSave+"_"+userData.getSnId()+"-"+userData.getId()+"_"+objectStatusPriorSaving+".json");
+				file = new FileWriter(savePoint+File.separator+fileName);
 				
 				JSONObject obj = new JSONObject();
 				obj.put("sn_id", userData.getSnId());
@@ -158,7 +160,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 				obj.put("listsAndGroupsCount", new Long(userData.getListsAndGroupsCount()).toString());
 							
 				file.write(dataCryptoProvider.encryptValue(obj.toJSONString()));
-				logger.info("Successfully copied JSON user object for "+userData.getSnId()+"-"+userData.getId()+" to File...");
+				logger.info("Successfully copied JSON user object for "+userData.getSnId()+"-"+userData.getId()+" to file " + fileName);
 		        
 		        file.flush();
 				file.close();
@@ -168,7 +170,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 				le.printStackTrace();
 			}
 		} else {
-			logger.debug("the file "+objectTypeToSave+"_"+userData.getSnId()+"-"+userData.getId()+"_"+objectStatusPriorSaving+".json"+" already exists - not saving");
+			logger.debug("the file "+fileName+" already exists - not saving");
 		}
 	}
 
@@ -184,12 +186,14 @@ public class JsonFilePersistence implements IPersistenceManager {
 		if (objectStatusPriorSaving == null)
 			objectStatusPriorSaving = "ok";
 		
-		File f1 = new File(savePoint+File.separator+objectTypeToSave+"_"+postData.getSnId()+"-"+postData.getId()+"_"+objectStatusPriorSaving+".json");
+		String fileName = objectTypeToSave+"_"+postData.getSnId()+"-"+postData.getId()+"_"+objectStatusPriorSaving+".json";
+		
+		File f1 = new File(savePoint+File.separator+fileName);
 		if (!f1.isFile() || f1.getTotalSpace()<1) {
 			
 			FileWriter file;
 			try {
-				file = new FileWriter(savePoint+File.separator+objectTypeToSave+"_"+postData.getSnId()+"-"+postData.getId()+"_"+objectStatusPriorSaving+".json");
+				file = new FileWriter(savePoint+File.separator+fileName);
 				
 				JSONObject obj = new JSONObject();
 				obj.put("sn_id", postData.getSnId());
@@ -222,7 +226,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 				obj.put("plAround_latitude", postData.getGeoAroundLatitude());
 				
 				file.write(dataCryptoProvider.encryptValue(obj.toJSONString()));
-		        logger.info("Successfully copied JSON post object for "+postData.getSnId()+"-"+postData.getId()+" to File...");
+		        logger.info("Successfully copied JSON post object for "+postData.getSnId()+"-"+postData.getId()+" to file " + fileName);
 		        
 		        file.flush();
 				file.close();
@@ -232,7 +236,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 				le.printStackTrace();
 			}
 		} else {
-			logger.debug("the file "+objectTypeToSave+"_"+postData.getSnId()+"-"+postData.getId()+"_"+objectStatusPriorSaving+".json"+" already exists - not saving");
+			logger.debug("the file "+fileName+" already exists - not saving");
 		}
 	}
 }
