@@ -16,6 +16,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
 	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
 	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
                            http://www.springframework.org/schema/beans/spring-beans.xsd
@@ -24,9 +25,10 @@
                            http://www.springframework.org/schema/jdbc 
                            http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
                            http://www.springframework.org/schema/tx
-                           http://www.springframework.org/schema/tx/spring-tx.xsd">
-	
-	
+                           http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/util 
+                           http://www.springframework.org/schema/util/spring-util.xsd">
+                          
 	<!-- Activate Spring annotation support -->
 	<context:annotation-config />
 		<context:component-scan base-package="de.comlineag.snc.appstate" />
@@ -42,6 +44,20 @@
 	
 	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.appstate.ApplicationContextProvider"></bean>
 	
+	
+	<!-- Quartz scheduler properties 
+		 these entries are needed for the JMX Access to the Job Factory, 
+		 so that the job state can be monitored by the administration website -->
+	<bean id="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="quartzProperties"> 
+			<util:properties>
+				<!-- Must be set to true, otherwise the Quartz scheduler is not registered in the JMX server. -->
+				<prop key="org.quartz.scheduler.jmx.export">true</prop>
+				<!-- JMX object name the Quartz scheduler is registered under in the JMX server. -->
+				<prop key="org.quartz.scheduler.jmx.objectName"> quartz:type=QuartzScheduler,name=SNC</prop>
+			</util:properties>
+  		</property>
+	</bean>
 	
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 	     J O B    C O N T R O L    S E T T I N G S  -  J O B    C O N T R O L    S E T
@@ -286,7 +302,7 @@
 		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR EITHER CUSTOMER OR DOMAIN) -->
 <!-- 
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.DomainConfigurationPersistence"> 
-		<property name="configDbHandler" value="src/main/webapp/WEB-INF/SNC_Crawler_Configuration/DomainWithCustomerCrawlerConfiguration.xml" /> 
+		<property name="configDbHandler" value="webapp/WEB-INF/SNC_Crawler_Configuration/DomainWithCustomerCrawlerConfiguration.xml" /> 
 	</bean> 
 -->
 	
@@ -294,14 +310,14 @@
 		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR EITHER CUSTOMER OR DOMAIN) -->
  
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.ComplexXmlConfigurationPersistence"> 
-		<property name="configDbHandler" value="src/main/webapp/WEB-INF/SNC_Crawler_Configuration/CortalConsorsSpecificCrawlerConfiguration.xml" />
+		<property name="configDbHandler" value="webapp/WEB-INF/SNC_Crawler_Configuration/CortalConsorsSpecificCrawlerConfiguration.xml" />
 	</bean> 
 	
 	<!-- this is the bean to get the crawler configuration from a simple xml file 
 		(WORKS BUT NO CUSTOMER SPECIFIC CONFIGURATION POSSIBLE)	-->
 <!-- 
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.SimpleXmlConfigurationPersistence"> 
-		<property name="configDbHandler" value="src/main/webapp/WEB-INF/SNC_Crawler_Configuration/SimpleCrawlerConfiguration.xml" /> 
+		<property name="configDbHandler" value="webapp/WEB-INF/SNC_Crawler_Configuration/SimpleCrawlerConfiguration.xml" /> 
 	</bean>
 -->
 	 
@@ -309,7 +325,7 @@
 		(WORKS WITH RESTRICTIONS - NO CUSTOMER AND NO CRAWLER SPECIFIC CONFIGURATION POSSIBLE) -->
 <!-- 
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.IniFileConfigurationPersistence">
-		<property name="configDbHandler" value="src/main/webapp/WEB-INF/SNC_Crawler_Configuration/CrawlerConfiguration.ini" />
+		<property name="configDbHandler" value="webapp/WEB-INF/SNC_Crawler_Configuration/CrawlerConfiguration.ini" />
 	</bean>
  -->
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -525,7 +541,7 @@
 		<!-- <property name="Singleton" value="true"/> -->
 		<property name="jobDataAsMap">
 			<map>
-				<entry key="configFile" value="src/main/webapp/WEB-INF/SNC_Runtime_Configuration.xml" />
+				<entry key="configFile" value="webapp/WEB-INF/SNC_Runtime_Configuration.xml" />
 			</map>
 		</property>
 	</bean>

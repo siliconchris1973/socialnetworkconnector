@@ -1,10 +1,11 @@
-install glassfish 4.0
+install Apache Tomcat AS 6, 7 or 8
 
-set CDI-param
-bin/asadmin set configs.config.server-config.cdi-service.enable-implicit-cdi=false
+set runtime parameter for JMX Access in Tomcat:
+CATALINA_OPTS="${CATALINA_OPTS} -Djava.rmi.server.hostname=JMX_HOST" CATALINA_OPTS="${CATALINA_OPTS} -Djavax.management.builder.initial=" CATALINA_OPTS="${CATALINA_OPTS} -Dcom.sun.management.jmxremote=true" CATALINA_OPTS="${CATALINA_OPTS} -Dcom.sun.management.jmxremote.port=JMX_PORT" CATALINA_OPTS="${CATALINA_OPTS} -Dcom.sun.management.jmxremote.ssl=false" CATALINA_OPTS="${CATALINA_OPTS} -Dcom.sun.management.jmxremote.authenticate=false"
 
-copy xerces libs to glassfish
-cp <your m2 directory>/repository/xerces/xercesImpl/2.11.0/xercesImpl-2.11.0.jar /opt/glassfish4/glassfish/domains/domain1/lib/ext/
+register quartz scheduler in JMX
+edit quartz.properties and add:
+org.quartz.scheduler.jmx.export = true
+org.quartz.scheduler.jmx.objectName = de.comlineag.snc.job.MasterControlProgram:type=MCP,name=1
 
-cp <your m2 directory>/repository/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2.jar /opt/glassfish4/glassfish/domains/domain1/lib/ext/
-
+deploy war file to AS

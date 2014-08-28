@@ -1,14 +1,9 @@
 package de.comlineag.snc.job;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.CopyOption;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,12 +17,9 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import de.comlineag.snc.constants.SocialNetworks;
-import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.data.PostData;
-import de.comlineag.snc.data.TwitterPostingData;
 import de.comlineag.snc.data.UserData;
 import de.comlineag.snc.handler.DataCryptoHandler;
-import de.comlineag.snc.handler.GenericDataManager;
 import de.comlineag.snc.persistence.HANAPersistence;
 
 /**
@@ -46,7 +38,6 @@ import de.comlineag.snc.persistence.HANAPersistence;
  * 				0.2				skeleton for parsing and passing over
  */
 public class FsCrawler implements Job {
-	private static final CopyOption REPLACE_EXISTING = null;
 	String fileName = null;
 	String JsonBackupStoragePath = "json";
 	String InvalidJsonBackupStoragePath = "invalidJson";
@@ -135,7 +126,6 @@ public class FsCrawler implements Job {
 							logger.info("initializing HANA DB to save post");
 							
 							// TODO make this generic for every possible db manager
-							//persistenceManager.savePosts(pData);
 							hana.savePosts(pData);
 						} else if ("user".equals(entryType)) {
 							userObjectsCount++;

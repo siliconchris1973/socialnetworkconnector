@@ -36,7 +36,7 @@ public final class HanaConfiguration {
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
-	private static String configFile = "src/main/webapp/WEB-INF/SNC_HANA_Configuration.xml";
+	private static String configFile = "webapp/WEB-INF/SNC_HANA_Configuration.xml";
 	
 	private static String PATH_TO_TABLES = "comline.saa.data.tables";
 	private static String SCHEMA_NAME = "CL_SAA";
