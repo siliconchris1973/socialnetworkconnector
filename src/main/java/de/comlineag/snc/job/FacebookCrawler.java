@@ -41,7 +41,8 @@ import de.comlineag.snc.handler.FacebookParser;
  */
 @DisallowConcurrentExecution 
 public class FacebookCrawler extends GenericCrawler implements Job {
-
+	private static String CRAWLER_NAME="FACEBOOK";
+	
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
@@ -68,7 +69,7 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
-		configurationScope.put((String) "SN_ID", (String) "\""+SocialNetworks.getSocialNetworkConfigElement("code", "FACEBOOK")+"\"");
+		configurationScope.put((String) "SN_ID", (String) "\""+SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME)+"\"");
 				
 		// set the customer we start the crawler for
 		String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());		

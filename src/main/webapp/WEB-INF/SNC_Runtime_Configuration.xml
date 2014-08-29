@@ -54,22 +54,28 @@
 			<value>false</value>
 			<constant>CREATE_USER_JSON_ON_SUCCESS</constant>
 		</param>
+		<!-- a storage directory under which the json files are stored in the below defined directories - must be in sync with the entry in applicationContext.xml -->
+		<param name="StoragePath">
+			<type>String</type>
+			<value>storage</value>
+			<constant>STORAGE_PATH</constant>
+		</param>
 		<!-- the path to the directory under which to save the json-files - must be in sync with the entry in applicationContext.xml -->
 		<param name="JsonBackupStoragePath">
 			<type>String</type>
-			<value>storage/json</value>
+			<value>json</value>
 			<constant>JSON_BACKUP_STORAGE_PATH</constant>
 		</param>
 		<!-- the path to the directory under which to save processed json-files (files processed by FsCrawler) - must be in sync with the entry in applicationContext.xml -->
 		<param name="ProcessedJsonBackupStoragePath">
 			<type>String</type>
-			<value>storage/processedJson</value>
+			<value>processedJson</value>
 			<constant>PROCESSED_JSON_BACKUP_STORAGE_PATH</constant>
 		</param>
 		<!-- the path to the directory under which to store invalid json-files - must be in sync with the entry in applicationContext.xml -->
 		<param name="InvalidJsonBackupStoragePath">
 			<type>String</type>
-			<value>storage/invalidJson</value>
+			<value>invalidJson</value>
 			<constant>INVALID_JSON_BACKUP_STORAGE_PATH</constant>
 		</param>
 		<!-- shall the crawler delete the failsave json files after processing or move the to above configured 2nd directory -->
@@ -106,7 +112,8 @@
 		 Failing to do so could lead to a situation where two Lithium networks are crawled and both try to insert 
 		 a post with the same combination of code and id - say CC-1295 for example. -->
 	<configuration scope="socialNetworkDefinition">
-		<!-- change this code for every customer -->
+		<!-- THE LITHIUM NETWORK - 
+			change this code for every customer -->
 		<network name="CC"><name>LITHIUM</name></network>
 		<network name="LITHIUM">
 			<!-- change this code for every customer -->
@@ -119,6 +126,7 @@
 			<supported>YES</supported>
 		</network>
 		
+		<!-- FINANZFORUM - currently undefined and not used -->
 		<network name="FI"><name>FINAZFORUM</name></network>
 		<network name="FINANZFORUM">
 			<code>FI</code>
@@ -126,6 +134,16 @@
 			<description>Finanzforum</description>
 			<domain>bugmenot.com</domain>
 			<supported>NO</supported>
+		</network>
+		
+		<!-- WALLSTREET ONLINE - a financial oriented discussion and news forum -->
+		<network name="WS"><name>WALLSTREETONLINE</name></network>
+		<network name="WALLSTREETONLINE">
+			<code>WS</code>
+			<name>Wallstreet-Online</name>
+			<description>Wallstreet Online - a financial oriented discussion and news forum</description>
+			<domain>https://www.wallstreet-online.de</domain>
+			<supported>YES</supported>
 		</network>
 		
 		

@@ -57,7 +57,7 @@ public final class RuntimeConfiguration implements Job {
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
-	private static String configFile = "src/main/webapp/WEB-INF/SNC_Runtime_Configuration.xml";
+	private static String configFile = "webapp/WEB-INF/SNC_Runtime_Configuration.xml";
 	
 	// some important and static runtime informations
 	private static boolean WARN_ON_SIMPLE_CONFIG 			= true;
@@ -67,7 +67,8 @@ public final class RuntimeConfiguration implements Job {
 	private static boolean CREATE_POST_JSON_ON_SUCCESS 		= false;
 	private static boolean CREATE_USER_JSON_ON_SUCCESS 		= false;
 	private static boolean STOP_SNC_ON_PERSISTENCE_FAILURE 	= false;
-	// how to process json files
+	// where to store and how to process json files
+	private static String STORAGE_PATH 							= "storage";
 	private static String JSON_BACKUP_STORAGE_PATH 				= "json";
 	private static String PROCESSED_JSON_BACKUP_STORAGE_PATH 	= "processedJson";
 	private static String INVALID_JSON_BACKUP_STORAGE_PATH 		= "invalidJson";
@@ -201,6 +202,14 @@ public final class RuntimeConfiguration implements Job {
 					setCREATE_USER_JSON_ON_SUCCESS(true);
 				else
 					setCREATE_USER_JSON_ON_SUCCESS(false);
+			}
+			// STORAGE_PATH
+			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='StoragePath']/"+valueIdentifier;
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("Did not receive any information for STORAGE_PATH from " + configFile + " using expression " + expression);
+			} else {
+				setSTORAGE_PATH(node.getTextContent());
 			}
 			// JSON_BACKUP_STORAGE_PATH
 			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='JsonBackupStoragePath']/"+valueIdentifier;
@@ -560,5 +569,13 @@ public final class RuntimeConfiguration implements Job {
 	public static void setINVALID_JSON_BACKUP_STORAGE_PATH(
 			String iNVALID_JSON_BACKUP_STORAGE_PATH) {
 		INVALID_JSON_BACKUP_STORAGE_PATH = iNVALID_JSON_BACKUP_STORAGE_PATH;
+	}
+
+	public static String getSTORAGE_PATH() {
+		return STORAGE_PATH;
+	}
+
+	public static void setSTORAGE_PATH(String sTORAGE_PATH) {
+		STORAGE_PATH = sTORAGE_PATH;
 	}
 }

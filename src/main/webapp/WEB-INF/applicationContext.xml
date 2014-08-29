@@ -176,15 +176,15 @@
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map>
-				<!-- These are security tokens -->
+				<!-- These are security tokens - not used -->
 				<entry key="consumerKey" value="" />
 				<entry key="consumerSecret" value="" />
 				<entry key="token" value="" />
 				<entry key="tokenSecret" value="" />
 				
 				<!-- login settings - are encrypted using base64 -->
-				<entry key="user" value="Y21yYWw=" />
-				<entry key="passwd" value="MTIzVGVzdDEyMw==" />
+				<entry key="user" value="Y21yYWw=" />			<!-- cmral -->
+				<entry key="passwd" value="MTIzVGVzdDEyMw==" />	<!-- 123Test123 -->
 				
 				<!-- with these entries the url to the communities' rest api is generated -->
 				<entry key="protocol" value="https" />
@@ -201,6 +201,36 @@
 		<property name="repeatInterval" value="150000" />
 	</bean>
 	
+	
+	<!-- W A L L S T R E E T - O N L I N E    C R A W L E R    (IN DEVELOPMENT) 
+	<bean name="WallstreetOnlineCrawlerDetail"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="de.comlineag.snc.job.WallstreetOnlineCrawler" />
+		<property name="durability" value="true" />
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="consumerKey" value="" />
+				<entry key="consumerSecret" value="" />
+				<entry key="token" value="" />
+				<entry key="tokenSecret" value="" />
+				
+				<entry key="user" value="Y29taW5lMjAxNA==" />
+				<entry key="passwd" value="TUd1LTZ0Yy1BUjUtdTdS" />
+				
+				<entry key="protocol" value="https" />
+				<entry key="port" value="443" />
+				<entry key="server_url" value="www.wallstreet-online.de" />
+				<entry key="rest_api_loc" value="/restapi/vc" />
+			</map>
+		</property>
+	</bean>
+	<bean id="LithiumCrawlerTrigger"
+		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="LithiumCrawlerDetail" />
+		<property name="startDelay" value="2000" />
+		<property name="repeatInterval" value="150000" />
+	</bean>
+	-->
 	
 	<!-- F A C E B O O K    C R A W L E R    (TO BE IMPLEMENTED) -->
 	<bean name="FacebookCrawlerDetail"
@@ -516,10 +546,11 @@
 		<property name="jobDataAsMap">
 			<map> 
 				<entry key="fileNamePattern" value=".*_fail.json" />
-				<!-- make absolutely sure, that this entry has the same value in SNC_Runtime_Configuration.xml -->
-				<entry key="JsonBackupStoragePath" value="storage/json"/>
-				<entry key="ProcessedJsonBackupStoragePath" value="storage/processedJson"/>
-				<entry key="InvalidJsonBackupStoragePath" value="storage/invalidJson"/>
+				<!-- make absolutely sure, that these entries are in sync with SNC_Runtime_Configuration.xml -->
+				<entry key="StoragePath" value="storage"/>
+				<entry key="JsonBackupStoragePath" value="json"/>
+				<entry key="ProcessedJsonBackupStoragePath" value="processedJson"/>
+				<entry key="InvalidJsonBackupStoragePath" value="invalidJson"/>
 				<entry key="MoveOrDeleteProcessedJsonFiles" value="move"/>
 			</map>
 		</property>

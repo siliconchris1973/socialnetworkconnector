@@ -40,7 +40,7 @@ import de.comlineag.snc.handler.DataCryptoHandler;
 public class JsonFilePersistence implements IPersistenceManager {
 	
 	// define where and the files shall be saved
-	private String savePoint = RuntimeConfiguration.getJSON_BACKUP_STORAGE_PATH();
+	private String savePoint = RuntimeConfiguration.getSTORAGE_PATH()+System.getProperty("file.separator")+RuntimeConfiguration.getJSON_BACKUP_STORAGE_PATH();
 	private String objectStatusPriorSaving; // was storing of the object prior saving to disk (e.g. n a db) successful (ok) or not (fail)
 	private String objectTypeToSave;		// can either be user or post
 	
@@ -110,10 +110,10 @@ public class JsonFilePersistence implements IPersistenceManager {
 		FileWriter file;
 		try {
 			// only save the file, if it does not exist already
-			File f1 = new File(savePoint+File.separator+fileName);
+			File f1 = new File(savePoint+System.getProperty("file.separator")+fileName);
 			if (!f1.isFile()) {
 				logger.info("saving json file " + fileName);
-				file = new FileWriter(savePoint+File.separator+fileName);
+				file = new FileWriter(savePoint+System.getProperty("file.separator")+fileName);
 				file.write(dataCryptoProvider.encryptValue(json.toJSONString()));
 				file.flush();
 				file.close();
@@ -139,12 +139,12 @@ public class JsonFilePersistence implements IPersistenceManager {
 		String fileName = objectTypeToSave+"_"+userData.getSnId()+"-"+userData.getId()+"_"+objectStatusPriorSaving+".json";
 		
 		// first check if the entry already exists
-		File f1 = new File(savePoint+File.separator+fileName);
+		File f1 = new File(savePoint+System.getProperty("file.separator")+fileName);
 		if (!f1.isFile() || f1.getTotalSpace()<1) {
 			
 			FileWriter file;
 			try {
-				file = new FileWriter(savePoint+File.separator+fileName);
+				file = new FileWriter(savePoint+System.getProperty("file.separator")+fileName);
 				
 				JSONObject obj = new JSONObject();
 				obj.put("sn_id", userData.getSnId());
@@ -188,12 +188,12 @@ public class JsonFilePersistence implements IPersistenceManager {
 		
 		String fileName = objectTypeToSave+"_"+postData.getSnId()+"-"+postData.getId()+"_"+objectStatusPriorSaving+".json";
 		
-		File f1 = new File(savePoint+File.separator+fileName);
+		File f1 = new File(savePoint+System.getProperty("file.separator")+fileName);
 		if (!f1.isFile() || f1.getTotalSpace()<1) {
 			
 			FileWriter file;
 			try {
-				file = new FileWriter(savePoint+File.separator+fileName);
+				file = new FileWriter(savePoint+System.getProperty("file.separator")+fileName);
 				
 				JSONObject obj = new JSONObject();
 				obj.put("sn_id", postData.getSnId());

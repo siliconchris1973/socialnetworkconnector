@@ -13,11 +13,10 @@
 
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 	<!-- 
-		This is the logging configuration file for SNC - it can (if configured) log
-					all job logs to comlineag-loggerSNC.log 
-					all persistence logs to comlineag-loggerSNC_Persistence.log 
-					all Twitter logs to comlineag-loggerSNC_Twitter.log 
-					all Http logs to comlineag-loggerSNC_Http.log 
+		This is the logging configuration file for SNC - it logs 
+					all SNC related log information to comlineag-loggerSNC.log
+					all Spring job logs to comlineag-loggerSNC_Job.log 
+					all Apache and Http logs to comlineag-loggerSNC_Http.log 
 	-->
 
 	<!-- console logging -->
@@ -30,7 +29,7 @@
 
 	<!-- standard logfile -->
 	<appender name="fileA" class="org.apache.log4j.FileAppender">
-		<param name="File" value="./logs/comlineag-loggerSNC.log" />
+		<param name="File" value="logs/comlineag-loggerSNC.log" />
 		<!-- <param name="Threshold" value="WARN"/> -->
 		<layout class="org.apache.log4j.PatternLayout">
 			<!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> -->
@@ -39,16 +38,7 @@
 	</appender>
 	<!-- Job logfile -->
 	<appender name="fileJ" class="org.apache.log4j.FileAppender">
-		<param name="File" value="./logs/comlineag-loggerSNC_Job.log" />
-		<!-- <param name="Threshold" value="WARN"/> -->
-		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n" />
-			<!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> -->
-		</layout>
-	</appender>
-	<!-- Persistence logfile -->
-	<appender name="fileP" class="org.apache.log4j.FileAppender">
-		<param name="File" value="./logs/comlineag-loggerSNC_Persistence.log" />
+		<param name="File" value="logs/comlineag-loggerSNC_Job.log" />
 		<!-- <param name="Threshold" value="WARN"/> -->
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n" />
@@ -57,7 +47,7 @@
 	</appender>
 	<!-- http logfile -->
 	<appender name="fileH" class="org.apache.log4j.FileAppender">
-		<param name="File" value="./logs/comlineag-loggerSNC_Http.log" />
+		<param name="File" value="logs/comlineag-loggerSNC_Http.log" />
 		<!-- <param name="Threshold" value="WARN"/> -->
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n" />
@@ -90,33 +80,4 @@
 		<appender-ref ref="console" />
 		<appender-ref ref="fileH" />
 	</logger>
-	
-	<!-- Handler logging -->
-	<!--  
-	<logger name = "de.comlineag.snc.handler"> 
-		<level value = "trace"></level> 
-		<appender-ref ref="fileH" /> 
-	</logger> 
-	-->
-	<!-- persistence logging -->
-	<!--  
-	<logger name = "de.comlineag.snc.persistence"> 
-		<level value = "trace"></level> 
-		<appender-ref ref="fileP" /> 
-	</logger> 
-	-->
-	<!-- data logging -->
-	<!-- 
-	<logger name = "de.comlineag.snc.data"> 
-		<level value = "trace"></level> 
-		<appender-ref ref="fileD" /> 
-	</logger> 
-	-->
-	<!-- job logging -->
-	<!-- 
-	<logger name = "de.comlineag.snc.job"> 
-		<level value = "trace"></level> 
-		<appender-ref ref="fileJ" /> 
-	</logger> 
-	-->
 </log4j:configuration>

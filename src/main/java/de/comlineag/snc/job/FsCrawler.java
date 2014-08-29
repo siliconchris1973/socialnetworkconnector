@@ -55,7 +55,7 @@ public class FsCrawler implements Job {
     PostData pData = new PostData();
     UserData uData = new UserData();
     HANAPersistence hana = new HANAPersistence();
-	
+    
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
@@ -71,9 +71,9 @@ public class FsCrawler implements Job {
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException{
 		logger.info("FileSystem-Crawler START");
-		JsonBackupStoragePath = (String) arg0.getJobDetail().getJobDataMap().get("JsonBackupStoragePath");
-		InvalidJsonBackupStoragePath = (String) arg0.getJobDetail().getJobDataMap().get("InvalidJsonBackupStoragePath");
-		ProcessedJsonBackupStoragePath = (String) arg0.getJobDetail().getJobDataMap().get("ProcessedJsonBackupStoragePath");
+		JsonBackupStoragePath = (String) arg0.getJobDetail().getJobDataMap().get("StoragePath")+System.getProperty("file.separator")+arg0.getJobDetail().getJobDataMap().get("JsonBackupStoragePath");
+		InvalidJsonBackupStoragePath = (String) arg0.getJobDetail().getJobDataMap().get("StoragePath")+System.getProperty("file.separator")+(String) arg0.getJobDetail().getJobDataMap().get("InvalidJsonBackupStoragePath");
+		ProcessedJsonBackupStoragePath = (String) arg0.getJobDetail().getJobDataMap().get("StoragePath")+System.getProperty("file.separator")+(String) arg0.getJobDetail().getJobDataMap().get("ProcessedJsonBackupStoragePath");
 		MoveOrDeleteProcessedJsonFiles = (String) arg0.getJobDetail().getJobDataMap().get("MoveOrDeleteProcessedJsonFiles");
 		fileNamePattern = (String) arg0.getJobDetail().getJobDataMap().get("fileNamePattern");
 		
@@ -142,7 +142,7 @@ public class FsCrawler implements Job {
 						}
 					} catch (ParseException e) {
 						logger.warn("could not parse json, moving file " + fileName + " to " + InvalidJsonBackupStoragePath);
-						if (!f.renameTo(new File(InvalidJsonBackupStoragePath+File.pathSeparator+f.getName())))
+						if (!f.renameTo(new File(InvalidJsonBackupStoragePath+System.getProperty("file.separator")+f.getName())))
 							logger.error("could not move file " + fileName +" to " + (String) InvalidJsonBackupStoragePath);
 					}
 						
@@ -150,7 +150,7 @@ public class FsCrawler implements Job {
 					// now, after we processed the saved files, either move or delete it
 					if ("move".equals(MoveOrDeleteProcessedJsonFiles)){
 						logger.debug("moving file " + fileName + " to " + (String) ProcessedJsonBackupStoragePath);
-						if (!f.renameTo(new File(ProcessedJsonBackupStoragePath+File.pathSeparator+f.getName())))
+						if (!f.renameTo(new File(ProcessedJsonBackupStoragePath+System.getProperty("file.separator")+f.getName())))
 							logger.error("could not move file " + fileName +" to " + (String) ProcessedJsonBackupStoragePath);
 					} else if ("delete".equals(MoveOrDeleteProcessedJsonFiles)){
 						logger.debug("deleting processed file " + fileName);
