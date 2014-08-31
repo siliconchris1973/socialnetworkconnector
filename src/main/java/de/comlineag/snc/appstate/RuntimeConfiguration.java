@@ -5,8 +5,10 @@ import java.io.IOException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.log4j.Logger;
@@ -18,6 +20,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import de.comlineag.snc.constants.SocialNetworks;
 
@@ -109,13 +112,17 @@ public final class RuntimeConfiguration implements Job {
 		setConfigFile((String) arg0.getJobDetail().getJobDataMap().get("configFile"));
 		logger.debug("setting global configuration parameters using configuration file " + arg0.getJobDetail().getJobDataMap().get("configFile") + " from job control");
 		
-		// set the configuration scope in globally available variables
+		// set the xml layout
 		setXmlLayout();
+		// set the runtime configuration 
 		setRuntimeConfiguration();
+		// instantiate the social networks class
+		SocialNetworks sn = SocialNetworks.getInstance();
 	}
 	
+	
 	private void setRuntimeConfiguration(){
-		logger.trace("setting runtime definitions ...");
+		String debugMsg = null;
 		
 		try {
 			File file = new File(getConfigFile());
@@ -127,156 +134,64 @@ public final class RuntimeConfiguration implements Job {
 			XPathFactory xPathfactory = XPathFactory.newInstance();
 			XPath xpath = xPathfactory.newXPath();
 			
-			String expression = null;
-			Node node = null; 
 			
 			// set boolean values of runtime environment
 			// WarnOnSimpleConfig
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='WarnOnSimpleConfigOption']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for WarnOnSimpleConfig from " + configFile + " using expression " + expression);
-				setWarnOnSimpleConfig(true);
-			} else {
-				if ("true".equals(node.getTextContent()))
-					setWarnOnSimpleConfig(true);
-				else
-					setWarnOnSimpleConfig(false);
-			}
+			setWarnOnSimpleConfig(getBooleanElement("runtime", "WarnOnSimpleConfig", xpath, doc));
+			debugMsg += "    WarnOnSimpleConfig is " + getWarnOnSimpleConfig(); 
+			
 			// WarnOnSimpleXmlConfig
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='WarnOnSimpleXmlConfigOption']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for WarnOnSimpleXmlConfig from " + configFile + " using expression " + expression);
-				setWarnOnSimpleXmlConfig(true);
-			} else {
-				if ("true".equals(node.getTextContent()))
-					setWarnOnSimpleXmlConfig(true);
-				else
-					setWarnOnSimpleXmlConfig(false);
-			}
+			setWarnOnSimpleXmlConfig(getBooleanElement("runtime", "WarnOnSimpleXmlConfig", xpath, doc));
+			debugMsg += " / WarnOnSimpleXmlConfig " + getWarnOnSimpleXmlConfig();
+			
 			// CREATE_POST_JSON_ON_ERROR
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='CreatePostJsonOnError']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for CREATE_POST_JSON_ON_ERROR from " + configFile + " using expression " + expression);
-				setCREATE_POST_JSON_ON_ERROR(true);
-			} else {
-				if ("true".equals(node.getTextContent()))
-					setCREATE_POST_JSON_ON_ERROR(true);
-				else
-					setCREATE_POST_JSON_ON_ERROR(false);
-			}
+			setCREATE_POST_JSON_ON_ERROR(getBooleanElement("runtime", "CreatePostJsonOnError", xpath, doc));
+			debugMsg += " / CREATE_POST_JSON_ON_ERROR is " + isCREATE_POST_JSON_ON_ERROR(); 
+			
 			// CREATE_USER_JSON_ON_ERROR
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='CreateUserJsonOnError']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for CREATE_USER_JSON_ON_ERROR from " + configFile + " using expression " + expression);
-				setCREATE_USER_JSON_ON_ERROR(true);
-			} else {
-				if ("true".equals(node.getTextContent()))
-					setCREATE_USER_JSON_ON_ERROR(true);
-				else
-					setCREATE_USER_JSON_ON_ERROR(false);
-			}
+			setCREATE_USER_JSON_ON_ERROR(getBooleanElement("runtime", "CreateUserJsonOnError", xpath, doc));
+			debugMsg += " / CREATE_USER_JSON_ON_ERROR is " + isCREATE_USER_JSON_ON_ERROR();
+					
 			// CREATE_POST_JSON_ON_SUCCESS
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='CreatePostJsonOnSuccess']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for CREATE_POST_JSON_ON_SUCCESS from " + configFile + " using expression " + expression);
-				setCREATE_POST_JSON_ON_SUCCESS(true);
-			} else {
-				if ("true".equals(node.getTextContent()))
-					setCREATE_POST_JSON_ON_SUCCESS(true);
-				else
-					setCREATE_POST_JSON_ON_SUCCESS(false);
-			}
+			setCREATE_POST_JSON_ON_SUCCESS(getBooleanElement("runtime", "CreatePostJsonOnSuccess", xpath, doc));
+			debugMsg += " / CREATE_POST_JSON_ON_SUCCESS is " + isCREATE_POST_JSON_ON_SUCCESS(); 
+			
 			// CREATE_USER_JSON_ON_SUCCESS
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='CreateUserJsonOnSuccess']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for CREATE_USER_JSON_ON_SUCCESS from " + configFile + " using expression " + expression);
-				setCREATE_USER_JSON_ON_SUCCESS(true);
-			} else {
-				if ("true".equals(node.getTextContent()))
-					setCREATE_USER_JSON_ON_SUCCESS(true);
-				else
-					setCREATE_USER_JSON_ON_SUCCESS(false);
-			}
+			setCREATE_USER_JSON_ON_SUCCESS(getBooleanElement("runtime", "CreateUserJsonOnSuccess", xpath, doc));
+			debugMsg += " / CREATE_USER_JSON_ON_SUCCESS is " + isCREATE_USER_JSON_ON_SUCCESS();
+			
 			// STORAGE_PATH
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='StoragePath']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for STORAGE_PATH from " + configFile + " using expression " + expression);
-			} else {
-				setSTORAGE_PATH(node.getTextContent());
-			}
+			setSTORAGE_PATH(getStringElement("runtime", "StoragePath", xpath, doc));
+			debugMsg += " / STORAGE_PATH is " + getSTORAGE_PATH();
+			
 			// JSON_BACKUP_STORAGE_PATH
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='JsonBackupStoragePath']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for JSON_BACKUP_STORAGE_PATH from " + configFile + " using expression " + expression);
-			} else {
-				setJSON_BACKUP_STORAGE_PATH(node.getTextContent());
-			}
+			setJSON_BACKUP_STORAGE_PATH(getStringElement("runtime", "JsonBackupStoragePath", xpath, doc));
+			debugMsg += " / JSON_BACKUP_STORAGE_PATH is " + getJSON_BACKUP_STORAGE_PATH();
+			
 			// PROCESSED_JSON_BACKUP_STORAGE_PATH
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='ProcessedJsonBackupStoragePath']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for PROCESSED_JSON_BACKUP_STORAGE_PATH from " + configFile + " using expression " + expression);
-			} else {
-				setPROCESSED_JSON_BACKUP_STORAGE_PATH(node.getTextContent());
-			}
+			setPROCESSED_JSON_BACKUP_STORAGE_PATH(getStringElement("runtime", "ProcessedJsonBackupStoragePath", xpath, doc));
+			debugMsg += " / PROCESSED_JSON_BACKUP_STORAGE_PATH is " + getPROCESSED_JSON_BACKUP_STORAGE_PATH();
+			
 			// INVALID_JSON_BACKUP_STORAGE_PATH
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='InvalidJsonBackupStoragePath']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for INVALID_JSON_BACKUP_STORAGE_PATH from " + configFile + " using expression " + expression);
-			} else {
-				setINVALID_JSON_BACKUP_STORAGE_PATH(node.getTextContent());
-			}
-			// MOVE_OR_DELETE_PROCESSED_JSON_FILES
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='MoveOrDeleteProcessedJsonFiles']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for MOVE_OR_DELETE_PROCESSED_JSON_FILES from " + configFile + " using expression " + expression);
-			} else {
-				setMOVE_OR_DELETE_PROCESSED_JSON_FILES(node.getTextContent());
-			}
+			setINVALID_JSON_BACKUP_STORAGE_PATH(getStringElement("runtime", "InvalidJsonBackupStoragePath", xpath, doc));
+			debugMsg += " / INVALID_JSON_BACKUP_STORAGE_PATH is " + getINVALID_JSON_BACKUP_STORAGE_PATH();
+			
+			// MOVE_OR_DELETE_PROCESSED_JSON_FILES 
+			setMOVE_OR_DELETE_PROCESSED_JSON_FILES(getStringElement("runtime", "MoveOrDeleteProcessedJsonFiles", xpath, doc));
+			debugMsg += " / MOVE_OR_DELETE_PROCESSED_JSON_FILES is " + getMOVE_OR_DELETE_PROCESSED_JSON_FILES();
 			
 			// STOP_SNC_ON_PERSISTENCE_FAILURE
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='runtime']/param[@name='ExitOnPersistenceFailure']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for STOP_SNC_ON_PERSISTENCE_FAILURE from " + configFile + " using expression " + expression);
-				setSTOP_SNC_ON_PERSISTENCE_FAILURE(false);
-			} else {
-				if ("true".equals(node.getTextContent()))
-					setSTOP_SNC_ON_PERSISTENCE_FAILURE(true);
-				else
-					setSTOP_SNC_ON_PERSISTENCE_FAILURE(false);
-			}
+			setSTOP_SNC_ON_PERSISTENCE_FAILURE(getBooleanElement("runtime", "ExitOnPersistenceFailure", xpath, doc));
+			debugMsg += " / STOP_SNC_ON_PERSISTENCE_FAILURE is " + isSTOP_SNC_ON_PERSISTENCE_FAILURE();
 			
-			logger.trace("    WarnOnSimpleConfig is " + getWarnOnSimpleConfig() + 
-						" / WarnOnSimpleXmlConfig " + getWarnOnSimpleXmlConfig() + 
-						" / CREATE_POST_JSON_ON_ERROR is " + isCREATE_POST_JSON_ON_ERROR() + 
-						" / CREATE_USER_JSON_ON_ERROR is " + isCREATE_USER_JSON_ON_ERROR() +
-						" / CREATE_POST_JSON_ON_SUCCESS is " + isCREATE_POST_JSON_ON_SUCCESS() + 
-						" / CREATE_USER_JSON_ON_SUCCESS is " + isCREATE_USER_JSON_ON_SUCCESS()
-					);
-		} catch (IOException e) {
-			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
+			logger.trace(debugMsg);
+		} catch (IOException | ParserConfigurationException | SAXException e) {
+			logger.error("EXCEPTION :: error reading configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
 			System.exit(-1);
-		} catch (Exception e) {
-			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			e.printStackTrace();
+		} catch (XPathExpressionException e) {
+			logger.error("EXCEPTION :: error parsing xml " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
 			System.exit(-1);
 		}
-		
-		
-		// instantiate the social networks class
-		logger.trace("initializing social network defintitions");
-		SocialNetworks sn = SocialNetworks.getInstance();
 	}
 	
 	private void setXmlLayout(){
@@ -290,64 +205,24 @@ public final class RuntimeConfiguration implements Job {
 			XPathFactory xPathfactory = XPathFactory.newInstance();
 			XPath xpath = xPathfactory.newXPath();
 			
-			String expression = null;
-			Node node = null; 
-			
 			// set text identifiers for the constraints from XML file 
 			// CONSTRAINT_TERM_TEXT
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='XmlLayout']/"
-					+ "param[@name='CONSTRAINT_TERM_TEXT']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for CONSTRAINT_TERM_TEXT from " + configFile + " using expression " + expression);
-			} else {
-				setCONSTRAINT_TERM_TEXT(node.getTextContent());
-			}
+			setCONSTRAINT_TERM_TEXT(getStringElement("XmlLayout", "CONSTRAINT_TERM_TEXT", xpath, doc));
+			
 			// CONSTRAINT_USER_TEXT
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='XmlLayout']/"
-					+ "param[@name='CONSTRAINT_USER_TEXT']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for CONSTRAINT_USER_TEXT from " + configFile + " using expression " + expression);
-			} else {
-				setCONSTRAINT_USER_TEXT(node.getTextContent());
-			}
+			setCONSTRAINT_USER_TEXT(getStringElement("XmlLayout", "CONSTRAINT_USER_TEXT", xpath, doc));
+			
 			// CONSTRAINT_SITE_TEXT
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='XmlLayout']/"
-					+ "param[@name='CONSTRAINT_SITE_TEXT']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for CONSTRAINT_SITE_TEXT from " + configFile + " using expression " + expression);
-			} else {
-				setCONSTRAINT_SITE_TEXT(node.getTextContent());
-			}
+			setCONSTRAINT_SITE_TEXT(getStringElement("XmlLayout", "CONSTRAINT_SITE_TEXT", xpath, doc));
+			
 			// CONSTRAINT_BOARD_TEXT
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='XmlLayout']/"
-					+ "param[@name='CONSTRAINT_BOARD_TEXT']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for CONSTRAINT_BOARD_TEXT from " + configFile + " using expression " + expression);
-			} else {
-				setCONSTRAINT_BOARD_TEXT(node.getTextContent());
-			}
+			setCONSTRAINT_BOARD_TEXT(getStringElement("XmlLayout", "CONSTRAINT_BOARD_TEXT", xpath, doc));
+			
 			// CONSTRAINT_BLOG_TEXT
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='XmlLayout']/"
-					+ "param[@name='CONSTRAINT_BLOG_TEXT']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for CONSTRAINT_BLOG_TEXT from " + configFile + " using expression " + expression);
-			} else {
-				setCONSTRAINT_BLOG_TEXT(node.getTextContent());
-			}
+			setCONSTRAINT_BLOG_TEXT(getStringElement("XmlLayout", "CONSTRAINT_BLOG_TEXT", xpath, doc));
+			
 			// CONSTRAINT_LOCATION_TEXT
-			expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='XmlLayout']/"
-					+ "param[@name='CONSTRAINT_LOCATION_TEXT']/"+valueIdentifier;
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("Did not receive any information for CONSTRAINT_LOCATION_TEXT from " + configFile + " using expression " + expression);
-			} else {
-				setCONSTRAINT_LOCATION_TEXT(node.getTextContent());
-			}
+			setCONSTRAINT_LOCATION_TEXT(getStringElement("XmlLayout", "CONSTRAINT_LOCATION_TEXT", xpath, doc));
 			
 		} catch (IOException e) {
 			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
@@ -356,6 +231,36 @@ public final class RuntimeConfiguration implements Job {
 			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
 			e.printStackTrace();
 			System.exit(-1);
+		}
+	}
+	
+	
+
+	private Boolean getBooleanElement(String configArea, String pathContent, XPath xpath, Document doc) throws XPathExpressionException{
+		Node node = null; 
+		String expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+configArea+"']/"
+				+ "param[@name='"+pathContent+"']/"+valueIdentifier;
+		node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+		if (node == null) {
+			logger.warn("Did not receive any information for "+pathContent+" from " + configFile + " using expression " + expression);
+			return true;
+		} else {
+			if ("true".equals(node.getTextContent()))
+				return true;
+			else
+				return false;
+		}
+	}
+	private String getStringElement(String configArea, String pathContent, XPath xpath, Document doc) throws XPathExpressionException{
+		Node node = null;
+		String expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+configArea+"']/"
+				+ "param[@name='"+pathContent+"']/"+valueIdentifier;
+		node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+		if (node == null) {
+			logger.warn("Did not receive any information for CONSTRAINT_TERM_TEXT from " + configFile + " using expression " + expression);
+			return null;
+		} else {
+			return (node.getTextContent());
 		}
 	}
 	

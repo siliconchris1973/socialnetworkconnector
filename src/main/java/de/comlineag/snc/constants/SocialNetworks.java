@@ -5,7 +5,6 @@ import java.io.IOException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
@@ -17,7 +16,6 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 
@@ -45,11 +43,9 @@ public final class SocialNetworks {
 	private static Logger logger = Logger.getLogger("de.comlineag.snc.SocialNetworks");
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
-
-	private static String configFile = "src/main/webapp/WEB-INF/SNC_Runtime_Configuration.xml";
 	
 	
-	// a (hidden) class variable whos type is of its own class - used to see, if we are already instantiated
+	// a (hidden) class variable who's type is of its own class - used to see, if we are already instantiated
 	private static SocialNetworks instance;
 	// make the constructor private so that it can only be called from inside the class itself, thus preventing 
 	// the initialization from someplace (more important unmanaged place) else
@@ -63,7 +59,7 @@ public final class SocialNetworks {
 	 * 				by 'synchronized' we make sure that this method can 
 	 * 				only be executed by one thread at a time so that the 
 	 * 				first thread really creates the object while a possible 
-	 * 				second thread always uses a completely instantiated object
+	 * 				second thread always uses an already instantiated object
 	 * 
 	 * @return		instance of SocialNetworks
 	 */
@@ -144,10 +140,11 @@ public final class SocialNetworks {
 	
 	
 	/**
-	 * @description	parses the xml configuration file and sets up the internal structure of SocialNetworks
-	 * 				so that it can be used like an enum for the class
+	 * @description	parses the xml configuration file SNC_Runtime_Configuration.xml and sets up an 
+	 * 				internal structure of all defined social networks so that it can be used like 
+	 * 				an enum for the class.
 	 * 
-	 * @TODO write the function code :-) 
+	 * @TODO write the code to create an internal data structure from the social networks defined in SNC_Runtime_Configuration.xml
 	 */
 	private static void ParseSocialNetworkDefinition(){
 		try {
@@ -177,7 +174,7 @@ public final class SocialNetworks {
 			if (nodeList == null) {
 				logger.error("Did not receive any nodeset information for social networks from " + RuntimeConfiguration.getConfigFile() + " using expression " + expression);
 			} else {
-				logger.trace("working on nodeset with length "+nodeList.getLength()+"::");
+				logger.trace("working on nodeset with length "+nodeList.getLength()+" ::");
 				for (int i = 0; i < nodeList.getLength(); i++){
 					// do something with the node item at position
 					
@@ -220,6 +217,7 @@ public final class SocialNetworks {
 	 * @Deprecated	Instead of using the enum, please make use of the class methods and
 	 * 				setup all relevant social networks in SNC_Runtime_Configuration.xml
 	 */
+	@SuppressWarnings("unused")
 	@Deprecated
 	private static enum SocialNetworkDefs{
 		//enum			value	Description
@@ -240,11 +238,6 @@ public final class SocialNetworks {
 		
 		private final String value;
 		private final String type;
-		
-		// we use simple org.apache.log4j.Logger for lgging
-		private final Logger logger = Logger.getLogger(getClass().getName());
-		// in case you want a log-manager use this line and change the import above
-		//private final Logger logger = LogManager.getLogger(getClass().getName());
 		
 		private SocialNetworkDefs(final String value, final String type) {
 			this.value = value;

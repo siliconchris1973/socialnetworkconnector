@@ -278,8 +278,11 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public JSONObject getCrawlerConfigurationScope() {
+		logger.info("setting up crawler configuration scope");
+		
 		try {
 			File file = new File(getConfigDbHandler());
 			
@@ -376,6 +379,8 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 		}
 		return crawlerConfigurationScope;
 	}
+	
+	
 	// getter and setter for above method data
 	@Override
 	public String getDomain() {

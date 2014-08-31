@@ -76,6 +76,7 @@ public interface IConfigurationManager<T> {
 	 * @param 		path
 	 */
 	public abstract void setConfigurationElement(String key, String value, String path);
+	
 	/**
 	 * @description	writes a complete new configuration xml file to the path and file name
 	 * 				configured in applicationContext.xml

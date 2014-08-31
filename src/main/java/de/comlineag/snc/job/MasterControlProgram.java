@@ -13,17 +13,10 @@ import org.quartz.spi.TriggerFiredBundle;
  * @revision	0.1
  * @status		in development
  * 
- * @description	this class is used to setup the overall configuration of the SNC.
- * 				In this case the domain driven and/or customer driven configuration for 
- * 				crawler but also runtime configuration options, like whether or not 
- * 				to warn on weak encryption or simple configuration options. 
- * 				It is instantiated by the job control from applicationContext.xml and 
- * 				sets the currently used domain and customer. 
- * 				These values in turn are then accessed by the actual crawler
- * 				and passed to the crawler configuration handler to receive the correct 
- * 				constraints from the crawler configuration.
+ * @description	The Master Control Program (MCP) can be seen as the entry point for job
+ * 				and trigger control
  * 
- * @changelog	0.1 (Chris) 	class created *
+ * @changelog	0.1 (Chris) 	class created
  */
 public class MasterControlProgram implements JobFactory {
 

@@ -38,7 +38,7 @@ import java.util.ArrayList;
  * 								for XMLFileCustomerSpecificConfiguration
  * 				0.7b			Adapted signature to match JSON Object instead of String 
  *  
- *  TODO 1. implement code to insert/update a value
+ *  TODO 1. implement code to insert/update a value and write a new config file
  */
 public class IniFileConfigurationPersistence<T> implements IConfigurationManager<T>  {
 	
@@ -97,14 +97,12 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 	
 	@Override
 	public String getConfigurationElement(String key, String path) {
-		//TODO implement code
 		logger.warn("The method getConfigurationElement is currently not supported on configuration type ini-file");
 		return null;
 	}
 
 	@Override
 	public void setConfigurationElement(String key, String value, String path) {
-		//TODO implement code
 		logger.warn("The method setConfigurationElement is currently not supported on configuration type ini-file");
 	}
 	
@@ -118,7 +116,6 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 
 	@Override
 	public void writeNewConfiguration(String xml) {
-		//TODO implement code
 		logger.warn("The method writeNewConfiguration from XML is currently not supported on configuration type ini-file");
 	}
 	@Override
@@ -135,6 +132,7 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 	@Override
 	public void setCustomer(String customer) {}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public JSONObject getCrawlerConfigurationScope() {
 		JSONObject crawlerConfigurationScope = new JSONObject();
