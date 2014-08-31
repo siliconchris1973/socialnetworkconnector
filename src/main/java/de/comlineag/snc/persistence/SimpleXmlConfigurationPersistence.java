@@ -9,6 +9,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
+import de.comlineag.snc.constants.SocialNetworks;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -60,8 +61,6 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 	private String customer = null;
 	private boolean domainIsActive = false;
 	private boolean customerIsActive = false;
-	private int domainPriority = 0;
-	private int customerPriority = 0;
 	private JSONObject crawlerConfigurationScope = new JSONObject();
 	
 	// we use simple org.apache.log4j.Logger for lgging
@@ -101,7 +100,7 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 	@SuppressWarnings("unchecked")
 	private ArrayList<T> getDataFromXml(String section, String SN) {
 		ArrayList<T> ar = new ArrayList<T>();
-		logger.debug("reading constraints on " + section + " for network " + SN.toString() + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")+1));
+		logger.debug("reading " + section + "-constraints for network " + SocialNetworks.getSocialNetworkConfigElement("name", SN) + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")+1));
 		
 		try {
 			File file = new File(getConfigDbHandler());
@@ -166,6 +165,7 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 		this.configDbHandler = configDbHandler;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public JSONObject getCrawlerConfigurationScope() {
 		crawlerConfigurationScope.put((String) RuntimeConfiguration.getDomainidentifier(), (String) "undefined");
@@ -280,18 +280,6 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 	@Override
 	public void setCustomer(String customer) {
 		this.customer = customer;
-	}
-	private int getCustomerPriority() {
-		return customerPriority;
-	}
-	private void setCustomerPriority(int i) {
-		customerPriority = i;
-	}
-	private int getDomainPriority() {
-		return domainPriority;
-	}
-	private void setDomainPriority(int i) {
-		domainPriority = i;
 	}
 	public boolean getDomainIsActive(){
 		return domainIsActive;

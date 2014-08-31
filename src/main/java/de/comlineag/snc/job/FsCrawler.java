@@ -19,7 +19,7 @@ import org.quartz.JobExecutionException;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
-import de.comlineag.snc.handler.DataCryptoHandler;
+//import de.comlineag.snc.handler.DataCryptoHandler;
 import de.comlineag.snc.persistence.HANAPersistence;
 
 /**
@@ -62,7 +62,7 @@ public class FsCrawler implements Job {
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 		
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
+	//private DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
 	
 	public FsCrawler() {
 		super();

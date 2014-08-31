@@ -16,10 +16,10 @@ import org.quartz.JobExecutionException;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
-
 import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
 //import org.apache.logging.log4j.Logger;
+
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
@@ -99,6 +99,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		
+		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> lithiumConfig = new CrawlerConfiguration();
 		//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
 		JSONObject configurationScope = lithiumConfig.getCrawlerConfigurationScope();

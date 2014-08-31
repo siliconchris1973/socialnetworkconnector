@@ -9,7 +9,6 @@ import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.Logger;
 
 import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -108,6 +107,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		
+		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> twitterConfig = new CrawlerConfiguration();
 		//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
 		JSONObject configurationScope = twitterConfig.getCrawlerConfigurationScope();

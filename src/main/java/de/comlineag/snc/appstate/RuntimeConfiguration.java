@@ -63,13 +63,13 @@ public final class RuntimeConfiguration implements Job {
 	private static String configFile = "webapp/WEB-INF/SNC_Runtime_Configuration.xml";
 	
 	// some important and static runtime informations
-	private static boolean WARN_ON_SIMPLE_CONFIG 			= true;
-	private static boolean WARN_ON_SIMPLE_XML_CONFIG 		= true;
-	private static boolean CREATE_POST_JSON_ON_ERROR 		= true;
-	private static boolean CREATE_USER_JSON_ON_ERROR 		= true;
-	private static boolean CREATE_POST_JSON_ON_SUCCESS 		= false;
-	private static boolean CREATE_USER_JSON_ON_SUCCESS 		= false;
-	private static boolean STOP_SNC_ON_PERSISTENCE_FAILURE 	= false;
+	private static boolean WARN_ON_SIMPLE_CONFIG 				= true;
+	private static boolean WARN_ON_SIMPLE_XML_CONFIG 			= true;
+	private static boolean CREATE_POST_JSON_ON_ERROR 			= true;
+	private static boolean CREATE_USER_JSON_ON_ERROR 			= true;
+	private static boolean CREATE_POST_JSON_ON_SUCCESS 			= false;
+	private static boolean CREATE_USER_JSON_ON_SUCCESS 			= false;
+	private static boolean STOP_SNC_ON_PERSISTENCE_FAILURE 		= false;
 	// where to store and how to process json files
 	private static String STORAGE_PATH 							= "storage";
 	private static String JSON_BACKUP_STORAGE_PATH 				= "json";
@@ -78,35 +78,35 @@ public final class RuntimeConfiguration implements Job {
 	private static String MOVE_OR_DELETE_PROCESSED_JSON_FILES 	= "move";
 	
 	// these values are section names within the configuration db 
-	private static String CONSTRAINT_TERM_TEXT				= "term";
-	private static String CONSTRAINT_USER_TEXT				= "user";
-	private static String CONSTRAINT_LANGUAGE_TEXT			= "language";
-	private static String CONSTRAINT_SITE_TEXT				= "site";
-	private static String CONSTRAINT_BOARD_TEXT				= "board";
-	private static String CONSTRAINT_BLOG_TEXT				= "blog";
-	private static String CONSTRAINT_LOCATION_TEXT			= "geoLocation";
+	private static String CONSTRAINT_TERM_TEXT					= "term";
+	private static String CONSTRAINT_USER_TEXT					= "user";
+	private static String CONSTRAINT_LANGUAGE_TEXT				= "language";
+	private static String CONSTRAINT_SITE_TEXT					= "site";
+	private static String CONSTRAINT_BOARD_TEXT					= "board";
+	private static String CONSTRAINT_BLOG_TEXT					= "blog";
+	private static String CONSTRAINT_LOCATION_TEXT				= "geoLocation";
 	
 	// XML Schema identifiers
-	private static String rootIdentifier 					= "configurations";
-	private static String singleConfigurationIdentifier 	= "configuration";
-	private static String customerIdentifier 				= "customer";
-	private static String customerNameIdentifier			= "name";
-	private static String customerNameForAllValue 			= "ALL";
-	private static String domainIdentifier 					= "domain";
-	private static String domainStructureIdentifier 		= "domainStructure";
-	private static String domainNameIdentifier				= "name";
-	private static String domainNameForAllValue 			= "ALL";
-	private static String constraintIdentifier 				= "constraints";
-	private static String scopeIdentifier 					= "scope";
-	private static String scopeOnAllValue 					= "ALL";
-	private static String singleConstraintIdentifier 		= "constraint";
-	private static String valueIdentifier 					= "value";
-	private static String codeIdentifier 					= "code";
-	private static String configFileTypeIdentifier			= "configFileType";
+	private static String rootIdentifier 						= "configurations";
+	private static String singleConfigurationIdentifier 		= "configuration";
+	private static String customerIdentifier 					= "customer";
+	private static String customerNameIdentifier				= "name";
+	private static String customerNameForAllValue 				= "ALL";
+	private static String domainIdentifier 						= "domain";
+	private static String domainStructureIdentifier 			= "domainStructure";
+	private static String domainNameIdentifier					= "name";
+	private static String domainNameForAllValue 				= "ALL";
+	private static String constraintIdentifier 					= "constraints";
+	private static String scopeIdentifier 						= "scope";
+	private static String scopeOnAllValue 						= "ALL";
+	private static String singleConstraintIdentifier 			= "constraint";
+	private static String valueIdentifier 						= "value";
+	private static String codeIdentifier 						= "code";
+	private static String configFileTypeIdentifier				= "configFileType";
 	
-	private static String socialNetworkConfiguration		= "socialNetworkDefinition";
-	private static String socialNetworkIdentifier			= "network";
-	private static String socialNetworkName					= "name";
+	private static String socialNetworkConfiguration			= "socialNetworkDefinition";
+	private static String socialNetworkIdentifier				= "network";
+	private static String socialNetworkName						= "name";
 	
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		setConfigFile((String) arg0.getJobDetail().getJobDataMap().get("configFile"));
@@ -117,12 +117,13 @@ public final class RuntimeConfiguration implements Job {
 		// set the runtime configuration 
 		setRuntimeConfiguration();
 		// instantiate the social networks class
+		@SuppressWarnings("unused")
 		SocialNetworks sn = SocialNetworks.getInstance();
 	}
 	
 	
 	private void setRuntimeConfiguration(){
-		String debugMsg = null;
+		String debugMsg = "";
 		
 		try {
 			File file = new File(getConfigFile());
@@ -137,12 +138,12 @@ public final class RuntimeConfiguration implements Job {
 			
 			// set boolean values of runtime environment
 			// WarnOnSimpleConfig
-			setWarnOnSimpleConfig(getBooleanElement("runtime", "WarnOnSimpleConfig", xpath, doc));
-			debugMsg += "    WarnOnSimpleConfig is " + getWarnOnSimpleConfig(); 
+			setWarnOnSimpleConfig(getBooleanElement("runtime", "WarnOnSimpleConfigOption", xpath, doc));
+			debugMsg += "    WarnOnSimpleConfigOption is " + getWarnOnSimpleConfig(); 
 			
 			// WarnOnSimpleXmlConfig
-			setWarnOnSimpleXmlConfig(getBooleanElement("runtime", "WarnOnSimpleXmlConfig", xpath, doc));
-			debugMsg += " / WarnOnSimpleXmlConfig " + getWarnOnSimpleXmlConfig();
+			setWarnOnSimpleXmlConfig(getBooleanElement("runtime", "WarnOnSimpleXmlConfigOption", xpath, doc));
+			debugMsg += " / WarnOnSimpleXmlConfigOption " + getWarnOnSimpleXmlConfig();
 			
 			// CREATE_POST_JSON_ON_ERROR
 			setCREATE_POST_JSON_ON_ERROR(getBooleanElement("runtime", "CreatePostJsonOnError", xpath, doc));

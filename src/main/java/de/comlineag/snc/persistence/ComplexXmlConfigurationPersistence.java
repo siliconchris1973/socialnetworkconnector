@@ -9,6 +9,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
+import de.comlineag.snc.constants.SocialNetworks;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -90,7 +91,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	private ArrayList<T> getDataFromXml(String section, String SN) {
 		
 		ArrayList<T> ar = new ArrayList<T>();
-		logger.debug("reading constraints for "+customer+" in "+domain+" on " + section + " for network " + SN.toString() + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")+1));
+		logger.debug("reading " + section + "-constraints for customer "+customer+" in domain "+domain+" for network " + SocialNetworks.getSocialNetworkConfigElement("name", SN) + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")+1));
 		
 		try {
 			File file = new File(getConfigDbHandler());
