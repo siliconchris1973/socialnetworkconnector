@@ -18,12 +18,13 @@ import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.DataCryptoHandler;
+import de.comlineag.snc.helper.DataHelper;
 
 /**
  * 
  * @author 		Christian Guenther
  * @category 	job
- * @version		0.1
+ * @version		0.2			12.09.2014
  * @status		in development
  *  
  * @description A minimal web crawler. takes an URL from job control and
@@ -31,6 +32,7 @@ import de.comlineag.snc.handler.DataCryptoHandler;
  * 				RuntimeConfiguration section web crawler 
  * 
  * @changelog	0.1 (Chris)		class created as copy from http://cs.nyu.edu/courses/fall02/G22.3033-008/WebCrawler.java
+ * 				0.2				implemented configuration options from RuntimeConfiguration
  * 
  */
 public class SimpleWebCrawler extends GenericCrawler implements Job {
@@ -45,10 +47,11 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	// these values are used to restrict the maximum number of links the web crawler shall follow, 
 	// to honor robot text and limit the size of the parsed sites
 	// TODO move these to RuntimeConfiguration
+	/*
 	private static final int	SEARCH_LIMIT = 20;  // Absolute max pages 
-	private static final String	DISALLOW = "Disallow:";
-	private static final int	MAXSIZE = 20000; // Max size of file 
-	
+	private static final String	ROBOT_DISALLOW_TEXT = "Disallow:";
+	private static final int	CRAWLER_MAX_DOWNLOAD_SIZE = 20000; // Max size of file 
+	*/
 	private String urlToParse = null;
 	private int maxDepth = 10;
 	private String user = null;
@@ -149,12 +152,19 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				// currently we just create a new file and store the page content in it
 				File f1 = new File("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
 				if (!f1.isFile() || f1.getTotalSpace()<1) {
-					FileWriter file;
+					FileWriter rawFile;
+					FileWriter strippedFile;
 					try {
-						file = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
-						file.write(dataCryptoProvider.encryptValue(page));
-						file.flush();
-						file.close();
+						strippedFile = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+"stripped_"+fileName);
+						strippedFile.write(dataCryptoProvider.encryptValue(DataHelper.stripHTML(page)));
+						
+						rawFile = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
+						rawFile.write(dataCryptoProvider.encryptValue(page));
+						
+						strippedFile.flush();
+						strippedFile.close();
+						rawFile.flush();
+						rawFile.close();
 					} catch (IOException e) {
 						logger.error("ERROR :: could not write content of page "+url.toString()+" to disk");
 					} catch (GenericCryptoException e) {
@@ -252,8 +262,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		String strURL = url.getFile();
 		int index = 0;
 		
-		while ((index = strCommands.indexOf(DISALLOW, index)) != -1) {
-			index += DISALLOW.length();
+		while ((index = strCommands.indexOf(ROBOT_DISALLOW_TEXT, index)) != -1) {
+			index += ROBOT_DISALLOW_TEXT.length();
 			String strPath = strCommands.substring(index);
 			StringTokenizer st = new StringTokenizer(strPath);
 			
@@ -347,7 +357,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			int numRead = urlStream.read(b);
 			String content = new String(b, 0, numRead);
 			
-			while ((numRead != -1) && (content.length() < MAXSIZE)) {
+			while ((numRead != -1) && (content.length() < CRAWLER_MAX_DOWNLOAD_SIZE)) {
 				numRead = urlStream.read(b);
 				if (numRead != -1) {
 					String newContent = new String(b, 0, numRead);

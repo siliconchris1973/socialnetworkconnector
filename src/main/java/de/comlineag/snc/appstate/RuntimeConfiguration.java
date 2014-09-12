@@ -63,19 +63,38 @@ public final class RuntimeConfiguration implements Job {
 	private static String configFile = "webapp/WEB-INF/SNC_Runtime_Configuration.xml";
 	
 	// some important and static runtime informations
+	// whether or not to warn in the log in case a "simple" configuration option was chosen
 	private static boolean WARN_ON_SIMPLE_CONFIG 				= true;
 	private static boolean WARN_ON_SIMPLE_XML_CONFIG 			= true;
+	
+	// how to react in case storing in the sap hana db, or any other, failed to save a post or user (or maybe create a json even on success)
 	private static boolean CREATE_POST_JSON_ON_ERROR 			= true;
 	private static boolean CREATE_USER_JSON_ON_ERROR 			= true;
 	private static boolean CREATE_POST_JSON_ON_SUCCESS 			= false;
 	private static boolean CREATE_USER_JSON_ON_SUCCESS 			= false;
 	private static boolean STOP_SNC_ON_PERSISTENCE_FAILURE 		= false;
+	
 	// where to store and how to process json files
 	private static String STORAGE_PATH 							= "storage";
 	private static String JSON_BACKUP_STORAGE_PATH 				= "json";
 	private static String PROCESSED_JSON_BACKUP_STORAGE_PATH 	= "processedJson";
 	private static String INVALID_JSON_BACKUP_STORAGE_PATH 		= "invalidJson";
 	private static String MOVE_OR_DELETE_PROCESSED_JSON_FILES 	= "move";
+	
+	// text length limitations and constraints on markup usage 
+	private static boolean 	TEASER_WITH_MARKUP 					= false;
+	private static int 		TEASER_MAX_LENGTH 					= 256;
+	private static int 		TEASER_MIN_LENGTH 					= 20;
+	private static boolean 	SUBJECT_WITH_MARKUP 				= false;
+	private static int 		SUBJECT_MAX_LENGTH 					= 20;
+	private static int 		SUBJECT_MIN_LENGTH 					= 7;
+	private static boolean 	TEXT_WITH_MARKUP 					= false;
+	private static boolean 	RAW_TEXT_WITH_MARKUP 				= true;
+	
+	// some constants for the simple web crawler
+	private static int		SEARCH_LIMIT 						= 20;  // Absolute max pages 
+	private static String	ROBOT_DISALLOW_TEXT 				= "Disallow:";
+	private static int		CRAWLER_MAX_DOWNLOAD_SIZE 			= 20000; // Max size of file 
 	
 	// these values are section names within the configuration db 
 	private static String CONSTRAINT_TERM_TEXT					= "term";
@@ -116,6 +135,8 @@ public final class RuntimeConfiguration implements Job {
 		setXmlLayout();
 		// set the runtime configuration 
 		setRuntimeConfiguration();
+		// set the data definitions
+		setDataDefinitions();
 		// instantiate the social networks class
 		@SuppressWarnings("unused")
 		SocialNetworks sn = SocialNetworks.getInstance();
@@ -123,6 +144,7 @@ public final class RuntimeConfiguration implements Job {
 	
 	
 	private void setRuntimeConfiguration(){
+		logger.trace("   setting runtime definitions");
 		String debugMsg = "";
 		
 		try {
@@ -185,6 +207,19 @@ public final class RuntimeConfiguration implements Job {
 			setSTOP_SNC_ON_PERSISTENCE_FAILURE(getBooleanElement("runtime", "ExitOnPersistenceFailure", xpath, doc));
 			debugMsg += " / STOP_SNC_ON_PERSISTENCE_FAILURE is " + isSTOP_SNC_ON_PERSISTENCE_FAILURE();
 			
+			// searchLimit
+			setSEARCH_LIMIT(getIntElement("runtime", "searchLimit", xpath, doc));
+			debugMsg += " SEARCH_LIMIT is " + getSEARCH_LIMIT();
+			
+			// robotDisallowText 
+			setROBOT_DISALLOW_TEXT(getStringElement("runtime", "robotDisallowText", xpath, doc));
+			debugMsg += " / ROBOT_DISALLOW_TEXT is " + getROBOT_DISALLOW_TEXT();
+						
+			// crawlerMaxDownloadSize
+			setCRAWLER_MAX_DOWNLOAD_SIZE(getIntElement("runtime", "crawlerMaxDownloadSize", xpath, doc));
+			debugMsg += " CRAWLER_MAX_DOWNLOAD_SIZE is " + getCRAWLER_MAX_DOWNLOAD_SIZE();
+			
+			
 			logger.trace(debugMsg);
 		} catch (IOException | ParserConfigurationException | SAXException e) {
 			logger.error("EXCEPTION :: error reading configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
@@ -195,7 +230,62 @@ public final class RuntimeConfiguration implements Job {
 		}
 	}
 	
+	// DataDefinitions
+	private void setDataDefinitions(){
+		logger.trace("   setting data definitions");
+		String debugMsg = "";
+		
+		try {
+			File file = new File(getConfigFile());
+			
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(file);
+			
+			XPathFactory xPathfactory = XPathFactory.newInstance();
+			XPath xpath = xPathfactory.newXPath();
+			
+			// teaserWithMarkup
+			setTEASER_WITH_MARKUP(getBooleanElement("DataDefinitions", "teaserWithMarkup", xpath, doc));
+			debugMsg += " TEASER_WITH_MARKUP is " + isTEASER_WITH_MARKUP();
+			
+			// teaserMaxLength
+			setTEASER_MAX_LENGTH(getIntElement("DataDefinitions", "teaserMaxLength", xpath, doc));
+			debugMsg += " TEASER_MAX_LENGTH is " + getTEASER_MAX_LENGTH();
+			// teaserMinLength
+			setTEASER_MIN_LENGTH(getIntElement("DataDefinitions", "teaserMinLength", xpath, doc));
+			debugMsg += " TEASER_MIN_LENGTH is " + getTEASER_MIN_LENGTH();
+			
+			// subjectWithMarkup
+			setSUBJECT_WITH_MARKUP(getBooleanElement("DataDefinitions", "subjectWithMarkup", xpath, doc));
+			debugMsg += " SUBJECT_WITH_MARKUP is " + isSUBJECT_WITH_MARKUP();
+			// subjectMaxLength
+			setSUBJECT_MAX_LENGTH(getIntElement("DataDefinitions", "subjectMaxLength", xpath, doc));
+			debugMsg += " SUBJECT_MAX_LENGTH is " + getSUBJECT_MAX_LENGTH();
+			// subjectMinLength
+			setSUBJECT_MIN_LENGTH(getIntElement("DataDefinitions", "subjectMinLength", xpath, doc));
+			debugMsg += " SUBJECT_MIN_LENGTH is " + getSUBJECT_MIN_LENGTH();
+			
+			// textWithMarkup
+			setTEXT_WITH_MARKUP(getBooleanElement("DataDefinitions", "textWithMarkup", xpath, doc));
+			debugMsg += " TEXT_WITH_MARKUP is " + isTEXT_WITH_MARKUP();
+			// rawTextWithMarkup
+			setRAW_TEXT_WITH_MARKUP(getBooleanElement("DataDefinitions", "rawTextWithMarkup", xpath, doc));
+			debugMsg += " RAW_TEXT_WITH_MARKUP is " + isRAW_TEXT_WITH_MARKUP();
+			
+			logger.trace(debugMsg);
+		} catch (IOException | ParserConfigurationException | SAXException e) {
+			logger.error("EXCEPTION :: error reading configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
+			System.exit(-1);
+		} catch (XPathExpressionException e) {
+			logger.error("EXCEPTION :: error parsing xml " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
+			System.exit(-1);
+		}
+	}
+	
+	
 	private void setXmlLayout(){
+		logger.trace ("   setting XML layout");
 		try {
 			File file = new File(getConfigFile());
 			
@@ -264,164 +354,80 @@ public final class RuntimeConfiguration implements Job {
 			return (node.getTextContent());
 		}
 	}
+	private int getIntElement(String configArea, String pathContent, XPath xpath, Document doc) throws XPathExpressionException{
+		Node node = null;
+		String expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+configArea+"']/"
+				+ "param[@name='"+pathContent+"']/"+valueIdentifier;
+		node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+		if (node == null) {
+			logger.warn("Did not receive any information for CONSTRAINT_TERM_TEXT from " + configFile + " using expression " + expression);
+			return -666;
+		} else {
+			return (Integer.parseInt(node.getTextContent()));
+		}
+	}
 	
 	// getter and setter for the configuration path
-	public static String getConfigFile() {
-		return RuntimeConfiguration.configFile;
-	}
-	public static void setConfigFile(String configFile) {
-		RuntimeConfiguration.configFile = configFile;
-	}
+	public static String getConfigFile() { return RuntimeConfiguration.configFile;	}
+	public static void setConfigFile(String configFile) { RuntimeConfiguration.configFile = configFile;	}
 	
 	// for configuration xml structure
-	private void setCONSTRAINT_TERM_TEXT(final String s){
-		RuntimeConfiguration.CONSTRAINT_TERM_TEXT = s;
-	}
-	private void setCONSTRAINT_USER_TEXT(final String s){
-		RuntimeConfiguration.CONSTRAINT_USER_TEXT = s;
-	}
-	private void setCONSTRAINT_SITE_TEXT(final String s){
-		RuntimeConfiguration.CONSTRAINT_SITE_TEXT = s;
-	}
-	private void setCONSTRAINT_BOARD_TEXT(final String s){
-		RuntimeConfiguration.CONSTRAINT_BOARD_TEXT = s;
-	}
-	private void setCONSTRAINT_BLOG_TEXT(final String s){
-		RuntimeConfiguration.CONSTRAINT_BLOG_TEXT = s;
-	}
-	private void setCONSTRAINT_LOCATION_TEXT(final String s){
-		RuntimeConfiguration.CONSTRAINT_LOCATION_TEXT = s;
-	}
+	private void setCONSTRAINT_TERM_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_TERM_TEXT = s; }
+	private void setCONSTRAINT_USER_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_USER_TEXT = s; }
+	private void setCONSTRAINT_SITE_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_SITE_TEXT = s; }
+	private void setCONSTRAINT_BOARD_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_BOARD_TEXT = s; }
+	private void setCONSTRAINT_BLOG_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_BLOG_TEXT = s; }
+	private void setCONSTRAINT_LOCATION_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_LOCATION_TEXT = s; }
 	
 	// getter for the xml structure
-	public static String getRootidentifier() {
-		return rootIdentifier;
-	}
-	public static String getSingleconfigurationidentifier() {
-		return singleConfigurationIdentifier;
-	}
-	public static String getCustomeridentifier() {
-		return customerIdentifier;
-	}
-	public static String getCustomernameidentifier() {
-		return customerNameIdentifier;
-	}
-	public static String getCustomernameforallvalue() {
-		return customerNameForAllValue;
-	}
-	public static String getDomainidentifier() {
-		return domainIdentifier;
-	}
-	public static String getDomainstructureidentifier() {
-		return domainStructureIdentifier;
-	}
-	public static String getDomainnameidentifier() {
-		return domainNameIdentifier;
-	}
-	public static String getDomainnameforallvalue() {
-		return domainNameForAllValue;
-	}
-	public static String getCodeidentifier() {
-		return codeIdentifier;
-	}
-	public static String getConstraintidentifier() {
-		return constraintIdentifier;
-	}
-	public static String getScopeidentifier() {
-		return scopeIdentifier;
-	}
-	public static String getScopeonallvalue() {
-		return scopeOnAllValue;
-	}
-	public static String getSingleconstraintidentifier() {
-		return singleConstraintIdentifier;
-	}
-	public static String getValueidentifier() {
-		return valueIdentifier;
-	}
-	public static String getConstraintTermText() {
-		return CONSTRAINT_TERM_TEXT;
-	}
-	public static String getConstraintUserText() {
-		return CONSTRAINT_USER_TEXT;
-	}
-	public static String getConstraintLanguageText() {
-		return CONSTRAINT_LANGUAGE_TEXT;
-	}
-	public static String getConstraintSiteText() {
-		return CONSTRAINT_SITE_TEXT;
-	}
-	public static String getConstraintBoardText() {
-		return CONSTRAINT_BOARD_TEXT;
-	}
-	public static String getConstraintBlogText() {
-		return CONSTRAINT_BLOG_TEXT;
-	}
-	public static String getConstraintLocationText() {
-		return CONSTRAINT_LOCATION_TEXT;
-	}
-	public static String getConfigFileTypeIdentifier() {
-		return configFileTypeIdentifier;
-	}
-	public static void setConfigFileTypeIdentifier(
-			String configFileTypeIdentifier) {
-		RuntimeConfiguration.configFileTypeIdentifier = configFileTypeIdentifier;
-	}
+	public static String getRootidentifier() { return rootIdentifier; }
+	public static String getSingleconfigurationidentifier() { return singleConfigurationIdentifier; }
+	public static String getCustomeridentifier() { return customerIdentifier; }
+	public static String getCustomernameidentifier() { return customerNameIdentifier; }
+	public static String getCustomernameforallvalue() { return customerNameForAllValue; }
+	public static String getDomainidentifier() { return domainIdentifier; }
+	public static String getDomainstructureidentifier() { return domainStructureIdentifier; }
+	public static String getDomainnameidentifier() { return domainNameIdentifier; }
+	public static String getDomainnameforallvalue() { return domainNameForAllValue;	}
+	public static String getCodeidentifier() { return codeIdentifier; }
+	public static String getConstraintidentifier() { return constraintIdentifier; }
+	public static String getScopeidentifier() { return scopeIdentifier; }
+	public static String getScopeonallvalue() { return scopeOnAllValue; }
+	public static String getSingleconstraintidentifier() { return singleConstraintIdentifier; }
+	public static String getValueidentifier() {	return valueIdentifier;	}
+	public static String getConstraintTermText() { return CONSTRAINT_TERM_TEXT;	}
+	public static String getConstraintUserText() { return CONSTRAINT_USER_TEXT; }
+	public static String getConstraintLanguageText() { return CONSTRAINT_LANGUAGE_TEXT; }
+	public static String getConstraintSiteText() { return CONSTRAINT_SITE_TEXT; }
+	public static String getConstraintBoardText() { return CONSTRAINT_BOARD_TEXT; }
+	public static String getConstraintBlogText() { return CONSTRAINT_BLOG_TEXT;}
+	public static String getConstraintLocationText() {return CONSTRAINT_LOCATION_TEXT;}
+	public static String getConfigFileTypeIdentifier() {return configFileTypeIdentifier;}
+	
+	public static void setConfigFileTypeIdentifier(String configFileTypeIdentifier) {RuntimeConfiguration.configFileTypeIdentifier = configFileTypeIdentifier;}
+	
 	
 	// for runtime state 
-	public static boolean getWarnOnSimpleConfig() {
-		return RuntimeConfiguration.WARN_ON_SIMPLE_CONFIG;
-	}
-	public static void setWarnOnSimpleConfig(boolean wARN_ON_SIMPLE_CONFIG) {
-		RuntimeConfiguration.WARN_ON_SIMPLE_CONFIG = wARN_ON_SIMPLE_CONFIG;
-	}
+	public static boolean 	getWarnOnSimpleConfig() {return RuntimeConfiguration.WARN_ON_SIMPLE_CONFIG;}
+	public static void 		setWarnOnSimpleConfig(boolean wARN_ON_SIMPLE_CONFIG) {RuntimeConfiguration.WARN_ON_SIMPLE_CONFIG = wARN_ON_SIMPLE_CONFIG;}
+	public static boolean 	getWarnOnSimpleXmlConfig() {return RuntimeConfiguration.WARN_ON_SIMPLE_XML_CONFIG;}
+	public static void 		setWarnOnSimpleXmlConfig(boolean wARN_ON_SIMPLE_XML_CONFIG) {RuntimeConfiguration.WARN_ON_SIMPLE_XML_CONFIG = wARN_ON_SIMPLE_XML_CONFIG;}
+	public static boolean 	isCREATE_POST_JSON_ON_ERROR() {return CREATE_POST_JSON_ON_ERROR;}
+	public static void 		setCREATE_POST_JSON_ON_ERROR(boolean cREATE_POST_JSON_ON_ERROR) {CREATE_POST_JSON_ON_ERROR = cREATE_POST_JSON_ON_ERROR;}
+	public static boolean 	isCREATE_USER_JSON_ON_ERROR() {return CREATE_USER_JSON_ON_ERROR;}
+	public static void 		setCREATE_USER_JSON_ON_ERROR(boolean cREATE_USER_JSON_ON_ERROR) {CREATE_USER_JSON_ON_ERROR = cREATE_USER_JSON_ON_ERROR;}
+	public static boolean 	isCREATE_POST_JSON_ON_SUCCESS() {return CREATE_POST_JSON_ON_SUCCESS;}
+	public static void 		setCREATE_POST_JSON_ON_SUCCESS(boolean cREATE_POST_JSON_ON_SUCCESS) {CREATE_POST_JSON_ON_SUCCESS = cREATE_POST_JSON_ON_SUCCESS;}
+	public static boolean 	isCREATE_USER_JSON_ON_SUCCESS() {return CREATE_USER_JSON_ON_SUCCESS;}
+	public static void 		setCREATE_USER_JSON_ON_SUCCESS(boolean cREATE_USER_JSON_ON_SUCCESS) {CREATE_USER_JSON_ON_SUCCESS = cREATE_USER_JSON_ON_SUCCESS;}
+	public static boolean 	isSTOP_SNC_ON_PERSISTENCE_FAILURE() {return STOP_SNC_ON_PERSISTENCE_FAILURE;}
+	public static void 		setSTOP_SNC_ON_PERSISTENCE_FAILURE(boolean sTOP_SNC_ON_PERSISTENCE_FAILURE) {STOP_SNC_ON_PERSISTENCE_FAILURE = sTOP_SNC_ON_PERSISTENCE_FAILURE;}
 
-	public static boolean getWarnOnSimpleXmlConfig() {
-		return RuntimeConfiguration.WARN_ON_SIMPLE_XML_CONFIG;
-	}
-	public static void setWarnOnSimpleXmlConfig(boolean wARN_ON_SIMPLE_XML_CONFIG) {
-		RuntimeConfiguration.WARN_ON_SIMPLE_XML_CONFIG = wARN_ON_SIMPLE_XML_CONFIG;
-	}
-	public static boolean isCREATE_POST_JSON_ON_ERROR() {
-		return CREATE_POST_JSON_ON_ERROR;
-	}
-	public static void setCREATE_POST_JSON_ON_ERROR(
-			boolean cREATE_POST_JSON_ON_ERROR) {
-		CREATE_POST_JSON_ON_ERROR = cREATE_POST_JSON_ON_ERROR;
-	}
-	public static boolean isCREATE_USER_JSON_ON_ERROR() {
-		return CREATE_USER_JSON_ON_ERROR;
-	}
-	public static void setCREATE_USER_JSON_ON_ERROR(
-			boolean cREATE_USER_JSON_ON_ERROR) {
-		CREATE_USER_JSON_ON_ERROR = cREATE_USER_JSON_ON_ERROR;
-	}
-	public static boolean isCREATE_POST_JSON_ON_SUCCESS() {
-		return CREATE_POST_JSON_ON_SUCCESS;
-	}
-	public static void setCREATE_POST_JSON_ON_SUCCESS(
-			boolean cREATE_POST_JSON_ON_SUCCESS) {
-		CREATE_POST_JSON_ON_SUCCESS = cREATE_POST_JSON_ON_SUCCESS;
-	}
-	public static boolean isCREATE_USER_JSON_ON_SUCCESS() {
-		return CREATE_USER_JSON_ON_SUCCESS;
-	}
-	public static void setCREATE_USER_JSON_ON_SUCCESS(
-			boolean cREATE_USER_JSON_ON_SUCCESS) {
-		CREATE_USER_JSON_ON_SUCCESS = cREATE_USER_JSON_ON_SUCCESS;
-	}
-	public static boolean isSTOP_SNC_ON_PERSISTENCE_FAILURE() {
-		return STOP_SNC_ON_PERSISTENCE_FAILURE;
-	}
-	public static void setSTOP_SNC_ON_PERSISTENCE_FAILURE(
-			boolean sTOP_SNC_ON_PERSISTENCE_FAILURE) {
-		STOP_SNC_ON_PERSISTENCE_FAILURE = sTOP_SNC_ON_PERSISTENCE_FAILURE;
-	}
-
+	
+	// XML layout
 	public static String getSocialNetworkConfiguration() {
 		return socialNetworkConfiguration;
 	}
-
 	public static void setSocialNetworkConfiguration(
 			String socialNetworkConfiguration) {
 		RuntimeConfiguration.socialNetworkConfiguration = socialNetworkConfiguration;
@@ -430,7 +436,6 @@ public final class RuntimeConfiguration implements Job {
 	public static String getSocialNetworkIdentifier() {
 		return socialNetworkIdentifier;
 	}
-
 	public static void setSocialNetworkIdentifier(
 			String socialNetworkIdentifier) {
 		RuntimeConfiguration.socialNetworkIdentifier = socialNetworkIdentifier;
@@ -439,11 +444,12 @@ public final class RuntimeConfiguration implements Job {
 	public static String getSocialNetworkName() {
 		return socialNetworkName;
 	}
-
 	public static void setSocialNetworkName(String socialNetworkName) {
 		RuntimeConfiguration.socialNetworkName = socialNetworkName;
 	}
-
+	
+	
+	// JSON Backup storage path
 	public static String getJSON_BACKUP_STORAGE_PATH() {
 		return JSON_BACKUP_STORAGE_PATH;
 	}
@@ -484,4 +490,31 @@ public final class RuntimeConfiguration implements Job {
 	public static void setSTORAGE_PATH(String sTORAGE_PATH) {
 		STORAGE_PATH = sTORAGE_PATH;
 	}
+	
+	
+	// DataDefinitions
+	public static boolean 	isTEASER_WITH_MARKUP() { return TEASER_WITH_MARKUP;}
+	public static void 		setTEASER_WITH_MARKUP(boolean tEASER_WITH_MARKUP) { TEASER_WITH_MARKUP = tEASER_WITH_MARKUP;}
+	public static int 		getTEASER_MAX_LENGTH() { return TEASER_MAX_LENGTH;}
+	public static void 		setTEASER_MAX_LENGTH(int tEASER_MAX_LENGTH) { TEASER_MAX_LENGTH = tEASER_MAX_LENGTH;}
+	public static int 		getTEASER_MIN_LENGTH() { return TEASER_MIN_LENGTH;}
+	public static void 		setTEASER_MIN_LENGTH(int tEASER_MIN_LENGTH) { TEASER_MIN_LENGTH = tEASER_MIN_LENGTH;}
+	public static boolean 	isSUBJECT_WITH_MARKUP() { return SUBJECT_WITH_MARKUP;}
+	public static void 		setSUBJECT_WITH_MARKUP(boolean sUBJECT_WITH_MARKUP) { SUBJECT_WITH_MARKUP = sUBJECT_WITH_MARKUP;}
+	public static int 		getSUBJECT_MAX_LENGTH() { return SUBJECT_MAX_LENGTH;}
+	public static void 		setSUBJECT_MAX_LENGTH(int sUBJECT_MAX_LENGTH) { SUBJECT_MAX_LENGTH = sUBJECT_MAX_LENGTH;}
+	public static int 		getSUBJECT_MIN_LENGTH() { return SUBJECT_MIN_LENGTH;}
+	public static void		setSUBJECT_MIN_LENGTH(int sUBJECT_MIN_LENGTH) { SUBJECT_MIN_LENGTH = sUBJECT_MIN_LENGTH;}
+	public static boolean 	isTEXT_WITH_MARKUP() { return TEXT_WITH_MARKUP;}
+	public static void 		setTEXT_WITH_MARKUP(boolean tEXT_WITH_MARKUP) { TEXT_WITH_MARKUP = tEXT_WITH_MARKUP;}
+	public static boolean 	isRAW_TEXT_WITH_MARKUP() { return RAW_TEXT_WITH_MARKUP;}
+	public static void 		setRAW_TEXT_WITH_MARKUP(boolean rAW_TEXT_WITH_MARKUP) { RAW_TEXT_WITH_MARKUP = rAW_TEXT_WITH_MARKUP;}
+
+	// static configuration options for the simple web crawler
+	public static int 		getSEARCH_LIMIT() {return SEARCH_LIMIT;}
+	public static void 		setSEARCH_LIMIT(int sEARCH_LIMIT) {SEARCH_LIMIT = sEARCH_LIMIT;}
+	public static String 	getROBOT_DISALLOW_TEXT() { return ROBOT_DISALLOW_TEXT;}
+	public static void 		setROBOT_DISALLOW_TEXT(String dISALLOW) {ROBOT_DISALLOW_TEXT = dISALLOW;}
+	public static int 		getCRAWLER_MAX_DOWNLOAD_SIZE() {return CRAWLER_MAX_DOWNLOAD_SIZE;}
+	public static void 		setCRAWLER_MAX_DOWNLOAD_SIZE(int mAXSIZE) {CRAWLER_MAX_DOWNLOAD_SIZE = mAXSIZE;}
 }

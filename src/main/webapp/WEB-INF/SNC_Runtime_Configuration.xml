@@ -93,7 +93,28 @@
 			<type>boolean</type>
 			<value>false</value>
 			<constant>STOP_SNC_ON_PERSISTENCE_FAILURE</constant>
-		</param>		
+		</param>
+		
+		<!-- SIMPLE WEB CRAWLER SPECIFIC -->
+		<!-- how many levels shall the web crawler fetch from the top-level (or entry point) -->
+		<param name="searchLimit">
+			<type>int</type>
+			<value>20</value>
+			<constant>SEARCH_LIMIT</constant>
+		</param>
+		<!-- the maximum page size the simple web crawler shall fetch -->
+		<param name="crawlerMaxDownloadSize">
+			<type>int</type>
+			<value>20000</value>
+			<constant>CRAWLER_MAX_DOWNLOAD_SIZE</constant>
+		</param>
+		<!-- the command (word) as returned by a website when declining the crawler's request to fetch the content 
+			 YOU SHOULD PROBABLY NOT CHANGE THIS -->
+		<param name="robotDisallowText">
+			<type>String</type>
+			<value>Disallow</value>
+			<constant>ROBOT_DISALLOW_TEXT</constant>
+		</param>	
 	</configuration>
 	
 	
@@ -304,8 +325,8 @@
 	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	     
 	     G E N E R A L   D A T A   D E F I N I T I O N S
-	     In this section you can define how long certain fields of are, for example
-	     how long a teaser is and if a teaser shall be saved with markup elements or not. -->
+	     In this section you can define how long certain fields are, for example how many  
+	     characters a teaser can have and if a teaser shall be saved with markup elements or not. -->
 	<configuration scope="DataDefinitions">
 		<!-- shall a teaser be saved with or without html markup elements -->
 		<param name="teaserWithMarkup">
