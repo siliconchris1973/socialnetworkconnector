@@ -226,6 +226,10 @@
 						<type>String</type>
 						<value>Sollzins</value>
 					</term>
+					<term>
+						<type>String</type>
+						<value>Direktbank</value>
+					</term>
 				</constraint>
 			</constraints>
 			<!-- end of section for all crawler -->
@@ -239,7 +243,6 @@
 					track only messages (aka posts) with specific keywords
 					these constraints are added to the generic ones above 
 				-->
-				 
 				<constraint>
 					<term>
 						<type>String</type>
@@ -257,6 +260,7 @@
 						<type>String</type>
 						<value>de</value>
 					</language>
+					<!-- 
 					<language>
 						<type>String</type>
 						<value>en</value>
@@ -273,14 +277,15 @@
 						<type>String</type>
 						<value>fr</value>
 					</language>
+					-->
 				</constraint>
 			</constraints>
 			<!-- END OF TWITTER CONSTRAINTS -->
 			
 			
 			<!-- START OF LITHIUM CONSTRAINTS -->
-			<!-- specific configuration for lithium crawler -->
-			<constraints scope="LT">
+			<!-- specific configuration for lithium crawler for Cortal Consors -->
+			<constraints scope="CC">
 				<!-- 
 					Setup a constraint against specific sites or boards as they are called.
 					Be aware that you should NOT add server-part and rest-api part to these uris
@@ -290,8 +295,16 @@
 					
 					If no site is given, the crawler will search through the whole community. 
 				-->
+				<!-- 
 				<constraint>
-				<!--
+					<site>
+						<type>String</type>
+						<value>/blog/id/BLOG</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>/boards/id/Seminare</value>
+					</site>
 					<site>
 						<type>String</type>
 						<value>/boards/id/Girokonto-Zahlungsverkehr</value>
@@ -318,10 +331,22 @@
 					</site>
 					<site>
 						<type>String</type>
+						<value>/boards/id/DepotTrading</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>/boards/id/SEPA</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>/boards/id/Boersenlexikon</value>
+					</site>
+					<site>
+						<type>String</type>
 						<value>/boards/id/Sonstige-Themen</value>
 					</site>
-			 	-->
 				</constraint>
+				-->
 				
 				<!-- 
 					track only messages (aka posts) with specific keywords
@@ -347,13 +372,32 @@
 				</constraint>
 			</constraints>
 			<!-- END OF LITHIUM CONSTRAINTS -->
+			
+			<!-- START OF FACEBOOK CONFIG -->
+			<!-- specific configuration for FACEBOOK crawler -->
+			<constraints scope="FB">
+				<!-- 
+					search specific sites for posts - needed because we can't just grab 
+					every post on the facebook network  
+				-->
+				<constraint>
+					<site>
+						<type>String</type>
+						<value>cortal-consors.com</value>
+					</site>
+				</constraint>
+			</constraints>
+			<!-- END OF FACEBOOK CRAWLER CONFIG -->
 		</customer>
 		<!-- Cortal Consors -->
 	</configuration>
 	
 	
-	<!-- DO NOT, I REPEAT DO NOT EDIT OR DELETE THIS ENTRY -->
-	<!-- I MEAN IT, UNDER NO CIRCUMSTANCES CHANGE ANYTHING BELOW THIS LINE -->
+	<!-- = = = DO NOT, I REPEAT DO NOT EDIT OR DELETE THIS ENTRY = = =
+	 
+		 I MEAN IT, UNDER NO CIRCUMSTANCES CHANGE ANYTHING BELOW THIS LINE
+		 IF YOU CHANGE THIS, THE SNC WILL BREAK, THE HANA WILL BREAK AND
+		 FINALLY THE INTERNET WILL STOP WORKING. AFTER THAT MADNESS -->
 	<configuration scope="configFileType">
 		<type>ComplexXmlConfigurationPersistence</type>
 	</configuration>

@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.Logger;
 
 
+
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.ConfigurationConstants;
@@ -43,7 +44,7 @@ import de.comlineag.snc.handler.LithiumUser;
  * @author 		Christian Guenther
  * @category 	Job
  * @version		1.2		- 13.07.2014
- * @status		Productive
+ * @status		productive
  * 
  * @description this is the actual crawler for the Lithium network. It is implemenetd as a job and,
  *              upon execution, will connect to the Lithium REST API to search for posts that contain keywords.
@@ -73,7 +74,9 @@ import de.comlineag.snc.handler.LithiumUser;
  */
 @DisallowConcurrentExecution 
 public class LithiumCrawler extends GenericCrawler implements Job {
-
+	// it is VERY imoportant to set the crawler name (all in uppercase) here
+	private static String CRAWLER_NAME="LITHIUM";
+		
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
@@ -85,6 +88,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
 	private String smallLogMessage = "";
+	
+	private int messageCount = 0;
 	
 	public LithiumCrawler() {}
 	
@@ -104,25 +109,24 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
 		JSONObject configurationScope = lithiumConfig.getCrawlerConfigurationScope();
 
-		configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM"));
+		configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
 		
 		// set the customer we start the crawler for and log the startup message
 		String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
 		String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
-		
+
 		if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
-			logger.info("Lithium-Crawler START");
+			logger.info(CRAWLER_NAME+"-Crawler START");
 		} else {
 			if (!"undefined".equals(curDomain) && !"undefined".equals(curCustomer)) {
-				logger.info("Lithium-Crawler START for " + curCustomer + " in " + curDomain);
+				logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer + " in " + curDomain);
 			} else {
 				if (!"undefined".equals(curDomain))
-					logger.info("Lithium-Crawler START for " + curDomain);
+					logger.info(CRAWLER_NAME+"-Crawler START for " + curDomain);
 				else
-					logger.info("Lithium-Crawler START for " + curCustomer);
+					logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer);
 			}
 		}
-		int messageCount = 0;
 		
 		// authentication to lithium
 		String _user = null;
@@ -159,7 +163,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		
 		
 		// THESE VALUES ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND SITES (aka boards)
-		logger.trace("retrieving restrictions from configuration db");
+		logger.debug("retrieving restrictions from configuration db");
 		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope); 
 		ArrayList<String> tUsers = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
 		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope); 
@@ -183,8 +187,14 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			
 			// if no specific sites are configured, we use the standard REST_API_URL and message search endpoint
 			if (tSites.size()==0){
-				logger.trace("no restriction to specific sites, setting endpoint to " + REST_API_URL+LithiumConstants.REST_MESSAGES_SEARCH_URI);
+				//tSites.add(REST_API_URL+LithiumConstants.REST_MESSAGES_SEARCH_URI);
+				// changed from /search/messages to threads/recent because of a problem where only 25 messages where tracked in each run
+				// TODO make parser work when using threads instead of messages
+				//tSites.add(REST_API_URL+LithiumConstants.REST_THREADS_URI+"/recent");
+				// changed back to /search/messages because the parser breaks 
 				tSites.add(REST_API_URL+LithiumConstants.REST_MESSAGES_SEARCH_URI);
+				
+				logger.trace("no restriction to specific sites, setting endpoint to " + tSites.get(0).toString());
 			} else {
 				logger.trace("converting given site restrictions to valid rest endpoints");
 				// otherwise each board from the sites section of the configuration file is surrounded by 
@@ -193,7 +203,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				for (int i = 0; i < tSites.size() ; i++) {
 					t = tSites.get(i);
 					//https://wissen.cortalconsors.de:443/restapi/vc/boards/id/Girokonto-Zahlungsverkehr/search/messages
+					//tSites.set(i, REST_API_URL + t + LithiumConstants.REST_THREADS_URI);
 					tSites.set(i, REST_API_URL + t + LithiumConstants.REST_MESSAGES_SEARCH_URI);
+					//tSites.set(i, REST_API_URL + t + "/recent");
 					logger.trace("     " + tSites.get(i));
 				}
 			}
@@ -220,6 +232,12 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 					logger.trace("now adding searchterm " + searchTerm + " to method parameter");
 					method.addParameter(LithiumConstants.SEARCH_TERM, searchTerm);
 				}
+				// add some more parameter to search term 
+				method.addParameter("collapse_discussion", "false");
+				method.addParameter("restapi.format_detail","full_list_element");
+				method.addParameter("thread_ascending", "thread_descending");
+				
+				
 				httpStatusCodes = HttpStatusCodes.getHttpStatusCode(client.executeMethod(method));
 				if (!httpStatusCodes.isOk()){
 					if (httpStatusCodes == HttpStatusCodes.FORBIDDEN){
@@ -257,9 +275,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 						 *  }
 						 */
 						JSONObject errorReference = (JSONObject)responseObj.get(LithiumConstants.JSON_ERROR_OBJECT_TEXT);
-						logger.error("the server returned an error " + errorReference.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT));
+						logger.error("the server returned an error " + errorReference.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT) + " while trying to retrieve " + postEndpoint);
 						
-						throw new GenericCrawlerException("the server returned an error " + errorReference.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT));
+						throw new GenericCrawlerException("the server returned an error " + errorReference.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT) + " while trying to retrieve " + postEndpoint);
 					} else {
 						
 						// give the json object to the lithium parser for further processing
@@ -268,7 +286,10 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 						
 						for(Object messageObj : messageArray){
 							messageCount++;
+							
 							String messageRef = (String) ((JSONObject)messageObj).get(LithiumConstants.JSON_MESSAGE_REFERENCE);
+							
+							logger.info("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
 							
 							JSONObject messageResponse = SendObjectRequest(messageRef, REST_API_URL, LithiumConstants.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
 							if (messageResponse != null) {
@@ -308,7 +329,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			logger.error("EXCEPTION :: Crawler Error: " + e.toString(), e);
 		}
 		
-		logger.info("Lithium-Crawler END - tracked "+messageCount+" messages\n");
+		logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages\n");
 	}
 	
 	
@@ -332,7 +353,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 		LithiumStatusCode jsonStatusCode = null;
 		
 		try {
-			logger.info("Lithium " + jsonObjectIdentifier + " tracked, retrieving from " + REST_API_URL + objectRef);
+			logger.debug("Lithium " + jsonObjectIdentifier + " tracked, retrieving from " + REST_API_URL + objectRef);
 			HttpClient client = new HttpClient();
 			
 			PostMethod method = new PostMethod(REST_API_URL+objectRef);
@@ -347,7 +368,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode())+" could not connect to " + REST_API_URL);
 				}
 			} else {
-				logger.trace("http connection established (status is " + httpStatusCodes + ")");
+				logger.debug("http connection established (status is " + httpStatusCodes + ")");
 			}	
 			
 			logger.trace("our " + jsonObjectIdentifier + " json within SendObjectRequest: " + jsonString);

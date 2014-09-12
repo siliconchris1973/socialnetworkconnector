@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
+	This is the configuration file for the Social Network Connector.
+	It configures low level startup parameter - like the crawlers to run.
+	To configure the runtime behavior of the SNC, take a look at 
+	* SNC_Runtime_Configuration.xml		- for general runtime configuration options
+	* SNC_Crawler_Configuration			- for the constraints to the crawler
+	* SNC_HANA_Configuration.xml		- for the hana coonfiguration 
+	* Administration-servlet.xml		- for the web administration servlet
+	* web.xml							- for general web configuration
+	* log4j.xml							- for logging options
+
+
 	Licensed to the Apache Software Foundation (ASF) under one or more contributor 
 	license agreements. See the NOTICE file distributed with this work for additional 
 	information regarding copyright ownership. The ASF licenses this file to 
@@ -94,12 +105,12 @@
 					crawlers. The total number of threads must include the number of actual crawlers in
 					this section plus the FsCrawler below and the GeneralConfgurationTrigger - resulting 
 					in number of crawlers plus 2 as the threadcount -->
-				<ref bean="TwitterCrawlerTrigger" />
+				<!-- <ref bean="TwitterCrawlerTrigger" /> -->
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
-				<!-- <ref bean="FinanzforumCrawlerTrigger"/> -->
-				<ref bean="LithiumCrawlerTrigger" />
+				<ref bean="WebCrawlerTrigger"/>
+				<!-- <ref bean="LithiumCrawlerTrigger" />  -->
 				
 				
 				<!-- FILESYSTEM CRAWLER - SAFEGUARD
@@ -141,6 +152,9 @@
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map>
+				<!-- THIS MUST BE SET ACCORDING TO AN EXISTING CODE FOR A SOCIAL NETWORK ENTRY IN SNC_Runtime_Configuration.xml -->
+				<entry key="SN_ID_CODE" value="TW" />
+				
 				<!-- These are the security tokens for the twitter API -->
 				<entry key="consumerKey" value="zlGuAavBH2T23hIm57l8WA" />
 				<entry key="consumerSecret" value="xzqH6lLWnXLvlHJooNDaCDXlzJzv976JcWt8y2eyHBk" />
@@ -176,6 +190,9 @@
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map>
+				<!-- THIS MUST BE SET ACCORDING TO AN EXISTING CODE FOR A SOCIAL NETWORK ENTRY IN SNC_Runtime_Configuration.xml -->
+				<entry key="SN_ID_CODE" value="CC" />
+				
 				<!-- These are security tokens - not used -->
 				<entry key="consumerKey" value="" />
 				<entry key="consumerSecret" value="" />
@@ -198,64 +215,60 @@
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
 		<property name="jobDetail" ref="LithiumCrawlerDetail" />
 		<property name="startDelay" value="2000" />
-		<property name="repeatInterval" value="150000" />
+		<property name="repeatInterval" value="300000" />
 	</bean>
 	
 	
-	<!-- W A L L S T R E E T - O N L I N E    C R A W L E R    (IN DEVELOPMENT) 
-	<bean name="WallstreetOnlineCrawlerDetail"
+	<!-- W E B    C R A W L E R    (IN DEVELOPMENT) -->
+	<bean name="WebCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="de.comlineag.snc.job.WallstreetOnlineCrawler" />
+		<property name="jobClass" value="de.comlineag.snc.job.SimpleWebCrawler" />
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map>
-				<entry key="consumerKey" value="" />
-				<entry key="consumerSecret" value="" />
-				<entry key="token" value="" />
-				<entry key="tokenSecret" value="" />
+				<!-- THIS MUST BE SET ACCORDING TO AN EXISTING CODE FOR A SOCIAL NETWORK ENTRY IN SNC_Runtime_Configuration.xml -->
+				<entry key="SN_ID_CODE" value="WO" />
 				
-				<entry key="user" value="Y29taW5lMjAxNA==" />
-				<entry key="passwd" value="TUd1LTZ0Yy1BUjUtdTdS" />
+				<!-- set the starting url and maximum number of links to follow -->
+				<entry key="server_url" value="http://www.wallstreet-online.de" />
+				<entry key="max_depth" value="10" />
 				
-				<entry key="protocol" value="https" />
-				<entry key="port" value="443" />
-				<entry key="server_url" value="www.wallstreet-online.de" />
-				<entry key="rest_api_loc" value="/restapi/vc" />
+				<!-- if the website requires an authentication, set username and password here -->
+				<entry key="user" value="" />
+				<entry key="passwd" value="" />
 			</map>
 		</property>
 	</bean>
-	<bean id="LithiumCrawlerTrigger"
+	<bean id="WebCrawlerTrigger"
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
-		<property name="jobDetail" ref="LithiumCrawlerDetail" />
+		<property name="jobDetail" ref="WebCrawlerDetail" />
 		<property name="startDelay" value="2000" />
-		<property name="repeatInterval" value="150000" />
+		<property name="repeatInterval" value="30000" />
 	</bean>
-	-->
+	
 	
 	<!-- F A C E B O O K    C R A W L E R    (TO BE IMPLEMENTED) -->
 	<bean name="FacebookCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="de.comlineag.snc.job.FacebookCrawler" />
+		<property name="jobClass" value="de.comlineag.snc.job.Facebook4JFbCrawler" />
 		<!-- <property name="concurrent" value="false" /> -->
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map>
-				<!-- These are security tokens -->
-				<entry key="consumerKey" value="" />
-				<entry key="consumerSecret" value="" />
-				<entry key="token" value="" />
-				<entry key="tokenSecret" value="" />
+				<!-- THIS MUST BE SET ACCORDING TO AN EXISTING CODE FOR A SOCIAL NETWORK ENTRY IN SNC_Runtime_Configuration.xml -->
+				<entry key="SN_ID_CODE" value="FB" />
 				
-				<!-- login settings -->
-				<entry key="user" value="" />
-				<entry key="passwd" value="" />
+				<!-- These are security tokens -->
+				<entry key="appId" value="1375488886009208" />
+				<entry key="appSecret" value="1d8ff81333b5dc9ba6ef0de228dfb130" />
+				<entry key="accessToken" value="1375488886009208|1d8ff81333b5dc9ba6ef0de228dfb130" />
+				<entry key="permissionSet" value="" />
 				
 				<!-- with these entries the url to the rest api and graph engine is generated -->
-				<entry key="protocol" value="https" />
-				<entry key="port" value="443" />
-				<entry key="server_url" value="graph.facebook.com" />
-				<entry key="graph_api_loc" value="/graph" />
-				<entry key="rest_api_loc" value="/restapi/" />
+				<entry key="protocol" value="https" /> 					<!-- the access protocol -->
+				<entry key="port" value="443" /> 						<!-- the port to use -->
+				<entry key="server_url" value="graph.facebook.com" /> 	<!-- the actual host -->
+				<entry key="location" value="" /> 						<!-- an addition to the host part of the location -->
 			</map>
 		</property>
 	</bean>
@@ -269,7 +282,7 @@
 							6000 - 1 minutes 
 							15000 - 2,5 minutes (round about) 
 							30000 - 5 minutes -->
-		<property name="repeatInterval" value="150000" />
+		<property name="repeatInterval" value="30000" />
 	</bean>
 	
 	
@@ -281,6 +294,8 @@
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map> 
+				<entry key="SN_ID_CODE" value="GP" />
+				
 				<entry key="consumerKey" value="" /> 
 				<entry key="consumerSecret" value="" /> 
 				<entry key="token" value="" /> 
@@ -300,7 +315,7 @@
 	<bean id="GoogleCrawlerTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean"> 
 		<property name="jobDetail" ref="GoogleCrawlerDetail" />
 		<property name="startDelay" value="1000" />
-		<property name="repeatInterval" value="150000" /> 
+		<property name="repeatInterval" value="30000" /> 
 	</bean> 
 -->
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -371,17 +386,34 @@
 	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	
 	<!-- F I L E S Y S T E M    J S O N    P E R S I S T E N C E    (WORKS)  
-	     This one simply stores all posts and users as json files on disk. If you activate
-	     this storage manager, you should DEFINATELY turn off the FsCrawler in the Job 
-	     control section above, otherwise your system will store and scan the ./json 
-	     directory with no end in sight -->
-	<!--
-	<bean id="persistenceManager" class="de.comlineag.snc.persistence.JsonFilePersistence"> 
-		<property name="path" value="json" /> 
-	</bean> 
-	-->
+	     This one simply stores all posts and users as json files on disk. It is mainly 
+	     thought of as a development and not as a runtime persistence manager. It uses 
+	     the same path options as the FailSavePersistence (which is automatically started
+	     in case a more sophisticated persistence manager, such as a DB, fails to store or 
+	     update posts and users) and as such does not need any options. All options, like
+	     the path to the directory, is taken from SNC_Runtime_Configuration.xml.
+	     If you activate this storage manager, you should DEFINATELY turn off the FsCrawler 
+	     in the Job control section, otherwise your system will end up storing and restoring
+	     the same objects as json files with no end in sight -->
+	<!-- -->
+	<bean id="persistenceManager" class="de.comlineag.snc.persistence.JsonFilePersistence" /> 
 	
-	<!-- H A N A    P E R S I S T E N C E    (WORKS) --> 
+	
+	<!-- H A N A    P E R S I S T E N C E    (WORKS) 
+		 The SAP HANA InMemory DB persistence can be used via JDBC or OData. As such,
+		 both options are set in this section. The properties for user and password
+		 need to be crypted in the format as specified in the crypto section for
+		 configuration options, called Configuration Crypto Settings. That means, if
+		 you used Base64 to encode your login options for the db, activate the Base64 
+		 crypto provider below.
+		 
+		 If you activate the HANA persistence manager, make sure to also activate 
+		 the FsCrawler in the job control section. In case HANA is unable to store your 
+		 data or the crawler is unable to connect to HANA, a FailSavePersistcenManager 
+		 is activated, which stores all failed objects as json file on disk. The FsCrawler 
+		 is used to scan the storage directory for failed objects and then tries to 
+		 insert them in the HANA DB. -->
+	<!-- 
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.HANAPersistence">
 		<property name="host" value="192.168.131.30" />
 		<property name="port" value="8000" />
@@ -394,7 +426,7 @@
 		<property name="user" value="U0JNX0VYVA==" />
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
 	</bean>
-	
+	--> 
 	 
 	<!-- C O U C H D B    P E R S I S T E N C E    (in progress) -->
 	<!-- 
@@ -487,8 +519,8 @@
 	
 	
 	<!-- D A T A     C R Y P T O     S E T T I N G S
-		 used to encrypt the data in the persistence (DB) -->
-	<!-- NULL   Crypto Provider   -   this is the bean to set the data encryption provider to null -->
+		 used to encrypt/decrypt the data within the persistence (DB) - has nothing to do with the configuration -->
+	<!-- NULL   Crypto Provider   -   this is the bean to set the data encryption provider to null - recommended -->
 	<bean id="dataCryptoProvider" class="de.comlineag.snc.crypto.NullCryptoProvider"> </bean>
 	
 	<!-- BASE64 Crypto Provider   -   this is the bean to set the data encryption provider to Base64 -->
@@ -508,7 +540,7 @@
 	
 	
 	<!-- S E A R C H     C R Y P T O     S E T T I N G S
-		 used to encrypt the search constraints from the crawler configuration -->
+		 used to encrypt/decrypt the search constraints from the crawler configuration -->
 	<!-- NULL   Crypto Provider   -   this is the bean to set the search encryption provider to null -->
 	<bean id="searchCryptoProvider" class="de.comlineag.snc.crypto.NullCryptoProvider"> </bean>
 	
@@ -535,7 +567,7 @@
 	
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	     NO NEED TO CHANGE ANYTHING BELOW THIS LINE - IF YOU DO CHANGE ANYTHING BE VERY
-	     CAREFUL WHAT YOU DO HERE - IF YOU CHANGE ANYTHING IT MIGHT BRAKE THE CONNECTOR 
+	     CAREFUL WHAT YOU DO HERE - IF YOU CHANGE ANYTHING IT MIGHT KILL THE CONNECTOR! 
 	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	<!-- F S    C R A W L E R    (IN DEVELOPMENT)		-->
 	<bean name="FsCrawlerDetail"
@@ -544,7 +576,7 @@
 		<!-- <property name="concurrent" value="false" /> -->
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
-			<map> 
+			<map>
 				<entry key="fileNamePattern" value=".*_fail.json" />
 				<!-- make absolutely sure, that these entries are in sync with SNC_Runtime_Configuration.xml -->
 				<entry key="StoragePath" value="storage"/>
@@ -560,7 +592,7 @@
 		<property name="jobDetail" ref="FsCrawlerDetail" />
 		<!-- <property name="startDelay" value="30000" /> -->
 		<property name="startDelay" value="300" />
-		<property name="repeatInterval" value="90000" />
+		<property name="repeatInterval" value="180000" />
 	</bean>
 	
 	<!-- R U N T I M E    S E T T I N G S -->

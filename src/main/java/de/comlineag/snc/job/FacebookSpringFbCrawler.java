@@ -1,8 +1,8 @@
 package de.comlineag.snc.job;
 
 import java.util.ArrayList;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
@@ -13,12 +13,17 @@ import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.springframework.social.facebook.api.Facebook;
+import org.springframework.social.facebook.api.Location;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
+import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.FacebookConstants;
 import de.comlineag.snc.handler.FacebookParser;
+
+import com.google.common.base.Joiner;
 
 /**
  *
@@ -40,7 +45,7 @@ import de.comlineag.snc.handler.FacebookParser;
  *
  */
 @DisallowConcurrentExecution 
-public class FacebookCrawler extends GenericCrawler implements Job {
+public class FacebookSpringFbCrawler extends GenericCrawler implements Job {
 	private static String CRAWLER_NAME="FACEBOOK";
 	
 	// we use simple org.apache.log4j.Logger for lgging
@@ -48,34 +53,50 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
-	// Set up your blocking queues: Be sure to size these properly based on
-	// expected TPS of your stream
-	private final BlockingQueue<String> msgQueue;
+	// the post object for the facebook parser - probably not needed
 	private final FacebookParser post;
+	
+	private Facebook facebook;
+	
+	// a single post as a String object
+	private String msg = null;
 	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
 	private String smallLogMessage = "";
-
-	public FacebookCrawler() {
-		// Define message and event queue
-		msgQueue = new LinkedBlockingQueue<String>(FacebookConstants.MESSAGE_BLOCKING_QUEUE_SIZE);
-		
+	
+	@Inject
+	public FacebookSpringFbCrawler() {
 		// instantiate the Facebook-Posting-Manager
 		post = new FacebookParser();
+		this.facebook = facebook;
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
-		configurationScope.put((String) "SN_ID", (String) "\""+SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME)+"\"");
-				
-		// set the customer we start the crawler for
-		String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());		
+		@SuppressWarnings("rawtypes")
+		CrawlerConfiguration<?> facebookConfig = new CrawlerConfiguration();
+		//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
+		JSONObject configurationScope = facebookConfig.getCrawlerConfigurationScope();
+		configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
 		
-		// log the startup message
-		logger.info("Facebook-Crawler START for " + curCustomer);
+		// set the customer we start the crawler for and log the startup message
+		String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
+		String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
+		
+		if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
+			logger.info(CRAWLER_NAME+"-Crawler START");
+		} else {
+			if (!"undefined".equals(curDomain) && !"undefined".equals(curCustomer)) {
+				logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer + " in " + curDomain);
+			} else {
+				if (!"undefined".equals(curDomain))
+					logger.info(CRAWLER_NAME+"-Crawler START for " + curDomain);
+				else
+					logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer);
+			}
+		}
 		int messageCount = 0;
 		
 		
@@ -84,7 +105,7 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope);
 		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope);
 		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
-		//ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(RuntimeConfiguration.getConstraintLocationText(), configurationScope);
+		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(RuntimeConfiguration.getConstraintLocationText(), configurationScope);
 		
 		// log output AND setup of the filter end point
 		if (tTerms.size()>0) {
@@ -96,54 +117,37 @@ public class FacebookCrawler extends GenericCrawler implements Job {
 		if (tLangs.size()>0) {
 			smallLogMessage += "specific languages ";
 		}
-		/*
 		if (tLocas.size()>0) {
 			smallLogMessage += "specific Locations ";
 		}
 		
-		Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_CLIENT_ID_KEY),
-											(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_CLIENT_SECRET_KEY),
-											(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_TOKEN_ID_KEY),
-											(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_TOKEN_SECRET_KEY));
+		// get OAuth authorization details and acquire facebook instance
+		  // (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_APP_ID_KEY))
+		  // (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_APP_SECRET_KEY))
+		  // (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_ACCESS_TOKEN_KEY))
+		  // (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PERMISSIONSET_KEY));
 		
-		// Create a new BasicClient. By default gzip is enabled.
-		Client client = new ClientBuilder().hosts(Constants.STREAM_HOST).endpoint(endpoint).authentication(sn_Auth)
-				.processor(new StringDelimitedProcessor(msgQueue)).connectionTimeout(1000).build();
-		*/
 		try {
-			// Establish a connection
-			try {
-				logger.debug("crawler connecting to endpoint " );
-				//client.connect();
-			} catch (Exception e) {
-				logger.error("EXCEPTION :: connecting to " +  " failed: " + e.getMessage(), e);
-				//client.stop();
-			}
-			
 			logger.info("new facebook crawler instantiated - restricted to track " + smallLogMessage);
+			
+			// execute a different search type
+			String searchUri = "https://graph.facebook.com/search?access_token="+(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_ACCESS_TOKEN_KEY)+"q=QUERY&type=OBJECT_TYPE";
 			
 			// Do whatever needs to be done with messages
 			for (int msgRead = 0; msgRead < 1000; msgRead++) {
 				messageCount++;
-				String msg = "";
-				try {
-					msg = msgQueue.take();
-				} catch (InterruptedException e) {
-					logger.error("ERROR :: Message loop interrupted " + e.getMessage());
-				} catch (Exception ee) {
-					logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
-				}
-				logger.info("New message tracked from " + msg.substring(15, 45) + "... / number " + messageCount + " in this job run");
+				
+				logger.info("New message tracked from " + msg.toString().substring(15, 45) + "... / number " + messageCount + " in this job run");
 				logger.trace("   content: " + msg );
 				
 				// pass each tracked message to the parser
-				post.process(msg);
+				//post.process(msg.toString());
 			}
 		} catch (Exception e) {
 			logger.error("Error while processing messages", e);
 		}
 		// kill the connection
 		//client.stop();
-		logger.info("Facebook-Crawler END - tracked "+messageCount+" messages\n");
+		logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages\n");
 	}
 }

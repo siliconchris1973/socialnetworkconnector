@@ -116,17 +116,17 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		// set the customer we start the crawler for and log the startup message
 		String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
 		String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
-		
+
 		if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
-			logger.info("Twitter-Crawler START");
+			logger.info(CRAWLER_NAME+"-Crawler START");
 		} else {
 			if (!"undefined".equals(curDomain) && !"undefined".equals(curCustomer)) {
-				logger.info("Twitter-Crawler START for " + curCustomer + " in " + curDomain);
+				logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer + " in " + curDomain);
 			} else {
 				if (!"undefined".equals(curDomain))
-					logger.info("Twitter-Crawler START for " + curDomain);
+					logger.info(CRAWLER_NAME+"-Crawler START for " + curDomain);
 				else
-					logger.info("Twitter-Crawler START for " + curCustomer);
+					logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer);
 			}
 		}
 		int messageCount = 0;
@@ -183,7 +183,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				client.stop();
 			}
 			
-			logger.info("new twitter crawler instantiated - restricted to track " + smallLogMessage);
+			logger.info("New "+CRAWLER_NAME+" crawler instantiated - restricted to track " + smallLogMessage);
 			
 			// Do whatever needs to be done with messages
 			for (int msgRead = 0; msgRead < 1000; msgRead++) {
@@ -196,7 +196,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				} catch (Exception ee) {
 					logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
 				}
-				logger.info("New Tweet tracked from " + msg.substring(15, 45) + "... / number " + messageCount + " in this job run");
+				logger.info("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
 				logger.trace("   content: " + msg );
 				
 				// Jede einzelne Message wird nun an den Parser TwitterParser uebergeben
@@ -206,6 +206,6 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			logger.error("Error while processing messages", e);
 		}
 		client.stop();
-		logger.info("Twitter-Crawler END - tracked "+messageCount+" messages\n");
+		logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages\n");
 	}
 }

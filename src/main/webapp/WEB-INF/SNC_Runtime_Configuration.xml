@@ -136,9 +136,9 @@
 		</network>
 		
 		<!-- WALLSTREET ONLINE - a financial oriented discussion and news forum -->
-		<network name="WS"><name>WALLSTREETONLINE</name></network>
+		<network name="WO"><name>WALLSTREETONLINE</name></network>
 		<network name="WALLSTREETONLINE">
-			<code>WS</code>
+			<code>WO</code>
 			<name>Wallstreet-Online</name>
 			<description>Wallstreet Online - a financial oriented discussion and news forum</description>
 			<domain>https://www.wallstreet-online.de</domain>

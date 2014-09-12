@@ -31,6 +31,9 @@ public final class LithiumConstants {
 	public static final String JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER	= "message";
 	public static final String JSON_MESSAGE_REFERENCE					= "href";
 	
+	public static final String JSON_THREADS_OBJECT_IDENTIFIER			= "threads";
+	public static final String JSON_SINGLE_THREAD_OBJECT_IDENTIFIER		= "thread";
+	
 	// these are used within a message to identify the user (aka author of the post)
 	public static final String JSON_AUTHOR_OBJECT_IDENTIFIER			= "author";
 	public static final String JSON_AUTHOR_REFERENCE					= "href";
@@ -41,6 +44,8 @@ public final class LithiumConstants {
 	public static final String REST_MESSAGES_SEARCH_URI					= "/search/messages";
 	public static final String REST_USERS_SEARCH_URI					= "/search/users";
 	public static final String REST_BOARD_SEARCH_URI					= "/boards/id";
+	public static final String REST_THREADS_URI							= "/threads";
+	public static final String REST_MESSAGES_URI						= "/messages";
 	
 	// constants for the search process
 	public static final String SEARCH_TERM								= "phrase";

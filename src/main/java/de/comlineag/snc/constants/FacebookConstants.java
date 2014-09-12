@@ -8,7 +8,7 @@ package de.comlineag.snc.constants;
  * @status		productive
  * 
  * @description provides constants for use with the Facebook Network crawler and parser. 
- * 				This class is instantiated by FacebookCrawler and FacebookParser and the
+ * 				This class is instantiated by FacebookSpringFbCrawler and FacebookParser and the
  * 				values are referenced therein
  *
  * @changelog	0.1 (Chris)		class created

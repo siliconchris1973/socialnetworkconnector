@@ -16,7 +16,7 @@
 		This is the logging configuration file for SNC - it logs 
 					all SNC related log information to comlineag-loggerSNC.log
 					all Spring job logs to comlineag-loggerSNC_Job.log 
-					all Apache and Http logs to comlineag-loggerSNC_Http.log 
+					all Apache and Http logs to comlineag-loggerSNC_Http.log  - this includes social network api logs
 	-->
 
 	<!-- console logging -->
@@ -76,6 +76,13 @@
 	</logger>
 	<!-- log infos from apache framework -->
 	<logger name="httpclient.wire">
+		<level value="info"></level>
+		<appender-ref ref="console" />
+		<appender-ref ref="fileH" />
+	</logger>
+	
+	<!-- log infos from facebook4j -->
+	<logger name="facebook4j.internal.http">
 		<level value="info"></level>
 		<appender-ref ref="console" />
 		<appender-ref ref="fileH" />

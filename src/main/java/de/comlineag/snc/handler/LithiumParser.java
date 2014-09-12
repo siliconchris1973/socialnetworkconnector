@@ -18,8 +18,8 @@ import de.comlineag.snc.constants.LithiumStatusCode;
  * 
  * @author 		Christian Guenther, Maic Rittmeier
  * @category 	Handler				
- * @version		0.7
- * @status		productive
+ * @version		0.8
+ * @status		killed the code
  *  
  * @description LithiumParser implementation of the parser for the Lithium network community
  * 				LithiumParsr is an extension of the default GenericParser but differs in that
@@ -35,6 +35,9 @@ import de.comlineag.snc.constants.LithiumStatusCode;
  * 				0.5 			bugfixing and optimization
  * 				0.6 			implemented proper json error handling
  * 				0.7 			changed constants to be static
+ * 				0.8				moved parsing of first message element into own class LithiumMessageParser
+ * 								added second parsing class (own file) LithiumThreadParser to cope with
+ * 								parsing more complex threads
  * 
  */
 public final class LithiumParser extends GenericParser {
@@ -43,6 +46,9 @@ public final class LithiumParser extends GenericParser {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	
+	String outerObjectIdentifier = LithiumConstants.JSON_MESSAGES_OBJECT_IDENTIFIER;
+	String innerObjectIdentifier = LithiumConstants.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER;
 	
 	public LithiumParser() {}
 
@@ -59,8 +65,9 @@ public final class LithiumParser extends GenericParser {
 	 * 					of json objects
 	 */
 	public  JSONArray parseMessages(String jsonString) {
-		logger.trace("Lithium parser instantiated for messages with " + jsonString);
-		
+		logger.debug("Lithium parser instantiated for messages");
+		//logger.trace("   message content is: " + jsonString);
+	
 		// this is the status code within the json object string
 		LithiumStatusCode jsonStatusCode = null;
 		
@@ -72,10 +79,11 @@ public final class LithiumParser extends GenericParser {
 		Object obj = null;
 		try {
 			obj = parser.parse(jsonString);
-		
+			
 			JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
-			if(jsonObj == null)
-				throw new ParseException(0, "returned json object is null");
+			
+			logger.trace("the given json string is " + jsonString.length() + " characters long and the parsed object has " + jsonObj.size() + " key/value mappings of type " + jsonObj.keySet().toString());
+			
 			JSONObject responseObj = (JSONObject)jsonObj.get(LithiumConstants.JSON_RESPONSE_OBJECT_TEXT);
 			
 			// first check if the server response is not only OK from an http point of view, but also
@@ -94,8 +102,17 @@ public final class LithiumParser extends GenericParser {
 				throw new LithiumStatusException("the server returned error " + jsonErrorObj.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + jsonErrorObj.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT));
 			}
 			
-			JSONObject messages = (JSONObject) responseObj.get(LithiumConstants.JSON_MESSAGES_OBJECT_IDENTIFIER);
-			JSONArray messageArray = (JSONArray) messages.get(LithiumConstants.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
+			String threadsOrMessages = "messages";
+			JSONArray messageArray = null;
+			
+			// now either call threads or messages and return that			
+			if ("messages".equals(threadsOrMessages)) {
+				LithiumMessageParser lps = new LithiumMessageParser();
+				messageArray = lps.parse(responseObj);
+			} else if ("threads".equals(threadsOrMessages)) {
+				LithiumThreadsParser lps = new LithiumThreadsParser();
+				messageArray = lps.parse(responseObj);
+			}
 			
 			return messageArray;
 			
