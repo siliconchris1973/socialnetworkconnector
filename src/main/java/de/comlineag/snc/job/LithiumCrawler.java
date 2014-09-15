@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 
 
 
+
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.ConfigurationConstants;
@@ -76,7 +77,10 @@ import de.comlineag.snc.handler.LithiumUser;
 public class LithiumCrawler extends GenericCrawler implements Job {
 	// it is VERY imoportant to set the crawler name (all in uppercase) here
 	private static String CRAWLER_NAME="LITHIUM";
-		
+	
+	// shall the system grab messages directly or through threads
+	String threadsOrMessages = "messages";
+	
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
@@ -188,12 +192,15 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			// if no specific sites are configured, we use the standard REST_API_URL and message search endpoint
 			if (tSites.size()==0){
 				logger.trace("not site restrictions given");
-				//tSites.add(REST_API_URL+LithiumConstants.REST_MESSAGES_SEARCH_URI);
-				// changed from /search/messages to threads/recent because of a problem where only 25 messages where tracked in each run
-				// TODO make parser work when using threads instead of messages
-				//tSites.add(REST_API_URL+LithiumConstants.REST_THREADS_URI+"/recent");
-				// changed back to /search/messages because the parser breaks 
-				tSites.add(REST_API_URL+LithiumConstants.REST_MESSAGES_SEARCH_URI);
+				// now either call threads or messages and return that			
+				if ("messages".equals(threadsOrMessages)) {
+					logger.debug("MESSAGES chosen");
+					tSites.add(REST_API_URL+LithiumConstants.REST_MESSAGES_SEARCH_URI);
+				} else if ("threads".equals(threadsOrMessages)) {
+					// TODO make parser work when using threads instead of messages
+					logger.debug("THREADS chosen");
+					tSites.add(REST_API_URL+LithiumConstants.REST_THREADS_URI+"/recent");
+				}
 				
 				logger.trace("no restriction to specific sites, setting endpoint to " + tSites.get(0).toString());
 			} else {
@@ -203,10 +210,15 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				String t = null;
 				for (int i = 0; i < tSites.size() ; i++) {
 					t = tSites.get(i);
-					//https://wissen.cortalconsors.de:443/restapi/vc/boards/id/Girokonto-Zahlungsverkehr/search/messages
-					//tSites.set(i, REST_API_URL + t + LithiumConstants.REST_THREADS_URI);
-					tSites.set(i, REST_API_URL + t + LithiumConstants.REST_MESSAGES_SEARCH_URI);
-					//tSites.set(i, REST_API_URL + t + "/recent");
+					// EXAMPLE https://wissen.cortalconsors.de:443/restapi/vc/boards/id/Girokonto-Zahlungsverkehr/search/messages
+					if ("messages".equals(threadsOrMessages)) {
+						logger.debug("MESSAGES chosen");
+						tSites.set(i, REST_API_URL + t + LithiumConstants.REST_MESSAGES_SEARCH_URI);
+					} else if ("threads".equals(threadsOrMessages)) {
+						// TODO make parser work when using threads instead of messages
+						logger.debug("THREADS chosen");
+						tSites.set(i, REST_API_URL + t + LithiumConstants.REST_THREADS_URI);
+					}
 					logger.trace("     " + tSites.get(i));
 				}
 			}

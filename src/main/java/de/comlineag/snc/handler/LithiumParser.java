@@ -47,8 +47,8 @@ public final class LithiumParser extends GenericParser {
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
-	String outerObjectIdentifier = LithiumConstants.JSON_MESSAGES_OBJECT_IDENTIFIER;
-	String innerObjectIdentifier = LithiumConstants.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER;
+	// shall the system grab messages directly or through threads
+	String threadsOrMessages = "messages";
 	
 	public LithiumParser() {}
 
@@ -102,16 +102,17 @@ public final class LithiumParser extends GenericParser {
 				throw new LithiumStatusException("the server returned error " + jsonErrorObj.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + jsonErrorObj.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT));
 			}
 			
-			String threadsOrMessages = "messages";
 			JSONArray messageArray = null;
 			
 			// now either call threads or messages and return that			
 			if ("messages".equals(threadsOrMessages)) {
+				logger.debug("MESSAGES chosen");
 				JSONObject messages = (JSONObject) responseObj.get(LithiumConstants.JSON_MESSAGES_OBJECT_IDENTIFIER);
 				messageArray = (JSONArray) messages.get(LithiumConstants.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
 			} else if ("threads".equals(threadsOrMessages)) {
-				LithiumThreadsParser lps = new LithiumThreadsParser();
-				messageArray = lps.parse(responseObj);
+				logger.debug("THREADS chosen");
+				JSONObject messages = (JSONObject) responseObj.get(LithiumConstants.JSON_THREADS_OBJECT_IDENTIFIER);
+				messageArray = (JSONArray) messages.get(LithiumConstants.JSON_SINGLE_THREAD_OBJECT_IDENTIFIER);
 			}
 			
 			return messageArray;

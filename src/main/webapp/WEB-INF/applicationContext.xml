@@ -40,60 +40,19 @@
                            http://www.springframework.org/schema/util 
                            http://www.springframework.org/schema/util/spring-util.xsd">
                           
-	<!-- Activate Spring annotation support -->
-	<context:annotation-config />
-		<context:component-scan base-package="de.comlineag.snc.appstate" />
-		<context:component-scan base-package="de.comlineag.snc.constants" />
-		<context:component-scan base-package="de.comlineag.snc.crypto" />
-		<context:component-scan base-package="de.comlineag.snc.data" />
-		<context:component-scan base-package="de.comlineag.snc.handler" />
-		<context:component-scan base-package="de.comlineag.snc.helper" />
-		<context:component-scan base-package="de.comlineag.snc.job" />
-		<context:component-scan base-package="de.comlineag.snc.neo4j" />
-		<context:component-scan base-package="de.comlineag.snc.persistence" />
-	<tx:annotation-driven />
-	
-	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.appstate.ApplicationContextProvider"></bean>
-	
-	
-	<!-- Quartz scheduler properties 
-		 these entries are needed for the JMX Access to the Job Factory, 
-		 so that the job state can be monitored by the administration website -->
-	<bean id="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-		<property name="quartzProperties"> 
-			<util:properties>
-				<!-- Must be set to true, otherwise the Quartz scheduler is not registered in the JMX server. -->
-				<prop key="org.quartz.scheduler.jmx.export">true</prop>
-				<!-- JMX object name the Quartz scheduler is registered under in the JMX server. -->
-				<prop key="org.quartz.scheduler.jmx.objectName"> quartz:type=QuartzScheduler,name=SNC</prop>
-			</util:properties>
-  		</property>
-	</bean>
-	
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 	     J O B    C O N T R O L    S E T T I N G S  -  J O B    C O N T R O L    S E T
 	     this is the section in which to turn on/off the different crawler 
 	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-		<property name="autoStartup">
-			<value>true</value>
-		</property>
-
-		<property name="overwriteExistingJobs">
-			<value>true</value>
-		</property>
-
-		<property name="waitForJobsToCompleteOnShutdown">
-			<!-- changed value from true to false, due to reported shutdown issues -->
-			<value>false</value>
-		</property>
+		<property name="autoStartup"><value>true</value></property>
+		<property name="overwriteExistingJobs"><value>true</value></property>
+		<property name="waitForJobsToCompleteOnShutdown"><value>false</value></property>
 
 		<property name="quartzProperties">
 			<props>
 				<!-- ThreadPool -->
 				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
-				<!-- currently, if this is set to a value higher than 1, the twitter crawler sometimes 
-					encounters exceptions during db insert or update. -->
 				<prop key="org.quartz.threadPool.threadCount">4</prop>
 			</props>
 		</property>
@@ -109,8 +68,8 @@
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
-				<!-- <ref bean="SimpleWebCrawlerTrigger"/>  -->
-				 <ref bean="LithiumCrawlerTrigger" />  
+				<ref bean="SimpleWebCrawlerTrigger"/>
+				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
 				
 				
 				<!-- FILESYSTEM CRAWLER - SAFEGUARD
@@ -424,7 +383,7 @@
 		 is activated, which stores all failed objects as json file on disk. The FsCrawler 
 		 is used to scan the storage directory for failed objects and then tries to 
 		 insert them in the HANA DB. -->
-	<!-- 
+	<!--
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.HANAPersistence">
 		<property name="host" value="192.168.131.30" />
 		<property name="port" value="8000" />
@@ -437,7 +396,7 @@
 		<property name="user" value="U0JNX0VYVA==" />
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
 	</bean>
-	--> 
+	 -->
 	 
 	<!-- C O U C H D B    P E R S I S T E N C E    (in progress) -->
 	<!-- 
@@ -624,5 +583,37 @@
 		<property name="jobDetail" ref="RuntimeConfigurationDetail" />
 		<property name="startDelay" value="1" />
 		<property name="repeatInterval" value="120000" />
+	</bean>
+	
+	
+	
+	<!-- Activate Spring annotation support -->
+	<context:annotation-config />
+		<context:component-scan base-package="de.comlineag.snc.appstate" />
+		<context:component-scan base-package="de.comlineag.snc.constants" />
+		<context:component-scan base-package="de.comlineag.snc.crypto" />
+		<context:component-scan base-package="de.comlineag.snc.data" />
+		<context:component-scan base-package="de.comlineag.snc.handler" />
+		<context:component-scan base-package="de.comlineag.snc.helper" />
+		<context:component-scan base-package="de.comlineag.snc.job" />
+		<context:component-scan base-package="de.comlineag.snc.neo4j" />
+		<context:component-scan base-package="de.comlineag.snc.persistence" />
+	<tx:annotation-driven />
+	
+	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.appstate.ApplicationContextProvider"></bean>
+	
+	
+	<!-- Quartz scheduler properties 
+		 these entries are needed for the JMX Access to the Job Factory, 
+		 so that the job state can be monitored by the administration website -->
+	<bean id="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="quartzProperties"> 
+			<util:properties>
+				<!-- Must be set to true, otherwise the Quartz scheduler is not registered in the JMX server. -->
+				<prop key="org.quartz.scheduler.jmx.export">true</prop>
+				<!-- JMX object name the Quartz scheduler is registered under in the JMX server. -->
+				<prop key="org.quartz.scheduler.jmx.objectName"> quartz:type=QuartzScheduler,name=SNC</prop>
+			</util:properties>
+  		</property>
 	</bean>
 </beans>
