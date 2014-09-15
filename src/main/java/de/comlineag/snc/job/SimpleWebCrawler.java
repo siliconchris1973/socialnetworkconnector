@@ -65,7 +65,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	private String host = "";
 	 // whether or not to follow links OFF of the initial domain
 	private Boolean stayOnDomain = true;
-	private int port = 443;
+	private int port = 80;
 	private String user = null;
 	private String passwd = null;
 	
@@ -190,12 +190,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			if (robotSafe(url)) {
 				// only need this, if we want to write our own file, otherwise KCE will get the inputstream directly
 				String page = getpage(url);
-				String cleanedPage = getCleanPageContent(url);
-				
-				// this is the position to implement the actual url parser and store the data in the db
-				logger.trace(cleanedPage);
-				
-				
 				
 				// currently we just create a new file and store the page content in it
 				File f1 = new File("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
@@ -203,16 +197,17 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					FileWriter rawFile;
 					FileWriter strippedFile;
 					try {
-						strippedFile = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+"stripped_"+fileName);
-						strippedFile.write(dataCryptoProvider.encryptValue(DataHelper.stripHTML(cleanedPage)));
-						
 						rawFile = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
 						rawFile.write(dataCryptoProvider.encryptValue(page));
-						
-						strippedFile.flush();
-						strippedFile.close();
 						rawFile.flush();
 						rawFile.close();
+						
+						// after the file has been written to disk, clean the content
+						String cleanedPage = getCleanPageContent("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
+						strippedFile = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+"stripped_"+fileName);
+						strippedFile.write(dataCryptoProvider.encryptValue(DataHelper.stripHTML(cleanedPage)));
+						strippedFile.flush();
+						strippedFile.close();
 						
 						
 					} catch (IOException e) {
@@ -224,7 +219,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					
 					
 				}
-				if (page.length() != 0) processpage(url,page);
+				if (page.length() != 0) getLinksFromPage(url,page);
 				
 				if (newURLs.isEmpty()) break;
 			}
@@ -263,7 +258,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		Properties newprops = new Properties(props);
 		System.setProperties(newprops);
 		
-		logger.debug("All set! Initializing scan - starting with site " + url + " and limited to download " + maxPages);
+		logger.debug("All set! Initializing scan - starting with site " + url + " and limited to download " + maxPages + " pages");
 	}
 	
 	
@@ -379,7 +374,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	// by <a href=" ...   It ends with a close angle bracket, preceded
 	// by a close quote, possibly preceded by a hatch mark (marking a
 	// fragment, an internal page marker)
-	public void processpage(URL url, String page) { 
+	public void getLinksFromPage(URL url, String page) { 
 		String lcPage = page.toLowerCase(); // Page in lower case
 		int index = 0; // position in page
 		int iEndAngle, ihref, iURL, iCloseQuote, iHatchMark, iEnd;
@@ -411,7 +406,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		}
 	}
 	
-	// get the cleaned page content
+	/* get the cleaned page content
 	public String getCleanPageContent(URL url){
 		logger.debug("cleaning page from all clutter...");
 		// now get the contet of the page and feed it to KCE
@@ -426,32 +421,51 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			logger.error("WARN :: could not get the url " + url.toString() + " - " + SNCStatusCodes.WARN.getErrorCode());
 		}
 		
+	*/
+	public String getCleanPageContent(String file){
+		logger.debug("cleaning page "+file+" from all clutter...");
+		
+		
 		// settings for the KCE Key Content Extractor from 
 		// http://sourceforge.net/projects/senews/files/KeyContentExtractor/KCE-1.0/
 		// allocate a new extractor with default settings
+		// TODO find out why KCE brings the webcrawler to a hold, when this code is reached
 		KceSettings settings = new KceSettings();
+		logger.debug("1");
 		// load settings from "conf/keycontent.properties" file
 		settings.loadSettings("WEB-INF/keycontent.properties");
+		logger.debug("2");
 		// construct a new extractor
 		Kce extractor = new Kce(settings);
+		logger.debug("3");
+		
+		/*  TODO find out why KCE brings the webcrawler to a hold, when this is activated
 		// register additional listeners
 		LinkFoundListener linkFoundListener = new LinkFoundListener();
 		TitleFoundListener titleNodeFoundListener = new TitleFoundListener();
+		
 		extractor.registerNodeFoundListener(linkFoundListener);
 		extractor.registerNodeFoundListener(titleNodeFoundListener);
-		// perform extraction of key content from a html file "file.html" encoded as ISO-8859-1 
-		//Document document = extractor.extractKeyContent(new FileInputStream(new File("file.html")), "ISO-8859-1", null);
-		Document document = extractor.extractKeyContent(urlStream, "ISO-8859-1", null);
-		if (document != null) { // cleaning was successful 
-			StringWriter stringWriter = new StringWriter();
-			// present cleaned document as String
-			Kce.prettyPrint(document, "utf-8", stringWriter);
-			return stringWriter.toString();
-		} else {
-			return null;
+		*/
+		try {
+			// perform extraction of key content from a html file "file.html" encoded as ISO-8859-1 
+			//Document document = extractor.extractKeyContent(new FileInputStream(new File("file.html")), "ISO-8859-1", null);
+			Document document = extractor.extractKeyContent(new FileInputStream(new File(file)), "ISO-8859-1", null);
+			logger.debug("4");
+			if (document != null) { // cleaning was successful
+				logger.trace("...success");
+				StringWriter stringWriter = new StringWriter();
+				// present cleaned document as String
+				Kce.prettyPrint(document, "utf-8", stringWriter);
+				System.out.println(stringWriter);
+				//return stringWriter.toString();
+			}
+		} catch (FileNotFoundException e) {
+			logger.error("WARN :: could not get the file " + file.toString() + " - " + SNCStatusCodes.WARN.getErrorCode());
 		}
-		
+		return null;
 	}
+	
 	
 	// Download the content of the URL
 	public String getpage(URL url) { 

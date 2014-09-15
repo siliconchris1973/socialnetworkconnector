@@ -65,7 +65,7 @@ public final class LithiumParser extends GenericParser {
 	 * 					of json objects
 	 */
 	public  JSONArray parseMessages(String jsonString) {
-		logger.debug("Lithium parser instantiated for messages");
+		logger.debug("Lithium parser instantiated");
 		//logger.trace("   message content is: " + jsonString);
 	
 		// this is the status code within the json object string
@@ -107,8 +107,8 @@ public final class LithiumParser extends GenericParser {
 			
 			// now either call threads or messages and return that			
 			if ("messages".equals(threadsOrMessages)) {
-				LithiumMessageParser lps = new LithiumMessageParser();
-				messageArray = lps.parse(responseObj);
+				JSONObject messages = (JSONObject) responseObj.get(LithiumConstants.JSON_MESSAGES_OBJECT_IDENTIFIER);
+				messageArray = (JSONArray) messages.get(LithiumConstants.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
 			} else if ("threads".equals(threadsOrMessages)) {
 				LithiumThreadsParser lps = new LithiumThreadsParser();
 				messageArray = lps.parse(responseObj);

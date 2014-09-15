@@ -109,8 +109,8 @@
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
-				<ref bean="WebCrawlerTrigger"/>
-				<!-- <ref bean="LithiumCrawlerTrigger" />  -->
+				<!-- <ref bean="SimpleWebCrawlerTrigger"/>  -->
+				 <ref bean="LithiumCrawlerTrigger" />  
 				
 				
 				<!-- FILESYSTEM CRAWLER - SAFEGUARD
@@ -219,8 +219,8 @@
 	</bean>
 	
 	
-	<!-- W E B    C R A W L E R    (IN DEVELOPMENT) -->
-	<bean name="WebCrawlerDetail"
+	<!-- S I M P L E    W E B    C R A W L E R    (IN DEVELOPMENT) -->
+	<bean name="SimpleWebCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.snc.job.SimpleWebCrawler" />
 		<property name="durability" value="true" />
@@ -250,9 +250,9 @@
 			</map>
 		</property>
 	</bean>
-	<bean id="WebCrawlerTrigger"
+	<bean id="SimpleWebCrawlerTrigger"
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
-		<property name="jobDetail" ref="WebCrawlerDetail" />
+		<property name="jobDetail" ref="SimpleWebCrawlerDetail" />
 		<property name="startDelay" value="2000" />
 		<property name="repeatInterval" value="30000000" />
 	</bean>

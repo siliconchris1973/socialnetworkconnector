@@ -187,6 +187,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			
 			// if no specific sites are configured, we use the standard REST_API_URL and message search endpoint
 			if (tSites.size()==0){
+				logger.trace("not site restrictions given");
 				//tSites.add(REST_API_URL+LithiumConstants.REST_MESSAGES_SEARCH_URI);
 				// changed from /search/messages to threads/recent because of a problem where only 25 messages where tracked in each run
 				// TODO make parser work when using threads instead of messages
@@ -233,9 +234,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 					method.addParameter(LithiumConstants.SEARCH_TERM, searchTerm);
 				}
 				// add some more parameter to search term 
-				method.addParameter("collapse_discussion", "false");
-				method.addParameter("restapi.format_detail","full_list_element");
-				method.addParameter("thread_ascending", "thread_descending");
+				//method.addParameter("collapse_discussion", "false");
+				//method.addParameter("restapi.format_detail","full_list_element");
+				//method.addParameter("thread_ascending", "thread_descending");
 				
 				
 				httpStatusCodes = HttpStatusCodes.getHttpStatusCode(client.executeMethod(method));
@@ -251,7 +252,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 					
 					// now get the json and check on that
 					String jsonString = method.getResponseBodyAsString();
-					//logger.trace("our posting json in the execute loop: " + jsonString);
+					logger.trace("our posting json in the execute loop: " + jsonString);
 					
 					// now do the check on json error details within  the returned JSON object
 					JSONParser errParser = new JSONParser();
@@ -279,7 +280,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 						
 						throw new GenericCrawlerException("the server returned an error " + errorReference.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT) + " while trying to retrieve " + postEndpoint);
 					} else {
-						
+						logger.debug("json response was ok, now extracting the messages");
 						// give the json object to the lithium parser for further processing
 						LithiumParser litParse = new LithiumParser();
 						JSONArray messageArray = litParse.parseMessages(jsonString);
