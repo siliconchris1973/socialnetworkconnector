@@ -1,0 +1,274 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Linux)">
+	<META NAME="CREATED" CONTENT="20070219;15333200">
+	<META NAME="CHANGEDBY" CONTENT="poroshin">
+	<META NAME="CHANGED" CONTENT="20070221;11211300">
+	<STYLE TYPE="text/css">
+	<!--
+		@page { size: 8.5in 11in }
+		H2 { margin-bottom: 0.04in }
+		H2.western { font-family: "Arial", sans-serif; font-size: 14pt; font-style: italic }
+		H2.cjk { font-size: 14pt; font-style: italic }
+		H2.ctl { font-family: "Arial", sans-serif; font-size: 14pt; font-style: italic }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H1 STYLE="page-break-before: always">HTML Content Extractor</H1>
+<P ALIGN=JUSTIFY STYLE="text-indent: 0.49in; margin-bottom: 0in"><A HREF="http://sourceforge.net/project/showfiles.php?group_id=168120">HTML
+Content Extractor</A> is a special component to clean HTML pages from
+common noise such as ads, banners, navigations links and menus. It is
+automatic and does not require any user interaction during the
+extraction process.</P>
+<H2 CLASS="western">User manual</H2>
+<P ALIGN=JUSTIFY STYLE="text-indent: 0.49in; margin-bottom: 0in">This
+extraction can be useful if one wants to retrieve meaningful content
+from noisy web pages, for instance, news article from some Web news
+server. The following figures below show an example of an original
+news article (left) with many navigations menus, ads and extra boxes;
+and the same page after HTML Content Extractor cleanings (right). 
+</P>
+<TABLE WIDTH=619 BORDER=0 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=300>
+	<COL WIDTH=303>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TD WIDTH=300 HEIGHT=280>
+				<P ALIGN=JUSTIFY><IMG SRC="kce_orig.gif" NAME="graphics1" ALIGN=LEFT WIDTH=300 HEIGHT=368 BORDER=0><BR>
+				</P>
+			</TD>
+			<TD WIDTH=303>
+				<P ALIGN=JUSTIFY><IMG SRC="kce_filtered.gif" NAME="graphics2" ALIGN=LEFT WIDTH=300 HEIGHT=367 BORDER=0><BR>
+				</P>
+			</TD>
+		</TR>
+	</THEAD>
+</TABLE>
+<P ALIGN=JUSTIFY STYLE="text-indent: 0.49in; margin-bottom: 0in">So,
+what exactly this program does to clean noisy HTML documents and how
+it detects key content to extract? Saying in a few words, it builds a
+DOM tree of an HTML page and then applies predefined rules to clean it
+from unnecessary elements and DOM segments. Sample of these rules is
+shown in a properties file below. It guides HTML Content Extractor to
+remove all HTML comments (<CODE><B><FONT COLOR="#3f7f5f">1</FONT></B></CODE>),
+<CODE><FONT COLOR="#000000">SCRIPT NOSCRIPT INPUT BUTTON LINK STYLE
+SELECT EMBED OBJECT IMG IFRAME </FONT></CODE>tags with their content
+(<CODE><B><FONT COLOR="#3f7f5f">2</FONT></B></CODE>); delete all
+attributes in <CODE><FONT COLOR="#000000">TD TR TABLE BODY DIV LI UL</FONT></CODE>
+tags (<CODE><B><FONT COLOR="#3f7f5f">5</FONT></B></CODE>). To
+recognize ads URLs and remove them (<CODE><B><FONT COLOR="#3f7f5f">3</FONT></B></CODE>)
+there is a long list of common advertisement servers (over 22000 ads
+servers). It is loaded during start up of the extractor and
+every link is checked against it. Removing text empty elements (<CODE><B><FONT COLOR="#3f7f5f">4</FONT></B></CODE>)
+is a way to detect and delete HTML nodes without any meaningful
+textual information. For each such a node, a ratio number of linked
+words to total number of words is calculated. If this ratio is more
+then defined threshold <CODE><FONT SIZE=2><FONT FACE="Courier New, monospace"><FONT COLOR="#000000">linkTextRatio</FONT></FONT></FONT></CODE>
+then this node will be removed. This approach supposes to delete
+navigation links like menus, as well as some advertisement links and
+banners.</P>
+<TABLE BORDER=0 CELLPADDING=3 CELLSPACING=0 BGCOLOR="#ffffff">
+	<TR>
+		<TD VALIGN=TOP>
+			<P ALIGN=LEFT><!-- start source code --><CODE><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#3f7f5f">//&nbsp;<B>1</B>.&nbsp;remove&nbsp;html&nbsp;comments&nbsp;&lt;!--&nbsp;comment&nbsp;--&gt;</FONT><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#000000">isRemoveComments=</FONT><B><FONT COLOR="#7f0055">true</FONT></B><BR><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#000000">isKeepTags=</FONT><B><FONT COLOR="#7f0055">true</FONT></B><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#000000">keepTags=BR&nbsp;P</FONT><BR><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#3f7f5f">//&nbsp;&lt;meta&nbsp;...&gt;&nbsp;tags&nbsp;processing</FONT><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#000000">isProcessMeta&nbsp;=&nbsp;</FONT><B><FONT COLOR="#7f0055">true</FONT></B><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#000000">isRemoveAllMeta&nbsp;=&nbsp;</FONT><B><FONT COLOR="#7f0055">false</FONT></B><BR><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#3f7f5f">//&nbsp;<B>2</B>.&nbsp;remove&nbsp;tags</FONT><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#000000">isRemoveTags&nbsp;=&nbsp;</FONT><B><FONT COLOR="#7f0055">true</FONT></B><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#000000">removeTags&nbsp;=&nbsp;SCRIPT&nbsp;NOSCRIPT&nbsp;INPUT&nbsp;BUTTON&nbsp;LINK&nbsp;STYLE&nbsp;SELECT&nbsp;EMBED&nbsp;OBJECT&nbsp;IMG&nbsp;IFRAME</FONT><BR><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#3f7f5f">//&nbsp;<B>3</B>.&nbsp;remove&nbsp;ads&nbsp;links</FONT><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#000000">isRemoveAdLinks&nbsp;=&nbsp;</FONT><B><FONT COLOR="#7f0055">true</FONT></B><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#000000">adsServerListFile&nbsp;=&nbsp;serverlist.txt</FONT><BR><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#3f7f5f">//&nbsp;<B>4</B>.&nbsp;remove&nbsp;‘noisy’&nbsp;elements</FONT><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#000000">isRemoveTextEmptyElements&nbsp;=&nbsp;</FONT><B><FONT COLOR="#7f0055">true</FONT></B><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#000000">isRemoveLinkCells&nbsp;=&nbsp;</FONT><B><FONT COLOR="#7f0055">true</FONT></B><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#000000">substanceMinTextLength&nbsp;=&nbsp;</FONT><FONT COLOR="#990000">5</FONT><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#000000">letternsPerWord&nbsp;=&nbsp;</FONT><FONT COLOR="#990000">5</FONT><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#000000">linkTextRatio&nbsp;=&nbsp;</FONT><FONT COLOR="#990000">0.20</FONT><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#000000">minNumOfWords&nbsp;=&nbsp;</FONT><FONT COLOR="#990000">15</FONT><BR><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#3f7f5f">//&nbsp;<B>5</B>.&nbsp;remove&nbsp;attributes&nbsp;in&nbsp;specified&nbsp;nodes</FONT><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#000000">isRemoveAttr&nbsp;=&nbsp;</FONT><B><FONT COLOR="#7f0055">true</FONT></B><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#000000">removeAttrNodes&nbsp;=&nbsp;TD&nbsp;TR&nbsp;TABLE&nbsp;BODY&nbsp;DIV&nbsp;LI&nbsp;UL</FONT><BR><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#3f7f5f">//&nbsp;<B>6</B>.&nbsp;remove&nbsp;common&nbsp;links&nbsp;(experimental)</FONT><BR><FONT COLOR="#ffffff">&nbsp;&nbsp;</FONT><FONT COLOR="#000000">isRemoveCommonLinks&nbsp;=&nbsp;</FONT><B><FONT COLOR="#7f0055">true</FONT></B></CODE>
+						</P>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0in">Additional parameter <CODE><FONT SIZE=2><FONT FACE="Courier New, monospace"><FONT COLOR="#000000">minNumOfWords</FONT></FONT></FONT></CODE>
+depicts a minimum number of unlinked words that should be in elements
+like table or sell. In our case, any table or cell in a table that
+has less then 15 words will be excluded from the final cleaned
+document.</P>
+<P ALIGN=JUSTIFY STYLE="margin-bottom: 0in">There is also a way to
+perform additional removing of unnecessary URLs – download more
+HTML pages form the same web server, compare their DOM trees with the
+cleaned document and remove common elements and patterns. Partially
+this idea is implemented as a removing common links feature (<CODE><B><FONT COLOR="#3f7f5f">6</FONT></B></CODE>).
+This feature is still experimental, so use it carefully. 
+</P>
+<P ALIGN=JUSTIFY STYLE="margin-bottom: 0in">After you have tweaked
+<FONT FACE="Courier 10 Pitch">keycontent.properties</FONT> file
+according to your needs you can run <FONT FACE="Courier 10 Pitch">kce.jar</FONT>
+utility program from the <A HREF="http://sourceforge.net/project/showfiles.php?group_id=168120">kce
+distribution</A> in the following ways:</P>
+<OL>
+	<LI><P ALIGN=JUSTIFY STYLE="margin-bottom: 0in">Clean an HTML file.
+	Specify a name <FONT FACE="Courier 10 Pitch">html_file</FONT> of an
+	HTML file to clean and a character encoding <FONT FACE="Courier 10 Pitch">charset</FONT>
+	of its content. If <FONT FACE="Courier 10 Pitch">charset</FONT> is
+	omitted then ISO-8859-1 (latin-1) will be used by default. Result of
+	the cleaning will be printed to standard output in UTF-8 encoding:</P>
+	<P ALIGN=JUSTIFY STYLE="margin-bottom: 0in; font-weight: medium"><FONT FACE="Courier 10 Pitch"><SPAN STYLE="background: #cccccc">shell&gt;</SPAN>
+	java -jar kce.jar -clean html_file [charset]</FONT></P>
+	<LI><P ALIGN=JUSTIFY STYLE="margin-bottom: 0in; font-weight: medium">
+	<FONT FACE="DejaVu Serif, serif">Download and clean an HTML source
+	from a URL. It is the same as the previous one except that source of
+	the HTML page comes from a URL.</FONT></P>
+	<P ALIGN=JUSTIFY STYLE="margin-bottom: 0in; font-weight: medium"><FONT FACE="Courier 10 Pitch"><SPAN STYLE="background: #cccccc">shell&gt;</SPAN>
+	java -jar kce.jar -clean url_to_clean [charset]</FONT></P>
+	<LI><P ALIGN=JUSTIFY STYLE="margin-bottom: 0in; font-weight: medium">
+	<FONT FACE="DejaVu Serif, serif">Start content extractor in a server
+	mode. This will start a TANA server on specified port <FONT FACE="Courier 10 Pitch">port_number.</FONT></FONT></P>
+	<P ALIGN=JUSTIFY STYLE="margin-bottom: 0in; font-weight: medium"><FONT FACE="Courier 10 Pitch"><SPAN STYLE="background: #cccccc">shell&gt;</SPAN>
+	java -jar kce.jar -server -p port_number</FONT></P>
+	<P ALIGN=JUSTIFY STYLE="margin-bottom: 0in"><FONT FACE="DejaVu Serif, serif">Now
+	you can send <A HREF="TANA_README.html">TANA messages</A> to this
+	server by <FONT FACE="Courier 10 Pitch">TanaSend.jar</FONT> program.
+	Accepted TANA message should have the following key-value pairs:</FONT></P>
+	<TABLE WIDTH=805 BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-inside: avoid">
+		<COL WIDTH=93>
+		<COL WIDTH=96>
+		<COL WIDTH=140>
+		<COL WIDTH=476>
+		<TR VALIGN=TOP>
+			<TD WIDTH=93 BGCOLOR="#cccccc">
+				<P ALIGN=JUSTIFY><FONT FACE="DejaVu Serif, serif">Required</FONT></P>
+			</TD>
+			<TD WIDTH=96 BGCOLOR="#cccccc">
+				<P ALIGN=JUSTIFY><FONT FACE="DejaVu Serif, serif">Key</FONT></P>
+			</TD>
+			<TD WIDTH=140 BGCOLOR="#cccccc">
+				<P ALIGN=JUSTIFY><FONT FACE="DejaVu Serif, serif">Value</FONT></P>
+			</TD>
+			<TD WIDTH=476 BGCOLOR="#cccccc">
+				<P ALIGN=JUSTIFY><FONT FACE="DejaVu Serif, serif">Description</FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=93>
+				<P ALIGN=JUSTIFY><FONT FACE="DejaVu Serif, serif">yes</FONT></P>
+			</TD>
+			<TD WIDTH=96>
+				<P ALIGN=JUSTIFY><FONT FACE="Courier 10 Pitch"><B>cmd</B></FONT></P>
+			</TD>
+			<TD WIDTH=140>
+				<P ALIGN=JUSTIFY><FONT FACE="Courier 10 Pitch"><B>filter</B></FONT></P>
+			</TD>
+			<TD WIDTH=476>
+				<P ALIGN=JUSTIFY><FONT FACE="DejaVu Serif, serif">Command to
+				apply key content extraction for specified <B><FONT FACE="Courier 10 Pitch">content</FONT></B>.</FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=93>
+				<P ALIGN=JUSTIFY><FONT FACE="DejaVu Serif, serif">yes</FONT></P>
+			</TD>
+			<TD WIDTH=96>
+				<P ALIGN=JUSTIFY><FONT FACE="Courier 10 Pitch"><B>content</B></FONT></P>
+			</TD>
+			<TD WIDTH=140>
+				<P ALIGN=JUSTIFY STYLE="font-weight: medium"><FONT FACE="DejaVu Serif, serif">string</FONT></P>
+			</TD>
+			<TD WIDTH=476>
+				<P ALIGN=JUSTIFY><FONT FACE="DejaVu Serif, serif">HTML content to
+				be filtered.</FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=93>
+				<P ALIGN=JUSTIFY><FONT FACE="DejaVu Serif, serif">no</FONT></P>
+			</TD>
+			<TD WIDTH=96>
+				<P ALIGN=JUSTIFY><FONT FACE="Courier 10 Pitch"><B>charset</B></FONT></P>
+			</TD>
+			<TD WIDTH=140>
+				<P ALIGN=JUSTIFY STYLE="font-weight: medium"><FONT FACE="DejaVu Serif, serif">string</FONT></P>
+			</TD>
+			<TD WIDTH=476>
+				<P ALIGN=JUSTIFY><FONT FACE="DejaVu Serif, serif">Character
+				encoding of the <B><FONT FACE="Courier 10 Pitch">content</FONT></B>.
+				If it is not specified then ISO-8859-1 will be used by default.</FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=93>
+				<P ALIGN=JUSTIFY><FONT FACE="DejaVu Serif, serif">no</FONT></P>
+			</TD>
+			<TD WIDTH=96>
+				<P ALIGN=JUSTIFY><FONT FACE="Courier 10 Pitch"><B>url</B></FONT></P>
+			</TD>
+			<TD WIDTH=140>
+				<P ALIGN=JUSTIFY STYLE="font-weight: medium"><FONT FACE="DejaVu Serif, serif">UTF-8
+				string</FONT></P>
+			</TD>
+			<TD WIDTH=476>
+				<P ALIGN=JUSTIFY><FONT FACE="DejaVu Serif, serif">URL in UTF-8
+				encoding of the content.</FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=93>
+				<P ALIGN=JUSTIFY><FONT FACE="DejaVu Serif, serif">no</FONT></P>
+			</TD>
+			<TD WIDTH=96>
+				<P ALIGN=JUSTIFY><FONT FACE="Courier 10 Pitch"><B>html</B></FONT></P>
+			</TD>
+			<TD WIDTH=140>
+				<P ALIGN=JUSTIFY STYLE="font-weight: medium"><FONT FACE="Courier 10 Pitch"><B>true</B>|<B>false</B></FONT></P>
+			</TD>
+			<TD WIDTH=476>
+				<P ALIGN=JUSTIFY><FONT FACE="DejaVu Serif, serif">Request (do not
+				request) result of the cleaning in HTML format. By default is
+				true.</FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=93>
+				<P ALIGN=JUSTIFY><FONT FACE="DejaVu Serif, serif">no</FONT></P>
+			</TD>
+			<TD WIDTH=96>
+				<P ALIGN=JUSTIFY><FONT FACE="Courier 10 Pitch"><B>txt</B></FONT></P>
+			</TD>
+			<TD WIDTH=140>
+				<P ALIGN=JUSTIFY STYLE="font-weight: medium"><FONT FACE="Courier 10 Pitch"><B>true</B>|<B>false</B></FONT></P>
+			</TD>
+			<TD WIDTH=476>
+				<P ALIGN=JUSTIFY><FONT FACE="DejaVu Serif, serif">Request (do not
+				request) result of the cleaning in textual format. By default is
+				false.</FONT></P>
+			</TD>
+		</TR>
+	</TABLE>
+	<P ALIGN=LEFT STYLE="margin-bottom: 0in; font-weight: medium"><FONT FACE="DejaVu Serif, serif">Sample
+	requests to the server:<BR><FONT FACE="Courier 10 Pitch"><SPAN STYLE="background: #cccccc">shell&gt;</SPAN>
+	java -jar TanaSend.jar 12345 cmd:filter content:&quot;some html
+	content to filter&quot;<BR><SPAN STYLE="background: #cccccc">shell&gt;</SPAN>
+	java -jar TanaSend.jar 12345 cmd:filter content:&quot;some html
+	content to filter&quot; charset:utf-8 html:false txt:true
+	url:http://some.url</FONT></FONT></P>
+</OL>
+<H2 CLASS="western">Developer Manual</H2>
+<P ALIGN=JUSTIFY STYLE="margin-bottom: 0in">HTML Content Extractor is
+easy to integrate with your program. Main class that does all
+processing is <CODE><FONT COLOR="#000000">Kce</FONT></CODE>. In
+addition, it can accept any implementations of <CODE><FONT COLOR="#000000">NodeFoundListener
+</FONT></CODE>interface. This is useful if you, for instance, want to
+extract all links and titles from HTML pages in advance to cleaning.
+This code snippet will help you to include HTML Content Extractor
+library into your Java source code:</P>
+<TABLE BORDER=0 CELLPADDING=3 CELLSPACING=0 BGCOLOR="#ffffff">
+	<TR>
+		<TD VALIGN=TOP>
+			<P ALIGN=LEFT><CODE><FONT COLOR="#808080">01</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#3f7f5f">//&nbsp;allocate&nbsp;a&nbsp;new&nbsp;extractor&nbsp;with&nbsp;default&nbsp;settings</FONT><BR><FONT COLOR="#808080">02</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#000000">KceSettings&nbsp;settings&nbsp;=&nbsp;</FONT><B><FONT COLOR="#7f0055">new&nbsp;</FONT></B><FONT COLOR="#000000">KceSettings();</FONT><BR><FONT COLOR="#808080">03</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#3f7f5f">//&nbsp;load&nbsp;settings&nbsp;from&nbsp;&quot;conf/keycontent.properties&quot;&nbsp;file</FONT><BR><FONT COLOR="#808080">04</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#000000">settings.loadSettings(</FONT><FONT COLOR="#2a00ff">&quot;conf/keycontent.properties&quot;</FONT><FONT COLOR="#000000">);</FONT><BR><FONT COLOR="#808080">05</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#3f7f5f">//&nbsp;construct&nbsp;a&nbsp;new&nbsp;extractor</FONT><BR><FONT COLOR="#808080">06</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#000000">Kce&nbsp;extractor&nbsp;=&nbsp;</FONT><B><FONT COLOR="#7f0055">new&nbsp;</FONT></B><FONT COLOR="#000000">Kce(settings);</FONT><BR><FONT COLOR="#808080">07</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#3f7f5f">//&nbsp;register&nbsp;additional&nbsp;listeners</FONT><BR><FONT COLOR="#808080">08</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#000000">LinkFoundListener&nbsp;linkFoundListener&nbsp;=&nbsp;</FONT><B><FONT COLOR="#7f0055">new&nbsp;</FONT></B><FONT COLOR="#000000">LinkFoundListener();</FONT><BR><FONT COLOR="#808080">09</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#000000">TitleFoundListener&nbsp;titleNodeFoundListener&nbsp;=&nbsp;</FONT><B><FONT COLOR="#7f0055">new&nbsp;</FONT></B><FONT COLOR="#000000">TitleFoundListener();</FONT><BR><FONT COLOR="#808080">10</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#000000">extractor.registerNodeFoundListener(linkFoundListener);</FONT><BR><FONT COLOR="#808080">11</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#000000">extractor.registerNodeFoundListener(titleNodeFoundListener);</FONT><BR><FONT COLOR="#808080">12</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#3f7f5f">//&nbsp;perform&nbsp;extraction&nbsp;of&nbsp;key&nbsp;content&nbsp;from&nbsp;a&nbsp;html&nbsp;file&nbsp;&quot;file.html&quot;&nbsp;encoded&nbsp;as&nbsp;ISO-8859-1&nbsp;</FONT><BR><FONT COLOR="#808080">13</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#000000">Document&nbsp;document&nbsp;=&nbsp;extractor.extractKeyContent(</FONT><B><FONT COLOR="#7f0055">new&nbsp;</FONT></B><FONT COLOR="#000000">FileInputStream(</FONT><B><FONT COLOR="#7f0055">new&nbsp;</FONT></B><FONT COLOR="#000000">File(</FONT><FONT COLOR="#2a00ff">&quot;file.html&quot;</FONT><FONT COLOR="#000000">)),</FONT><BR><FONT COLOR="#808080">14</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#2a00ff">&quot;ISO-8859-1&quot;</FONT><FONT COLOR="#000000">,&nbsp;</FONT><B><FONT COLOR="#7f0055">null</FONT></B><FONT COLOR="#000000">);</FONT><BR><FONT COLOR="#808080">15</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</FONT><B><FONT COLOR="#7f0055">if&nbsp;</FONT></B><FONT COLOR="#000000">(document&nbsp;!=&nbsp;</FONT><B><FONT COLOR="#7f0055">null</FONT></B><FONT COLOR="#000000">)&nbsp;{&nbsp;</FONT><FONT COLOR="#3f7f5f">//&nbsp;cleaning&nbsp;was&nbsp;successful&nbsp;</FONT><BR><FONT COLOR="#808080">16</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#000000">StringWriter&nbsp;stringWriter&nbsp;=&nbsp;</FONT><B><FONT COLOR="#7f0055">new&nbsp;</FONT></B><FONT COLOR="#000000">StringWriter();</FONT><BR><FONT COLOR="#808080">17</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#3f7f5f">//&nbsp;present&nbsp;cleaned&nbsp;document&nbsp;as&nbsp;String</FONT><BR><FONT COLOR="#808080">18</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#000000">Kce.prettyPrint(document,&nbsp;</FONT><FONT COLOR="#2a00ff">&quot;utf-8&quot;</FONT><FONT COLOR="#000000">,&nbsp;stringWriter);</FONT><BR><FONT COLOR="#808080">19</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#000000">System.out.println(stringWriter);</FONT><BR><FONT COLOR="#808080">20</FONT>&nbsp;<FONT COLOR="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</FONT><FONT COLOR="#000000">}</FONT></CODE></P>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<H2 CLASS="western">License</H2>
+<P>Copyright (c) 2005 by Vladimir Poroshin. All Rights Reserved.</P>
+<P STYLE="margin-bottom: 0in">This program is free software; you can
+redistribute it and/or modify it under the terms of the GNU General
+Public License as published by the Free Software Foundation; either
+version 2 of the License, or (at your option) any later version. This
+program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.</P>
+</BODY>
+</HTML>

@@ -1,0 +1,1510 @@
+<!DOCTYPE HTML><html>
+    <head>
+        <title>Finanzcommunity wallstreet-online.de</title>
+
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="content-language" content="DE" />
+        <meta name="google-site-verification" content="nLtcudgQb2ATlb2Hrd88PIXSww_aXh7w2bebxHeBdiY" />
+        <meta name="verification" content="05f7841d706fa0dea3a58644ebce84a6" />
+        <meta property="fb:page_id" content="261279345321" />
+    
+        <link rel="apple-touch-icon" href="//assets.wallstreet-online.de/frontend/img/apple-touch-icon.png"  />
+        <link rel="shortcut icon" href="//assets.wallstreet-online.de/frontend/img/favicon.ico" type="image/ico" />
+    
+        <meta name="robots" content="noodp,index,follow" />        
+                    <meta name="description" content="B??rse, Aktien und Geld: Im Finanzforum wird geschrieben, was morgen die M??rkte bewegt." />
+                
+            
+                <link rel="stylesheet" type="text/css" title="Standard" href="//assets.wallstreet-online.de/frontend/css/deploy.1410448261.css" />
+<!--[if IE 6 ]>
+<link rel="stylesheet" type="text/css" title="Standard" href="//assets.wallstreet-online.de/frontend/css/ie6only.1410448261.css" />
+<![endif]-->
+<!--[if IE 7 ]>
+<link rel="stylesheet" type="text/css" title="Standard" href="//assets.wallstreet-online.de/frontend/css/ie7only.1410448261.css" />
+<![endif]-->
+<link rel="stylesheet" type="text/css" title="Standard" href="//assets.wallstreet-online.de/_shared/css/jquery/jquery-ui-1.8.custom.1410448261.css" />
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
+<script type="text/javascript">var _moo_ASSET_HOST='//assets.wallstreet-online.de/';var _moo_ASSET_INTERFIX_JS='.1410513421';var _moo_ASSET_INTERFIX_CSS='.1410448261';</script>
+<script type="text/javascript" src="//assets.wallstreet-online.de/frontend/js/base.1410513421.js"></script>
+<script type="text/javascript" src="https://script.ioam.de/iam.js"></script>
+<script type="text/javascript" src="//assets.wallstreet-online.de/frontend/js/tomorrowfocusAd.1410513421.js"></script>
+<script type="text/javascript"><!--
+adsc_ressort='community'; adsc_rubrik='startseite'; adsc_layout='uebersichtsseite'; adsc_kw=''; adsc_wokw=''; adsc_contentwidth='1018'; Ads_TFM_Init();
+//--></script><script type="text/javascript" src="http://a.tfag.de/js_ng/js_ng_wallstreet.js"></script>
+<script type="text/javascript"><!--
+$(document).ready(function() { $('.threadTeaser a').click(function(e) { var teaser = $(this).closest('.teaser'); var string = 'ThreadTeaser#Community#' + teaser.data('row'); _gaq.push(['_trackEvent', 'Link intern', 'Teaser', string, undefined, true]); }); });
+var moo=moo||{};
+moo.sendGuess=function(form){ $.post("/_rpc/json/community/tippspiel/update",$(form).serializeArray(),function(r){ if(r) { $("#tippFeedback").html("Ihr Tipp ("+r+") wurde gespeichert!").css({color:"green"}); }else{ $("#tippFeedback").html("Bitte Eingabe ??berpr??fen!").css({color:"red"}); } }); };
+var google_analytics_domain_name = google_analytics_domain_name || '.wallstreet-online.de'; window.google_analytics_uacct = 'UA-2804995-1'; var _gaq = _gaq || []; _gaq.push(['_setAccount', 'UA-2804995-1']); _gaq.push(['_setDomainName', '.wallstreet-online.de']); _gaq.push(['_addOrganic', 'suche.web.de', 'su']); _gaq.push(['_addOrganic', 'suche.t-online.de', 'q']); _gaq.push(['_setAllowAnchor', true]); _gaq.push(['_anonymizeIp']); _gaq.push(['_trackPageview']); _gaq.push(['_trackPageLoadTime']); function readCookie(name) { var nameEQ = name + '='; var ca = document.cookie.split(';'); for(var i=0;i < ca.length;i++) { var c = ca[i]; while (c.charAt(0)==' ') c = c.substring(1,c.length); if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length); } return null; } var unqvstid = readCookie('__utma'); if(typeof(unqvstid) !== 'undefined' && unqvstid !== null) { _gaq.push(['_setCustomVar', 1, 'VisitorId', unqvstid.split('.')[1], 1]); }
+//--></script><style type="text/css">
+.user-img{float:left;height:60px;width:50px;margin:5px}
+.topThreadTeaser .relatedContent { width: 240px !important; } .topThreadTeaser .relatedContent .innerFadeOutBox { font-weight: bold; }
+button.button {margin-top:5px;font-size:11px} p.tippMessage {padding-top:22px;}
+.toolbar{ background-color:#EEEFEF; border-bottom:1px solid #BBBBBB; font-size:11px; margin-top:0; width:100%; } .toolbar > div { padding: 5px 0px; margin:0px 10px; } div.toolbar button, select, input{ font-size:11px; }
+#Ads_TFM_BS{width:1018px;}
+</style><script type='text/javascript' src='//partner.googleadservices.com/gampad/google_service.js'>
+</script>
+<script type='text/javascript'>
+GS_googleAddAdSenseService("ca-pub-1626183619973191");
+</script>
+
+    </head>
+    <body>
+        <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+            ga('create', 'UA-2804995-10', 'wallstreet-online.de');
+            ga('send', 'pageview');
+        </script>
+        <script type="text/javascript"><!--
+        ga('set', 'dimension2', '4416709c23881ee08b1857870fce63dd76e28362' );
+        //--></script>
+        	
+            
+        <div id="fb-root"></div>
+		<script>
+        window.fbAsyncInit = function() {
+            FB.init({
+              appId      : '144027499096247',
+              channelUrl : 'http://www.wallstreet-online.de',
+              status     : true,
+              cookie     : true,
+              xfbml      : true
+            });
+
+             _ga.trackFacebook(); //Google Analytics tracking
+          };
+
+          (function(d, debug){
+             var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+             if (d.getElementById(id)) {return;}
+             js = d.createElement('script'); js.id = id; js.async = true;
+             js.src = '//connect.facebook.net/de_DE/all' + (debug ? '/debug' : '') + '.js';
+             ref.parentNode.insertBefore(js, ref);
+           }(document, false));
+        </script>
+            
+        <div id="pagecontainer">
+            <img id="ivwtag" style="position:absolute" src="//wallston.ivwbox.de/cgi-bin/ivw/CP/s2-i3-a1-m0?r=&d=656053684" width="1" height="1" hspace="0" vspace="0" />
+            <!??????SZMFRABO VERSION="1.1" ??????>
+            <script type="Text/Javascript">
+            var szmvars="wallston//CP//s2-i3-a1-m0";
+            </script>
+            <script src="//wallston.ivwbox.de/2004/01/survey.js" type="Text/Javascript">
+            </script>
+            <!?????? /SZMFRABO ??????>
+        
+<div id="Ads_TFM_BS" style="min-height: 90px;"><script type="text/javascript">Ads_TFM_AD("BS");</script></div>
+
+            <div id="page" class="default" >
+
+                            <div id="userbar">
+        <a style="left:15px;" href="//www.wallstreet-online.de/userzentrum/registrierung.html" onClick="_gaq.push(['_trackEvent', 'Link intern', this.href, 'Kopf, ' + this.title]);">
+        Neu auf wallstreet:online?
+        <span style="color:#004080;font-weight:bold">Jetzt kostenlos registrieren!</span>
+    </a>
+
+    <div style="float:right;margin-right:10px;">
+        <a style="position:relative;color:#004080" href="//www.wallstreet-online.de/userzentrum/registrierung.html" onClick="_gaq.push(['_trackEvent', 'Link intern', this.href, 'Kopf, ' + this.title]);"><b>Registrieren</b></a>
+                <b style="font-family:verdana;top:4px;position:relative">|</b>
+        <a id="logintrigger" href="#" style="position:relative;color:#004080"><b>Login</b></a>
+        <div id="login">
+            <div id="logincloser" style="cursor:pointer;position:absolute;right:5px;top:0px;font-weight:bold;color:#222;">x</div>
+            <form action="" method="post" accept-charset="UTF-8" onSubmit="_gaq.push(['_trackEvent', 'Login', 'einloggen', 'Kopf, Einloggen']);">
+                Benutzername:<br>
+                <input style="width:120px" type="text" id="username" name="54161339f2460[login]" value="" /><br>
+                Passwort:<br>
+                <input style="width:120px" type="password" id="password" name="54161339f2460[pass]" title="Passwort" value="" /><br>
+                <input class="checkbox" type="checkbox" name="54161339f2460[rememberMe]"  onClick="_gaq.push(['_trackEvent', 'Login', this.checked, 'Kopf, Einloggen merken']);"/>
+                Angemeldet bleiben
+                <br>
+                <button type="submit" class="button positive">&nbsp;Anmelden&nbsp;</button>
+                
+                <input type="hidden" id="tracktitle" name="54161339f2460[title]" value="" />
+            </form>
+            <a href="/userzentrum/passwort-vergessen.html" style="position:relative;font-size:11px">Passwort vergessen?</a>
+            <script>
+                $(document).ready(function() {
+                    $('#tracktitle').val(escape(document.title));
+                });
+            </script>
+        </div>
+            </div>
+    </div>
+
+<div id="sitehead">
+    <div id="sitelogo">
+        <a href="/">wallstreet:online</a>
+    </div>
+    <div id="timeinfo">
+        Mo 15.09.2014 - 00:14                <a href="//www.wallstreet-online.de/userzentrum/online.html" class="userOnline" >317 online</a>    </div>
+    <div id="quickquotes">
+        
+<div style="position:relative">
+<div style="height:1px;background:#CCC;position:absolute;top:16px;left:3px;width:99%;"></div>
+<table style="width:100%">
+    <tr>
+        <td><a href="/indizes/dax"    >DAX</a></td><td style="text-align:right">9.651,13</td><td class="hideme" style="text-align:right"><font class="red">-0,41%</font></td><td>&nbsp;</td>        <td><a href="/indizes/dowjones"    >Dow Jones</a></td><td style="text-align:right">16.987,51</td><td class="hideme" style="text-align:right"><font class="red">-0,36%</font></td><td>&nbsp;</td>        <td><a href="/devisen/dollarkurs"    >EUR/USD</a></td><td style="text-align:right">1,2969</td><td class="hideme" style="text-align:right"><font class="green">+0,33%</font></td><td>&nbsp;</td>        <td><a href="/rohstoffe/goldpreis"    >Gold</a></td><td style="text-align:right">1.230,83</td><td class="hideme" style="text-align:right"><font class="red">-0,91%</font></td><td>&nbsp;</td>    </tr>
+    <tr>
+        <td><a href="/indizes/tecdax"    >TecDAX</a></td><td style="text-align:right">1.256,64</td><td class="hideme" style="text-align:right"><font class="green">+0,13%</font></td><td>&nbsp;</td>        <td><a href="/indizes/nasdaq_comp"    >Nasdaq</a></td><td style="text-align:right">4.567,60</td><td class="hideme" style="text-align:right"><font class="red">-0,53%</font></td><td>&nbsp;</td>        <td><a href="/devisen/euro-schweizer-franken-kurs"    >EUR/CHF</a></td><td style="text-align:right">1,2102</td><td class="hideme" style="text-align:right"><font class="green">+0,06%</font></td><td>&nbsp;</td>        <td><a href="/rohstoffe/oelpreis-brent"    >??l (Brent)</a></td><td style="text-align:right">97,735</td><td class="hideme" style="text-align:right"><font class="red">-1,24%</font></td><td>&nbsp;</td>    </tr>
+</table>
+</div>    </div>
+
+    <div id="globalsearch">
+        <form action="/suche/">
+            <input type="hidden" value="" name="suche" />
+                        
+            
+                                    <input id="search" type="text" value="" placeholder="Suchbegriffe, Wertpapier-Namen, WKN oder ISIN" name="q" class="searchkey" autocomplete="off" />
+            <div class="buttonBox">
+                <button type="submit" name="sa" value="Suche">Suchen</button>
+            </div>
+        </form>
+                <div id="globalSearchResult">
+            <div id="topResults">
+                <ul rel="Top"><li rel="Real Gds Solar-A"><a href="/aktien/1350071?marketId=8"><span class="fadeBox">Real Gds Solar-A<span class="fade"></span></span><span class="searchType">Aktie</span><span class="wknBox">28.608</span></a></li><li rel="Paion"><a href="/aktien/paion-aktie?marketId=8"><span class="fadeBox">Paion<span class="fade"></span></span><span class="searchType">Aktie</span><span class="wknBox">24.915</span></a></li><li rel="DAX"><a href="/indizes/dax"><span class="fadeBox">DAX<span class="fade"></span></span><span class="searchType">Index</span><span class="wknBox">22.141</span></a></li><li rel="Gold"><a href="/rohstoffe/goldpreis"><span class="fadeBox">Gold<span class="fade"></span></span><span class="searchType">Rohstoff</span><span class="wknBox">18.443</span></a></li><li rel="Apple"><a href="/aktien/apple-aktie?marketId=8"><span class="fadeBox">Apple<span class="fade"></span></span><span class="searchType">Aktie</span><span class="wknBox">15.905</span></a></li><li rel="Vuzix"><a href="/aktien/28201111?marketId=8"><span class="fadeBox">Vuzix<span class="fade"></span></span><span class="searchType">Aktie</span><span class="wknBox">15.636</span></a></li><li rel="Evotec"><a href="/aktien/evotec-aktie?marketId=8"><span class="fadeBox">Evotec<span class="fade"></span></span><span class="searchType">Aktie</span><span class="wknBox">11.134</span></a></li><li rel="NII Holdings-B"><a href="/aktien/nii-holdings-aktie?marketId=8"><span class="fadeBox">NII Holdings-B<span class="fade"></span></span><span class="searchType">Aktie</span><span class="wknBox">10.219</span></a></li><li rel="Commerzbank"><a href="/aktien/commerzbank-aktie?marketId=8"><span class="fadeBox">Commerzbank<span class="fade"></span></span><span class="searchType">Aktie</span><span class="wknBox">8.783</span></a></li><li rel="Santhera Pharma N"><a href="/aktien/santhera-pharmaceuticals-aktie?marketId=8"><span class="fadeBox">Santhera Pharma N<span class="fade"></span></span><span class="searchType">Aktie</span><span class="wknBox">8.132</span></a></li></ul><div class="footerBox">Top 10 der gesamten Suchanfragen der letzten 7 Tage</div>            </div>
+            <div id="normalResults"></div>
+        </div>
+            </div>
+        <div id="lynx" style="position:absolute;right:8px;bottom:5px;width: 110px;height: 28px;overflow: hidden;" onclick="_gaq.push(['_trackEvent', 'LYNX', 'LogoHeadKlick']);">
+        <a target="_blank" href="http://www.lynxbroker.de/preissenkung?affiliate=3355991302&utm_source=w_o&utm_medium=logobanner&utm_campaign=preissenkung" rel="nofollow">
+            <img width="110" height="28" border="0" title="" alt="" src="//assets.wallstreet-online.de/frontend/img/head/lynx_logobanner.png" >
+        </a>
+    </div>    
+        
+
+</div>
+
+<script type="text/javascript">
+    var defaultText = 'Suchbegriffe, Wertpapier-Namen, WKN oder ISIN';
+$(function() {
+        $('#sitehead').addClass("width" + $('#sitehead').width());
+        $('#quicknavtrigger,#quicknav').hover(
+            function(){
+                $('#quicknav').addClass('hover')
+            },
+            function(){
+                $('#quicknav').removeClass('hover')
+            }
+        );
+        $('#logintrigger').hover(
+            function(){
+                $('#login').addClass('hover');
+                $('#username').focus();
+            },
+            function(){
+            }
+        );
+        $('#logincloser').click(
+            function(){
+                $('#login').removeClass('hover')
+            }
+        );
+});
+</script>
+
+
+<div class="cs mooMenu" style="position:relative;z-index:3">
+    <div class="" id="menuSpace">
+        	<ul class="l1">
+					<li>
+                                                        				<a href="/">
+                                                                                                            B??rse & M??rkte</a>
+							</li>
+					<li class="current">
+                                                        				<a href="/community">
+                                                                                                            Community & Forum</a>
+							</li>
+					<li>
+                                                        				<a href="/nachrichten">
+                                                                                                            Nachrichten</a>
+							</li>
+					<li>
+                                                        				<a href="/themen">
+                                                                                                            Themen</a>
+							</li>
+					<li>
+                                                        				<a href="/userzentrum">
+                                                                                                            Mein w:o</a>
+							</li>
+					<li>
+                                                        				<a href="/mobile" class="handy">
+                                                                                                            </a>
+							</li>
+			</ul>
+	<ul class="l2 cs">
+					<li class="current">
+                                                        				<a href="/community">
+                                                                                                            ??bersicht</a>
+							</li>
+					<li>
+                                                        				<a href="/community/foren.html">
+                                                                                                            Foren</a>
+							</li>
+					<li>
+                                                        				<a href="/aktien/statistik/topboard.html">
+                                                                                                            Statistik</a>
+							</li>
+					<li>
+                                                        				<a href="/community/letzte-neueintraege.html">
+                                                                                                            Neueste Eintr??ge</a>
+							</li>
+					<li>
+                                                        				<a href="/community/letzte-antworten.html">
+                                                                                                            Letzte Antworten</a>
+							</li>
+					<li>
+                                                        				<a href="/community/umfragen.html">
+                                                                                                            Umfragen</a>
+							</li>
+					<li>
+                                                        				<a href="/hilfe">
+                                                                                                            FAQ &amp; Boardregeln</a>
+							</li>
+			</ul>
+        <div class="clear"></div>
+    </div>
+</div>
+
+<div id="headOut" ></div>
+
+<div class="clear"></div>            <div class="toolbar" style="height:30px">
+             
+            <span style="float:left;padding:0 5px;">
+    <form action="/community/forum.html" method="get">
+        <select name="forum_id" onchange="submit()" style="max-width:200px;">
+            <option value="0">Forum w??hlen</option><optgroup label="Abseits der B??rse">
+  <option value="127" >Allgemeine Themen</option>
+  <option value="123" >Boardspiele</option>
+  <option value="29" >Boardtreffen</option>
+  <option value="27" >Ex-SAC-Forum</option>
+  <option value="122" >PC & Technik</option>
+  <option value="97" >Sport & Motor</option>
+  <option value="130" >Stars & Sternchen</option>
+  <option value="26" >wallstreet:sofa</option>
+</optgroup>
+<optgroup label="Anlegen & Handeln">
+  <option value="52" >B??rse - Allgemein</option>
+  <option value="32" >Charttechnik</option>
+  <option value="28" >Daytrader</option>
+  <option value="55" >Depotbesprechung</option>
+  <option value="57" >Einsteigerforum</option>
+  <option value="74" >Fundamentalanalyse</option>
+  <option value="88" >Kaufempfehlung</option>
+  <option value="89" >Verkaufsempfehlung</option>
+  <option value="7" >W??hrungen/Devisen/Forex</option>
+</optgroup>
+<optgroup label="Ausland">
+  <option value="15" >Asien</option>
+  <option value="9" >Auslandswerteforum</option>
+  <option value="50" >Australien</option>
+  <option value="109" >Kanadische Werte</option>
+  <option value="10" >Nasdaq</option>
+  <option value="107" >NYSE / AMEX</option>
+  <option value="12" >OTC-BB / Pinksheets</option>
+  <option value="110" >S??damerika</option>
+  <option value="108" >US Hotstocks</option>
+</optgroup>
+<optgroup label="Banking & Trading 2.0">
+  <option value="140" >Bonusprogramme</option>
+  <option value="139" >Crowdfunding</option>
+  <option value="141" >Nachhaltigkeitsbanken</option>
+  <option value="138" >Social Trading</option>
+</optgroup>
+<optgroup label="Branchenforen">
+  <option value="21" >Biotech</option>
+  <option value="19" >Breitband/Medien/i-TV</option>
+  <option value="23" >Gr??ne Aktien</option>
+  <option value="112" >Insolvenzen</option>
+  <option value="17" >Internet</option>
+  <option value="20" >Makleraktien</option>
+  <option value="100" >Nanotechnologie</option>
+  <option value="113" >??l- und Gasstocks</option>
+  <option value="131" >Rohstoffe</option>
+  <option value="22" >Rohstoffwerte, Minen und Explorer</option>
+  <option value="18" >Telekommunikation</option>
+</optgroup>
+<optgroup label="Derivate">
+  <option value="125" >CFDs / CFD-Handel</option>
+  <option value="126" >ETF</option>
+  <option value="121" >Futures</option>
+  <option value="120" >Knockouts</option>
+  <option value="73" >Optionsscheine</option>
+  <option value="92" >Zertifikate</option>
+</optgroup>
+<optgroup label="Deutschland">
+  <option value="5" >DAX</option>
+  <option value="71" >Deutsche Aktien im Fokus</option>
+  <option value="105" >MDAX</option>
+  <option value="3" >Nebenwerte Deutschland</option>
+  <option value="2" >Neuer Markt (hist.)</option>
+  <option value="106" >SDAX</option>
+  <option value="102" >TecDAX</option>
+  <option value="6" >Vorb??rsliche Werte</option>
+</optgroup>
+<optgroup label="Europa">
+  <option value="68" >??sterreich</option>
+  <option value="87" >Osteuropa</option>
+  <option value="69" >Schweiz</option>
+  <option value="13" >Westeuropa</option>
+</optgroup>
+<optgroup label="Geldanlage">
+  <option value="118" >Alltagsfinanzen</option>
+  <option value="80" >Anleihen & Renten</option>
+  <option value="119" >Banken & Broker</option>
+  <option value="84" >Finanzstrategien</option>
+  <option value="58" >Fonds / Investmentfonds</option>
+  <option value="83" >Geschlossene Fonds</option>
+  <option value="117" >Hedge-Fonds</option>
+  <option value="82" >Immobilien</option>
+  <option value="115" >Junkbonds</option>
+  <option value="78" >Kredite</option>
+  <option value="85" >Recht & Steuern</option>
+  <option value="116" >Sparb??cher & Konten</option>
+  <option value="79" >Versicherungen + Bausparen</option>
+</optgroup>
+<optgroup label="Information">
+  <option value="90" >AdHoc</option>
+  <option value="35" >Finanzsoftware</option>
+  <option value="37" >Informationsquellen</option>
+  <option value="54" >w:o News</option>
+</optgroup>
+<optgroup label="Spezialforen">
+  <option value="114" >B??rsenspiele</option>
+  <option value="128" >B??rsenvereine</option>
+  <option value="72" >Die 50-er</option>
+  <option value="53" >Hot Stocks</option>
+  <option value="64" >Investmentclubs</option>
+  <option value="81" >Karriere</option>
+  <option value="4" >Neuemissionen</option>
+</optgroup>
+<optgroup label="wallstreet:online">
+  <option value="75" >live:trader</option>
+  <option value="41" >w:o Feedback</option>
+</optgroup>
+<optgroup label="Wirtschaft, Politik & Gesellschaft">
+  <option value="133" >Au??enpolitik, EU, Welt</option>
+  <option value="136" >Gesellschaft & Religion</option>
+  <option value="134" >Innenpolitik & Parteien</option>
+  <option value="137" >Umweltpolitik</option>
+  <option value="96" >Wirtschaft & Politik (hist.)</option>
+  <option value="132" >Wirtschaftspolitik</option>
+</optgroup>
+        </select>
+        <input type="submit" value="Go" class="button" />
+    </form>
+
+            </span>
+            <span style="float:right;padding:0 10px;">                    
+                <form action="//www.wallstreet-online.de/suche/" method="get">
+                    <input type="hidden" name="suche" value="boardResult" />
+                    <label class="toolbarlabel">Forumsuche</label>
+                    <input name="q" class="textfeld" size="40" value=""/>
+                    <label class="toolbarlabel">in</label>
+                    <select name="via" class="textfeld">
+                            <option value="title" >Titel</option>
+                            <option value="postings" >Volltext</option>
+                            <option value="instrument" >Aktie</option>
+                            <!--<option value="user" >Benutzer</option>//-->
+                            <!--
+                            <option value="3" >Thread-ID</option>
+                            //-->
+                    </select>
+                    <input type="submit" value="Suche" class="button" />
+                </form>
+            </span>
+            </div>
+            
+            
+            
+    <div style="overflow:hidden">
+        <ul id="mooTicker"></ul>
+    </div>
+
+
+<div class="clear"></div>
+            <div id="afterhead" style="clear: both;" ></div>
+
+                                        <!-- TFAG: Virtueller AdCall/Tag: Billboard 970x250 START -->
+                <div id="adsd_billboard_div" style="display:none;height:auto;margin:0px 0px 0px 0px; border: 0px solid #FFFFFF; background-color:#fff;">
+                    <script language="javascript">
+                        try{
+                            document.write(ads_gettag("BILLBOARDAD"));
+                        
+                        } catch(e){
+
+                        }
+                    </script>
+                </div>
+                <!-- TFAG: Virtueller AdCall/Tag: Billboard 970x250 ENDE -->
+                        <div class="grid fs " id="breadcrumb"><div class="container "  >
+    <div class="module  first" >
+    
+                    <div id="siteactions" style="float:right;width:230px;">
+                                    </div>
+
+                <div itemtype="http://data-vocabulary.org/Breadcrumb" itemscope="">
+                                            <a href="/">
+                            <span>Startseite</span>
+                        </a>
+                        &nbsp;&gt;&nbsp;
+                                                                            <a href="/community" itemprop="url">
+                                <span itemprop="title">Community & Forum</span>
+                            </a>
+                                                             &nbsp;&gt;&nbsp;
+                                         ??bersicht                                                    
+                </div>
+
+            </div></div></div>            <div class="clear"><!-- --></div>
+            
+            <div class="grid ws " ><div class="container c1" id="371" >
+    <h1>Finanzforum: Der Community-??berblick</h1><div class="module c1 topThreadTeaser first" >
+    
+    <div class="teaser">
+
+
+        <div class="title" style="font-size:20px; line-height: 21px;">
+        <span>Daytrading-Forum</span>
+                <a href="/diskussion/1199154-1-10/"  >Tages-Trading-Chancen am Montag</a>
+    </div>
+                <div style="float:left">
+            <a href="/diskussion/1199154-1-10/"  ><img alt="Daytrading-Forum: Tages-Trading-Chancen am Montag" class="teaserImage" src="//assets.wallstreet-online.de/_media/139/boerse/size_250/boerse-daytrading-cirquedesprit-fotolia.jpg?env=live" width="250" /></a>
+        <div style="font-size:11px;width:100%;padding:2px;color:#515151;">Foto: cirquedesprit - Fotolia</div>            </div>
+                
+    <p>
+        Der t??gliche Austausch zur B??rse. Daytrader und Marktteilnehmer diskutieren hier zur aktuellen Lage an den B??rsen. Hier lesen Sie aktuelle Trading-Chancen und Meinungen der Profis, Analysten und Hobbyb??rsianern ??ber Indizes, W??hrungen, Rohstoffe oder Blue Chips.            </p>
+
+      <table class="t-data relatedContent" id="">
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td><div><div class="fadeOutBox"><div class="innerFadeOutBox" title="Tages-Trading-Chancen am Montag den 15.09.2014"><p class="icon-sprite sprite-ico-diskussionen" title="Diskussion"></p><a href="/diskussion/1199154-1-10/tages-trading-chancen-montag-15-09-2014">Zur aktuellen Diskussion</a><div class="fadeOut"></div></div></div></div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox"><div class="innerFadeOutBox" title=""><p class="icon-sprite sprite-ico-diskussionen" title="Diskussion"></p><a href="http://www.wallstreet-online.de/forum/28-1-50/daytrader">Zum Daytrading-Forum</a><div class="fadeOut"></div></div></div></div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+</div></div><div class="module c1 topThreadTeaser" >
+    
+    <div class="teaser">
+
+</div></div><div class="clear"></div><div id="main_content" class="" ></div><div class="module c1 threadTeaser Community" >
+    
+    <div class="teaser" style="border-bottom:1px solid #CCC;padding:5px 0;" data-row="1">
+
+    
+    <span class="comments"><a href="/diskussion/1180937-9691-9700/afd-wuerdet-waehlen#neuster_beitrag"  title="Kommentare">(9692)&nbsp;<span class="icon-sprite sprite-ico-comments" style="position: relative;top: 4px;"></span></a></span>
+    <div class="title">
+        <a href="/diskussion/1180937-1-10/afd-wuerdet-waehlen" >AFD- w??rdet ihr sie w??hlen ?</a>
+        
+    </div>
+    </div><div class="teaser" style="border-bottom:1px solid #CCC;padding:5px 0;" data-row="2">
+
+    
+    <span class="comments"><a href="/diskussion/1199022-711-720/tages-trading-chancen-freitag-12-09-2014#neuster_beitrag"  title="Kommentare">(714)&nbsp;<span class="icon-sprite sprite-ico-comments" style="position: relative;top: 4px;"></span></a></span>
+    <div class="title">
+        <a href="/diskussion/1199022-1-10/tages-trading-chancen-freitag-12-09-2014" >Tages-Trading-Chancen am Freitag den 12.09.2014</a>
+        
+    </div>
+    </div><div class="teaser" style="border-bottom:1px solid #CCC;padding:5px 0;" data-row="3">
+
+    
+    <span class="comments"><a href="/diskussion/992863-46971-46980/paion-buy#neuster_beitrag"  title="Kommentare">(46978)&nbsp;<span class="icon-sprite sprite-ico-comments" style="position: relative;top: 4px;"></span></a></span>
+    <div class="title">
+        <a href="/diskussion/992863-1-10/paion-buy" >Paion "buy"</a>
+        
+    </div>
+    </div><div class="teaser" style="border-bottom:1px solid #CCC;padding:5px 0;" data-row="4">
+
+    
+    <span class="comments"><a href="/diskussion/1191729-5171-5180/ukraine-konflikt-eu#neuster_beitrag"  title="Kommentare">(5172)&nbsp;<span class="icon-sprite sprite-ico-comments" style="position: relative;top: 4px;"></span></a></span>
+    <div class="title">
+        <a href="/diskussion/1191729-1-10/ukraine-konflikt-eu" >Ukraine-Konflikt und die EU</a>
+        
+    </div>
+    </div><div class="teaser" style="border-bottom:1px solid #CCC;padding:5px 0;" data-row="5">
+
+    
+    <span class="comments"><a href="/diskussion/1074622-67551-67560/borussia-dortmund-zurueck-an-die-spitze#neuster_beitrag"  title="Kommentare">(67554)&nbsp;<span class="icon-sprite sprite-ico-comments" style="position: relative;top: 4px;"></span></a></span>
+    <div class="title">
+        <a href="/diskussion/1074622-1-10/borussia-dortmund-zurueck-an-die-spitze" >Borussia Dortmund zur??ck an die Spitze!</a>
+        
+    </div>
+    </div></div><div class="module c1" >
+    
+    <h2>Neue Diskussionen</h2>      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th class="single">Zeit</th><th>Titel</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td class="single right "><div><span class="previous-day">14.09.</span></div></td><td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1199154-1-10/tages-trading-chancen-montag-15-09-2014"    >Tages-Trading-Chancen am Montag den 15.09.2014</a><div class="fadeOut"></div></div></div></div></td>            </tr>
+                    <tr class="hl" >
+            <td class="single right "><div><span class="previous-day">14.09.</span></div></td><td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1199151-1-10/stark-unterschiedliche-tauschkurse-iranischer-rial"    >Stark unterschiedliche Tauschkurse iranischer Rial</a><div class="fadeOut"></div></div></div></div></td>            </tr>
+                    <tr >
+            <td class="single right "><div><span class="previous-day">14.09.</span></div></td><td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1199142-1-10/120-000-trade-vorschlaege"    >???120.000 Trade Vorschl??ge?</a><div class="fadeOut"></div></div></div></div></td>            </tr>
+                    <tr class="hl" >
+            <td class="single right "><div><span class="previous-day">14.09.</span></div></td><td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1199139-1-10/mlhc-fahrt-beginnt"    >MLHC die fahrt beginnt</a><div class="fadeOut"></div></div></div></div></td>            </tr>
+                    <tr >
+            <td class="single right "><div><span class="previous-day">14.09.</span></div></td><td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1199136-1-10/boersengespraeche"    >b??rsengespr??che</a><div class="fadeOut"></div></div></div></div></td>            </tr>
+                    <tr class="hl" >
+            <td class="single right "><div><span class="previous-day">14.09.</span></div></td><td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1199133-1-10/ivymedicine"    >ivymedicine</a><div class="fadeOut"></div></div></div></div></td>            </tr>
+                    <tr >
+            <td class="single right "><div><span class="previous-day">14.09.</span></div></td><td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1199130-1-10/bluepool-leben-erwacht"    >Bluepool wieder zum Leben erwacht?</a><div class="fadeOut"></div></div></div></div></td>            </tr>
+                    <tr class="hl" >
+            <td class="single right "><div><span class="previous-day">14.09.</span></div></td><td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1199127-1-10/kurschancen-apple-peripherie"    >kurschancen apple-peripherie</a><div class="fadeOut"></div></div></div></div></td>            </tr>
+                    <tr >
+            <td class="single right "><div><span class="previous-day">13.09.</span></div></td><td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1199118-1-10/steuerjahr-auslauf-aktienanleihe-jahreswechsel"    >Steuerjahr bei Auslauf Aktienanleihe um Jahreswechsel</a><div class="fadeOut"></div></div></div></div></td>            </tr>
+                    <tr class="hl" >
+            <td class="single right "><div><span class="previous-day">12.09.</span></div></td><td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1199103-1-10/wpcs-zukunftspotential"    >WPCS Zukunftspotential?</a><div class="fadeOut"></div></div></div></div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+                        <div class="footnote">
+                                                <a href="/community/letzte-neueintraege" title="neue Diskussionen">neue Diskussionen &raquo;</a>                        </div>
+                        </div><div class="module c1" >
+    
+    <h2>Neue Diskussion er??ffnen</h2>
+            <div class="modulecontent" style="padding-top:5px">
+                <form method="post" action="//www.wallstreet-online.de/community/neues-thema">
+                    <span style="float:left;padding-bottom:10px;padding-right:10px;"><img src="//assets.wallstreet-online.de//frontend/img/community/icon-jetzt-diskussion.png" /></span>
+                    <div class="h1" style="margin:0;border:none;">Stellen Sie jetzt Ihre Frage!</div>
+                    <input type="hidden" name="inst_id" value="" />
+                    <input type="hidden" name="forum_id" value="" />
+                    <input style="color: #4B525A;max-width:275px;" onclick="this.value = ''" type="text" value="Je aussagekr??ftiger, desto bessere Antworten." size="50" name="title">
+                                            <input type="submit" value="abschicken" style="margin-left:10px;"/>
+                                    </form>
+            </div>
+            </div><div class="module c1" id="386">
+    
+    <h2>Meistdiskutierte Wertpapiere (24h)</h2><div class="tab wotabs"><ul class="tabbar"><li class="active c1"><a>Alles ??ber 1???</a></li><li class=" c1"><a>Alles unter 1???</a></li><li class=" c1"><a>Dax</a></li><li class=" c1"><a>CDax</a></li><li class=" c1"><a>MDax</a></li><li class=" c1"><a>TecDax</a></li><li class=" c1"><a>Alle</a></li></ul><div class="tabpanes" style="width:100%;"><div class="tab" >      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th class="single">Platz</th><th class="single">vorher</th><th>Werte</th><th class="single right">Kurs</th><th>Art</th><th class="double center" colspan="2"><span title="Performance in Prozent">Perf.&nbsp;%</span></th><th class="single">Beitr??ge</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td class="right " style="font-weight:bold "><div>1</div></td><td class="right "><div><div class="statdn">1 <span class="arrow"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/rohstoffe/silberpreis"    >Silber</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>18,59</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-0,54</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>101</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>2</div></td><td class="right "><div><div class="statdn">2 <span class="arrow"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/indizes/dax"    >DAX</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>9.651,13</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-0,41</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>96</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>3</div></td><td class="right "><div><div class="statdn">3 <span class="arrow"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/apple-aktie"    >Apple</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>101,66</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+0,23</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>35</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>4</div></td><td class="right "><div><div class="statdn">9 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/paion-aktie"    >Paion</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>2,69</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-0,81</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>16</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>5</div></td><td class="right "><div><div class="statdn">8 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/china-green-agriculture-aktie"    >China Green</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>2,85</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+25,00</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:25px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>16</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>6</div></td><td class="right "><div><div class="statdn">5 <span class="arrowdown"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/borussia-dortmund-aktie"    >Borussia Dortmund (BVB)</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>4,827</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+2,94</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:3px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>15</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>7</div></td><td class="right "><div><div class="statdn">7 <span class="arrow"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/28201111"    >Vuzix</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>3,79</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-2,82</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:3px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>14</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>8</div></td><td class="right "><div><div class="statdn">12 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/rohstoffe/goldpreis"    >Gold</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>1.228,24</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-1,01</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:2px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>13</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>9</div></td><td class="right "><div><div class="statdn">13 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/indizes/dowjones"    >Dow Jones</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>16.987,51</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-0,36</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>13</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>10</div></td><td class="right "><div><div class="statdn">14 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/nokia-aktie"    >Nokia</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>8,44</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+1,20</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:2px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>11</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+                        <div class="footnote">
+                                                <a href="/statistik/top-hotstocks-aktien-meistdiskutiert" title="mehr meistdiskutierte Hotstock-Werte">mehr meistdiskutierte Hotstock-Werte &raquo;</a>                        </div>
+                        </div><div class="tab" style="display:none;">      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th class="single">Platz</th><th class="single">vorher</th><th>Werte</th><th class="single right">Kurs</th><th>Art</th><th class="double center" colspan="2"><span title="Performance in Prozent">Perf.&nbsp;%</span></th><th class="single">Beitr??ge</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td class="right " style="font-weight:bold "><div>1</div></td><td class="right "><div><div class="statdn">4 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/walter-bau-aktie"    >Walter Bau</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,039</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+14,71</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:3px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>22</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>2</div></td><td class="right "><div><div class="statdn">6 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/sangui-biotech-international-aktie"    >Sangui Biotech</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,07</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="">0,00</font></div></td><td class="left "><div>&nbsp;</div></td><td class="right "><div>17</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>3</div></td><td class="right "><div><div class="statdn">11 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/abwicklungsgesellschaft-roesch-medizintechnik-aktie"    >Abwicklungsg.Roesch</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,09</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+136,84</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:25px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>15</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>4</div></td><td class="right "><div><div class="statdn">10 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/bioniche-life-aktie"    >Bioniche Life</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,21</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-4,55</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>13</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>5</div></td><td class="right "><div><div class="statdn">15 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/neschen-aktie"    >NESCHEN AG O.N.</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,60</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+15,16</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:3px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>10</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>6</div></td><td class="right "><div><div class="statdn">16 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/commerce-resources-aktie"    >Commerce Resources</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,16</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-5,33</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>9</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>7</div></td><td class="right "><div><div class="statdn">18 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/eurogas-aktie"    >Eurogas</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,014</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="">0,00</font></div></td><td class="left "><div>&nbsp;</div></td><td class="right "><div>8</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>8</div></td><td class="right "><div><div class="statdn">17 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/sunwin-stevia-aktie"    >Sunwin Stevia Intrn</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,163</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-0,61</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>8</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>9</div></td><td class="right "><div><div class="statdn">23 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/iq-power-aktie"    >IQ Power</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,055</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="">0,00</font></div></td><td class="left "><div>&nbsp;</div></td><td class="right "><div>6</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>10</div></td><td class="right "><div><div class="statdn">27 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/106103654"    >RB Energy</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,35</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-5,41</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>5</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+                        <div class="footnote">
+                                                <a href="/statistik/top-pennystocks-aktien-meistdiskutiert" title="mehr meistdiskutierte Pennystock-Werte">mehr meistdiskutierte Pennystock-Werte &raquo;</a>                        </div>
+                        </div><div class="tab" style="display:none;">      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th class="single">Platz</th><th class="single">vorher</th><th>Werte</th><th class="single right">Kurs</th><th>Art</th><th class="double center" colspan="2"><span title="Performance in Prozent">Perf.&nbsp;%</span></th><th class="single">Beitr??ge</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td class="right " style="font-weight:bold "><div>1</div></td><td class="right "><div><div class="statdn">4 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/eon-aktie"    >E.On</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>14,40</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+0,38</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:6px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>3</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>2</div></td><td class="right "><div><div class="statdn"><strong>Neu!</strong><span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/commerzbank-aktie"    >Commerzbank</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>12,655</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-0,32</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:5px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>3</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>3</div></td><td class="right "><div><div class="statdn"><strong>Neu!</strong><span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/k-s-aktie"    >K+S N</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>24,45</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-1,65</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:25px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>2</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>4</div></td><td class="right "><div><div class="statdn"><strong>Neu!</strong><span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/muenchener-rueck-aktie"    >M??nchener R??ck</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>153,15</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-0,20</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:3px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>1</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+                        <div class="footnote">
+                                                <a href="/statistik/top-dax-aktien-meistdiskutiert" title="mehr meistdiskutierte DAX-Werte">mehr meistdiskutierte DAX-Werte &raquo;</a>                        </div>
+                        </div><div class="tab" style="display:none;">      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th class="single">Platz</th><th class="single">vorher</th><th>Werte</th><th class="single right">Kurs</th><th>Art</th><th class="double center" colspan="2"><span title="Performance in Prozent">Perf.&nbsp;%</span></th><th class="single">Beitr??ge</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td class="right " style="font-weight:bold "><div>1</div></td><td class="right "><div><div class="statdn">35 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/walter-bau-aktie"    >Walter Bau</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,039</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+14,71</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:3px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>22</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>2</div></td><td class="right "><div><div class="statdn">25 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/paion-aktie"    >Paion</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>2,69</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-0,81</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>16</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>3</div></td><td class="right "><div><div class="statdn">28 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/abwicklungsgesellschaft-roesch-medizintechnik-aktie"    >Abwicklungsg.Roesch</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,09</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+136,84</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:25px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>15</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>4</div></td><td class="right "><div><div class="statdn">3 <span class="arrowdown"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/borussia-dortmund-aktie"    >Borussia Dortmund (BVB)</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>4,827</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+2,94</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>15</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>5</div></td><td class="right "><div><div class="statdn">24 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/neschen-aktie"    >NESCHEN AG O.N.</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,60</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+15,16</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:3px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>10</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>6</div></td><td class="right "><div><div class="statdn">39 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/mologen-aktie"    >Mologen</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>7,801</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-0,76</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>7</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>7</div></td><td class="right "><div><div class="statdn">34 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/balda-aktie"    >Balda</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>3,298</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+0,55</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>7</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>8</div></td><td class="right "><div><div class="statdn">6 <span class="arrowdown"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/ivu-traffic-technologies-aktie"    >IVU Traffic Techno</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>2,818</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+0,28</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>7</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>9</div></td><td class="right "><div><div class="statdn">29 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/qsc-aktie"    >QSC</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>2,338</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-1,18</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>6</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>10</div></td><td class="right "><div><div class="statdn"><strong>Neu!</strong><span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/praktiker-bau-aktie"    >Praktiker Holding</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,016</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="">0,00</font></div></td><td class="left "><div>&nbsp;</div></td><td class="right "><div>4</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+                        <div class="footnote">
+                                                <a href="/statistik/top-cdax-aktien-meistdiskutiert" title="mehr meistdiskutierte CDAX-Werte">mehr meistdiskutierte CDAX-Werte &raquo;</a>                        </div>
+                        </div><div class="tab" style="display:none;">      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th class="single">Platz</th><th class="single">vorher</th><th>Werte</th><th class="single right">Kurs</th><th>Art</th><th class="double center" colspan="2"><span title="Performance in Prozent">Perf.&nbsp;%</span></th><th class="single">Beitr??ge</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td class="right " style="font-weight:bold "><div>1</div></td><td class="right "><div><div class="statdn"><strong>Neu!</strong><span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/gerry-weber-aktie"    >Gerry Weber International</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>32,695</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-3,65</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:19px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>2</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>2</div></td><td class="right "><div><div class="statdn">1 <span class="arrowdown"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/suedzucker-aktie"    >S??dzucker</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>13,15</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-4,92</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:25px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>1</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>3</div></td><td class="right "><div><div class="statdn"><strong>Neu!</strong><span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/bilfinger-berger-aktie"    >Bilfinger SE</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>49,04</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-1,38</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:8px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>1</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>4</div></td><td class="right "><div><div class="statdn"><strong>Neu!</strong><span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/tag-immobilien-aktie"    >TAG Immobil</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>8,89</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-0,47</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:3px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>1</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+                        <div class="footnote">
+                                                <a href="/statistik/top-mdax-aktien-meistdiskutiert" title="mehr meistdiskutierte MDAX-Werte">mehr meistdiskutierte MDAX-Werte &raquo;</a>                        </div>
+                        </div><div class="tab" style="display:none;">      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th class="single">Platz</th><th class="single">vorher</th><th>Werte</th><th class="single right">Kurs</th><th>Art</th><th class="double center" colspan="2"><span title="Performance in Prozent">Perf.&nbsp;%</span></th><th class="single">Beitr??ge</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td class="right " style="font-weight:bold "><div>1</div></td><td class="right "><div><div class="statdn">3 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/qsc-aktie"    >QSC</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>2,338</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-1,18</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:6px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>6</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>2</div></td><td class="right "><div><div class="statdn">4 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/20228608"    >Telefonica Dt H N</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>4,138</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-1,76</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:9px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>1</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>3</div></td><td class="right "><div><div class="statdn">2 <span class="arrowdown"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/morphosys-aktie"    >Morphosys</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>76,02</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+2,11</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:11px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>1</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>4</div></td><td class="right "><div><div class="statdn"><strong>Neu!</strong><span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/dialog-semiconductor-aktie"    >Dialog Semiconductor</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>21,225</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-5,16</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:25px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>1</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+                        <div class="footnote">
+                                                <a href="/statistik/top-tecdax-aktien-meistdiskutiert" title="mehr meistdiskutierte TecDAX-Werte">mehr meistdiskutierte TecDAX-Werte &raquo;</a>                        </div>
+                        </div><div class="tab" style="display:none;">      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th class="single">Platz</th><th class="single">vorher</th><th>Werte</th><th class="single right">Kurs</th><th>Art</th><th class="double center" colspan="2"><span title="Performance in Prozent">Perf.&nbsp;%</span></th><th class="single">Beitr??ge</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td class="right " style="font-weight:bold "><div>1</div></td><td class="right "><div><div class="statdn">1 <span class="arrow"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/rohstoffe/silberpreis"    >Silber</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>18,59</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-0,54</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>101</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>2</div></td><td class="right "><div><div class="statdn">2 <span class="arrow"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/indizes/dax"    >DAX</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>9.651,13</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-0,41</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>96</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>3</div></td><td class="right "><div><div class="statdn">3 <span class="arrow"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/apple-aktie"    >Apple</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>101,66</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+0,23</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>35</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>4</div></td><td class="right "><div><div class="statdn">4 <span class="arrow"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/walter-bau-aktie"    >Walter Bau</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,039</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+14,71</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:3px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>22</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>5</div></td><td class="right "><div><div class="statdn">6 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/sangui-biotech-international-aktie"    >Sangui Biotech</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,07</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="">0,00</font></div></td><td class="left "><div>&nbsp;</div></td><td class="right "><div>17</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>6</div></td><td class="right "><div><div class="statdn">9 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/paion-aktie"    >Paion</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>2,69</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-0,81</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>16</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>7</div></td><td class="right "><div><div class="statdn">8 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/china-green-agriculture-aktie"    >China Green</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>2,85</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+25,00</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:5px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>16</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>8</div></td><td class="right "><div><div class="statdn">5 <span class="arrowdown"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/borussia-dortmund-aktie"    >Borussia Dortmund (BVB)</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>4,827</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+2,94</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>15</div></td>            </tr>
+                    <tr >
+            <td class="right " style="font-weight:bold "><div>9</div></td><td class="right "><div><div class="statdn">11 <span class="arrowup"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/abwicklungsgesellschaft-roesch-medizintechnik-aktie"    >Abwicklungsg.Roesch</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,09</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="green">+136,84</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:25px;background:#005D42;height:10px"></div></div></div></td><td class="right "><div>15</div></td>            </tr>
+                    <tr class="hl" >
+            <td class="right " style="font-weight:bold "><div>10</div></td><td class="right "><div><div class="statdn">7 <span class="arrowdown"></span></div></div></td><td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/28201111"    >Vuzix</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>3,79</div></td><td><div><div class="fadeOutBox fadeoutheadline" style="max-width: 55px;"><div class="innerFadeOutBox"  title=""><div class="fadeOut"></div></div></div></div></td><td class="right "><div><font class="red">-2,82</font></div></td><td class="left "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:1px;background:#BE2D36;height:10px"></div></div></div></td><td class="right "><div>14</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+                        <div class="footnote">
+                                                <a href="/statistik/top-aktien-meistdiskutiert" title="mehr meistdiskutierte Werte">mehr meistdiskutierte Werte &raquo;</a>                        </div>
+                        </div></div></div></div><div class="module c1" >
+    
+    <h2>Meistbesuchte Diskussionen (24h)</h2>      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th>Titel</th><th class="right">letzter Beitrag</th><th class="single right">Aufrufe</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1122196-1-10/sunwin-let-s-go-sweet-jetzt-erst-recht"    >SUNWIN - let`s go sweet....jetzt erst recht!!!!</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/1122196-48341-48350/sunwin-let-s-go-sweet-jetzt-erst-recht#neuster_beitrag"    >gestern 20:13</a></div></td><td class="right "><div>282</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1199022-1-10/tages-trading-chancen-freitag-12-09-2014"    >Tages-Trading-Chancen am Freitag den 12.09.2014</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/1199022-711-720/tages-trading-chancen-freitag-12-09-2014#neuster_beitrag"    >in 14 Minuten</a></div></td><td class="right "><div>65</div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/976618-1-10/diskussion-zum-thema-silber"    >Diskussion zum Thema Silber</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/976618-82331-82340/diskussion-zum-thema-silber#neuster_beitrag"    >in 54 Minuten</a></div></td><td class="right "><div>40</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1164380-1-10/noch-unentdeckt-vuzix"    >noch unentdeckt - VUZIX</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/1164380-11781-11790/noch-unentdeckt-vuzix#neuster_beitrag"    >gestern 17:46</a></div></td><td class="right "><div>23</div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1190943-1-10/awilco-drilling-zweistellige-dividendenrendite-nachhaltig"    >Awilco Drilling - zweistellige Dividendenrendite nachhaltig?</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/1190943-71-80/awilco-drilling-zweistellige-dividendenrendite-nachhaltig#neuster_beitrag"    >vor 6 Minuten</a></div></td><td class="right "><div>22</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1023882-1-10/mologen-ag-dabeisein-ist-alles-jetzt-gehts-richtig-los"    >___MOLOGEN AG__Dabeisein ist Alles__Jetzt gehts richtig los_</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/1023882-38621-38630/mologen-ag-dabeisein-ist-alles-jetzt-gehts-richtig-los#neuster_beitrag"    >gestern 20:00</a></div></td><td class="right "><div>17</div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1157944-1-10/goldpreisentwicklung-goldkauf-goldtraden-goldaufbewahrung-goldverkauf"    >Goldpreisentwicklung - Goldkauf - Goldtraden - Goldaufbewahrung - Goldverkauf</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/1157944-7631-7640/goldpreisentwicklung-goldkauf-goldtraden-goldaufbewahrung-goldverkauf#neuster_beitrag"    >13.09.14, 20:53</a></div></td><td class="right "><div>14</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1173178-1-10/intertainment-ag-milliarden-klage-apple"    >Intertainment AG -- Milliarden - Klage gegen Apple!</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/1173178-12761-12770/intertainment-ag-milliarden-klage-apple#neuster_beitrag"    >13.09.14, 09:10</a></div></td><td class="right "><div>12</div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/944638-1-10/apple-unaufhaltsamer-aufstieg-wie-lange-noch"    >Apple - unaufhaltsamer Aufstieg - wie lange noch?</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/944638-31941-31950/apple-unaufhaltsamer-aufstieg-wie-lange-noch#neuster_beitrag"    >gestern 20:40</a></div></td><td class="right "><div>12</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1135686-1-10/qedc-newsthread"    >QEDC- NEWSTHREAD</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/1135686-191-200/qedc-newsthread#neuster_beitrag"    >11.03.08, 20:07</a></div></td><td class="right "><div>11</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+</div><div class="module c1" >
+    
+    <h2>DAX-Tippspiel: Tippe den DAX XETRA-Schlusskurs und sei ein Gewinner</h2>
+            <div class="modulecontent" style="padding-top:5px">
+                <form method="post" action="" accept-charset="UTF-8" class="form">
+                                                            <span style="float:left;padding-bottom:10px;"><div  class="pushable  ">
+<div push="chartbox" instid="18279" marketid="1" style="position: relative;" class="flow pushable minichart">
+    <a href="/indizes/dax" class="pushfield" push="url" >
+    <img width="149" height="115" class="pushfield loadOnSight" push="imgUrl" hspace="0" title="DAX" alt="DAX" src="//assets.wallstreet-online.de//frontend/img/blank.gif" rel="/_plain/charts/legacycharts/startseite4?inst_id=18279&market_id=1&title=DAX&hideTime=true&tr=">
+    </a>
+    <div push="qlwc" class="quote pushfield right">9.651,13</div>
+    <div push="perf1drel" class="perf pushfield right"><font class="red">-0,41&nbsp;%</font></div>
+    <div push="qlct" class="time pushfield right"><span class="previous-day">12.09.</span></div>
+    
+</div>
+
+
+    </div>
+<div class="clear"></div></span>
+                    <input type="hidden" name="tippspiel_deadline" value="20140915" />
+                    <input type="hidden" name="tippspiel_inst_id" value="18279" />
+                    <div style="max-width:380px;float:left;">
+                                             <p class="tippMessage" style="padding-top:15px;">Melden Sie sich an, um einen Tipp auf den DAX-Schlusskurs am 15.09.2014 abgeben und Ihre Platzierungen sehen zu k??nnen.</p>
+                                        <div style="font-size:9px;padding-top:10px;"> B??rsent??glich bis 12:00 Uhr kann der Tipp f??r den laufenden Tag abgegeben werden (<a href="//www.wallstreet-online.de/community/tippspiel">zu den Regeln und Ranglisten</a>).</div>
+                    </div>
+                </form>
+                
+            </div>
+            </div><div class="module c2" >
+    
+    <h2>Top Foren (24h)</h2>      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th>Titel</th><th class="single right">Beitr??ge</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/131-1-50/rohstoffe"    >Rohstoffe</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>111</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/26-1-50/wallstreet-sofa"    >wallstreet:sofa</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>108</div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/134-1-50/innenpolitik-parteien"    >Innenpolitik & Parteien</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>105</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/21-1-50/biotech"    >Biotech</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>67</div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/5-1-50/dax"    >DAX</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>60</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/28-1-50/daytrader"    >Daytrader</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>60</div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/112-1-50/insolvenzen"    >Insolvenzen</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>51</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/3-1-50/nebenwerte-deutschland"    >Nebenwerte Deutschland</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>50</div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/22-1-50/rohstoffwerte-minen-und-explorer"    >Rohstoffwerte, Minen und Explorer</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>49</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/123-1-50/boardspiele"    >Boardspiele</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>46</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+</div><div class="module c2 omega" >
+    
+    <h2>??</h2>      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th>Titel</th><th class="single right">Beitr??ge</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/10-1-50/nasdaq"    >Nasdaq</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>45</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/97-1-50/sport-motor"    >Sport & Motor</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>39</div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/55-1-50/depotbesprechung"    >Depotbesprechung</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>37</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/133-1-50/aussenpolitik-eu-welt"    >Au??enpolitik, EU, Welt</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>35</div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/88-1-50/kaufempfehlung"    >Kaufempfehlung</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>33</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/53-1-50/hot-stocks"    >Hot Stocks</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>29</div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/109-1-50/kanadische-werte"    >Kanadische Werte</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>29</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/113-1-50/oel-und-gasstocks"    >??l- und Gasstocks</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>22</div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/108-1-50/us-hotstocks"    >US Hotstocks</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>20</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/forum/84-1-50/finanzstrategien"    >Finanzstrategien</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>18</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+                        <div class="footnote">
+                                                <a href="/community/foren.html" title="alle Foren">alle Foren &raquo;</a>                        </div>
+                        </div><div class="clear"></div><div class="module c1" >
+    
+    <h2>Aktuelle Diskussionen zu Nachrichten</h2>      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th>Titel</th><th class="right">letzter Beitrag</th><th class="single right">Aufrufe</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1198494-1-10/velocity-data-apple-deals-kursknall"    >Velocity Data: Nach Apple-Deals vor Kursknall!</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/1198494-121-130/velocity-data-apple-deals-kursknall#neuster_beitrag"    >in 1 Stunde</a></div></td><td class="right "><div>252</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1199157-1-10/quartalszahlen-adobe-quartalszahlen-dienstag"    >Quartalszahlen: Adobe: Quartalszahlen am Dienstag</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/1199157-1-10/quartalszahlen-adobe-quartalszahlen-dienstag#neuster_beitrag"    >gestern 21:44</a></div></td><td class="right "><div>2</div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1186327-1-10/bilfinger-baut-1-250-stellen-2015"    >Bilfinger baut um - 1.250 Stellen weniger bis 2015</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/1186327-61-70/bilfinger-baut-1-250-stellen-2015#neuster_beitrag"    >gestern 10:34</a></div></td><td class="right "><div>2</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1198890-1-10/fennec-pharmaceuticals-announces-over-the-counter-trading-symbol-change"    >Fennec Pharmaceuticals Announces Over the Counter Trading Symbol Change</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/1198890-21-30/fennec-pharmaceuticals-announces-over-the-counter-trading-symbol-change#neuster_beitrag"    >gestern 10:17</a></div></td><td class="right "><div>131</div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1199121-1-10/seltene-erden-aktien-einfaches-mittel-vergleichenden-bewertung"    >Seltene Erden Aktien: Ein einfaches Mittel zur vergleichenden Bewertung</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/1199121-1-10/seltene-erden-aktien-einfaches-mittel-vergleichenden-bewertung#neuster_beitrag"    >gestern 01:44</a></div></td><td class="right "><div>43</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1198971-1-10/schottland-referendum-unabhaengigkeit-fragzeichen-schottland-dann"    >Schottland-Referendum: Eine Unabh??ngigkeit und drei Fragzeichen - Schottland, was dann?</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/1198971-1-10/schottland-referendum-unabhaengigkeit-fragzeichen-schottland-dann#neuster_beitrag"    >13.09.14, 17:57</a></div></td><td class="right "><div>30</div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1199055-1-10/dummheit-politischer-druck-hre-anleihenmist-griechenland-kostet-steuerzahler-milliarden-h"    >Dummheit oder politischer Druck: HRE-Anleihenmist in Griechenland kostet Steuerzahler Milliarden - H</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/1199055-11-20/dummheit-politischer-druck-hre-anleihenmist-griechenland-kostet-steuerzahler-milliarden-h#neuster_beitrag"    >13.09.14, 10:18</a></div></td><td class="right "><div>1</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1199106-1-10/euro-abwertung-euro-talfahrt-spielgeld-spekulanten"    >Euro-Abwertung: Euro auf Talfahrt - Nichts mehr als Spielgeld von Spekulanten?</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/1199106-1-10/euro-abwertung-euro-talfahrt-spielgeld-spekulanten#neuster_beitrag"    >13.09.14, 02:33</a></div></td><td class="right "><div>3</div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1199049-1-10/rohstoffe-abwaertstrend-rohstoffmaerkten-fort"    >Rohstoffe: Abw??rtstrend an den Rohstoffm??rkten setzt sich fort</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/1199049-1-10/rohstoffe-abwaertstrend-rohstoffmaerkten-fort#neuster_beitrag"    >12.09.14, 21:39</a></div></td><td class="right "><div>87</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/1199079-1-10/sandvik-acquires-varel-international-energy-services-inc"    >Sandvik acquires Varel International Energy Services Inc.</a><div class="fadeOut"></div></div></div></div></td><td class="triple right "><div><a href="/diskussion/1199079-1-10/sandvik-acquires-varel-international-energy-services-inc#neuster_beitrag"    >12.09.14, 15:33</a></div></td><td class="right "><div>1</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+                        <div class="footnote">
+                                                <a href="/forum/54" title="mehr Diskussionen zu den Nachrichten">mehr Diskussionen zu den Nachrichten &raquo;</a>                        </div>
+                        </div></div></div><div class="grid ns " ><div class="container c1" id="377" >
+    <div class="module c1 first" >
+    
+    <div id="Ads_TFM_CAD1">
+        <script type="text/javascript">Ads_TFM_AD('CAD1');</script>
+</div></div><div class="module c1" >
+    
+    <h2>Statistik</h2>      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th></th><th class="right">letzte 24h</th><th class="right">gesamt</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td><div>Themen</div></td><td class="right "><div>254</div></td><td class="right "><div>1.199.157</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div>Beitr??ge</div></td><td class="right "><div>1.229</div></td><td class="right "><div>47.778.819</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+</div><div class="module c1" >
+    
+    <h2>Mitglieder mit den meisten Beitr??gen (24h)</h2>      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th>Mitglieder</th><th class="right">Beitr??ge</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td><div><a href="/userinfo/438352-prallhans">prallhans</a></div></td><td class="right "><div>32</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><a href="/userinfo/440147-ingchris">IngChris</a></div></td><td class="right "><div>27</div></td>            </tr>
+                    <tr >
+            <td><div><a href="/userinfo/392155-vajo">VaJo</a></div></td><td class="right "><div>19</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><a href="/userinfo/397789-goldbug2000">Goldbug2000</a></div></td><td class="right "><div>19</div></td>            </tr>
+                    <tr >
+            <td><div><a href="/userinfo/185348-actr">actr</a></div></td><td class="right "><div>16</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><a href="/userinfo/467781-silverfreaky">silverfreaky</a></div></td><td class="right "><div>14</div></td>            </tr>
+                    <tr >
+            <td><div><a href="/userinfo/484427-sweetbull">Sweetbull</a></div></td><td class="right "><div>13</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><a href="/userinfo/258132-adhick">AdHick</a></div></td><td class="right "><div>13</div></td>            </tr>
+                    <tr >
+            <td><div><a href="/userinfo/469719-mietzi543">Mietzi543</a></div></td><td class="right "><div>12</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><a href="/userinfo/420887-zockelmann">Zockelmann</a></div></td><td class="right "><div>11</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+                        <div class="footnote">
+                                                <a href="/statistik/top-mitglieder" title="die aktivsten Nutzer">die aktivsten Nutzer &raquo;</a>                        </div>
+                        </div><div class="module c1" >
+    
+    <h2>Mitglieder mit den besten Beitr??gen (24h)</h2>      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th>Mitglieder</th><th class="right">Bewertungen</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td><div><a href="/userinfo/407581-badkreuznach">Badkreuznach</a></div></td><td class="right "><div>33</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><a href="/userinfo/461145-minda">minda</a></div></td><td class="right "><div>24</div></td>            </tr>
+                    <tr >
+            <td><div><a href="/userinfo/450623-angie07">Angie07</a></div></td><td class="right "><div>19</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><a href="/userinfo/289564-bmann025">bmann025</a></div></td><td class="right "><div>17</div></td>            </tr>
+                    <tr >
+            <td><div><a href="/userinfo/362460-stilles-wasser">Stilles_Wasser</a></div></td><td class="right "><div>17</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><a href="/userinfo/477545-boersiback">Boersiback</a></div></td><td class="right "><div>16</div></td>            </tr>
+                    <tr >
+            <td><div><a href="/userinfo/478463-wschmidi">WSchmidi</a></div></td><td class="right "><div>16</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><a href="/userinfo/392155-vajo">VaJo</a></div></td><td class="right "><div>15</div></td>            </tr>
+                    <tr >
+            <td><div><a href="/userinfo/422674-coldplay66">coldplay66</a></div></td><td class="right "><div>15</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><a href="/userinfo/343682-yellowdragon">YellowDragon</a></div></td><td class="right "><div>14</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+</div><div class="module c1" >
+    
+    <h2>Diskussionen mit den besten Beitr??gen (24h)</h2>      <table class="t-data" id="">
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/beliebteste-beitraege/1199154-1-10/tages-trading-chancen-montag-15-09-2014"    >Tages-Trading-Chancen am Montag den 15.09.2014</a><div class="fadeOut"></div></div></div></div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/beliebteste-beitraege/1131140-1-10/stehen-die-weltboersen-vor-einem-crash"    >Stehen die Weltb??rsen vor einem Crash ???</a><div class="fadeOut"></div></div></div></div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/beliebteste-beitraege/992863-1-10/paion-buy"    >Paion "buy"</a><div class="fadeOut"></div></div></div></div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/beliebteste-beitraege/1180937-1-10/afd-wuerdet-waehlen"    >AFD- w??rdet ihr sie w??hlen ?</a><div class="fadeOut"></div></div></div></div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/diskussion/beliebteste-beitraege/1199022-1-10/tages-trading-chancen-freitag-12-09-2014"    >Tages-Trading-Chancen am Freitag den 12.09.2014</a><div class="fadeOut"></div></div></div></div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+</div><div class="module c1" >
+    
+    <h2>Top & Flop meistgesuchte Aktien</h2>      <table class="t-data" id="module-819">
+            <thead>
+            <tr>
+            <th>Wertpapier</th><th class="single right">Kurs</th><th class="right" style="text-align: center; " colspan="2"><span title="Performance in Prozent">Perf.&nbsp;%</span></th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr instid="12864547" marketid="33">
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/aktien/12864547"    >Red Tiger Mng</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,30</div></td><td class="right " style="width: 52px; "><div><font class="green">+20,00</font></div></td><td class="left " style="width:25px "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:25px;background:#005D42;height:10px"></div></div></div></td>            </tr>
+                    <tr class="hl" instid="1196333" marketid="12">
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/aktien/1196333"    >North Bay Res</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,0063</div></td><td class="right " style="width: 52px; "><div><font class="green">+10,53</font></div></td><td class="left " style="width:25px "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:20px;background:#005D42;height:10px"></div></div></div></td>            </tr>
+                    <tr instid="2943" marketid="2">
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/aktien/dyesol-aktie"    >Dyesol</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,161</div></td><td class="right " style="width: 52px; "><div><font class="green">+7,33</font></div></td><td class="left " style="width:25px "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:17px;background:#005D42;height:10px"></div></div></div></td>            </tr>
+                    <tr class="hl" instid="4240" marketid="33">
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/aktien/energulf-resources-aktie"    >Energulf Resources</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,20</div></td><td class="right " style="width: 52px; "><div><font class="green">+5,26</font></div></td><td class="left " style="width:25px "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:14px;background:#005D42;height:10px"></div></div></div></td>            </tr>
+                    <tr instid="314" marketid="1">
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/aktien/adva-optical-networking-aktie"    >Adva AG Optical Networking</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>2,847</div></td><td class="right " style="width: 52px; "><div><font class="red">-1,66</font></div></td><td class="left " style="width:25px "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:5px;background:#BE2D36;height:10px"></div></div></div></td>            </tr>
+                    <tr class="hl" instid="27520691" marketid="1">
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/aktien/deufol-se-aktie"    >Deufol SE</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,89</div></td><td class="right " style="width: 52px; "><div><font class="red">-1,98</font></div></td><td class="left " style="width:25px "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:6px;background:#BE2D36;height:10px"></div></div></div></td>            </tr>
+                    <tr instid="6825" marketid="10">
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/aktien/hecla-mining-aktie"    >Hecla Mining</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>2,88</div></td><td class="right " style="width: 52px; "><div><font class="red">-2,04</font></div></td><td class="left " style="width:25px "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:6px;background:#BE2D36;height:10px"></div></div></div></td>            </tr>
+                    <tr class="hl" instid="6613" marketid="33">
+            <td><div><div class="fadeOutBox fadeoutheadline"><div class="innerFadeOutBox"><a href="/aktien/great-western-minerals-aktie"    >Great Western Minerals</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>0,065</div></td><td class="right " style="width: 52px; "><div><font class="red">-7,14</font></div></td><td class="left " style="width:25px "><div><div class="perfbar" style="padding:1px;margin:1px;text-align:left;width:25px"><div style="width:17px;background:#BE2D36;height:10px"></div></div></div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+                        <div class="footnote">
+                                                <a href="/aktien/statistik/topsearch.html" title="weitere meistgesuchte Aktien">weitere meistgesuchte Aktien &raquo;</a>                        </div>
+                        </div><div class="module c1" >
+    
+    <div id="Ads_TFM_CAD2">
+        <script type="text/javascript">Ads_TFM_AD('CAD2');</script>
+</div></div><div class="module c1" >
+    
+    <h2>Meistgelesene Nachrichten (24h)</h2>      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th>Titel</th><th class="single">Leser</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/nachricht/7001538-dax-dax-erstickt-hexen-sabbat-kommenden-freitag-hoffnung-erhoehte-volatilitaet" title=""   >DAX: DAX: erstickt der Hexen-Sabbat am kommenden Freitag jede Hoffnung auf erh??hte Volatilit??t? </a><div class="fadeOut"></div></div></div></div></td><td class="single right "><div>1124</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/nachricht/7002105-schottland-referendum-schickt-schottland-pfund-20-prozent-keller" title=""   >Schottland-Referendum: Schickt Schottland das Pfund 20 Prozent in den Keller? </a><div class="fadeOut"></div></div></div></div></td><td class="single right "><div>724</div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/nachricht/7003344-deutsche-bank-apple-gold-kostenfrei-handeln" title=""   >Deutsche Bank, Apple, Gold &#8211; kostenfrei handeln </a><div class="fadeOut"></div></div></div></div></td><td class="single right "><div>653</div></td>            </tr>
+                    <tr class="hl" >
+            <td><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/nachricht/7003326-deutsche-bank-unerwartet-bittere-pille" title=""   >Deutsche Bank &#8211; unerwartet bittere Pille </a><div class="fadeOut"></div></div></div></div></td><td class="single right "><div>651</div></td>            </tr>
+                    <tr >
+            <td><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/nachricht/7003305-apple-deutsche-bank-nordex-commerzbank-neue-investmentideen" title=""   >Apple, Deutsche Bank, Nordex und Commerzbank &#8211; *neue* Investmentideen </a><div class="fadeOut"></div></div></div></div></td><td class="single right "><div>600</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+                        <div class="footnote">
+                            <a href="//www.wallstreet-online.de/nachrichten/meistgelesene-nachrichten-24h">mehr &raquo;</a>
+                        </div>
+                        </div><div class="module c1" >
+    
+    <h2>Meistdiskutierte Wertpapiere</h2><div class="module first" >
+    
+    <div class="tab wotabs"><ul class="tabbar"><li class="active"><a>1 Woche</a></li><li><a>1 Monat</a></li><li><a>3 Monate</a></li><li><a>6 Monate</a></li><li><a>1 Jahr</a></li></ul><div class="tabpanes" style="width:100%;">      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th>Werte</th><th class="single">Beitr??ge</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/indizes/dax"    >DAX</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>3.809</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/rohstoffe/silberpreis"    >Silber</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>473</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/paion-aktie"    >Paion</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>432</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/apple-aktie"    >Apple</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>359</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/28201111"    >Vuzix</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>332</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/sangui-biotech-international-aktie"    >Sangui Biotech</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>289</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/borussia-dortmund-aktie"    >Borussia Dortmund (BVB)</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>259</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/rohstoffe/goldpreis"    >Gold</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>258</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/praktiker-bau-aktie"    >Praktiker Holding</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>189</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/rohstoffe/1699613"    >Silber 1 Uz 999</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>177</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th>Werte</th><th class="single">Beitr??ge</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/indizes/dax"    >DAX</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>16.693</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/rohstoffe/silberpreis"    >Silber</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>2.166</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/borussia-dortmund-aktie"    >Borussia Dortmund (BVB)</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>1.208</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/rohstoffe/goldpreis"    >Gold</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>1.083</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/paion-aktie"    >Paion</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>948</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/qsc-aktie"    >QSC</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>805</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/eurogas-aktie"    >Eurogas</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>782</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/indizes/dowjones"    >Dow Jones</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>727</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/sangui-biotech-international-aktie"    >Sangui Biotech</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>693</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/apple-aktie"    >Apple</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>689</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th>Werte</th><th class="single">Beitr??ge</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/indizes/dax"    >DAX</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>46.977</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/rohstoffe/silberpreis"    >Silber</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>6.195</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/paion-aktie"    >Paion</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>5.662</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/rohstoffe/goldpreis"    >Gold</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>3.982</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/borussia-dortmund-aktie"    >Borussia Dortmund (BVB)</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>3.446</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/iq-power-aktie"    >IQ Power</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>2.745</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/santhera-pharmaceuticals-aktie"    >Santhera Pharma N</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>2.612</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/qsc-aktie"    >QSC</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>2.517</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/eurogas-aktie"    >Eurogas</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>2.511</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/newnote-financial-aktie"    >Newnote Financial</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>1.833</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th>Werte</th><th class="single">Beitr??ge</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/indizes/dax"    >DAX</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>83.564</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/rohstoffe/silberpreis"    >Silber</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>11.410</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/paion-aktie"    >Paion</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>10.757</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/rohstoffe/goldpreis"    >Gold</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>7.889</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/borussia-dortmund-aktie"    >Borussia Dortmund (BVB)</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>7.749</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/epigenomics-aktie"    >Epigenomics</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>6.619</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/iq-power-aktie"    >IQ Power</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>5.967</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/commerzbank-aktie"    >Commerzbank</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>4.580</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/santhera-pharmaceuticals-aktie"    >Santhera Pharma N</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>4.367</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/eurogas-aktie"    >Eurogas</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>4.333</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+      <table class="t-data" id="">
+            <thead>
+            <tr>
+            <th>Werte</th><th class="single">Beitr??ge</th>            </tr>
+        </thead>
+    
+
+
+
+    
+
+        <tbody>            <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/indizes/dax"    >DAX</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>165.375</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/paion-aktie"    >Paion</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>27.539</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/rohstoffe/silberpreis"    >Silber</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>25.371</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/borussia-dortmund-aktie"    >Borussia Dortmund (BVB)</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>17.458</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/ariad-pharmaceuticals-aktie"    >Ariad Pharmaceutic</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>15.364</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/rohstoffe/goldpreis"    >Gold</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>15.210</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/epigenomics-aktie"    >Epigenomics</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>14.076</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/commerzbank-aktie"    >Commerzbank</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>11.069</div></td>            </tr>
+                    <tr >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/dyesol-aktie"    >Dyesol</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>9.733</div></td>            </tr>
+                    <tr class="hl" >
+            <td style="width:100% "><div><div class="fadeOutBox"><div class="innerFadeOutBox"><a href="/aktien/sangui-biotech-international-aktie"    >Sangui Biotech</a><div class="fadeOut"></div></div></div></div></td><td class="right "><div>9.556</div></td>            </tr>
+        </tbody>
+    
+
+
+    
+    </table>
+</div></div></div></div></div></div>
+            <div class="clear"><!-- --></div>
+
+            <div class="fs grid" id="sitefoot">
+    <!-- ad position -->
+    
+    <hr style="border:none;height:1px;color:#cfcfcf;background-color:#cfcfcf;" />
+
+    <!-- search bar -->
+    
+    
+    <div style="text-align: center; color: rgb(153, 153, 153); font-size: 11px; line-height: 15px;">
+
+        <!-- search bar -->
+        <!-- <hr size="1" color="#cfcfcf"/> //-->
+<div id="feedback_bar">Geben Sie Ihre Bewertung zu dieser Seite: sehr gut
+                        <span id="popup1" class="tinyButton">1</span>
+                        <span id="popup2" class="tinyButton">2</span>
+                        <span id="popup3" class="tinyButton">3</span>
+                        <span id="popup4" class="tinyButton">4</span>
+                        <span id="popup5" class="tinyButton">5</span>
+                        <span id="popup6" class="tinyButton">6</span> schlecht
+                        <span id="popup7" class="tinyButton">Problem melden?</span>
+                    </div><br /><br /><a href="//www.wallstreet-online.de/impressum">Impressum</a> |
+<a href="//www.wallstreet-online.de/werbung"><span class="strong">Werben</span></a> |
+<a target="_blank" href="http://www.wallstreet-online.ag/karriere/stellenangebote.html">Jobs</a> |
+<a href="//www.wallstreet-online.de/anb_2010-03-22.html" onclick="popupurl('/anb_2010-03-22.html',910,600,'einfodb','yes'); return false;" target="einfodb">Allgemeine Nutzungsbestimmungen</a> |
+<a href="//www.wallstreet-online.de/disclaimer.html" onclick="popupurl('/disclaimer.html',910,600,'einfodb','yes'); return false;" target="einfodb">Disclaimer</a> |
+<a href="//www.wallstreet-online.de/archive/2014/09/15">Archiv</a> |
+<a href="//www.wallstreet-online.de/sitemap">Sitemap</a> |
+<a href="//www.wallstreet-online.de/hilfe">Hilfe</a> |
+<a href="//www.wallstreet-online.de/rss">RSS</a> |
+<br />
+<a href="http://www.wallstreet-online.ag">wallstreet:online AG</a> |
+<a href="//www.wallstreet-online.de/widgets" onClick="_gaq.push(['_trackEvent', 'Link intern', this.href, 'Footer'
++ this.title]);" style="color:#BE2D36;font-weight:bold;">B??rsen- & Finanzwidgets f??r Ihre Homepage</a> |
+<a class="googlePlus" target="_blank" href="http://fusion.google.com/ig/sharetab?hl=de&amp;source=atgt&amp;atr=wallstreet%3Aonline%20Board-Feeds&amp;n_32=url%3Dhttp%253A//www.wallstreet-online.de/rss/board-cfds-cfd-handel.xml%26row%3D1%26sect%3D1&amp;n_32=url%3Dhttp%253A//www.wallstreet-online.de/rss/board-gold-silber-minen-explorer.xml%26row%3D1%26sect%3D2&amp;n_32=url%3Dhttp%253A//www.wallstreet-online.de/rss/board-hot-stocks.xml%26row%3D1%26sect%3D3&amp;n_32=url%3Dhttp%253A//www.wallstreet-online.de/rss/board-otc-bb-pinksheets.xml%26row%3D2%26sect%3D1&amp;n_32=url%3Dhttp%253A//www.wallstreet-online.de/rss/board-nebenwerte-deutschland.xml%26row%3D2%26sect%3D2&amp;n_32=url%3Dhttp%253A//www.wallstreet-online.de/rss/board-daytrader.xml%26row%3D2%26sect%3D3&amp;n_32=url%3Dhttp%253A//www.wallstreet-online.de/rss/board-kaufempfehlung.xml%26row%3D3%26sect%3D1&amp;n_32=url%3Dhttp%253A//www.wallstreet-online.de/rss/board-wirtschaft-politik-reg.xml%26row%3D3%26sect%3D2&amp;n_32=url%3Dhttp%253A//www.wallstreet-online.de/rss/board-biotech.xml%26row%3D3%26sect%3D3&amp;n_32=url%3Dhttp%253A//www.wallstreet-online.de/rss/board-oel-und-gasstocks.xml%26row%3D4%26sect%3D1&amp;n_32=url%3Dhttp%253A//www.wallstreet-online.de/rss/board-dax.xml%26row%3D4%26sect%3D2&amp;n_32=url%3Dhttp%253A//www.wallstreet-online.de/rss/board-gruene-aktien.xml%26row%3D4%26sect%3D3&amp;n_32=url%3Dhttp%253A//www.wallstreet-online.de/rss/board-insolvenzen.xml%26row%3D5%26sect%3D1" title="Als Tab zur Google-Startseite hinzuf??gen">
+    Als Tab zur Google-Startseite hinzuf??gen
+</a>
+
+        
+        <!-- <hr size="1" color="#cfcfcf"/> //-->
+        
+        <hr style="border:none;height:1px;color:#cfcfcf;background-color:#cfcfcf;" />
+
+<strong>Kurse:</strong>
+<span class="six" title="SIX Financial Information">SIX Financial Information</span>
+<br />
+Zeitverz??gerung der Kursdaten: Deutsche B??rsen +15 Min. NASDAQ +15 Min. NYSE +20 Min. AMEX +20 Min. Dow Jones +15 Min.
+<br />
+Alle Angaben ohne Gew??hr. Copyright &copy; 1998-2014 wallstreet:online AG - Alle Rechte vorbehalten.
+
+        <div style="height:50px"></div>
+    </div>
+</div>
+
+            <div class="clear"><!-- --></div>
+
+
+            </div>
+            
+            
+                    <script type="text/javascript"><!--
+                function handleSessionResponse(response) { if (!response.session) { window.location = '/?_logout=1'; return; } FB.logout(handleSessionResponse); };
+try { var iam_data = { "st":"wallston", "cp":"s2-i3-a1-m0", "sv":"in", "co":"" }; iom.c(iam_data,1); } catch(e) { }
+            //--></script>
+                            <script type="text/javascript"><!--
+                jQuery(document).ready(function($) {
+                    showImagesInViewport();$(window).scroll(showImagesInViewport).resize(showImagesInViewport);
+WoodooTab.tabify( $("div.wotabs:not(.notabify)") );
+$("#module-819 tr").hover( function(){ var instId = $(this).attr("instid"); var marketId = $(this).attr("marketid"); var container = $("td", this).last().css({position:"relative"}); var div = $("<div><img src=\"/_plain/charts/legacycharts/startseite4?inst_id=" + instId +"&market_id=" + marketId +"\" /></div>").attr("id", "ch-"+instId).css({position:"absolute",right:"0px",top:"0px",border:"1px solid #222",background:"#fff",zIndex:10}).appendTo(container); }, function(){ var instId = $(this).attr("instid"); $("#ch-"+instId).remove(); } );
+$(document).ready(function() { $('.topFlop .tabpanes .tab tr:nth-child(5)').css('border-bottom', '1px solid #565656'); });
+MooTicker.bind('#mooTicker'); MooTicker.addTicks([]); MooTicker.init(); MooTicker.go( 10000 );
+initFeedback();
+var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ga); jQuery('body').scroll(function() { update_scrollTracking(); }); jQuery('body').unload(function(){ track_scrollTracking(); });
+Ads_TFM_Finish();
+$.get("//www.wallstreet-online.de/_rpc/json/_shared/site/setJS");
+                });
+
+                            //--></script>
+                    <div id="Ads_TFM_SKY" style="top:90px"><script type="text/javascript">Ads_TFM_AD("SKY");</script></div>
+        </div>
+
+
+                <script type="text/javascript">
+            setTimeout(function(){var a=document.createElement("script");
+            var b=document.getElementsByTagName("script")[0];
+            a.src=document.location.protocol+"//dnn506yrbagrg.cloudfront.net/pages/scripts/0007/8486.js?"+Math.floor(new Date().getTime()/3600000);
+            a.async=true;a.type="text/javascript";b.parentNode.insertBefore(a,b)}, 1);
+        </script>
+            </body>
+</html>

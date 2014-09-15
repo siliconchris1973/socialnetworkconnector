@@ -57,7 +57,7 @@
 	
 	<!-- pushing every log entry in the same file and on the console -->
 	<logger name="de.comlineag.snc">
-		<level value="trace"></level>
+		<level value="debug"></level>
 		<appender-ref ref="console" />
 		<appender-ref ref="fileA" />
 	</logger>

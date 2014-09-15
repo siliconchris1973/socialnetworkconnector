@@ -30,6 +30,12 @@
 			<value>true</value>
 			<constant>WARN_ON_SIMPLE_XML_CONFIG_OPTION</constant>
 		</param>
+		<!-- show a debug message in case some actions are omitted due to configuration settings -->
+		<param name="WarnOnRejectedActions">
+			<type>boolean</type>
+			<value>true</value>
+			<constant>WARN_ON_REJECTED_ACTIONS</constant>
+		</param>
 		<!-- save a json file with the post data in case creating it in persistence fails -->
 		<param name="CreatePostJsonOnError">
 			<type>boolean</type>
@@ -95,17 +101,20 @@
 			<constant>STOP_SNC_ON_PERSISTENCE_FAILURE</constant>
 		</param>
 		
-		<!-- SIMPLE WEB CRAWLER SPECIFIC -->
-		<!-- how many levels shall the web crawler fetch from the top-level (or entry point) -->
+		<!-- WEB CRAWLER SPECIFIC SETTINGS -->
+		<!-- how many levels shall the web crawler fetch from the top-level (or entry point) 
+			 This is the overall limit. An individual web crawler can set it's own level in
+			 applicationContext.xml, but it can not exceed this value. It should usually not
+			 exceed 1000 and 100 should be ok for the most cases -->
 		<param name="searchLimit">
 			<type>int</type>
-			<value>20</value>
+			<value>500</value>
 			<constant>SEARCH_LIMIT</constant>
 		</param>
 		<!-- the maximum page size the simple web crawler shall fetch -->
 		<param name="crawlerMaxDownloadSize">
 			<type>int</type>
-			<value>20000</value>
+			<value>2000000</value>
 			<constant>CRAWLER_MAX_DOWNLOAD_SIZE</constant>
 		</param>
 		<!-- the command (word) as returned by a website when declining the crawler's request to fetch the content 
@@ -114,12 +123,19 @@
 			<type>String</type>
 			<value>Disallow</value>
 			<constant>ROBOT_DISALLOW_TEXT</constant>
-		</param>	
+		</param>
+		<!-- shall the web crawler stay on the initial given domain while downloading linked sites or not -->
+		<param name="stayOnDomain">
+			<type>Boolean</type>
+			<value>true</value>
+			<constant>STAY_ON_DOMAIN</constant>
+		</param>
 	</configuration>
 	
 	
 	
-	<!-- S O C I A L   N E T W O R K   D E F I N I T I O N S
+	<!-- S O C I A L   N E T W O R K   D E F I N I T I O N S - - 
+		 !!!!! ATTENTION MOVED TO SocialNetworkDefinitions.xml !!!!! 
 		 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 	     This section defines the social networks which can be used
 		 You can define values for a 2-digit code, a name, a domain and description plus if the network is supported 
@@ -134,7 +150,11 @@
 		 a post with the same combination of code and id - say CC-1295 for example. -->
 	<configuration scope="socialNetworkDefinition">
 		<!-- THE LITHIUM NETWORK - 
-			change this code for every customer -->
+		 	 change this code for every customer. 
+		 	 Reserved codes are:
+		 	 	FB, TW, GP, PI, XI, LI, SW, IN, FS, YT, SO, PH, GH, WC, AL, XY
+		 	 do not use any of these codes
+		-->
 		<network name="CC"><name>LITHIUM</name></network>
 		<network name="LITHIUM">
 			<code>CC</code>												<!-- change this code for every customer -->
@@ -143,17 +163,6 @@
 			<domain>https://wissen.cortalconsors.de</domain>			<!-- change the url to the location of the lithium network in use by customer -->
 			<supported>YES</supported>
 			<crawlertype>native</crawlertype>
-		</network>
-		
-		<!-- FINANZFORUM - currently undefined and not used -->
-		<network name="FI"><name>FINAZFORUM</name></network>
-		<network name="FINANZFORUM">
-			<code>FI</code>
-			<name>Finanzforum</name>
-			<description>Finanzforum</description>
-			<domain>bugmenot.com</domain>
-			<supported>NO</supported>
-			<crawlertype>undefined</crawlertype>
 		</network>
 		
 		<!-- WALLSTREET ONLINE - a financial oriented discussion and news forum -->
@@ -166,6 +175,7 @@
 			<supported>YES</supported>
 			<crawlertype>web</crawlertype>
 		</network>
+		
 		
 		
 		<!-- below this line the standard social networks are defined and it is highly discouraged to change any of them -->
@@ -297,6 +307,16 @@
 			<domain>github.com</domain>
 			<supported>NO</supported>
 			<crawlertype>native</crawlertype>
+		</network>
+		
+		<network name="WC"><name>WEBCRAWLER</name></network>
+		<network name="WEBCRAWLER">
+			<code>WC</code>
+			<name>Simple Web Crawler</name>
+			<description>any possible website</description>
+			<domain>https://www.everywhere.de</domain>
+			<supported>YES</supported>
+			<crawlertype>web</crawlertype>
 		</network>
 		
 		<network name="AL"><name>ALL</name></network>

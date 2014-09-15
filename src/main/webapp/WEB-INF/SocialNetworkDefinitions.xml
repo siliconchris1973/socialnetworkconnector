@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+	This is the xml configuration file for the social network connector.
+	
+	In here you can define any number of "social" or not so social networks
+	together with specific parameters.
+	
+	The Social Network Definition used to be in SNC_Runtime_Configuration.xml
+	but was moved in an own file for easier maintenance
+-->
+<configurations>
+	<!-- S O C I A L   N E T W O R K   D E F I N I T I O N S
+		 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+	     This section defines the social networks which can be used
+		 You can define values for a 2-digit code, a name, a domain and description plus if the network is supported 
+		 or not, for each social network to crawl.
+		 For each network you need to define two entries. One identified by the name of the network and the other 
+		 defined by the 2 digit code.
+		 
+		 You normally do not need to change anything in here except for the Lithium network. Lithium is special in 
+		 that it can be hosted by a company for their own domain of interest. Therefore, post- and user-id's are 
+		 not globally unique and you HAVE to define your own 2-letter code for each Lithium network to crawl. 
+		 Failing to do so could lead to a situation where two Lithium networks are crawled and both try to insert 
+		 a post with the same combination of code and id - say CC-1295 for example. -->
+	<configuration scope="socialNetworkDefinition">
+		<!-- THE LITHIUM NETWORK - 
+			change this code for every customer -->
+		<network name="CC"><name>LITHIUM</name></network>
+		<network name="LITHIUM">
+			<code>CC</code>												<!-- change this code for every customer -->
+			<name>Lithium</name>										<!-- keep this the same -->
+			<description>Lithium forum by Cortal Consors</description>
+			<domain>https://wissen.cortalconsors.de</domain>			<!-- change the url to the location of the lithium network in use by customer -->
+			<supported>YES</supported>
+			<crawlertype>native</crawlertype>
+		</network>
+		
+		<!-- FINANZFORUM - currently undefined and not used -->
+		<network name="FI"><name>FINAZFORUM</name></network>
+		<network name="FINANZFORUM">
+			<code>FI</code>
+			<name>Finanzforum</name>
+			<description>Finanzforum</description>
+			<domain>bugmenot.com</domain>
+			<supported>NO</supported>
+			<crawlertype>undefined</crawlertype>
+		</network>
+		
+		<!-- WALLSTREET ONLINE - a financial oriented discussion and news forum -->
+		<network name="WO"><name>WALLSTREETONLINE</name></network>
+		<network name="WALLSTREETONLINE">
+			<code>WO</code>
+			<name>Wallstreet-Online</name>
+			<description>Wallstreet Online - a financial oriented discussion and news forum</description>
+			<domain>https://www.wallstreet-online.de</domain>
+			<supported>YES</supported>
+			<crawlertype>web</crawlertype>
+		</network>
+		
+		
+		<!-- below this line the standard social networks are defined and it is highly discouraged to change any of them -->
+		<network name="TW"><name>TWITTER</name></network>
+		<network name="TWITTER">
+			<code>TW</code>
+			<name>Twitter</name>
+			<description>Twitter</description>
+			<domain>twitter.com</domain>
+			<supported>YES</supported>
+			<crawlertype>native</crawlertype>
+		</network>
+		
+		<network name="FB"><name>FACEBOOK</name></network>
+		<network name="FACEBOOK">
+			<code>FB</code>
+			<name>Facebook</name>
+			<description>Facebook</description>
+			<domain>facebook.com</domain>
+			<supported>NO</supported>
+			<crawlertype>native</crawlertype>
+		</network>
+		
+		<network name="GP"><name>GOOGLE+</name></network>
+		<network name="GOOGLE+">
+			<code>GP</code>
+			<name>Google+</name>
+			<description>Google+ - Facebook a la Google</description>
+			<domain>plus.google.com</domain>
+			<supported>NO</supported>
+			<crawlertype>native</crawlertype>
+		</network>
+		
+		<network name="LI"><name>LINKEDIN</name></network>
+		<network name="LINKEDIN">
+			<code>LI</code>
+			<name>Linkedin</name>
+			<description>Linkedin</description>
+			<domain>linkedin.com</domain>
+			<supported>NO</supported>
+			<crawlertype>native</crawlertype>
+		</network>
+		
+		<network name="XI"><name>XING</name></network>
+		<network name="XING">
+			<code>XI</code>
+			<name>XING</name>
+			<description>Xing</description>
+			<domain>xing.com</domain>
+			<supported>NO</supported>
+			<crawlertype>native</crawlertype>
+		</network>
+		
+		<network name="SW"><name>STREAMWORK</name></network>
+		<network name="STREAMWORK">
+			<code>SW</code>
+			<name>Streamwork</name>
+			<description>Streamwork - SAP's own social network community</description>
+			<domain>streamwork.com</domain>
+			<supported>NO</supported>
+			<crawlertype>native</crawlertype>
+		</network>
+		
+		<network name="IN"><name>INSTAGRAM</name></network>
+		<network name="INSTAGRAM">
+			<code>IN</code>
+			<name>Instagram</name>
+			<description>Instagram - take a look at what I shot</description>
+			<domain>instagram.com</domain>
+			<supported>NO</supported>
+			<crawlertype>native</crawlertype>
+		</network>
+		
+		<network name="FS"><name>FOURSQUARE</name></network>
+		<network name="FOURSQUARE">
+			<code>FS</code>
+			<name>Foursquare</name>
+			<description>Foursquare - where am I and what do I do</description>
+			<domain>foursquare.com</domain>
+			<supported>NO</supported>
+			<crawlertype>native</crawlertype>
+		</network>
+		
+		<network name="YT"><name>YOUTUBE</name></network>
+		<network name="YOUTUBE">
+			<code>YT</code>
+			<name>Youtube</name>
+			<description>Youtube</description>
+			<domain>youtube.com</domain>
+			<supported>NO</supported>
+			<crawlertype>native</crawlertype>
+		</network>
+		
+		<network name="SO"><name>STACKOVERFLOW</name></network>
+		<network name="STACKOVERFLOW">
+			<code>SO</code>
+			<name>Stack Overflow</name>
+			<description>Stack Overflow - developer forum</description>
+			<domain>stackoverflow.com</domain>
+			<supported>NO</supported>
+			<crawlertype>native</crawlertype>
+		</network>
+		
+		<network name="PH"><name>PHOTOBUCKET</name></network>
+		<network name="PHOTOBUCKET">
+			<code>PH</code>
+			<name>Photobucket</name>
+			<description>Photobucket - a photographer community</description>
+			<domain>photobucket.com</domain>
+			<supported>NO</supported>
+			<crawlertype>native</crawlertype>
+		</network>
+		
+		<network name="PI"><name>PINTEREST</name></network>
+		<network name="PINTEREST">
+			<code>PI</code>
+			<name>Pinterest</name>
+			<description>Pinterest - a general I like network</description>
+			<domain>pinterest.com</domain>
+			<supported>NO</supported>
+			<crawlertype>native</crawlertype>
+		</network>
+		
+		<network name="GH"><name>GITHUB</name></network>
+		<network name="GITHUB">
+			<code>GH</code>
+			<name>GitHub</name>
+			<description>A source code management system</description>
+			<domain>github.com</domain>
+			<supported>NO</supported>
+			<crawlertype>native</crawlertype>
+		</network>
+		
+		<network name="AL"><name>ALL</name></network>
+		<network name="ALL">
+			<code>AL</code>
+			<name>All</name>
+			<description>All networks</description>
+			<domain>bugmenot.com</domain>
+			<supported>NO</supported>
+			<crawlertype>undefined</crawlertype>
+		</network>
+		
+		<network name="XY"><name>UNKNOWN</name></network>
+		<network name="UNKNOWN">
+			<code>XY</code>
+			<name>Unknown</name>
+			<description>Unknown network</description>
+			<domain>bugmenot.com</domain>
+			<supported>NO</supported>
+			<crawlertype>undefined</crawlertype>
+		</network>
+	</configuration>
+</configurations>

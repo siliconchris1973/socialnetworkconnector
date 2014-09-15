@@ -51,6 +51,7 @@ public enum HttpStatusCodes {
 	SERVICE_UNAVAILABLE				(HttpStatus.SC_SERVICE_UNAVAILABLE				, false), 		// 503
 	UNAUTHORIZED					(HttpStatus.SC_UNAUTHORIZED						, false), 		// 410
 	UNPROCESSABLE_ENTITY			(HttpStatus.SC_UNPROCESSABLE_ENTITY				, false);		// 422
+	
 
 	private final int value;
 	private final boolean name;

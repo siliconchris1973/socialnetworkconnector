@@ -29,8 +29,8 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  * @author 		Christina Guenther
  * @category	handler
- * @revision	0.3a		- 21.07.2014
- * @status		productive but still with limitations
+ * @revision	0.4		- 12.09.2014
+ * @status		productive with minor limitations
  * 
  * @description	this class is used to setup the overall configuration of the SNC.
  * 				All runtime configuration options, like whether or not to warn on 
@@ -47,6 +47,8 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 				0.3				added xml structure of crawler configuration file
  * 								and create json on user or post creation error
  * 				0.3a			renamed to RuntimeConfiguration 
+ * 				0.4				added simple web crawler and data definition configuration options
+ * 								moved the Social Network Definitions in their own file 
  *
  * TODO 1. get the xml layout structure elements from RuntimeConfiguration.xml
  * TODO 2. use nodelist instead of single expressions for each node
@@ -66,6 +68,7 @@ public final class RuntimeConfiguration implements Job {
 	// whether or not to warn in the log in case a "simple" configuration option was chosen
 	private static boolean WARN_ON_SIMPLE_CONFIG 				= true;
 	private static boolean WARN_ON_SIMPLE_XML_CONFIG 			= true;
+	private static boolean WARN_ON_REJECTED_ACTIONS				= false;
 	
 	// how to react in case storing in the sap hana db, or any other, failed to save a post or user (or maybe create a json even on success)
 	private static boolean CREATE_POST_JSON_ON_ERROR 			= true;
@@ -94,7 +97,8 @@ public final class RuntimeConfiguration implements Job {
 	// some constants for the simple web crawler
 	private static int		SEARCH_LIMIT 						= 20;  // Absolute max pages 
 	private static String	ROBOT_DISALLOW_TEXT 				= "Disallow:";
-	private static int		CRAWLER_MAX_DOWNLOAD_SIZE 			= 20000; // Max size of file 
+	private static int		CRAWLER_MAX_DOWNLOAD_SIZE 			= 200000; // Max size of download file in kb
+	private static boolean	STAY_ON_DOMAIN						= true; 
 	
 	// these values are section names within the configuration db 
 	private static String CONSTRAINT_TERM_TEXT					= "term";
@@ -167,6 +171,10 @@ public final class RuntimeConfiguration implements Job {
 			setWarnOnSimpleXmlConfig(getBooleanElement("runtime", "WarnOnSimpleXmlConfigOption", xpath, doc));
 			debugMsg += " / WarnOnSimpleXmlConfigOption " + getWarnOnSimpleXmlConfig();
 			
+			// WarnOnSimpleXmlConfig
+			setWARN_ON_REJECTED_ACTIONS(getBooleanElement("runtime", "WarnOnRejectedActions", xpath, doc));
+			debugMsg += " / WarnRejectedActions " + isWARN_ON_REJECTED_ACTIONS();
+			
 			// CREATE_POST_JSON_ON_ERROR
 			setCREATE_POST_JSON_ON_ERROR(getBooleanElement("runtime", "CreatePostJsonOnError", xpath, doc));
 			debugMsg += " / CREATE_POST_JSON_ON_ERROR is " + isCREATE_POST_JSON_ON_ERROR(); 
@@ -209,7 +217,7 @@ public final class RuntimeConfiguration implements Job {
 			
 			// searchLimit
 			setSEARCH_LIMIT(getIntElement("runtime", "searchLimit", xpath, doc));
-			debugMsg += " SEARCH_LIMIT is " + getSEARCH_LIMIT();
+			debugMsg += " / SEARCH_LIMIT is " + getSEARCH_LIMIT();
 			
 			// robotDisallowText 
 			setROBOT_DISALLOW_TEXT(getStringElement("runtime", "robotDisallowText", xpath, doc));
@@ -217,7 +225,11 @@ public final class RuntimeConfiguration implements Job {
 						
 			// crawlerMaxDownloadSize
 			setCRAWLER_MAX_DOWNLOAD_SIZE(getIntElement("runtime", "crawlerMaxDownloadSize", xpath, doc));
-			debugMsg += " CRAWLER_MAX_DOWNLOAD_SIZE is " + getCRAWLER_MAX_DOWNLOAD_SIZE();
+			debugMsg += " / CRAWLER_MAX_DOWNLOAD_SIZE is " + getCRAWLER_MAX_DOWNLOAD_SIZE();
+			
+			// stayOnDomain
+			setSTAY_ON_DOMAIN(getBooleanElement("runtime", "stayOnDomain", xpath, doc));
+			debugMsg += " / STAY_ON_DOMAIN is " + isSTAY_ON_DOMAIN();
 			
 			
 			logger.trace(debugMsg);
@@ -251,27 +263,27 @@ public final class RuntimeConfiguration implements Job {
 			
 			// teaserMaxLength
 			setTEASER_MAX_LENGTH(getIntElement("DataDefinitions", "teaserMaxLength", xpath, doc));
-			debugMsg += " TEASER_MAX_LENGTH is " + getTEASER_MAX_LENGTH();
+			debugMsg += " / TEASER_MAX_LENGTH is " + getTEASER_MAX_LENGTH();
 			// teaserMinLength
 			setTEASER_MIN_LENGTH(getIntElement("DataDefinitions", "teaserMinLength", xpath, doc));
-			debugMsg += " TEASER_MIN_LENGTH is " + getTEASER_MIN_LENGTH();
+			debugMsg += " / TEASER_MIN_LENGTH is " + getTEASER_MIN_LENGTH();
 			
 			// subjectWithMarkup
 			setSUBJECT_WITH_MARKUP(getBooleanElement("DataDefinitions", "subjectWithMarkup", xpath, doc));
-			debugMsg += " SUBJECT_WITH_MARKUP is " + isSUBJECT_WITH_MARKUP();
+			debugMsg += " / SUBJECT_WITH_MARKUP is " + isSUBJECT_WITH_MARKUP();
 			// subjectMaxLength
 			setSUBJECT_MAX_LENGTH(getIntElement("DataDefinitions", "subjectMaxLength", xpath, doc));
-			debugMsg += " SUBJECT_MAX_LENGTH is " + getSUBJECT_MAX_LENGTH();
+			debugMsg += " / SUBJECT_MAX_LENGTH is " + getSUBJECT_MAX_LENGTH();
 			// subjectMinLength
 			setSUBJECT_MIN_LENGTH(getIntElement("DataDefinitions", "subjectMinLength", xpath, doc));
-			debugMsg += " SUBJECT_MIN_LENGTH is " + getSUBJECT_MIN_LENGTH();
+			debugMsg += " / SUBJECT_MIN_LENGTH is " + getSUBJECT_MIN_LENGTH();
 			
 			// textWithMarkup
 			setTEXT_WITH_MARKUP(getBooleanElement("DataDefinitions", "textWithMarkup", xpath, doc));
-			debugMsg += " TEXT_WITH_MARKUP is " + isTEXT_WITH_MARKUP();
+			debugMsg += " / TEXT_WITH_MARKUP is " + isTEXT_WITH_MARKUP();
 			// rawTextWithMarkup
 			setRAW_TEXT_WITH_MARKUP(getBooleanElement("DataDefinitions", "rawTextWithMarkup", xpath, doc));
-			debugMsg += " RAW_TEXT_WITH_MARKUP is " + isRAW_TEXT_WITH_MARKUP();
+			debugMsg += " / RAW_TEXT_WITH_MARKUP is " + isRAW_TEXT_WITH_MARKUP();
 			
 			logger.trace(debugMsg);
 		} catch (IOException | ParserConfigurationException | SAXException e) {
@@ -517,4 +529,24 @@ public final class RuntimeConfiguration implements Job {
 	public static void 		setROBOT_DISALLOW_TEXT(String dISALLOW) {ROBOT_DISALLOW_TEXT = dISALLOW;}
 	public static int 		getCRAWLER_MAX_DOWNLOAD_SIZE() {return CRAWLER_MAX_DOWNLOAD_SIZE;}
 	public static void 		setCRAWLER_MAX_DOWNLOAD_SIZE(int mAXSIZE) {CRAWLER_MAX_DOWNLOAD_SIZE = mAXSIZE;}
+
+
+	public static boolean isWARN_ON_REJECTED_ACTIONS() {
+		return WARN_ON_REJECTED_ACTIONS;
+	}
+
+
+	public static void setWARN_ON_REJECTED_ACTIONS(boolean wARN_ON_REJECTED_ACTIONS) {
+		WARN_ON_REJECTED_ACTIONS = wARN_ON_REJECTED_ACTIONS;
+	}
+
+
+	public static boolean isSTAY_ON_DOMAIN() {
+		return STAY_ON_DOMAIN;
+	}
+
+
+	public static void setSTAY_ON_DOMAIN(boolean sTAY_ON_DOMAIN) {
+		STAY_ON_DOMAIN = sTAY_ON_DOMAIN;
+	}
 }
