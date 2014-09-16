@@ -43,6 +43,11 @@
 	
 	the general structure of a configuration constraint is as follows
 	<configurations>
+		<configuration scope='CrawlerRun'>
+			<crawler name='TW'>true</crawler>
+			<crawler name='LT'>false</crawler>
+		</configuration>
+		
 		<configuration scope=[customer / domain]>
 			<customer/domain scope=[ALL, name]
 				<name>
@@ -65,6 +70,13 @@
 	</configurations>
 -->
 <configurations>
+	<!-- activate/deactivate each crawler if you like. You
+		 can also delete this section, in which case all 
+		 crawler activated in applicationControl.xml will run -->
+	<configuration scope='CrawlerRun'>
+		<crawler name='TWITTER'>true</crawler>
+		<crawler name='LITHIUM'>false</crawler>
+	</configuration>
 	<!-- 
 		START OF DOMAIN AND CUSTOMER CONFIG
 		you need to setup the domain and customer structure here,

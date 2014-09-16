@@ -126,6 +126,7 @@ public final class RuntimeConfiguration implements Job {
 	private static String valueIdentifier 						= "value";
 	private static String codeIdentifier 						= "code";
 	private static String configFileTypeIdentifier				= "configFileType";
+	private static String crawlerRunIdentifier					= "CrawlerRun";
 	
 	private static String socialNetworkConfiguration			= "socialNetworkDefinition";
 	private static String socialNetworkIdentifier				= "network";
@@ -327,6 +328,9 @@ public final class RuntimeConfiguration implements Job {
 			// CONSTRAINT_LOCATION_TEXT
 			setCONSTRAINT_LOCATION_TEXT(getStringElement("XmlLayout", "CONSTRAINT_LOCATION_TEXT", xpath, doc));
 			
+			// CrawlerRunIdentifier
+			setCrawlerRunIdentifier(getStringElement("XmlLayout", "crawlerRunIdentifier", xpath, doc));
+						
 		} catch (IOException e) {
 			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
 			System.exit(-1);
@@ -486,22 +490,10 @@ public final class RuntimeConfiguration implements Job {
 		MOVE_OR_DELETE_PROCESSED_JSON_FILES = mOVE_OR_DELETE_PROCESSED_JSON_FILES;
 	}
 
-	public static String getINVALID_JSON_BACKUP_STORAGE_PATH() {
-		return INVALID_JSON_BACKUP_STORAGE_PATH;
-	}
-
-	public static void setINVALID_JSON_BACKUP_STORAGE_PATH(
-			String iNVALID_JSON_BACKUP_STORAGE_PATH) {
-		INVALID_JSON_BACKUP_STORAGE_PATH = iNVALID_JSON_BACKUP_STORAGE_PATH;
-	}
-
-	public static String getSTORAGE_PATH() {
-		return STORAGE_PATH;
-	}
-
-	public static void setSTORAGE_PATH(String sTORAGE_PATH) {
-		STORAGE_PATH = sTORAGE_PATH;
-	}
+	public static String getINVALID_JSON_BACKUP_STORAGE_PATH() {return INVALID_JSON_BACKUP_STORAGE_PATH;}
+	public static void setINVALID_JSON_BACKUP_STORAGE_PATH(	String iNVALID_JSON_BACKUP_STORAGE_PATH) {INVALID_JSON_BACKUP_STORAGE_PATH = iNVALID_JSON_BACKUP_STORAGE_PATH;}
+	public static String getSTORAGE_PATH() {return STORAGE_PATH;}
+	public static void setSTORAGE_PATH(String sTORAGE_PATH) {STORAGE_PATH = sTORAGE_PATH;}
 	
 	
 	// DataDefinitions
@@ -529,24 +521,12 @@ public final class RuntimeConfiguration implements Job {
 	public static void 		setROBOT_DISALLOW_TEXT(String dISALLOW) {ROBOT_DISALLOW_TEXT = dISALLOW;}
 	public static int 		getCRAWLER_MAX_DOWNLOAD_SIZE() {return CRAWLER_MAX_DOWNLOAD_SIZE;}
 	public static void 		setCRAWLER_MAX_DOWNLOAD_SIZE(int mAXSIZE) {CRAWLER_MAX_DOWNLOAD_SIZE = mAXSIZE;}
-
-
-	public static boolean isWARN_ON_REJECTED_ACTIONS() {
-		return WARN_ON_REJECTED_ACTIONS;
-	}
-
-
-	public static void setWARN_ON_REJECTED_ACTIONS(boolean wARN_ON_REJECTED_ACTIONS) {
-		WARN_ON_REJECTED_ACTIONS = wARN_ON_REJECTED_ACTIONS;
-	}
-
-
-	public static boolean isSTAY_ON_DOMAIN() {
-		return STAY_ON_DOMAIN;
-	}
-
-
-	public static void setSTAY_ON_DOMAIN(boolean sTAY_ON_DOMAIN) {
-		STAY_ON_DOMAIN = sTAY_ON_DOMAIN;
-	}
+	
+	
+	public static boolean isWARN_ON_REJECTED_ACTIONS() {return WARN_ON_REJECTED_ACTIONS;}
+	public static void setWARN_ON_REJECTED_ACTIONS(boolean wARN_ON_REJECTED_ACTIONS) {WARN_ON_REJECTED_ACTIONS = wARN_ON_REJECTED_ACTIONS;}
+	public static boolean isSTAY_ON_DOMAIN() {return STAY_ON_DOMAIN;}
+	public static void setSTAY_ON_DOMAIN(boolean sTAY_ON_DOMAIN) { STAY_ON_DOMAIN = sTAY_ON_DOMAIN;}
+	public static String getCrawlerRunIdentifier() { return crawlerRunIdentifier; }
+	public static void setCrawlerRunIdentifier(String crawlerRunIdentifier) { RuntimeConfiguration.crawlerRunIdentifier = crawlerRunIdentifier;	}
 }

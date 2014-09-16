@@ -108,145 +108,153 @@ public class Facebook4JFbCrawler extends GenericCrawler implements Job {
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		@SuppressWarnings("rawtypes")
-		CrawlerConfiguration<?> facebookConfig = new CrawlerConfiguration();
-		//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
-		JSONObject configurationScope = facebookConfig.getCrawlerConfigurationScope();
-		configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
+		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
 		
-		// set the customer we start the crawler for and log the startup message
-		String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
-		String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
-		
-		// this is the status code for the http connection
-		HttpStatusCodes httpStatusCodes = null;
-		
-		// build the search URI
-		protocol = (String) arg0.getJobDetail().getJobDataMap().get("protocol");
-		host = (String) arg0.getJobDetail().getJobDataMap().get("server_url");
-		port = (String) arg0.getJobDetail().getJobDataMap().get("port");
-		//location = (String) arg0.getJobDetail().getJobDataMap().get("location");
-		searchURL = protocol + "://" + host + ":" + port;
-		
-		if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
-			logger.info(CRAWLER_NAME+"-Crawler START");
-		} else {
-			if (!"undefined".equals(curDomain) && !"undefined".equals(curCustomer)) {
-				logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer + " in " + curDomain);
+		// first check is to get the information, if the crawler was 
+		// deactivated from within the crawler configuration, even if 
+		// it is active in applicationContext.xml
+		if ((Boolean) crawlerConfig.getRunState(CRAWLER_NAME)) {
+			
+			//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
+			JSONObject configurationScope = crawlerConfig.getCrawlerConfigurationScope();
+			configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
+			
+			// set the customer we start the crawler for and log the startup message
+			String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
+			String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
+			
+			// this is the status code for the http connection
+			HttpStatusCodes httpStatusCodes = null;
+			
+			// build the search URI
+			protocol = (String) arg0.getJobDetail().getJobDataMap().get("protocol");
+			host = (String) arg0.getJobDetail().getJobDataMap().get("server_url");
+			port = (String) arg0.getJobDetail().getJobDataMap().get("port");
+			//location = (String) arg0.getJobDetail().getJobDataMap().get("location");
+			searchURL = protocol + "://" + host + ":" + port;
+			
+			if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
+				logger.info(CRAWLER_NAME+"-Crawler START");
 			} else {
-				if (!"undefined".equals(curDomain))
-					logger.info(CRAWLER_NAME+"-Crawler START for " + curDomain);
-				else
-					logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer);
+				if (!"undefined".equals(curDomain) && !"undefined".equals(curCustomer)) {
+					logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer + " in " + curDomain);
+				} else {
+					if (!"undefined".equals(curDomain))
+						logger.info(CRAWLER_NAME+"-Crawler START for " + curDomain);
+					else
+						logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer);
+				}
 			}
-		}
-		
-		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS, GEO-LOCATIONS and PAGES (aka sites)
-		logger.info("retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope);
-		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope);
-		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
-		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(RuntimeConfiguration.getConstraintLocationText(), configurationScope);
-		ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintSiteText(), configurationScope);
-
-		if (tTerms.size()>0) {
-			smallLogMessage += "specific terms ";
-		}
-		if (tUsers.size()>0) {
-			smallLogMessage += "specific users ";
-		}
-		if (tLangs.size()>0) {
-			smallLogMessage += "specific languages ";
-		}
-		if (tLocas.size()>0) {
-			smallLogMessage += "specific Locations ";
-		}
-		if (tSites.size()>0) {
-			smallLogMessage += "specific Sites ";
 			
-		}
-		
-		// get OAuth authorization details and acquire facebook instance
-		ConfigurationBuilder cb = new ConfigurationBuilder();
-		cb.setDebugEnabled(true)
-		  .setOAuthAppId((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_APP_ID_KEY))
-		  .setOAuthAppSecret((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_APP_SECRET_KEY))
-		  .setOAuthAccessToken((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_ACCESS_TOKEN_KEY))
-		  .setOAuthPermissions((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PERMISSIONSET_KEY));
-		FacebookFactory ff = new FacebookFactory(cb.build());
-		Facebook facebook = ff.getInstance();
-		
-		logger.info("new facebook crawler instantiated - restricted to track " + smallLogMessage);
-		
-		try {
-			// you can also execute a different search type by means of a rest url:
-			searchUri = searchURL + "?access_token="+(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_ACCESS_TOKEN_KEY)+queryString;
-			
-			HttpClient client = new HttpClient();
-			PostMethod method = new PostMethod(searchUri);
-			httpStatusCodes = HttpStatusCodes.getHttpStatusCode(client.executeMethod(method));
-			
-			logger.trace("httpStatusCode = " + httpStatusCodes);
-			
-			// get the message feed from a page - works
-			//ResponseList<Post> posts = facebook.getFeed("cortal-consors.com");
-			
-			// does not work either
-			/*
-			posts = facebook.searchPosts(Joiner.on(",").join(tTerms));
-			logger.trace("number of posts: " + posts.getCount() + " size " + posts.size());
-			users = facebook.searchUsers(Joiner.on(",").join(tUsers));
-			logger.trace("number of users: " + users.getCount() + " size " + users.size());
-			locas = facebook.searchLocations(Joiner.on(",").join(tLocas));
-			logger.trace("number of locations: " + locas.getCount() + " size " + locas.size());
-			pages = facebook.searchPages(Joiner.on(",").join(tSites));
-			logger.trace("number of sites: " + pages.getCount() + " size " + pages.size());
-			*/ 
-			
-			// next try with own special method
-			//String searchPost = "Hipp";
-			//String results = getFacebookPosts(facebook, searchPost);
-			//logger.trace("result :: " + results);
-			// returns: 404 - (#803) Some of the aliases you requested do not exist: Hipp
-			
-			ResponseList<Post> feed = facebook.getFeed("Hipp");
-			
-			// Do whatever needs to be done with messages
-			for (int msgRead = 0; msgRead < feed.size(); msgRead++) {
-				messageCount++;
-				Post msg = posts.get(msgRead);
+			// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS, GEO-LOCATIONS and PAGES (aka sites)
+			logger.info("retrieving restrictions from configuration db");
+			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope);
+			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope);
+			ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
+			ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(RuntimeConfiguration.getConstraintLocationText(), configurationScope);
+			ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintSiteText(), configurationScope);
+	
+			if (tTerms.size()>0) {
+				smallLogMessage += "specific terms ";
+			}
+			if (tUsers.size()>0) {
+				smallLogMessage += "specific users ";
+			}
+			if (tLangs.size()>0) {
+				smallLogMessage += "specific languages ";
+			}
+			if (tLocas.size()>0) {
+				smallLogMessage += "specific Locations ";
+			}
+			if (tSites.size()>0) {
+				smallLogMessage += "specific Sites ";
 				
-				logger.info("New message tracked from " + msg.getName() + "... / number " + messageCount + " in this job run");
-				logger.trace("   content: " + msg );
+			}
+			
+			// get OAuth authorization details and acquire facebook instance
+			ConfigurationBuilder cb = new ConfigurationBuilder();
+			cb.setDebugEnabled(true)
+			  .setOAuthAppId((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_APP_ID_KEY))
+			  .setOAuthAppSecret((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_APP_SECRET_KEY))
+			  .setOAuthAccessToken((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_ACCESS_TOKEN_KEY))
+			  .setOAuthPermissions((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PERMISSIONSET_KEY));
+			FacebookFactory ff = new FacebookFactory(cb.build());
+			Facebook facebook = ff.getInstance();
+			
+			logger.info("new facebook crawler instantiated - restricted to track " + smallLogMessage);
+			
+			try {
+				// you can also execute a different search type by means of a rest url:
+				searchUri = searchURL + "?access_token="+(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_ACCESS_TOKEN_KEY)+queryString;
 				
-				// pass each tracked message to the parser
-				//post.process(msg.toString());
+				HttpClient client = new HttpClient();
+				PostMethod method = new PostMethod(searchUri);
+				httpStatusCodes = HttpStatusCodes.getHttpStatusCode(client.executeMethod(method));
+				
+				logger.trace("httpStatusCode = " + httpStatusCodes);
+				
+				// get the message feed from a page - works
+				//ResponseList<Post> posts = facebook.getFeed("cortal-consors.com");
+				
+				// does not work either
+				/*
+				posts = facebook.searchPosts(Joiner.on(",").join(tTerms));
+				logger.trace("number of posts: " + posts.getCount() + " size " + posts.size());
+				users = facebook.searchUsers(Joiner.on(",").join(tUsers));
+				logger.trace("number of users: " + users.getCount() + " size " + users.size());
+				locas = facebook.searchLocations(Joiner.on(",").join(tLocas));
+				logger.trace("number of locations: " + locas.getCount() + " size " + locas.size());
+				pages = facebook.searchPages(Joiner.on(",").join(tSites));
+				logger.trace("number of sites: " + pages.getCount() + " size " + pages.size());
+				*/ 
+				
+				// next try with own special method
+				//String searchPost = "Hipp";
+				//String results = getFacebookPosts(facebook, searchPost);
+				//logger.trace("result :: " + results);
+				// returns: 404 - (#803) Some of the aliases you requested do not exist: Hipp
+				
+				ResponseList<Post> feed = facebook.getFeed("Hipp");
+				
+				// Do whatever needs to be done with messages
+				for (int msgRead = 0; msgRead < feed.size(); msgRead++) {
+					messageCount++;
+					Post msg = posts.get(msgRead);
+					
+					logger.info("New message tracked from " + msg.getName() + "... / number " + messageCount + " in this job run");
+					logger.trace("   content: " + msg );
+					
+					// pass each tracked message to the parser
+					//post.process(msg.toString());
+				}
+			} catch (FacebookException e1) {
+				// in case we try to request a non existing object, like page group or the like, just issue a warning.
+				if (e1.getStatusCode() == 404){
+					logger.warn(e1.getStatusCode() + " - " + e1.getErrorMessage());
+				} else if ("OAuthException".equals(e1.getErrorType())) {
+					logger.error("OAuth Error "+e1.getErrorCode()+" :: " + e1.getErrorMessage() + ""
+							+ " The status code is " + e1.getStatusCode());
+					e1.printStackTrace();
+				} else if ("GraphMethodException".equals(e1.getErrorType())) {
+					logger.error("Graph Error "+e1.getErrorCode()+" :: " + e1.getErrorMessage() + ""
+							+ " The status code is " + e1.getStatusCode());
+					e1.printStackTrace();
+				} else {
+					logger.error("some weird facebook error number "+e1.getErrorCode()+" with status code "+e1.getStatusCode()+" occured. Says it belongs to this type of error: "+e1.getErrorType()+". Also states: "+e1.getErrorMessage()
+						+ "\nmaybe it's clear to you humans what happened here, but me, being a stupid machine, me have no idea. So here's the bloody rest: " + e1.getMessage());
+					e1.printStackTrace();
+				}
+			} catch (Exception e) {
+				logger.error("Error while processing messages", e);
 			}
-		} catch (FacebookException e1) {
-			// in case we try to request a non existing object, like page group or the like, just issue a warning.
-			if (e1.getStatusCode() == 404){
-				logger.warn(e1.getStatusCode() + " - " + e1.getErrorMessage());
-			} else if ("OAuthException".equals(e1.getErrorType())) {
-				logger.error("OAuth Error "+e1.getErrorCode()+" :: " + e1.getErrorMessage() + ""
-						+ " The status code is " + e1.getStatusCode());
-				e1.printStackTrace();
-			} else if ("GraphMethodException".equals(e1.getErrorType())) {
-				logger.error("Graph Error "+e1.getErrorCode()+" :: " + e1.getErrorMessage() + ""
-						+ " The status code is " + e1.getStatusCode());
-				e1.printStackTrace();
-			} else {
-				logger.error("some weird facebook error number "+e1.getErrorCode()+" with status code "+e1.getStatusCode()+" occured. Says it belongs to this type of error: "+e1.getErrorType()+". Also states: "+e1.getErrorMessage()
-					+ "\nmaybe it's clear to you humans what happened here, but me, being a stupid machine, me have no idea. So here's the bloody rest: " + e1.getMessage());
-				e1.printStackTrace();
-			}
-		} catch (Exception e) {
-			logger.error("Error while processing messages", e);
+			// kill the connection
+			//client.stop();
+			logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages\n");
 		}
-		// kill the connection
-		//client.stop();
-		logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages\n");
 	}
 	
 	// static This method is used to get Facebook posts based on the search string set above
+	@SuppressWarnings("unused")
 	private String getFacebookPosts(Facebook Facebook, String searchPost)
 			throws FacebookException {
 		String searchResult = "Item : " + searchPost + "\n";

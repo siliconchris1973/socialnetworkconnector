@@ -491,6 +491,13 @@
 			<value>network</value>
 		</param>
 		
+		<!-- whether or not a specific crawler shall run -->
+		<param name="crawlerRunIdentifier"> <!-- changeable -->
+			<type>String</type>
+			<value>CrawlerRun</value>
+		</param>
+		
+		
 		<!-- 
 			 for stability and startup reasons these last 4 layout elements (root-, 
 			 singleConfiguration-, value- and scopeIdentifier) CAN NOT BE CHANGED! 

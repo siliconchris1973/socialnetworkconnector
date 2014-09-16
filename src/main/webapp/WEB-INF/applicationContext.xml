@@ -39,11 +39,26 @@
                            http://www.springframework.org/schema/tx/spring-tx.xsd
                            http://www.springframework.org/schema/util 
                            http://www.springframework.org/schema/util/spring-util.xsd">
-                          
+                           
+	<context:annotation-config />
+		<context:component-scan base-package="de.comlineag.snc.appstate" />
+		<context:component-scan base-package="de.comlineag.snc.constants" />
+		<context:component-scan base-package="de.comlineag.snc.crypto" />
+		<context:component-scan base-package="de.comlineag.snc.data" />
+		<context:component-scan base-package="de.comlineag.snc.handler" />
+		<context:component-scan base-package="de.comlineag.snc.helper" />
+		<context:component-scan base-package="de.comlineag.snc.job" />
+		<context:component-scan base-package="de.comlineag.snc.neo4j" />
+		<context:component-scan base-package="de.comlineag.snc.persistence" />
+	<tx:annotation-driven />
+	
+	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.appstate.ApplicationContextProvider"></bean>
+	
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 	     J O B    C O N T R O L    S E T T I N G S  -  J O B    C O N T R O L    S E T
 	     this is the section in which to turn on/off the different crawler 
 	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	     <!-- Activate Spring annotation support -->
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="autoStartup"><value>true</value></property>
 		<property name="overwriteExistingJobs"><value>true</value></property>
@@ -53,7 +68,7 @@
 			<props>
 				<!-- ThreadPool -->
 				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
-				<prop key="org.quartz.threadPool.threadCount">4</prop>
+				<prop key="org.quartz.threadPool.threadCount">5</prop>
 			</props>
 		</property>
 		<property name="triggers">
@@ -68,8 +83,8 @@
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
-				<!-- <ref bean="SimpleWebCrawlerTrigger"/> -->
-				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
+				<ref bean="SimpleWebCrawlerTrigger"/>
+				<ref bean="LithiumCrawlerTrigger" />
 				
 				
 				<!-- FILESYSTEM CRAWLER - SAFEGUARD
@@ -308,15 +323,7 @@
 	</bean> 
 	-->
 
-	<!-- this is the bean to get the crawler configuration specific for individual domains AND customers from an xml file
-		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR EITHER CUSTOMER OR DOMAIN) -->
-<!-- 
-	<bean id="configurationManager" class="de.comlineag.snc.persistence.DomainConfigurationPersistence"> 
-		<property name="configDbHandler" value="webapp/WEB-INF/SNC_Crawler_Configuration/DomainWithCustomerCrawlerConfiguration.xml" /> 
-	</bean> 
--->
-	
-	<!-- this is the bean to get the crawler configuration specific for individual customers OR domains from an xml file
+	<!-- this is the bean to get the crawler configuration specific for individual customers AND/OR domains from an xml file
 		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR EITHER CUSTOMER OR DOMAIN) -->
  
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.ComplexXmlConfigurationPersistence"> 
@@ -579,23 +586,6 @@
 		<property name="startDelay" value="1" />
 		<property name="repeatInterval" value="120000" />
 	</bean>
-	
-	
-	
-	<!-- Activate Spring annotation support -->
-	<context:annotation-config />
-		<context:component-scan base-package="de.comlineag.snc.appstate" />
-		<context:component-scan base-package="de.comlineag.snc.constants" />
-		<context:component-scan base-package="de.comlineag.snc.crypto" />
-		<context:component-scan base-package="de.comlineag.snc.data" />
-		<context:component-scan base-package="de.comlineag.snc.handler" />
-		<context:component-scan base-package="de.comlineag.snc.helper" />
-		<context:component-scan base-package="de.comlineag.snc.job" />
-		<context:component-scan base-package="de.comlineag.snc.neo4j" />
-		<context:component-scan base-package="de.comlineag.snc.persistence" />
-	<tx:annotation-driven />
-	
-	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.appstate.ApplicationContextProvider"></bean>
 	
 	
 	<!-- Quartz scheduler properties 

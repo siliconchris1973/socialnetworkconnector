@@ -35,6 +35,11 @@
 	
 	the general structure is as follows
 	<configurations>
+		<configuration scope='CrawlerRun'>
+			<crawler name='TWITTER'>true</crawler>
+			<crawler name='LITHIUM'>false</crawler>
+		</configuration>
+		
 		<configuration scope=[customer / domain]>
 			<customer/domain scope=[ALL, name]
 				<name>
@@ -57,6 +62,12 @@
 	</configurations>
 -->
 <configurations>
+	<!-- activate/deactivate each crawler at will -->
+	<configuration scope='CrawlerRun'>
+		<crawler name='TWITTER'>true</crawler>
+		<crawler name='LITHIUM'>false</crawler>
+	</configuration>
+	
 	<!-- 
 		START OF DOMAIN AND CUSTOMER CONFIG
 		you need to setup the domain and customer structure here,

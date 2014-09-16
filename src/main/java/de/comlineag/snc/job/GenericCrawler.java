@@ -28,7 +28,7 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
  * @author 		Magnus Leinemann, Christian Guenther
  * @category 	Job
  * @version		0.2
- * @status		productive
+ * @status		productive but new method whatAmI not usable
  * 
  * @description abstract definition for a crawler to be executed by the job control
  * 
@@ -79,6 +79,7 @@ public abstract class GenericCrawler implements Job {
 	 * @TODO make this function work - returns NULL at the moment
 	 *    				
 	 */
+	@Deprecated
 	@SuppressWarnings("unchecked")
 	public JSONObject whatAmI() throws ParseException{
 		JSONObject obj = new JSONObject();

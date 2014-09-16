@@ -23,6 +23,9 @@ import org.apache.log4j.Logger;
 
 
 
+
+
+
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.ConfigurationConstants;
@@ -44,7 +47,7 @@ import de.comlineag.snc.handler.LithiumUser;
  * 
  * @author 		Christian Guenther
  * @category 	Job
- * @version		1.2		- 13.07.2014
+ * @version		1.3				- 16.09.2014
  * @status		productive
  * 
  * @description this is the actual crawler for the Lithium network. It is implemenetd as a job and,
@@ -69,6 +72,7 @@ import de.comlineag.snc.handler.LithiumUser;
  *				1.1a			moved Base64CryptoProvider in its own class
  *				1.1b			added support for different encryption provider, the actual one is set in applicationContext.xml 
  *				1.2				changed search against rest api url to use method parameter instead of for-loop 
+ *				1.3				added support for runState configuration, to check if the crawler shall actually run
  *
  * TODO 1. find out and fix the following warning:
  * 			HttpMethodBase - Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
@@ -97,252 +101,251 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	
 	public LithiumCrawler() {}
 	
-	/**
-	 * @author		Christian Guenther
-	 * @version 	1.4
-	 * @throws		GenericCrawlerException 
-	 * @description	this is the actual crawler implementation for the lithium network
-	 *  
-	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		
 		@SuppressWarnings("rawtypes")
-		CrawlerConfiguration<?> lithiumConfig = new CrawlerConfiguration();
-		//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
-		JSONObject configurationScope = lithiumConfig.getCrawlerConfigurationScope();
-
-		configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
+		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
 		
-		// set the customer we start the crawler for and log the startup message
-		String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
-		String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
-
-		if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
-			logger.info(CRAWLER_NAME+"-Crawler START");
-		} else {
-			if (!"undefined".equals(curDomain) && !"undefined".equals(curCustomer)) {
-				logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer + " in " + curDomain);
-			} else {
-				if (!"undefined".equals(curDomain))
-					logger.info(CRAWLER_NAME+"-Crawler START for " + curDomain);
-				else
-					logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer);
-			}
-		}
-		
-		// authentication to lithium
-		String _user = null;
-		@SuppressWarnings("unused")
-		String _passwd = null;
-		
-		// this is just example code to show, how to interact with the CryptoProvider enum
-		String desiredStrength = "low";
-		CryptoProvider cryptoProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
-		logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
-		
-		try {
-			logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getClass().getSimpleName());
-			_user = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
-			_passwd = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
-		} catch (GenericCryptoException e) {
-			logger.error("EXCEPTION :: could not decrypt value for user/passwd with " + configurationCryptoProvider.getClass().getSimpleName() + ": " + e.toString(), e);
-			System.exit(-1);
-		}
-		
-		// some static vars for the lithium crawler taken from applicationContext.xml
-		logger.trace("retrieving configuration details for server endpoint from job control " );
-		final String PROTOCOL = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.HTTP_ENDPOINT_PROTOCOL_KEY);
-		final String SERVER_URL = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.HTTP_ENDPOINT_SERVER_URL_KEY);
-		final String PORT = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.HTTP_ENDPOINT_PORT_KEY);
-		final String REST_API_LOC = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.HTTP_ENDPOINT_REST_API_LOC_KEY);
-		
-		final String REST_API_URL = PROTOCOL + "://" + SERVER_URL + ":" + PORT + REST_API_LOC;
-		
-		// this is the status code for the http connection
-		HttpStatusCodes httpStatusCodes = null;
-		// and this the status code as coded within the json response
-		LithiumStatusCode jsonStatusCode = null;
-		
-		
-		// THESE VALUES ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND SITES (aka boards)
-		logger.debug("retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope); 
-		ArrayList<String> tUsers = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
-		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope); 
-		ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintSiteText(), configurationScope);
-		
-		// simple log output
-		if (tTerms.size()>0)
-			smallLogMessage += "specific terms ";
-		if (tUsers.size()>0)
-			smallLogMessage += "specific Sites ";
-		if (tLangs.size()>0)
-			smallLogMessage += "specific languages ";
-		if (tSites.size()>0)
-			smallLogMessage += "specific Sites ";
-		logger.info("new lithium crawler instantiated - restricted to track " + smallLogMessage);
-		
-		
-		// now from this point everything is just one big mess and in it, we retrieve messages and users
-		try {
-			String postEndpoint = null;
+		// first check is to get the information, if the crawler was 
+		// deactivated from within the crawler configuration, even if 
+		// it is active in applicationContext.xml
+		if ((Boolean) crawlerConfig.getRunState(CRAWLER_NAME)) {
 			
-			// if no specific sites are configured, we use the standard REST_API_URL and message search endpoint
-			if (tSites.size()==0){
-				logger.trace("not site restrictions given");
-				// now either call threads or messages and return that			
-				if ("messages".equals(threadsOrMessages)) {
-					logger.debug("MESSAGES chosen");
-					tSites.add(REST_API_URL+LithiumConstants.REST_MESSAGES_SEARCH_URI);
-				} else if ("threads".equals(threadsOrMessages)) {
-					// TODO make parser work when using threads instead of messages
-					logger.debug("THREADS chosen");
-					tSites.add(REST_API_URL+LithiumConstants.REST_THREADS_URI+"/recent");
-				}
-				
-				logger.trace("no restriction to specific sites, setting endpoint to " + tSites.get(0).toString());
+			//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
+			JSONObject configurationScope = crawlerConfig.getCrawlerConfigurationScope();
+	
+			configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
+			
+			// set the customer we start the crawler for and log the startup message
+			String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
+			String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
+	
+			if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
+				logger.info(CRAWLER_NAME+"-Crawler START");
 			} else {
-				logger.trace("converting given site restrictions to valid rest endpoints");
-				// otherwise each board from the sites section of the configuration file is surrounded by 
-				// the REST_API_URL and the message search uri
-				String t = null;
-				for (int i = 0; i < tSites.size() ; i++) {
-					t = tSites.get(i);
-					// EXAMPLE https://wissen.cortalconsors.de:443/restapi/vc/boards/id/Girokonto-Zahlungsverkehr/search/messages
+				if (!"undefined".equals(curDomain) && !"undefined".equals(curCustomer)) {
+					logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer + " in " + curDomain);
+				} else {
+					if (!"undefined".equals(curDomain))
+						logger.info(CRAWLER_NAME+"-Crawler START for " + curDomain);
+					else
+						logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer);
+				}
+			}
+			
+			// authentication to lithium
+			String _user = null;
+			@SuppressWarnings("unused")
+			String _passwd = null;
+			
+			// this is just example code to show, how to interact with the CryptoProvider enum
+			String desiredStrength = "low";
+			CryptoProvider cryptoProviderToUse = CryptoProvider.getCryptoProvider(desiredStrength);
+			logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
+			
+			try {
+				logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getClass().getSimpleName());
+				_user = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_USER_KEY));
+				_passwd = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
+			} catch (GenericCryptoException e) {
+				logger.error("EXCEPTION :: could not decrypt value for user/passwd with " + configurationCryptoProvider.getClass().getSimpleName() + ": " + e.toString(), e);
+				System.exit(-1);
+			}
+			
+			// some static vars for the lithium crawler taken from applicationContext.xml
+			logger.trace("retrieving configuration details for server endpoint from job control " );
+			final String PROTOCOL = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.HTTP_ENDPOINT_PROTOCOL_KEY);
+			final String SERVER_URL = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.HTTP_ENDPOINT_SERVER_URL_KEY);
+			final String PORT = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.HTTP_ENDPOINT_PORT_KEY);
+			final String REST_API_LOC = (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.HTTP_ENDPOINT_REST_API_LOC_KEY);
+			
+			final String REST_API_URL = PROTOCOL + "://" + SERVER_URL + ":" + PORT + REST_API_LOC;
+			
+			// this is the status code for the http connection
+			HttpStatusCodes httpStatusCodes = null;
+			// and this the status code as coded within the json response
+			LithiumStatusCode jsonStatusCode = null;
+			
+			
+			// THESE VALUES ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND SITES (aka boards)
+			logger.debug("retrieving restrictions from configuration db");
+			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope); 
+			ArrayList<String> tUsers = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
+			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope); 
+			ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintSiteText(), configurationScope);
+			
+			// simple log output
+			if (tTerms.size()>0)
+				smallLogMessage += "specific terms ";
+			if (tUsers.size()>0)
+				smallLogMessage += "specific Sites ";
+			if (tLangs.size()>0)
+				smallLogMessage += "specific languages ";
+			if (tSites.size()>0)
+				smallLogMessage += "specific Sites ";
+			logger.info("new lithium crawler instantiated - restricted to track " + smallLogMessage);
+			
+			
+			// now from this point everything is just one big mess and in it, we retrieve messages and users
+			try {
+				String postEndpoint = null;
+				
+				// if no specific sites are configured, we use the standard REST_API_URL and message search endpoint
+				if (tSites.size()==0){
+					logger.trace("not site restrictions given");
+					// now either call threads or messages and return that			
 					if ("messages".equals(threadsOrMessages)) {
 						logger.debug("MESSAGES chosen");
-						tSites.set(i, REST_API_URL + t + LithiumConstants.REST_MESSAGES_SEARCH_URI);
+						tSites.add(REST_API_URL+LithiumConstants.REST_MESSAGES_SEARCH_URI);
 					} else if ("threads".equals(threadsOrMessages)) {
 						// TODO make parser work when using threads instead of messages
 						logger.debug("THREADS chosen");
-						tSites.set(i, REST_API_URL + t + LithiumConstants.REST_THREADS_URI);
+						tSites.add(REST_API_URL+LithiumConstants.REST_THREADS_URI+"/recent");
 					}
-					logger.trace("     " + tSites.get(i));
+					
+					logger.trace("no restriction to specific sites, setting endpoint to " + tSites.get(0).toString());
+				} else {
+					logger.trace("converting given site restrictions to valid rest endpoints");
+					// otherwise each board from the sites section of the configuration file is surrounded by 
+					// the REST_API_URL and the message search uri
+					String t = null;
+					for (int i = 0; i < tSites.size() ; i++) {
+						t = tSites.get(i);
+						// EXAMPLE https://wissen.cortalconsors.de:443/restapi/vc/boards/id/Girokonto-Zahlungsverkehr/search/messages
+						if ("messages".equals(threadsOrMessages)) {
+							logger.debug("MESSAGES chosen");
+							tSites.set(i, REST_API_URL + t + LithiumConstants.REST_MESSAGES_SEARCH_URI);
+						} else if ("threads".equals(threadsOrMessages)) {
+							// TODO make parser work when using threads instead of messages
+							logger.debug("THREADS chosen");
+							tSites.set(i, REST_API_URL + t + LithiumConstants.REST_THREADS_URI);
+						}
+						logger.trace("     " + tSites.get(i));
+					}
 				}
+				
+				// maybe we can use the GenericExecutorService class for this???
+				for (int i = 0 ; i < tSites.size(); i++ ){
+					// because the search endpoint can either be standard REST_API_URL or any of the configured sites, 
+					// we need a temp-variable to store it 
+					postEndpoint = tSites.get(i);
+					logger.debug("setting up the rest endpoint at " + postEndpoint + " with user " + _user);
+					HttpClient client = new HttpClient();
+					String searchTerm = null;
+					
+					// To perform a community-wide search for a query,  you can use the following REST API call:
+					//		http://YOURCOMMUNITYURL/<community-id>/restapi/PVC/search/messages?Q=<query>
+					//	For example:
+					//		http://community.lithium.com/lithosphere/restapi/vc/search/messages?q=testing
+					//	for Cortal Consors this would be
+					//		https://wissen.cortalconsors.de:443/restapi/vc/search/messages
+					PostMethod method = new PostMethod(postEndpoint);
+					method.addParameter(LithiumConstants.HTTP_RESPONSE_FORMAT_COMMAND, LithiumConstants.HTTP_RESPONSE_FORMAT);
+					for (int ii = 0 ; ii < tTerms.size(); ii++ ){
+						searchTerm = tTerms.get(ii).toString();
+						logger.trace("now adding searchterm " + searchTerm + " to method parameter");
+						method.addParameter(LithiumConstants.SEARCH_TERM, searchTerm);
+					}
+					// add some more parameter to search term 
+					//method.addParameter("collapse_discussion", "false");
+					//method.addParameter("restapi.format_detail","full_list_element");
+					//method.addParameter("thread_ascending", "thread_descending");
+					
+					
+					httpStatusCodes = HttpStatusCodes.getHttpStatusCode(client.executeMethod(method));
+					if (!httpStatusCodes.isOk()){
+						if (httpStatusCodes == HttpStatusCodes.FORBIDDEN){
+							logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
+						} else {
+							logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()) + " could not connect to " + postEndpoint);
+						}
+					} else {
+						// ONLY and ONLY if the http connection was successfull, we should even try to decode a response json
+						logger.debug("http connection established (status is " + httpStatusCodes + ")");
+						
+						// now get the json and check on that
+						String jsonString = method.getResponseBodyAsString();
+						logger.trace("our posting json in the execute loop: " + jsonString);
+						
+						// now do the check on json error details within  the returned JSON object
+						JSONParser errParser = new JSONParser();
+						Object errObj = errParser.parse(jsonString);
+						JSONObject jsonErrObj = errObj instanceof JSONObject ?(JSONObject) errObj : null;
+						if(jsonErrObj == null)
+							throw new ParseException(0, "returned json object is null");
+						JSONObject responseObj = (JSONObject)jsonErrObj.get(LithiumConstants.JSON_RESPONSE_OBJECT_TEXT);
+						jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(LithiumConstants.JSON_STATUS_CODE_TEXT).toString());
+						
+						if(!jsonStatusCode.isOk()){
+							/*
+							 *  error json structure: 
+							 *  {"response":{
+							 *  	"status":"error",
+							 *  	"error":{
+							 *  		"code":501,
+							 *  		"message":"Unbekanntes Pfadelement bei Knoten \u201Ecommunity_search_context\u201C"
+							 *  		}
+							 *  	}
+							 *  }
+							 */
+							JSONObject errorReference = (JSONObject)responseObj.get(LithiumConstants.JSON_ERROR_OBJECT_TEXT);
+							logger.error("the server returned an error " + errorReference.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT) + " while trying to retrieve " + postEndpoint);
+							
+							throw new GenericCrawlerException("the server returned an error " + errorReference.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT) + " while trying to retrieve " + postEndpoint);
+						} else {
+							logger.debug("json response was ok, now extracting the messages");
+							// give the json object to the lithium parser for further processing
+							LithiumParser litParse = new LithiumParser();
+							JSONArray messageArray = litParse.parseMessages(jsonString);
+							
+							for(Object messageObj : messageArray){
+								messageCount++;
+								
+								String messageRef = (String) ((JSONObject)messageObj).get(LithiumConstants.JSON_MESSAGE_REFERENCE);
+								
+								logger.info("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
+								
+								JSONObject messageResponse = SendObjectRequest(messageRef, REST_API_URL, LithiumConstants.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
+								if (messageResponse != null) {
+									// first save the message
+									new LithiumPosting(messageResponse).save();
+									
+									// now get the user from REST url and save it also
+									try {
+										JSONParser parser = new JSONParser();
+										Object obj = parser.parse(messageResponse.toString());
+										JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+										if(jsonObj == null)
+											throw new ParseException(0, "returned json object is null");
+										JSONObject authorObj = (JSONObject)jsonObj.get(LithiumConstants.JSON_AUTHOR_OBJECT_IDENTIFIER);
+										
+										String userRef = (String) ((JSONObject)authorObj).get(LithiumConstants.JSON_AUTHOR_REFERENCE);
+										JSONObject userResponse = SendObjectRequest(userRef, REST_API_URL, LithiumConstants.JSON_USER_OBJECT_IDENTIFIER);
+										
+										new LithiumUser(userResponse).save();
+										
+									} catch (ParseException e) {
+										logger.error("EXCEPTION :: could not retrieve user from message object " + e.getLocalizedMessage());
+										e.printStackTrace();
+									} // try catch
+								} // if message response is != null
+							}// for loop over message array
+						}// is json ok
+					}// is http ok
+				}// loop over sites
+			} catch (HttpException e) {
+				logger.error("EXCEPTION :: HTTP Error: " + e.toString(), e);
+			} catch (IOException e) {
+				logger.error("EXCEPTION :: IO Error: " + e.toString(), e);
+			} catch (ParseException e) {
+				logger.error("EXCEPTION :: Parse Error: " + e.toString(), e);
+			} catch (GenericCrawlerException e) {
+				logger.error("EXCEPTION :: Crawler Error: " + e.toString(), e);
 			}
 			
-			// maybe we can use the GenericExecutorService class for this???
-			for (int i = 0 ; i < tSites.size(); i++ ){
-				// because the search endpoint can either be standard REST_API_URL or any of the configured sites, 
-				// we need a temp-variable to store it 
-				postEndpoint = tSites.get(i);
-				logger.debug("setting up the rest endpoint at " + postEndpoint + " with user " + _user);
-				HttpClient client = new HttpClient();
-				String searchTerm = null;
-				
-				// To perform a community-wide search for a query,  you can use the following REST API call:
-				//		http://YOURCOMMUNITYURL/<community-id>/restapi/PVC/search/messages?Q=<query>
-				//	For example:
-				//		http://community.lithium.com/lithosphere/restapi/vc/search/messages?q=testing
-				//	for Cortal Consors this would be
-				//		https://wissen.cortalconsors.de:443/restapi/vc/search/messages
-				PostMethod method = new PostMethod(postEndpoint);
-				method.addParameter(LithiumConstants.HTTP_RESPONSE_FORMAT_COMMAND, LithiumConstants.HTTP_RESPONSE_FORMAT);
-				for (int ii = 0 ; ii < tTerms.size(); ii++ ){
-					searchTerm = tTerms.get(ii).toString();
-					logger.trace("now adding searchterm " + searchTerm + " to method parameter");
-					method.addParameter(LithiumConstants.SEARCH_TERM, searchTerm);
-				}
-				// add some more parameter to search term 
-				//method.addParameter("collapse_discussion", "false");
-				//method.addParameter("restapi.format_detail","full_list_element");
-				//method.addParameter("thread_ascending", "thread_descending");
-				
-				
-				httpStatusCodes = HttpStatusCodes.getHttpStatusCode(client.executeMethod(method));
-				if (!httpStatusCodes.isOk()){
-					if (httpStatusCodes == HttpStatusCodes.FORBIDDEN){
-						logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
-					} else {
-						logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()) + " could not connect to " + postEndpoint);
-					}
-				} else {
-					// ONLY and ONLY if the http connection was successfull, we should even try to decode a response json
-					logger.debug("http connection established (status is " + httpStatusCodes + ")");
-					
-					// now get the json and check on that
-					String jsonString = method.getResponseBodyAsString();
-					logger.trace("our posting json in the execute loop: " + jsonString);
-					
-					// now do the check on json error details within  the returned JSON object
-					JSONParser errParser = new JSONParser();
-					Object errObj = errParser.parse(jsonString);
-					JSONObject jsonErrObj = errObj instanceof JSONObject ?(JSONObject) errObj : null;
-					if(jsonErrObj == null)
-						throw new ParseException(0, "returned json object is null");
-					JSONObject responseObj = (JSONObject)jsonErrObj.get(LithiumConstants.JSON_RESPONSE_OBJECT_TEXT);
-					jsonStatusCode = LithiumStatusCode.getLithiumStatusCode(responseObj.get(LithiumConstants.JSON_STATUS_CODE_TEXT).toString());
-					
-					if(!jsonStatusCode.isOk()){
-						/*
-						 *  error json structure: 
-						 *  {"response":{
-						 *  	"status":"error",
-						 *  	"error":{
-						 *  		"code":501,
-						 *  		"message":"Unbekanntes Pfadelement bei Knoten \u201Ecommunity_search_context\u201C"
-						 *  		}
-						 *  	}
-						 *  }
-						 */
-						JSONObject errorReference = (JSONObject)responseObj.get(LithiumConstants.JSON_ERROR_OBJECT_TEXT);
-						logger.error("the server returned an error " + errorReference.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT) + " while trying to retrieve " + postEndpoint);
-						
-						throw new GenericCrawlerException("the server returned an error " + errorReference.get(LithiumConstants.JSON_ERROR_CODE_TEXT) + " - " + errorReference.get(LithiumConstants.JSON_ERROR_MESSAGE_TEXT) + " while trying to retrieve " + postEndpoint);
-					} else {
-						logger.debug("json response was ok, now extracting the messages");
-						// give the json object to the lithium parser for further processing
-						LithiumParser litParse = new LithiumParser();
-						JSONArray messageArray = litParse.parseMessages(jsonString);
-						
-						for(Object messageObj : messageArray){
-							messageCount++;
-							
-							String messageRef = (String) ((JSONObject)messageObj).get(LithiumConstants.JSON_MESSAGE_REFERENCE);
-							
-							logger.info("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
-							
-							JSONObject messageResponse = SendObjectRequest(messageRef, REST_API_URL, LithiumConstants.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
-							if (messageResponse != null) {
-								// first save the message
-								new LithiumPosting(messageResponse).save();
-								
-								// now get the user from REST url and save it also
-								try {
-									JSONParser parser = new JSONParser();
-									Object obj = parser.parse(messageResponse.toString());
-									JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
-									if(jsonObj == null)
-										throw new ParseException(0, "returned json object is null");
-									JSONObject authorObj = (JSONObject)jsonObj.get(LithiumConstants.JSON_AUTHOR_OBJECT_IDENTIFIER);
-									
-									String userRef = (String) ((JSONObject)authorObj).get(LithiumConstants.JSON_AUTHOR_REFERENCE);
-									JSONObject userResponse = SendObjectRequest(userRef, REST_API_URL, LithiumConstants.JSON_USER_OBJECT_IDENTIFIER);
-									
-									new LithiumUser(userResponse).save();
-									
-								} catch (ParseException e) {
-									logger.error("EXCEPTION :: could not retrieve user from message object " + e.getLocalizedMessage());
-									e.printStackTrace();
-								} // try catch
-							} // if message response is != null
-						}// for loop over message array
-					}// is json ok
-				}// is http ok
-			}// loop over sites
-		} catch (HttpException e) {
-			logger.error("EXCEPTION :: HTTP Error: " + e.toString(), e);
-		} catch (IOException e) {
-			logger.error("EXCEPTION :: IO Error: " + e.toString(), e);
-		} catch (ParseException e) {
-			logger.error("EXCEPTION :: Parse Error: " + e.toString(), e);
-		} catch (GenericCrawlerException e) {
-			logger.error("EXCEPTION :: Crawler Error: " + e.toString(), e);
+			logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages\n");
 		}
-		
-		logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages\n");
 	}
 	
 	

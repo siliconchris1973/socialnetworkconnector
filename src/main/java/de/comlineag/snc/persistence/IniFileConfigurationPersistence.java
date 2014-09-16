@@ -18,7 +18,7 @@ import java.util.ArrayList;
 /**
  * @author		Christian Guenther
  * @category	Persistence manager
- * @version		0.7b	- 17.07.2014
+ * @version		0.8				- 16.09.2014
  * @status		productive - but some functions are still missing
  * 
  * 
@@ -37,6 +37,7 @@ import java.util.ArrayList;
  *				0.7a			Added method parameter customer. Has no effect here but needed
  * 								for XMLFileCustomerSpecificConfiguration
  * 				0.7b			Adapted signature to match JSON Object instead of String 
+ * 				0.8				Added support for getRunState
  *  
  *  TODO 1. implement code to insert/update a value and write a new config file
  */
@@ -53,6 +54,9 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 
 	@Override
 	public Boolean getRunState(String socialNetwork) {
+		if (RuntimeConfiguration.getWarnOnSimpleConfig())
+			logger.warn("no possibility to activate/deactivate certain crawler - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + RuntimeConfiguration.getConfigFile().substring(RuntimeConfiguration.getConfigFile().lastIndexOf("/")+1));
+		
 		return true;
 	}
 	

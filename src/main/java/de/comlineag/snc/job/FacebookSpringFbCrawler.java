@@ -76,78 +76,85 @@ public class FacebookSpringFbCrawler extends GenericCrawler implements Job {
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		@SuppressWarnings("rawtypes")
-		CrawlerConfiguration<?> facebookConfig = new CrawlerConfiguration();
-		//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
-		JSONObject configurationScope = facebookConfig.getCrawlerConfigurationScope();
-		configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
+		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
 		
-		// set the customer we start the crawler for and log the startup message
-		String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
-		String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
-		
-		if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
-			logger.info(CRAWLER_NAME+"-Crawler START");
-		} else {
-			if (!"undefined".equals(curDomain) && !"undefined".equals(curCustomer)) {
-				logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer + " in " + curDomain);
+		// first check is to get the information, if the crawler was 
+		// deactivated from within the crawler configuration, even if 
+		// it is active in applicationContext.xml
+		if ((Boolean) crawlerConfig.getRunState(CRAWLER_NAME)) {
+			
+			//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
+			JSONObject configurationScope = crawlerConfig.getCrawlerConfigurationScope();
+			configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
+			
+			// set the customer we start the crawler for and log the startup message
+			String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
+			String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
+			
+			if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
+				logger.info(CRAWLER_NAME+"-Crawler START");
 			} else {
-				if (!"undefined".equals(curDomain))
-					logger.info(CRAWLER_NAME+"-Crawler START for " + curDomain);
-				else
-					logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer);
+				if (!"undefined".equals(curDomain) && !"undefined".equals(curCustomer)) {
+					logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer + " in " + curDomain);
+				} else {
+					if (!"undefined".equals(curDomain))
+						logger.info(CRAWLER_NAME+"-Crawler START for " + curDomain);
+					else
+						logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer);
+				}
 			}
-		}
-		int messageCount = 0;
-		
-		
-		// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
-		logger.info("retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope);
-		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope);
-		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
-		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(RuntimeConfiguration.getConstraintLocationText(), configurationScope);
-		
-		// log output AND setup of the filter end point
-		if (tTerms.size()>0) {
-			smallLogMessage += "specific terms ";
-		}
-		if (tUsers.size()>0) {
-			smallLogMessage += "specific users ";
-		}
-		if (tLangs.size()>0) {
-			smallLogMessage += "specific languages ";
-		}
-		if (tLocas.size()>0) {
-			smallLogMessage += "specific Locations ";
-		}
-		
-		// get OAuth authorization details and acquire facebook instance
-		  // (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_APP_ID_KEY))
-		  // (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_APP_SECRET_KEY))
-		  // (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_ACCESS_TOKEN_KEY))
-		  // (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PERMISSIONSET_KEY));
-		
-		try {
-			logger.info("new facebook crawler instantiated - restricted to track " + smallLogMessage);
+			int messageCount = 0;
 			
-			// execute a different search type
-			String searchUri = "https://graph.facebook.com/search?access_token="+(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_ACCESS_TOKEN_KEY)+"q=QUERY&type=OBJECT_TYPE";
 			
-			// Do whatever needs to be done with messages
-			for (int msgRead = 0; msgRead < 1000; msgRead++) {
-				messageCount++;
-				
-				logger.info("New message tracked from " + msg.toString().substring(15, 45) + "... / number " + messageCount + " in this job run");
-				logger.trace("   content: " + msg );
-				
-				// pass each tracked message to the parser
-				//post.process(msg.toString());
+			// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
+			logger.info("retrieving restrictions from configuration db");
+			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope);
+			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope);
+			ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
+			ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(RuntimeConfiguration.getConstraintLocationText(), configurationScope);
+			
+			// log output AND setup of the filter end point
+			if (tTerms.size()>0) {
+				smallLogMessage += "specific terms ";
 			}
-		} catch (Exception e) {
-			logger.error("Error while processing messages", e);
+			if (tUsers.size()>0) {
+				smallLogMessage += "specific users ";
+			}
+			if (tLangs.size()>0) {
+				smallLogMessage += "specific languages ";
+			}
+			if (tLocas.size()>0) {
+				smallLogMessage += "specific Locations ";
+			}
+			
+			// get OAuth authorization details and acquire facebook instance
+			  // (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_APP_ID_KEY))
+			  // (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_APP_SECRET_KEY))
+			  // (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_ACCESS_TOKEN_KEY))
+			  // (String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PERMISSIONSET_KEY));
+			
+			try {
+				logger.info("new facebook crawler instantiated - restricted to track " + smallLogMessage);
+				
+				// execute a different search type
+				String searchUri = "https://graph.facebook.com/search?access_token="+(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_ACCESS_TOKEN_KEY)+"q=QUERY&type=OBJECT_TYPE";
+				
+				// Do whatever needs to be done with messages
+				for (int msgRead = 0; msgRead < 1000; msgRead++) {
+					messageCount++;
+					
+					logger.info("New message tracked from " + msg.toString().substring(15, 45) + "... / number " + messageCount + " in this job run");
+					logger.trace("   content: " + msg );
+					
+					// pass each tracked message to the parser
+					//post.process(msg.toString());
+				}
+			} catch (Exception e) {
+				logger.error("Error while processing messages", e);
+			}
+			// kill the connection
+			//client.stop();
+			logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages\n");
 		}
-		// kill the connection
-		//client.stop();
-		logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages\n");
 	}
 }

@@ -38,7 +38,7 @@ import com.porva.html.keycontent.TitleFoundListener;
  * 
  * @author 		Christian Guenther
  * @category 	job
- * @version		0.3			15.09.2014
+ * @version		0.4				- 16.09.2014
  * @status		in development
  *  
  * @description A minimal web crawler. takes an URL from job control and
@@ -52,6 +52,7 @@ import com.porva.html.keycontent.TitleFoundListener;
  * @changelog	0.1 (Chris)		class created as copy from http://cs.nyu.edu/courses/fall02/G22.3033-008/WebCrawler.java
  * 				0.2				implemented configuration options from RuntimeConfiguration
  * 				0.3				implemented KCE from http://sourceforge.net/projects/senews/files/KeyContentExtractor/KCE-1.0/
+ * 				0.4				added support for runState configuration, to check if the crawler shall actually run
  * 
  */
 public class SimpleWebCrawler extends GenericCrawler implements Job {
@@ -95,140 +96,146 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-
 		@SuppressWarnings("rawtypes")
-		CrawlerConfiguration<?> webcrawlerConfig = new CrawlerConfiguration();
-		//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
-		JSONObject configurationScope = webcrawlerConfig.getCrawlerConfigurationScope();
-		configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
+		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
 		
-		// set the customer we start the crawler for and log the startup message
-		String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
-		String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
-		
-		if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
-			logger.info(CRAWLER_NAME+"-Crawler START");
-		} else {
-			if (!"undefined".equals(curDomain) && !"undefined".equals(curCustomer)) {
-				logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer + " in " + curDomain);
+		// first check is to get the information, if the crawler was 
+		// deactivated from within the crawler configuration, even if 
+		// it is active in applicationContext.xml
+		if ((Boolean) crawlerConfig.getRunState(CRAWLER_NAME)) {
+			
+			//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
+			JSONObject configurationScope = crawlerConfig.getCrawlerConfigurationScope();
+			configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
+			
+			// set the customer we start the crawler for and log the startup message
+			String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
+			String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
+			
+			if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
+				logger.info(CRAWLER_NAME+"-Crawler START");
 			} else {
-				if (!"undefined".equals(curDomain))
-					logger.info(CRAWLER_NAME+"-Crawler START for " + curDomain);
-				else
-					logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer);
-			}
-		}
-		int pageCount = 0;
-		
-		/* THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
-		logger.info("retrieving restrictions from configuration db");
-		ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope);
-		ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope);
-		ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
-		ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(RuntimeConfiguration.getConstraintLocationText(), configurationScope);
-		
-		// log output
-		if (tTerms.size()>0) { smallLogMessage += "specific terms "; }
-		if (tUsers.size()>0) { smallLogMessage += "specific users "; }
-		if (tLangs.size()>0) { smallLogMessage += "specific languages "; }
-		if (tLocas.size()>0) { smallLogMessage += "specific Locations "; }
-		*/
-		
-		// get the initial server url and extract host and port for the authentication process from it
-		if (!arg0.getJobDetail().getJobDataMap().containsKey("server_url")){
-			logger.error("ERROR :: not url to parse given - this is fatal: exiting");
-			System.exit(SNCStatusCodes.FATAL.getErrorCode());
-		}
-		urlToParse = (String) arg0.getJobDetail().getJobDataMap().get("server_url");
-		try {
-			URL tempurl = new URL(urlToParse);
-			this.host = tempurl.getHost();
-			this.port = tempurl.getPort();
-		} catch (MalformedURLException e2) {} 
-		
-		// check if the configuration setting to stay on the initial domain is set in the 
-		// job control and if not, get it from the runtime configuration (global setting)
-		if (arg0.getJobDetail().getJobDataMap().containsKey("stayOnDomain")) {
-			stayOnDomain = (Boolean) arg0.getJobDetail().getJobDataMap().getBooleanFromString("stayOnDomain");
-		} else {
-			logger.trace("configuration setting stayOnDomain not found in job control, getting from runtime configuration");
-			stayOnDomain = RuntimeConfiguration.isSTAY_ON_DOMAIN();
-		}
-		if (arg0.getJobDetail().getJobDataMap().containsKey("max_depth"))
-			maxDepth = Integer.parseInt((String) arg0.getJobDetail().getJobDataMap().get("max_depth"));
-		
-		if ((arg0.getJobDetail().getJobDataMap().containsKey("user")) && (arg0.getJobDetail().getJobDataMap().containsKey("passwd"))) {
-			try {
-				this.user = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get("user"));
-				this.passwd = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get("passwd"));
-			} catch (GenericCryptoException e1) {
-				logger.error("Could not decrypt username and password from applicationContext.xml");
-			}
-		}
-		
-		
-		// all configuration settings sourced in - let's start
-		logger.info("New "+CRAWLER_NAME+" crawler instantiated for site "+urlToParse+" - restricted to track " + smallLogMessage);
-		
-		if (this.user.length() > 1) {
-			logger.debug("trying to authenticate against site " +  this.host);
-			HttpBasicAuthentication();
-		}
-		// initialize the urls that we want to parse
-		initialize(urlToParse, maxDepth);
-		
-		// a temporary file where we store the contents of the website
-		String fileName = null;
-					
-		for (int i = 0; i < maxPages; i++) {
-			URL url = (URL) newURLs.elementAt(0);
-			newURLs.removeElementAt(0);
-			
-			
-			// this is just the temporary file - delete it when finished
-			fileName = url.toString().replace("/", "_").replace(":", "");
-			
-			pageCount++;
-			logger.info("Url "+url+" is #" + pageCount + " to crawl");
-			if (robotSafe(url)) {
-				// only need this, if we want to write our own file, otherwise KCE will get the inputstream directly
-				String page = getpage(url);
-				
-				// currently we just create a new file and store the page content in it
-				File f1 = new File("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
-				if (!f1.isFile() || f1.getTotalSpace()<1) {
-					FileWriter rawFile;
-					FileWriter strippedFile;
-					try {
-						rawFile = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
-						rawFile.write(dataCryptoProvider.encryptValue(page));
-						rawFile.flush();
-						rawFile.close();
-						
-						// after the file has been written to disk, clean the content
-						String cleanedPage = getCleanPageContent("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
-						strippedFile = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+"stripped_"+fileName);
-						strippedFile.write(dataCryptoProvider.encryptValue(DataHelper.stripHTML(cleanedPage)));
-						strippedFile.flush();
-						strippedFile.close();
-						
-						
-					} catch (IOException e) {
-						logger.error("ERROR :: could not write content of page "+url.toString()+" to disk");
-					} catch (GenericCryptoException e) {
-						logger.error("ERROR :: could not encrypt data prior writing the file for page " + url.toString());
-						e.printStackTrace();
-					}
-					
-					
+				if (!"undefined".equals(curDomain) && !"undefined".equals(curCustomer)) {
+					logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer + " in " + curDomain);
+				} else {
+					if (!"undefined".equals(curDomain))
+						logger.info(CRAWLER_NAME+"-Crawler START for " + curDomain);
+					else
+						logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer);
 				}
-				if (page.length() != 0) getLinksFromPage(url,page);
-				
-				if (newURLs.isEmpty()) break;
 			}
+			int pageCount = 0;
+			
+			/* THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
+			logger.info("retrieving restrictions from configuration db");
+			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope);
+			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope);
+			ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
+			ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(RuntimeConfiguration.getConstraintLocationText(), configurationScope);
+			
+			// log output
+			if (tTerms.size()>0) { smallLogMessage += "specific terms "; }
+			if (tUsers.size()>0) { smallLogMessage += "specific users "; }
+			if (tLangs.size()>0) { smallLogMessage += "specific languages "; }
+			if (tLocas.size()>0) { smallLogMessage += "specific Locations "; }
+			*/
+			
+			// get the initial server url and extract host and port for the authentication process from it
+			if (!arg0.getJobDetail().getJobDataMap().containsKey("server_url")){
+				logger.error("ERROR :: not url to parse given - this is fatal: exiting");
+				System.exit(SNCStatusCodes.FATAL.getErrorCode());
+			}
+			urlToParse = (String) arg0.getJobDetail().getJobDataMap().get("server_url");
+			try {
+				URL tempurl = new URL(urlToParse);
+				this.host = tempurl.getHost();
+				this.port = tempurl.getPort();
+			} catch (MalformedURLException e2) {} 
+			
+			// check if the configuration setting to stay on the initial domain is set in the 
+			// job control and if not, get it from the runtime configuration (global setting)
+			if (arg0.getJobDetail().getJobDataMap().containsKey("stayOnDomain")) {
+				stayOnDomain = (Boolean) arg0.getJobDetail().getJobDataMap().getBooleanFromString("stayOnDomain");
+			} else {
+				logger.trace("configuration setting stayOnDomain not found in job control, getting from runtime configuration");
+				stayOnDomain = RuntimeConfiguration.isSTAY_ON_DOMAIN();
+			}
+			if (arg0.getJobDetail().getJobDataMap().containsKey("max_depth"))
+				maxDepth = Integer.parseInt((String) arg0.getJobDetail().getJobDataMap().get("max_depth"));
+			
+			if ((arg0.getJobDetail().getJobDataMap().containsKey("user")) && (arg0.getJobDetail().getJobDataMap().containsKey("passwd"))) {
+				try {
+					this.user = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get("user"));
+					this.passwd = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get("passwd"));
+				} catch (GenericCryptoException e1) {
+					logger.error("Could not decrypt username and password from applicationContext.xml");
+				}
+			}
+			
+			
+			// all configuration settings sourced in - let's start
+			logger.info("New "+CRAWLER_NAME+" crawler instantiated for site "+urlToParse+" - restricted to track " + smallLogMessage);
+			
+			if (this.user.length() > 1) {
+				logger.debug("trying to authenticate against site " +  this.host);
+				HttpBasicAuthentication();
+			}
+			// initialize the urls that we want to parse
+			initialize(urlToParse, maxDepth);
+			
+			// a temporary file where we store the contents of the website
+			String fileName = null;
+						
+			for (int i = 0; i < maxPages; i++) {
+				URL url = (URL) newURLs.elementAt(0);
+				newURLs.removeElementAt(0);
+				
+				
+				// this is just the temporary file - delete it when finished
+				fileName = url.toString().replace("/", "_").replace(":", "");
+				
+				pageCount++;
+				logger.info("Url "+url+" is #" + pageCount + " to crawl");
+				if (robotSafe(url)) {
+					// only need this, if we want to write our own file, otherwise KCE will get the inputstream directly
+					String page = getpage(url);
+					
+					// currently we just create a new file and store the page content in it
+					File f1 = new File("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
+					if (!f1.isFile() || f1.getTotalSpace()<1) {
+						FileWriter rawFile;
+						FileWriter strippedFile;
+						try {
+							rawFile = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
+							rawFile.write(dataCryptoProvider.encryptValue(page));
+							rawFile.flush();
+							rawFile.close();
+							
+							// after the file has been written to disk, clean the content
+							String cleanedPage = getCleanPageContent("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
+							strippedFile = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+"stripped_"+fileName);
+							strippedFile.write(dataCryptoProvider.encryptValue(DataHelper.stripHTML(cleanedPage)));
+							strippedFile.flush();
+							strippedFile.close();
+							
+							
+						} catch (IOException e) {
+							logger.error("ERROR :: could not write content of page "+url.toString()+" to disk");
+						} catch (GenericCryptoException e) {
+							logger.error("ERROR :: could not encrypt data prior writing the file for page " + url.toString());
+							e.printStackTrace();
+						}
+						
+						
+					}
+					if (page.length() != 0) getLinksFromPage(url,page);
+					
+					if (newURLs.isEmpty()) break;
+				}
+			}
+			
+			logger.info(CRAWLER_NAME+"-Crawler END - scanned " + pageCount + " pages");
 		}
-		
-		logger.info(CRAWLER_NAME+"-Crawler END - scanned " + pageCount + " pages");
 	} 
 	
 	

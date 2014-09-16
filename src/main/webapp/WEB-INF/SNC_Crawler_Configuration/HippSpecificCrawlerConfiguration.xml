@@ -45,6 +45,11 @@
 	
 	the general structure of a configuration constraint is as follows
 	<configurations>
+		<configuration scope='CrawlerRun'>
+			<crawler name='TW'>true</crawler>
+			<crawler name='LT'>false</crawler>
+		</configuration>
+		
 		<configuration scope=[customer / domain]>
 			<customer/domain scope=[ALL, name]
 				<name>
@@ -67,6 +72,16 @@
 	</configurations>
 -->
 <configurations>
+	<!-- activate/deactivate each crawler if you like. You can also
+		 delete this section, in which case all crawler activated in 
+		 applicationControl.xml will run. Consequently, if you omit 
+		 a crawler here, it will run, in case it is activated in 
+		 applicationContext.xml -->
+	<configuration scope="CrawlerRun">
+		<crawler name="LITHIUM">false</crawler>
+		<crawler name="FACEBOOK">false</crawler>
+	</configuration>
+	
 	<!-- 
 		START OF DOMAIN AND CUSTOMER CONFIG
 		you need to setup the domain and customer structure here,
@@ -166,15 +181,7 @@
 					</term>
 					<term>
 						<type>String</type>
-						<value>Vitamine</value>
-					</term>
-					<term>
-						<type>String</type>
 						<value>Gläschen</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Bio</value>
 					</term>
 					<term>
 						<type>String</type>
@@ -183,6 +190,10 @@
 					<term>
 						<type>String</type>
 						<value>Stillen</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Muttermilch</value>
 					</term>
 				</constraint>
 			</constraints>
@@ -193,7 +204,6 @@
 			<!-- START OF TWITTER CONFIG -->
 			<!-- specific configuration for TWITTER crawler -->
 			<constraints scope="TW">
-				<CrawlerRun>true</CrawlerRun>
 				<!-- 
 					track only messages (aka posts) in specific languages 
 					these constraints are added to the generic ones above
@@ -236,7 +246,6 @@
 			<!-- START OF LITHIUM CONSTRAINTS -->
 			<!-- specific configuration for lithium crawler -->
 			<constraints scope="CC">
-				<CrawlerRun>false</CrawlerRun>
 				<!-- 
 					Setup a constraint against specific sites or boards as they are called.
 					Be aware that you should NOT add server-part and rest-api part to these uris
@@ -273,7 +282,6 @@
 			<!-- START OF FACEBOOK CONFIG -->
 			<!-- specific configuration for FACEBOOK crawler -->
 			<constraints scope="FB">
-				<CrawlerRun>true</CrawlerRun>
 				<!-- 
 					search specific sites for posts - needed because we can't just grab 
 					every post on the facebook network  

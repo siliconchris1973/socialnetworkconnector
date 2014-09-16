@@ -26,9 +26,10 @@ import org.json.simple.JSONObject;
  * 								Long or whatever we need
  * 				0.5				Added possibility to pass a customer name for customer specific configurations
  * 				0.5a			changed method signature to use JSON object for network, customer and domain instead of String
- * 				0.6				added method skeleton to retrieve the configuration, whether a crawler shall actually run or not
- * 								this parameter CAN be set within the actual crawler confoiguration, thus making it possible
- * 								to deactivate a crawler even if it is activated in applicationContext.xml
+ * 				0.6				Added support for getRunState - a method skeleton to retrieve the configuration, 
+ * 								whether a crawler shall actually run or not. This parameter CAN be set within 
+ * 								the actual crawler configuration, thus making it possible to deactivate a crawler 
+ * 								even if it is activated in applicationContext.xml
  *
  */
 public interface IConfigurationManager<T> {

@@ -28,7 +28,7 @@ import org.w3c.dom.NodeList;
 /**
  * @author		Christian Guenther
  * @category	Persistence manager
- * @version		0.2		- 22.07.2014
+ * @version		0.3				- 16.09.2014
  * @status		productive but some functions are missing
  * 
  * @description	A configuration manager for the crawler using structured xml files for the configuration
@@ -38,6 +38,7 @@ import org.w3c.dom.NodeList;
  * 
  * @changelog	0.1 (Chris)		copy of XMLFileCustomerSpecificConfigurationPersistence - Revision 0.2
  * 				0.2				added parts from RuntimeConfiguration (domain and customer)
+ * 				0.3				Added support for getRunState
  *  
  *  TODO 1. implement code for missing methods - see below
  */
@@ -64,7 +65,9 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	
 	@Override
 	public Boolean getRunState(String socialNetwork) {
-		/*
+		String expression = null;
+		Node node = null;
+		
 		try {
 			File file = new File(getConfigDbHandler());
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -74,26 +77,30 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			XPathFactory xPathfactory = XPathFactory.newInstance();
 			XPath xpath = xPathfactory.newXPath();
 			
-			String expression = "/"+RuntimeConfiguration.getRootidentifier()+"/"
+			expression = "//"+RuntimeConfiguration.getRootidentifier()+"/"
 								+RuntimeConfiguration.getSingleconfigurationidentifier()
-								+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+SN+"']/"
-								+"CrawlerRun";
-			Node node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+									+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getCrawlerRunIdentifier()+"']/"
+								+"crawler"
+									+"[@name='"+socialNetwork+"']";
 			
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
-				return false;
+				logger.trace("CrawlerRun for network "+socialNetwork+" could not be found - returning true");
+				return true;
 			} else {
-				logger.trace("the node containing infos about CrawlerRun contains " + node.getTextContent());
+				logger.trace("CrawlerRun for network "+socialNetwork+" is set to " + node.getTextContent());
 				
 				// only and only if there actually is a false, we return false. 
 				if ("false".equals(node.getTextContent()))
 					return false;
 			}
 		} catch (Exception e) {
-			logger.warn("WARNING :: could not parse configuration file or did not find CrawlerRun information - returning true.");
-			logger.debug("just for your information, here is the exception message" + e.getLocalizedMessage());
+			logger.warn("WARNING :: could not parse configuration file "+getConfigDbHandler()+" using expression "+expression+" - returning true.");
+			e.printStackTrace();
+			
+			return true;
 		}
-		*/
+		
 		// in any other circumstance, we assume the crawler shall run and return true
 		return true;
 	}
