@@ -29,7 +29,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  * @author 		Christina Guenther
  * @category	handler
- * @revision	0.4		- 12.09.2014
+ * @revision	0.5				- 16.09.2014
  * @status		productive with minor limitations
  * 
  * @description	this class is used to setup the overall configuration of the SNC.
@@ -49,6 +49,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 				0.3a			renamed to RuntimeConfiguration 
  * 				0.4				added simple web crawler and data definition configuration options
  * 								moved the Social Network Definitions in their own file 
+ * 				0.5				added support for CrawlerRun and tidied up
  *
  * TODO 1. get the xml layout structure elements from RuntimeConfiguration.xml
  * TODO 2. use nodelist instead of single expressions for each node
@@ -66,23 +67,23 @@ public final class RuntimeConfiguration implements Job {
 	
 	// some important and static runtime informations
 	// whether or not to warn in the log in case a "simple" configuration option was chosen
-	private static boolean WARN_ON_SIMPLE_CONFIG 				= true;
-	private static boolean WARN_ON_SIMPLE_XML_CONFIG 			= true;
-	private static boolean WARN_ON_REJECTED_ACTIONS				= false;
+	private static boolean 	WARN_ON_SIMPLE_CONFIG 				= true;
+	private static boolean 	WARN_ON_SIMPLE_XML_CONFIG 			= true;
+	private static boolean 	WARN_ON_REJECTED_ACTIONS			= false;
 	
 	// how to react in case storing in the sap hana db, or any other, failed to save a post or user (or maybe create a json even on success)
-	private static boolean CREATE_POST_JSON_ON_ERROR 			= true;
-	private static boolean CREATE_USER_JSON_ON_ERROR 			= true;
-	private static boolean CREATE_POST_JSON_ON_SUCCESS 			= false;
-	private static boolean CREATE_USER_JSON_ON_SUCCESS 			= false;
-	private static boolean STOP_SNC_ON_PERSISTENCE_FAILURE 		= false;
+	private static boolean 	CREATE_POST_JSON_ON_ERROR 			= true;
+	private static boolean 	CREATE_USER_JSON_ON_ERROR 			= true;
+	private static boolean 	CREATE_POST_JSON_ON_SUCCESS 		= false;
+	private static boolean 	CREATE_USER_JSON_ON_SUCCESS 		= false;
+	private static boolean 	STOP_SNC_ON_PERSISTENCE_FAILURE 	= false;
 	
 	// where to store and how to process json files
-	private static String STORAGE_PATH 							= "storage";
-	private static String JSON_BACKUP_STORAGE_PATH 				= "json";
-	private static String PROCESSED_JSON_BACKUP_STORAGE_PATH 	= "processedJson";
-	private static String INVALID_JSON_BACKUP_STORAGE_PATH 		= "invalidJson";
-	private static String MOVE_OR_DELETE_PROCESSED_JSON_FILES 	= "move";
+	private static String 	STORAGE_PATH 						= "storage";
+	private static String 	JSON_BACKUP_STORAGE_PATH 			= "json";
+	private static String 	PROCESSED_JSON_BACKUP_STORAGE_PATH 	= "processedJson";
+	private static String 	INVALID_JSON_BACKUP_STORAGE_PATH 	= "invalidJson";
+	private static String 	MOVE_OR_DELETE_PROCESSED_JSON_FILES = "move";
 	
 	// text length limitations and constraints on markup usage 
 	private static boolean 	TEASER_WITH_MARKUP 					= false;
@@ -101,36 +102,36 @@ public final class RuntimeConfiguration implements Job {
 	private static boolean	STAY_ON_DOMAIN						= true; 
 	
 	// these values are section names within the configuration db 
-	private static String CONSTRAINT_TERM_TEXT					= "term";
-	private static String CONSTRAINT_USER_TEXT					= "user";
-	private static String CONSTRAINT_LANGUAGE_TEXT				= "language";
-	private static String CONSTRAINT_SITE_TEXT					= "site";
-	private static String CONSTRAINT_BOARD_TEXT					= "board";
-	private static String CONSTRAINT_BLOG_TEXT					= "blog";
-	private static String CONSTRAINT_LOCATION_TEXT				= "geoLocation";
+	private static String 	CONSTRAINT_TERM_TEXT				= "term";
+	private static String 	CONSTRAINT_USER_TEXT				= "user";
+	private static String 	CONSTRAINT_LANGUAGE_TEXT			= "language";
+	private static String 	CONSTRAINT_SITE_TEXT				= "site";
+	private static String 	CONSTRAINT_BOARD_TEXT				= "board";
+	private static String 	CONSTRAINT_BLOG_TEXT				= "blog";
+	private static String 	CONSTRAINT_LOCATION_TEXT			= "geoLocation";
 	
 	// XML Schema identifiers
-	private static String rootIdentifier 						= "configurations";
-	private static String singleConfigurationIdentifier 		= "configuration";
-	private static String customerIdentifier 					= "customer";
-	private static String customerNameIdentifier				= "name";
-	private static String customerNameForAllValue 				= "ALL";
-	private static String domainIdentifier 						= "domain";
-	private static String domainStructureIdentifier 			= "domainStructure";
-	private static String domainNameIdentifier					= "name";
-	private static String domainNameForAllValue 				= "ALL";
-	private static String constraintIdentifier 					= "constraints";
-	private static String scopeIdentifier 						= "scope";
-	private static String scopeOnAllValue 						= "ALL";
-	private static String singleConstraintIdentifier 			= "constraint";
-	private static String valueIdentifier 						= "value";
-	private static String codeIdentifier 						= "code";
-	private static String configFileTypeIdentifier				= "configFileType";
-	private static String crawlerRunIdentifier					= "CrawlerRun";
+	private static String 	rootIdentifier 						= "configurations";
+	private static String 	singleConfigurationIdentifier 		= "configuration";
+	private static String 	customerIdentifier 					= "customer";
+	private static String 	customerNameIdentifier				= "name";
+	private static String 	customerNameForAllValue 			= "ALL";
+	private static String 	domainIdentifier 					= "domain";
+	private static String 	domainStructureIdentifier 			= "domainStructure";
+	private static String 	domainNameIdentifier				= "name";
+	private static String 	domainNameForAllValue 				= "ALL";
+	private static String 	constraintIdentifier 				= "constraints";
+	private static String 	scopeIdentifier 					= "scope";
+	private static String 	scopeOnAllValue 					= "ALL";
+	private static String 	singleConstraintIdentifier 			= "constraint";
+	private static String 	valueIdentifier 					= "value";
+	private static String 	codeIdentifier 						= "code";
+	private static String 	configFileTypeIdentifier			= "configFileType";
+	private static String 	crawlerRunIdentifier				= "CrawlerRun";
 	
-	private static String socialNetworkConfiguration			= "socialNetworkDefinition";
-	private static String socialNetworkIdentifier				= "network";
-	private static String socialNetworkName						= "name";
+	private static String 	socialNetworkConfiguration			= "socialNetworkDefinition";
+	private static String 	socialNetworkIdentifier				= "network";
+	private static String 	socialNetworkName					= "name";
 	
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		setConfigFile((String) arg0.getJobDetail().getJobDataMap().get("configFile"));
@@ -170,11 +171,11 @@ public final class RuntimeConfiguration implements Job {
 			
 			// WarnOnSimpleXmlConfig
 			setWarnOnSimpleXmlConfig(getBooleanElement("runtime", "WarnOnSimpleXmlConfigOption", xpath, doc));
-			debugMsg += " / WarnOnSimpleXmlConfigOption " + getWarnOnSimpleXmlConfig();
+			debugMsg += " / WarnOnSimpleXmlConfigOption is " + getWarnOnSimpleXmlConfig();
 			
 			// WarnOnSimpleXmlConfig
 			setWARN_ON_REJECTED_ACTIONS(getBooleanElement("runtime", "WarnOnRejectedActions", xpath, doc));
-			debugMsg += " / WarnRejectedActions " + isWARN_ON_REJECTED_ACTIONS();
+			debugMsg += " / WarnRejectedActions is " + isWARN_ON_REJECTED_ACTIONS();
 			
 			// CREATE_POST_JSON_ON_ERROR
 			setCREATE_POST_JSON_ON_ERROR(getBooleanElement("runtime", "CreatePostJsonOnError", xpath, doc));
@@ -384,44 +385,43 @@ public final class RuntimeConfiguration implements Job {
 	}
 	
 	// getter and setter for the configuration path
-	public static String getConfigFile() { return RuntimeConfiguration.configFile;	}
-	public static void setConfigFile(String configFile) { RuntimeConfiguration.configFile = configFile;	}
+	public static String 	getConfigFile() { return RuntimeConfiguration.configFile;	}
+	public static void 		setConfigFile(String configFile) { RuntimeConfiguration.configFile = configFile;	}
 	
 	// for configuration xml structure
-	private void setCONSTRAINT_TERM_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_TERM_TEXT = s; }
-	private void setCONSTRAINT_USER_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_USER_TEXT = s; }
-	private void setCONSTRAINT_SITE_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_SITE_TEXT = s; }
-	private void setCONSTRAINT_BOARD_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_BOARD_TEXT = s; }
-	private void setCONSTRAINT_BLOG_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_BLOG_TEXT = s; }
-	private void setCONSTRAINT_LOCATION_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_LOCATION_TEXT = s; }
+	private void 			setCONSTRAINT_TERM_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_TERM_TEXT = s; }
+	private void 			setCONSTRAINT_USER_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_USER_TEXT = s; }
+	private void 			setCONSTRAINT_SITE_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_SITE_TEXT = s; }
+	private void 			setCONSTRAINT_BOARD_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_BOARD_TEXT = s; }
+	private void 			setCONSTRAINT_BLOG_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_BLOG_TEXT = s; }
+	private void 			setCONSTRAINT_LOCATION_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_LOCATION_TEXT = s; }
 	
 	// getter for the xml structure
-	public static String getRootidentifier() { return rootIdentifier; }
-	public static String getSingleconfigurationidentifier() { return singleConfigurationIdentifier; }
-	public static String getCustomeridentifier() { return customerIdentifier; }
-	public static String getCustomernameidentifier() { return customerNameIdentifier; }
-	public static String getCustomernameforallvalue() { return customerNameForAllValue; }
-	public static String getDomainidentifier() { return domainIdentifier; }
-	public static String getDomainstructureidentifier() { return domainStructureIdentifier; }
-	public static String getDomainnameidentifier() { return domainNameIdentifier; }
-	public static String getDomainnameforallvalue() { return domainNameForAllValue;	}
-	public static String getCodeidentifier() { return codeIdentifier; }
-	public static String getConstraintidentifier() { return constraintIdentifier; }
-	public static String getScopeidentifier() { return scopeIdentifier; }
-	public static String getScopeonallvalue() { return scopeOnAllValue; }
-	public static String getSingleconstraintidentifier() { return singleConstraintIdentifier; }
-	public static String getValueidentifier() {	return valueIdentifier;	}
-	public static String getConstraintTermText() { return CONSTRAINT_TERM_TEXT;	}
-	public static String getConstraintUserText() { return CONSTRAINT_USER_TEXT; }
-	public static String getConstraintLanguageText() { return CONSTRAINT_LANGUAGE_TEXT; }
-	public static String getConstraintSiteText() { return CONSTRAINT_SITE_TEXT; }
-	public static String getConstraintBoardText() { return CONSTRAINT_BOARD_TEXT; }
-	public static String getConstraintBlogText() { return CONSTRAINT_BLOG_TEXT;}
-	public static String getConstraintLocationText() {return CONSTRAINT_LOCATION_TEXT;}
-	public static String getConfigFileTypeIdentifier() {return configFileTypeIdentifier;}
+	public static String 	getRootidentifier() { return rootIdentifier; }
+	public static String 	getSingleconfigurationidentifier() { return singleConfigurationIdentifier; }
+	public static String 	getCustomeridentifier() { return customerIdentifier; }
+	public static String 	getCustomernameidentifier() { return customerNameIdentifier; }
+	public static String 	getCustomernameforallvalue() { return customerNameForAllValue; }
+	public static String 	getDomainidentifier() { return domainIdentifier; }
+	public static String 	getDomainstructureidentifier() { return domainStructureIdentifier; }
+	public static String 	getDomainnameidentifier() { return domainNameIdentifier; }
+	public static String 	getDomainnameforallvalue() { return domainNameForAllValue;	}
+	public static String 	getCodeidentifier() { return codeIdentifier; }
+	public static String 	getConstraintidentifier() { return constraintIdentifier; }
+	public static String 	getScopeidentifier() { return scopeIdentifier; }
+	public static String 	getScopeonallvalue() { return scopeOnAllValue; }
+	public static String 	getSingleconstraintidentifier() { return singleConstraintIdentifier; }
+	public static String 	getValueidentifier() {	return valueIdentifier;	}
+	public static String 	getConstraintTermText() { return CONSTRAINT_TERM_TEXT;	}
+	public static String 	getConstraintUserText() { return CONSTRAINT_USER_TEXT; }
+	public static String 	getConstraintLanguageText() { return CONSTRAINT_LANGUAGE_TEXT; }
+	public static String 	getConstraintSiteText() { return CONSTRAINT_SITE_TEXT; }
+	public static String 	getConstraintBoardText() { return CONSTRAINT_BOARD_TEXT; }
+	public static String 	getConstraintBlogText() { return CONSTRAINT_BLOG_TEXT;}
+	public static String 	getConstraintLocationText() {return CONSTRAINT_LOCATION_TEXT;}
+	public static String 	getConfigFileTypeIdentifier() {return configFileTypeIdentifier;}
 	
-	public static void setConfigFileTypeIdentifier(String configFileTypeIdentifier) {RuntimeConfiguration.configFileTypeIdentifier = configFileTypeIdentifier;}
-	
+	public static void 		setConfigFileTypeIdentifier(String configFileTypeIdentifier) {RuntimeConfiguration.configFileTypeIdentifier = configFileTypeIdentifier;}
 	
 	// for runtime state 
 	public static boolean 	getWarnOnSimpleConfig() {return RuntimeConfiguration.WARN_ON_SIMPLE_CONFIG;}
@@ -438,63 +438,26 @@ public final class RuntimeConfiguration implements Job {
 	public static void 		setCREATE_USER_JSON_ON_SUCCESS(boolean cREATE_USER_JSON_ON_SUCCESS) {CREATE_USER_JSON_ON_SUCCESS = cREATE_USER_JSON_ON_SUCCESS;}
 	public static boolean 	isSTOP_SNC_ON_PERSISTENCE_FAILURE() {return STOP_SNC_ON_PERSISTENCE_FAILURE;}
 	public static void 		setSTOP_SNC_ON_PERSISTENCE_FAILURE(boolean sTOP_SNC_ON_PERSISTENCE_FAILURE) {STOP_SNC_ON_PERSISTENCE_FAILURE = sTOP_SNC_ON_PERSISTENCE_FAILURE;}
-
 	
 	// XML layout
-	public static String getSocialNetworkConfiguration() {
-		return socialNetworkConfiguration;
-	}
-	public static void setSocialNetworkConfiguration(
-			String socialNetworkConfiguration) {
-		RuntimeConfiguration.socialNetworkConfiguration = socialNetworkConfiguration;
-	}
-
-	public static String getSocialNetworkIdentifier() {
-		return socialNetworkIdentifier;
-	}
-	public static void setSocialNetworkIdentifier(
-			String socialNetworkIdentifier) {
-		RuntimeConfiguration.socialNetworkIdentifier = socialNetworkIdentifier;
-	}
-
-	public static String getSocialNetworkName() {
-		return socialNetworkName;
-	}
-	public static void setSocialNetworkName(String socialNetworkName) {
-		RuntimeConfiguration.socialNetworkName = socialNetworkName;
-	}
-	
+	public static String 	getSocialNetworkConfiguration() {return socialNetworkConfiguration;}
+	public static void 		setSocialNetworkConfiguration(String socialNetworkConfiguration) {RuntimeConfiguration.socialNetworkConfiguration = socialNetworkConfiguration;}
+	public static String 	getSocialNetworkIdentifier() {return socialNetworkIdentifier;}
+	public static void 		setSocialNetworkIdentifier(String socialNetworkIdentifier) {RuntimeConfiguration.socialNetworkIdentifier = socialNetworkIdentifier;}
+	public static String 	getSocialNetworkName() {return socialNetworkName;}
+	public static void 		setSocialNetworkName(String socialNetworkName) {RuntimeConfiguration.socialNetworkName = socialNetworkName;}
 	
 	// JSON Backup storage path
-	public static String getJSON_BACKUP_STORAGE_PATH() {
-		return JSON_BACKUP_STORAGE_PATH;
-	}
-	public static void setJSON_BACKUP_STORAGE_PATH(
-			String jSON_BACKUP_STORAGE_PATH) {
-		JSON_BACKUP_STORAGE_PATH = jSON_BACKUP_STORAGE_PATH;
-	}
-	public static String getPROCESSED_JSON_BACKUP_STORAGE_PATH() {
-		return PROCESSED_JSON_BACKUP_STORAGE_PATH;
-	}
-	public static void setPROCESSED_JSON_BACKUP_STORAGE_PATH(
-			String pROCESSED_JSON_BACKUP_STORAGE_PATH) {
-		PROCESSED_JSON_BACKUP_STORAGE_PATH = pROCESSED_JSON_BACKUP_STORAGE_PATH;
-	}
-
-	public static String getMOVE_OR_DELETE_PROCESSED_JSON_FILES() {
-		return MOVE_OR_DELETE_PROCESSED_JSON_FILES;
-	}
-
-	public static void setMOVE_OR_DELETE_PROCESSED_JSON_FILES(
-			String mOVE_OR_DELETE_PROCESSED_JSON_FILES) {
-		MOVE_OR_DELETE_PROCESSED_JSON_FILES = mOVE_OR_DELETE_PROCESSED_JSON_FILES;
-	}
-
-	public static String getINVALID_JSON_BACKUP_STORAGE_PATH() {return INVALID_JSON_BACKUP_STORAGE_PATH;}
-	public static void setINVALID_JSON_BACKUP_STORAGE_PATH(	String iNVALID_JSON_BACKUP_STORAGE_PATH) {INVALID_JSON_BACKUP_STORAGE_PATH = iNVALID_JSON_BACKUP_STORAGE_PATH;}
-	public static String getSTORAGE_PATH() {return STORAGE_PATH;}
-	public static void setSTORAGE_PATH(String sTORAGE_PATH) {STORAGE_PATH = sTORAGE_PATH;}
-	
+	public static String 	getJSON_BACKUP_STORAGE_PATH() {return JSON_BACKUP_STORAGE_PATH;}
+	public static void 		setJSON_BACKUP_STORAGE_PATH(String jSON_BACKUP_STORAGE_PATH) {JSON_BACKUP_STORAGE_PATH = jSON_BACKUP_STORAGE_PATH;}
+	public static String 	getPROCESSED_JSON_BACKUP_STORAGE_PATH() {return PROCESSED_JSON_BACKUP_STORAGE_PATH; }
+	public static void 		setPROCESSED_JSON_BACKUP_STORAGE_PATH( String pROCESSED_JSON_BACKUP_STORAGE_PATH) { PROCESSED_JSON_BACKUP_STORAGE_PATH = pROCESSED_JSON_BACKUP_STORAGE_PATH; }
+	public static String 	getMOVE_OR_DELETE_PROCESSED_JSON_FILES() { return MOVE_OR_DELETE_PROCESSED_JSON_FILES; }
+	public static void 		setMOVE_OR_DELETE_PROCESSED_JSON_FILES(String mOVE_OR_DELETE_PROCESSED_JSON_FILES) {MOVE_OR_DELETE_PROCESSED_JSON_FILES = mOVE_OR_DELETE_PROCESSED_JSON_FILES;}
+	public static String 	getINVALID_JSON_BACKUP_STORAGE_PATH() {return INVALID_JSON_BACKUP_STORAGE_PATH;}
+	public static void 		setINVALID_JSON_BACKUP_STORAGE_PATH(	String iNVALID_JSON_BACKUP_STORAGE_PATH) {INVALID_JSON_BACKUP_STORAGE_PATH = iNVALID_JSON_BACKUP_STORAGE_PATH;}
+	public static String 	getSTORAGE_PATH() {return STORAGE_PATH;}
+	public static void 		setSTORAGE_PATH(String sTORAGE_PATH) {STORAGE_PATH = sTORAGE_PATH;}
 	
 	// DataDefinitions
 	public static boolean 	isTEASER_WITH_MARKUP() { return TEASER_WITH_MARKUP;}
@@ -523,10 +486,10 @@ public final class RuntimeConfiguration implements Job {
 	public static void 		setCRAWLER_MAX_DOWNLOAD_SIZE(int mAXSIZE) {CRAWLER_MAX_DOWNLOAD_SIZE = mAXSIZE;}
 	
 	
-	public static boolean isWARN_ON_REJECTED_ACTIONS() {return WARN_ON_REJECTED_ACTIONS;}
-	public static void setWARN_ON_REJECTED_ACTIONS(boolean wARN_ON_REJECTED_ACTIONS) {WARN_ON_REJECTED_ACTIONS = wARN_ON_REJECTED_ACTIONS;}
-	public static boolean isSTAY_ON_DOMAIN() {return STAY_ON_DOMAIN;}
-	public static void setSTAY_ON_DOMAIN(boolean sTAY_ON_DOMAIN) { STAY_ON_DOMAIN = sTAY_ON_DOMAIN;}
-	public static String getCrawlerRunIdentifier() { return crawlerRunIdentifier; }
-	public static void setCrawlerRunIdentifier(String crawlerRunIdentifier) { RuntimeConfiguration.crawlerRunIdentifier = crawlerRunIdentifier;	}
+	public static boolean 	isWARN_ON_REJECTED_ACTIONS() {return WARN_ON_REJECTED_ACTIONS;}
+	public static void 		setWARN_ON_REJECTED_ACTIONS(boolean wARN_ON_REJECTED_ACTIONS) {WARN_ON_REJECTED_ACTIONS = wARN_ON_REJECTED_ACTIONS;}
+	public static boolean 	isSTAY_ON_DOMAIN() {return STAY_ON_DOMAIN;}
+	public static void 		setSTAY_ON_DOMAIN(boolean sTAY_ON_DOMAIN) { STAY_ON_DOMAIN = sTAY_ON_DOMAIN;}
+	public static String 	getCrawlerRunIdentifier() { return crawlerRunIdentifier; }
+	public static void 		setCrawlerRunIdentifier(String crawlerRunIdentifier) { RuntimeConfiguration.crawlerRunIdentifier = crawlerRunIdentifier;	}
 }

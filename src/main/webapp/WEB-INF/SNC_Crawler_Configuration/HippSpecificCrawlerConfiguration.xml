@@ -80,6 +80,7 @@
 	<configuration scope="CrawlerRun">
 		<crawler name="LITHIUM">false</crawler>
 		<crawler name="FACEBOOK">false</crawler>
+		<crawler name="WEBCRAWLER">false</crawler>
 	</configuration>
 	
 	<!-- 
