@@ -1,5 +1,5 @@
 package de.comlineag.snc.helper;
-
+/* TODO make this Boilerpipe app work
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -21,3 +21,4 @@ public class ContentExtractionResource {
         return boilerpipeContentExtractionService.htmlContent(url);
     }
 }
+*/

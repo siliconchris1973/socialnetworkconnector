@@ -1,5 +1,5 @@
 package de.comlineag.snc.helper;
-
+/* TODO make this Boilerpipe app work
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
@@ -43,3 +43,4 @@ public class BoilerpipeContentExtractionService {
  
     }
 }
+*/

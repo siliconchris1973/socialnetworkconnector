@@ -1,5 +1,5 @@
 package de.comlineag.snc.appstate;
-
+/* TODO make this Boilerpipe app work
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
  
@@ -8,3 +8,4 @@ public class JaxrsInitializer extends Application{
  
  
 }
+*/
