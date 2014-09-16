@@ -1,6 +1,7 @@
 package de.comlineag.snc.appstate;
 
 import java.util.ArrayList;
+
 import org.json.simple.JSONObject;
 
 /**
@@ -55,5 +56,8 @@ public class CrawlerConfiguration<T> extends GenericConfigurationManager {
 	}
 	public JSONObject getCrawlerConfigurationScope(){
 		return configurationManager.getCrawlerConfigurationScope();
+	}
+	public Boolean getRunState(String socialNetwork) {
+		return configurationManager.getRunState(socialNetwork);
 	}
 }

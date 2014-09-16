@@ -9,7 +9,7 @@ import org.json.simple.JSONObject;
  * 
  * @author 		Christian Guenther
  * @category	interface
- * @version		0.5a			- 17.07.2014
+ * @version		0.6				- 16.09.2014
  * @status		productive
  * 
  * @description	The interface IConfigurationManager must be implemented by all configuration
@@ -26,23 +26,27 @@ import org.json.simple.JSONObject;
  * 								Long or whatever we need
  * 				0.5				Added possibility to pass a customer name for customer specific configurations
  * 				0.5a			changed method signature to use JSON object for network, customer and domain instead of String
+ * 				0.6				added method skeleton to retrieve the configuration, whether a crawler shall actually run or not
+ * 								this parameter CAN be set within the actual crawler confoiguration, thus making it possible
+ * 								to deactivate a crawler even if it is activated in applicationContext.xml
  *
  */
 public interface IConfigurationManager<T> {
 	
 	/**
-	 * tell the crawler if it shall actually do something or not
-	 * returns true in case the re is no entry CrawlerRun for the 
-	 * querying crawler or false in case there is an entry with value false
+	 * @dscription	tell the crawler if it shall actually do something or not
+	 * 				returns true in case there is no entry CrawlerRun for the 
+	 * 				querying crawler or false in case there is an entry with 
+	 * 				value false. 
 	 */
 	public abstract Boolean getRunState(String socialNetwork);
 	/**
-	 * @description returns the active domain
+	 * @description set and get the active domain
 	 */
 	public abstract String getDomain();
 	public abstract void setDomain(String domain);
 	/**
-	 * @description returns the active domain
+	 * @description set and get the active customer
 	 */
 	public abstract String getCustomer();
 	public abstract void setCustomer(String customer);

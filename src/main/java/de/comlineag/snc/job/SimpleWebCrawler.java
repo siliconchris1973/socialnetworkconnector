@@ -17,11 +17,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.w3c.dom.Document;
 
-import com.porva.html.keycontent.Kce;
-import com.porva.html.keycontent.KceSettings;
-import com.porva.html.keycontent.LinkFoundListener;
-import com.porva.html.keycontent.TitleFoundListener;
-
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SNCStatusCodes;
@@ -30,6 +25,14 @@ import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.DataCryptoHandler;
 import de.comlineag.snc.helper.DataHelper;
+
+
+/*
+import com.porva.html.keycontent.Kce;
+import com.porva.html.keycontent.KceSettings;
+import com.porva.html.keycontent.LinkFoundListener;
+import com.porva.html.keycontent.TitleFoundListener;
+*/
 
 /**
  * 
@@ -94,9 +97,9 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 
 		@SuppressWarnings("rawtypes")
-		CrawlerConfiguration<?> twitterConfig = new CrawlerConfiguration();
+		CrawlerConfiguration<?> webcrawlerConfig = new CrawlerConfiguration();
 		//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
-		JSONObject configurationScope = twitterConfig.getCrawlerConfigurationScope();
+		JSONObject configurationScope = webcrawlerConfig.getCrawlerConfigurationScope();
 		configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
 		
 		// set the customer we start the crawler for and log the startup message
@@ -424,7 +427,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	*/
 	public String getCleanPageContent(String file){
 		logger.debug("cleaning page "+file+" from all clutter...");
-		
+		/*
 		
 		// settings for the KCE Key HtmlContent Extractor from 
 		// http://sourceforge.net/projects/senews/files/KeyContentExtractor/KCE-1.0/
@@ -438,7 +441,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		// construct a new extractor
 		Kce extractor = new Kce(settings);
 		logger.debug("3");
-		
+		*/
 		/*  TODO find out why KCE brings the webcrawler to a hold, when this is activated
 		// register additional listeners
 		LinkFoundListener linkFoundListener = new LinkFoundListener();
@@ -447,6 +450,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		extractor.registerNodeFoundListener(linkFoundListener);
 		extractor.registerNodeFoundListener(titleNodeFoundListener);
 		*/
+		/*
 		try {
 			// perform extraction of key content from a html file "file.html" encoded as ISO-8859-1 
 			//Document document = extractor.extractKeyContent(new FileInputStream(new File("file.html")), "ISO-8859-1", null);
@@ -463,6 +467,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		} catch (FileNotFoundException e) {
 			logger.error("WARN :: could not get the file " + file.toString() + " - " + SNCStatusCodes.WARN.getErrorCode());
 		}
+		*/
 		return null;
 	}
 	

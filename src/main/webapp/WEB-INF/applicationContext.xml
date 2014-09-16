@@ -64,11 +64,11 @@
 					crawlers. The total number of threads must include the number of actual crawlers in
 					this section plus the FsCrawler below and the GeneralConfgurationTrigger - resulting 
 					in number of crawlers plus 2 as the threadcount -->
-				<!-- <ref bean="TwitterCrawlerTrigger" /> -->
+				<ref bean="TwitterCrawlerTrigger" />
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
-				<ref bean="SimpleWebCrawlerTrigger"/>
+				<!-- <ref bean="SimpleWebCrawlerTrigger"/> -->
 				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
 				
 				
@@ -360,9 +360,9 @@
 	     If you activate this storage manager, you should DEFINATELY turn off the FsCrawler 
 	     in the Job control section, otherwise your system will end up storing and restoring
 	     the same objects as json files with no end in sight -->
-	<!-- -->
+	<!-- 
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.JsonFilePersistence" /> 
-	
+	-->
 	
 	<!-- H A N A    P E R S I S T E N C E    (WORKS) 
 		 The SAP HANA InMemory DB persistence can be used via JDBC or OData. As such,
@@ -378,7 +378,7 @@
 		 is activated, which stores all failed objects as json file on disk. The FsCrawler 
 		 is used to scan the storage directory for failed objects and then tries to 
 		 insert them in the HANA DB. -->
-	<!--
+	<!-- -->
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.HANAPersistence">
 		<property name="host" value="192.168.131.30" />
 		<property name="port" value="8000" />
@@ -391,7 +391,7 @@
 		<property name="user" value="U0JNX0VYVA==" />
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
 	</bean>
-	 -->
+	 
 	 
 	<!-- C O U C H D B    P E R S I S T E N C E    (in progress) -->
 	<!-- 
