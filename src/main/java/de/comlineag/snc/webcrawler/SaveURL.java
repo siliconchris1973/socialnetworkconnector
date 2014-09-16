@@ -153,7 +153,7 @@ public class SaveURL
 		try {
 			if (args.length == 1) {
                 URL url = new URL(args[0]);
-                System.out.println("Content-Type: " +
+                System.out.println("HtmlContent-Type: " +
                     url.openConnection().getContentType());
 // 				Vector links = extractLinks(url);
 // 				for (int n = 0; n < links.size(); n++) {

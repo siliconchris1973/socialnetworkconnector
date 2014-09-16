@@ -41,7 +41,7 @@ import de.comlineag.snc.helper.DataHelper;
  * @description A minimal web crawler. takes an URL from job control and
  * 				fetches that page plus all links up to max depth as defined in 
  * 				RuntimeConfiguration section web crawler 
- * 				The SimpleWebCrawler uses KCE (Key Content Extractor to clean downloaded pages from
+ * 				The SimpleWebCrawler uses KCE (Key HtmlContent Extractor to clean downloaded pages from
  * 				all the unnecessary stuff on the sites we do not want, like ads and the like
  * 				see http://sourceforge.net/projects/senews/files/KeyContentExtractor/KCE-1.0/ 
  * 				for more information
@@ -426,7 +426,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		logger.debug("cleaning page "+file+" from all clutter...");
 		
 		
-		// settings for the KCE Key Content Extractor from 
+		// settings for the KCE Key HtmlContent Extractor from 
 		// http://sourceforge.net/projects/senews/files/KeyContentExtractor/KCE-1.0/
 		// allocate a new extractor with default settings
 		// TODO find out why KCE brings the webcrawler to a hold, when this code is reached

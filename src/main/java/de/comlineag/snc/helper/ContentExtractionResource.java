@@ -6,10 +6,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
- 
-import com.newsapp.service.BoilerpipeContentExtractionService;
-import com.newsapp.service.Content;
- 
+
+import de.comlineag.snc.data.HtmlContent;
+  
 @Path("/content")
 public class ContentExtractionResource {
  
@@ -18,7 +17,7 @@ public class ContentExtractionResource {
  
     @GET
     @Produces(value = MediaType.APPLICATION_JSON)
-    public Content extractContent(@QueryParam("url") String url) {
-        return boilerpipeContentExtractionService.content(url);
+    public HtmlContent extractContent(@QueryParam("url") String url) {
+        return boilerpipeContentExtractionService.htmlContent(url);
     }
 }
