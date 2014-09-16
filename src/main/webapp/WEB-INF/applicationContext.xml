@@ -320,7 +320,7 @@
 		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR EITHER CUSTOMER OR DOMAIN) -->
  
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.ComplexXmlConfigurationPersistence"> 
-		<property name="configDbHandler" value="webapp/WEB-INF/SNC_Crawler_Configuration/CortalConsorsSpecificCrawlerConfiguration.xml" />
+		<property name="configDbHandler" value="webapp/WEB-INF/SNC_Crawler_Configuration/HippSpecificCrawlerConfiguration.xml" />
 	</bean> 
 	
 	<!-- this is the bean to get the crawler configuration from a simple xml file 

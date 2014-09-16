@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
-	This is the xml configuration file for the social network connector.
+	This is the xml configuration file for the social network connector. 
+	
+	- HIPP - HIPP - HIPP - HIPP - HIPP - HIPP - HIPP -
 	
 	The XML can be used to setup either customer or domain specific configurations or  
 	a combination of the two. For any combination (domain and customer) you can always 
@@ -68,19 +70,19 @@
 	<!-- 
 		START OF DOMAIN AND CUSTOMER CONFIG
 		you need to setup the domain and customer structure here,
-		before using it later in the configuration file
+		before using it later in the configuration file 
 	-->
 	<configuration scope="domainStructure">
 		<domainStructure>
-			<domain name="YourDomain">
-				<name>The name</name>
+			<domain name="Food">
+				<name>Food</name>
 				<type>String</type>
-				<value>TheNameWithoutBlanks</value>
+				<value>Food</value>
 				
 				<!-- set to false in case no domain/customer specific setup is needed -->
 				<isActive>
 					<type>boolean</type>
-					<value>false</value>
+					<value>true</value>
 				</isActive>
 				<priority>
 					<type>int</type>
@@ -88,13 +90,13 @@
 				</priority>
 				
 				<!-- customer entries within domain -->
-				<customer name="YourCustomer">
-					<name>The name</name>
+				<customer name="Hipp">
+					<name>Hipp</name>
 					<type>String</type>
-					<value>TheNameWithoutBlanks</value>
+					<value>Hipp</value>
 					<isActive>
 						<type>boolean</type>
-						<value>false</value>
+						<value>true</value>
 					</isActive>
 					<priority>
 						<type>int</type>
@@ -106,117 +108,109 @@
 	</configuration>
 	
 	
-	<!-- this section can be used to setup crawler configurations for domains -->
-	<configuration scope="domain">
-		<!-- If you want to setup crawler constraints that apply to all domains, use this section -->
-		<domain name="ALL">
+	<!-- this section can be used to setup crawler configurations for customer -->
+	<configuration scope="customer">
+		<!-- Hipp -->
+		<customer name="Hipp">
+			<!-- CUSTOMER SETUP -->
 			<name>
 				<type>String</type>
-				<value>ALL</value>
+				<value>Hipp</value>
 			</name>
 			<category>
 				<type>String</type>
-				<value>domain</value>
+				<value>customer</value>
 			</category>
-			<!-- CONSTRAINTS CONFIGURATION -->
 			
-			<!-- you can also put in constraints per crawler - identified by their network id -->
-			<constraints scope="ALL">
-				<!-- track only messages (aka posts) with specific keywords -->
-				<!-- 
-				<constraint>
-					<term>
-						<type>String</type>
-						<value>YourKeyWord</value>
-					</term>
-				</constraint>
-				-->
-				
-				<!-- track only messages (aka posts) in specific languages -->
-				<!-- 
-				<constraint>
-					<language>
-						<type>String</type>
-						<value>de</value>
-					</language>
-				</constraint>
-				-->
-				
-				
-				<!-- setup a constraint against specific sites -->
-				<!-- 
-				<constraint>
-					<site>
-						<type>url</type>
-						<value>http://example.com/track/only/me/and/no/one/else</value>
-					</site>
-				</constraint>
-				-->
-				
-				
-				<!-- setup a constraint against specific geografical regions -->
-				<!-- NOT YET IMPLEMENTED 
-				<constraint>
-					<location>
-						<type>String</type>
-						<value>DE</value>
-					</location>
-				</constraint>
-				-->
-			</constraints>
-		</domain>
-		<!-- end of ALL domain -->
-		
-		<!-- the banking domain  -->
-		<domain name="YourDomain">
-			<name>
-				<type>String</type>
-				<value>Your Domain</value>
-			</name>
-			<category>
-				<type>String</type>
-				<value>domain</value>
-			</category>
-			<!-- CONSTRAINTS CONFIGURATION -->
-			<!-- you can also put in constraints per crawler - identified by their network id -->
 			
-			<!-- these constraints apply to all crawler -->
+			<!-- CONSTRAINTS CONFIGURATION -->
+			<!-- constraints that apply to all network crawler -->
 			<constraints scope="ALL">
 				<!-- track only messages (aka posts) with specific keywords -->
 				<constraint>
 					<term>
 						<type>String</type>
-						<value>Some Domain specific keywords</value>
+						<value>Babynahrung</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Premilch</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Flaschennahrung</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Abstillen</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Folgemilch</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Combiotik</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Zufüttern</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Zwimilch</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Beikost</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Vitamine</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Gläschen</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Bio</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Brei</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Stillen</value>
 					</term>
 				</constraint>
 			</constraints>
-			<!-- end of constraints for all crawler -->
+			<!-- end of section for all crawler -->
+			
+			
 			
 			<!-- START OF TWITTER CONFIG -->
 			<!-- specific configuration for TWITTER crawler -->
 			<constraints scope="TW">
 				<CrawlerRun>true</CrawlerRun>
 				<!-- 
-					track only messages (aka posts) with specific keywords
-					these constraints are added to the generic ones above 
+					track only messages (aka posts) in specific languages 
+					these constraints are added to the generic ones above
 				-->
 				<constraint>
 					<term>
 						<type>String</type>
-						<value>EG Your Domain name again</value>
+						<value>Hipp</value>
 					</term>
 				</constraint>
-				 
 				
-				<!-- 
-					track only messages (aka posts) in specific languages 
-					these constraints are added to the generic ones above
-				-->
 				<constraint>
 					<language>
 						<type>String</type>
 						<value>de</value>
 					</language>
+					<!-- 
 					<language>
 						<type>String</type>
 						<value>en</value>
@@ -233,24 +227,16 @@
 						<type>String</type>
 						<value>fr</value>
 					</language>
+					-->
 				</constraint>
 			</constraints>
 			<!-- END OF TWITTER CONSTRAINTS -->
 			
-			<!-- Lithium specific configuration -->
-			<constraints scope="LT">
-				<CrawlerRun>true</CrawlerRun>
-				<!-- 
-					search for messages (aka posts) with specific keywords
-					these constraints are added to the generic ones above 
-				-->
-				<constraint>
-					<term>
-						<type>String</type>
-						<value>Some other term</value>
-					</term>
-				</constraint>
-				
+			
+			<!-- START OF LITHIUM CONSTRAINTS -->
+			<!-- specific configuration for lithium crawler -->
+			<constraints scope="CC">
+				<CrawlerRun>false</CrawlerRun>
 				<!-- 
 					Setup a constraint against specific sites or boards as they are called.
 					Be aware that you should NOT add server-part and rest-api part to these uris
@@ -260,20 +246,56 @@
 					
 					If no site is given, the crawler will search through the whole community. 
 				-->
+				<!-- 
 				<constraint>
 					<site>
 						<type>String</type>
-						<value>/boards/id/some_specific_board</value>
+						<value>/blog/id/BLOG</value>
+					</site>
+				</constraint>
+				-->
+				
+				<!-- 
+					track only messages (aka posts) with specific keywords
+					these constraints are added to the generic ones above 
+				-->
+				<!-- 
+				<constraint>
+					<term>
+						<type>String</type>
+						<value>Wissenslexikon</value>
+					</term>
+				</constraint>
+				 -->
+			</constraints>
+			<!-- END OF LITHIUM CONSTRAINTS -->
+			
+			<!-- START OF FACEBOOK CONFIG -->
+			<!-- specific configuration for FACEBOOK crawler -->
+			<constraints scope="FB">
+				<CrawlerRun>true</CrawlerRun>
+				<!-- 
+					search specific sites for posts - needed because we can't just grab 
+					every post on the facebook network  
+				-->
+				<constraint>
+					<site>
+						<type>String</type>
+						<value>hipp.com</value>
 					</site>
 				</constraint>
 			</constraints>
-		</domain>
-		<!-- end of banking domain -->
+			<!-- END OF FACEBOOK CRAWLER CONFIG -->
+		</customer>
+		<!-- HIPP -->
 	</configuration>
-	<!-- end of domain configuration section -->
 	
-	<!-- DO NOT, I REPEAT DO NOT EDIT OR DELETE THIS ENTRY -->
-	<!-- I MEAN IT, UNDER NO CIRCUMSTANCES CHANGE ANYTHING BELOW THIS LINE -->
+	
+	<!-- = = = DO NOT, I REPEAT DO NOT EDIT OR DELETE THIS ENTRY = = =
+	 
+		 I MEAN IT, UNDER NO CIRCUMSTANCES CHANGE ANYTHING BELOW THIS LINE
+		 IF YOU CHANGE THIS, THE SNC WILL BREAK, THE HANA WILL BREAK AND
+		 FINALLY THE INTERNET WILL STOP WORKING. AFTER THAT MADNESS -->
 	<configuration scope="configFileType">
 		<type>ComplexXmlConfigurationPersistence</type>
 	</configuration>

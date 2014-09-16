@@ -30,7 +30,12 @@ import org.json.simple.JSONObject;
  */
 public interface IConfigurationManager<T> {
 	
-	
+	/**
+	 * tell the crawler if it shall actually do something or not
+	 * returns true in case the re is no entry CrawlerRun for the 
+	 * querying crawler or false in case there is an entry with value false
+	 */
+	public abstract Boolean getRunState(String socialNetwork);
 	/**
 	 * @description returns the active domain
 	 */

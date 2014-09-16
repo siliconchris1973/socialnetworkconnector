@@ -23,6 +23,12 @@
 	This xml file belongs to the configuration manager SimpleXMConfigurationPersistence
 	from applicationContext.xml. To use it, adapt it to your needs and activate 
 	the corresponding section in applicationContext.xml.
+	
+	
+	Also worth noting is, that you can activate/deactivate certain crawler through this
+	configuration file, by setting the option CrawlerRun to false. In this case, the crawler 
+	in question (be it Lithium, Twitter, Web or the like) will still be started by the job
+	control, given that it is activated in applicationContext.xml, but will do nothing.
 -->
 <configurations>
 	<!-- START OF GENERIC CONFIG -->
@@ -77,6 +83,7 @@
 	<!-- START OF TWITTER CONFIG -->
 	<!-- specific configuration for TWITTER crawler -->
 	<configuration scope="TW">
+		<CrawlerRun>true</CrawlerRun>
 		<!-- 
 			track only messages (aka posts) with specific keywords
 			these constraints are added to the generic ones above 
@@ -155,6 +162,7 @@
 	<!-- START OF LITHIUM CONFIG -->
 	<!-- specific configuration for lithium crawler -->
 	<configuration scope="LT">
+		<CrawlerRun>true</CrawlerRun>
 		<!-- 
 			Setup a constraint against specific sites or boards as they are called.
 			Be aware that you should NOT add server-part and rest-api part to these uris

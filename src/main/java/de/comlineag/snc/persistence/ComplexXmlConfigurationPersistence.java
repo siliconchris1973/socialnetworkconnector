@@ -62,6 +62,40 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
+	@Override
+	public Boolean getRunState(String socialNetwork) {
+		try {
+			File file = new File(getConfigDbHandler());
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(file);
+			
+			XPathFactory xPathfactory = XPathFactory.newInstance();
+			XPath xpath = xPathfactory.newXPath();
+			
+			String expression = "/"+RuntimeConfiguration.getRootidentifier()+"/"
+								+RuntimeConfiguration.getSingleconfigurationidentifier()
+								+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+SN+"']/"
+								+"CrawlerRun";
+			Node node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			
+			if (node == null) {
+				return false;
+			} else {
+				logger.trace("the node containing infos about CrawlerRun contains " + node.getTextContent());
+				
+				// only and only if there actually is a false, we return false. 
+				if ("false".equals(node.getTextContent()))
+					return false;
+			}
+		} catch (Exception e) {
+			logger.warn("WARNING :: could not parse configuration file or did not find CrawlerRun information - returning true.");
+			logger.debug("just for your information, here is the exception message" + e.getLocalizedMessage());
+		}
+		// in any other circumstance, we assume the crawler shall run and return true
+		return true;
+	}
+	
 	// general invocation for every constraint
 	@Override
 	public ArrayList<T> getConstraint(String category, JSONObject configurationScope) {

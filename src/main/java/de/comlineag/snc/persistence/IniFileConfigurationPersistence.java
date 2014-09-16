@@ -50,6 +50,12 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
+
+	@Override
+	public Boolean getRunState(String socialNetwork) {
+		return true;
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public ArrayList<T> getConstraint(String category, JSONObject configurationScope) {
