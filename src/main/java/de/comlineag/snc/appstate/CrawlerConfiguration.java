@@ -60,4 +60,5 @@ public class CrawlerConfiguration<T> extends GenericConfigurationManager {
 	public Boolean getRunState(String socialNetwork) {
 		return configurationManager.getRunState(socialNetwork);
 	}
+	
 }
