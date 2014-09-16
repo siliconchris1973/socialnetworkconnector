@@ -10,10 +10,18 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-
 /**
- * A simple authenticator that uses HttpClient to execute an HTTP request against
- * a target site that requires user authentication.
+ * 
+ * @author		Christian Guenther
+ * @category 	Helper Class
+ * @version 	0.1
+ * @status		Deprecated - better use inline authentication 
+ * 
+ * @description A simple authenticator that uses HttpClient to execute an HTTP 
+ * 				request against a target site that requires user authentication.
+ * 
+ * @changelog	0.1 (Chris)		class created 
+ * 
  */
 @Deprecated
 public class HttpClientAuthentication {

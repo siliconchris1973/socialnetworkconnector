@@ -22,7 +22,7 @@
 	
 	<groupId>de.comlineag.snc</groupId>
 	<artifactId>SocialNetworkConnector</artifactId>
-	<version>0.2.7-SNAPSHOT</version>
+	<version>0.3.0</version>
 	
 	<name>Social Network Connector</name>
 	<url>http://service.comlineag.de/snc</url>
@@ -333,6 +333,23 @@
 			<version>3.3.2</version>
 		</dependency>
 		
+		<!-- Boilerpipe is used to get rid of all clutter from a web page - used by web crawler 
+		<dependency>
+			<groupId>org.ow2.weblab.webservices</groupId>
+			<artifactId>boilerpipe-html-purification-service</artifactId>
+			<version>1.4-RC1</version>
+		</dependency>
+		-->
+		<dependency>
+		    <groupId>de.l3s.boilerpipe</groupId>
+		    <artifactId>boilerpipe</artifactId>
+		    <version>1.2.0</version>
+		</dependency>
+		<dependency>
+		    <groupId>net.sourceforge.nekohtml</groupId>
+		    <artifactId>nekohtml</artifactId>
+		    <version>1.9.13</version>
+		</dependency>
 		
 		<!-- RUNTIME ENVIRONMENT -->
 		<!-- used for the job control -->
@@ -481,6 +498,18 @@
 				<enabled>false</enabled>
 			</snapshots>
 			<url>file://${project.basedir}/repo</url>
+		</repository>
+		
+		<!-- this repository is needed for boilerpipe -->
+		<repository>
+		    <id>boilerpipe-m2-repo</id>
+		    <url>http://boilerpipe.googlecode.com/svn/repo/</url>
+		    <releases>
+		        <enabled>true</enabled>
+		    </releases>
+		    <snapshots>
+		        <enabled>false</enabled>
+		    </snapshots>
 		</repository>
 	</repositories>
 	
