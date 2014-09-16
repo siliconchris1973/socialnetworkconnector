@@ -16,7 +16,6 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
-
 import de.comlineag.snc.data.Image;
 import de.l3s.boilerpipe.BoilerpipeExtractor;
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
@@ -80,7 +79,7 @@ public final class ImageExtractor {
                 
                 return implementation.linksHighlight;
         }
-        
+         
         /**
          * Fetches the given {@link URL} using {@link HTMLFetcher} and processes the
          * retrieved HTML using the specified {@link BoilerpipeExtractor}.
@@ -105,8 +104,9 @@ public final class ImageExtractor {
 
                 return process(doc, is);
         }
-        
+         
 
+        
         private final class Implementation extends AbstractSAXParser implements
                         ContentHandler {
                 List<Image> linksHighlight = new ArrayList<Image>();

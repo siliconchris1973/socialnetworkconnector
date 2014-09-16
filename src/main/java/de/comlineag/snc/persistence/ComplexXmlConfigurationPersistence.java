@@ -64,6 +64,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	
 	@Override
 	public Boolean getRunState(String socialNetwork) {
+		/*
 		try {
 			File file = new File(getConfigDbHandler());
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -92,6 +93,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			logger.warn("WARNING :: could not parse configuration file or did not find CrawlerRun information - returning true.");
 			logger.debug("just for your information, here is the exception message" + e.getLocalizedMessage());
 		}
+		*/
 		// in any other circumstance, we assume the crawler shall run and return true
 		return true;
 	}
