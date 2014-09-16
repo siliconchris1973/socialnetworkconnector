@@ -40,6 +40,5 @@ public class BoilerpipeContentExtractionService {
         } catch (Exception e) {
             return null;
         }
- 
     }
 }
