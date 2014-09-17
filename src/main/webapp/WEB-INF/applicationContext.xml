@@ -83,6 +83,7 @@
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
+				<!-- <ref bean="MultiWebCrawlerTrigger"/> -->
 				<ref bean="SimpleWebCrawlerTrigger"/>
 				<ref bean="LithiumCrawlerTrigger" />
 				
@@ -95,7 +96,7 @@
 					You should only deactivate it in case you do not save the posts and users of failed
 					inserts in a backup directory (can be configured in SNC_Runtime_Configuration.xml), 
 					in which case there would be no sense scanning :-) -->
-				<ref bean="FsCrawlerTrigger" />
+				<!-- <ref bean="FsCrawlerTrigger" /> -->
 				
 				<!-- RUNTIME CONFIGURATION
 					this is the basic configuration for the social network connector if you deactivate it,
@@ -189,6 +190,12 @@
 	
 	
 	<!-- S I M P L E    W E B    C R A W L E R    (IN DEVELOPMENT) -->
+	<!-- this is the simplest way of crawling a webpage. It has significant disadvantages to the MultiWebCrawler
+		 and should only be used in the most simple environment. First of all, you have to setup the url to crawl
+		 within this file, rather than in the crawler configuration file. Second you can only pass one webpage/domain
+		 as a starting point. And finally, it is very cumbersome to use an individual SN_ID (social network) code
+		 for each page. Because of these three points, I recommend to opt for MultiWebCrawler instead of SimpleWebCrawler. 
+		 But nevertheless, it works and you can use it :-) -->
 	<bean name="SimpleWebCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.snc.job.SimpleWebCrawler" />
@@ -196,10 +203,12 @@
 		<property name="jobDataAsMap">
 			<map>
 				<!-- THIS MUST BE SET ACCORDING TO AN EXISTING CODE FOR A SOCIAL NETWORK ENTRY IN SNC_Runtime_Configuration.xml -->
-				<entry key="SN_ID_CODE" value="WO" />
+				<entry key="SN_ID_CODE" value="WC" />
 				
-				<!-- set the starting url and maximum number of links to follow -->
+				<!-- set the starting url and maximum number of links to follow
 				<entry key="server_url" value="https://www.wallstreet-online.de/community" />
+				 -->
+				<entry key="server_url" value="http://www.netmoms.de" />
 				
 				<!-- if you set this higher then the value of SEARCH_LIMIT in SNC_Runtim_Configuration then that value will be used 
 					 as the value in the runtime configuration acts as a safety margin to not exceed a certain scanning depth. -->
@@ -214,8 +223,8 @@
 				<entry key="stayOnDomain" value = "true" /> 
 				
 				<!-- if the website requires an authentication, set username and password here -->
-				<entry key="user" value="Y29taW5lMjAxNA==" />		<!-- comine2014 -->
-				<entry key="passwd" value="TUd1LTZ0Yy1BUjUtdTdS" /> <!-- MGu-6tc-AR5-u7R -->
+				<!-- <entry key="user" value="Y29taW5lMjAxNA==" /> -->		<!-- comine2014 -->
+				<!-- <entry key="passwd" value="TUd1LTZ0Yy1BUjUtdTdS" /> --> <!-- MGu-6tc-AR5-u7R -->
 			</map>
 		</property>
 	</bean>
@@ -226,6 +235,36 @@
 		<property name="repeatInterval" value="30000000" />
 	</bean>
 	
+	
+	<!-- M U L T I P L E    P A G E S    W E B    C R A W L E R    (SKELETON) -->
+	<bean name="MultiWebCrawlerDetail"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="de.comlineag.snc.job.MultiWebCrawler" />
+		<property name="durability" value="true" />
+		<property name="jobDataAsMap">
+			<map>
+				<!-- other than with the SimpleWebCrawler, the MultiWebCrawler can concurrently crawl multiple pages 
+					 therefore, all that he needs to know during startup is, where it's own configuration file is 
+					 in this file the different pages together with authentication options can be defined.
+					 I recommend to create a new configuration file with every new customer. 
+					 
+					 You can also put the web crawler specific configuration in the general configuration file specified
+					 in bean configurationManager (see below). In this case you MUST enter see_general_crawler_config
+					 in exactly this writing in the value for the configuration file here. If you do that, of course you 
+					 have to setup the pages and sites in the other configuration file. Examples are provided in the
+					 templates.
+					 -->
+				<entry key="configurationFile" value="webapp/WEB-INF/SNC_CrawlerConfiguration/HippWebCrawlerConfiguration.xml" />
+				<entry key="server_url" value="www.windeln.de" />
+			</map>
+		</property>
+	</bean>
+	<bean id="MultiWebCrawlerTrigger"
+		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="MultiWebCrawlerDetail" />
+		<property name="startDelay" value="2000" />
+		<property name="repeatInterval" value="30000000" />
+	</bean>
 	
 	<!-- F A C E B O O K    C R A W L E R    (TO BE IMPLEMENTED) -->
 	<bean name="FacebookCrawlerDetail"
@@ -327,7 +366,7 @@
 		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR EITHER CUSTOMER OR DOMAIN) -->
  
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.ComplexXmlConfigurationPersistence"> 
-		<property name="configDbHandler" value="webapp/WEB-INF/SNC_Crawler_Configuration/Bayer04SpecificCrawlerConfiguration.xml" />
+		<property name="configDbHandler" value="webapp/WEB-INF/SNC_Crawler_Configuration/HippSpecificCrawlerConfiguration.xml" />
 	</bean> 
 	
 	<!-- this is the bean to get the crawler configuration from a simple xml file 

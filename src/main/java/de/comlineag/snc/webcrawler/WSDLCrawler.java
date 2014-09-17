@@ -2,8 +2,8 @@ package de.comlineag.snc.webcrawler;
 
 import java.net.*;
 
-public class WSDLCrawler implements MessageReceiver {
-	public WSDLCrawler(Queue q, int maxLevel, int maxThreads)
+public class WSDLCrawler implements iMessageReceiver {
+	public WSDLCrawler(iQueue q, int maxLevel, int maxThreads)
 		throws InstantiationException, IllegalAccessException {
 		ThreadController tc = new ThreadController(WSDLCrawlerThread.class,
 												   maxThreads,

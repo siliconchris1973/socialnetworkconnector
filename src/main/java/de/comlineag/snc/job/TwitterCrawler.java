@@ -95,7 +95,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	private String smallLogMessage = "";
 
 	public TwitterCrawler() {
-		// Define message and event queue
+		// Define message and event iQueue
 		msgQueue = new LinkedBlockingQueue<String>(TwitterConstants.MESSAGE_BLOCKING_QUEUE_SIZE);
 		eventQueue = new LinkedBlockingQueue<Event>(TwitterConstants.EVENT_BLOCKING_QUEUE_SIZE);
 		

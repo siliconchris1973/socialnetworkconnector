@@ -24,6 +24,7 @@ import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.DataCryptoHandler;
+import de.comlineag.snc.helper.BoilerpipeContentExtractionService;
 import de.comlineag.snc.helper.DataHelper;
 
 
@@ -72,6 +73,9 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	private int port = 80;
 	private String user = null;
 	private String passwd = null;
+	
+	private String page = null;
+	private String rawArticle = null;
 	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
@@ -148,8 +152,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			urlToParse = (String) arg0.getJobDetail().getJobDataMap().get("server_url");
 			try {
 				URL tempurl = new URL(urlToParse);
-				this.host = tempurl.getHost();
-				this.port = tempurl.getPort();
+				host = tempurl.getHost();
+				port = tempurl.getPort();
 			} catch (MalformedURLException e2) {} 
 			
 			// check if the configuration setting to stay on the initial domain is set in the 
@@ -165,8 +169,12 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			
 			if ((arg0.getJobDetail().getJobDataMap().containsKey("user")) && (arg0.getJobDetail().getJobDataMap().containsKey("passwd"))) {
 				try {
-					this.user = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get("user"));
-					this.passwd = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get("passwd"));
+					user = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get("user"));
+					passwd = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get("passwd"));
+					if (user.length() > 1 && passwd.length() > 1) {
+						logger.debug("trying to authenticate against site " +  host);
+						HttpBasicAuthentication();
+					}
 				} catch (GenericCryptoException e1) {
 					logger.error("Could not decrypt username and password from applicationContext.xml");
 				}
@@ -176,19 +184,19 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			// all configuration settings sourced in - let's start
 			logger.info("New "+CRAWLER_NAME+" crawler instantiated for site "+urlToParse+" - restricted to track " + smallLogMessage);
 			
-			if (this.user.length() > 1) {
-				logger.debug("trying to authenticate against site " +  this.host);
-				HttpBasicAuthentication();
-			}
+			
 			// initialize the urls that we want to parse
-			initialize(urlToParse, maxDepth);
+			initUrls(urlToParse, maxDepth);
 			
 			// a temporary file where we store the contents of the website
 			String fileName = null;
+			//BoilerpipeContentExtractionService bpES = new BoilerpipeContentExtractionService();
 						
 			for (int i = 0; i < maxPages; i++) {
 				URL url = (URL) newURLs.elementAt(0);
 				newURLs.removeElementAt(0);
+				page = null;
+				rawArticle = null;
 				
 				
 				// this is just the temporary file - delete it when finished
@@ -197,36 +205,29 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				pageCount++;
 				logger.info("Url "+url+" is #" + pageCount + " to crawl");
 				if (robotSafe(url)) {
+					logger.trace("getting page "+url+" and retrieving raw content");
 					// only need this, if we want to write our own file, otherwise KCE will get the inputstream directly
-					String page = getpage(url);
+					page = getPage(url);
+					rawArticle = null;//bpES.returnArticleContent(page);
+					logger.trace("the page fetched is: " + page.substring(0, 100));
 					
 					// currently we just create a new file and store the page content in it
 					File f1 = new File("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
 					if (!f1.isFile() || f1.getTotalSpace()<1) {
 						FileWriter rawFile;
-						FileWriter strippedFile;
+						
 						try {
 							rawFile = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
 							rawFile.write(dataCryptoProvider.encryptValue(page));
 							rawFile.flush();
 							rawFile.close();
-							
-							// after the file has been written to disk, clean the content
-							String cleanedPage = getCleanPageContent("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
-							strippedFile = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+"stripped_"+fileName);
-							strippedFile.write(dataCryptoProvider.encryptValue(DataHelper.stripHTML(cleanedPage)));
-							strippedFile.flush();
-							strippedFile.close();
-							
-							
+													
 						} catch (IOException e) {
 							logger.error("ERROR :: could not write content of page "+url.toString()+" to disk");
 						} catch (GenericCryptoException e) {
 							logger.error("ERROR :: could not encrypt data prior writing the file for page " + url.toString());
 							e.printStackTrace();
 						}
-						
-						
 					}
 					if (page.length() != 0) getLinksFromPage(url,page);
 					
@@ -240,7 +241,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	
 	
 	// initializes data structures
-	public void initialize(String urlToParse, int maxDepth) {
+	public void initUrls(String urlToParse, int maxDepth) {
 		URL url = null;
 		knownURLs = new Hashtable<URL, Integer>();
 		newURLs = new Vector<URL>();
@@ -334,10 +335,10 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	}
 	
 	
-	// adds new URL to the queue. Accept only new URL's that end in
+	// adds new URL to the iQueue. Accept only new URL's that end in
 	// htm or html. oldURL is the context, newURLString is the link
 	// (either an absolute or a relative URL).
-	public void addnewurl(URL oldURL, String newUrlString) { 
+	public void addNewUrl(URL oldURL, String newUrlString) { 
 		Boolean proceed = false;
 		URL url; 
 		
@@ -374,6 +375,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 								newURLs.addElement(url);
 								logger.info("Found new URL " + url.toString());
 					} 
+				} else {
+					logger.trace("the url " + url.toString() + " is already in the list");
 				}
 			}
 		} catch (MalformedURLException e) { return; }
@@ -384,7 +387,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	// by <a href=" ...   It ends with a close angle bracket, preceded
 	// by a close quote, possibly preceded by a hatch mark (marking a
 	// fragment, an internal page marker)
-	public void getLinksFromPage(URL url, String page) { 
+	public void getLinksFromPage(URL url, String page) {
+		logger.debug("getLinksFromPage called for " + url.toString());
 		String lcPage = page.toLowerCase(); // Page in lower case
 		int index = 0; // position in page
 		int iEndAngle, ihref, iURL, iCloseQuote, iHatchMark, iEnd;
@@ -407,7 +411,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							iEnd = iHatchMark;
 						
 						String newUrlString = page.substring(iURL,iEnd);
-						addnewurl(url, newUrlString);
+						addNewUrl(url, newUrlString);
 					}
 				}
 			}
@@ -480,11 +484,11 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	
 	
 	// Download the content of the URL
-	public String getpage(URL url) { 
+	public String getPage(URL url) { 
+		logger.trace("getPage called for url " + url.toString());
 		try { 
 			// try opening the URL
 			URLConnection urlConnection = url.openConnection();
-			
 			urlConnection.setAllowUserInteraction(false);
 			InputStream urlStream = url.openStream();
 			
@@ -493,8 +497,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			byte b[] = new byte[1000];
 			int numRead = urlStream.read(b);
 			String content = new String(b, 0, numRead);
-			
-			while ((numRead != -1) && (content.length() < RuntimeConfiguration.getCRAWLER_MAX_DOWNLOAD_SIZE())) {
+			while ( (numRead != -1) && (content.length() < RuntimeConfiguration.getCRAWLER_MAX_DOWNLOAD_SIZE()) ) {
 				numRead = urlStream.read(b);
 				if (numRead != -1) {
 					String newContent = new String(b, 0, numRead);

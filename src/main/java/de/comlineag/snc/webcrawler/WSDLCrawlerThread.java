@@ -27,7 +27,7 @@ public class WSDLCrawlerThread extends ControllableThread {
 				String filename = pageURL.getPath();
                 // add a unique number as filename prefix
                 int serviceId = tc.getUniqueNumber();
-                filename = ((URLQueue) queue).getFilenamePrefix() + serviceId +
+                filename = ((URLQueue) iQueue).getFilenamePrefix() + serviceId +
                     "-" + filename.substring(filename.lastIndexOf('/') + 1);
                 // add suffix if not already there
                 if (!filename.toLowerCase().endsWith(".wsdl"))
@@ -40,7 +40,7 @@ public class WSDLCrawlerThread extends ControllableThread {
                 URL homepage = new URL(pageURL.getProtocol(),
                     pageURL.getHost(),
                     "");    // leave filename blank
-                filename = ((URLQueue) queue).getFilenamePrefix() + serviceId +
+                filename = ((URLQueue) iQueue).getFilenamePrefix() + serviceId +
                     "-" + homepage.getHost() + ".html";
                 SaveURL.writeURLtoFile(homepage, filename);
 			} else {
@@ -52,7 +52,7 @@ public class WSDLCrawlerThread extends ControllableThread {
 						// urls might be relative to current page
 						URL link = new URL(pageURL,
 										   (String) links.elementAt(n));
-						queue.push(link, level + 1);
+						iQueue.push(link, level + 1);
 					} catch (MalformedURLException e) {
 						// Ignore malformed URLs, the link extractor might
 						// have failed.

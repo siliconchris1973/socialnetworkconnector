@@ -6,17 +6,17 @@ import java.util.*;
 /**
  * Class URLQueue
  *
- * This class implements the package de.comlineag.snc.webcrawler.Queue interface 
+ * This class implements the package de.comlineag.snc.webcrawler.iQueue interface 
  * for queues of 'tasks' in a multithreaded environment.
  *
- * This class has a queue and a set of URLs (exactly: Strings that represent
+ * This class has a iQueue and a set of URLs (exactly: Strings that represent
  * URLs). Synchronised methods are provided for inserting in both the set
- * and the queue, retrieving (and removing) an element from the queue only and
- * for clearing the queue.
+ * and the iQueue, retrieving (and removing) an element from the iQueue only and
+ * for clearing the iQueue.
  *
  * The intended use of this class is inside a web crawler.
  * The crawler can add new urls as it encounters them, and another thread
- * can pop the queue and crawl the remaining urls.
+ * can pop the iQueue and crawl the remaining urls.
  *
  * A 'depth level' is supported. If you run a multithreaded crawler and want
  * want to know, how far a certain page is away from your starting point,
@@ -35,16 +35,16 @@ import java.util.*;
  * just synchronizing them.
  *
  * Because we only read from level n and write to n+1, only two queues need
- * to be supported, not a queue for each level. When pushing or popping
- * elements to/from the queue, we can use the depth level modulo 2 to determine
- * which queue to use.
+ * to be supported, not a iQueue for each level. When pushing or popping
+ * elements to/from the iQueue, we can use the depth level modulo 2 to determine
+ * which iQueue to use.
  * 
  * In a multithreaded crawler, a thread should die, if pop(n) returns null.
- * This way, the crawler can be halted by clearing the queue.
+ * This way, the crawler can be halted by clearing the iQueue.
  * If no thread is running any more for depth level n, a thread manager may
  * decide to create new threads for depth level n+1.
  *
- * In addition to the methods defined by the interface queue, this class
+ * In addition to the methods defined by the interface iQueue, this class
  * supports a String as additional data that is through this way handed over
  * to the thread. This string is used to specifiy a filename prefix, where
  * the retrieved files are stored.
@@ -55,7 +55,7 @@ import java.util.*;
  * 
  */
 
-public class URLQueue implements Queue {
+public class URLQueue implements iQueue {
 
 	LinkedList evenQueue;
 	LinkedList oddQueue;
@@ -131,7 +131,7 @@ public class URLQueue implements Queue {
 	}
 
 	/**
-	 * Return how many elements are in the queue
+	 * Return how many elements are in the iQueue
 	 */
 	public int getQueueSize(int level) {
 		if (level % 2 == 0) {
@@ -156,14 +156,14 @@ public class URLQueue implements Queue {
 	}
 
 	/**
-	 * Return and remove the first element from the appropriate queue
+	 * Return and remove the first element from the appropriate iQueue
 	 * Note that the return type of this method is Object for compliance
-	 * with interface Queue.
+	 * with interface iQueue.
 	 */
 	public synchronized Object pop(int level) {
 		String s;
-		// try to get element from the appropriate queue
-		// is the queue is empty, return null
+		// try to get element from the appropriate iQueue
+		// is the iQueue is empty, return null
 		if (level % 2 == 0) {
 			if (evenQueue.size() == 0) {
 				return null;
@@ -189,9 +189,9 @@ public class URLQueue implements Queue {
 	}
 
 	/**
-	 * Add an element at the end of the appropriate queue
+	 * Add an element at the end of the appropriate iQueue
 	 * Note that the type of argument url is Object for compliance with
-	 * interface Queue.
+	 * interface iQueue.
 	 */
 	public synchronized boolean push(Object url, int level) {
 		// don't allow more than maxElements links to be gathered
@@ -199,7 +199,7 @@ public class URLQueue implements Queue {
 			return false;
 		String s = ((URL) url).toString();
 		if (gatheredLinks.add(s)) {
-			// has not been in set yet, so add to the appropriate queue
+			// has not been in set yet, so add to the appropriate iQueue
 			if (level % 2 == 0) {
 				evenQueue.addLast(s);
 			} else {

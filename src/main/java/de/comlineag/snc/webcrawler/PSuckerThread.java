@@ -20,7 +20,7 @@ public class PSuckerThread extends ControllableThread {
 				filename.endsWith(".avi") ||
 				filename.endsWith(".wmv")) {
 				filename = filename.replace('/', '-');
-				filename = ((URLQueue) queue).getFilenamePrefix() +
+				filename = ((URLQueue) iQueue).getFilenamePrefix() +
 					pageURL.getHost() + filename;
 				System.out.println("Saving to file " + filename);
 				try {
@@ -47,9 +47,9 @@ public class PSuckerThread extends ControllableThread {
 									   (String) links.elementAt(n));
 					// If layers are not used, write everything into same layer
 					if (tc.getMaxLevel() == -1)
-						queue.push(link, level);
+						iQueue.push(link, level);
 					else
-						queue.push(link, level + 1);
+						iQueue.push(link, level + 1);
 				} catch (MalformedURLException e) {
 					// Ignore malformed URLs, the link extractor might
 					// have failed.

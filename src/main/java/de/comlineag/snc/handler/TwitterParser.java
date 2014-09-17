@@ -65,7 +65,7 @@ public final class TwitterParser extends GenericParser {
 			// retweeted posts need to go in message array as well
 			JSONObject jsonReTweeted = (JSONObject) jsonTweetResource.get("retweeted_status");
 			if (jsonReTweeted != null) {
-				logger.debug("retweet found - adding to message queue");
+				logger.debug("retweet found - adding to message iQueue");
 				logger.trace("    retweeted message: " + jsonReTweeted.toString());
 				postings.add(new TwitterPosting(jsonReTweeted));
 			}

@@ -2,8 +2,8 @@ package de.comlineag.snc.webcrawler;
 
 import java.net.*;
 
-public class PSucker implements MessageReceiver {
-	public PSucker(Queue q, int maxLevel, int maxThreads)
+public class PSucker implements iMessageReceiver {
+	public PSucker(iQueue q, int maxLevel, int maxThreads)
 		throws InstantiationException, IllegalAccessException {
 		ThreadController tc = new ThreadController(PSuckerThread.class,
 												   maxThreads,

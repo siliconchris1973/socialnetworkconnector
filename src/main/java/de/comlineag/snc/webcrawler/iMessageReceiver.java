@@ -1,17 +1,18 @@
 package de.comlineag.snc.webcrawler;
 
 /**
- * Simple interface that allows a thread to tell another class what it is
- * currently doing, i.e. for displaying status information on the screen or
- * anything.
+ * @author 		Christian Guenther / Andreas Hess <andreas.hess@ucd.ie>, 11/02/2003
+ * @category 	interface
+ * @version		0.1				- 16.09.2014
+ * @status		in development
+ *  
+ * @description	Simple interface that allows a thread to tell another class what it is
+ * 				currently doing, i.e. for displaying status information on the screen or
+ * 				anything.
  *
- * This code is in the public domain.
- *
- * @author Andreas Hess <andreas.hess@ucd.ie>, 01/02/2003
  * 
  */
-
-public interface MessageReceiver {
+public interface iMessageReceiver {
 
 	/**
 	 * Receive a message from a thread

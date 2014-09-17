@@ -78,9 +78,10 @@
 		 a crawler here, it will run, in case it is activated in 
 		 applicationContext.xml -->
 	<configuration scope="CrawlerRun">
+		<crawler name="TWITTER">true</crawler>
 		<crawler name="LITHIUM">false</crawler>
 		<crawler name="FACEBOOK">false</crawler>
-		<crawler name="WEBCRAWLER">false</crawler>
+		<crawler name="WEBCRAWLER">true</crawler>
 	</configuration>
 	
 	<!-- 
@@ -196,6 +197,11 @@
 						<type>String</type>
 						<value>Muttermilch</value>
 					</term>
+					<term>
+						<type>String</type>
+						<value>HA-Pre</value>
+					</term>
+					
 				</constraint>
 			</constraints>
 			<!-- end of section for all crawler -->
@@ -299,6 +305,59 @@
 		<!-- HIPP -->
 	</configuration>
 	
+	
+	
+	<!-- W E B   C R A W L E  R   C O N F I G U R A T  I O N         W E B    C R A W  L E R   C O N F I G U R A T I O N -->
+	<!-- this section is used to setup some pages that the MultiWebCrawler shall crawl 
+		 These can also be configured in it's own configuration file. Whether this or
+		 a dedicated file shall be used can be set in the applicationContext.xml 
+		 section MultiWebCrawler -->
+	<configuration scope="webpage">
+		<page>
+			<name>rundumsbaby</name>
+			<url>http://www.rund-ums-baby.de</url>
+			<max_depth>20</max_depth>
+			<stay_on_domain>true</stay_on_domain>
+			<!-- if you need authentication put it in here using the ctrypto provider as configured
+				 in applicationContext.xml section configurationCryptoProvider 
+			<user></user>
+			<passwd></passwd>
+			-->
+		</page>
+		<page>
+			<name>netmoms.de</name>
+			<url>http://www.netmoms.de</url>
+			<max_depth>20</max_depth>
+			<stay_on_domain>true</stay_on_domain>
+			<!-- if you need authentication put it in here using the ctrypto provider as configured
+				 in applicationContext.xml section configurationCryptoProvider 
+			<user></user>
+			<passwd></passwd>
+			-->
+		</page>
+		<page>
+			<name>babynahrung.de</name>
+			<url>http://www.babynahrung.de</url>
+			<max_depth>20</max_depth>
+			<stay_on_domain>true</stay_on_domain>
+			<!-- if you need authentication put it in here using the ctrypto provider as configured
+				 in applicationContext.xml section configurationCryptoProvider 
+			<user></user>
+			<passwd></passwd>
+			-->
+		</page>
+		<page>
+			<name>windeln.de</name>
+			<url>http://www.windeln.de</url>
+			<max_depth>20</max_depth>
+			<stay_on_domain>true</stay_on_domain>
+			<!-- if you need authentication put it in here using the ctrypto provider as configured
+				 in applicationContext.xml section configurationCryptoProvider 
+			<user></user>
+			<passwd></passwd>
+			-->
+		</page>
+	</configuration>
 	
 	<!-- = = = DO NOT, I REPEAT DO NOT EDIT OR DELETE THIS ENTRY = = =
 	 

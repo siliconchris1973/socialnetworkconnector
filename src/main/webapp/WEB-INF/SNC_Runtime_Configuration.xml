@@ -165,18 +165,6 @@
 			<crawlertype>native</crawlertype>
 		</network>
 		
-		<!-- WALLSTREET ONLINE - a financial oriented discussion and news forum -->
-		<network name="WO"><name>WALLSTREETONLINE</name></network>
-		<network name="WALLSTREETONLINE">
-			<code>WO</code>
-			<name>Wallstreet-Online</name>
-			<description>Wallstreet Online - a financial oriented discussion and news forum</description>
-			<domain>https://www.wallstreet-online.de</domain>
-			<supported>YES</supported>
-			<crawlertype>web</crawlertype>
-		</network>
-		
-		
 		
 		<!-- below this line the standard social networks are defined and it is highly discouraged to change any of them -->
 		<network name="TW"><name>TWITTER</name></network>
@@ -309,6 +297,8 @@
 			<crawlertype>native</crawlertype>
 		</network>
 		
+		<!-- SIMPLE WEB CRAWLER - the generic code for all web pages, if they do not have a dedicated code setup in
+			 the web crawler section of the crawler configuration file -->
 		<network name="WC"><name>WEBCRAWLER</name></network>
 		<network name="WEBCRAWLER">
 			<code>WC</code>

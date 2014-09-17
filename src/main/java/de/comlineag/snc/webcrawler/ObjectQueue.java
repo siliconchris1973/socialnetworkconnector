@@ -3,21 +3,22 @@ package de.comlineag.snc.webcrawler;
 import java.util.*;
 
 /**
- * Simple "reference" implementation of the queue interface
- * In addition to the interface, an object "data" is supported
- * for carrying additional data over threads.
- * By default, the queue supports 4 levels and an unlimited
- * number of elements. The number of elements is unlimited when
- * set to -1. A limited number of elements and a different
- * number of levels can be specified in the appropriate constructors.
+ * @author 		Christian Guenther / Andreas Hess <andreas.hess@ucd.ie>, 11/02/2003
+ * @category 	queue
+ * @version		0.1				- 16.09.2014
+ * @status		in development
+ *  
+ * @description	Simple "reference" implementation of the iQueue interface
+ * 				In addition to the interface, an object "data" is supported
+ * 				for carrying additional data over threads.
+ * 				By default, the iQueue supports 4 levels and an unlimited
+ * 				number of elements. The number of elements is unlimited when
+ * 				set to -1. A limited number of elements and a different
+ * 				number of levels can be specified in the appropriate constructors.
  *
- * This code is in the public domain.
- *
- * @author Andreas Hess <andreas.hess@ucd.ie>, 11/02/2003
  * 
  */
-
-public class ObjectQueue implements Queue {
+public class ObjectQueue implements iQueue {
 
 	Object data;
 	Set gatheredElements;
