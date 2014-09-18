@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
-	This is the configuration file for the Social Network Connector.
-	It configures low level startup parameter - like the crawlers to run.
+	This is the system setup configuration file for the Social Network Connector.
+	It configures low level startup parameter (like which crawlers to run) as well 
+	as very low level system functionality.
+	
+	
 	To configure the runtime behavior of the SNC, take a look at 
 	* SNC_Runtime_Configuration.xml		- for general runtime configuration options
-	* SNC_Crawler_Configuration			- for the constraints to the crawler
-	* SNC_HANA_Configuration.xml		- for the hana coonfiguration 
+	* SNC_Crawler_Configuration/...		- for the constraints to the crawler
+	* SNC_HANA_Configuration.xml		- for the hana configuration 
 	* Administration-servlet.xml		- for the web administration servlet
 	* web.xml							- for general web configuration
 	* log4j.xml							- for logging options
+	
+	The first thing you will want to configure, however is which configuration option
+	for the crawler to use. Usually this is done via an xml file but you can also opt 
+	for a database. If a file is used, then you need to define which in the section 
+	configuration provider at around line 373 (well, was that line on September, the 
+	17th anyway)
 
 
 	Licensed to the Apache Software Foundation (ASF) under one or more contributor 
@@ -79,13 +88,13 @@
 					crawlers. The total number of threads must include the number of actual crawlers in
 					this section plus the FsCrawler below and the GeneralConfgurationTrigger - resulting 
 					in number of crawlers plus 2 as the threadcount -->
-				<ref bean="TwitterCrawlerTrigger" />
+				<!-- <ref bean="TwitterCrawlerTrigger" /> -->
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="MultiWebCrawlerTrigger"/> -->
 				<ref bean="SimpleWebCrawlerTrigger"/>
-				<ref bean="LithiumCrawlerTrigger" />
+				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
 				
 				
 				<!-- FILESYSTEM CRAWLER - SAFEGUARD
@@ -205,11 +214,11 @@
 				<!-- THIS MUST BE SET ACCORDING TO AN EXISTING CODE FOR A SOCIAL NETWORK ENTRY IN SNC_Runtime_Configuration.xml -->
 				<entry key="SN_ID_CODE" value="WC" />
 				
-				<!-- set the starting url and maximum number of links to follow
-				<entry key="server_url" value="https://www.wallstreet-online.de/community" />
-				 -->
+				<!-- set the starting url and maximum number of links to follow -->
+				<entry key="server_url" value="http://www.wallstreet-online.de" />
+				<!-- 
 				<entry key="server_url" value="http://www.netmoms.de" />
-				
+				-->
 				<!-- if you set this higher then the value of SEARCH_LIMIT in SNC_Runtim_Configuration then that value will be used 
 					 as the value in the runtime configuration acts as a safety margin to not exceed a certain scanning depth. -->
 				<entry key="max_depth" value="100" />
@@ -223,8 +232,8 @@
 				<entry key="stayOnDomain" value = "true" /> 
 				
 				<!-- if the website requires an authentication, set username and password here -->
-				<!-- <entry key="user" value="Y29taW5lMjAxNA==" /> -->		<!-- comine2014 -->
-				<!-- <entry key="passwd" value="TUd1LTZ0Yy1BUjUtdTdS" /> --> <!-- MGu-6tc-AR5-u7R -->
+				<entry key="user" value="Y29taW5lMjAxNA==" />		<!-- comine2014 -->
+				<entry key="passwd" value="TUd1LTZ0Yy1BUjUtdTdS" /> <!-- MGu-6tc-AR5-u7R -->
 			</map>
 		</property>
 	</bean>
@@ -366,7 +375,7 @@
 		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR EITHER CUSTOMER OR DOMAIN) -->
  
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.ComplexXmlConfigurationPersistence"> 
-		<property name="configDbHandler" value="webapp/WEB-INF/SNC_Crawler_Configuration/HippSpecificCrawlerConfiguration.xml" />
+		<property name="configDbHandler" value="webapp/WEB-INF/SNC_Crawler_Configuration/CortalConsorsSpecificCrawlerConfiguration.xml" />
 	</bean> 
 	
 	<!-- this is the bean to get the crawler configuration from a simple xml file 
@@ -623,7 +632,7 @@
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
 		<property name="jobDetail" ref="RuntimeConfigurationDetail" />
 		<property name="startDelay" value="1" />
-		<property name="repeatInterval" value="120000" />
+		<property name="repeatInterval" value="2000000" />
 	</bean>
 	
 	

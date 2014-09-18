@@ -15,7 +15,6 @@ import org.json.simple.JSONObject;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.w3c.dom.Document;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
@@ -24,8 +23,6 @@ import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.DataCryptoHandler;
-import de.comlineag.snc.helper.BoilerpipeContentExtractionService;
-import de.comlineag.snc.helper.DataHelper;
 
 
 /*
@@ -107,7 +104,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		// deactivated from within the crawler configuration, even if 
 		// it is active in applicationContext.xml
 		if ((Boolean) crawlerConfig.getRunState(CRAWLER_NAME)) {
-			
 			//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
 			JSONObject configurationScope = crawlerConfig.getCrawlerConfigurationScope();
 			configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
@@ -180,48 +176,51 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				}
 			}
 			
-			
 			// all configuration settings sourced in - let's start
 			logger.info("New "+CRAWLER_NAME+" crawler instantiated for site "+urlToParse+" - restricted to track " + smallLogMessage);
+			
+			
+			FileWriter ff = null;
+			try {
+				ff = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+"sitelist.txt");
+			} catch (IOException e1) {}
 			
 			
 			// initialize the urls that we want to parse
 			initUrls(urlToParse, maxDepth);
 			
-			// a temporary file where we store the contents of the website
-			String fileName = null;
-			//BoilerpipeContentExtractionService bpES = new BoilerpipeContentExtractionService();
-						
 			for (int i = 0; i < maxPages; i++) {
 				URL url = (URL) newURLs.elementAt(0);
 				newURLs.removeElementAt(0);
+				
 				page = null;
 				rawArticle = null;
 				
 				
-				// this is just the temporary file - delete it when finished
-				fileName = url.toString().replace("/", "_").replace(":", "");
-				
-				pageCount++;
-				logger.info("Url "+url+" is #" + pageCount + " to crawl");
 				if (robotSafe(url)) {
-					logger.trace("getting page "+url+" and retrieving raw content");
-					// only need this, if we want to write our own file, otherwise KCE will get the inputstream directly
+					pageCount++;
+					logger.info("Url "+url+" is #" + pageCount + " to crawl");
+					
 					page = getPage(url);
-					rawArticle = null;//bpES.returnArticleContent(page);
-					logger.trace("the page fetched is: " + page.substring(0, 100));
 					
 					// currently we just create a new file and store the page content in it
+					String fileName = url.toString().substring(4).replaceAll(":", "").replaceAll("//", "").replaceAll("/", "_");
 					File f1 = new File("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
 					if (!f1.isFile() || f1.getTotalSpace()<1) {
 						FileWriter rawFile;
 						
 						try {
+							// put url to sitelist
+							ff.append(url.toString() + "\n");
+							
+							// and content in it's own file
 							rawFile = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
 							rawFile.write(dataCryptoProvider.encryptValue(page));
 							rawFile.flush();
 							rawFile.close();
-													
+							
+							ff.flush();
+							
 						} catch (IOException e) {
 							logger.error("ERROR :: could not write content of page "+url.toString()+" to disk");
 						} catch (GenericCryptoException e) {
@@ -229,18 +228,20 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							e.printStackTrace();
 						}
 					}
+					
 					if (page.length() != 0) getLinksFromPage(url,page);
 					
 					if (newURLs.isEmpty()) break;
 				}
 			}
 			
+			try { ff.close(); } catch (IOException e) {}
 			logger.info(CRAWLER_NAME+"-Crawler END - scanned " + pageCount + " pages");
 		}
 	} 
 	
 	
-	// initializes data structures
+	// initialize the data structures for new and known urls and set proxy settings
 	public void initUrls(String urlToParse, int maxDepth) {
 		URL url = null;
 		knownURLs = new Hashtable<URL, Integer>();
@@ -261,13 +262,13 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		if (iPages < maxPages) maxPages = iPages;
 		
 		// Behind a firewall set your proxy and port here!
-		Properties props= new Properties(System.getProperties());
-		props.put("http.proxySet", "true");
-		props.put("http.proxyHost", "webcache-cup");
-		props.put("http.proxyPort", "8080");
+		//Properties props= new Properties(System.getProperties());
+		//props.put("http.proxySet", "true");
+		//props.put("http.proxyHost", "webcache-cup");
+		//props.put("http.proxyPort", "8080");
 		
-		Properties newprops = new Properties(props);
-		System.setProperties(newprops);
+		//Properties newprops = new Properties(props);
+		//System.setProperties(newprops);
 		
 		logger.debug("All set! Initializing scan - starting with site " + url + " and limited to download " + maxPages + " pages");
 	}
@@ -345,27 +346,44 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		//logger.trace("URL String " + newUrlString);
 		try { 
 			url = new URL(oldURL,newUrlString);
-			String newHost = url.getHost();
+			logger.trace("addNewUrl processing url " + url.toString());
 			
 			// we only parse sites on the same domain as the starting domain
 			// except in case the configuration settigs stayOnDomain is set to false
 			// so first thing is to check if configuration setting allows to leave a domain
-			if (!this.stayOnDomain){
+			if (!stayOnDomain){
+				logger.debug("stayOnDomain is false - no need to check for allowed parsing");
 				proceed = true;
 			} else {
 				// second, if it is not allowed to leave the domain, let's see if the new
 				// url would actually do so, and if not, let it pass
-				if (newHost.equals(host)) {
+				
+				String oldDom = oldURL.getHost();	// InternetDomainName.from(url.toString()).topPrivateDomain().name();
+				String newDom = new URL(newUrlString).getHost();		// InternetDomainName.from(newUrlString).topPrivateDomain().name();
+				
+				//logger.trace("old domain: " + oldDom + " new domain: " + newDom);
+				
+				if (newDom.equals(oldDom)) {
+					logger.trace("new domain " + newDom + " equals old domain");
 					proceed = true;
-				} else {
+				} else if (!newDom.equals(oldDom)) {
+					proceed = false;
 					if (RuntimeConfiguration.isWARN_ON_REJECTED_ACTIONS())
-						logger.debug("rejecting host " + newHost + " due to configuration setting stayOnDomain" + stayOnDomain);
+						logger.debug("rejecting host " + newDom + " due to configuration setting stayOnDomain " + stayOnDomain);
+				} else {
+					logger.warn("WARNING :: undefined state found comparing old and new domain");
 				}
 			}
 			
+			logger.trace("proceed is "+proceed+" during run for url " + url.toString());
 			// only process urls that passed the leave the domain check above.
 			if (proceed){
+				
 				if (!knownURLs.containsKey(url)) {
+					logger.info("Adding new URL " + url.toString() + " to crawling list");
+					knownURLs.put(url,new Integer(1));
+					newURLs.addElement(url);
+					/*
 					String filename =  url.getFile();
 					int iSuffix = filename.lastIndexOf("htm");
 					
@@ -373,11 +391,16 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 						(iSuffix == filename.length() - 4)) {
 								knownURLs.put(url,new Integer(1));
 								newURLs.addElement(url);
-								logger.info("Found new URL " + url.toString());
+								logger.info("Adding new URL " + url.toString() + " to crawling list");
 					} 
+					*/
+					
 				} else {
 					logger.trace("the url " + url.toString() + " is already in the list");
 				}
+				
+			} else {
+				//logger.debug("rejecting url " + url.toString() + " because proceed is " + proceed);
 			}
 		} catch (MalformedURLException e) { return; }
 	}
@@ -390,6 +413,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	public void getLinksFromPage(URL url, String page) {
 		logger.debug("getLinksFromPage called for " + url.toString());
 		String lcPage = page.toLowerCase(); // Page in lower case
+		int lengthOfUrl = lcPage.length();
+		
 		int index = 0; // position in page
 		int iEndAngle, ihref, iURL, iCloseQuote, iHatchMark, iEnd;
 		
@@ -411,6 +436,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							iEnd = iHatchMark;
 						
 						String newUrlString = page.substring(iURL,iEnd);
+						
 						addNewUrl(url, newUrlString);
 					}
 				}
