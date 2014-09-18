@@ -1,5 +1,6 @@
 package de.comlineag.snc.job;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,21 +47,19 @@ import com.porva.html.keycontent.TitleFoundListener;
  *
  * @author 		Christian Guenther
  * @category 	job
- * @version		0.4				- 16.09.2014
+ * @version		0.5				- 18.09.2014
  * @status		in development
  *
  * @description A minimal web crawler. takes an URL from job control and
  * 				fetches that page plus all links up to max depth as defined in
  * 				RuntimeConfiguration section web crawler
- * 				The SimpleWebCrawler uses KCE (Key HtmlContent Extractor to clean downloaded pages from
- * 				all the unnecessary stuff on the sites we do not want, like ads and the like
- * 				see http://sourceforge.net/projects/senews/files/KeyContentExtractor/KCE-1.0/
- * 				for more information
+ * 
  *
  * @changelog	0.1 (Chris)		class created as copy from http://cs.nyu.edu/courses/fall02/G22.3033-008/WebCrawler.java
  * 				0.2				implemented configuration options from RuntimeConfiguration
  * 				0.3				implemented KCE from http://sourceforge.net/projects/senews/files/KeyContentExtractor/KCE-1.0/
  * 				0.4				added support for runState configuration, to check if the crawler shall actually run
+ * 				0.5	(Maic)		replaced ref-parsing with regular expression in the link-search method
  *
  */
 public class SimpleWebCrawler extends GenericCrawler implements Job {
@@ -230,10 +229,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			for (int i = 0; i < maxPages; i++) {
 				url = newURLs.get(0);
 				newURLs.remove(0);
-
-				String rawArticle = null;
-
-
+				
+				
 				if (robotSafe(url)) {
 					pageCount++;
 					logger.info("Url "+url+" is #" + pageCount + " to crawl");
@@ -241,30 +238,30 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					String page = getPage(url);
 
 					// currently we just create a new file and store the page content in it
-//					String fileName = url.toString().substring(4).replaceAll(":", "").replaceAll("//", "").replaceAll("/", "_");
-//					File f1 = new File("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
-//					if (!f1.isFile() || f1.getTotalSpace()<1) {
-//						FileWriter rawFile;
-//
-//						try {
-//							// put url to sitelist
-//							ff.append(url.toString() + "\n");
-//
-//							// and content in it's own file
-//							rawFile = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
-//							rawFile.write(dataCryptoProvider.encryptValue(page));
-//							rawFile.flush();
-//							rawFile.close();
-//
-//							ff.flush();
-//
-//						} catch (IOException e) {
-//							logger.error("ERROR :: could not write content of page "+url.toString()+" to disk");
-//						} catch (GenericCryptoException e) {
-//							logger.error("ERROR :: could not encrypt data prior writing the file for page " + url.toString());
-//							e.printStackTrace();
-//						}
-//					}
+					String fileName = url.toString().substring(4).replaceAll(":", "").replaceAll("//", "").replaceAll("/", "_");
+					File f1 = new File("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
+					if (!f1.isFile() || f1.getTotalSpace()<1) {
+						FileWriter rawFile;
+
+						try {
+							// put url to sitelist
+							ff.append(url.toString() + "\n");
+
+							// and content in it's own file
+							rawFile = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
+							rawFile.write(dataCryptoProvider.encryptValue(page));
+							rawFile.flush();
+							rawFile.close();
+
+							ff.flush();
+
+						} catch (IOException e) {
+							logger.error("ERROR :: could not write content of page "+url.toString()+" to disk");
+						} catch (GenericCryptoException e) {
+							logger.error("ERROR :: could not encrypt data prior writing the file for page " + url.toString());
+							e.printStackTrace();
+						}
+					}
 
 					if (page.length() != 0) getLinksFromPage(url,page, knownURLs, newURLs);
 
@@ -352,7 +349,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		// except in case the configuration settigs stayOnDomain is set to false
 		// so first thing is to check if configuration setting allows to leave a domain
 		if (!stayOnDomain){
-			logger.debug("stayOnDomain is false - no need to check for allowed parsing");
 			proceed = true;
 		} else {
 			// second, if it is not allowed to leave the domain, let's see if the new
@@ -364,18 +360,15 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			//logger.trace("old domain: " + oldDom + " new domain: " + newDom);
 
 			if (newDom.equals(oldDom)) {
-				logger.trace("new domain " + newDom + " equals old domain");
+				//logger.trace("new domain " + newDom + " equals old domain");
 				proceed = true;
-			} else if (!newDom.equals(oldDom)) {
+			} else {
 				proceed = false;
 				if (RuntimeConfiguration.isWARN_ON_REJECTED_ACTIONS())
 					logger.debug("rejecting host " + newDom + " due to configuration setting stayOnDomain " + stayOnDomain);
-			} else {
-				logger.warn("WARNING :: undefined state found comparing old and new domain");
 			}
 		}
 
-		logger.trace("proceed is "+proceed+" during run for url " + url.toString());
 		// only process urls that passed the leave the domain check above.
 		if (proceed){
 
@@ -399,10 +392,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				logger.trace("the url " + url.toString() + " is already in the list");
 			}
 
-		} else {
-			//logger.debug("rejecting url " + url.toString() + " because proceed is " + proceed);
 		}
-
 	}
 
 
@@ -411,7 +401,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	// by a close quote, possibly preceded by a hatch mark (marking a
 	// fragment, an internal page marker)
 	public void getLinksFromPage(URL url, String page, Map<URL, Integer> knownURLs, List<URL> newURLs) {
-		logger.debug("getLinksFromPage called for " + url.toString());
+		//logger.debug("getLinksFromPage called for " + url.toString());
 		String lcPage = page.toLowerCase(); // Page in lower case
 
 		Pattern p = Pattern.compile("href=\"(.*?)\"");
@@ -423,62 +413,14 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			try {
 				newURL = new URL(url, link);
 			} catch (MalformedURLException e) {
-				logger.error(String.format("Link %s could not parsed to URL.", link), e);
+				//logger.error(String.format("Link %s could not be parsed as a URL.", link), e);
 				continue;
 			}
 			addNewUrl(url, newURL, knownURLs, newURLs);
 		}
-
-//
-//		int lengthOfUrl = lcPage.length();
-//
-//		int index = 0; // position in page
-//		int iEndAngle, ihref, iURL, iCloseQuote, iHatchMark, iEnd;
-//
-//		while ((index = lcPage.indexOf("<a",index)) != -1) {
-//			iEndAngle = lcPage.indexOf(">",index);
-//			ihref = lcPage.indexOf("href",index);
-//
-//			if (ihref != -1) {
-//				iURL = lcPage.indexOf("\"", ihref) + 1;
-//
-//				if ((iURL != -1) && (iEndAngle != -1) && (iURL < iEndAngle)) {
-//					iCloseQuote = lcPage.indexOf("\"",iURL);
-//					iHatchMark = lcPage.indexOf("#", iURL);
-//
-//					if ((iCloseQuote != -1) && (iCloseQuote < iEndAngle)) {
-//						iEnd = iCloseQuote;
-//
-//						if ((iHatchMark != -1) && (iHatchMark < iCloseQuote))
-//							iEnd = iHatchMark;
-//
-//						String newUrlString = page.substring(iURL,iEnd);
-//
-//						addNewUrl(url, newUrlString);
-//					}
-//				}
-//			}
-//
-//			index = iEndAngle;
-//		}
 	}
 
-	/* get the cleaned page content
-	public String getCleanPageContent(URL url){
-		logger.debug("cleaning page from all clutter...");
-		// now get the contet of the page and feed it to KCE
-		InputStream urlStream = null;
-		try {
-			// try opening the URL
-			URLConnection urlConnection = url.openConnection();
-
-			urlConnection.setAllowUserInteraction(false);
-			urlStream = url.openStream();
-		} catch (Exception e) {
-			logger.error("WARN :: could not get the url " + url.toString() + " - " + SNCStatusCodes.WARN.getErrorCode());
-		}
-
-	*/
+	
 	public String getCleanPageContent(String file){
 		logger.debug("cleaning page "+file+" from all clutter...");
 		/*
