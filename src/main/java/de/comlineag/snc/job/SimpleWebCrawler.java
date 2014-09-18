@@ -336,9 +336,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	}
 	
 	
-	// adds new URL to the iQueue. Accept only new URL's that end in
-	// htm or html. oldURL is the context, newURLString is the link
-	// (either an absolute or a relative URL).
+	// adds new URL to the Queue. Accept only new URL's oldURL is the context, 
+	// newURLString is the link (either an absolute or a relative URL).
 	public void addNewUrl(URL oldURL, String newUrlString) { 
 		Boolean proceed = false;
 		URL url; 
@@ -375,7 +374,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				}
 			}
 			
-			logger.trace("proceed is "+proceed+" during run for url " + url.toString());
 			// only process urls that passed the leave the domain check above.
 			if (proceed){
 				
@@ -402,14 +400,17 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			} else {
 				//logger.debug("rejecting url " + url.toString() + " because proceed is " + proceed);
 			}
-		} catch (MalformedURLException e) { return; }
+		} catch (MalformedURLException e) {
+			logger.error("Exception :: the url comprised of " + oldURL + " and " + newUrlString + " is malformed " + e.getMessage());
+			e.printStackTrace();
+			return; 
+		}
 	}
 	
 	
-	// Go through page finding links to URLs.  A link is signalled
-	// by <a href=" ...   It ends with a close angle bracket, preceded
-	// by a close quote, possibly preceded by a hatch mark (marking a
-	// fragment, an internal page marker)
+	// Go through page finding links to URLs.  A link is signalled by <a href=" ...   
+	// It ends with a close angle bracket, preceded by a close quote, possibly 
+	// preceded by a hatch mark (marking a fragment, an internal page marker)
 	public void getLinksFromPage(URL url, String page) {
 		logger.debug("getLinksFromPage called for " + url.toString());
 		String lcPage = page.toLowerCase(); // Page in lower case
