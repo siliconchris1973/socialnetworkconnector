@@ -29,7 +29,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  * @author 		Christina Guenther
  * @category	handler
- * @revision	0.5				- 16.09.2014
+ * @revision	0.5a			- 18.09.2014
  * @status		productive with minor limitations
  * 
  * @description	this class is used to setup the overall configuration of the SNC.
@@ -50,6 +50,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 				0.4				added simple web crawler and data definition configuration options
  * 								moved the Social Network Definitions in their own file 
  * 				0.5				added support for CrawlerRun and tidied up
+ * 				0.5a			added thread-pool size for multi-threaded web crawler
  *
  * TODO 1. get the xml layout structure elements from RuntimeConfiguration.xml
  * TODO 2. use nodelist instead of single expressions for each node
@@ -96,10 +97,13 @@ public final class RuntimeConfiguration implements Job {
 	private static boolean 	RAW_TEXT_WITH_MARKUP 				= true;
 	
 	// some constants for the simple web crawler
-	private static int		SEARCH_LIMIT 						= 20;  // Absolute max pages 
-	private static String	ROBOT_DISALLOW_TEXT 				= "Disallow:";
-	private static int		CRAWLER_MAX_DOWNLOAD_SIZE 			= 200000; // Max size of download file in kb
-	private static boolean	STAY_ON_DOMAIN						= true; 
+	private static int		WC_SEARCH_LIMIT 					= 100;		// Absolute max number of pages to download
+	private static int		WC_MAX_DEPTH						= 10;		// maximum number of links to go down from toplevel
+	private static String	WC_ROBOT_DISALLOW_TEXT 				= "Disallow:";
+	private static int		WC_CRAWLER_MAX_DOWNLOAD_SIZE 		= 2000000;	// Max size of download per page in kb
+	private static boolean	WC_STAY_ON_DOMAIN					= true;
+	private static int		WC_THREAD_POOL_SIZE					= 10;		// number of threads for parallel downloading of pages
+	
 	
 	// these values are section names within the configuration db 
 	private static String 	CONSTRAINT_TERM_TEXT				= "term";
@@ -217,22 +221,30 @@ public final class RuntimeConfiguration implements Job {
 			setSTOP_SNC_ON_PERSISTENCE_FAILURE(getBooleanElement("runtime", "ExitOnPersistenceFailure", xpath, doc));
 			debugMsg += " / STOP_SNC_ON_PERSISTENCE_FAILURE is " + isSTOP_SNC_ON_PERSISTENCE_FAILURE();
 			
+			
 			// searchLimit
-			setSEARCH_LIMIT(getIntElement("runtime", "searchLimit", xpath, doc));
-			debugMsg += " / SEARCH_LIMIT is " + getSEARCH_LIMIT();
+			setWC_SEARCH_LIMIT(getIntElement("runtime", "wcSearchLimit", xpath, doc));
+			debugMsg += " / WC_SEARCH_LIMIT is " + getWC_SEARCH_LIMIT();
+			
+			// maxDepth
+			setWC_MAX_DEPTH(getIntElement("runtime", "wcMaxDepth", xpath, doc));
+			debugMsg += " / WC_MAX_DEPTH is " + getWC_MAX_DEPTH();
 			
 			// robotDisallowText 
-			setROBOT_DISALLOW_TEXT(getStringElement("runtime", "robotDisallowText", xpath, doc));
-			debugMsg += " / ROBOT_DISALLOW_TEXT is " + getROBOT_DISALLOW_TEXT();
+			setWC_ROBOT_DISALLOW_TEXT(getStringElement("runtime", "wcRobotDisallowText", xpath, doc));
+			debugMsg += " / WC_ROBOT_DISALLOW_TEXT is " + getWC_ROBOT_DISALLOW_TEXT();
 						
 			// crawlerMaxDownloadSize
-			setCRAWLER_MAX_DOWNLOAD_SIZE(getIntElement("runtime", "crawlerMaxDownloadSize", xpath, doc));
-			debugMsg += " / CRAWLER_MAX_DOWNLOAD_SIZE is " + getCRAWLER_MAX_DOWNLOAD_SIZE();
+			setWC_CRAWLER_MAX_DOWNLOAD_SIZE(getIntElement("runtime", "wcCrawlerMaxDownloadSize", xpath, doc));
+			debugMsg += " / WC_CRAWLER_MAX_DOWNLOAD_SIZE is " + getWC_CRAWLER_MAX_DOWNLOAD_SIZE();
 			
 			// stayOnDomain
-			setSTAY_ON_DOMAIN(getBooleanElement("runtime", "stayOnDomain", xpath, doc));
-			debugMsg += " / STAY_ON_DOMAIN is " + isSTAY_ON_DOMAIN();
+			setWC_STAY_ON_DOMAIN(getBooleanElement("runtime", "wcStayOnDomain", xpath, doc));
+			debugMsg += " / WC_STAY_ON_DOMAIN is " + isWC_STAY_ON_DOMAIN();
 			
+			// threadPool
+			setWC_THREAD_POOL_SIZE(getIntElement("runtime", "wcThreadPoolSize", xpath, doc));
+			debugMsg += " / WC_THREAD_POOL_SIZE is " + getWC_THREAD_POOL_SIZE();
 			
 			logger.trace(debugMsg);
 		} catch (IOException | ParserConfigurationException | SAXException e) {
@@ -420,8 +432,9 @@ public final class RuntimeConfiguration implements Job {
 	public static String 	getConstraintBlogText() { return CONSTRAINT_BLOG_TEXT;}
 	public static String 	getConstraintLocationText() {return CONSTRAINT_LOCATION_TEXT;}
 	public static String 	getConfigFileTypeIdentifier() {return configFileTypeIdentifier;}
-	
 	public static void 		setConfigFileTypeIdentifier(String configFileTypeIdentifier) {RuntimeConfiguration.configFileTypeIdentifier = configFileTypeIdentifier;}
+	public static String 	getCrawlerRunIdentifier() { return crawlerRunIdentifier; }
+	public static void 		setCrawlerRunIdentifier(String crawlerRunIdentifier) { RuntimeConfiguration.crawlerRunIdentifier = crawlerRunIdentifier;	}
 	
 	// for runtime state 
 	public static boolean 	getWarnOnSimpleConfig() {return RuntimeConfiguration.WARN_ON_SIMPLE_CONFIG;}
@@ -438,6 +451,8 @@ public final class RuntimeConfiguration implements Job {
 	public static void 		setCREATE_USER_JSON_ON_SUCCESS(boolean cREATE_USER_JSON_ON_SUCCESS) {CREATE_USER_JSON_ON_SUCCESS = cREATE_USER_JSON_ON_SUCCESS;}
 	public static boolean 	isSTOP_SNC_ON_PERSISTENCE_FAILURE() {return STOP_SNC_ON_PERSISTENCE_FAILURE;}
 	public static void 		setSTOP_SNC_ON_PERSISTENCE_FAILURE(boolean sTOP_SNC_ON_PERSISTENCE_FAILURE) {STOP_SNC_ON_PERSISTENCE_FAILURE = sTOP_SNC_ON_PERSISTENCE_FAILURE;}
+	public static boolean 	isWARN_ON_REJECTED_ACTIONS() {return WARN_ON_REJECTED_ACTIONS;}
+	public static void 		setWARN_ON_REJECTED_ACTIONS(boolean wARN_ON_REJECTED_ACTIONS) {WARN_ON_REJECTED_ACTIONS = wARN_ON_REJECTED_ACTIONS;}
 	
 	// XML layout
 	public static String 	getSocialNetworkConfiguration() {return socialNetworkConfiguration;}
@@ -477,19 +492,18 @@ public final class RuntimeConfiguration implements Job {
 	public static boolean 	isRAW_TEXT_WITH_MARKUP() { return RAW_TEXT_WITH_MARKUP;}
 	public static void 		setRAW_TEXT_WITH_MARKUP(boolean rAW_TEXT_WITH_MARKUP) { RAW_TEXT_WITH_MARKUP = rAW_TEXT_WITH_MARKUP;}
 
-	// static configuration options for the simple web crawler
-	public static int 		getSEARCH_LIMIT() {return SEARCH_LIMIT;}
-	public static void 		setSEARCH_LIMIT(int sEARCH_LIMIT) {SEARCH_LIMIT = sEARCH_LIMIT;}
-	public static String 	getROBOT_DISALLOW_TEXT() { return ROBOT_DISALLOW_TEXT;}
-	public static void 		setROBOT_DISALLOW_TEXT(String dISALLOW) {ROBOT_DISALLOW_TEXT = dISALLOW;}
-	public static int 		getCRAWLER_MAX_DOWNLOAD_SIZE() {return CRAWLER_MAX_DOWNLOAD_SIZE;}
-	public static void 		setCRAWLER_MAX_DOWNLOAD_SIZE(int mAXSIZE) {CRAWLER_MAX_DOWNLOAD_SIZE = mAXSIZE;}
+	// static configuration options for the web crawler
+	public static int 		getWC_SEARCH_LIMIT() {return WC_SEARCH_LIMIT;}
+	public static void 		setWC_SEARCH_LIMIT(int sEARCH_LIMIT) {WC_SEARCH_LIMIT = sEARCH_LIMIT;}
+	public static String 	getWC_ROBOT_DISALLOW_TEXT() { return WC_ROBOT_DISALLOW_TEXT;}
+	public static void 		setWC_ROBOT_DISALLOW_TEXT(String dISALLOW) {WC_ROBOT_DISALLOW_TEXT = dISALLOW;}
+	public static int 		getWC_CRAWLER_MAX_DOWNLOAD_SIZE() {return WC_CRAWLER_MAX_DOWNLOAD_SIZE;}
+	public static void 		setWC_CRAWLER_MAX_DOWNLOAD_SIZE(int mAXSIZE) {WC_CRAWLER_MAX_DOWNLOAD_SIZE = mAXSIZE;}
 	
-	
-	public static boolean 	isWARN_ON_REJECTED_ACTIONS() {return WARN_ON_REJECTED_ACTIONS;}
-	public static void 		setWARN_ON_REJECTED_ACTIONS(boolean wARN_ON_REJECTED_ACTIONS) {WARN_ON_REJECTED_ACTIONS = wARN_ON_REJECTED_ACTIONS;}
-	public static boolean 	isSTAY_ON_DOMAIN() {return STAY_ON_DOMAIN;}
-	public static void 		setSTAY_ON_DOMAIN(boolean sTAY_ON_DOMAIN) { STAY_ON_DOMAIN = sTAY_ON_DOMAIN;}
-	public static String 	getCrawlerRunIdentifier() { return crawlerRunIdentifier; }
-	public static void 		setCrawlerRunIdentifier(String crawlerRunIdentifier) { RuntimeConfiguration.crawlerRunIdentifier = crawlerRunIdentifier;	}
+	public static boolean 	isWC_STAY_ON_DOMAIN() {return WC_STAY_ON_DOMAIN;}
+	public static void 		setWC_STAY_ON_DOMAIN(boolean sTAY_ON_DOMAIN) { WC_STAY_ON_DOMAIN = sTAY_ON_DOMAIN;}
+	public static int 		getWC_THREAD_POOL_SIZE() {return WC_THREAD_POOL_SIZE;}
+	public static void 		setWC_THREAD_POOL_SIZE(int wC_THREAD_POOL_SIZE) {WC_THREAD_POOL_SIZE = wC_THREAD_POOL_SIZE;}
+	public static int 		getWC_MAX_DEPTH() {return WC_MAX_DEPTH;}
+	public static void 		setWC_MAX_DEPTH(int wC_MAX_DEPTH) {WC_MAX_DEPTH = wC_MAX_DEPTH;}
 }

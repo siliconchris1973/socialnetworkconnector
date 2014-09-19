@@ -106,29 +106,51 @@
 			 This is the overall limit. An individual web crawler can set it's own level in
 			 applicationContext.xml, but it can not exceed this value. It should usually not
 			 exceed 1000 and 100 should be ok for the most cases -->
-		<param name="searchLimit">
+		<param name="wcSearchLimit">
 			<type>int</type>
 			<value>500</value>
-			<constant>SEARCH_LIMIT</constant>
+			<constant>WC_SEARCH_LIMIT</constant>
+		</param>
+		<param name="wcMaxDepth">
+			<type>int</type>
+			<value>5</value>
+			<constant>WC_MAX_DEPTH</constant>
 		</param>
 		<!-- the maximum page size the simple web crawler shall fetch -->
-		<param name="crawlerMaxDownloadSize">
+		<param name="wcCrawlerMaxDownloadSize">
 			<type>int</type>
 			<value>2000000</value>
-			<constant>CRAWLER_MAX_DOWNLOAD_SIZE</constant>
+			<constant>WC_CRAWLER_MAX_DOWNLOAD_SIZE</constant>
+		</param>
+		<!-- content types to fetch - NOT YET IMPLEMENTED -->
+		<param name="wcContentTypesToDownload">
+			<type>List</type>
+			<value>html</value>
+			<value>xml</value>
+			<value>jpeg</value>
+			<constant>WC_CONTENT_TYPES_TO_DOWNLOAD</constant>
+		</param>
+		<!-- shall the web crawler stay on the initial given domain while downloading linked sites or not -->
+		<param name="wcStayOnDomain">
+			<type>Boolean</type>
+			<value>true</value>
+			<constant>WC_STAY_ON_DOMAIN</constant>
+		</param>
+		<!-- number of threads for the thread pool of the web crawler. Each downloading of a page (starting from 
+			 the initial one) is executed by one of the threads, so that downloading and parsing can be done in 
+			 parallel. As a rule of thumb, the number of threads available should probably be round about 10% of 
+			 of the maximum number of pages to download (parameter search limit above) BUT should not exceed 20. -->
+		<param name="wcThreadPoolSize">
+			<type>int</type>
+			<value>10</value>
+			<constant>WC_THREAD_POOL_SIZE</constant>
 		</param>
 		<!-- the command (word) as returned by a website when declining the crawler's request to fetch the content 
 			 YOU SHOULD PROBABLY NOT CHANGE THIS -->
-		<param name="robotDisallowText">
+		<param name="wcRobotDisallowText">
 			<type>String</type>
 			<value>Disallow</value>
-			<constant>ROBOT_DISALLOW_TEXT</constant>
-		</param>
-		<!-- shall the web crawler stay on the initial given domain while downloading linked sites or not -->
-		<param name="stayOnDomain">
-			<type>Boolean</type>
-			<value>true</value>
-			<constant>STAY_ON_DOMAIN</constant>
+			<constant>WC_ROBOT_DISALLOW_TEXT</constant>
 		</param>
 	</configuration>
 	

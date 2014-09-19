@@ -22,7 +22,9 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.log4j.Logger;
+
 import org.json.simple.JSONObject;
+
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -34,7 +36,6 @@ import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.DataCryptoHandler;
-
 
 /*
 import com.porva.html.keycontent.Kce;
@@ -50,9 +51,9 @@ import com.porva.html.keycontent.TitleFoundListener;
  * @version		0.5				- 18.09.2014
  * @status		in development
  *
- * @description A minimal web crawler. takes an URL from job control and
- * 				fetches that page plus all links up to max depth as defined in
- * 				RuntimeConfiguration section web crawler
+ * @description A minimal web crawler. Takes an URL from job control and fetches 
+ * 				that page plus all linked pages up to max number of pages as defined
+ * 				in applicationContext or RuntimeConfiguration section web crawler
  * 
  *
  * @changelog	0.1 (Chris)		class created as copy from http://cs.nyu.edu/courses/fall02/G22.3033-008/WebCrawler.java
@@ -120,8 +121,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 						logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer);
 				}
 			}
-			int pageCount = 0;
-
+			
 			/* THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
 			logger.info("retrieving restrictions from configuration db");
 			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope);
@@ -135,22 +135,22 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			if (tLangs.size()>0) { smallLogMessage += "specific languages "; }
 			if (tLocas.size()>0) { smallLogMessage += "specific Locations "; }
 			*/
-
+			
 			String urlToParse;
 			String host = null;
 			int port = 0;
+			int pageCount = 0;
 			int maxDepth = 0;
-
-			// max number of pages to download
-			int maxPages;
-
+			int maxPages = 0;
+			
 			String user;
 			String passwd;
 
 			// get the initial server url and extract host and port for the authentication process from it
 			if (!arg0.getJobDetail().getJobDataMap().containsKey("server_url")){
-				logger.error("ERROR :: not url to parse given - this is fatal: exiting");
-				System.exit(SNCStatusCodes.FATAL.getErrorCode());
+				logger.error("ERROR :: no url to parse given - this is fatal: exiting");
+				//System.exit(SNCStatusCodes.FATAL.getErrorCode());
+				return;
 			}
 			urlToParse = (String) arg0.getJobDetail().getJobDataMap().get("server_url");
 			try {
@@ -165,11 +165,13 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				stayOnDomain = arg0.getJobDetail().getJobDataMap().getBooleanFromString("stayOnDomain");
 			} else {
 				logger.trace("configuration setting stayOnDomain not found in job control, getting from runtime configuration");
-				stayOnDomain = RuntimeConfiguration.isSTAY_ON_DOMAIN();
+				stayOnDomain = RuntimeConfiguration.isWC_STAY_ON_DOMAIN();
 			}
 			if (arg0.getJobDetail().getJobDataMap().containsKey("max_depth"))
 				maxDepth = Integer.parseInt((String) arg0.getJobDetail().getJobDataMap().get("max_depth"));
-
+			if (arg0.getJobDetail().getJobDataMap().containsKey("max_pages"))
+				maxPages = Integer.parseInt((String) arg0.getJobDetail().getJobDataMap().get("max_pages"));
+			
 			if ((arg0.getJobDetail().getJobDataMap().containsKey("user")) && (arg0.getJobDetail().getJobDataMap().containsKey("passwd"))) {
 				try {
 					user = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get("user"));
@@ -182,20 +184,13 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					logger.error("Could not decrypt username and password from applicationContext.xml");
 				}
 			}
-
+			
 			// all configuration settings sourced in - let's start
 			logger.info("New "+CRAWLER_NAME+" crawler instantiated for site "+urlToParse+" - restricted to track " + smallLogMessage);
-
-
-			FileWriter ff = null;
-			try {
-				ff = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+"sitelist.txt");
-			} catch (IOException e1) {}
-
-
-			// initialize the urls that we want to parse
+			
+			
+			// initialize the url that we want to parse
 			URL url = null;
-
 			try {
 				url = new URL(urlToParse);
 			} catch (MalformedURLException e) {
@@ -210,21 +205,30 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			// URLs to be searched
 			List<URL> newURLs = new ArrayList<URL>();
 			newURLs.add(url);
-
-			maxPages = RuntimeConfiguration.getSEARCH_LIMIT();
-			int iPages = maxDepth;
-			if (iPages < maxPages) maxPages = iPages;
-
+			
+			// if maxPages or maxDepth (given by crawler configuration) is higher then maximum value in runtime configuration
+			//take the values from runtime configuration. otherwise stick with the values from crawler configuration otherwise,
+			// or if non values are given by crawler configuration, take the values from runtime configuration
+			if (maxPages > RuntimeConfiguration.getWC_SEARCH_LIMIT() || maxPages == 0) maxPages = RuntimeConfiguration.getWC_SEARCH_LIMIT();
+			if (maxDepth > RuntimeConfiguration.getWC_MAX_DEPTH() || maxDepth == 0) maxDepth = RuntimeConfiguration.getWC_MAX_DEPTH();
+			
 			// Behind a firewall set your proxy and port here!
 			//Properties props= new Properties(System.getProperties());
 			//props.put("http.proxySet", "true");
 			//props.put("http.proxyHost", "webcache-cup");
 			//props.put("http.proxyPort", "8080");
-
+			
 			//Properties newprops = new Properties(props);
 			//System.setProperties(newprops);
-
-			logger.debug("All set! Initializing scan - starting with site " + url + " and limited to download " + maxPages + " pages");
+			
+			
+			FileWriter ff = null;
+			try {
+				ff = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+"sitelist.txt");
+			} catch (IOException e1) {}
+			
+			
+			logger.debug("All set! Initializing scan - starting with site " + url + " and limited to download " + maxPages + " pages and " + maxDepth + " maximum deep dive");
 
 			for (int i = 0; i < maxPages; i++) {
 				url = newURLs.get(0);
@@ -234,27 +238,28 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				if (robotSafe(url)) {
 					pageCount++;
 					logger.info("Url "+url+" is #" + pageCount + " to crawl");
-
+					
 					String page = getPage(url);
-
+					
+					
 					// currently we just create a new file and store the page content in it
 					String fileName = url.toString().substring(4).replaceAll(":", "").replaceAll("//", "").replaceAll("/", "_");
 					File f1 = new File("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
 					if (!f1.isFile() || f1.getTotalSpace()<1) {
 						FileWriter rawFile;
-
+						
 						try {
 							// put url to sitelist
 							ff.append(url.toString() + "\n");
-
+							
 							// and content in it's own file
 							rawFile = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
 							rawFile.write(dataCryptoProvider.encryptValue(page));
 							rawFile.flush();
 							rawFile.close();
-
+							
 							ff.flush();
-
+							
 						} catch (IOException e) {
 							logger.error("ERROR :: could not write content of page "+url.toString()+" to disk");
 						} catch (GenericCryptoException e) {
@@ -262,23 +267,25 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							e.printStackTrace();
 						}
 					}
-
+					
+					
 					if (page.length() != 0) getLinksFromPage(url,page, knownURLs, newURLs);
-
+					
 					if (newURLs.isEmpty()) break;
 				}
 			}
-
+			
 			try { ff.close(); } catch (IOException e) {}
 			logger.info(CRAWLER_NAME+"-Crawler END - scanned " + pageCount + " pages");
 		}
 	}
-
-
-
-
-
-	// Check that the robot exclusion protocol does not disallow downloading from this url.
+	
+	
+	/**
+	 * @description		Check that the robot exclusion protocol does not disallow downloading from this url.
+	 * @param 			url to download (if ok)
+	 * @return			true or false - true = download is ok, false download is NOT ok 
+	 */
 	public boolean robotSafe(URL url) {
 		String strHost = url.getHost();
 
@@ -323,8 +330,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		String strURL = url.getFile();
 		int index = 0;
 
-		while ((index = strCommands.indexOf(RuntimeConfiguration.getROBOT_DISALLOW_TEXT(), index)) != -1) {
-			index += RuntimeConfiguration.getROBOT_DISALLOW_TEXT().length();
+		while ((index = strCommands.indexOf(RuntimeConfiguration.getWC_ROBOT_DISALLOW_TEXT(), index)) != -1) {
+			index += RuntimeConfiguration.getWC_ROBOT_DISALLOW_TEXT().length();
 			String strPath = strCommands.substring(index);
 			StringTokenizer st = new StringTokenizer(strPath);
 
@@ -340,8 +347,14 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	}
 
 
-	// adds new URL to the iQueue. Accept only new URL's that end in
-	// htm or html. oldURL is the context, newURLString is the link
+	/**
+	 * @description		Adds new URL to the Queue. If the configuration setting DOWNLOAD_HTML_ONLY 
+	 * 					is set, then only new URL's that end in htm or html are accepted.
+	 * @param oldURL 	the context
+	 * @param url	 	the new url
+	 * @param knownURLs	a map containing urls alreadyknwon to the crawler
+	 * @param newURLs	a list of new urls
+	 */
 	// (either an absolute or a relative URL).
 	public void addNewUrl(URL oldURL, URL url, Map<URL, Integer> knownURLs, List<URL> newURLs) {
 		Boolean proceed = false;
@@ -353,19 +366,13 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		} else {
 			// second, if it is not allowed to leave the domain, let's see if the new
 			// url would actually do so, and if not, let it pass
-
-			String oldDom = oldURL.getHost();	// InternetDomainName.from(url.toString()).topPrivateDomain().name();
-			String newDom = url.getHost();		// InternetDomainName.from(newUrlString).topPrivateDomain().name();
-
-			//logger.trace("old domain: " + oldDom + " new domain: " + newDom);
-
-			if (newDom.equals(oldDom)) {
-				//logger.trace("new domain " + newDom + " equals old domain");
+			
+			if (url.getHost().equals(oldURL.getHost())) {
 				proceed = true;
 			} else {
 				proceed = false;
 				if (RuntimeConfiguration.isWARN_ON_REJECTED_ACTIONS())
-					logger.debug("rejecting host " + newDom + " due to configuration setting stayOnDomain " + stayOnDomain);
+					logger.debug("rejecting host " + url.getHost() + " due to configuration setting stayOnDomain " + stayOnDomain);
 			}
 		}
 
@@ -377,6 +384,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				knownURLs.put(url,new Integer(1));
 				newURLs.add(url);
 				/*
+				 * if you only want html pages, then set wcContentTypeToDownload RuntimeConfiguration
 				String filename =  url.getFile();
 				int iSuffix = filename.lastIndexOf("htm");
 
@@ -396,10 +404,16 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	}
 
 
-	// Go through page finding links to URLs.  A link is signalled
-	// by <a href=" ...   It ends with a close angle bracket, preceded
-	// by a close quote, possibly preceded by a hatch mark (marking a
-	// fragment, an internal page marker)
+	/**
+	 * @description		The pattern matcher finds links within the given page and 
+	 * 					calls addNewUrl with the original url, the newly found link and 
+	 * 					list of known urls. 
+	 * 
+	 * @param 			url	is the url the page was downladed from
+	 * @param 			page is the html content of the page
+	 * @param 			knownURLs a map of already known urls
+	 * @param 			newURLs a list of newly found urls 
+	 */
 	public void getLinksFromPage(URL url, String page, Map<URL, Integer> knownURLs, List<URL> newURLs) {
 		//logger.debug("getLinksFromPage called for " + url.toString());
 		String lcPage = page.toLowerCase(); // Page in lower case
@@ -421,54 +435,12 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	}
 
 	
-	public String getCleanPageContent(String file){
-		logger.debug("cleaning page "+file+" from all clutter...");
-		/*
-
-		// settings for the KCE Key HtmlContent Extractor from
-		// http://sourceforge.net/projects/senews/files/KeyContentExtractor/KCE-1.0/
-		// allocate a new extractor with default settings
-		// TODO find out why KCE brings the webcrawler to a hold, when this code is reached
-		KceSettings settings = new KceSettings();
-		logger.debug("1");
-		// load settings from "conf/keycontent.properties" file
-		settings.loadSettings("WEB-INF/keycontent.properties");
-		logger.debug("2");
-		// construct a new extractor
-		Kce extractor = new Kce(settings);
-		logger.debug("3");
-		*/
-		/*  TODO find out why KCE brings the webcrawler to a hold, when this is activated
-		// register additional listeners
-		LinkFoundListener linkFoundListener = new LinkFoundListener();
-		TitleFoundListener titleNodeFoundListener = new TitleFoundListener();
-
-		extractor.registerNodeFoundListener(linkFoundListener);
-		extractor.registerNodeFoundListener(titleNodeFoundListener);
-		*/
-		/*
-		try {
-			// perform extraction of key content from a html file "file.html" encoded as ISO-8859-1
-			//Document document = extractor.extractKeyContent(new FileInputStream(new File("file.html")), "ISO-8859-1", null);
-			Document document = extractor.extractKeyContent(new FileInputStream(new File(file)), "ISO-8859-1", null);
-			logger.debug("4");
-			if (document != null) { // cleaning was successful
-				logger.trace("...success");
-				StringWriter stringWriter = new StringWriter();
-				// present cleaned document as String
-				Kce.prettyPrint(document, "utf-8", stringWriter);
-				System.out.println(stringWriter);
-				//return stringWriter.toString();
-			}
-		} catch (FileNotFoundException e) {
-			logger.error("WARN :: could not get the file " + file.toString() + " - " + SNCStatusCodes.WARN.getErrorCode());
-		}
-		*/
-		return null;
-	}
-
-
-	// Download the content of the URL
+	
+	/**
+	 * @description	Download and return the content of the given URL
+	 * @param 		url
+	 * @return		page content (in html probably)
+	 */
 	public String getPage(URL url) {
 		logger.trace("getPage called for url " + url.toString());
 		try {
@@ -482,7 +454,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			byte b[] = new byte[1000];
 			int numRead = urlStream.read(b);
 			String content = new String(b, 0, numRead);
-			while ( (numRead != -1) && (content.length() < RuntimeConfiguration.getCRAWLER_MAX_DOWNLOAD_SIZE()) ) {
+			while ( (numRead != -1) && (content.length() < RuntimeConfiguration.getWC_CRAWLER_MAX_DOWNLOAD_SIZE()) ) {
 				numRead = urlStream.read(b);
 				if (numRead != -1) {
 					String newContent = new String(b, 0, numRead);
@@ -497,7 +469,14 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		}
 	}
 
-
+	/**
+	 * @description	authenticates the crawler against a site using plain username/password authentication
+	 * @param 		host
+	 * @param 		port
+	 * @param 		user
+	 * @param 		passwd
+	 * @return		authenticated httpClient
+	 */
 	private CloseableHttpClient HttpBasicAuthentication(String host, int port, String user, String passwd) {
 		CredentialsProvider credsProvider = new BasicCredentialsProvider();
 		credsProvider.setCredentials(
