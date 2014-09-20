@@ -22,33 +22,26 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.log4j.Logger;
-
 import org.json.simple.JSONObject;
-
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
-import de.comlineag.snc.constants.SNCStatusCodes;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
+import de.comlineag.snc.data.HtmlContent;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
+import de.comlineag.snc.handler.ContentExtractionResource;
 import de.comlineag.snc.handler.DataCryptoHandler;
-
-/*
-import com.porva.html.keycontent.Kce;
-import com.porva.html.keycontent.KceSettings;
-import com.porva.html.keycontent.LinkFoundListener;
-import com.porva.html.keycontent.TitleFoundListener;
-*/
+import de.comlineag.snc.helper.BoilerpipeContentExtractionService;
 
 /**
  *
  * @author 		Christian Guenther
  * @category 	job
- * @version		0.5				- 18.09.2014
+ * @version		0.6				- 20.09.2014
  * @status		in development
  *
  * @description A minimal web crawler. Takes an URL from job control and fetches 
@@ -61,36 +54,34 @@ import com.porva.html.keycontent.TitleFoundListener;
  * 				0.3				implemented KCE from http://sourceforge.net/projects/senews/files/KeyContentExtractor/KCE-1.0/
  * 				0.4				added support for runState configuration, to check if the crawler shall actually run
  * 				0.5	(Maic)		replaced ref-parsing with regular expression in the link-search method
+ * 				0.6 (Chris)		implemented boilerpipe to get only the main content from page without any clutter
  *
  */
 public class SimpleWebCrawler extends GenericCrawler implements Job {
 	// it is VERY imoportant to set the crawler name (all in uppercase) here
 	private static String CRAWLER_NAME="WEBCRAWLER";
-
+	
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
-
+	
 	 // whether or not to follow links OFF of the initial domain
 	private Boolean stayOnDomain = true;
-
+	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
 	private final String smallLogMessage = "";
-
+	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml
 	private final ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml
 	private final DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
-
-
-
-
-
-
+	
+	
+	
 	public SimpleWebCrawler(){}
-
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
@@ -239,24 +230,42 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					pageCount++;
 					logger.info("Url "+url+" is #" + pageCount + " to crawl");
 					
+					// now get the page - mainly only because we need th lunks
 					String page = getPage(url);
+					// and then get the relevant content from the page
+					// Boilerpipe is a library to remove unnecessary clutter from a webpage
+					final BoilerpipeContentExtractionService bpes = new BoilerpipeContentExtractionService(); 
+					HtmlContent cleanedPage = bpes.getPageContent(url.toString());
 					
+					String cleanedContent = cleanedPage.getText().toString();
+					String pageTitle = cleanedPage.getTitle().toString();
+					
+					logger.trace("the page " + pageTitle + " contains: " + cleanedContent.substring(0, 200));
 					
 					// currently we just create a new file and store the page content in it
 					String fileName = url.toString().substring(4).replaceAll(":", "").replaceAll("//", "").replaceAll("/", "_");
 					File f1 = new File("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
 					if (!f1.isFile() || f1.getTotalSpace()<1) {
-						FileWriter rawFile;
+						//FileWriter rawFile;
+						FileWriter cleanFile;
 						
 						try {
 							// put url to sitelist
 							ff.append(url.toString() + "\n");
 							
 							// and content in it's own file
+							/*
 							rawFile = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
 							rawFile.write(dataCryptoProvider.encryptValue(page));
 							rawFile.flush();
 							rawFile.close();
+							*/
+							
+							// and leaned content in it's own file
+							cleanFile = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName+"-cleaned");
+							cleanFile.write(dataCryptoProvider.encryptValue(cleanedContent));
+							cleanFile.flush();
+							cleanFile.close();
 							
 							ff.flush();
 							
@@ -402,8 +411,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 
 		}
 	}
-
-
+	
 	/**
 	 * @description		The pattern matcher finds links within the given page and 
 	 * 					calls addNewUrl with the original url, the newly found link and 
@@ -433,8 +441,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			addNewUrl(url, newURL, knownURLs, newURLs);
 		}
 	}
-
-	
 	
 	/**
 	 * @description	Download and return the content of the given URL
@@ -468,7 +474,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			return "";
 		}
 	}
-
+	
 	/**
 	 * @description	authenticates the crawler against a site using plain username/password authentication
 	 * @param 		host

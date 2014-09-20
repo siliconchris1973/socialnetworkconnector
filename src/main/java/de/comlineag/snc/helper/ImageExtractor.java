@@ -37,12 +37,9 @@ public final class ImageExtractor {
          * 
          * @return
          */
-        public static ImageExtractor getInstance() {
-                return INSTANCE;
-        }
+        public static ImageExtractor getInstance() {return INSTANCE;}
 
-        private ImageExtractor() {
-        }
+        private ImageExtractor() {}
 
         /**
          * Processes the given {@link TextDocument} and the original HTML text (as a
@@ -143,28 +140,13 @@ public final class ImageExtractor {
                         }
                 }
 
-                public void endDocument() throws SAXException {
-                }
-
-                public void endPrefixMapping(String prefix) throws SAXException {
-                }
-
-                public void ignorableWhitespace(char[] ch, int start, int length)
-                                throws SAXException {
-                }
-
-                public void processingInstruction(String target, String data)
-                                throws SAXException {
-                }
-
-                public void setDocumentLocator(Locator locator) {
-                }
-
-                public void skippedEntity(String name) throws SAXException {
-                }
-
-                public void startDocument() throws SAXException {
-                }
+                public void endDocument() throws SAXException {}
+                public void endPrefixMapping(String prefix) throws SAXException {}
+                public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {}
+                public void processingInstruction(String target, String data) throws SAXException {}
+                public void setDocumentLocator(Locator locator) {}
+                public void skippedEntity(String name) throws SAXException {}
+                public void startDocument() throws SAXException {}
 
                 public void startElement(String uri, String localName, String qName,
                                 Attributes atts) throws SAXException {
@@ -256,29 +238,21 @@ public final class ImageExtractor {
 
         private static Map<String, TagAction> TAG_ACTIONS = new HashMap<String, TagAction>();
         static {
-                TAG_ACTIONS.put("STYLE", TA_IGNORABLE_ELEMENT);
-                TAG_ACTIONS.put("SCRIPT", TA_IGNORABLE_ELEMENT);
-                TAG_ACTIONS.put("OPTION", TA_IGNORABLE_ELEMENT);
-                TAG_ACTIONS.put("NOSCRIPT", TA_IGNORABLE_ELEMENT);
-                TAG_ACTIONS.put("OBJECT", TA_IGNORABLE_ELEMENT);
-                TAG_ACTIONS.put("EMBED", TA_IGNORABLE_ELEMENT);
-                TAG_ACTIONS.put("APPLET", TA_IGNORABLE_ELEMENT);
-                TAG_ACTIONS.put("LINK", TA_IGNORABLE_ELEMENT);
-
-                TAG_ACTIONS.put("HEAD", TA_IGNORABLE_ELEMENT);
+                TAG_ACTIONS.put("STYLE", 	TA_IGNORABLE_ELEMENT);
+                TAG_ACTIONS.put("SCRIPT",	TA_IGNORABLE_ELEMENT);
+                TAG_ACTIONS.put("OPTION",	TA_IGNORABLE_ELEMENT);
+                TAG_ACTIONS.put("NOSCRIPT",	TA_IGNORABLE_ELEMENT);
+                TAG_ACTIONS.put("OBJECT",	TA_IGNORABLE_ELEMENT);
+                TAG_ACTIONS.put("EMBED",	TA_IGNORABLE_ELEMENT);
+                TAG_ACTIONS.put("APPLET",	TA_IGNORABLE_ELEMENT);
+                TAG_ACTIONS.put("LINK",		TA_IGNORABLE_ELEMENT);
+                TAG_ACTIONS.put("HEAD",		TA_IGNORABLE_ELEMENT);
         }
         
         private abstract static class TagAction {
-                void beforeStart(final Implementation instance, final String localName) {
-                }
-
-                void afterStart(final Implementation instance, final String localName) {
-                }
-
-                void beforeEnd(final Implementation instance, final String localName) {
-                }
-
-                void afterEnd(final Implementation instance, final String localName) {
-                }
+                void beforeStart(final Implementation instance, final String localName) {}
+                void afterStart(final Implementation instance, final String localName) {}
+                void beforeEnd(final Implementation instance, final String localName) {}
+                void afterEnd(final Implementation instance, final String localName) {}
         }
 }

@@ -108,7 +108,7 @@
 			 exceed 1000 and 100 should be ok for the most cases -->
 		<param name="wcSearchLimit">
 			<type>int</type>
-			<value>500</value>
+			<value>10000</value>
 			<constant>WC_SEARCH_LIMIT</constant>
 		</param>
 		<param name="wcMaxDepth">
