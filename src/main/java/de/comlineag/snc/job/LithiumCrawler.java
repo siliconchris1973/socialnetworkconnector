@@ -193,7 +193,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				
 				// if no specific sites are configured, we use the standard REST_API_URL and message search endpoint
 				if (tSites.size()==0){
-					logger.trace("not site restrictions given");
+					logger.trace("no site restrictions given");
 					// now either call threads or messages and return that			
 					if ("messages".equals(threadsOrMessages)) {
 						logger.debug("MESSAGES chosen");

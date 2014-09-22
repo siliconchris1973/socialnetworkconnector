@@ -340,13 +340,19 @@
 			<artifactId>boilerpipe-html-purification-service</artifactId>
 			<version>1.4-RC1</version>
 		</dependency>
-		-->
+		
 		<dependency>
 		    <groupId>de.l3s.boilerpipe</groupId>
 		    <artifactId>boilerpipe</artifactId>
 		    <version>1.2.0</version>
 		</dependency>
-
+		-->
+		<dependency>
+			<groupId>com.syncthemall</groupId>
+			<artifactId>boilerpipe</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+				
 		<!-- used to identify html tags - i think -->
 		<dependency>
 		    <groupId>net.sourceforge.nekohtml</groupId>
@@ -504,7 +510,7 @@
 			<url>file://${project.basedir}/repo</url>
 		</repository>
 		
-		<!-- this repository is needed for boilerpipe -->
+		<!-- this repository is needed for boilerpipe 
 		<repository>
 		    <id>boilerpipe-m2-repo</id>
 		    <url>http://boilerpipe.googlecode.com/svn/repo/</url>
@@ -515,7 +521,7 @@
 		        <enabled>false</enabled>
 		    </snapshots>
 		</repository>
-		
+		-->
 	</repositories>
 
 	<!-- Plugin repository for Glassfish 
