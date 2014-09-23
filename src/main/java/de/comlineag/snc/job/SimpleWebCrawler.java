@@ -273,6 +273,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					// We use it to get the relevant content from the page and only store that
 					// please see http://boilerpipe-web.appspot.com for a short demo on that
 					/*
+					 * TODO MAKE BOILERPIPE WORK
 					 *  THIS IS THE PLACE THE PROGRAM STOPS!!!
 					 */
 					logger.debug("getting relevant page content");
