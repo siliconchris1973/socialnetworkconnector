@@ -130,11 +130,31 @@
 			<value>jpeg</value>
 			<constant>WC_CONTENT_TYPES_TO_DOWNLOAD</constant>
 		</param>
-		<!-- shall the web crawler stay on the initial given domain while downloading linked sites or not -->
+		<!-- whether or not the crawler is allowed to follow links off of the initial domain 
+					 If set to true, then the crawler is NOT allowed to fetch pages from a new domain.
+					 It is generally not recommended to set this to false (thus allowing to leave the 
+					 domain) AND have a high value in max_depth and max_pages, as this could lead to 
+					 a lot of pages being downloaded from any place on the net just by following some 
+					 nice linklist one has setup on his/her page  -->
 		<param name="wcStayOnDomain">
 			<type>Boolean</type>
 			<value>true</value>
 			<constant>WC_STAY_ON_DOMAIN</constant>
+		</param>
+		
+		<!-- Shall the crawler ONLY get pages below the initially given path
+					 Think of this option like an even stricter stayOnDomain. Not only we can't leave the
+					 initial given domain, but any link encountered must point to some page on or below
+					 the above given url. 
+					 That also means, if you set this to true, you do not need to set stayOnDomain, or 
+					 rather the value of stayOnDomain is ignored.
+					 
+					 Note: if you did not give path as part of the url, then / as the path starting point 
+					 is used -->
+		<param name="wcStayBelowGivenPath">
+			<type>Boolean</type>
+			<value>false</value>
+			<constant>WC_STAY_BELOW_GIVEN_PATH</constant>
 		</param>
 		<!-- number of threads for the thread pool of the web crawler. Each downloading of a page (starting from 
 			 the initial one) is executed by one of the threads, so that downloading and parsing can be done in 

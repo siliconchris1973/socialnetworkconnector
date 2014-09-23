@@ -29,7 +29,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  * @author 		Christina Guenther
  * @category	handler
- * @revision	0.5a			- 18.09.2014
+ * @revision	0.5b			- 22.09.2014
  * @status		productive with minor limitations
  * 
  * @description	this class is used to setup the overall configuration of the SNC.
@@ -51,6 +51,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 								moved the Social Network Definitions in their own file 
  * 				0.5				added support for CrawlerRun and tidied up
  * 				0.5a			added thread-pool size for multi-threaded web crawler
+ * 				0.5b			added stayBelowGivenPath for the web crawler
  *
  * TODO 1. get the xml layout structure elements from RuntimeConfiguration.xml
  * TODO 2. use nodelist instead of single expressions for each node
@@ -102,6 +103,7 @@ public final class RuntimeConfiguration implements Job {
 	private static String	WC_ROBOT_DISALLOW_TEXT 				= "Disallow:";
 	private static int		WC_CRAWLER_MAX_DOWNLOAD_SIZE 		= 2000000;	// Max size of download per page in kb
 	private static boolean	WC_STAY_ON_DOMAIN					= true;
+	private static boolean	WC_STAY_BELOW_GIVEN_PATH			= false;
 	private static int		WC_THREAD_POOL_SIZE					= 10;		// number of threads for parallel downloading of pages
 	
 	
@@ -241,6 +243,10 @@ public final class RuntimeConfiguration implements Job {
 			// stayOnDomain
 			setWC_STAY_ON_DOMAIN(getBooleanElement("runtime", "wcStayOnDomain", xpath, doc));
 			debugMsg += " / WC_STAY_ON_DOMAIN is " + isWC_STAY_ON_DOMAIN();
+			
+			// stayBelowGivenPath
+			setWC_STAY_BELOW_GIVEN_PATH(getBooleanElement("runtime", "wcStayBelowGivenPath", xpath, doc));
+			debugMsg += " / WC_STAY_BELOW_GIVEN_PATH is " + isWC_STAY_BELOW_GIVEN_PATH();
 			
 			// threadPool
 			setWC_THREAD_POOL_SIZE(getIntElement("runtime", "wcThreadPoolSize", xpath, doc));
@@ -502,8 +508,13 @@ public final class RuntimeConfiguration implements Job {
 	
 	public static boolean 	isWC_STAY_ON_DOMAIN() {return WC_STAY_ON_DOMAIN;}
 	public static void 		setWC_STAY_ON_DOMAIN(boolean sTAY_ON_DOMAIN) { WC_STAY_ON_DOMAIN = sTAY_ON_DOMAIN;}
+	public static boolean 	isWC_STAY_BELOW_GIVEN_PATH() {return WC_STAY_BELOW_GIVEN_PATH;}
+	public static void 		setWC_STAY_BELOW_GIVEN_PATH(boolean wC_STAY_BELOW_GIVEN_PATH) {WC_STAY_BELOW_GIVEN_PATH = wC_STAY_BELOW_GIVEN_PATH;}
 	public static int 		getWC_THREAD_POOL_SIZE() {return WC_THREAD_POOL_SIZE;}
 	public static void 		setWC_THREAD_POOL_SIZE(int wC_THREAD_POOL_SIZE) {WC_THREAD_POOL_SIZE = wC_THREAD_POOL_SIZE;}
 	public static int 		getWC_MAX_DEPTH() {return WC_MAX_DEPTH;}
 	public static void 		setWC_MAX_DEPTH(int wC_MAX_DEPTH) {WC_MAX_DEPTH = wC_MAX_DEPTH;}
+
+
+
 }

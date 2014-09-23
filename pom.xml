@@ -22,7 +22,7 @@
 	
 	<groupId>de.comlineag.snc</groupId>
 	<artifactId>SocialNetworkConnector</artifactId>
-	<version>0.3.2</version>
+	<version>0.3.3</version>
 	
 	<name>Social Network Connector</name>
 	<url>http://service.comlineag.de/snc</url>
@@ -82,108 +82,6 @@
 					</execution>
 				</executions>
 			</plugin>
--->
-			
-			<!-- 
-				application server configuration - this is where you want to define your app-server of choice 
-			-->
-			<!-- JETTY APPLICATION SERVER --> 
-<!-- 
-			<plugin>
-				<groupId>org.mortbay.jetty</groupId>
-				<artifactId>maven-jetty-plugin</artifactId>
-				<version>6.1.7</version>
-				<configuration>
-					<connectors>
-						<connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
-							<port>8888</port>
-							<maxIdleTime>30000</maxIdleTime>
-						</connector>
-					</connectors>
-					<webAppSourceDirectory>${project.build.directory}/${project.artifactId}-${project.version}</webAppSourceDirectory>
-					<contextPath>/</contextPath>
-				</configuration>
-			</plugin>
--->
-					
-
-			<!-- TOMCAT 7 APPLICATION SERVER -->
-			<!-- CAUSES THIS ERROR AT THE MOMENT:
-					The POM for org.apache.tomcat.maven:tomcat7-maven-plugin:jar:2.3 is missing, no dependency information available -->
-<!-- 
-			<plugin> 
-				<groupId>org.apache.tomcat.maven</groupId> 
-				<artifactId>tomcat7-maven-plugin</artifactId> 
-				<version>2.3</version> 
-				<configuration> 
-					<connectors> 
-						<url>http://localhost:8080/SocialNetworkConnector</url> 
-						<connector> 
-							<port>8080</port> 
-							<maxIdleTime>30000</maxIdleTime> 
-						</connector> 
-					</connectors> 
-					<webAppSourceDirectory>${project.build.directory}/${project.artifactId}-${project.version}</webAppSourceDirectory> 
-					<contextPath>/</contextPath> 
-				</configuration>
-			</plugin> 
--->
-
- 			
- 			<!-- GLASSFISH EMBEDDED APP-SERVER -->
-<!-- 
- 			<plugin>
-				<groupId>org.glassfish.embedded</groupId>
-				<artifactId>maven-embedded-glassfish-plugin</artifactId>
-				<version>3.1.2.2</version>
-				<configuration>
-					<app>target/${project.artifactId}-${project.version}</app>
-					<port>8282</port>
-					<contextRoot>${project.artifactId}</contextRoot>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.glassfish.main</groupId>
-						<artifactId>simple-glassfish-api</artifactId>
-						<version>4.0-b79</version>
-					</dependency>
-					<dependency>
-						<groupId>org.glassfish.main.extras</groupId>
-						<artifactId>glassfish-embedded-all</artifactId>
-						<version>4.0-b83</version>
-					</dependency>
-				</dependencies>
-			</plugin>
- -->		
- 			
- 			<!-- GLASSFISH STANDALONE APPLICATION SERVER -->
-<!-- 
- 			<plugin>
-				<groupId>org.glassfish.main.common</groupId>
-				<artifactId>glassfish-api</artifactId>
-				<version>4.0</version>
-				
-				<configuration>
-					<glassfishDirectory>/opt/glassfish4</glassfishDirectory>
-					<user>admin</user>
-					<adminPassword>admin123</adminPassword>
-					
-					<app>SocialNetworkConnector.war</app>
-					
-					<autoCreate>true</autoCreate>
-					<debug>true</debug>
-					<echo>false</echo>
-					<terse>true</terse>
-					<executions>
-						<execution>
-							<phase>install</phase>
-							<goals>
-								<goal>deploy</goal>
-							</goals>
-						</execution>
-					</executions>
-				</configuration>
- 			</plugin>
 -->
 		</plugins>
 	</build>
@@ -333,34 +231,27 @@
 			<version>3.3.2</version>
 		</dependency>
 		
-		<!-- Boilerpipe is used to get rid of all clutter from a web page - used by web crawler -->
-		<!-- 
+		<!-- Jericho html parser to convert html to plain txt -->
 		<dependency>
-			<groupId>org.ow2.weblab.webservices</groupId>
-			<artifactId>boilerpipe-html-purification-service</artifactId>
-			<version>1.4-RC1</version>
+			<groupId>net.htmlparser.jericho</groupId>
+			<artifactId>jericho-html</artifactId>
+			<version>3.1</version>
 		</dependency>
 		
-		<dependency>
-		    <groupId>de.l3s.boilerpipe</groupId>
-		    <artifactId>boilerpipe</artifactId>
-		    <version>1.2.0</version>
-		</dependency>
-		-->
+		<!-- Boilerpipe to get the relevant content off of the pages -->
 		<dependency>
 			<groupId>com.syncthemall</groupId>
 			<artifactId>boilerpipe</artifactId>
-			<version>1.2.2</version>
+			<version>1.2.1</version>
 		</dependency>
-				
-		<!-- used to identify html tags - i think -->
-		<dependency>
-		    <groupId>net.sourceforge.nekohtml</groupId>
-		    <artifactId>nekohtml</artifactId>
-		    <version>1.9.13</version>
-		</dependency>
-		 
 		
+		<!-- NekoHTML for filtering out irrelevant parts of a html page -->
+		<dependency>
+			<groupId>net.sourceforge.nekohtml</groupId>
+			<artifactId>nekohtml</artifactId>
+			<version>1.9.21</version>
+		</dependency>
+
 		<!-- RUNTIME ENVIRONMENT -->
 		<!-- used for the job control -->
 		<dependency>
@@ -523,19 +414,4 @@
 		</repository>
 		-->
 	</repositories>
-
-	<!-- Plugin repository for Glassfish 
-	<pluginRepositories>
-		<pluginRepository>
-			<id>maven.java.net</id>
-			<name>Java.net Repository for Maven</name>
-			<url>https://maven.java.net/content/groups/promoted/</url>
-		</pluginRepository>
-		<pluginRepository>
-			<id>maven2-repository.dev.java.net</id>
-			<name>Java.net Repository for Maven</name>
-			<url>http://download.java.net/maven/glassfish/</url>
-		</pluginRepository>
-	</pluginRepositories>
-	-->
 </project>

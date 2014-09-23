@@ -15,6 +15,8 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.htmlparser.jericho.Source;
+
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -26,8 +28,6 @@ import org.json.simple.JSONObject;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
@@ -35,18 +35,15 @@ import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.DataCryptoHandler;
+import de.comlineag.snc.helper.HTMLSanitiser;
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
-import de.l3s.boilerpipe.document.TextDocument;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
-import de.l3s.boilerpipe.sax.BoilerpipeSAXInput;
-import de.l3s.boilerpipe.sax.HTMLDocument;
-import de.l3s.boilerpipe.sax.HTMLFetcher;
 
 /**
  *
  * @author 		Christian Guenther
  * @category 	job
- * @version		0.6				- 20.09.2014
+ * @version		0.7				- 20.09.2014
  * @status		in development
  *
  * @description A minimal web crawler. Takes a URL from job control and fetches that page
@@ -60,6 +57,7 @@ import de.l3s.boilerpipe.sax.HTMLFetcher;
  * 				0.4				added support for runState configuration, to check if the crawler shall actually run
  * 				0.5	(Maic)		replaced ref-parsing with regular expression in the link-search method
  * 				0.6 (Chris)		implemented boilerpipe to get only the main content from page without any clutter
+ * 				0.7				removed boilerpipe (does not work) and implemented jericho for html parsing
  *
  */
 public class SimpleWebCrawler extends GenericCrawler implements Job {
@@ -71,12 +69,11 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
-	 // whether or not to follow links OFF of the initial domain
+	// whether or not to follow links OFF of the initial domain
 	private Boolean stayOnDomain = true;
-	
-	// this string is used to compose all the little debug messages from the different restriction possibilities
-	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
-	private final String smallLogMessage = "";
+	// whether or not to parse urls above the initial given path of the url
+	private Boolean stayBelowGivenPath = false;
+	private String initialPath = "/";
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml
 	private final ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
@@ -91,6 +88,11 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		// this string is used to compose all the little debug messages from the different restriction possibilities
+		// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
+		String smallLogMessage = "";
+		
+		
 		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
 
@@ -136,7 +138,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			String urlToParse;
 			String host = null;
 			int port = 0;
-			int pageCount = 0;
+			int pageCount = 1;
 			int maxDepth = 0;
 			int maxPages = 0;
 			
@@ -154,20 +156,44 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				URL tempurl = new URL(urlToParse);
 				host = tempurl.getHost();
 				port = tempurl.getPort();
+				initialPath = tempurl.getPath();
+				//if (initialPath == null) initialPath = "/";
 			} catch (MalformedURLException e2) {}
 
-			// check if the configuration setting to stay on the initial domain is set in the
+			
+			// check if the configuration setting to stay below the given path is set in the
 			// job control and if not, get it from the runtime configuration (global setting)
-			if (arg0.getJobDetail().getJobDataMap().containsKey("stayOnDomain")) {
-				stayOnDomain = arg0.getJobDetail().getJobDataMap().getBooleanFromString("stayOnDomain");
+			if (arg0.getJobDetail().getJobDataMap().containsKey("stayBelowGivenPath")) {
+				stayBelowGivenPath = arg0.getJobDetail().getJobDataMap().getBooleanFromString("stayBelowGivenPath");
 			} else {
-				logger.trace("configuration setting stayOnDomain not found in job control, getting from runtime configuration");
-				stayOnDomain = RuntimeConfiguration.isWC_STAY_ON_DOMAIN();
+				logger.trace("configuration setting stayBelowGivenPath not found in job control, getting from runtime configuration");
+				stayBelowGivenPath = RuntimeConfiguration.isWC_STAY_BELOW_GIVEN_PATH();
 			}
+			
+			if (stayBelowGivenPath) {
+				stayOnDomain = true;
+				smallLogMessage += " pages below given path ";
+			} else {
+				// check if the configuration setting to stay on the initial domain is set in the
+				// job control and if not, get it from the runtime configuration (global setting)
+				if (arg0.getJobDetail().getJobDataMap().containsKey("stayOnDomain")) {
+					stayOnDomain = arg0.getJobDetail().getJobDataMap().getBooleanFromString("stayOnDomain");
+				} else {
+					logger.trace("configuration setting stayOnDomain not found in job control, getting from runtime configuration");
+					stayOnDomain = RuntimeConfiguration.isWC_STAY_ON_DOMAIN();
+				}
+				
+				if (stayOnDomain)
+					smallLogMessage += " pages on this domain ";
+			}
+			
 			if (arg0.getJobDetail().getJobDataMap().containsKey("max_depth"))
 				maxDepth = Integer.parseInt((String) arg0.getJobDetail().getJobDataMap().get("max_depth"));
 			if (arg0.getJobDetail().getJobDataMap().containsKey("max_pages"))
 				maxPages = Integer.parseInt((String) arg0.getJobDetail().getJobDataMap().get("max_pages"));
+			
+			smallLogMessage += " track max "+maxPages+" pages ";
+			smallLogMessage += " max "+maxDepth+" levels deep ";
 			
 			if ((arg0.getJobDetail().getJobDataMap().containsKey("user")) && (arg0.getJobDetail().getJobDataMap().containsKey("passwd"))) {
 				try {
@@ -226,49 +252,48 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				newURLs.remove(0);
 				
 				if (robotSafe(url)) {
-					pageCount++;
 					logger.info("Url "+url+" is #" + pageCount + " to crawl");
-					
 					String page = getPage(url);
-					
-					
-					// Boilerpipe is a library to remove unnecessary clutter from a web-page
-					// We use it to get the relevant content from the page and only store that
-					// please see http://boilerpipe-web.appspot.com for a short demo on that
+					String fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+".html";
 					try {
-						logger.debug("getting page content with boilerpipe for url " + url.toString());
-						
-						InputSource is = new InputSource();
-						is.setEncoding("UTF-8");
-						is.setByteStream(url.openStream());
-
-						String text = ArticleExtractor.INSTANCE.getText(is);
-						logger.trace("the text >>> " + text.toString().substring(0, 100));
-						
-						/*
-						logger.debug("trying to fetch the page with boilerpipe");
-						final HTMLDocument htmlDoc = HTMLFetcher.fetch(url);
-						
-						// THIS IS THE STATEMENT AFTER WHICH MY PROGRAM STOPS
-						logger.trace("now decoding the page and creating a document via sax-parser");
-						final TextDocument doc = new BoilerpipeSAXInput(htmlDoc.toInputSource()).getTextDocument();
-						
-						logger.trace(">>> " + doc.getText(true, true));
-						
-						logger.trace("the page " + doc.getTitle() + " contains: " + doc.getContent().substring(0, 200));
-						
-						// currently we just create a new file and store the page content in it
-						String fileName = url.toString().substring(4).replaceAll(":", "").replaceAll("//", "").replaceAll("/", "_");
-						writeContentToDisk(fileName, doc.getContent());
-						
-					} catch (IOException | BoilerpipeProcessingException | SAXException e) {
-					*/
-					} catch (Exception e) {
-						logger.error("could not write page content of site to disk");
+						writeContentToDisk(fileName, page);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					
-					if (page.length() != 0) getLinksFromPage(url,page, knownURLs, newURLs);
+					// Jericho is a library to parse html pages and identify the parts of it.
+					// we use it to clean the html content prior feeding it to boilerpipe  
+					logger.debug("sanitising page");
+					String sanitisedHtml = HTMLSanitiser.stripInvalidMarkup(page);
+					//Source source = new Source(sanitisedHtml);
+					//String text = source.getTextExtractor().toString();
+					
+					// Boilerpipe is a content extraction library for html pages 
+					// We use it to get the relevant content from the page and only store that
+					// please see http://boilerpipe-web.appspot.com for a short demo on that
+					logger.debug("getting relevant page content");
+					String text = null;
+					try {
+						text = ArticleExtractor.INSTANCE.getText(sanitisedHtml);
+					} catch (BoilerpipeProcessingException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
+					logger.trace("writing content to disk");
+					fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+"_cleaned.html";
+					try {
+						pageCount++;
+						
+						writeContentToDisk(fileName, text);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					
+					if (page.length() != 0) getLinksFromPage(url, page, knownURLs, newURLs);
 					if (newURLs.isEmpty()) break;
 				}
 			}
@@ -354,21 +379,48 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	// (either an absolute or a relative URL).
 	private void addNewUrl(URL oldURL, URL url, Map<URL, Integer> knownURLs, List<URL> newURLs) {
 		Boolean proceed = false;
-		// we only parse sites on the same domain as the starting domain
-		// except in case the configuration settigs stayOnDomain is set to false
-		// so first thing is to check if configuration setting allows to leave a domain
-		if (!stayOnDomain){
+		// there are two possibilities to restrict the urls to add to the parsing list
+		// one is based on the path and the other is based on the domain.
+		// that means we either restrict parsing to urls below the initially given path
+		// or we only parse sites on the same domain as the starting domain
+		if (!stayBelowGivenPath) {
 			proceed = true;
-		} else {
-			// second, if it is not allowed to leave the domain, let's see if the new
-			// url would actually do so, and if not, let it pass
 			
-			if (url.getHost().equals(oldURL.getHost())) {
-				proceed = true;
+			if (stayOnDomain) proceed = false; 
+		}
+		
+		if (!proceed) {
+			// if proceed is false at this point, we either are not allowed to
+			// grab urls that aren't below the given path, or we are not allowed to
+			// leave the initial domain. Because stayBelowGivenPath supersedes, 
+			// if set at all, we start with the check on that and only if that is 
+			// false, we check for the domain
+			if (stayBelowGivenPath) {
+				if (url.getHost().equals(oldURL.getHost())) {
+					// if it is not allowed to leave the domain, let's see if the new
+					// url would actually do so, and if not, let it pass
+					if (url.getPath().substring(0, initialPath.length()).equals(initialPath)) {
+						proceed = true;
+					} else {
+						proceed = false;
+						if (RuntimeConfiguration.isWARN_ON_REJECTED_ACTIONS())
+							logger.debug("rejecting url " + url.getPath() + " because it not below initial path "+initialPath+" and stayBelowGivenPath is " + stayBelowGivenPath);
+					}
+				} else {
+					proceed = false;
+					if (RuntimeConfiguration.isWARN_ON_REJECTED_ACTIONS())
+						logger.debug("rejecting host " + url.getHost() + " because it is not on the initial domain "+oldURL.getHost()+" and stayOnDomain is " + stayOnDomain);
+				}
 			} else {
-				proceed = false;
-				if (RuntimeConfiguration.isWARN_ON_REJECTED_ACTIONS())
-					logger.debug("rejecting host " + url.getHost() + " due to configuration setting stayOnDomain " + stayOnDomain);
+				// if it is not allowed to leave the domain, let's see if the new
+				// url would actually do so, and if not, let it pass
+				if (url.getHost().equals(oldURL.getHost())) {
+					proceed = true;
+				} else {
+					proceed = false;
+					if (RuntimeConfiguration.isWARN_ON_REJECTED_ACTIONS())
+						logger.debug("rejecting host " + url.getHost() + " because it is not on the initial domain "+oldURL.getHost()+" and stayonDomain is " + stayOnDomain);
+				}
 			}
 		}
 
@@ -393,7 +445,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				*/
 
 			} else {
-				logger.trace("the url " + url.toString() + " is already in the list");
+				//logger.trace("the url " + url.toString() + " is already in the list");
 			}
 
 		}
@@ -500,7 +552,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			
 			try {
 				// and leaned content in it's own file
-				f2 = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName+"-cleaned");
+				f2 = new FileWriter("storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
 				f2.write(dataCryptoProvider.encryptValue(content));
 				f2.flush();
 				f2.close();

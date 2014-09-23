@@ -62,6 +62,12 @@
 		<appender-ref ref="fileA" />
 	</logger>
 	
+	<!-- log infos from jericho framework -->
+	<logger name="net.htmlparser.jericho">
+		<level value="debug"></level>
+		<appender-ref ref="console" />
+		<appender-ref ref="fileH" />
+	</logger>
 	<!-- log infos from spring framework -->
 	<logger name="org.springframework">
 		<level value="info"></level>
