@@ -245,12 +245,6 @@
 			<version>1.2.1</version>
 		</dependency>
 		
-		<!-- NekoHTML for filtering out irrelevant parts of a html page -->
-		<dependency>
-			<groupId>net.sourceforge.nekohtml</groupId>
-			<artifactId>nekohtml</artifactId>
-			<version>1.9.21</version>
-		</dependency>
 
 		<!-- RUNTIME ENVIRONMENT -->
 		<!-- used for the job control -->
@@ -281,16 +275,6 @@
 			<groupId>xerces</groupId>
 			<artifactId>xercesImpl</artifactId>
 			<version>2.11.0</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>xml-apis</groupId>
-			<artifactId>xml-apis</artifactId> 
-			<!-- xml-apis was relocated from version 2.0.2 to 1.0.b2  
-				 while group- and artifact-id stayed the same, does 
-				 not make any sense to me, but that is what mvn says -->
-			<version>1.0.b2</version>
-			<scope>provided</scope>
 		</dependency>
 
 
