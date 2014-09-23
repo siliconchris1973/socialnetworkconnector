@@ -272,6 +272,9 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					// Boilerpipe is a content extraction library for html pages 
 					// We use it to get the relevant content from the page and only store that
 					// please see http://boilerpipe-web.appspot.com for a short demo on that
+					/*
+					 *  THIS IS THE PLACE THE PROGRAM STOPS!!!
+					 */
 					logger.debug("getting relevant page content");
 					String text = null;
 					try {
