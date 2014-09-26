@@ -13,10 +13,8 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
->>>>>>> FETCH_HEAD
+
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -34,13 +32,9 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
-<<<<<<< HEAD
+
 import de.comlineag.snc.handler.SimpleWebParser;
-=======
-import de.comlineag.snc.handler.DataCryptoHandler;
-import de.comlineag.snc.helper.HTMLSanitiser;
-import de.l3s.boilerpipe.extractors.ArticleExtractor;
->>>>>>> FETCH_HEAD
+
 
 /**
  *
@@ -78,7 +72,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	private Boolean stayOnDomain = true;
 	// whether or not to parse urls above the initial given path of the url
 	private Boolean stayBelowGivenPath = false;
-<<<<<<< HEAD
 	// whether or not the crawler shall only get pages containing any of the track terms
 	private boolean getOnlyRelevantPages = false;
 	
@@ -97,30 +90,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		
-=======
-	private String initialPath = "/";
-
-	// this provides for different encryption provider, the actual one is set in applicationContext.xml
-	private final ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
-	// this provides for different encryption provider, the actual one is set in applicationContext.xml
-	private final DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
-
-
-
-
-	public SimpleWebCrawler(){}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void execute(JobExecutionContext arg0) throws JobExecutionException {
->>>>>>> FETCH_HEAD
 		try {
-			// this string is used to compose all the little debug messages from the different restriction possibilities
-			// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
-			String smallLogMessage = "";
-<<<<<<< HEAD
-			
+			String smallLogMessage = null;	
 			// runtime settings and crawler constraints
 			String initialPath = "/";
 			String urlToParse;
@@ -137,13 +108,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			
 			@SuppressWarnings("rawtypes")
 			CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
-	
-=======
-
-			@SuppressWarnings("rawtypes")
-			CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
-
->>>>>>> FETCH_HEAD
+			
 			// first check is to get the information, if the crawler was
 			// deactivated from within the crawler configuration, even if
 			// it is active in applicationContext.xml
@@ -151,7 +116,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
 				JSONObject configurationScope = crawlerConfig.getCrawlerConfigurationScope();
 				configurationScope.put("SN_ID", SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
-<<<<<<< HEAD
 				
 				if (arg0.getJobDetail().getJobDataMap().containsKey("useAllCrawlerConstraints"))
 					configurationScope.put("INCLUDE_ALL", arg0.getJobDetail().getJobDataMap().containsKey("useAllCrawlerConstraints"));
@@ -177,12 +141,14 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				/* THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS */
 				logger.info("retrieving restrictions from configuration db");
 				ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope);
+				ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintSiteText(), configurationScope);
 				ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope);
 				ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
 				//ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(RuntimeConfiguration.getConstraintLocationText(), configurationScope);
 	
 				// log output
 				if (tTerms.size()>0) { smallLogMessage += "specific terms "; }
+				if (tSites.size()>0) { smallLogMessage += "specific sites "; }
 				if (tUsers.size()>0) { smallLogMessage += "specific users "; }
 				if (tLangs.size()>0) { smallLogMessage += "specific languages "; }
 				//if (tLocas.size()>0) { smallLogMessage += "specific Locations "; }
@@ -237,97 +203,12 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				}
 				
 				
+
 				// max # of pages and max depth
-=======
-
-				// set the customer we start the crawler for and log the startup message
-				String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
-				String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
-
-				if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
-					logger.info(CRAWLER_NAME+"-Crawler START");
-				} else {
-					if (!"undefined".equals(curDomain) && !"undefined".equals(curCustomer)) {
-						logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer + " in " + curDomain);
-					} else {
-						if (!"undefined".equals(curDomain))
-							logger.info(CRAWLER_NAME+"-Crawler START for " + curDomain);
-						else
-							logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer);
-					}
-				}
-
-				/* THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
-				logger.info("retrieving restrictions from configuration db");
-				ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope);
-				ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope);
-				ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
-				ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(RuntimeConfiguration.getConstraintLocationText(), configurationScope);
-
-				// log output
-				if (tTerms.size()>0) { smallLogMessage += "specific terms "; }
-				if (tUsers.size()>0) { smallLogMessage += "specific users "; }
-				if (tLangs.size()>0) { smallLogMessage += "specific languages "; }
-				if (tLocas.size()>0) { smallLogMessage += "specific Locations "; }
-				*/
-
-				String urlToParse;
-				String host = null;
-				int port = 0;
-				int maxDepth = 0;
-				int maxPages = 0;
-
-				String user;
-				String passwd;
-
-				// get the initial server url and extract host and port for the authentication process from it
-				if (!arg0.getJobDetail().getJobDataMap().containsKey("server_url")){
-					logger.error("ERROR :: no url to parse given - this is fatal: exiting");
-					//System.exit(SNCStatusCodes.FATAL.getErrorCode());
-					return;
-				}
-				urlToParse = (String) arg0.getJobDetail().getJobDataMap().get("server_url");
-				try {
-					URL tempurl = new URL(urlToParse);
-					host = tempurl.getHost();
-					port = tempurl.getPort();
-					initialPath = tempurl.getPath();
-					//if (initialPath == null) initialPath = "/";
-				} catch (MalformedURLException e2) {}
-
-
-				// check if the configuration setting to stay below the given path is set in the
-				// job control and if not, get it from the runtime configuration (global setting)
-				if (arg0.getJobDetail().getJobDataMap().containsKey("stayBelowGivenPath")) {
-					stayBelowGivenPath = arg0.getJobDetail().getJobDataMap().getBooleanFromString("stayBelowGivenPath");
-				} else {
-					logger.trace("configuration setting stayBelowGivenPath not found in job control, getting from runtime configuration");
-					stayBelowGivenPath = RuntimeConfiguration.isWC_STAY_BELOW_GIVEN_PATH();
-				}
-
-				if (stayBelowGivenPath) {
-					stayOnDomain = true;
-					smallLogMessage += " pages below given path ";
-				} else {
-					// check if the configuration setting to stay on the initial domain is set in the
-					// job control and if not, get it from the runtime configuration (global setting)
-					if (arg0.getJobDetail().getJobDataMap().containsKey("stayOnDomain")) {
-						stayOnDomain = arg0.getJobDetail().getJobDataMap().getBooleanFromString("stayOnDomain");
-					} else {
-						logger.trace("configuration setting stayOnDomain not found in job control, getting from runtime configuration");
-						stayOnDomain = RuntimeConfiguration.isWC_STAY_ON_DOMAIN();
-					}
-
-					if (stayOnDomain)
-						smallLogMessage += " pages on this domain ";
-				}
-
->>>>>>> FETCH_HEAD
 				if (arg0.getJobDetail().getJobDataMap().containsKey("max_depth"))
 					maxDepth = Integer.parseInt((String) arg0.getJobDetail().getJobDataMap().get("max_depth"));
 				if (arg0.getJobDetail().getJobDataMap().containsKey("max_pages"))
 					maxPages = Integer.parseInt((String) arg0.getJobDetail().getJobDataMap().get("max_pages"));
-<<<<<<< HEAD
 				// if maxPages or maxDepth (given by crawler configuration) is higher then maximum value in runtime configuration
 				// take the values from runtime configuration. otherwise stick with the values from crawler configuration otherwise,
 				// or if non values are given by crawler configuration, take the values from runtime configuration
@@ -338,12 +219,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				
 				
 				// is username/password given for authentication 
-=======
-
-				smallLogMessage += " track max "+maxPages+" pages ";
-				smallLogMessage += " max "+maxDepth+" levels deep ";
-
->>>>>>> FETCH_HEAD
 				if ((arg0.getJobDetail().getJobDataMap().containsKey("user")) && (arg0.getJobDetail().getJobDataMap().containsKey("passwd"))) {
 					try {
 						user = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get("user"));
@@ -356,26 +231,14 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 						logger.error("Could not decrypt username and password from applicationContext.xml");
 					}
 				}
-<<<<<<< HEAD
 				
-				
-				// initialize the url(s) that we want to parse
-=======
-
-				// all configuration settings sourced in - let's start
-				logger.info("New "+CRAWLER_NAME+" crawler instantiated for site "+urlToParse+" - restricted to track " + smallLogMessage);
-
-
 				// initialize the url that we want to parse
-				URL url = null;
->>>>>>> FETCH_HEAD
 				try {
 					url = new URL(urlToParse);
 				} catch (MalformedURLException e) {
 					logger.error("Invalid starting URL " + url + ": " + e.getLocalizedMessage());
 					return;
 				}
-<<<<<<< HEAD
 				
 				// Known URLs
 				Map<URL, Integer> knownURLs = new HashMap<URL, Integer>();
@@ -465,102 +328,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		//			}
 		//		}).start();
 			} // end of crawler deactivation
-=======
 
-				// Known URLs
-				final Map<URL, Integer> knownURLs = new HashMap<URL, Integer>();
-				knownURLs.put(url,new Integer(1));
-
-				// URLs to be searched
-				final List<URL> newURLs = new ArrayList<URL>();
-				newURLs.add(url);
-
-				// if maxPages or maxDepth (given by crawler configuration) is higher then maximum value in runtime configuration
-				// take the values from runtime configuration. otherwise stick with the values from crawler configuration otherwise,
-				// or if non values are given by crawler configuration, take the values from runtime configuration
-				if (maxPages > RuntimeConfiguration.getWC_SEARCH_LIMIT() || maxPages == 0) maxPages = RuntimeConfiguration.getWC_SEARCH_LIMIT();
-				if (maxDepth > RuntimeConfiguration.getWC_MAX_DEPTH() || maxDepth == 0) maxDepth = RuntimeConfiguration.getWC_MAX_DEPTH();
-
-				// Behind a firewall set your proxy and port here!
-				//Properties props= new Properties(System.getProperties());
-				//props.put("http.proxySet", "true");
-				//props.put("http.proxyHost", "webcache-cup");
-				//props.put("http.proxyPort", "8080");
-
-				//Properties newprops = new Properties(props);
-				//System.setProperties(newprops);
-
-
-				logger.debug("All set! Initializing scan - starting with site " + url + " and limited to download " + maxPages + " pages and " + maxDepth + " maximum deep dive");
-
-//				final int maxPagesf = maxPages;
-
-//				new Thread(new Runnable() {
-//					@Override
-//					public void run() {
-						int pageCount = 1;
-//						URL url = null;
-						for (int i = 0; i < maxPages; i++) {
-							url = newURLs.get(0);
-							newURLs.remove(0);
-
-							if (robotSafe(url)) {
-								logger.info("Url "+url+" is #" + pageCount + " to crawl");
-								String page = getPage(url);
-								String fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+".html";
-								try {
-									writeContentToDisk(fileName, page);
-								} catch (IOException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-
-								// Jericho is a library to parse html pages and identify the parts of it.
-								// we use it to clean the html content prior feeding it to boilerpipe
-								logger.debug("sanitising page");
-								String sanitisedHtml = HTMLSanitiser.stripInvalidMarkup(page);
-
-								//Source source = new Source(sanitisedHtml);
-								//String text = source.getTextExtractor().toString();
-
-								// Boilerpipe is a content extraction library for html pages
-								// We use it to get the relevant content from the page and only store that
-								// please see http://boilerpipe-web.appspot.com for a short demo on that
-								/*
-								 * TODO MAKE BOILERPIPE WORK
-								 *  THIS IS THE PLACE THE PROGRAM STOPS!!!
-								 */
-								logger.debug("getting relevant page content");
-								String text = null;
-								try {
-									text = ArticleExtractor.INSTANCE.getText(sanitisedHtml);
-								} catch (Exception e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-
-								logger.trace("writing content to disk");
-								fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+"_cleaned.html";
-								try {
-									pageCount++;
-
-									writeContentToDisk(fileName, text);
-								} catch (IOException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-
-
-								if (page.length() != 0) getLinksFromPage(url, page, knownURLs, newURLs);
-								if (newURLs.isEmpty()) break;
-							}
-						}
-
-						logger.info(CRAWLER_NAME+"-Crawler END - scanned " + pageCount + " pages");
-//					}
-//				}).start();
-			}
->>>>>>> FETCH_HEAD
 		} catch (Exception e) {
 			logger.error(CRAWLER_NAME+"-Crawler Exception", e);
 		}
@@ -600,12 +368,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			return "";
 		}
 	}
-<<<<<<< HEAD
-	
-	
-=======
 
->>>>>>> FETCH_HEAD
 	/**
 	 * @description		The pattern matcher finds links within the given page and
 	 * 					calls addNewUrl with the original url, the newly found link and
@@ -637,14 +400,9 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	}
 
 	/**
-<<<<<<< HEAD
 	 * @description		Adds new URL to the queue if they pass the leave_the_domain and/or
 	 * 					the stay_below_given_path check.  
 	 * 					If the configuration setting DOWNLOAD_HTML_ONLY is set, then only 
-=======
-	 * @description		Adds new URL to the queue if they pass the leave_the_domain check
-	 * 					If the configuration setting DOWNLOAD_HTML_ONLY is set, then only
->>>>>>> FETCH_HEAD
 	 * 					new URL's that end in htm or html are accepted.
 	 * @param oldURL 	the context
 	 * @param url	 	the new url
@@ -820,7 +578,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	}
 
 	/**
-<<<<<<< HEAD
 	 * @description 	checks if any word of a given set of tokens is found in the given text
 	 * 					this check is done a second time in the parser, after all irrelevant content
 	 * 					like advertisement and the like has been stripped off the page.
@@ -836,31 +593,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		while (matcher.find()) {
 		    logger.trace("found the token " + matcher.group(1));
 		    return true;
-=======
-	 * @description	writes the content of a page to disk
-	 * @param 		fileName
-	 * @param 		content
-	 * @return 		true on success and false on error
-	 * @throws 		IOException
-	 */
-	private boolean writeContentToDisk(String fileName, String content) throws IOException {
-		File f1 = new File(fileName);
-		if (!f1.isFile() || f1.getTotalSpace()<1) {
-			//FileWriter rawFile;
-			FileWriter f2 = null;
-
-			try {
-				// and leaned content in it's own file
-				f2 = new FileWriter("/storage"+System.getProperty("file.separator")+"websites"+System.getProperty("file.separator")+fileName);
-				f2.write(dataCryptoProvider.encryptValue(content));
-				f2.flush();
-				f2.close();
-			} catch (GenericCryptoException e) {
-				logger.error("ERROR :: could not encrypt data prior writing the file ", e);
-				f2.close();
-				return false;
-			}
->>>>>>> FETCH_HEAD
 		}
 		
 		return false;
