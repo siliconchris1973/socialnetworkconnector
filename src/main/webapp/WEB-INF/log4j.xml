@@ -54,7 +54,15 @@
 			<!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> -->
 		</layout>
 	</appender>
-	
+	<!-- Parser logfile -->
+	<appender name="fileP" class="org.apache.log4j.FileAppender">
+		<param name="File" value="logs/comlineag-loggerSNC_Parser.log" />
+		<!-- <param name="Threshold" value="WARN"/> -->
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n" />
+			<!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> -->
+		</layout>
+	</appender>
 	<!-- pushing every log entry in the same file and on the console -->
 	<logger name="de.comlineag.snc">
 		<level value="trace"></level>
@@ -63,10 +71,16 @@
 	</logger>
 	
 	<!-- log infos from jericho framework -->
+	<!-- Boilerpipe -->
+	<logger name="de.l3s.boilerpipe">
+		<level value="debug"></level>
+		<appender-ref ref="console" />
+		<appender-ref ref="fileP" />
+	</logger>
 	<logger name="net.htmlparser.jericho">
 		<level value="debug"></level>
 		<appender-ref ref="console" />
-		<appender-ref ref="fileH" />
+		<appender-ref ref="fileP" />
 	</logger>
 	<!-- log infos from spring framework -->
 	<logger name="org.springframework">

@@ -20,8 +20,8 @@ import net.htmlparser.jericho.Tag;
 
 
 
-public class HTMLSanitiser {
-	private HTMLSanitiser() {} // not instantiable
+public class JerichoHtmlSanitiser {
+	private JerichoHtmlSanitiser() {} // not instantiable
 
 	// list of HTML elements that will be retained in the final output:
 	private static final Set<String> VALID_ELEMENT_NAMES=new HashSet<String>(Arrays.asList(new String[] {
@@ -51,7 +51,7 @@ public class HTMLSanitiser {
 	 *  <dt><b>Example:</b></dt>
 	 *  <dd>
 	 *   <table border="1">
-	 *    <tr><td>Method call:</td><td><pre style="margin:0">HTMLSanitiser.encodeInvalidMarkup("&lt;P&gt;&lt;u&gt;Line   1&lt;/u&gt;\n&lt;b&gt;Line   2&lt;/b&gt;\n&lt;script&gt;doBadStuff()&lt;/script&gt;")</pre></td></tr>
+	 *    <tr><td>Method call:</td><td><pre style="margin:0">JerichoHtmlSanitiser.encodeInvalidMarkup("&lt;P&gt;&lt;u&gt;Line   1&lt;/u&gt;\n&lt;b&gt;Line   2&lt;/b&gt;\n&lt;script&gt;doBadStuff()&lt;/script&gt;")</pre></td></tr>
 	 *    <tr><td>Output:</td><td><pre style="margin:0">&lt;p&gt;&amp;lt;u&amp;gt;Line   1&amp;lt;/u&amp;gt;\n&lt;b&gt;Line   2&lt;/b&gt;\n&amp;lt;script&amp;gt;doBadStuff()&amp;lt;/script&amp;gt;&lt;/p&gt;</pre></td></tr>
 	 *    <tr><td>Rendered output:</td><td><p>&lt;u&gt;Line   1&lt;/u&gt; <b>Line   2</b> &lt;script&gt;doBadStuff()&lt;/script&gt;</p></td></tr>
 	 *   </table>
@@ -85,7 +85,7 @@ public class HTMLSanitiser {
 	 *  <dt><b>Example:</b></dt>
 	 *  <dd>
 	 *   <table border="1">
-	 *    <tr><td>Method call:</td><td><pre style="margin:0">HTMLSanitiser.encodeInvalidMarkup("&lt;P&gt;&lt;u&gt;Line   1&lt;/u&gt;\n&lt;b&gt;Line   2&lt;/b&gt;\n&lt;script&gt;doBadStuff()&lt;/script&gt;",true)</pre></td></tr>
+	 *    <tr><td>Method call:</td><td><pre style="margin:0">JerichoHtmlSanitiser.encodeInvalidMarkup("&lt;P&gt;&lt;u&gt;Line   1&lt;/u&gt;\n&lt;b&gt;Line   2&lt;/b&gt;\n&lt;script&gt;doBadStuff()&lt;/script&gt;",true)</pre></td></tr>
 	 *    <tr><td>Output:</td><td><pre style="margin:0">&lt;p&gt;&amp;lt;u&amp;gt;Line &amp;nbsp; 1&amp;lt;/u&amp;gt;&lt;br /&gt;&lt;b&gt;Line &amp;nbsp; 2&lt;/b&gt;&lt;br /&gt;&amp;lt;script&amp;gt;doBadStuff()&amp;lt;/script&amp;gt;&lt;/p&gt;</pre></td></tr>
 	 *    <tr><td>Rendered output:</td><td><p>&lt;u&gt;Line &nbsp; 1&lt;/u&gt;<br /><b>Line &nbsp; 2</b><br />&lt;script&gt;doBadStuff()&lt;/script&gt;</p></td></tr>
 	 *   </table>
@@ -118,7 +118,7 @@ public class HTMLSanitiser {
 	 *  <dt><b>Example:</b></dt>
 	 *  <dd>
 	 *   <table border="1">
-	 *    <tr><td>Method call:</td><td><pre style="margin:0">HTMLSanitiser.stripInvalidMarkup("&lt;P&gt;&lt;u&gt;Line   1&lt;/u&gt;\n&lt;b&gt;Line   2&lt;/b&gt;\n&lt;script&gt;doBadStuff()&lt;/script&gt;")</pre></td></tr>
+	 *    <tr><td>Method call:</td><td><pre style="margin:0">JerichoHtmlSanitiser.stripInvalidMarkup("&lt;P&gt;&lt;u&gt;Line   1&lt;/u&gt;\n&lt;b&gt;Line   2&lt;/b&gt;\n&lt;script&gt;doBadStuff()&lt;/script&gt;")</pre></td></tr>
 	 *    <tr><td>Output:</td><td><pre style="margin:0">&lt;p&gt;Line   1\n&lt;b&gt;Line   2&lt;/b&gt;\n&lt;/p&gt;</pre></td></tr>
 	 *    <tr><td>Rendered output:</td><td><p>Line   1 <b>Line   2</b> </p></td></tr>
 	 *   </table>
@@ -151,7 +151,7 @@ public class HTMLSanitiser {
 	 *  <dt><b>Example:</b></dt>
 	 *  <dd>
 	 *   <table border="1">
-	 *    <tr><td>Method call:</td><td><pre style="margin:0">HTMLSanitiser.stripInvalidMarkup("&lt;P&gt;&lt;u&gt;Line   1&lt;/u&gt;\n&lt;b&gt;Line   2&lt;/b&gt;\n&lt;script&gt;doBadStuff()&lt;/script&gt;",true)</pre></td></tr>
+	 *    <tr><td>Method call:</td><td><pre style="margin:0">JerichoHtmlSanitiser.stripInvalidMarkup("&lt;P&gt;&lt;u&gt;Line   1&lt;/u&gt;\n&lt;b&gt;Line   2&lt;/b&gt;\n&lt;script&gt;doBadStuff()&lt;/script&gt;",true)</pre></td></tr>
 	 *    <tr><td>Output:</td><td><pre style="margin:0">&lt;p&gt;Line &amp;nbsp; 1&lt;br /&gt;&lt;b&gt;Line &amp;nbsp; 2&lt;/b&gt;&lt;br /&gt;&lt;/p&gt;</pre></td></tr>
 	 *    <tr><td>Rendered output:</td><td><p>Line &nbsp; 1<br /><b>Line &nbsp; 2</b><br /></p></td></tr>
 	 *   </table>
@@ -262,7 +262,7 @@ public class HTMLSanitiser {
 	// See test/src/samples/HTMLSanitiserTest.java for a comprehensive test suite.
 
 	public static void main(String[] args) throws Exception {
-		System.out.println("Examples of HTMLSanitiser.encodeInvalidMarkup:");
+		System.out.println("Examples of JerichoHtmlSanitiser.encodeInvalidMarkup:");
 		System.out.println("----------------------------------------------\n");
 		
 		displayEncodeInvalidMarkup("ab & c","encode text");
@@ -273,7 +273,7 @@ public class HTMLSanitiser {
 		displayEncodeInvalidMarkup("<p id=abc class='xyz'>abc</p>","tidy up attributes to make them XHTML compliant");
 		displayEncodeInvalidMarkup("List:<ul><li>A</li><li>B<li>C</ul>","inserts optional end tags");
 
-		System.out.println("Examples of HTMLSanitiser.stripInvalidMarkup:");
+		System.out.println("Examples of JerichoHtmlSanitiser.stripInvalidMarkup:");
 		System.out.println("---------------------------------------------\n");
 
 		displayStripInvalidMarkup("ab & c","encode text");
@@ -286,7 +286,7 @@ public class HTMLSanitiser {
 		displayStripInvalidMarkup("List:<li>A</li><li>B<li>C","missing required <UL> or <OL> element");
 		displayStripInvalidMarkup("List:<ul><li>A</li><b><li>B</b><li>C</ul>","<LI> is invalid as it is not directly under <UL> or <OL>");
 
-		System.out.println("Examples of HTMLSanitiser.stripInvalidMarkup with formatWhiteSpace=true:");
+		System.out.println("Examples of JerichoHtmlSanitiser.stripInvalidMarkup with formatWhiteSpace=true:");
 		System.out.println("------------------------------------------------------------------------\n");
 
 		displayStripInvalidMarkup("abc\ndef",true,"convert LF to <BR>");
@@ -295,15 +295,15 @@ public class HTMLSanitiser {
 	}
 
 	private static void displayEncodeInvalidMarkup(String input, String explanation) {
-		display(input,explanation,HTMLSanitiser.encodeInvalidMarkup(input));
+		display(input,explanation,JerichoHtmlSanitiser.encodeInvalidMarkup(input));
 	}
 
 	private static void displayStripInvalidMarkup(String input, String explanation) {
-		display(input,explanation,HTMLSanitiser.stripInvalidMarkup(input));
+		display(input,explanation,JerichoHtmlSanitiser.stripInvalidMarkup(input));
 	}
 
 	private static void displayStripInvalidMarkup(String input, boolean formatWhiteSpace, String explanation) {
-		display(input,explanation,HTMLSanitiser.stripInvalidMarkup(input,formatWhiteSpace));
+		display(input,explanation,JerichoHtmlSanitiser.stripInvalidMarkup(input,formatWhiteSpace));
 	}
 
 	private static void display(String input, String explanation, String output) {

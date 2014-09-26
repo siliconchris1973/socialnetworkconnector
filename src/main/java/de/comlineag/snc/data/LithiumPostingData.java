@@ -10,7 +10,8 @@ import org.json.simple.parser.JSONParser;
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.GeneralDataDefinitions;
-import de.comlineag.snc.helper.DataHelper;
+import de.comlineag.snc.helper.StringServices;
+import de.comlineag.snc.helper.DateTimeServices;
 
 /**
  * 
@@ -260,7 +261,7 @@ public final class LithiumPostingData extends PostData {
 			JSONObject jsonObjTime = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
 			setTime((String) jsonObjTime.get("$"));
-			setTimestamp(DataHelper.prepareLocalDateTime(getTime(), getSnId()));
+			setTimestamp(DateTimeServices.prepareLocalDateTime(getTime(), getSnId()));
 			
 			
 			// The posting itself
@@ -274,12 +275,12 @@ public final class LithiumPostingData extends PostData {
 			if (GeneralDataDefinitions.TEXT_WITH_MARKUP) {
 				setText(jsonObjText.get("$").toString());
 			} else {
-				setText((String) DataHelper.stripHTML(jsonObjText.get("$").toString()));
+				setText((String) StringServices.stripHTML(jsonObjText.get("$").toString()));
 			}
 			if (GeneralDataDefinitions.RAW_TEXT_WITH_MARKUP) {
 				setRawText((jsonObjText.get("$").toString()));
 			} else {
-				setRawText((String) DataHelper.stripHTML(jsonObjText.get("$").toString()));
+				setRawText((String) StringServices.stripHTML(jsonObjText.get("$").toString()));
 			}
 			
 			
@@ -295,13 +296,13 @@ public final class LithiumPostingData extends PostData {
 				if (GeneralDataDefinitions.TEASER_WITH_MARKUP){
 					setTeaser(getText());
 				}else{
-					setTeaser((String) DataHelper.stripHTML(getText()));
+					setTeaser((String) StringServices.stripHTML(getText()));
 				}
 			} else {
 				if (GeneralDataDefinitions.TEASER_WITH_MARKUP){
 					setTeaser((String) jsonObjTeaser.get("$"));
 				} else {
-					setTeaser((String) DataHelper.stripHTML(jsonObjTeaser.get("$")));
+					setTeaser((String) StringServices.stripHTML(jsonObjTeaser.get("$")));
 				}
 			}
 			if (getTeaser().length() > GeneralDataDefinitions.TEASER_MAX_LENGTH)
@@ -320,13 +321,13 @@ public final class LithiumPostingData extends PostData {
 				if (GeneralDataDefinitions.SUBJECT_WITH_MARKUP){
 					setSubject(getText());
 				}else{
-					setSubject((String) DataHelper.stripHTML(getText()));
+					setSubject((String) StringServices.stripHTML(getText()));
 				}
 			} else {
 				if (GeneralDataDefinitions.SUBJECT_WITH_MARKUP){
 					setSubject((String) jsonObjSubject.get("$"));
 				} else {
-					setSubject((String) DataHelper.stripHTML(jsonObjSubject.get("$")));
+					setSubject((String) StringServices.stripHTML(jsonObjSubject.get("$")));
 				}
 			}
 			if (getSubject().length() > GeneralDataDefinitions.SUBJECT_MAX_LENGTH)

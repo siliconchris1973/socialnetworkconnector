@@ -12,7 +12,8 @@ import org.json.simple.JSONObject;
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.constants.GeneralDataDefinitions;
 import de.comlineag.snc.constants.SocialNetworks;
-import de.comlineag.snc.helper.DataHelper;
+import de.comlineag.snc.helper.StringServices;
+import de.comlineag.snc.helper.DateTimeServices;
 
 /**
  * 
@@ -87,7 +88,7 @@ public final class FacebookPostingData extends PostData {
 			
 			// Timestamp as a string and as an object for the oDATA call
 			setTime((String) jsonObject.get("created_at"));
-			setTimestamp(DataHelper.prepareLocalDateTime(getTime(), getSnId()));
+			setTimestamp(DateTimeServices.prepareLocalDateTime(getTime(), getSnId()));
 			
 			
 			// Flag truncated - we can use this to indicate more text
@@ -98,13 +99,13 @@ public final class FacebookPostingData extends PostData {
 			if (GeneralDataDefinitions.TEXT_WITH_MARKUP) {
 				setText((String) jsonObject.get("text"));
 			} else {
-				setText((String) DataHelper.stripHTML(jsonObject.get("text")));
+				setText((String) StringServices.stripHTML(jsonObject.get("text")));
 			}
 			// content of the raw text of the posting, can either be stored with or without markup elements. 
 			if (GeneralDataDefinitions.RAW_TEXT_WITH_MARKUP) {
 				setRawText((String) jsonObject.get("text"));
 			} else {
-				setRawText((String) DataHelper.stripHTML(jsonObject.get("text")));
+				setRawText((String) StringServices.stripHTML(jsonObject.get("text")));
 			}
 			
 			
@@ -113,7 +114,7 @@ public final class FacebookPostingData extends PostData {
 			if (GeneralDataDefinitions.TEASER_WITH_MARKUP){
 				setTeaser(getText());
 			}else{
-				setTeaser((String) DataHelper.stripHTML(getText()));
+				setTeaser((String) StringServices.stripHTML(getText()));
 			}
 			if (getTeaser().length() > GeneralDataDefinitions.TEASER_MAX_LENGTH)
 				setTeaser(getTeaser().substring(0, GeneralDataDefinitions.TEASER_MAX_LENGTH-3)+"...");
@@ -124,7 +125,7 @@ public final class FacebookPostingData extends PostData {
 			if (GeneralDataDefinitions.SUBJECT_WITH_MARKUP){
 				setSubject(getText());
 			}else{
-				setSubject((String) DataHelper.stripHTML(getText()));
+				setSubject((String) StringServices.stripHTML(getText()));
 			}
 			if (getSubject().length() > GeneralDataDefinitions.SUBJECT_MAX_LENGTH)
 				setSubject(getSubject().substring(0, GeneralDataDefinitions.SUBJECT_MAX_LENGTH-3)+"...");

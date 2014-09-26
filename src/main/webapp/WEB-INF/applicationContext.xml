@@ -214,22 +214,34 @@
 				<!-- THIS MUST BE SET ACCORDING TO AN EXISTING CODE FOR A SOCIAL NETWORK ENTRY IN SNC_Runtime_Configuration.xml -->
 				<entry key="SN_ID_CODE" value="WC" />
 				
-				<!-- set the starting url and maximum number of links to follow -->
-				<entry key="server_url" value="http://www.wallstreet-online.de/forum/28-1-50/daytrader" />
+				<!-- set the starting url -->
+				<entry key="server_url" value="http://www.wallstreet-online.de" />
 				<!-- 
 				<entry key="server_url" value="http://www.netmoms.de" />
 				-->
-				<!-- how many levels of cascaded links to follow.
-					 If you set this higher then the value of WC_MAX_DEPTH in SNC_Runtim_Configuration (currently 5) then 
-					 that value will be used Runtime configuration acts as a safety margin to not exceed a certain scanning depth. -->
-				<entry key="max_depth" value="3" />
-				<!-- how many pages to download at all.
-					 If you set this higher then the value of WC_SEARCH_LIMIT in SNC_Runtim_Configuration (currently 10000) then 
-					 that value will be used. Runtime configuration acts as a safety margin to not exceed a certain maximum number 
-					 of pages to download per run. -->
-				<entry key="max_pages" value="5" />
 				
-				<!-- whether or not the crawler is allowed to follow links off of the initial domain 
+				<!-- if the website requires an authentication, set username and password here -->
+				<entry key="user" value="Y29taW5lMjAxNA==" />		<!-- comine2014 -->
+				<entry key="passwd" value="TUd1LTZ0Yy1BUjUtdTdS" /> <!-- MGu-6tc-AR5-u7R -->
+				
+				<!-- max_depth - how many levels of cascaded links to follow.
+					 If you set this higher then the value of WC_MAX_DEPTH in SNC_Runtim_Configuration (currently 5) then 
+					 that value will be used. This Runtime configuration acts as a safety margin to not exceed a certain scanning depth. 
+					 You can, however, also set this to -1 in which case there will be no limit on how deep links will be followed
+					 Be advised though, as this may lead to quite a huge amount of pages. As a last safeguard in case this value is set to 
+					 -1, this will also implicitly set the parameter of stayOnDomain to true. -->
+				<entry key="max_depth" value="3" />
+				
+				<!-- max_pages - how many pages to download at all.
+					 If you set this higher then the value of WC_SEARCH_LIMIT in SNC_Runtim_Configuration (currently 10000) then 
+					 that value will be used. This Runtime configuration acts as a safety margin to not exceed a certain maximum number 
+					 of pages to download per run. You can, however, also set this to -1 in which case there will be no limit
+					 on the number of downloaded pages. Be careful though, as this may lead to a huge amount of pages. As a
+					 last safeguard in case this value is set to -1, this will also implicitly set the parameter of stayOnDomain
+					 to true. -->
+				<entry key="max_pages" value="-1" />
+				
+				<!-- stayOnDomain - whether or not the crawler is allowed to follow links off of the initial domain 
 					 If set to true, then the crawler is NOT allowed to fetch pages from a new domain.
 					 It is generally not recommended to set this to false (thus allowing to leave the 
 					 domain) AND have a high value in max_depth and max_pages, as this could lead to 
@@ -237,7 +249,7 @@
 					 nice linklist one has setup on his/her page  -->
 				<entry key="stayOnDomain" value = "true" /> 
 				
-				<!-- Shall the crawler ONLY get pages below the initially given path
+				<!-- stayBelowGivenPath - Shall the crawler ONLY get pages below the initially given path
 					 Think of this option like an even stricter stayOnDomain. Not only we can't leave the
 					 initial given domain, but any link encountered must point to some page on or below
 					 the above given url. 
@@ -247,10 +259,19 @@
 					 Note: if you did not give path as part of the url, then / as the path starting point 
 					 is used -->
 				<entry key="stayBelowGivenPath" value = "false" /> 
+								
+				<!-- getOnlyRelevantPages - Get only pages containing any of the track terms -->
+				<entry key="getOnlyRelevantPages" value = "true" />
 				
-				<!-- if the website requires an authentication, set username and password here -->
-				<entry key="user" value="Y29taW5lMjAxNA==" />		<!-- comine2014 -->
-				<entry key="passwd" value="TUd1LTZ0Yy1BUjUtdTdS" /> <!-- MGu-6tc-AR5-u7R -->
+				<!-- wordDistanceCutoffMargin - Distance from the searched word to cut off the text.
+					 How many words shall be between the found word (as searched by via the trackTerms 
+					 from CrawlerConfiguration) and the start and end of cut out text. This option applies
+					 to the distance before and after the found word. -->
+				<entry key="wordDistanceCutoffMargin" value = "30" />
+				
+				<!-- useAllCrawlerConstraints - Shall the crawler incorporate constraints from the ALL 
+					 section (true), or only the ones from it's own section (false) -->
+				<entry key="useAllCrawlerConstraints" value = "false" /> 
 			</map>
 		</property>
 	</bean>

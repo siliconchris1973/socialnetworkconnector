@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,22 +12,16 @@ import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.Logger;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
-
-import de.comlineag.snc.constants.SocialNetworks;
 
 /**
  * 
  * @author		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Helper Class
- * @version 	0.5
+ * @version 	0.6
  * @status		productive
  * 
- * @description Tools for managing special Requests in the Crawler logic
+ * @description Tools for managing special Requests and String manipulation for the crawler
  * 
  * @changelog	0.1 (Magnus)	class created with timestamp for twitter
  * 				0.2 (Chris)		try and error for lithium post date time
@@ -37,66 +30,17 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 				0.4a 			one to strip html strings while maintaining tag-integrity
  * 				0.5 			added a more sophisticated method to strip the html
  * 								kudos go to http://stackoverflow.com/questions/2496372/html-truncator-in-java
+ * 				0.6				moved LocalDateTime to DateTimeServices and renamed this class to StringServices 
  * 
  * TODO 1. check for a better solution to strip html content to a maximum size.			
  */
 
-public class DataHelper {
+public class StringServices {
 	
 	// we use simple org.apache.log4j.Logger for lgging
-	private static Logger logger = Logger.getLogger("de.comlineag.snc.helper.DataHelper");
+	static Logger logger = Logger.getLogger("de.comlineag.snc.helper.StringServices");
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
-	
-	/**
-	 * 
-	 * @description		create a timestamp for the OData Service Interface from the social media timestamp
-	 * 					as each network is expected to act a little bit different, the snId is sent to decide 
-	 * 					which algorithm is used. Implemented is the algorithm for Twitter and Lithium
-	 * 					all other types return the current timestamp
-	 * 
-	 * @param 			_timestamp
-	 *            			the timestamp in the social network
-	 * @param 			_snId
-	 *            			social network identifier
-	 * @return			formatted timestamp
-	 */
-	public static LocalDateTime prepareLocalDateTime(String _timestamp, String _snId) {
-		
-		// Datumsformatierung fuer den Formatter
-		String snPattern = "";
-		Locale snLocale = Locale.getDefault();
-		
-		try {
-
-			if (_snId.equalsIgnoreCase(SocialNetworks.getSocialNetworkConfigElement("code", "TWITTER"))) {
-				logger.debug("formatting date time for use with twitter");
-				snPattern = "EEE MMM d H:m:s Z yyyy";
-				// the date time format for twitter must be set to US, otherwise english designators will not be translated correctly
-				snLocale = Locale.US;
-			} else if (_snId.equalsIgnoreCase(SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM"))) {
-				logger.debug("formatting date time for use with Lithium");
-				// 2014-01-08T12:21:42+00:00
-				// date time pattern provided by Thomas Nowak
-				snPattern = "yyyy-MM-dd'T'HH:mm:ssZZ";
-				snLocale = Locale.GERMANY;
-			} else {
-				logger.warn("no specific conversion for system " + _snId);
-			}
-			
-			// convert the datum
-			DateTimeFormatter formatter =
-					DateTimeFormat.forPattern(snPattern).withLocale(snLocale);
-			
-			DateTime dateTime = formatter.parseDateTime(_timestamp);
-			return dateTime.toLocalDateTime();
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-			// default: current Timestamp in case any error occurs
-			DateTime dt = new DateTime();
-			return new LocalDateTime(dt);
-		}
-	}
 	
 	/**
 	 * 

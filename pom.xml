@@ -22,7 +22,7 @@
 	
 	<groupId>de.comlineag.snc</groupId>
 	<artifactId>SocialNetworkConnector</artifactId>
-	<version>0.3.3</version>
+	<version>0.3.4</version>
 	
 	<name>Social Network Connector</name>
 	<url>http://service.comlineag.de/snc</url>
@@ -238,19 +238,14 @@
 			<version>3.1</version>
 		</dependency>
 		
-		<!-- Boilerpipe to get the relevant content off of the pages -->
+		<!-- Boilerpipe to get the relevant content off of the pages 
+			 see https://code.google.com/p/boilerpipe/wiki/QuickStart -->
 		<dependency>
 			<groupId>com.syncthemall</groupId>
 			<artifactId>boilerpipe</artifactId>
 			<version>1.2.1</version>
 		</dependency>
 		
-		<!-- NekoHTML for filtering out irrelevant parts of a html page -->
-		<dependency>
-			<groupId>net.sourceforge.nekohtml</groupId>
-			<artifactId>nekohtml</artifactId>
-			<version>1.9.21</version>
-		</dependency>
 
 		<!-- RUNTIME ENVIRONMENT -->
 		<!-- used for the job control -->
@@ -281,18 +276,20 @@
 			<groupId>xerces</groupId>
 			<artifactId>xercesImpl</artifactId>
 			<version>2.11.0</version>
-			<scope>provided</scope>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>xml-apis</groupId>
-			<artifactId>xml-apis</artifactId> 
+			<artifactId>xml-apis</artifactId>
+			--> 
 			<!-- xml-apis was relocated from version 2.0.2 to 1.0.b2  
 				 while group- and artifact-id stayed the same, does 
 				 not make any sense to me, but that is what mvn says -->
+			<!--
 			<version>1.0.b2</version>
 			<scope>provided</scope>
 		</dependency>
-
+-->
 
 		<!-- get basic java ee7 up and running 
 		<dependency>

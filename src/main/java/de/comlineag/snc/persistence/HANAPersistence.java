@@ -23,7 +23,7 @@ import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.DataCryptoHandler;
-import de.comlineag.snc.helper.DataHelper;
+import de.comlineag.snc.helper.StringServices;
 import de.comlineag.snc.constants.HanaDataConstants;
 import de.comlineag.snc.persistence.JsonFilePersistence;
 
@@ -151,7 +151,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 */
 	public void savePosts(PostData postData) {
 		logger.trace("savePosts called");
-		logger.trace("    postData content " + postData.getAllContent());
+		//logger.trace("    postData content " + postData.getAllContent());
 		
 		try {
 			// first check if the entry already exists
@@ -1225,7 +1225,7 @@ public class HANAPersistence implements IPersistenceManager {
 		if (postData.getRawText() != null && postData.getRawText().length()>HanaDataConstants.POSTING_TEXT_SIZE) {
 			logger.warn("truncating raw text of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.POSTING_TEXT_SIZE);
 			
-			postData.setRawText((String) DataHelper.htmlTruncator(postData.getRawText().substring(0, (HanaDataConstants.POSTING_TEXT_SIZE-5)), (HanaDataConstants.POSTING_TEXT_SIZE-1)));
+			postData.setRawText((String) StringServices.htmlTruncator(postData.getRawText().substring(0, (HanaDataConstants.POSTING_TEXT_SIZE-5)), (HanaDataConstants.POSTING_TEXT_SIZE-1)));
 			logger.debug("     truncated raw text now has " + postData.getRawText().length() + " characters");
 		}
 		if (postData.getTeaser() != null && postData.getTeaser().length()>HanaDataConstants.TEASER_TEXT_SIZE) {

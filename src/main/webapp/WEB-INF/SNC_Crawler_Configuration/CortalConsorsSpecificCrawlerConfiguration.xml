@@ -145,6 +145,7 @@
 			<constraints scope="ALL">
 				<!-- track only messages (aka posts) with specific keywords -->
 				<constraint>
+				<!-- 
 					<term>
 						<type>String</type>
 						<value>Aktien</value>
@@ -253,6 +254,7 @@
 						<type>String</type>
 						<value>Direktbank</value>
 					</term>
+				-->
 				</constraint>
 			</constraints>
 			<!-- end of section for all crawler -->
@@ -267,6 +269,116 @@
 					these constraints are added to the generic ones above 
 				-->
 				<constraint>
+					<term>
+						<type>String</type>
+						<value>Aktien</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Tagesgeld</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Depot</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Wertpapier</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Börse</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Wertpapierhandel</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Trading</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Broker</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Finanzmarkt</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Aktienanleihe</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Fonds</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Geldanlage</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Girokonto</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Kreditkarte</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Sparkarte</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Girocard</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Maestro</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Visa</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Mastercard</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>American Express</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>HBCI</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Geld</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Währung</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Devisen</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Jahreszins</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Sollzins</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Direktbank</value>
+					</term>
+					
+					
 					<term>
 						<type>String</type>
 						<value>Cortal Consors</value>
@@ -378,6 +490,116 @@
 				<constraint>
 					<term>
 						<type>String</type>
+						<value>Aktien</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Tagesgeld</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Depot</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Wertpapier</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Börse</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Wertpapierhandel</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Trading</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Broker</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Finanzmarkt</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Aktienanleihe</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Fonds</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Geldanlage</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Girokonto</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Kreditkarte</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Sparkarte</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Girocard</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Maestro</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Visa</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Mastercard</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>American Express</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>HBCI</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Geld</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Währung</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Devisen</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Jahreszins</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Sollzins</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Direktbank</value>
+					</term>
+					
+					
+					<term>
+						<type>String</type>
 						<value>Wissenslexikon</value>
 					</term>
 					<term>
@@ -395,6 +617,28 @@
 				</constraint>
 			</constraints>
 			<!-- END OF LITHIUM CONSTRAINTS -->
+			
+			<!-- START OF WEBCRAWLER CONFIG -->
+			<constraints scope="WC">
+				<constraint>
+					<term>
+						<type>String</type>
+						<value>Cortal Consors</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>CortalConsors</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Cortal</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Consors</value>
+					</term>
+				</constraint>
+			</constraints>
 			
 			<!-- START OF FACEBOOK CONFIG -->
 			<!-- specific configuration for FACEBOOK crawler -->

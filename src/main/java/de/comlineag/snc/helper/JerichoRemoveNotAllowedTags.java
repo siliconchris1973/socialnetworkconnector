@@ -12,7 +12,7 @@ import net.htmlparser.jericho.OutputDocument;
 import net.htmlparser.jericho.Source;
 
 
-public class JerichoServices {
+public class JerichoRemoveNotAllowedTags {
 	private static final Set<String> ALLOWED_HTML_TAGS = new HashSet<String>(Arrays.asList(
 			HTMLElementName.ABBR,
 			HTMLElementName.ACRONYM,
@@ -21,7 +21,7 @@ public class JerichoServices {
 			HTMLElementName.SUP)
 			);
 			 
-	public static String removeNotAllowedTags(String htmlFragment) {
+	public static String JerichoRemoveNotAllowedTags(final String htmlFragment) {
 		Source source = new Source(htmlFragment);
 		OutputDocument outputDocument = new OutputDocument(source);
 		List<Element> elements = source.getAllElements();
@@ -34,12 +34,5 @@ public class JerichoServices {
 			}
 		}
 		return outputDocument.toString();
-	}
-	
-	public static String getTitle(Source source) {
-		Element titleElement=source.getFirstElement(HTMLElementName.TITLE);
-		if (titleElement==null) return null;
-		// TITLE element never contains other tags so just decode it collapsing whitespace:
-		return CharacterReference.decodeCollapseWhiteSpace(titleElement.getContent());
 	}
 }

@@ -29,7 +29,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  * @author 		Christina Guenther
  * @category	handler
- * @revision	0.5b			- 22.09.2014
+ * @revision	0.5c			- 24.09.2014
  * @status		productive with minor limitations
  * 
  * @description	this class is used to setup the overall configuration of the SNC.
@@ -52,6 +52,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 				0.5				added support for CrawlerRun and tidied up
  * 				0.5a			added thread-pool size for multi-threaded web crawler
  * 				0.5b			added stayBelowGivenPath for the web crawler
+ * 				0.5c			added wcWordDistanceCutoffMargin for the web crawler
  *
  * TODO 1. get the xml layout structure elements from RuntimeConfiguration.xml
  * TODO 2. use nodelist instead of single expressions for each node
@@ -104,6 +105,7 @@ public final class RuntimeConfiguration implements Job {
 	private static int		WC_CRAWLER_MAX_DOWNLOAD_SIZE 		= 2000000;	// Max size of download per page in kb
 	private static boolean	WC_STAY_ON_DOMAIN					= true;
 	private static boolean	WC_STAY_BELOW_GIVEN_PATH			= false;
+	private static int		WC_WORD_DISTANCE_CUTOFF_MARGIN		= 30;
 	private static int		WC_THREAD_POOL_SIZE					= 10;		// number of threads for parallel downloading of pages
 	
 	
@@ -224,31 +226,35 @@ public final class RuntimeConfiguration implements Job {
 			debugMsg += " / STOP_SNC_ON_PERSISTENCE_FAILURE is " + isSTOP_SNC_ON_PERSISTENCE_FAILURE();
 			
 			
-			// searchLimit
+			// wcSearchLimit
 			setWC_SEARCH_LIMIT(getIntElement("runtime", "wcSearchLimit", xpath, doc));
 			debugMsg += " / WC_SEARCH_LIMIT is " + getWC_SEARCH_LIMIT();
 			
-			// maxDepth
+			// wcMaxDepth
 			setWC_MAX_DEPTH(getIntElement("runtime", "wcMaxDepth", xpath, doc));
 			debugMsg += " / WC_MAX_DEPTH is " + getWC_MAX_DEPTH();
 			
-			// robotDisallowText 
+			// wcRobotDisallowText 
 			setWC_ROBOT_DISALLOW_TEXT(getStringElement("runtime", "wcRobotDisallowText", xpath, doc));
 			debugMsg += " / WC_ROBOT_DISALLOW_TEXT is " + getWC_ROBOT_DISALLOW_TEXT();
 						
-			// crawlerMaxDownloadSize
+			// wcCrawlerMaxDownloadSize
 			setWC_CRAWLER_MAX_DOWNLOAD_SIZE(getIntElement("runtime", "wcCrawlerMaxDownloadSize", xpath, doc));
 			debugMsg += " / WC_CRAWLER_MAX_DOWNLOAD_SIZE is " + getWC_CRAWLER_MAX_DOWNLOAD_SIZE();
 			
-			// stayOnDomain
+			// wcStayOnDomain
 			setWC_STAY_ON_DOMAIN(getBooleanElement("runtime", "wcStayOnDomain", xpath, doc));
 			debugMsg += " / WC_STAY_ON_DOMAIN is " + isWC_STAY_ON_DOMAIN();
 			
-			// stayBelowGivenPath
+			// wcStayBelowGivenPath
 			setWC_STAY_BELOW_GIVEN_PATH(getBooleanElement("runtime", "wcStayBelowGivenPath", xpath, doc));
 			debugMsg += " / WC_STAY_BELOW_GIVEN_PATH is " + isWC_STAY_BELOW_GIVEN_PATH();
 			
-			// threadPool
+			// wcWordDistanceCutoffMargin
+			setWC_WORD_DISTANCE_CUTOFF_MARGIN(getIntElement("runtime", "wcWordDistanceCutoffMargin", xpath, doc));
+			debugMsg += " / WC_WORD_DISTANCE_CUTOFF_MARGIN is " + getWC_WORD_DISTANCE_CUTOFF_MARGIN();
+			
+			// wcThreadPool
 			setWC_THREAD_POOL_SIZE(getIntElement("runtime", "wcThreadPoolSize", xpath, doc));
 			debugMsg += " / WC_THREAD_POOL_SIZE is " + getWC_THREAD_POOL_SIZE();
 			
@@ -514,7 +520,6 @@ public final class RuntimeConfiguration implements Job {
 	public static void 		setWC_THREAD_POOL_SIZE(int wC_THREAD_POOL_SIZE) {WC_THREAD_POOL_SIZE = wC_THREAD_POOL_SIZE;}
 	public static int 		getWC_MAX_DEPTH() {return WC_MAX_DEPTH;}
 	public static void 		setWC_MAX_DEPTH(int wC_MAX_DEPTH) {WC_MAX_DEPTH = wC_MAX_DEPTH;}
-
-
-
+	public static int		getWC_WORD_DISTANCE_CUTOFF_MARGIN() {return WC_WORD_DISTANCE_CUTOFF_MARGIN;}
+	public static void		setWC_WORD_DISTANCE_CUTOFF_MARGIN(int wC_WORD_DISTANCE_CUTOFF_MARGIN) {WC_WORD_DISTANCE_CUTOFF_MARGIN = wC_WORD_DISTANCE_CUTOFF_MARGIN;}
 }

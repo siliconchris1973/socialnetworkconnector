@@ -102,15 +102,23 @@
 		</param>
 		
 		<!-- WEB CRAWLER SPECIFIC SETTINGS -->
-		<!-- how many levels shall the web crawler fetch from the top-level (or entry point) 
-			 This is the overall limit. An individual web crawler can set it's own level in
-			 applicationContext.xml, but it can not exceed this value. It should usually not
-			 exceed 1000 and 100 should be ok for the most cases -->
+		<!-- searchLimit - how many pages to download at all.
+			 This Runtime configuration acts as a safety margin to not exceed a certain maximum number of pages to download
+			 per run and overides the value of max_pages in the crawler configuration. You can, however, also set this to 
+			 -1 in which case there will be no limit on the number of downloaded pages. Be careful though, as this may 
+			 lead to a huge amount of pages. As a last safeguard in case this value is set to -1, this will also implicitly 
+			 set the parameter of stayOnDomain to true. -->
 		<param name="wcSearchLimit">
 			<type>int</type>
 			<value>10000</value>
 			<constant>WC_SEARCH_LIMIT</constant>
 		</param>
+		<!-- max_depth - how many levels of cascaded links to follow.
+			 If you set this higher then the value of WC_MAX_DEPTH in SNC_Runtim_Configuration (currently 5) then 
+			 that value will be used. This Runtime configuration acts as a safety margin to not exceed a certain scanning depth. 
+			 You can, however, also set this to -1 in which case there will be no limit on how deep links will be followed
+			 Be advised though, as this may lead to quite a huge amount of pages. As a last safeguard in case this value is set to 
+			 -1, this will also implicitly set the parameter of stayOnDomain to true. -->
 		<param name="wcMaxDepth">
 			<type>int</type>
 			<value>5</value>
@@ -130,6 +138,7 @@
 			<value>jpeg</value>
 			<constant>WC_CONTENT_TYPES_TO_DOWNLOAD</constant>
 		</param>
+		
 		<!-- whether or not the crawler is allowed to follow links off of the initial domain 
 					 If set to true, then the crawler is NOT allowed to fetch pages from a new domain.
 					 It is generally not recommended to set this to false (thus allowing to leave the 
@@ -143,19 +152,29 @@
 		</param>
 		
 		<!-- Shall the crawler ONLY get pages below the initially given path
-					 Think of this option like an even stricter stayOnDomain. Not only we can't leave the
-					 initial given domain, but any link encountered must point to some page on or below
-					 the above given url. 
-					 That also means, if you set this to true, you do not need to set stayOnDomain, or 
-					 rather the value of stayOnDomain is ignored.
+			 Think of this option like an even stricter stayOnDomain. Not only we can't leave the
+			 initial given domain, but any link encountered must point to some page on or below
+			 the above given url. 
+			 That also means, if you set this to true, you do not need to set stayOnDomain, or 
+			 rather the value of stayOnDomain is ignored.
 					 
-					 Note: if you did not give path as part of the url, then / as the path starting point 
-					 is used -->
+			 Note: if you did not give path as part of the url, then / as the path starting point is used -->
 		<param name="wcStayBelowGivenPath">
 			<type>Boolean</type>
 			<value>false</value>
 			<constant>WC_STAY_BELOW_GIVEN_PATH</constant>
 		</param>
+		
+		<!-- wordDistanceCutoffMargin - Distance from the searched word to cut off the text.
+			 How many words shall be between the found word (as searched by via the trackTerms 
+			 from CrawlerConfiguration) and the start and end of cut out text. This option applies
+			 to the distance before and after the found word. -->
+		<param name="wcWordDistanceCutoffMargin">
+			<type>int</type>
+			<value>30</value>
+			<constant>WC_WORD_DISTANCE_CUTOFF_MARGIN</constant>
+		</param>
+		
 		<!-- number of threads for the thread pool of the web crawler. Each downloading of a page (starting from 
 			 the initial one) is executed by one of the threads, so that downloading and parsing can be done in 
 			 parallel. As a rule of thumb, the number of threads available should probably be round about 10% of 
