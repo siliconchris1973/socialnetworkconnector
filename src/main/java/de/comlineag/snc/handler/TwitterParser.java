@@ -12,6 +12,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import de.comlineag.snc.appstate.RuntimeConfiguration;
+
 
 /**
  * 
@@ -80,8 +82,21 @@ public final class TwitterParser extends GenericParser {
 		}
 		
 		for (int ii = 0; ii < postings.size(); ii++) {
-			TwitterPosting post = (TwitterPosting) postings.get(ii);
-			post.save();
+			if (RuntimeConfiguration.isPERSISTENCE_THREADING_ENABLED()){
+				// execute persistence layer in a new thread, so that it does NOT block the crawler
+				logger.trace("execute persistence layer in a new thread...");
+				final TwitterPosting postT = (TwitterPosting) postings.get(ii);
+				new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+							postT.save();
+					}
+				}).start();
+			} else {
+				TwitterPosting post = (TwitterPosting) postings.get(ii);
+				post.save();
+			}
 		}
 		
 		for (int ii = 0; ii < users.size(); ii++) {

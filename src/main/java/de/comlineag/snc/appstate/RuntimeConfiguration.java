@@ -29,7 +29,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  * @author 		Christina Guenther
  * @category	handler
- * @revision	0.5c			- 24.09.2014
+ * @revision	0.6				- 26.09.2014
  * @status		productive with minor limitations
  * 
  * @description	this class is used to setup the overall configuration of the SNC.
@@ -53,6 +53,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 				0.5a			added thread-pool size for multi-threaded web crawler
  * 				0.5b			added stayBelowGivenPath for the web crawler
  * 				0.5c			added wcWordDistanceCutoffMargin for the web crawler
+ * 				0.6				added threading options
  *
  * TODO 1. get the xml layout structure elements from RuntimeConfiguration.xml
  * TODO 2. use nodelist instead of single expressions for each node
@@ -108,6 +109,16 @@ public final class RuntimeConfiguration implements Job {
 	private static int		WC_WORD_DISTANCE_CUTOFF_MARGIN		= 30;
 	private static int		WC_THREAD_POOL_SIZE					= 10;		// number of threads for parallel downloading of pages
 	
+	// Threading options
+	private static int		PARSER_THREADING_POOL_SIZE			= 1;
+	private static int		CRAWLER_THREADING_POOL_SIZE			= 1;
+	private static int		PERSISTENCE_THREADING_POOL_SIZE		= 1;
+	private static boolean	PARSER_THREADING_ENABLED			= false;
+	private static boolean	CRAWLER_THREADING_ENABLED			= false;
+	private static boolean	PERSISTENCE_THREADING_ENABLED		= false;
+	private static String	PARSER_THREADING_POOL_TYPE			= "fixed";
+	private static String	CRAWLER_THREADING_POOL_TYPE			= "fixed";
+	private static String	PERSISTENCE_THREADING_POOL_TYPE		= "fixed";
 	
 	// these values are section names within the configuration db 
 	private static String 	CONSTRAINT_TERM_TEXT				= "term";
@@ -141,6 +152,11 @@ public final class RuntimeConfiguration implements Job {
 	private static String 	socialNetworkIdentifier				= "network";
 	private static String 	socialNetworkName					= "name";
 	
+	private static String 	threadingIdentifier 				= "Threading";
+	private static String 	parserIdentifier 					= "Parser";
+	private static String 	crawlerIdentifier 					= "Crawler";
+	private static String 	persistenceIdentifier 				= "Persistence";
+	
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		setConfigFile((String) arg0.getJobDetail().getJobDataMap().get("configFile"));
 		logger.debug("setting global configuration parameters using configuration file " + arg0.getJobDetail().getJobDataMap().get("configFile") + " from job control");
@@ -151,6 +167,8 @@ public final class RuntimeConfiguration implements Job {
 		setRuntimeConfiguration();
 		// set the data definitions
 		setDataDefinitions();
+		// set the data definitions
+		setThreadingModel();
 		// instantiate the social networks class
 		@SuppressWarnings("unused")
 		SocialNetworks sn = SocialNetworks.getInstance();
@@ -158,7 +176,7 @@ public final class RuntimeConfiguration implements Job {
 	
 	
 	private void setRuntimeConfiguration(){
-		logger.trace("   setting runtime definitions");
+		logger.trace("   setting runtime configuration");
 		String debugMsg = "";
 		
 		try {
@@ -254,19 +272,62 @@ public final class RuntimeConfiguration implements Job {
 			setWC_WORD_DISTANCE_CUTOFF_MARGIN(getIntElement("runtime", "wcWordDistanceCutoffMargin", xpath, doc));
 			debugMsg += " / WC_WORD_DISTANCE_CUTOFF_MARGIN is " + getWC_WORD_DISTANCE_CUTOFF_MARGIN();
 			
-			// wcThreadPool
-			setWC_THREAD_POOL_SIZE(getIntElement("runtime", "wcThreadPoolSize", xpath, doc));
-			debugMsg += " / WC_THREAD_POOL_SIZE is " + getWC_THREAD_POOL_SIZE();
-			
 			logger.trace(debugMsg);
-		} catch (IOException | ParserConfigurationException | SAXException e) {
-			logger.error("EXCEPTION :: error reading configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(-1);
-		} catch (XPathExpressionException e) {
-			logger.error("EXCEPTION :: error parsing xml " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
+		} catch (Exception e) {
+			logger.error("EXCEPTION :: error reading runtime configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
 			System.exit(-1);
 		}
 	}
+	
+	private void setThreadingModel(){
+		logger.trace("   setting threading configuration");
+		String debugMsg = "";
+		
+		try {
+			File file = new File(getConfigFile());
+			
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(file);
+			
+			XPathFactory xPathfactory = XPathFactory.newInstance();
+			XPath xpath = xPathfactory.newXPath();
+			
+			// CrawlerThreading
+			setCRAWLER_THREADING_POOL_SIZE(getIntElement("threading", "CrawlerThreadingPoolSize", xpath, doc));
+			debugMsg += " / CRAWLER_THREADING_POOL_SIZE is " + getCRAWLER_THREADING_POOL_SIZE();
+			// ParserThreading
+			setPARSER_THREADING_POOL_SIZE(getIntElement("threading", "ParserThreadingPoolSize", xpath, doc));
+			debugMsg += " / PARSER_THREADING_POOL_SIZE is " + getPARSER_THREADING_POOL_SIZE();
+			// PersistenceThreading
+			setPERSISTENCE_THREADING_POOL_SIZE(getIntElement("threading", "PersistenceThreadingPoolSize", xpath, doc));
+			debugMsg += " / PERSISTENCE_THREADING_POOL_SIZE is " + getPERSISTENCE_THREADING_POOL_SIZE();
+			// CrawlerThreading
+			setCRAWLER_THREADING_POOL_TYPE(getStringElement("threading", "CrawlerThreadingPoolType", xpath, doc));
+			debugMsg += " / CRAWLER_THREADING_POOL_TYPE is " + getCRAWLER_THREADING_POOL_TYPE();
+			// ParserThreading
+			setPARSER_THREADING_POOL_TYPE(getStringElement("threading", "ParserThreadingPoolType", xpath, doc));
+			debugMsg += " / PARSER_THREADING_POOL_TYPE is " + getPARSER_THREADING_POOL_TYPE();
+			// PersistenceThreading
+			setPERSISTENCE_THREADING_POOL_TYPE(getStringElement("threading", "PersistenceThreadingPoolType", xpath, doc));
+			debugMsg += " / PERSISTENCE_THREADING_POOL_TYPE is " + getPERSISTENCE_THREADING_POOL_TYPE();
+			// CrawlerThreading
+			setCRAWLER_THREADING_ENABLED(getBooleanElement("threading", "CrawlerThreadingEnabled", xpath, doc));
+			debugMsg += " / CRAWLER_THREADING_ENABLED is " + isCRAWLER_THREADING_ENABLED();
+			// ParserThreading
+			setPARSER_THREADING_ENABLED(getBooleanElement("threading", "ParserThreadingEnabled", xpath, doc));
+			debugMsg += " / PARSER_THREADING_ENABLED is " + isPARSER_THREADING_ENABLED();
+			// PersistenceThreading
+			setPERSISTENCE_THREADING_ENABLED(getBooleanElement("threading", "PersistenceThreadingEnabled", xpath, doc));
+			debugMsg += " / PERSISTENCE_THREADING_ENABLED is " + isPERSISTENCE_THREADING_ENABLED();
+			
+			logger.trace(debugMsg);
+		} catch (Exception e) {
+			logger.error("EXCEPTION :: error reading threading configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
+			System.exit(-1);
+		}
+	}
+		
 	
 	// DataDefinitions
 	private void setDataDefinitions(){
@@ -312,11 +373,8 @@ public final class RuntimeConfiguration implements Job {
 			debugMsg += " / RAW_TEXT_WITH_MARKUP is " + isRAW_TEXT_WITH_MARKUP();
 			
 			logger.trace(debugMsg);
-		} catch (IOException | ParserConfigurationException | SAXException e) {
-			logger.error("EXCEPTION :: error reading configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(-1);
-		} catch (XPathExpressionException e) {
-			logger.error("EXCEPTION :: error parsing xml " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
+		} catch (Exception e) {
+			logger.error("EXCEPTION :: error reading data definition configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
 			System.exit(-1);
 		}
 	}
@@ -356,12 +414,8 @@ public final class RuntimeConfiguration implements Job {
 			// CrawlerRunIdentifier
 			setCrawlerRunIdentifier(getStringElement("XmlLayout", "crawlerRunIdentifier", xpath, doc));
 						
-		} catch (IOException e) {
-			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(-1);
 		} catch (Exception e) {
-			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			e.printStackTrace();
+			logger.error("EXCEPTION :: error reading xml-layout configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
 			System.exit(-1);
 		}
 	}
@@ -447,6 +501,14 @@ public final class RuntimeConfiguration implements Job {
 	public static void 		setConfigFileTypeIdentifier(String configFileTypeIdentifier) {RuntimeConfiguration.configFileTypeIdentifier = configFileTypeIdentifier;}
 	public static String 	getCrawlerRunIdentifier() { return crawlerRunIdentifier; }
 	public static void 		setCrawlerRunIdentifier(String crawlerRunIdentifier) { RuntimeConfiguration.crawlerRunIdentifier = crawlerRunIdentifier;	}
+	public static String 	getThreadingIdentifier() {return threadingIdentifier;}
+	public static void 		setThreadingIdentifier(String threadingIdentifier) {RuntimeConfiguration.threadingIdentifier = threadingIdentifier;}
+	public static String 	getParserIdentifier() {return parserIdentifier;}
+	public static void 		setParserIdentifier(String parserIdentifier) {RuntimeConfiguration.parserIdentifier = parserIdentifier;}
+	public static String 	getCrawlerIdentifier() {return crawlerIdentifier;}
+	public static void 		setCrawlerIdentifier(String crawlerIdentifier) {RuntimeConfiguration.crawlerIdentifier = crawlerIdentifier;}
+	public static String 	getPersistenceIdentifier() {return persistenceIdentifier;}
+	public static void 		setPersistenceIdentifier(String persistenceIdentifier) {RuntimeConfiguration.persistenceIdentifier = persistenceIdentifier;	}
 	
 	// for runtime state 
 	public static boolean 	getWarnOnSimpleConfig() {return RuntimeConfiguration.WARN_ON_SIMPLE_CONFIG;}
@@ -522,4 +584,24 @@ public final class RuntimeConfiguration implements Job {
 	public static void 		setWC_MAX_DEPTH(int wC_MAX_DEPTH) {WC_MAX_DEPTH = wC_MAX_DEPTH;}
 	public static int		getWC_WORD_DISTANCE_CUTOFF_MARGIN() {return WC_WORD_DISTANCE_CUTOFF_MARGIN;}
 	public static void		setWC_WORD_DISTANCE_CUTOFF_MARGIN(int wC_WORD_DISTANCE_CUTOFF_MARGIN) {WC_WORD_DISTANCE_CUTOFF_MARGIN = wC_WORD_DISTANCE_CUTOFF_MARGIN;}
+	
+	// Threading options
+	public static int 		getPARSER_THREADING_POOL_SIZE() {	return PARSER_THREADING_POOL_SIZE;	}
+	public static void 		setPARSER_THREADING_POOL_SIZE(int pARSER_THREADING_POOL_SIZE) {PARSER_THREADING_POOL_SIZE = pARSER_THREADING_POOL_SIZE;	}
+	public static int 		getCRAWLER_THREADING_POOL_SIZE() {return CRAWLER_THREADING_POOL_SIZE;	}
+	public static void		setCRAWLER_THREADING_POOL_SIZE(int cRAWLER_THREADING_POOL_SIZE) {CRAWLER_THREADING_POOL_SIZE = cRAWLER_THREADING_POOL_SIZE;	}
+	public static int 		getPERSISTENCE_THREADING_POOL_SIZE() {return PERSISTENCE_THREADING_POOL_SIZE;}
+	public static void 		setPERSISTENCE_THREADING_POOL_SIZE(int pERSISTENCE_THREADING_POOL_SIZE) {PERSISTENCE_THREADING_POOL_SIZE = pERSISTENCE_THREADING_POOL_SIZE;	}
+	public static String 	getPARSER_THREADING_POOL_TYPE() {return PARSER_THREADING_POOL_TYPE;}
+	public static void 		setPARSER_THREADING_POOL_TYPE(String pARSER_THREADING_POOL_TYPE) {PARSER_THREADING_POOL_TYPE = pARSER_THREADING_POOL_TYPE;}
+	public static String 	getCRAWLER_THREADING_POOL_TYPE() {return CRAWLER_THREADING_POOL_TYPE;}
+	public static void 		setCRAWLER_THREADING_POOL_TYPE(String cRAWLER_THREADING_POOL_TYPE) {CRAWLER_THREADING_POOL_TYPE = cRAWLER_THREADING_POOL_TYPE;	}
+	public static String 	getPERSISTENCE_THREADING_POOL_TYPE() {return PERSISTENCE_THREADING_POOL_TYPE;}
+	public static void 		setPERSISTENCE_THREADING_POOL_TYPE(String pERSISTENCE_THREADING_POOL_TYPE) {PERSISTENCE_THREADING_POOL_TYPE = pERSISTENCE_THREADING_POOL_TYPE;	}
+	public static boolean isPARSER_THREADING_ENABLED() {return PARSER_THREADING_ENABLED;}
+	public static void setPARSER_THREADING_ENABLED(boolean pARSER_THREADING_ENABLED) {PARSER_THREADING_ENABLED = pARSER_THREADING_ENABLED;}
+	public static boolean isCRAWLER_THREADING_ENABLED() {return CRAWLER_THREADING_ENABLED;}
+	public static void setCRAWLER_THREADING_ENABLED(boolean cRAWLER_THREADING_ENABLED) {CRAWLER_THREADING_ENABLED = cRAWLER_THREADING_ENABLED;}
+	public static boolean isPERSISTENCE_THREADING_ENABLED() {return PERSISTENCE_THREADING_ENABLED;}
+	public static void setPERSISTENCE_THREADING_ENABLED(boolean pERSISTENCE_THREADING_ENABLED) {PERSISTENCE_THREADING_ENABLED = pERSISTENCE_THREADING_ENABLED;}
 }

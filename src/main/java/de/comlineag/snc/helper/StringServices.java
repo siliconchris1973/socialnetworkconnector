@@ -42,6 +42,17 @@ public class StringServices {
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
+	
+	public static String[] subString(String text, String token, int wordsBefore, int wordsAfter){
+		String s = text;
+		String[] split = s.split(token);
+		String firstSubString = split[0];
+		String secondSubString = split[1];
+		
+		return split;
+	}
+	
+	
 	/**
 	 * 
 	 * @description returns a normalized version of the given string by converting "umlaute"

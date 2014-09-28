@@ -246,6 +246,14 @@
 			<version>1.2.1</version>
 		</dependency>
 		
+		
+		<!-- TML - text mining library to do ontological analysis -->
+		<dependency>
+			<groupId>org.jvnet.ogc</groupId>
+			<artifactId>tml-common</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+				
 
 		<!-- RUNTIME ENVIRONMENT -->
 		<!-- used for the job control -->
@@ -384,7 +392,7 @@
 -->
 	</dependencies>
 
-	<!-- a local maven repository - currently only for the external ngdbc.jar for sap hana -->
+	<!-- a local maven repository - currently only for the external ngdbc.jar - jdbc library for sap hana -->
 	<repositories>
 		<repository>
 			<id>repo</id>

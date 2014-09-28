@@ -5,10 +5,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,6 +28,7 @@ import net.htmlparser.jericho.Segment;
 import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.StartTag;
 import net.htmlparser.jericho.TextExtractor;
+import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.helper.UniqueIdServices;
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
@@ -50,7 +52,7 @@ import de.l3s.boilerpipe.extractors.LargestContentExtractor;
  * @changelog	0.1 (Chris)		first skeleton
  * 
  */
-public final class SimpleWebParser extends GenericWebParser {
+public final class SimpleWebParser extends GenericWebParser implements Runnable {
 
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
@@ -59,14 +61,17 @@ public final class SimpleWebParser extends GenericWebParser {
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml
 	private final DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
 	
-	
 	public SimpleWebParser() {}
+	// this constructor is used to call the parser in a multi threaded environment
+	public SimpleWebParser(String page, URL url, ArrayList<String> tTerms) {
+		parse(page, url, tTerms);
+	}
+	
+	@Override
+	protected void parse(String page) {logger.warn("method not impleented");}
 
 	@Override
-	protected void parse(String page) {}
-
-	@Override
-	protected void parse(InputStream is) {}
+	protected void parse(InputStream is) {logger.warn("method not impleented");}
 	
 	@Override
 	public void parse(String page, URL url, List<String> tokens) {
@@ -86,8 +91,21 @@ public final class SimpleWebParser extends GenericWebParser {
 		
 		
 		for (int ii = 0; ii < postings.size(); ii++) {
-			SimpleWebPosting post = (SimpleWebPosting) postings.get(ii);
-			post.save();
+			if (RuntimeConfiguration.isPERSISTENCE_THREADING_ENABLED()){
+				// execute persistence layer in a new thread, so that it does NOT block the crawler
+				logger.trace("execute persistence layer in a new thread...");
+				final SimpleWebPosting postT = (SimpleWebPosting) postings.get(ii);
+				new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+							postT.save();
+					}
+				}).start();
+			} else {
+				SimpleWebPosting post = (SimpleWebPosting) postings.get(ii);
+				post.save();
+			}
 		}
 		
 		
@@ -232,7 +250,35 @@ public final class SimpleWebParser extends GenericWebParser {
 		}
 		return true;
 	}
+	
+	
+	// mult threading implementation
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
+	}
 }
+
+class ThreadedParser implements Runnable {
+	// we use simple org.apache.log4j.Logger for lgging
+	//private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = Logger.getLogger("de.comlineag.snc.handler.SimpleWebParser.ThreadedParser");
+		
+	private int i;
+	private JSONObject parsedPageJson = null;
+	private String page;
+	
+	ThreadedParser(JSONObject parsedPageJson, String page) {
+		this.parsedPageJson = parsedPageJson;
+		this.page = page;
+	}
+
+	public void run() {
+		logger.info("decoding page in a thread");
+	}
+}
+
 /*
 			String fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+"_jericho1.html";
 			String text = source.getTextExtractor().setIncludeAttributes(true).toString();

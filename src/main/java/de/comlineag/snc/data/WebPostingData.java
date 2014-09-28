@@ -65,6 +65,7 @@ public final class WebPostingData extends PostData {
 			// page ID
 			setId(Long.valueOf((String) jsonObject.get("page_id")).longValue());
 			
+			
 			// log the startup message
 			logger.debug("constructing new subset of data of page (WC-"  + id + ") from page");
 			

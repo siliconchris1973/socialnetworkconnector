@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 
 
 
+
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.ConfigurationConstants;
@@ -42,6 +43,7 @@ import de.comlineag.snc.handler.LithiumParser;
 import de.comlineag.snc.handler.LithiumPosting;
 import de.comlineag.snc.handler.LithiumStatusException;
 import de.comlineag.snc.handler.LithiumUser;
+import de.comlineag.snc.handler.SimpleWebPosting;
 
 /**
  * 
@@ -309,7 +311,21 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 								JSONObject messageResponse = SendObjectRequest(messageRef, REST_API_URL, LithiumConstants.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
 								if (messageResponse != null) {
 									// first save the message
-									new LithiumPosting(messageResponse).save();
+									if (RuntimeConfiguration.isPERSISTENCE_THREADING_ENABLED()){
+										// execute persistence layer in a new thread, so that it does NOT block the crawler
+										logger.trace("execute persistence layer in a new thread...");
+										final LithiumPosting litPost = new LithiumPosting(messageResponse);
+										new Thread(new Runnable() {
+											
+											@Override
+											public void run() {
+												litPost.save();
+											}
+										}).start();
+									} else {
+										new LithiumPosting(messageResponse).save();
+									}
+									
 									
 									// now get the user from REST url and save it also
 									try {

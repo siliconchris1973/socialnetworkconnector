@@ -6,13 +6,68 @@
 	You can, for example, configure if the system shall create a json file 
 	on disk, in case the creation of a dataset in the db fails.
 	
-	Additionally the available social networks together with specific parameters
-	are defined in here.
+	Second, the threading model for the different parts of the SNC can be configured
+	here. Threading is a delicate topic, as the SNC is started from a quartz job
+	scheduler and runs within the spring framework. Both frameworks bring their
+	own multi-threading environment, but nevertheless, we need our own and eventually 
+	need to tweak it - hence this section :-)
 	
 	Third, the XML structure for the configuration files of the actual crawler
 	is configured in this file - but you are discouraged changing this.   
+	
+	Fourth, some general data definitions are set - like whether or not to truncate 
+	specific fields (according to their respective field length) and if text shall be
+	saved with or without markup elements (like html). 
+	
+	Additionally the available social networks together with specific parameters
+	are defined in here - these will be moved to SocialNetworkDefinitions.xml in 
+	Revision 1.0.
+	
+	
+	THIS IS REVISION 0.9 OF THE CONFIGURATION FILE - 26.09.2014
 -->
 <configurations>
+	<!-- T H R E A D I N G   C O N F I G U R A T I O N
+		 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		 This section contains options to modify the threading model of the SNC - mainly it configures
+		 whether or not the three main parts of the SNC (crawler, parser and persistence) shall be called
+		 in individual threads and what size the thread-pool shall have
+	-->
+	<configuration scope="threading">
+		<!-- CrawlerThreading - configures threading and size of the thread pool for the crawler. 
+			 if enabled, the executing searches against the endpoint (twitter api, or website etc)  
+			 is executed within a separate thread -->
+		<param name="CrawlerThreadingEnabled">
+			<type>boolean</type>
+			<value>false</value>
+		</param>
+		<param name="CrawlerThreadingPoolSize">
+			<type>int</type>
+			<value>5</value>
+		</param>
+		<!-- ParserThreading - configures threading and size of the thread pool for the parser 
+			 if enabled, the call to the parser from the crawler is executed within a separate thread -->
+		<param name="ParserThreadingEnabled">
+			<type>boolean</type>
+			<value>false</value>
+		</param>
+		<param name="ParserThreadingPoolSize">
+			<type>int</type>
+			<value>5</value>
+		</param>
+		<!-- PersistenceThreading - configures threading and size of the thread pool for the persistence layer 
+			 if enabled, the call to the persistence to save posts and users from the parser is executed within 
+			 a separate thread -->
+		<param name="PersistenceThreadingEnabled">
+			<type>boolean</type>
+			<value>false</value>
+		</param>
+		<param name="PersistenceThreadingPoolSize">
+			<type>int</type>
+			<value>5</value>
+		</param>
+	</configuration>
+	
 	<!-- R U N T I M E   C O N F I G U R A T I O N
 		 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		 This section contains options to change/modify the general runtime behavior of the SNC
@@ -175,15 +230,6 @@
 			<constant>WC_WORD_DISTANCE_CUTOFF_MARGIN</constant>
 		</param>
 		
-		<!-- number of threads for the thread pool of the web crawler. Each downloading of a page (starting from 
-			 the initial one) is executed by one of the threads, so that downloading and parsing can be done in 
-			 parallel. As a rule of thumb, the number of threads available should probably be round about 10% of 
-			 of the maximum number of pages to download (parameter search limit above) BUT should not exceed 20. -->
-		<param name="wcThreadPoolSize">
-			<type>int</type>
-			<value>10</value>
-			<constant>WC_THREAD_POOL_SIZE</constant>
-		</param>
 		<!-- the command (word) as returned by a website when declining the crawler's request to fetch the content 
 			 YOU SHOULD PROBABLY NOT CHANGE THIS -->
 		<param name="wcRobotDisallowText">
@@ -213,8 +259,8 @@
 		<!-- THE LITHIUM NETWORK - 
 		 	 change this code for every customer. 
 		 	 Reserved codes are:
-		 	 	FB, TW, GP, PI, XI, LI, SW, IN, FS, YT, SO, PH, GH, WC, AL, XY
-		 	 do not use any of these codes
+		 	 	FB, TW, GP, PI, XI, LI, SW, IN, FS, YT, SO, PH, GH, WC, WP, AL, XY
+		 	 and it's not possible to use any of the reserved codes without generating issues for the analytical system
 		-->
 		<network name="CC"><name>LITHIUM</name></network>
 		<network name="LITHIUM">
@@ -484,66 +530,88 @@
 		</param>
 		
 		
+		<!-- from these values the threading model can be constructed (see top of the file section Threading). 
+			 For example, if you want to change the name of the ParserThreading-section (although I really
+			 have no clue why you would want to do so) to FriedaThreading, then all you have to do is change
+			 the value in section PARSER_NAME from Parser to Frieda. -->
+		<param name="THREADING_NAME">
+			<type>Sting</type>
+			<value>Threading</value>
+		</param>
+		<param name="PARSER_NAME">
+			<type>Sting</type>
+			<value>Parser</value>
+		</param>
+		<param name="CRAWLER_NAME">
+			<type>Sting</type>
+			<value>Crawler</value>
+		</param>
+		<param name="PERSISTENCE_NAME">
+			<type>Sting</type>
+			<value>Persistence</value>
+		</param>
 		
-		<!-- this section contains the xml structure for the crawler configuration
-		     changing these values WILL become possible (in revision 1.1) to reflect XML layout changes
-			 as of the moment, August 2014, these values are NOT changeable, as the RuntimeConfiguration-class
-			 lacks the code to parse this section of the xml file! -->
-		<param name="customerIdentifier"> <!-- changeable -->
+		
+		<!-- this section contains the xml structure for the crawler configuration changing these values 
+			 is (in parts) possible to reflect XML layout changes. As of the moment, August 2014, not all 
+			 of these values are changeable, as the RuntimeConfiguration-class lacks part of the code to 
+			 parse this section of the xml file completely! If an option can be changed, it is marked
+			 "changeable" -->
+		<param name="customerIdentifier"> 				<!-- changeable -->
 			<type>String</type>
 			<value>customer</value>
 		</param>
-		<param name="customerNameIdentifier"> <!-- changeable -->
+		<param name="customerNameIdentifier"> 			<!-- changeable -->
 			<type>String</type>
 			<value>name</value>
 		</param>
-		<param name="customerNameForAllValue"> <!-- changeable -->
+		<param name="customerNameForAllValue"> 			<!-- changeable -->
 			<type>String</type>
 			<value>ALL</value>
 		</param>
-		<param name="domainIdentifier"> <!-- changeable -->
+		<param name="domainIdentifier"> 				<!-- changeable -->
 			<type>String</type>
 			<value>domain</value>
 		</param>
-		<param name="domainStructureIdentifier"> <!-- changeable -->
+		<param name="domainStructureIdentifier"> 		<!-- changeable -->
 			<type>String</type>
 			<value>domainStructure</value>
 		</param>
-		<param name="domainNameIdentifier"> <!-- changeable -->
+		<param name="domainNameIdentifier"> 			<!-- changeable -->
 			<type>String</type>
 			<value>name</value>
 		</param>
-		<param name="domainNameForAllValue"> <!-- changeable -->
+		<param name="domainNameForAllValue"> 			<!-- changeable -->
 			<type>String</type>
 			<value>ALL</value>
 		</param>
-		<param name="constraintIdentifier"> <!-- changeable -->
+		<param name="constraintIdentifier"> 			<!-- changeable -->
 			<type>String</type>
 			<value>constraints</value>
 		</param>
-		<param name="scopeOnAllValue"> <!-- changeable -->
+		<param name="scopeOnAllValue"> 					<!-- changeable -->
 			<type>String</type>
 			<value>ALL</value>
 		</param>
-		<param name="singleConstraintIdentifier"> <!-- changeable -->
+		<param name="singleConstraintIdentifier"> 		<!-- changeable -->
 			<type>String</type>
 			<value>constraint</value>
 		</param>
-		<param name="codeIdentifier"> <!-- changeable -->
+		<param name="codeIdentifier"> 					<!-- changeable -->
 			<type>String</type>
 			<value>code</value>
 		</param>
-		<param name="socialNetworkIdentifier"> <!-- changeable -->
+		<param name="socialNetworkIdentifier"> 			<!-- changeable -->
 			<type>String</type>
 			<value>socialNetworkDefinition</value>
 		</param>
-		<param name="socialNetworkNameIdentifier"> <!-- changeable -->
+		<param name="socialNetworkNameIdentifier"> 		<!-- changeable -->
 			<type>String</type>
 			<value>network</value>
 		</param>
 		
 		<!-- whether or not a specific crawler shall run -->
-		<param name="crawlerRunIdentifier"> <!-- changeable -->
+		<param name="crawlerRunIdentifier"> 			<!-- changeable -->
 			<type>String</type>
 			<value>CrawlerRun</value>
 		</param>

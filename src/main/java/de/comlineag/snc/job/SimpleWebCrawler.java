@@ -10,11 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -32,7 +33,6 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
-
 import de.comlineag.snc.handler.SimpleWebParser;
 
 
@@ -67,7 +67,11 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
-
+	
+	// instantiate a new fixed thread pool (size configured in SNC_Runtime_Configuration.xml) for parsing of the web page
+	ExecutorService executor = Executors.newFixedThreadPool(RuntimeConfiguration.getPARSER_THREADING_POOL_SIZE());
+	
+	
 	// whether or not to follow links OFF of the initial domain
 	private Boolean stayOnDomain = true;
 	// whether or not to parse urls above the initial given path of the url
@@ -309,7 +313,9 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 								}
 								
 								if (relPage) {
-									pageContent.parse(page, url, tTerms);
+									if (!executor.isShutdown())
+										executor.submit(new SimpleWebParser(page, url, tTerms));
+									//pageContent.parse(page, url, tTerms);
 								}
 								// end of parser specific
 								
