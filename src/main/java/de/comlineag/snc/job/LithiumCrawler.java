@@ -323,6 +323,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 											}
 										}).start();
 									} else {
+										// otherwise just call it sequentially
 										new LithiumPosting(messageResponse).save();
 									}
 									

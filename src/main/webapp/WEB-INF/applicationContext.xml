@@ -88,13 +88,13 @@
 					crawlers. The total number of threads must include the number of actual crawlers in
 					this section plus the FsCrawler below and the GeneralConfgurationTrigger - resulting 
 					in number of crawlers plus 2 as the threadcount -->
-				<!-- <ref bean="TwitterCrawlerTrigger" /> -->
+				<ref bean="TwitterCrawlerTrigger" />
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="MultiWebCrawlerTrigger"/> -->
 				<ref bean="SimpleWebCrawlerTrigger"/>
-				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
+				<ref bean="LithiumCrawlerTrigger" />
 				
 				
 				<!-- FILESYSTEM CRAWLER - SAFEGUARD

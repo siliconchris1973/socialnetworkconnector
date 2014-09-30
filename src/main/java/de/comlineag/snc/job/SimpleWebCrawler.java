@@ -95,7 +95,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		try {
-			String smallLogMessage = null;	
+			String smallLogMessage = "";	
 			// runtime settings and crawler constraints
 			String initialPath = "/";
 			String urlToParse;
@@ -151,11 +151,11 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				//ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(RuntimeConfiguration.getConstraintLocationText(), configurationScope);
 	
 				// log output
-				if (tTerms.size()>0) { smallLogMessage += "specific terms "; }
-				if (tSites.size()>0) { smallLogMessage += "specific sites "; }
-				if (tUsers.size()>0) { smallLogMessage += "specific users "; }
-				if (tLangs.size()>0) { smallLogMessage += "specific languages "; }
-				//if (tLocas.size()>0) { smallLogMessage += "specific Locations "; }
+				if (tTerms.size()>0) { smallLogMessage += " specific terms "; }
+				if (tSites.size()>0) { smallLogMessage += " specific sites "; }
+				if (tUsers.size()>0) { smallLogMessage += " specific users "; }
+				if (tLangs.size()>0) { smallLogMessage += " specific languages "; }
+				//if (tLocas.size()>0) { smallLogMessage += " specific Locations "; }
 				
 				
 				// get the initial server url and extract host and port for the authentication process from it
@@ -184,7 +184,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				}
 				if (stayBelowGivenPath) {
 					stayOnDomain = true;
-					smallLogMessage += " below given path";
+					smallLogMessage += " below given path ";
 				} else {
 					// check if the configuration setting to stay on the initial domain is set in the
 					// job control and if not, get it from the runtime configuration (global setting)
@@ -196,7 +196,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					}
 					
 					if (stayOnDomain)
-						smallLogMessage += " on initial domain";
+						smallLogMessage += " on initial domain ";
 				}
 				
 				// shall the crawler get only pages in which the searched terms are found or any page - if key not set use false
@@ -218,8 +218,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				// or if non values are given by crawler configuration, take the values from runtime configuration
 				if (maxPages > RuntimeConfiguration.getWC_SEARCH_LIMIT() || maxPages == 0) maxPages = RuntimeConfiguration.getWC_SEARCH_LIMIT();
 				if (maxDepth > RuntimeConfiguration.getWC_MAX_DEPTH() || maxDepth == 0) maxDepth = RuntimeConfiguration.getWC_MAX_DEPTH();
-				if (maxPages == -1) smallLogMessage += " unlimited pages"; else smallLogMessage += " max "+maxPages+" pages";
-				if (maxDepth == -1) smallLogMessage += " unlimited depth"; else smallLogMessage += " max "+maxDepth+" levels deep";
+				if (maxPages == -1) smallLogMessage += " on unlimited pages "; else smallLogMessage += " on max "+maxPages+" pages ";
+				if (maxDepth == -1) smallLogMessage += " on unlimited depth "; else smallLogMessage += " on max "+maxDepth+" levels deep ";
 				
 				
 				// is username/password given for authentication 

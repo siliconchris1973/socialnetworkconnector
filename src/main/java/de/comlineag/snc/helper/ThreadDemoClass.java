@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class MainClass {
+public class ThreadDemoClass {
   ExecutorService executor = Executors.newFixedThreadPool(3);
 
   public void start() throws IOException {
@@ -21,7 +21,7 @@ public class MainClass {
   }
 
   public static void main(String argv[]) throws Exception {
-    new MainClass().start();
+    new ThreadDemoClass().start();
   }
 }
 

@@ -94,6 +94,7 @@ public final class TwitterParser extends GenericParser {
 					}
 				}).start();
 			} else {
+				// otherwise just call it sequentially
 				TwitterPosting post = (TwitterPosting) postings.get(ii);
 				post.save();
 			}

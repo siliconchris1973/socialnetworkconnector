@@ -28,9 +28,11 @@ import net.htmlparser.jericho.Segment;
 import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.StartTag;
 import net.htmlparser.jericho.TextExtractor;
+
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.helper.UniqueIdServices;
+
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import de.l3s.boilerpipe.extractors.ArticleSentencesExtractor;
@@ -60,6 +62,9 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml
 	private final DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
+	
+	// TODO can I put initialization of executor service someplace else? Maybe in the execute method?
+	ExecutorService persistenceExecutor = Executors.newFixedThreadPool(RuntimeConfiguration.getPERSISTENCE_THREADING_POOL_SIZE());
 	
 	public SimpleWebParser() {}
 	// this constructor is used to call the parser in a multi threaded environment
@@ -95,6 +100,17 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 				// execute persistence layer in a new thread, so that it does NOT block the crawler
 				logger.trace("execute persistence layer in a new thread...");
 				final SimpleWebPosting postT = (SimpleWebPosting) postings.get(ii);
+				
+				/* TODO find out, how to put this in an executor service
+				while (!persistenceExecutor.isShutdown())
+				      persistenceExecutor.submit(new Thread(new Runnable() {
+							
+							@Override
+							public void run() {
+									postT.save();
+							}
+						}).start());
+				*/
 				new Thread(new Runnable() {
 					
 					@Override
@@ -102,7 +118,9 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 							postT.save();
 					}
 				}).start();
+				
 			} else {
+				// otherwise just call it sequentially
 				SimpleWebPosting post = (SimpleWebPosting) postings.get(ii);
 				post.save();
 			}
@@ -115,69 +133,90 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 	// START OF PARSER SPECIFIC
 	@SuppressWarnings("unchecked")
 	private JSONObject parseAndCreateJsonFromPage(String page, URL url, List<String> tokens) {
-		JSONObject pageJson = new JSONObject();
+		// TODO make sure to get rid of this variable when going productive
+		String parserToUse = "jericho";
 		
-		try {
-			// Jericho is a library to parse html pages and identify the parts of it.
-			// we use it to clean the html content prior feeding it to boilerpipe 
-			// and also so set some arbritary data (like title and teaser)
-			Source source = new Source(page);
-			source.fullSequentialParse();
-			Segment htmlSeg = new Segment(source, 0, page.length());
-			Renderer htmlRend = new Renderer(htmlSeg);
-		    String sanitisedPage = htmlRend.toString();
-		    
-			String title=getTitle(source);
-			String description=getMetaValue(source,"description");
-			String keywords=getMetaValue(source,"keywords");
-			
-			// put some data in the json
-			pageJson.put("subject", title);
-			pageJson.put("teaser", description);
-			pageJson.put("raw_text", page);
-			pageJson.put("source", url.toString());
-			pageJson.put("page_id", UniqueIdServices.createId(url.toString()).toString()); // the url is parsed and converted into a long number (returned as a string)
-			pageJson.put("lang", "DE"); // TODO implement language recognition
-			boolean boolean2 = Boolean.parseBoolean("true");
-			pageJson.put("truncated", boolean2);
-			String s = Objects.toString(System.currentTimeMillis(), null);
-			pageJson.put("created_at", s);
-			
-			pageJson.put("user_id", "0"); // TODO find a way to extract user information from page
-			//JSONObject userJson = new JSONObject();
-			//userJson.put("id", "0");
-			//pageJson.put("user", userJson);
-			
-			
-			
-			// Boilerpipe is a content extraction library for html pages 
-			// We use it to get the relevant content from the page and only store that
-			// please see http://boilerpipe-web.appspot.com for a short demo on that
-			String text1 = null;
-			
+		JSONObject pageJson = new JSONObject();
+		String title = null;
+		String description = null;
+		String keywords = null;
+		String text = null;
+		
+		if ("htmlparser".equals(parserToUse)){
+			// HTMLPARSER implementation - htmlparser.org
 			try {
-				text1 = ArticleExtractor.INSTANCE.getText(page); // this can also be sanitisedPage
-			} catch (BoilerpipeProcessingException e1) {
-				logger.error("could not process page ", e1);
-				//e1.printStackTrace();
+				
+				
+				
+			    
+			} catch (Exception e) {
+				logger.error("EXCEPTION :: error during parsing of site content ", e );
+				e.printStackTrace();
 			}
-			
-			if (containsWord(text1, tokens)){
-				logger.debug("working on page " + title + " (" + description + ")");
-				String fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+"_article.html";
+		
+		
+		} else if ("jericho".equals(parserToUse)) {
+			// JERICHO and BOILERPIPE implementation
+			try {
+				// Jericho is a library to parse html pages and identify the parts of it.
+				// we use it to clean the html content prior feeding it to boilerpipe 
+				// and also so set some arbritary data (like title and teaser)
+				Source source = new Source(page);
+				source.fullSequentialParse();
+				Segment htmlSeg = new Segment(source, 0, page.length());
+				Renderer htmlRend = new Renderer(htmlSeg);
+			    String sanitisedPage = htmlRend.toString();
+			    
+				title=getTitle(source);
+				description=getMetaValue(source,"description");
+				keywords=getMetaValue(source,"keywords");
+				
+				// Boilerpipe is a content extraction library for html pages 
+				// We use it to get the relevant content from the page and only store that
+				// please see http://boilerpipe-web.appspot.com for a short demo on that
 				try {
-					writeContentToDisk(url, fileName, text1);
-					
-				} catch (Exception e) {
-					logger.error("could not hand page to persistence layer ", e);
+					text = ArticleExtractor.INSTANCE.getText(page); // this can also be sanitisedPage
+				} catch (BoilerpipeProcessingException e1) {
+					logger.error("could not process page ", e1);
+					//e1.printStackTrace();
 				}
+			} catch (Exception e) {
+				logger.error("EXCEPTION :: error during parsing of site content ", e );
+				e.printStackTrace();
 			}
-		    
-		} catch (Exception e) {
-			logger.error("EXCEPTION :: error during parsing of site content ", e );
-			e.printStackTrace();
 		}
-
+		
+		
+		
+		if (containsWord(text, tokens)){
+			logger.debug("working on page " + title + " (" + description + ")");
+			String fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+"_article.html";
+			try {
+				writeContentToDisk(url, fileName, text);
+				
+			} catch (Exception e) {
+				logger.error("could not write page to disk ", e);
+			}
+		}
+		
+		
+		// put some data in the json
+		pageJson.put("subject", title);
+		pageJson.put("teaser", description);
+		pageJson.put("raw_text", page);
+		pageJson.put("text", text);
+		pageJson.put("source", url.toString());
+		pageJson.put("page_id", UniqueIdServices.createId(url.toString()).toString()); // the url is parsed and converted into a long number (returned as a string)
+		pageJson.put("lang", "DE"); // TODO implement language recognition
+		boolean boolean2 = Boolean.parseBoolean("true");
+		pageJson.put("truncated", boolean2);
+		String s = Objects.toString(System.currentTimeMillis(), null);
+		pageJson.put("created_at", s);
+		
+		pageJson.put("user_id", "0"); // TODO find a way to extract user information from page
+		//JSONObject userJson = new JSONObject();
+		//userJson.put("id", "0");
+		//pageJson.put("user", userJson);
 		return pageJson;
 		
 	}

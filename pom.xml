@@ -246,6 +246,13 @@
 			<version>1.2.1</version>
 		</dependency>
 		
+		<!-- htmlparser is another approach to clean off the chunk from a page - it is a dropin replacement for jericho and boilerpipe -->
+		<dependency>
+			<groupId>org.htmlparser</groupId>
+			<artifactId>htmlparser</artifactId>
+			<version>2.1</version>
+		</dependency>
+		
 		
 		<!-- TML - text mining library to do ontological analysis -->
 		<dependency>
