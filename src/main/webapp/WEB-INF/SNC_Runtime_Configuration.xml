@@ -60,7 +60,7 @@
 			 a separate thread -->
 		<param name="PersistenceThreadingEnabled">
 			<type>boolean</type>
-			<value>false</value>
+			<value>true</value>
 		</param>
 		<param name="PersistenceThreadingPoolSize">
 			<type>int</type>
@@ -82,13 +82,13 @@
 		<!-- show warning in case the simple XML file configuration is used -->
 		<param name="WarnOnSimpleXmlConfigOption">
 			<type>boolean</type>
-			<value>true</value>
+			<value>false</value>
 			<constant>WARN_ON_SIMPLE_XML_CONFIG_OPTION</constant>
 		</param>
 		<!-- show a debug message in case some actions are omitted due to configuration settings -->
 		<param name="WarnOnRejectedActions">
 			<type>boolean</type>
-			<value>true</value>
+			<value>false</value>
 			<constant>WARN_ON_REJECTED_ACTIONS</constant>
 		</param>
 		<!-- save a json file with the post data in case creating it in persistence fails -->

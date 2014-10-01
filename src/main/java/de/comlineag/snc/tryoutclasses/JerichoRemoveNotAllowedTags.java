@@ -1,4 +1,4 @@
-package de.comlineag.snc.helper;
+package de.comlineag.snc.tryoutclasses;
 
 import java.util.Arrays;
 import java.util.HashSet;

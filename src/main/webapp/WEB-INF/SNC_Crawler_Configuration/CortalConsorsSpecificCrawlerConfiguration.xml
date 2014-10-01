@@ -621,10 +621,53 @@
 			<!-- START OF WEBCRAWLER CONFIG -->
 			<constraints scope="WC">
 				<constraint>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/userzentrum/registrierung.html</value>
+					</blockedsite>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/userzentrum/passwort-vergessen.html</value>
+					</blockedsite>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/userzentrum/online.html</value>
+					</blockedsite>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/impressum</value>
+					</blockedsite>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/werbung</value>
+					</blockedsite>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/karriere/stellenangebote.html</value>
+					</blockedsite>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/disclaimer.html</value>
+					</blockedsite>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/sitemap</value>
+					</blockedsite>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/hilfe</value>
+					</blockedsite>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/widgets</value>
+					</blockedsite>
+				</constraint>
+				<constraint>
 					<term>
 						<type>String</type>
 						<value>Cortal Consors</value>
 					</term>
+					<!-- 
 					<term>
 						<type>String</type>
 						<value>CortalConsors</value>
@@ -637,6 +680,7 @@
 						<type>String</type>
 						<value>Consors</value>
 					</term>
+					 -->
 				</constraint>
 			</constraints>
 			

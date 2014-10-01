@@ -176,7 +176,7 @@ public final class RuntimeConfiguration implements Job {
 	
 	
 	private void setRuntimeConfiguration(){
-		logger.trace("   setting runtime configuration");
+		logger.trace("--- setting runtime configuration");
 		String debugMsg = "";
 		
 		try {
@@ -280,7 +280,7 @@ public final class RuntimeConfiguration implements Job {
 	}
 	
 	private void setThreadingModel(){
-		logger.trace("   setting threading configuration");
+		logger.trace("--- setting threading configuration");
 		String debugMsg = "";
 		
 		try {
@@ -293,31 +293,23 @@ public final class RuntimeConfiguration implements Job {
 			XPathFactory xPathfactory = XPathFactory.newInstance();
 			XPath xpath = xPathfactory.newXPath();
 			
-			// CrawlerThreading
+			// CrawlerThreadingPoolSize
 			setCRAWLER_THREADING_POOL_SIZE(getIntElement("threading", "CrawlerThreadingPoolSize", xpath, doc));
-			debugMsg += " / CRAWLER_THREADING_POOL_SIZE is " + getCRAWLER_THREADING_POOL_SIZE();
-			// ParserThreading
+			debugMsg += "    CRAWLER_THREADING_POOL_SIZE is " + getCRAWLER_THREADING_POOL_SIZE();
+			// ParserThreadingPoolSize
 			setPARSER_THREADING_POOL_SIZE(getIntElement("threading", "ParserThreadingPoolSize", xpath, doc));
 			debugMsg += " / PARSER_THREADING_POOL_SIZE is " + getPARSER_THREADING_POOL_SIZE();
-			// PersistenceThreading
+			// PersistenceThreadingPoolSize
 			setPERSISTENCE_THREADING_POOL_SIZE(getIntElement("threading", "PersistenceThreadingPoolSize", xpath, doc));
 			debugMsg += " / PERSISTENCE_THREADING_POOL_SIZE is " + getPERSISTENCE_THREADING_POOL_SIZE();
-			// CrawlerThreading
-			setCRAWLER_THREADING_POOL_TYPE(getStringElement("threading", "CrawlerThreadingPoolType", xpath, doc));
-			debugMsg += " / CRAWLER_THREADING_POOL_TYPE is " + getCRAWLER_THREADING_POOL_TYPE();
-			// ParserThreading
-			setPARSER_THREADING_POOL_TYPE(getStringElement("threading", "ParserThreadingPoolType", xpath, doc));
-			debugMsg += " / PARSER_THREADING_POOL_TYPE is " + getPARSER_THREADING_POOL_TYPE();
-			// PersistenceThreading
-			setPERSISTENCE_THREADING_POOL_TYPE(getStringElement("threading", "PersistenceThreadingPoolType", xpath, doc));
-			debugMsg += " / PERSISTENCE_THREADING_POOL_TYPE is " + getPERSISTENCE_THREADING_POOL_TYPE();
-			// CrawlerThreading
+			
+			// CrawlerThreadingEnabled
 			setCRAWLER_THREADING_ENABLED(getBooleanElement("threading", "CrawlerThreadingEnabled", xpath, doc));
 			debugMsg += " / CRAWLER_THREADING_ENABLED is " + isCRAWLER_THREADING_ENABLED();
-			// ParserThreading
+			// ParserThreadingEnabled
 			setPARSER_THREADING_ENABLED(getBooleanElement("threading", "ParserThreadingEnabled", xpath, doc));
 			debugMsg += " / PARSER_THREADING_ENABLED is " + isPARSER_THREADING_ENABLED();
-			// PersistenceThreading
+			// PersistenceThreadingEnabled
 			setPERSISTENCE_THREADING_ENABLED(getBooleanElement("threading", "PersistenceThreadingEnabled", xpath, doc));
 			debugMsg += " / PERSISTENCE_THREADING_ENABLED is " + isPERSISTENCE_THREADING_ENABLED();
 			
@@ -331,7 +323,7 @@ public final class RuntimeConfiguration implements Job {
 	
 	// DataDefinitions
 	private void setDataDefinitions(){
-		logger.trace("   setting data definitions");
+		logger.trace("--- setting data definitions");
 		String debugMsg = "";
 		
 		try {
@@ -346,7 +338,7 @@ public final class RuntimeConfiguration implements Job {
 			
 			// teaserWithMarkup
 			setTEASER_WITH_MARKUP(getBooleanElement("DataDefinitions", "teaserWithMarkup", xpath, doc));
-			debugMsg += " TEASER_WITH_MARKUP is " + isTEASER_WITH_MARKUP();
+			debugMsg += "    TEASER_WITH_MARKUP is " + isTEASER_WITH_MARKUP();
 			
 			// teaserMaxLength
 			setTEASER_MAX_LENGTH(getIntElement("DataDefinitions", "teaserMaxLength", xpath, doc));
@@ -381,7 +373,8 @@ public final class RuntimeConfiguration implements Job {
 	
 	
 	private void setXmlLayout(){
-		logger.trace ("   setting XML layout");
+		logger.trace ("--- setting XML layout");
+		String debugMsg = "";
 		try {
 			File file = new File(getConfigFile());
 			
@@ -395,25 +388,38 @@ public final class RuntimeConfiguration implements Job {
 			// set text identifiers for the constraints from XML file 
 			// CONSTRAINT_TERM_TEXT
 			setCONSTRAINT_TERM_TEXT(getStringElement("XmlLayout", "CONSTRAINT_TERM_TEXT", xpath, doc));
+			debugMsg += "    CONSTRAINT_TERM_TEXT is " + getConstraintTermText();
 			
 			// CONSTRAINT_USER_TEXT
 			setCONSTRAINT_USER_TEXT(getStringElement("XmlLayout", "CONSTRAINT_USER_TEXT", xpath, doc));
+			debugMsg += " / CONSTRAINT_USER_TEXT is " + getConstraintUserText();
 			
 			// CONSTRAINT_SITE_TEXT
 			setCONSTRAINT_SITE_TEXT(getStringElement("XmlLayout", "CONSTRAINT_SITE_TEXT", xpath, doc));
+			debugMsg += " / CONSTRAINT_SITE_TEXT is " + getConstraintSiteText();
 			
 			// CONSTRAINT_BOARD_TEXT
 			setCONSTRAINT_BOARD_TEXT(getStringElement("XmlLayout", "CONSTRAINT_BOARD_TEXT", xpath, doc));
+			debugMsg += " / CONSTRAINT_BOARD_TEXT is " + getConstraintBoardText();
 			
 			// CONSTRAINT_BLOG_TEXT
 			setCONSTRAINT_BLOG_TEXT(getStringElement("XmlLayout", "CONSTRAINT_BLOG_TEXT", xpath, doc));
+			debugMsg += " / CONSTRAINT_BLOG_TEXT is " + getConstraintBlogText();
 			
 			// CONSTRAINT_LOCATION_TEXT
 			setCONSTRAINT_LOCATION_TEXT(getStringElement("XmlLayout", "CONSTRAINT_LOCATION_TEXT", xpath, doc));
+			debugMsg += " / CONSTRAINT_LOCATION_TEXT is " + getConstraintLocationText();
+			
+			/* CONSTRAINT_BLOCKED_SITE_TEXT
+			setCONSTRAINT_LOCATION_TEXT(getStringElement("XmlLayout", "CONSTRAINT_BLOCKED_SITE_TEXT", xpath, doc));
+			debugMsg += " / CONSTRAINT_BLOCKED_SITE_TEXT is " + getConstraintBlockedSiteText();
+			*/
 			
 			// CrawlerRunIdentifier
 			setCrawlerRunIdentifier(getStringElement("XmlLayout", "crawlerRunIdentifier", xpath, doc));
-						
+			debugMsg += " / CRAWLER_RUN_IDENTIFIER is " + getCrawlerRunIdentifier();
+			
+			logger.trace(debugMsg);
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: error reading xml-layout configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
 			System.exit(-1);

@@ -1,4 +1,4 @@
-package de.comlineag.snc.helper;
+package de.comlineag.snc.tryoutclasses;
 
 import java.io.BufferedReader;
 import java.io.File;
