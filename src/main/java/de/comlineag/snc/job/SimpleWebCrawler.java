@@ -86,11 +86,9 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	
 	
 	private final SimpleWebParser pageContent;
-	
 	public SimpleWebCrawler(){
 		// instantiate the Web-Parser
 		pageContent = new SimpleWebParser();
-		
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -151,10 +149,10 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope);
 				ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
 				//ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(RuntimeConfiguration.getConstraintLocationText(), configurationScope);
+				
 				// blocked URLs
 				// TODO establish blockedsites as a new keyword in runtime configuration
-				List<URL> blockedURLs = new CrawlerConfiguration<URL>().getConstraint("blockedsite", configurationScope);
-								
+				ArrayList<String> bURLs = new CrawlerConfiguration<String>().getConstraint("blockedsite", configurationScope);
 				
 				// log output
 				if (tTerms.size()>0) { smallLogMessage += " specific terms "; }
@@ -162,7 +160,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				if (tUsers.size()>0) { smallLogMessage += " specific users "; }
 				if (tLangs.size()>0) { smallLogMessage += " specific languages "; }
 				//if (tLocas.size()>0) { smallLogMessage += " specific Locations "; }
-				if (blockedURLs.size()>0) { smallLogMessage += " honor blacklist for sites "; }
+				if (bURLs.size()>0) { smallLogMessage += " honor blacklist for sites "; }
 				
 				// get the initial server url and extract host and port for the authentication process from it
 				if (!arg0.getJobDetail().getJobDataMap().containsKey("server_url")){
@@ -254,6 +252,11 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				Map<URL, Integer> knownURLs = new HashMap<URL, Integer>();
 				knownURLs.put(url,new Integer(1));
 				
+				// blocked URLs
+				Map<URL, Integer> blockedURLs = new HashMap<URL, Integer>();
+				for (int i=0;i<bURLs.size();i++)
+					blockedURLs.put(new URL(bURLs.get(i)),new Integer(1));
+				
 				// URLs to be searched
 				List<URL> newURLs = new ArrayList<URL>();
 				newURLs.add(url);
@@ -290,7 +293,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							
 							if (robotSafe(url)) {
 								boolean relPage = false;
-								logger.debug("Url "+url+" is page #" + pageCount + " to crawl (until now " + relevantPages + " relevant pages found)");
+								logger.debug("Url "+url+" is page #" + pageCount + " to crawl (until now " + relevantPages + " possibly relevant pages found)");
 								
 								String page = null;
 								try {
@@ -319,9 +322,14 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 								}
 								
 								if (relPage) {
-									if (!executor.isShutdown())
-										executor.submit(new SimpleWebParser(page, url, tTerms));
-									//pageContent.parse(page, url, tTerms);
+									// start the parser in a separate thread, or directly
+									if (RuntimeConfiguration.isPARSER_THREADING_ENABLED()) {
+										logger.debug("execute parser in a new thread...");
+										if (!executor.isShutdown())
+											executor.submit(new SimpleWebParser(page, url, tTerms));
+									} else {
+										pageContent.parse(page, url, tTerms);
+									}
 								}
 								// end of parser specific
 								
@@ -395,7 +403,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 									String page, 
 									Map<URL, Integer> knownURLs, 
 									List<URL> newURLs, 
-									List<URL> blockedURLs, 
+									Map<URL, Integer> blockedURLs, 
 									String initialPath) {
 		//logger.debug("getLinksFromPage called for " + url.toString());
 		String lcPage = page.toLowerCase(); // Page in lower case
@@ -431,7 +439,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							URL url, 
 							Map<URL, Integer> knownURLs, 
 							List<URL> newURLs, 
-							List<URL> blockedURLs, 
+							Map<URL, Integer> blockedURLs, 
 							String initialPath) {
 		Boolean proceed = false;
 		
@@ -489,10 +497,16 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			}
 		}
 		
+		if (blockedURLs.containsKey(url)) {
+			if (RuntimeConfiguration.isWARN_ON_REJECTED_ACTIONS())
+				logger.debug("rejecting url " + url + " because it is in the list of blocked urls");
+			proceed = false;
+		}
+		
 		// only process urls that passed the tests above.
 		if (proceed){
 
-			if (!knownURLs.containsKey(url) || !blockedURLs.contains(url)) {
+			if (!knownURLs.containsKey(url) || !blockedURLs.containsKey(url)) {
 				/*
 				 * if you only want html pages, then set wcContentTypeToDownload in RuntimeConfiguration
 				String filename =  url.getFile();
@@ -534,7 +548,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			return false;
 		}
 
-		logger.trace("Checking robot protocol " + urlRobot.toString());
+		//logger.trace("Checking robot protocol " + urlRobot.toString());
 		String strCommands;
 		try {
 			InputStream urlRobotStream = urlRobot.openStream();

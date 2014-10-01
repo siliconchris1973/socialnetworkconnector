@@ -18,8 +18,8 @@ import org.jsoup.Jsoup;
  * 
  * @author		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Helper Class
- * @version 	0.6
- * @status		productive
+ * @version 	0.7
+ * @status		deprecated
  * 
  * @description Tools for managing special Requests and String manipulation for the crawler
  * 
@@ -31,10 +31,11 @@ import org.jsoup.Jsoup;
  * 				0.5 			added a more sophisticated method to strip the html
  * 								kudos go to http://stackoverflow.com/questions/2496372/html-truncator-in-java
  * 				0.6				moved LocalDateTime to DateTimeServices and renamed this class to StringServices 
- * 
- * TODO 1. check for a better solution to strip html content to a maximum size.			
+ * 				0.7				despite normalizeText, every method in here is deprecated
+ * 		
  */
 
+@Deprecated
 public class StringServices {
 	
 	// we use simple org.apache.log4j.Logger for lgging
@@ -42,7 +43,7 @@ public class StringServices {
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
-	
+	@Deprecated
 	public static String[] subString(String text, String token, int wordsBefore, int wordsAfter){
 		String s = text;
 		String[] split = s.split(token);
@@ -67,11 +68,12 @@ public class StringServices {
 	
 	
 	/**
-	 * 
+	 * @deprecated
 	 * @description	convert an html text to plain text
 	 * @param 		object
 	 * @return		plan text
 	 */
+	@Deprecated
 	public static String stripHTML(Object object) {
 		String html = object.toString();
 		return Jsoup.parse(html).text();
@@ -79,6 +81,7 @@ public class StringServices {
 	
 	
 	/**
+	 * @deprecated
 	 * @description	this function truncates a string up to a number of characters 
 	 * 				while preserving whole words and HTML tags.
 	 * 
@@ -88,6 +91,7 @@ public class StringServices {
 	 * 					length to strip down to
 	 * @return		stripped html text
 	 */
+	@Deprecated
 	public static String htmlTruncator(String text, int length) {
 	    /* if the plain text is shorter than the maximum length, return the whole text
 	    if (text.replaceAll("<.*?>", "").length() <= length) {
@@ -252,6 +256,7 @@ public class StringServices {
 	 * @param length
 	 * @return
 	 */
+	@Deprecated
 	public static String truncateHtmlWords(String html, int length){
 		if (length <= 0)
 			return new String();
@@ -315,6 +320,7 @@ public class StringServices {
 	 * 					length to strip down to
 	 * @return		stripped html text
 	 */
+	@Deprecated
 	public static String truncateHtml(String s, int l) {
 		  Pattern p = Pattern.compile("<[^>]+>([^<]*)");
 

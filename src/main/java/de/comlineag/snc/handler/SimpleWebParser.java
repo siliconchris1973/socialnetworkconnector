@@ -8,7 +8,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -24,22 +23,13 @@ import org.json.simple.JSONObject;
 import net.htmlparser.jericho.CharacterReference;
 import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.HTMLElementName;
-import net.htmlparser.jericho.OutputDocument;
-import net.htmlparser.jericho.Renderer;
-import net.htmlparser.jericho.Segment;
 import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.StartTag;
-import net.htmlparser.jericho.StartTagType;
 import net.htmlparser.jericho.TextExtractor;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.crypto.GenericCryptoException;
-import de.comlineag.snc.helper.StringServices;
 import de.comlineag.snc.helper.UniqueIdServices;
-import de.l3s.boilerpipe.BoilerpipeProcessingException;
-import de.l3s.boilerpipe.extractors.ArticleExtractor;
-import de.l3s.boilerpipe.extractors.ArticleSentencesExtractor;
-import de.l3s.boilerpipe.extractors.DefaultExtractor;
-import de.l3s.boilerpipe.extractors.LargestContentExtractor;
+
 
 
 /**
@@ -85,33 +75,46 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 		List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
 		
 		// log the startup message
-		logger.debug("Simple Web parser START");
+		logger.info("Simple Web parser START");
 		
 		JSONObject parsedPageJson = null;
 		try {
 			parsedPageJson = parseAndCreateJsonFromPage(page, url, tokens);
 			SimpleWebPosting parsedPageSimpleWebPosting = new SimpleWebPosting(parsedPageJson);
-			postings.add(parsedPageSimpleWebPosting);
+			// now check if we really really have the searched word within the text and only if so,
+			// write the content to disk. We should probably put this before calling the persistence
+			if (containsWord(parsedPageSimpleWebPosting.toString(), tokens)){
+				String fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+"_myOwnParser.txt";
+				try {
+					writeContentToDisk(url, fileName, parsedPageSimpleWebPosting.toString());
+					
+				} catch (Exception e) {
+					logger.error("could not write page to disk ", e);
+				}
+				
+				postings.add(parsedPageSimpleWebPosting);
+			}
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: " + e.getMessage() + " " + e);
 		}
 		
 		
 		for (int ii = 0; ii < postings.size(); ii++) {
+			logger.info("calling persistence layer to save the post");
 			if (RuntimeConfiguration.isPERSISTENCE_THREADING_ENABLED()){
 				// execute persistence layer in a new thread, so that it does NOT block the crawler
-				logger.trace("execute persistence layer in a new thread...");
+				logger.debug("execute persistence layer in a new thread...");
 				final SimpleWebPosting postT = (SimpleWebPosting) postings.get(ii);
-				
-				/* TODO find out, how to enable executor service for the multi threaded persistence call
-				while (!persistenceExecutor.isShutdown())
-				      persistenceExecutor.submit(new Thread(new Runnable() {
+				/* TODO find out how to use executor Service for multi threaded persistence call
+				if (!persistenceExecutor.isShutdown()) {
+					persistenceExecutor.submit(new Thread(new Runnable() {
 							
 							@Override
 							public void run() {
 									postT.save();
 							}
 						}).start());
+				}
 				*/
 				new Thread(new Runnable() {
 					
@@ -129,7 +132,7 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 		}
 		
 		
-		logger.debug("Simple Web parser END\n");
+		logger.info("Simple Web parser END\n");
 	}
 	
 	
@@ -141,9 +144,7 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected JSONObject parseAndCreateJsonFromPage(String page, URL url, List<String> tokens) {
-		// TODO make sure to get rid of this variable when going productive
-		String parserToUse = "myown";
-		
+		logger.info("parsing site " + url.toString() + " and removing clutter");
 		JSONObject pageJson = new JSONObject();
 		String title = null;
 		String description = null;
@@ -151,140 +152,86 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 		String text = null;
 		boolean truncated = Boolean.parseBoolean("false");
 		
-		if ("myown".equals(parserToUse)) {
-			// MY OWN HTML PARSER implementation
-			try {
-				// if so, get the plain text with
-				Source source = new Source(page);
-				source.fullSequentialParse();
-				
-				TextExtractor textExtractor=new TextExtractor(source) {
-					public boolean excludeElement(StartTag startTag) {
-						return startTag.getName()==HTMLElementName.TITLE //this removes the element between <title> </title>
-								|| startTag.getName()==HTMLElementName.THEAD //this removes the element between <thead> </thead>
-								|| startTag.getName()==HTMLElementName.SCRIPT
-								|| startTag.getName()==HTMLElementName.HEAD
-								|| "keywords".equalsIgnoreCase(startTag.getAttributeValue("class"))
-								|| "clear".equalsIgnoreCase(startTag.getAttributeValue("class"))
-								|| "modulecontent".equalsIgnoreCase(startTag.getAttributeValue("class"))
-								|| "cs mooMenu".equalsIgnoreCase(startTag.getAttributeValue("class"))
-								|| "toolbar".equalsIgnoreCase(startTag.getAttributeValue("class"))
-								|| "grid fs static".equalsIgnoreCase(startTag.getAttributeValue("class"))
-								|| "grid fs poll".equalsIgnoreCase(startTag.getAttributeValue("class"))
-								|| "grid ws threadbodybox".equalsIgnoreCase(startTag.getAttributeValue("class"))
-								|| "grid ns".equalsIgnoreCase(startTag.getAttributeValue("class"))
-								|| "tbutton b".equalsIgnoreCase(startTag.getAttributeValue("class"))
-								|| "overflow:hidden".equalsIgnoreCase(startTag.getAttributeValue("style"))
-								|| "afterhead".equalsIgnoreCase(startTag.getAttributeValue("id"))
-								|| "breadcrumb".equalsIgnoreCase(startTag.getAttributeValue("id"))
-								|| "adsd_billboard_div".equalsIgnoreCase(startTag.getAttributeValue("id"))
-								|| "sitehead".equalsIgnoreCase(startTag.getAttributeValue("id"))
-								|| "footer".equalsIgnoreCase(startTag.getAttributeValue("id"))
-								|| "userDD".equalsIgnoreCase(startTag.getAttributeValue("id"))
-								|| "postingDD".equalsIgnoreCase(startTag.getAttributeValue("id"))
-								|| "Ads_TFM_BS".equalsIgnoreCase(startTag.getAttributeValue("id"))
-								|| "userbar".equalsIgnoreCase(startTag.getAttributeValue("id"));
-						}
-					};
-				logger.trace("HERE IT COMES >>> " + textExtractor.setIncludeAttributes(true).toString());
-				System.exit(-1);
-				
-				
-				Segment htmlSeg = new Segment(source, 0, page.length());
-				TextExtractor mainText = new TextExtractor(htmlSeg);
-				
-				Renderer htmlRend = new Renderer(htmlSeg);
-				
-				String plainText =  htmlRend.toString();
-				
-				logger.trace("Plaintext: >>> " + plainText);
-				String segmentText = "";
-				for (int i=0; i < tokens.size(); i++) {
-					String token = tokens.get(i);
-					ArrayList<Integer> indexes = returnTokenPosition(plainText, token);
-					// did we find the track term in question???
-					if (indexes.size() > 0) {
-						for (int ii=0; ii<indexes.size(); ii++) {
-							logger.trace(">>> found word " + token + " at position " + indexes.get(ii));
-							segmentText += trimStringAtWordBoundary(plainText, 
-														RuntimeConfiguration.getWC_WORD_DISTANCE_CUTOFF_MARGIN(), 
-														RuntimeConfiguration.getWC_WORD_DISTANCE_CUTOFF_MARGIN(), 
-														token);
-							logger.trace("TruncatedText: >>> " + segmentText);
-						}
+		try {
+			// if so, get the plain text with
+			Source source = new Source(page);
+			source.fullSequentialParse();
+			
+			TextExtractor textExtractor=new TextExtractor(source) {
+				public boolean excludeElement(StartTag startTag) {
+					return startTag.getName()==HTMLElementName.TITLE
+							|| startTag.getName()==HTMLElementName.THEAD
+							|| startTag.getName()==HTMLElementName.SCRIPT
+							|| startTag.getName()==HTMLElementName.HEAD
+							|| startTag.getName()==HTMLElementName.META
+							|| "keywords".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "clear".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "modulecontent".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "cs mooMenu".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "toolbar".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "postingHead".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "postingFooter".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "fs grid".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "grid fs ".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "grid fs static ".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "grid fs poll ".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "grid ws threadbodybox ".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "grid ns ".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "modulecontent copyright".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "more_link".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "tbutton b".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							//|| "tab wotabs".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "voting_stars_display".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "pagination".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "tab_wrapper".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "pagination ".equalsIgnoreCase(startTag.getAttributeValue("class"))
+							|| "overflow:hidden".equalsIgnoreCase(startTag.getAttributeValue("style"))
+							|| "pagination".equalsIgnoreCase(startTag.getAttributeValue("form"))
+							|| "themes_postings_module".equalsIgnoreCase(startTag.getAttributeValue("id"))
+							|| "afterhead".equalsIgnoreCase(startTag.getAttributeValue("id"))
+							|| "breadcrumb".equalsIgnoreCase(startTag.getAttributeValue("id"))
+							|| "adsd_billboard_div".equalsIgnoreCase(startTag.getAttributeValue("id"))
+							|| "sitehead".equalsIgnoreCase(startTag.getAttributeValue("id"))
+							|| "footer".equalsIgnoreCase(startTag.getAttributeValue("id"))
+							|| "userDD".equalsIgnoreCase(startTag.getAttributeValue("id"))
+							|| "postingDD".equalsIgnoreCase(startTag.getAttributeValue("id"))
+							|| "Ads_TFM_BS".equalsIgnoreCase(startTag.getAttributeValue("id"))
+							|| "viewModeDD".equalsIgnoreCase(startTag.getAttributeValue("id"))
+							|| "userbar".equalsIgnoreCase(startTag.getAttributeValue("id"));
+					}
+				};
+			String plainText = textExtractor.setIncludeAttributes(true).toString();
+			title = getTitle(source);
+			description = getMetaValue(source, "Description");
+			keywords = getMetaValue(source, "keywords");
+			
+			//logger.trace("Plaintext: >>> " + plainText);
+			/*
+			String segmentText = "";
+			for (int i=0; i < tokens.size(); i++) {
+				String token = tokens.get(i);
+				ArrayList<Integer> indexes = returnTokenPosition(plainText, token);
+				// did we find the track term in question???
+				if (indexes.size() > 0) {
+					for (int ii=0; ii<indexes.size(); ii++) {
+						logger.trace(">>> found word " + token + " at position " + indexes.get(ii) + " in url " + url.toString());
+						segmentText += trimStringAtWordBoundary(plainText, 
+													RuntimeConfiguration.getWC_WORD_DISTANCE_CUTOFF_MARGIN(), 
+													RuntimeConfiguration.getWC_WORD_DISTANCE_CUTOFF_MARGIN(), 
+													token);
+						logger.trace("TruncatedText: >>> " + segmentText);
 					}
 				}
-				// now put the reduced text in the original text variable, so that it gets added to the json below
-				text = segmentText;
-				// and also make sure that the truncated flag is set correctly
-				truncated = Boolean.parseBoolean("true");
-				
-			} catch (Exception e) {
-				logger.error("EXCEPTION :: error during parsing of site content ", e );
-				e.printStackTrace();
-				System.exit(-1);
 			}
+			*/
+			// now put the reduced text in the original text variable, so that it gets added to the json below
+			text = plainText;
+			// and also make sure that the truncated flag is set correctly
+			truncated = Boolean.parseBoolean("true");
 			
-		} else if ("htmlparser".equals(parserToUse)){
-			// HTMLPARSER implementation - htmlparser.org
-			try {
-				
-				
-				
-				// make sure that the truncated flag is set correctly
-				truncated = Boolean.parseBoolean("true");
-			} catch (Exception e) {
-				logger.error("EXCEPTION :: error during parsing of site content ", e );
-				e.printStackTrace();
-			}
-		
-		
-		} else if ("jericho".equals(parserToUse)) {
-			// JERICHO and BOILERPIPE implementation
-			try {
-				// Jericho is a library to parse html pages and identify the parts of it.
-				// we use it to clean the html content prior feeding it to boilerpipe 
-				// and also so set some arbritary data (like title and teaser)
-				Source source = new Source(page);
-				source.fullSequentialParse();
-				Segment htmlSeg = new Segment(source, 0, page.length());
-				Renderer htmlRend = new Renderer(htmlSeg);
-			    String sanitisedPage = htmlRend.toString();
-			    
-				title=getTitle(source);
-				description=getMetaValue(source,"description");
-				keywords=getMetaValue(source,"keywords");
-				
-				// Boilerpipe is a content extraction library for html pages 
-				// We use it to get the relevant content from the page and only store that
-				// please see http://boilerpipe-web.appspot.com for a short demo on that
-				try {
-					text = ArticleExtractor.INSTANCE.getText(page); // this can also be sanitisedPage
-				} catch (BoilerpipeProcessingException e1) {
-					logger.error("could not process page ", e1);
-					//e1.printStackTrace();
-				}
-				// make sure that the truncated flag is set correctly
-				truncated = Boolean.parseBoolean("false");
-			} catch (Exception e) {
-				logger.error("EXCEPTION :: error during parsing of site content ", e );
-				e.printStackTrace();
-			}
-		}
-		
-		
-		
-		// now check if we really really have the searched word within the text and only if so,
-		// write the content to disk. We should probably put this before calling the persistence
-		if (containsWord(text, tokens)){
-			//logger.debug("writing page " + title + " to disk");
-			String fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+"_article.html";
-			try {
-				writeContentToDisk(url, fileName, text);
-				
-			} catch (Exception e) {
-				logger.error("could not write page to disk ", e);
-			}
+		} catch (Exception e) {
+			logger.error("EXCEPTION :: error during parsing of site content ", e );
+			e.printStackTrace();
 		}
 		
 		
@@ -305,7 +252,6 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 		//userJson.put("id", "0");
 		//pageJson.put("user", userJson);
 		return pageJson;
-		
 	}
 	
 	
@@ -327,23 +273,6 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 		}
 		return null;
 	}
-			
-	private static String removeNotAllowedTags(String htmlFragment, Set<String> ALLOWED_HTML_TAGS) {
-		Source source = new Source(htmlFragment);
-		OutputDocument outputDocument = new OutputDocument(source);
-		List<Element> elements = source.getAllElements();
-		for (Element element : elements) {
-			if (!ALLOWED_HTML_TAGS.contains(element.getName())) {
-				outputDocument.remove(element.getStartTag());
-				if (!element.getStartTag().isSyntacticalEmptyElementTag()) {
-			
-					outputDocument.remove(element.getEndTag());
-				}
-			}
-		}
-		return outputDocument.toString();
-	}
-
 	// END OF JERICHO PARSER SPECIFIC STUFF
 	
 	
@@ -356,7 +285,6 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 	 * @param 		needle
 	 * @return 		true if any of the tokens was found, otherwise false
 	 * 
-	 * FIXME does not return a substring with the searched term in the middle
 	 */
 	private boolean containsWord(String haystack, List<String> needle) throws NullPointerException {
 		assert (haystack != null && needle != null) : "ERROR :: cannot operate on empty text";
@@ -389,7 +317,7 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 		
 		String textsegments = "";
 		
-		String patternString = "((?:[a-zA-Z'-]+[^a-zA-Z'-]+){0,"+wordsBefore+"}\b)" + needle + "(\b(?:[^a-zA-Z'-]+[a-zA-Z'-]+){0,"+wordsAfter+"})";
+		String patternString = "((?:[a-zA-Z'-]+[^a-zA-Z'-]+){0,"+wordsBefore+"}\\b)" + needle + "(\\b(?:[^a-zA-Z'-]+[a-zA-Z'-]+){0,"+wordsAfter+"})";
 		//String patternString = "((?:[a-zA-Z'-]+[^a-zA-Z'-]+){0,5}\b)needle(\b(?:[^a-zA-Z'-]+[a-zA-Z'-]+){0,5})";
 		
 		Pattern pattern = Pattern.compile(patternString);

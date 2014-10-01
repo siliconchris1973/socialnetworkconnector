@@ -108,10 +108,10 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	// general invocation for every constraint
 	@Override
 	public ArrayList<T> getConstraint(String category, JSONObject configurationScope) {
-		assert (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category) && !"blockedsite".equals(category))  : "ERROR :: can only accept term, site, user, language or geoLocation as category";
+		assert (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category) && !"blockedsite".equals(category))  : "ERROR :: can only accept term, site, blockedsite, user, language or geoLocation as category";
 		
 		if (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category) && !"blockedsite".equals(category)) 
-			logger.warn("received "+category+" as category, but can only process term, site, user, language or geoLocation");
+			logger.warn("received "+category+" as category, but can only process term, site, blockedsite, user, language or geoLocation");
 		
 		// first check, if the correct configuration file type was specified and if not, bail out the hard way
 		if (!isConfigFileCorrect()){

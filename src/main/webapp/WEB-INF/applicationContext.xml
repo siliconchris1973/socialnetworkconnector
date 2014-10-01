@@ -215,11 +215,10 @@
 				<entry key="SN_ID_CODE" value="WC" />
 				
 				<!-- set the starting url -->
-				<!-- 
 				<entry key="server_url" value="http://www.wallstreet-online.de" />
-				-->
+				<!--
 				<entry key="server_url" value="http://www.wallstreet-online.de/diskussion/1198503-1-10/cortal-consors-trailing-stopp-loss" />
-				
+				-->
 				
 				<!-- if the website requires an authentication, set username and password here -->
 				<entry key="user" value="Y29taW5lMjAxNA==" />		<!-- comine2014 -->
@@ -231,7 +230,7 @@
 					 You can, however, also set this to -1 in which case there will be no limit on how deep links will be followed
 					 Be advised though, as this may lead to quite a huge amount of pages. As a last safeguard in case this value is set to 
 					 -1, this will also implicitly set the parameter of stayOnDomain to true. -->
-				<entry key="max_depth" value="3" />
+				<entry key="max_depth" value="10" />
 				
 				<!-- max_pages - how many pages to download at all.
 					 If you set this higher then the value of WC_SEARCH_LIMIT in SNC_Runtim_Configuration (currently 10000) then 
