@@ -8,13 +8,12 @@ import java.util.regex.Pattern;
 
 import org.json.simple.JSONObject;
 
-import de.comlineag.snc.tryoutclasses.IndexWrapper;
 
 /**
  * 
  * @author 		Christian Guenther
  * @category 	Parser
- * @version		0.2				- 30.09.2014
+ * @version		0.3				- 01.10.2014
  * @status		productive
  * 
  * @description GenericWebParser is the abstract base class for web site parsing. It is derived from
@@ -23,13 +22,14 @@ import de.comlineag.snc.tryoutclasses.IndexWrapper;
  * 
  * @changelog	0.1 (Chris)		first version
  * 				0.2				added method to return list of indices for the needle in the haystack
+ * 				0.3				changed return value of parse to Boolean
  * 
  */
 public abstract class GenericWebParser extends GenericParser {
 	
 	public GenericWebParser() {}
 
-	public abstract void parse(String page, URL url, List<String> tokens);
+	public abstract Boolean parse(String page, URL url, List<String> tokens);
 	
 	protected abstract JSONObject parseAndCreateJsonFromPage(String page, URL url, List<String> tokens);
 	

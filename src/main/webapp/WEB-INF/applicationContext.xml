@@ -88,13 +88,13 @@
 					crawlers. The total number of threads must include the number of actual crawlers in
 					this section plus the FsCrawler below and the GeneralConfgurationTrigger - resulting 
 					in number of crawlers plus 2 as the threadcount -->
-				<!-- <ref bean="TwitterCrawlerTrigger" /> -->
+				<ref bean="TwitterCrawlerTrigger" />
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="MultiWebCrawlerTrigger"/> -->
 				<ref bean="SimpleWebCrawlerTrigger"/>
-				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
+				<ref bean="LithiumCrawlerTrigger" />
 				
 				
 				<!-- FILESYSTEM CRAWLER - SAFEGUARD
@@ -214,11 +214,13 @@
 				<!-- THIS MUST BE SET ACCORDING TO AN EXISTING CODE FOR A SOCIAL NETWORK ENTRY IN SNC_Runtime_Configuration.xml -->
 				<entry key="SN_ID_CODE" value="WC" />
 				
-				<!-- set the starting url -->
-				<entry key="server_url" value="http://www.wallstreet-online.de" />
-				<!--
-				<entry key="server_url" value="http://www.wallstreet-online.de/diskussion/1198503-1-10/cortal-consors-trailing-stopp-loss" />
-				-->
+				<!-- set the starting url - the SimpleWebCrawler can only process ONE starting url 
+					 if you need/want to setup multiple parallel crawlers for different sites
+					 use the MultiWebCrawler which is only activated here but configured via it's
+					 own configuration file -->
+				<entry key="server_url" value="http://www.wallstreet-online.de/diskussion" /> 
+				<!-- <entry key="server_url" value="http://www.wallstreet-online.de/diskussion/1198503-1-10/cortal-consors-trailing-stopp-loss" /> -->
+				
 				
 				<!-- if the website requires an authentication, set username and password here -->
 				<entry key="user" value="Y29taW5lMjAxNA==" />		<!-- comine2014 -->

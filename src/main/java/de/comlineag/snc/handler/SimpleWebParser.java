@@ -36,14 +36,25 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * 
  * @author 		Christian Guenther
  * @category 	Parser
- * @version		0.1			- 25.07.2014
- * @status		in development
+ * @version		0.7				- 01.10.2014
+ * @status		beta
  * 
  * @description SimpleWebParser is the implementation of the generic web parser for web sites.
  * 				It tries to get the relevant content out of a given website and calls the 
  * 				persistence manager to store the text in the persistence layer
  * 
  * @changelog	0.1 (Chris)		first skeleton
+ * 				0.2				try and error with jericho
+ * 				0.3				implemented boilerpipe
+ * 				0.4				removed boilerpipe
+ * 				0.5				rewritten jericho implementation
+ * 				0.6				implemented my own parser based on jericho
+ * 				0.7				added boolean return value for method parse 
+ * 
+ * TODO 1 implement correct threaded parser to aid in multithreading
+ * TODO 2 move the wallstreet online specific parsing stuff someplace else - maybe work with command pattern?
+ * TODO 3 implement language detection (possibly with jroller http://www.jroller.com/melix/entry/jlangdetect_0_3_released_with)
+ * TODO 4 extract user information from the website
  * 
  */
 public final class SimpleWebParser extends GenericWebParser implements Runnable {
@@ -65,34 +76,46 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 	}
 	
 	@Override
-	protected void parse(String page) {logger.warn("method not impleented");}
+	protected Boolean parse(String page) {logger.warn("method not impleented");return false;}
 
 	@Override
-	protected void parse(InputStream is) {logger.warn("method not impleented");}
+	protected Boolean parse(InputStream is) {logger.warn("method not impleented");return false;}
 	
 	@Override
-	public void parse(String page, URL url, List<String> tokens) {
+	public Boolean parse(String page, URL url, List<String> tokens) {
 		List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
 		
 		// log the startup message
-		logger.info("Simple Web parser START");
+		logger.info("Simple Web parser START for url " + url.toString());
 		
 		JSONObject parsedPageJson = null;
 		try {
 			parsedPageJson = parseAndCreateJsonFromPage(page, url, tokens);
 			SimpleWebPosting parsedPageSimpleWebPosting = new SimpleWebPosting(parsedPageJson);
+			
+			//logger.trace("PARSED PAGE AS JSON >>> " + parsedPageJson.toString());
+			
 			// now check if we really really have the searched word within the text and only if so,
 			// write the content to disk. We should probably put this before calling the persistence
-			if (containsWord(parsedPageSimpleWebPosting.toString(), tokens)){
-				String fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+"_myOwnParser.txt";
+			if (containsWord(parsedPageJson.toString(), tokens)){
+				// add the parsed site to the message list for saving in the DB
+				postings.add(parsedPageSimpleWebPosting);
+				
+				String fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+"_trueMatch.txt";
 				try {
-					writeContentToDisk(url, fileName, parsedPageSimpleWebPosting.toString());
+					writeContentToDisk(url, fileName, parsedPageJson.toString());
 					
 				} catch (Exception e) {
 					logger.error("could not write page to disk ", e);
 				}
-				
-				postings.add(parsedPageSimpleWebPosting);
+			} else {
+				String fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+"_possibleMatch.txt";
+				try {
+					writeContentToDisk(url, fileName, parsedPageJson.toString());
+					
+				} catch (Exception e) {
+					logger.error("could not write page to disk ", e);
+				}
 			}
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: " + e.getMessage() + " " + e);
@@ -100,7 +123,7 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 		
 		
 		for (int ii = 0; ii < postings.size(); ii++) {
-			logger.info("calling persistence layer to save the post");
+			logger.info("calling persistence layer to save the post from site " + url.toString());
 			if (RuntimeConfiguration.isPERSISTENCE_THREADING_ENABLED()){
 				// execute persistence layer in a new thread, so that it does NOT block the crawler
 				logger.debug("execute persistence layer in a new thread...");
@@ -131,8 +154,8 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 			}
 		}
 		
-		
 		logger.info("Simple Web parser END\n");
+		return true;
 	}
 	
 	
@@ -140,7 +163,24 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 	
 	
 	
-	// START OF PARSER SPECIFIC
+	// START THE SPECIFIC PARSER
+	/**
+	 * @description	parses a given html-site and tries to get rid of all the clutter surrounding
+	 * 				the interesting main content of it
+	 * @param		page 	- the page to parse as a string containing the html sourcecode
+	 * @param		url		- the url to the site
+	 * @param		tokens	- a list of tokens we searched for when finding this page
+	 * @return		json	- a json object containing the following fields:
+	 * 						  text = the plain text of the main content of the site
+	 * 						  raw_text = the raw html markup sourcecode
+	 * 						  title = the page title
+	 * 						  description = the meta tag description of the page
+	 * 						  truncated = a boolean field indicating whether the page was truncated or not - usually true
+	 * 						  source = the url to the site
+	 * 						  created_at = a time value of the millisecond the page was parsed
+	 * 						  page_id = a long value created from the url by substituting every character to a number
+	 * 						  user_id = 0 
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	protected JSONObject parseAndCreateJsonFromPage(String page, URL url, List<String> tokens) {
@@ -234,7 +274,6 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 			e.printStackTrace();
 		}
 		
-		
 		// put some data in the json
 		pageJson.put("subject", title);
 		pageJson.put("teaser", description);
@@ -318,7 +357,7 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 		String textsegments = "";
 		
 		String patternString = "((?:[a-zA-Z'-]+[^a-zA-Z'-]+){0,"+wordsBefore+"}\\b)" + needle + "(\\b(?:[^a-zA-Z'-]+[a-zA-Z'-]+){0,"+wordsAfter+"})";
-		//String patternString = "((?:[a-zA-Z'-]+[^a-zA-Z'-]+){0,5}\b)needle(\b(?:[^a-zA-Z'-]+[a-zA-Z'-]+){0,5})";
+		//results in: "((?:[a-zA-Z'-]+[^a-zA-Z'-]+){0,5}\b)needle(\b(?:[^a-zA-Z'-]+[a-zA-Z'-]+){0,5})";
 		
 		Pattern pattern = Pattern.compile(patternString);
 		Matcher matcher = pattern.matcher(haystack);
@@ -366,13 +405,14 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 	
 	
 	
-	// mult threading implementation
+	// multi threading implementation
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
+		// TODO implement run method for multi threaded parsing
 	}
 }
 
+// TODO implemente ThreadedParser as runnable
 class ThreadedParser implements Runnable {
 	// we use simple org.apache.log4j.Logger for lgging
 	//private final Logger logger = Logger.getLogger(getClass().getName());
@@ -391,108 +431,3 @@ class ThreadedParser implements Runnable {
 		logger.info("decoding page in a thread");
 	}
 }
-
-/*
-			String fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+"_jericho1.html";
-			String text = source.getTextExtractor().setIncludeAttributes(true).toString();
-			TextExtractor textExtractor=new TextExtractor(source) {
-				public boolean excludeElement(StartTag startTag) {
-					return startTag.getName()==HTMLElementName.P || startTag.getName()==HTMLElementName.DIV || "control".equalsIgnoreCase(startTag.getAttributeValue("class"));
-				}
-			};
-			if (text != null && tokens != null) {
-				if (containsWord(text, tokens)){
-					logger.debug("working on page " + title + " (" + description + ")");
-					
-					try {
-						writeContentToDisk(url, fileName, text);
-					} catch (Exception e) {
-						logger.error("could not hand page to persistence layer ", e);
-					}
-				}
-			} else {
-				logger.error("ERROR :: could not check for track terms in page. Either track terms or text is null");
-			}
-			
-			
-			text = textExtractor.setIncludeAttributes(true).toString();
-			fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+"_jericho2.html";
-			if (containsWord(text, tokens)){
-				logger.debug("working on page " + title + " (" + description + ")");
-				
-				try {
-					writeContentToDisk(url, fileName, text);
-				} catch (Exception e) {
-					logger.error("could not hand page to persistence layer ", e);
-				}
-			}
-			
-			
- 			// Boilerpipe is a content extraction library for html pages 
-			// We use it to get the relevant content from the page and only store that
-			// please see http://boilerpipe-web.appspot.com for a short demo on that
-			String text1 = null;
-			String text2 = null;
-			String text3 = null;
-			String text4 = null;
-			try {
-				
-				//text1 = ArticleExtractor.INSTANCE.getText(sanitisedPage);
-				//text2 = DefaultExtractor.INSTANCE.getText(sanitisedPage);
-				//text3 = LargestContentExtractor.INSTANCE.getText(sanitisedPage);
-				//text4 = ArticleSentencesExtractor.INSTANCE.getText(sanitisedPage);
-				
-				text1 = ArticleExtractor.INSTANCE.getText(page);
-				text2 = DefaultExtractor.INSTANCE.getText(page);
-				text3 = LargestContentExtractor.INSTANCE.getText(page);
-				text4 = ArticleSentencesExtractor.INSTANCE.getText(page);
-				
-			} catch (BoilerpipeProcessingException e1) {
-				logger.error("could not process page ", e1);
-				//e1.printStackTrace();
-			}
-			
-			
-			// DEBUG DEBUG DEBUG - remove in production
-			if (containsWord(text1, tokens)){
-				logger.debug("working on page " + title + " (" + description + ")");
-				fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+"_article.html";
-				try {
-					writeContentToDisk(url, fileName, text1);
-					
-				} catch (Exception e) {
-					logger.error("could not hand page to persistence layer ", e);
-				}
-			}
-			if (containsWord(text2, tokens)){
-				logger.debug("working on page " + title + " (" + description + ")");
-				fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+"_default.html";
-				try {
-					// MOVE THIS TO THE PROPER LOCATION WHEN READY
-					pageJson.put("text", text2);
-					// MOVE THIS TO THE PROPER LOCATION WHEN READY
-					writeContentToDisk(url, fileName, text2);
-				} catch (Exception e) {
-					logger.error("could not hand page to persistence layer ", e);
-				}
-			}	
-			if (containsWord(text3, tokens)){
-				logger.debug("working on page " + title + " (" + description + ")");
-				fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+"_largest.html";
-				try {
-					writeContentToDisk(url, fileName, text3);
-				} catch (Exception e) {
-					logger.error("could not hand page to persistence layer ", e);
-				}
-			}	
-			if (containsWord(text4, tokens)){
-				logger.debug("working on page " + title + " (" + description + ")");
-				fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+"_sentences.html";
-				try {
-					writeContentToDisk(url, fileName, text4);
-				} catch (Exception e) {
-					logger.error("could not hand page to persistence layer ", e);
-				}
-			}	
-			// DEBUG DEBUG DEBUG - remove in production 
- */

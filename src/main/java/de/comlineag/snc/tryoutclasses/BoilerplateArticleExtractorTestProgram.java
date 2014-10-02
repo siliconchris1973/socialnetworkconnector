@@ -6,8 +6,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import de.l3s.boilerpipe.extractors.ArticleExtractor;
-
+//import de.l3s.boilerpipe.extractors.ArticleExtractor;
+@Deprecated
 public class BoilerplateArticleExtractorTestProgram {
 
 	private BoilerplateArticleExtractorTestProgram() {
@@ -21,6 +21,7 @@ public class BoilerplateArticleExtractorTestProgram {
 		if(args.length < 1){
 			throw new IllegalArgumentException("No file given as argument");
 		}
+/*
 		for(String arg : args){
 			try {
 
@@ -34,7 +35,7 @@ public class BoilerplateArticleExtractorTestProgram {
 				e1.printStackTrace();
 			}
 		}
-
+*/
 	}
 
 	public static String getFileContent(

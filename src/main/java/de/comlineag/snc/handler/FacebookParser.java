@@ -37,7 +37,7 @@ public final class FacebookParser extends GenericParser {
 	public FacebookParser() {}
 
 	@Override
-	protected void parse(String strPost) {
+	protected Boolean parse(String strPost) {
 		// log the startup message
 		logger.debug("Facebook parser START");
 
@@ -77,11 +77,9 @@ public final class FacebookParser extends GenericParser {
 			user.save();
 		}
 		logger.debug("Facebook parser END");
+		return true;
 	}
 
 	@Override
-	protected void parse(InputStream is) {
-		// TODO implement if parse(InputSteam) is needed and if not make a comment
-		
-	}
+	protected Boolean parse(InputStream is) {return false;}
 }

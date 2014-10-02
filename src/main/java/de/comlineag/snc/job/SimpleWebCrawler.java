@@ -168,15 +168,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					//System.exit(SNCStatusCodes.FATAL.getErrorCode());
 					return;
 				}
-				urlToParse = (String) arg0.getJobDetail().getJobDataMap().get("server_url");
-				try {
-					URL tempurl = new URL(urlToParse);
-					host = tempurl.getHost();
-					port = tempurl.getPort();
-					initialPath = tempurl.getPath();
-					//if (initialPath == null) initialPath = "/";
-				} catch (MalformedURLException e2) {}
-	
 				
 				// check if the configuration setting to stay below the given path is set in the
 				// job control and if not, get it from the runtime configuration (global setting)
@@ -210,8 +201,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					getOnlyRelevantPages = false;
 				}
 				
-				
-
 				// max # of pages and max depth
 				if (arg0.getJobDetail().getJobDataMap().containsKey("max_depth"))
 					maxDepth = Integer.parseInt((String) arg0.getJobDetail().getJobDataMap().get("max_depth"));
@@ -240,13 +229,24 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					}
 				}
 				
+				
+				
 				// initialize the url that we want to parse
+				urlToParse = (String) arg0.getJobDetail().getJobDataMap().get("server_url");
+				
 				try {
 					url = new URL(urlToParse);
 				} catch (MalformedURLException e) {
 					logger.error("Invalid starting URL " + url + ": " + e.getLocalizedMessage());
 					return;
 				}
+				// URLs to be searched
+				List<URL> newURLs = new ArrayList<URL>();
+				newURLs.add(url);
+				
+				host = url.getHost();
+				port = url.getPort();
+				initialPath = url.getPath();
 				
 				// Known URLs
 				Map<URL, Integer> knownURLs = new HashMap<URL, Integer>();
@@ -256,10 +256,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				Map<URL, Integer> blockedURLs = new HashMap<URL, Integer>();
 				for (int i=0;i<bURLs.size();i++)
 					blockedURLs.put(new URL(bURLs.get(i)),new Integer(1));
-				
-				// URLs to be searched
-				List<URL> newURLs = new ArrayList<URL>();
-				newURLs.add(url);
 				
 				
 				
@@ -277,13 +273,14 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 						URL url = null;
 */				
 						// runtime variable
-						int pageCount = 1;			// number of pages crawled
-						int relevantPages = 0;		// number of pages containing the searched for terms
-						int runCounter = 0;			// counter on the number of pages to check 
-						if (maxPages == -1) {		// in case maxPages is set to -1 (unlimited) we need to set runCounter 
-							runCounter = -2;		// to -2 so as that the while-loop starts at all
-							stayOnDomain = true;	// as a last safeguard while configuring the crawler to download and unlimited
-						}							// number of pages, we instruct it to only download from the initial domain
+						int pageCount = 1;				// number of pages crawled
+						int possibleRelevantPages = 0;	// number of pages containing the searched for terms
+						int realRelevantPages = 0;		// number of pages still containing the searched for terms after cleaning
+						int runCounter = 0;				// counter on the number of pages to check 
+						if (maxPages == -1) {			// in case maxPages is set to -1 (unlimited) we need to set runCounter 
+							runCounter = -2;			// to -2 so as that the while-loop starts at all
+							stayOnDomain = true;		// as a last safeguard while configuring the crawler to download and unlimited
+						}								// number of pages, we instruct it to only download from the initial domain
 						if (maxDepth == -1 ) stayOnDomain = true;
 						
 						
@@ -293,7 +290,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							
 							if (robotSafe(url)) {
 								boolean relPage = false;
-								logger.debug("Url "+url+" is page #" + pageCount + " to crawl (until now " + relevantPages + " possibly relevant pages found)");
+								logger.debug("Url "+url+" is page #" + pageCount + " to crawl (until now " + possibleRelevantPages + " possibly relevant pages found)");
 								
 								String page = null;
 								try {
@@ -309,16 +306,16 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 									if (containsWord(page, tTerms)){
 										// proceed only if at least one track term was found
 										relPage = true;
-										relevantPages++;
-										logger.info("Url "+url+" is page #" + relevantPages + " containing the search terms");
+										possibleRelevantPages++;
+										logger.info("Url "+url+" is page #" + possibleRelevantPages + " containing the search terms - passing on to parser to check if relevant");
 									} else {
 										relPage = false;
 									}
 								} else {
 									// proceed in any way
 									relPage = true;
-									relevantPages++;
-									logger.info("Url "+url+" is page #" + relevantPages + " tracked");
+									possibleRelevantPages++;
+									logger.info("Url "+url+" is page #" + possibleRelevantPages + " tracked");
 								}
 								
 								if (relPage) {
@@ -328,7 +325,9 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 										if (!executor.isShutdown())
 											executor.submit(new SimpleWebParser(page, url, tTerms));
 									} else {
-										pageContent.parse(page, url, tTerms);
+										if (pageContent.parse(page, url, tTerms))
+											realRelevantPages++;
+										
 									}
 								}
 								// end of parser specific
@@ -336,7 +335,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 								
 								if (page.length() != 0) getLinksFromPage(url, page, knownURLs, newURLs, blockedURLs, initialPath);
 								if (newURLs.isEmpty()) {
-									logger.info(CRAWLER_NAME+"-Crawler END - scanned " + pageCount + " pages and found " + relevantPages + " matching ones");
+									logger.info(CRAWLER_NAME+"-Crawler END - scanned " + pageCount + " pages and found " + possibleRelevantPages + " matching ones");
 									break;
 								}
 								pageCount++;
@@ -344,7 +343,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							if (maxPages != -1) runCounter++;
 						} // end of for loop over maxPages
 						
-						logger.info(CRAWLER_NAME+"-Crawler END - scanned " + pageCount + " pages and found " + relevantPages + " matching ones");
+						logger.info(CRAWLER_NAME+"-Crawler END - scanned " + pageCount + " pages and found " + possibleRelevantPages + " matching ones");
 		//			}
 		//		}).start();
 			} // end of crawler deactivation
@@ -628,7 +627,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		Matcher matcher = pattern.matcher(text);
 
 		while (matcher.find()) {
-		    logger.trace("found the token " + matcher.group(1));
 		    return true;
 		}
 		

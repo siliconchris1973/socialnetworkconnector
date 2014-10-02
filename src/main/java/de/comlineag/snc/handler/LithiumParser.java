@@ -18,8 +18,8 @@ import de.comlineag.snc.constants.LithiumStatusCode;
  * 
  * @author 		Christian Guenther, Maic Rittmeier
  * @category 	Handler				
- * @version		0.8
- * @status		killed the code
+ * @version		0.8a			- 01.10.2014
+ * @status		beta
  *  
  * @description LithiumParser implementation of the parser for the Lithium network community
  * 				LithiumParsr is an extension of the default GenericParser but differs in that
@@ -38,6 +38,7 @@ import de.comlineag.snc.constants.LithiumStatusCode;
  * 				0.8				moved parsing of first message element into own class LithiumMessageParser
  * 								added second parsing class (own file) LithiumThreadParser to cope with
  * 								parsing more complex threads
+ * 				0.8a			changed return value of method parse to boolean
  * 
  */
 public final class LithiumParser extends GenericParser {
@@ -126,12 +127,14 @@ public final class LithiumParser extends GenericParser {
 	}
 	
 	@Override
-	public void parse(String jsonString) {
+	public Boolean parse(String jsonString) {
 		// this parse method is NOT used for the Lithium community
+		return false;
 	}
 
 	@Override
-	protected void parse(InputStream is) {
+	protected Boolean parse(InputStream is) {
 		// this parse method is NOT used for the Lithium community
+		return false;
 	}
 }

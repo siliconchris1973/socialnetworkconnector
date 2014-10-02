@@ -19,7 +19,7 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
  * 
  * @author 		Christian Guenther, Maic Rittmeier, Magnus Leinemann
  * @category 	Parser
- * @version		0.4			- 14.07.2014
+ * @version		0.4a			- 01.10.2014
  * @status		productive
  * 
  * @description TwitterParser is the implementation of the generic parser for Twitter.
@@ -31,6 +31,7 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
  * 				0.2 (Maic)		added support for list of posts	(no retweeted yet)
  * 				0.3 (Magnus)	added support for list of users and decode user
  * 				0.4	(Chris)		fixed retweet bug
+ * 				0.4a			changed return value of method parse to boolean
  * 
  */
 public final class TwitterParser extends GenericParser {
@@ -43,7 +44,7 @@ public final class TwitterParser extends GenericParser {
 	public TwitterParser() {}
 
 	@Override
-	protected void parse(String strTweet) {
+	protected Boolean parse(String strTweet) {
 		// log the startup message
 		logger.debug("Twitter parser START");
 
@@ -106,10 +107,12 @@ public final class TwitterParser extends GenericParser {
 		}
 		
 		logger.debug("Twitter parser END\n");
+		return true;
 	}
 
 	@Override
-	protected void parse(InputStream is) {
+	protected Boolean parse(InputStream is) {
 		// THIS METHOD IS NOT USED
+		return false;
 	}
 }

@@ -6,7 +6,7 @@ import java.io.InputStream;
  * 
  * @author 		Christian Guenther
  * @category 	Parser
- * @version		0.3
+ * @version		0.4				- 01.10.2014
  * @status		productive
  * 
  * @description GenericParser is the abstract base class for the specific parser of the 
@@ -19,6 +19,7 @@ import java.io.InputStream;
  * @changelog	0.1 (Chris)		first skeleton
  * 				0.2				first productive version
  * 				0.3				added definition of 2nd input channel (InputStream)
+ * 				0.4				changed return value of method parse to boolean
  * 
  */
 public abstract class GenericParser {
@@ -33,7 +34,7 @@ public abstract class GenericParser {
 	 * 				parse can either receive string or input stream
 	 * 				this one is for strings
 	 */
-	protected abstract void parse(String strPosting);
+	protected abstract Boolean parse(String strPosting);
 	
 	/**
 	 * @name 		parse
@@ -43,7 +44,7 @@ public abstract class GenericParser {
 	 * 				parse can either receive string or input stream
 	 * 				this one is for input streams 
 	 */
-	protected abstract void parse(InputStream is);
+	protected abstract Boolean parse(InputStream is);
 	
 	/**
 	 * @name 		process
