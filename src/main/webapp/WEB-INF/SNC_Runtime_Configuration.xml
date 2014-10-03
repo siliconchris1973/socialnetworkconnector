@@ -82,7 +82,7 @@
 		<!-- show warning in case the simple XML file configuration is used -->
 		<param name="WarnOnSimpleXmlConfigOption">
 			<type>boolean</type>
-			<value>false</value>
+			<value>true</value>
 			<constant>WARN_ON_SIMPLE_XML_CONFIG_OPTION</constant>
 		</param>
 		<!-- show a debug message in case some actions are omitted due to configuration settings -->
@@ -471,7 +471,7 @@
 		</param>
 		<param name="subjectMaxLength">
 			<type>int</type>
-			<value>20</value>
+			<value>100</value>
 			<constant>SUBJECT_MAX_LENGTH</constant>
 		</param>
 		<param name="subjectMinLength">
