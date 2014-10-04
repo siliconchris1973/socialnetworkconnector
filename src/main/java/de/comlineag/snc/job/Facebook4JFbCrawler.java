@@ -20,7 +20,7 @@ import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.HttpStatusCodes;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.FacebookConstants;
-import de.comlineag.snc.handler.FacebookParser;
+import de.comlineag.snc.parser.FacebookParser;
 import facebook4j.Event;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;

@@ -1,4 +1,4 @@
-package de.comlineag.snc.job;
+package de.comlineag.snc.appstate;
 
 import org.quartz.Job;
 import org.quartz.Scheduler;

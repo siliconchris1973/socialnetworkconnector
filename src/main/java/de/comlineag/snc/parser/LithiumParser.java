@@ -1,4 +1,4 @@
-package de.comlineag.snc.handler;
+package de.comlineag.snc.parser;
 
 import java.io.InputStream;
 
@@ -13,6 +13,7 @@ import org.json.simple.parser.ParseException;
 
 import de.comlineag.snc.constants.LithiumConstants;
 import de.comlineag.snc.constants.LithiumStatusCode;
+import de.comlineag.snc.handler.LithiumStatusException;
 
 /**
  * 

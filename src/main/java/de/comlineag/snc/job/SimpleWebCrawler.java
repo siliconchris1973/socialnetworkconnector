@@ -33,7 +33,7 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
-import de.comlineag.snc.handler.SimpleWebParser;
+import de.comlineag.snc.parser.SimpleWebParser;
 
 
 /**

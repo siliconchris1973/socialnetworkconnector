@@ -29,7 +29,7 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.TwitterConstants;
-import de.comlineag.snc.handler.TwitterParser;
+import de.comlineag.snc.parser.TwitterParser;
 
 /**
  *

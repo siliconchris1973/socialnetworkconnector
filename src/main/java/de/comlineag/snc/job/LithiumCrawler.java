@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 
 
 
+
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.ConfigurationConstants;
@@ -39,11 +40,11 @@ import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.GenericCrawlerException;
-import de.comlineag.snc.handler.LithiumParser;
 import de.comlineag.snc.handler.LithiumPosting;
 import de.comlineag.snc.handler.LithiumStatusException;
 import de.comlineag.snc.handler.LithiumUser;
 import de.comlineag.snc.handler.SimpleWebPosting;
+import de.comlineag.snc.parser.LithiumParser;
 
 /**
  * 

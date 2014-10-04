@@ -1,4 +1,4 @@
-package de.comlineag.snc.handler;
+package de.comlineag.snc.parser;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -28,6 +28,8 @@ import net.htmlparser.jericho.StartTag;
 import net.htmlparser.jericho.TextExtractor;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.crypto.GenericCryptoException;
+import de.comlineag.snc.handler.DataCryptoHandler;
+import de.comlineag.snc.handler.SimpleWebPosting;
 import de.comlineag.snc.helper.UniqueIdServices;
 
 
@@ -167,6 +169,7 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 	/**
 	 * @description	parses a given html-site and tries to get rid of all the clutter surrounding
 	 * 				the interesting main content of it
+	 * 
 	 * @param		page 	- the page to parse as a string containing the html sourcecode
 	 * @param		url		- the url to the site
 	 * @param		tokens	- a list of tokens we searched for when finding this page
@@ -197,7 +200,11 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 			Source source = new Source(page);
 			source.fullSequentialParse();
 			
-			TextExtractor textExtractor=new TextExtractor(source) {
+			/**
+			 * This text extractor is specific to generic Wallstreet Online sites. It has a negative
+			 * list of tags and markup elements, we want to get rid of.
+			 */
+			TextExtractor woGenericSiteTextExtractor=new TextExtractor(source) {
 				public boolean excludeElement(StartTag startTag) {
 					return startTag.getName()==HTMLElementName.TITLE
 							|| startTag.getName()==HTMLElementName.THEAD
@@ -240,10 +247,27 @@ public final class SimpleWebParser extends GenericWebParser implements Runnable 
 							|| "userbar".equalsIgnoreCase(startTag.getAttributeValue("id"));
 					}
 				};
-			String plainText = textExtractor.setIncludeAttributes(true).toString();
-			title = getTitle(source);
-			description = getMetaValue(source, "Description");
-			keywords = getMetaValue(source, "keywords");
+			
+				String plainText = woGenericSiteTextExtractor.setIncludeAttributes(true).toString();
+				title = getTitle(source);
+				description = getMetaValue(source, "Description");
+				keywords = getMetaValue(source, "keywords");
+				
+				
+			// the post itself
+			TextExtractor woDiskussionSitePostingExtractor=new TextExtractor(source) {
+				public boolean includeElement(StartTag startTag) {
+					return "posting".equalsIgnoreCase(startTag.getAttributeValue("class"));
+					}
+				};
+			
+			// the writer of the post
+			TextExtractor woDiskussionSitePostingUserExtractor=new TextExtractor(source) {
+			public boolean includeElement(StartTag startTag) {
+				return "avatar".equalsIgnoreCase(startTag.getAttributeValue("class"));
+				}
+			};
+			
 			
 			//logger.trace("Plaintext: >>> " + plainText);
 			/*

@@ -21,7 +21,7 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.FacebookConstants;
-import de.comlineag.snc.handler.FacebookParser;
+import de.comlineag.snc.parser.FacebookParser;
 
 import com.google.common.base.Joiner;
 

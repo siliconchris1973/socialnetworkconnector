@@ -1,4 +1,4 @@
-package de.comlineag.snc.handler;
+package de.comlineag.snc.parser;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -11,6 +11,9 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import de.comlineag.snc.handler.FacebookPosting;
+import de.comlineag.snc.handler.FacebookUser;
 
 /**
  * 

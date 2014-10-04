@@ -1,4 +1,4 @@
-package de.comlineag.snc.handler;
+package de.comlineag.snc.parser;
 
 import java.net.URL;
 import java.util.ArrayList;
