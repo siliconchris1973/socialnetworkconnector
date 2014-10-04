@@ -22,7 +22,7 @@
 	
 	<groupId>de.comlineag.snc</groupId>
 	<artifactId>SocialNetworkConnector</artifactId>
-	<version>0.5.1-CC-Beta</version>
+	<version>0.5.5-Beta</version>
 	
 	<name>Social Network Connector</name>
 	<url>https://clsbm.comlineag.de</url>
@@ -322,5 +322,5 @@
 			<url>file://${project.basedir}/repo</url>
 		</repository>
 	</repositories>
-	<description>The SNC is used to crawl social networks and normal websites and forum server on the internet, searching for posts or messages or discussion about given terms. It feeds it's findings to a database where the messages can be inspected.</description>
+	<description>The SNC is used to crawl social networks, normal websites and forum server on the internet, searching for posts or messages or discussion about given terms. It feeds it's findings to a database where the messages can be inspected.</description>
 </project>
