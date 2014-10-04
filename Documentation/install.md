@@ -6,6 +6,6 @@ CATALINA_OPTS="${CATALINA_OPTS} -Djava.rmi.server.hostname=JMX_HOST" CATALINA_OP
 register quartz scheduler in JMX
 edit quartz.properties and add:
 org.quartz.scheduler.jmx.export = true
-org.quartz.scheduler.jmx.objectName = de.comlineag.snc.appstate.MasterControlProgram:type=MCP,name=1
+org.quartz.scheduler.jmx.objectName = de.comlineag.snc.job.MasterControlProgram:type=MCP,name=1
 
 deploy war file to AS
