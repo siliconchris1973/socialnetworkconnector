@@ -52,12 +52,14 @@
 	<context:annotation-config />
 		<context:component-scan base-package="de.comlineag.snc.appstate" />
 		<context:component-scan base-package="de.comlineag.snc.constants" />
+		<context:component-scan base-package="de.comlineag.snc.crawler" />
 		<context:component-scan base-package="de.comlineag.snc.crypto" />
 		<context:component-scan base-package="de.comlineag.snc.data" />
 		<context:component-scan base-package="de.comlineag.snc.handler" />
 		<context:component-scan base-package="de.comlineag.snc.helper" />
 		<context:component-scan base-package="de.comlineag.snc.job" />
 		<context:component-scan base-package="de.comlineag.snc.neo4j" />
+		<context:component-scan base-package="de.comlineag.snc.parser" />
 		<context:component-scan base-package="de.comlineag.snc.persistence" />
 	<tx:annotation-driven />
 	
@@ -288,7 +290,7 @@
 	<!-- M U L T I    D O M A I N    W E B    C R A W L E R    (SKELETON) 
 	<bean name="MultiWebCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="de.comlineag.snc.job.MultiWebCrawler" />
+		<property name="jobClass" value="de.comlineag.snc.crawler.MultiWebCrawler" />
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map>
@@ -363,7 +365,7 @@
 	<!-- G O O G L E    C R A W L E R    (TO BE DEFINED) -->
 <!--  
 	<bean name="GoogleCrawlerDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean"> 
-		<property name="jobClass" value="de.comlineag.snc.job.GoogleCrawler" /> 
+		<property name="jobClass" value="de.comlineag.snc.crawler.GoogleCrawler" /> 
 		<property name="concurrent" value="false" />
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
