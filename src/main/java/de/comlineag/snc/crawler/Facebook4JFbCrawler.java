@@ -1,4 +1,4 @@
-package de.comlineag.snc.job;
+package de.comlineag.snc.crawler;
 
 import java.util.ArrayList;
 
@@ -7,7 +7,6 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
 //import org.apache.logging.log4j.Logger;
-
 import org.json.simple.JSONObject;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -19,23 +18,19 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.HttpStatusCodes;
 import de.comlineag.snc.constants.SocialNetworks;
-import de.comlineag.snc.constants.FacebookConstants;
 import de.comlineag.snc.parser.FacebookParser;
 import facebook4j.Event;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.FacebookFactory;
-import facebook4j.Location;
 import facebook4j.Group;
+import facebook4j.Location;
 import facebook4j.Page;
 import facebook4j.Place;
 import facebook4j.Post;
-import facebook4j.Reading;
 import facebook4j.ResponseList;
 import facebook4j.User;
 import facebook4j.conf.ConfigurationBuilder;
-
-import com.google.common.base.Joiner;
 
 /**
  *

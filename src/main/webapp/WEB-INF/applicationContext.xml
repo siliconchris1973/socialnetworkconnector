@@ -131,7 +131,7 @@
 	<!-- T W I T T E R    C R A W L E R    (WORKS)		-->
 	<bean name="TwitterCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="de.comlineag.snc.job.TwitterCrawler" />
+		<property name="jobClass" value="de.comlineag.snc.crawler.TwitterCrawler" />
 		<!-- <property name="concurrent" value="false" /> -->
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
@@ -164,7 +164,7 @@
 	<!-- L I T H I U M    C R A W L E R    (WORKS) -->
 	<bean name="LithiumCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="de.comlineag.snc.job.LithiumCrawler" />
+		<property name="jobClass" value="de.comlineag.snc.crawler.LithiumCrawler" />
 		<!-- <property name="concurrent" value="false" /> -->
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
@@ -207,7 +207,7 @@
 		 But nevertheless, it works and you can use it :-) -->
 	<bean name="SimpleWebCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="de.comlineag.snc.job.SimpleWebCrawler" />
+		<property name="jobClass" value="de.comlineag.snc.crawler.SimpleWebCrawler" />
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map>
@@ -324,7 +324,7 @@
 	<!-- F A C E B O O K    C R A W L E R    (TO BE IMPLEMENTED) -->
 	<bean name="FacebookCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="de.comlineag.snc.job.Facebook4JFbCrawler" />
+		<property name="jobClass" value="de.comlineag.snc.crawler.Facebook4JFbCrawler" />
 		<!-- <property name="concurrent" value="false" /> -->
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
@@ -638,7 +638,7 @@
 	<!-- F S    C R A W L E R    (IN DEVELOPMENT)		-->
 	<bean name="FsCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="de.comlineag.snc.job.FsCrawler" />
+		<property name="jobClass" value="de.comlineag.snc.crawler.FsCrawler" />
 		<!-- <property name="concurrent" value="false" /> -->
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">

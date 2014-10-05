@@ -1,4 +1,4 @@
-package de.comlineag.snc.job;
+package de.comlineag.snc.crawler;
 
 import java.io.IOException;
 import java.io.InputStream;
