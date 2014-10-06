@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
-import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.GeneralDataDefinitions;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.helper.DateTimeServices;
@@ -49,7 +48,7 @@ public final class WebPostingData extends PostData {
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
-	private final RuntimeConfiguration configuration = new RuntimeConfiguration();
+	//private final RuntimeConfiguration configuration = new RuntimeConfiguration();
 	
 	/**
 	 * Constructor, based on the JSONObject sent from Web Crawler the Data Object is prepared
@@ -117,7 +116,7 @@ public final class WebPostingData extends PostData {
 			} else {
 				setSubject(getText());
 				if (getSubject().length() > GeneralDataDefinitions.SUBJECT_MAX_LENGTH)
-					setSubject(getSubject().substring(0, GeneralDataDefinitions.SUBJECT_MAX_LENGTH-3)+"...");
+					setSubject(getSubject().substring(0, GeneralDataDefinitions.SUBJECT_MAX_LENGTH));
 			}
 			
 			// the url of the page

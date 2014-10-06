@@ -4,7 +4,7 @@ package de.comlineag.snc.constants;
  * 
  * @author 		Christian Guenther
  * @version		0.1a 			- 21.08.2014
- * @status		Deprecated
+ * @status		Will become Deprecated
  * 
  * @description	contains general data definitions for use by all social networks. For example
  * 				the maximum length for a teaser is set to 256 characters and NO markups.

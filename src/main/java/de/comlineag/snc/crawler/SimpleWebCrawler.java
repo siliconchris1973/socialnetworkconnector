@@ -33,6 +33,7 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
+import de.comlineag.snc.handler.SimpleWebPosting;
 import de.comlineag.snc.parser.SimpleWebParser;
 
 
@@ -40,7 +41,7 @@ import de.comlineag.snc.parser.SimpleWebParser;
  *
  * @author 		Christian Guenther
  * @category 	job
- * @version		0.9a				- 30.09.2014
+ * @version		0.9b				- 06.10.2014
  * @status		Beta
  *
  * @description A minimal web crawler. Takes a URL from job control and fetches that page
@@ -59,6 +60,7 @@ import de.comlineag.snc.parser.SimpleWebParser;
  * 				0.8	(Chris)		implemented combination of boilerpipe and jericho
  * 				0.9				moved the parsing in SimpleWebParser
  * 				0.9a			implemented map of blocked URL
+ * 				0.9b			moved invocation of persistence layer from parser to crawler
  *
  */
 public class SimpleWebCrawler extends GenericCrawler implements Job {
@@ -87,9 +89,12 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	
 	private final SimpleWebParser pageContent;
 	public SimpleWebCrawler(){
-		// instantiate the Web-Parser
+		// TODO instantiate the Web-Parser via parserControl 
 		pageContent = new SimpleWebParser();
 	}
+	
+	List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
+	
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -307,7 +312,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 										// proceed only if at least one track term was found
 										relPage = true;
 										possibleRelevantPages++;
-										logger.info("Url "+url+" is page #" + possibleRelevantPages + " containing the search terms - passing on to parser to check if relevant");
+										logger.info("Url "+url+" is page #" + possibleRelevantPages + " containing any of the search terms - passing on to parser to check if relevant");
 									} else {
 										relPage = false;
 									}
@@ -319,16 +324,51 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 								}
 								
 								if (relPage) {
-									// start the parser in a separate thread, or directly
-									if (RuntimeConfiguration.isPARSER_THREADING_ENABLED()) {
-										logger.debug("execute parser in a new thread...");
-										if (!executor.isShutdown())
-											executor.submit(new SimpleWebParser(page, url, tTerms));
-									} else {
-										if (pageContent.parse(page, url, tTerms))
-											realRelevantPages++;
-										
+									postings = pageContent.parse(page, url, tTerms);
+									realRelevantPages++;
+									
+									// invoke the persistence layer - should go to crawler
+									for (int ii = 0; ii < postings.size(); ii++) {
+										logger.info("calling persistence layer to save the page " + url.toString());
+										SimpleWebPosting post = postings.get(ii);
+										post.save();
 									}
+									/* TODO THE INVOCATION OF THE PERSISTENCE LAYER SHOULD GO HERE
+									 * 
+									 * // invoke the persistence layer
+									for (int ii = 0; ii < postings.size(); ii++) {
+										logger.info("calling persistence layer to save the post from site " + url.toString());
+										if (RuntimeConfiguration.isPERSISTENCE_THREADING_ENABLED()){
+											// execute persistence layer in a new thread, so that it does NOT block the crawler
+											logger.debug("execute persistence layer in a new thread...");
+											final SimpleWebPosting postT = postings.get(ii);
+											// TODO find out how to use executor Service for multi threaded persistence call
+											//if (!persistenceExecutor.isShutdown()) {
+											//	persistenceExecutor.submit(new Thread(new Runnable() {
+											//			
+											//			@Override
+											//			public void run() {
+											//					postT.save();
+											//			}
+											//		}).start());
+											//}
+											//
+											new Thread(new Runnable() {
+												
+												@Override
+												public void run() {
+														postT.save();
+												}
+											}).start();
+											
+										} else {
+											// otherwise just call it sequentially
+											SimpleWebPosting post = postings.get(ii);
+											post.save();
+										}
+									}
+									 * 
+									 */
 								}
 								// end of parser specific
 								
@@ -368,7 +408,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			urlConnection.setAllowUserInteraction(false);
 			InputStream urlStream = url.openStream();
 
-			// search the input stream for links
 			// first, read in the entire URL
 			byte b[] = new byte[1000];
 			int numRead = urlStream.read(b);
