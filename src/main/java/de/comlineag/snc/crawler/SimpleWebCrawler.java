@@ -34,7 +34,7 @@ import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.SimpleWebPosting;
-import de.comlineag.snc.parser.SimpleWebParser;
+import de.comlineag.snc.parser.ParserControl;
 
 
 /**
@@ -87,10 +87,10 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	private final ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
 	
 	
-	private final SimpleWebParser pageContent;
+	//private final ParserControl pageContent;
 	public SimpleWebCrawler(){
 		// TODO instantiate the Web-Parser via parserControl 
-		pageContent = new SimpleWebParser();
+		//pageContent = new ParserControl();
 	}
 	
 	List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
@@ -219,6 +219,28 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				if (maxPages == -1) smallLogMessage += " on unlimited pages "; else smallLogMessage += " on max "+maxPages+" pages ";
 				if (maxDepth == -1) smallLogMessage += " unlimited depth "; else smallLogMessage += " max "+maxDepth+" levels deep ";
 				
+				// initialize the url that we want to parse
+				urlToParse = "";
+				if (arg0.getJobDetail().getJobDataMap().containsKey("server_url")){
+					urlToParse = (String) arg0.getJobDetail().getJobDataMap().get("server_url");
+					try {
+						url = new URL(urlToParse);
+					} catch (MalformedURLException e) {
+						logger.error("Invalid starting URL " + url + ": " + e.getLocalizedMessage());
+						return;
+					}
+				} else {
+					logger.error("No url to crawl given - exiting");
+					System.exit(-1);
+				}
+				// URLs to be searched
+				List<URL> newURLs = new ArrayList<URL>();
+				newURLs.add(url);
+				
+				host = url.getHost();
+				port = url.getPort();
+				initialPath = url.getPath();
+				
 				
 				// is username/password given for authentication 
 				if ((arg0.getJobDetail().getJobDataMap().containsKey("user")) && (arg0.getJobDetail().getJobDataMap().containsKey("passwd"))) {
@@ -236,22 +258,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				
 				
 				
-				// initialize the url that we want to parse
-				urlToParse = (String) arg0.getJobDetail().getJobDataMap().get("server_url");
 				
-				try {
-					url = new URL(urlToParse);
-				} catch (MalformedURLException e) {
-					logger.error("Invalid starting URL " + url + ": " + e.getLocalizedMessage());
-					return;
-				}
-				// URLs to be searched
-				List<URL> newURLs = new ArrayList<URL>();
-				newURLs.add(url);
-				
-				host = url.getHost();
-				port = url.getPort();
-				initialPath = url.getPath();
 				
 				// Known URLs
 				Map<URL, Integer> knownURLs = new HashMap<URL, Integer>();
@@ -324,7 +331,13 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 								}
 								
 								if (relPage) {
-									postings = pageContent.parse(page, url, tTerms);
+									// parsing of the page content is done to either get a list of postings
+									// or one cleaned up page (that is without the clutter like ads andthe liek)
+									// or at least a plain text representation of some words around the seached
+									// track term. To achieve this, we use different parser and the right parser
+									// for each site is chosen by the ParserControl class. Therefore we do not
+									//simply call a specific parser here, but route this through parser control.
+									postings = ParserControl.submit(page, url, tTerms);
 									realRelevantPages++;
 									
 									// invoke the persistence layer - should go to crawler

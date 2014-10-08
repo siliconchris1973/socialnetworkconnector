@@ -54,6 +54,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 				0.5b			added stayBelowGivenPath for the web crawler
  * 				0.5c			added wcWordDistanceCutoffMargin for the web crawler
  * 				0.6				added threading options
+ * 				0.6a			added Parser.xml options ParserListFilePath
  *
  * TODO 1. get the xml layout structure elements from RuntimeConfiguration.xml
  * TODO 2. use nodelist instead of single expressions for each node
@@ -67,7 +68,11 @@ public final class RuntimeConfiguration implements Job {
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
+	// if for any reason the path to config file changes, you must adapt this variable
 	private static String configFile = "webapp/WEB-INF/SNC_Runtime_Configuration.xml";
+	
+	// this is the configuration file containing all available web parser
+	private static String parserListFilePath = "webapp/WEB-INF/properties/Parser.xml"; 
 	
 	// some important and static runtime informations
 	// whether or not to warn in the log in case a "simple" configuration option was chosen
@@ -242,6 +247,9 @@ public final class RuntimeConfiguration implements Job {
 			// STOP_SNC_ON_PERSISTENCE_FAILURE
 			setSTOP_SNC_ON_PERSISTENCE_FAILURE(getBooleanElement("runtime", "ExitOnPersistenceFailure", xpath, doc));
 			debugMsg += " / STOP_SNC_ON_PERSISTENCE_FAILURE is " + isSTOP_SNC_ON_PERSISTENCE_FAILURE();
+			
+			// ParserListFilePath
+			setParserListFilePath(getStringElement("runtime", "ParserListFilePath", xpath, doc));
 			
 			
 			// wcSearchLimit
@@ -471,7 +479,10 @@ public final class RuntimeConfiguration implements Job {
 	// getter and setter for the configuration path
 	public static String 	getConfigFile() { return RuntimeConfiguration.configFile;	}
 	public static void 		setConfigFile(String configFile) { RuntimeConfiguration.configFile = configFile;	}
-	
+	public static String 	getParserListFilePath() {return parserListFilePath;}
+	public static void 		setParserListFilePath(String parserListFile) {RuntimeConfiguration.parserListFilePath = parserListFile;}
+
+
 	// for configuration xml structure
 	private void 			setCONSTRAINT_TERM_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_TERM_TEXT = s; }
 	private void 			setCONSTRAINT_USER_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_USER_TEXT = s; }

@@ -146,6 +146,12 @@
 			<constant>MOVE_OR_DELETE_PROCESSED_JSON_FILES</constant>
 		</param>
 		
+		<!-- location of the file with the available parsers -->
+		<param name="ParserListFilePath">
+			<type>String</type>
+			<value>webapp/WEB-INF/properties/webparser.xml</value>
+		</param>
+		
 		<!-- stop the SNC in case connecting to persistence fails and is thus unable to save posts and users?
 			 Consequently, setting this to true is only useful, in case you do not setup the FsCrawler (see
 			 applicationContext.xml) plus you do not save failed posts and users to disk - as configured with 

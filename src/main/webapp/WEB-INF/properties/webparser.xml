@@ -1,0 +1,21 @@
+<!-- 
+	This file lists available web parser classes. It is used during runtime to get a list of
+	all available parser classes and subsequently to call each of the classes to see whether
+	or not it is capable of decoding a specific website. Each of the web parser classes listed
+	here must implement the interface IWebParser and provide a method canExecute() and parse().
+	canExecute is used as a check if the parser is capable of decoding a site and parse is the
+	actual decoder method.
+	
+	The general idea is to have specific parser for specific sites, so that we can extract the
+	relevant content from a site without bringing all the boilerplate into the database. 
+	Therefore, whenever you create a new parser, list it in this file BUT place it above the 
+	last parser SimpleWebParser. SimpleWebParser is the failsave parser. All it does is extract
+	30 words before and 30 words after a given track term and return that snippet. Due to this
+	design SimpleWebParser will return always true from canExecute().  
+ -->
+<parser type="webparser">
+	<value>de.comlineag.snc.parser.WOPostingWebParser</value>
+	<value>de.comlineag.snc.parser.WOPageWebParser</value>
+	<!-- SIMPLEWEBPARSER MUST ALWAYS BE THE LAST PARSER IN THE LIST! -->
+	<value>de.comlineag.snc.parser.SimpleWebParser</value>
+</parser>

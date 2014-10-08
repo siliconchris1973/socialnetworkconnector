@@ -4,13 +4,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
 import de.comlineag.snc.crypto.GenericCryptoException;
@@ -36,10 +34,6 @@ import de.comlineag.snc.handler.SimpleWebPosting;
  * 
  */
 public abstract class GenericWebParser extends GenericParser implements IWebParser {
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml
 	private final DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
 	
@@ -70,63 +64,10 @@ public abstract class GenericWebParser extends GenericParser implements IWebPars
 		Matcher matcher = pattern.matcher(haystack);
 
 		while (matcher.find()) {
-		    logger.trace("found the token " + matcher.group(1));
-		    return true;
+			return true;
 		}
 		
 		return false;
-	}
-	
-	/**
-	 * @description takes a string and a token and returns a list of index position(s)  
-	 * 				of any occurrences of the given word within the given text
-	 * 
-	 * @param 		text
-	 * @param 		token
-	 * @return 		array list of positions as integer
-	 */
-	protected ArrayList<Integer> returnTokenPosition(String haystack, String needle) {
-		ArrayList<Integer> positions = new ArrayList<Integer>();
-		Pattern p = Pattern.compile(needle);  // insert your pattern here
-		Matcher m = p.matcher(haystack);
-		while (m.find()) {
-		   positions.add(m.start());
-		}
-		
-		return positions;
-    }
-	
-	
-	/**
-	 * @description	gets a page (or any other text), a token to look for and returns a substring with 
-	 * 				given number of words before and after the given token 
-	 * @param 		original page
-	 * @param 		wordsBefore
-	 * @param 		wordsAfter
-	 * @param 		token
-	 * @return 		trimmed text
-	 */
-	protected String trimStringAtWordBoundary(String haystack, int wordsBefore, int wordsAfter, String needle) {
-		if(haystack == null || haystack.trim().isEmpty()){
-			return haystack ;
-		}
-		
-		String textsegments = "";
-		
-		String patternString = "((?:[a-zA-Z'-]+[^a-zA-Z'-]+){0,"+wordsBefore+"}\\b)" + needle + "(\\b(?:[^a-zA-Z'-]+[a-zA-Z'-]+){0,"+wordsAfter+"})";
-		//results in: "((?:[a-zA-Z'-]+[^a-zA-Z'-]+){0,5}\b)needle(\b(?:[^a-zA-Z'-]+[a-zA-Z'-]+){0,5})";
-		
-		Pattern pattern = Pattern.compile(patternString);
-		Matcher matcher = pattern.matcher(haystack);
-		
-		while(matcher.find()){
-			logger.trace(">>> found you between " + matcher.regionStart() + " and " + matcher.regionEnd());
-			//textsegments += m.group(); //.group(1);
-			String segText = matcher.group(1);
-			textsegments += segText + "...";
-		}
-		
-		return textsegments;
 	}
 	
 	/**
@@ -152,7 +93,6 @@ public abstract class GenericWebParser extends GenericParser implements IWebPars
 				f2.flush();
 				f2.close();
 			} catch (GenericCryptoException e) {
-				logger.error("ERROR :: could not encrypt data prior writing the file ", e);
 				f2.close();
 				return false;
 			}

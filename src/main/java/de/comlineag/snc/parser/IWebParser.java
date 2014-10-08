@@ -1,6 +1,9 @@
 package de.comlineag.snc.parser;
 
 import java.net.URL;
+import java.util.List;
+
+import de.comlineag.snc.handler.SimpleWebPosting;
 
 /**
  * @author 		Christian Guenther
@@ -33,6 +36,7 @@ import java.net.URL;
  */
 public interface IWebParser {
 	public abstract Object execute(String page, URL url);
+	public abstract List<SimpleWebPosting> parse(String page, URL url, List<String> tokens);
 	
-	public abstract Boolean canExecute(URL url);
+	public abstract boolean canExecute(URL url);
 }

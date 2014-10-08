@@ -8,7 +8,7 @@ import org.json.simple.JSONObject;
  * 
  * @author 		Christian Guenther
  * @category	handler
- * @version		0.5b 	- 17.07.2014
+ * @version		0.5b 			- 17.07.2014
  * @status		productive
  * 
  * @description	invokes the configuration manager as defined in applicationContext.xml
@@ -16,6 +16,7 @@ import org.json.simple.JSONObject;
  * 				- terms
  * 				- languages
  * 				- sites
+ * 				- blocked sites
  * 				- locations
  * 				- user
  * 

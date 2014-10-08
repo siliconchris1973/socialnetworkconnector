@@ -253,9 +253,9 @@ public final class WOPageWebParser extends GenericWebParser implements IWebParse
 	}
 	
 	@Override
-	public Boolean canExecute(URL url) {
+	public boolean canExecute(URL url) {
 		// TODO Auto-generated method stub
-		return null;
+		return false;
 	}
 	
 
