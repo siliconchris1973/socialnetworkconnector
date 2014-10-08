@@ -72,22 +72,6 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 			if (findNeedleInHaystack(parsedPageJson.toString(), tokens)){
 				// add the parsed site to the message list for saving in the DB
 				postings.add(parsedPageSimpleWebPosting);
-				
-				String fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+"_trueMatch.txt";
-				try {
-					writeContentToDisk(url, fileName, parsedPageJson.toString());
-					
-				} catch (Exception e) {
-					logger.error("could not write page to disk ", e);
-				}
-			} else {
-				String fileName = url.toString().replaceAll("http://", "").replaceAll("/", "_")+"_possibleMatch.txt";
-				try {
-					writeContentToDisk(url, fileName, parsedPageJson.toString());
-					
-				} catch (Exception e) {
-					logger.error("could not write page to disk ", e);
-				}
 			}
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: " + e.getMessage() + " " + e);

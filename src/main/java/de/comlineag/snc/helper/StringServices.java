@@ -1,25 +1,17 @@
 package de.comlineag.snc.helper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
-
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 
 /**
  * 
  * @author		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Helper Class
- * @version 	0.7
- * @status		deprecated
+ * @version 	0.8
+ * @status		productive
  * 
  * @description Tools for managing special Requests and String manipulation for the crawler
  * 
@@ -31,29 +23,12 @@ import org.jsoup.Jsoup;
  * 				0.5 			added a more sophisticated method to strip the html
  * 								kudos go to http://stackoverflow.com/questions/2496372/html-truncator-in-java
  * 				0.6				moved LocalDateTime to DateTimeServices and renamed this class to StringServices 
- * 				0.7				despite normalizeText, every method in here is deprecated
+ * 				0.7				marked old methods as deprecated
+ * 				0.8				removed deprecate methods
  * 		
  */
 
-@Deprecated
 public class StringServices {
-	
-	// we use simple org.apache.log4j.Logger for lgging
-	static Logger logger = Logger.getLogger("de.comlineag.snc.helper.StringServices");
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
-	
-	@Deprecated
-	public static String[] subString(String text, String token, int wordsBefore, int wordsAfter){
-		String s = text;
-		String[] split = s.split(token);
-		String firstSubString = split[0];
-		String secondSubString = split[1];
-		
-		return split;
-	}
-	
-	
 	/**
 	 * 
 	 * @description returns a normalized version of the given string by converting "umlaute"
@@ -73,7 +48,6 @@ public class StringServices {
 	 * @param 		object
 	 * @return		plan text
 	 */
-	@Deprecated
 	public static String stripHTML(Object object) {
 		String html = object.toString();
 		return Jsoup.parse(html).text();
@@ -81,7 +55,6 @@ public class StringServices {
 	
 	
 	/**
-	 * @deprecated
 	 * @description	this function truncates a string up to a number of characters 
 	 * 				while preserving whole words and HTML tags.
 	 * 
@@ -91,7 +64,6 @@ public class StringServices {
 	 * 					length to strip down to
 	 * @return		stripped html text
 	 */
-	@Deprecated
 	public static String htmlTruncator(String text, int length) {
 	    /* if the plain text is shorter than the maximum length, return the whole text
 	    if (text.replaceAll("<.*?>", "").length() <= length) {
@@ -246,106 +218,4 @@ public class StringServices {
 	    
 	    return result;
 	}
-	
-	
-	
-	/**
-	 * @deprecated
-	 * @description	truncate a given html to a fixed length
-	 * @param html
-	 * @param length
-	 * @return
-	 */
-	@Deprecated
-	public static String truncateHtmlWords(String html, int length){
-		if (length <= 0)
-			return new String();
-		
-		List<String> html4Singlets = Arrays.asList(
-												"br", "col", "link", "base", "img",
-												"param", "area", "hr", "input");
-		// Set up regular expressions
-		Pattern pWords = Pattern.compile("&.*?;|<.*?>|(\\w[\\w-]*)");
-		Pattern pTag = Pattern.compile("<(/)?([^ ]+?)(?: (/)| .*?)?>");
-		Matcher mWords = pWords.matcher(html);
-		// Count non-HTML words and keep note of open tags
-		int endTextPos = 0;
-		int words = 0;
-		List<String> openTags = new ArrayList<String>();
-		while (words <= length) {
-			if (!mWords.find())
-				break;
-			if (mWords.group(1) != null) {
-				// It's an actual non-HTML word
-				words += 1;
-				if (words == length)
-					endTextPos = mWords.end();     
-				continue;
-			}
-			// Check for tag
-			Matcher tag = pTag.matcher(mWords.group());
-			if (!tag.find() || endTextPos != 0)
-				// Don't worry about non tags or tags after our
-				// truncate point
-				continue;
-			String closingTag  = tag.group(1);
-			// Element names are always case-insensitive
-			String tagName     = tag.group(2).toLowerCase();
-			String selfClosing = tag.group(3);
-			if (closingTag != null) {
-				int i = openTags.indexOf(tagName);
-				if (i != -1)
-					openTags = openTags.subList(i + 1, openTags.size());
-			} else if (selfClosing == null && !html4Singlets.contains(tagName))
-				openTags.add(0, tagName);
-		}
-		  
-		if (words <= length)
-			return html;
-		StringBuilder out = new StringBuilder(html.substring(0, endTextPos));
-		for (@SuppressWarnings("unused") String tag: openTags)
-			out.append("");
-		
-		return out.toString();
-	}
-	
-	/**
-	 * @deprecated
-	 * @description	strips a given html text to the given size, while maintaining tag-integrity
-	 * 				by closing all stripped off tags at the end of the text.
-	 * 
-	 * @param 		String s
-	 *					text to strip
-	 * @param 		int l
-	 * 					length to strip down to
-	 * @return		stripped html text
-	 */
-	@Deprecated
-	public static String truncateHtml(String s, int l) {
-		  Pattern p = Pattern.compile("<[^>]+>([^<]*)");
-
-		  int i = 0;
-		  List<String> tags = new ArrayList<String>();
-
-		  Matcher m = p.matcher(s);
-		  while(m.find()) {
-		      if (m.start(0) - i >= l) {
-		          break;
-		      }
-
-		      String t = StringUtils.split(m.group(0), " \t\n\r\0\u000B>")[0].substring(1);
-		      if (t.charAt(0) != '/') {
-		          tags.add(t);
-		      } else if ( tags.get(tags.size()-1).equals(t.substring(1))) {
-		          tags.remove(tags.size()-1);
-		      }
-		      i += m.start(1) - m.start(0);
-		  }
-
-		  Collections.reverse(tags);
-		  return s.substring(0, Math.min(s.length(), l+i))
-		      + ((tags.size() > 0) ? "</"+StringUtils.join(tags, "></")+">" : "")
-		      + ((s.length() > l) ? "\u2026" : "");
-
-		}
 }

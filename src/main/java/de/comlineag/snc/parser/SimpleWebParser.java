@@ -177,7 +177,7 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 			// now put the reduced text in the original text variable, so that it gets added to the json below
 			text = segmentText;
 			// and also make sure that the truncated flag is set correctly
-			logger.trace("plainText was " + plainText.length() + " and segmentText is " + segmentText.length());
+			//logger.trace("plainText was " + plainText.length() + " and segmentText is " + segmentText.length());
 			if (plainText.length() > segmentText.length()) {
 				truncated = Boolean.parseBoolean("true");
 			} else {
@@ -230,11 +230,8 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 	 * @return 		list of positions as integer
 	 */
 	protected ArrayList<Integer> returnTokenPosition(String haystack, String needle, ArrayList<Integer> positions, int lowBorderMark, int highBorderMark) {
-		logger.trace("positions so far: ");
-		for (int i =0; i<positions.size();i++)
-			logger.trace(":: " + positions.get(i));
-		//ArrayList<Integer> positions = new ArrayList<Integer>();
-		Pattern p = Pattern.compile(needle);  // insert your pattern here
+		//logger.trace("positions so far: ");
+		Pattern p = Pattern.compile(needle);
 		Matcher m = p.matcher(haystack);
 		while (m.find()) {
 			boolean putitin = true;
@@ -247,10 +244,10 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 				logger.trace("token: " + needle + " low border " + lowBorder + " position " + m.start() + " high border " + highBorder);
 				
 				if (lowBorder < m.start() && m.start() < highBorder){
-					logger.trace("position "+m.start()+" is between low border mark ("+lowBorder+") and high border mark ("+highBorder+"), not adding position to list");
+					//logger.trace("position "+m.start()+" is between low border mark ("+lowBorder+") and high border mark ("+highBorder+"), not adding position to list");
 					putitin = false;
 				} else {
-					logger.trace("position "+m.start()+" is outside of low border mark ("+lowBorder+") and high border mark ("+highBorder+"), adding position to list");
+					//logger.trace("position "+m.start()+" is outside of low border mark ("+lowBorder+") and high border mark ("+highBorder+"), adding position to list");
 					putitin = true;
 				}
 			}
@@ -283,7 +280,7 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 		int endpos = haystack.indexOf(" ", position);
 		String needle = haystack.substring(position, endpos);
 		
-		logger.trace("found the needle "+needle+" in the haystack from position " + position + " to " + endpos);
+		logger.info("found the needle "+needle+" in the haystack from position " + position + " to " + endpos + " creating new text segment to store in db");
 		
 		String patternString = "((?:[a-zA-Z'-]+[^a-zA-Z'-]+){0,"+wordsBefore+"}\\b)" + needle + "(\\b(?:[^a-zA-Z'-]+[a-zA-Z'-]+){0,"+wordsAfter+"})";
 		
