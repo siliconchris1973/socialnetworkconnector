@@ -220,7 +220,8 @@
 					 if you need/want to setup multiple parallel crawlers for different sites
 					 use the MultiWebCrawler which is only activated here but configured via it's
 					 own configuration file -->
-				<entry key="server_url" value="http://www.wallstreet-online.de" /> 
+				<!--<entry key="server_url" value="http://www.wallstreet-online.de" /> -->
+				<entry key="server_url" value="http://www.wallstreet-online.de/nachricht/7068190-aktien-europa-erholung-guter-us-vorgaben-fed-protokoll" /> 
 				<!-- <entry key="server_url" value="http://www.wallstreet-online.de/diskussion/1198503-1-10/cortal-consors-trailing-stopp-loss" /> -->
 				
 				

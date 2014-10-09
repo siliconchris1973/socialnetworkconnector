@@ -5,8 +5,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
@@ -20,7 +18,6 @@ import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.StartTag;
 import net.htmlparser.jericho.TextExtractor;
-import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.handler.SimpleWebPosting;
 import de.comlineag.snc.helper.UniqueIdServices;
 
@@ -28,47 +25,43 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * 
  * @author 		Christian Guenther
  * @category 	Parser
- * @version		0.2				- 06.10.2014
- * @status		beta
+ * @version		0.1				- 09.10.2014
+ * @status		in development
  * 
- * @description WOPageWebParser is the implementation of the generic web parser for 
- * 				wallstreet-online web sites.
+ * @description WONewsWebParser is the implementation of the generic web parser for 
+ * 				wallstreet-online news web sites.
  * 				It tries to get the relevant content out of a given website and calls the 
  * 				persistence manager to store the text in the persistence layer
  * 
- * @changelog	0.1 (Chris)		created as extraction fromSimpleWebParser version 0.7
- * 				0.2				implemeneted canExecute method
+ * @changelog	0.1 (Chris)		created as extraction from WOPostingWebParser version 0.2
  * 
- * TODO 1 implement correct threaded parser to aid in multithreading
- * TODO 3 implement language detection (possibly with jroller http://www.jroller.com/melix/entry/jlangdetect_0_3_released_with)
+ * TODO 2 implement language detection (possibly with jroller http://www.jroller.com/melix/entry/jlangdetect_0_3_released_with)
+ * TODO 3 extract user information from the website
  * 
  */
-public final class WOPageWebParser extends GenericWebParser implements IWebParser, Runnable {
+public final class WONewsWebParser extends GenericWebParser implements IWebParser {
 
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
-	// TODO can I put initialization of executor service someplace else? Maybe in the execute method?
-	ExecutorService persistenceExecutor = Executors.newFixedThreadPool(RuntimeConfiguration.getPERSISTENCE_THREADING_POOL_SIZE());
-	
-	public WOPageWebParser() {}
+	public WONewsWebParser() {}
 	// this constructor is used to call the parser in a multi threaded environment
-	public WOPageWebParser(String page, URL url, ArrayList<String> tTerms) {
+	public WONewsWebParser(String page, URL url, ArrayList<String> tTerms) {
 		parse(page, url, tTerms);
 	}
+	
 	
 	@Override
 	public List<SimpleWebPosting> parse(String page, URL url, List<String> tokens) {
 		List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
 		
 		// log the startup message
-		logger.info("Wallstreet Online Page parser START for url " + url.toString());
+		logger.info("Wallstreet Online News parser START for url " + url.toString());
 		
 		JSONObject parsedPageJson = null;
 		try {
-			// TODO implement parsing
 			parsedPageJson = extractContent(page, url, tokens);
 			SimpleWebPosting parsedPageSimpleWebPosting = new SimpleWebPosting(parsedPageJson);
 			
@@ -84,7 +77,8 @@ public final class WOPageWebParser extends GenericWebParser implements IWebParse
 			logger.error("EXCEPTION :: " + e.getMessage() + " " + e);
 		}
 		
-		logger.info("Wallstreet Online Page Web parser END\n");
+		
+		logger.info("Wallstreet Online News parser END\n");
 		return postings;
 	}
 	
@@ -95,7 +89,7 @@ public final class WOPageWebParser extends GenericWebParser implements IWebParse
 	
 	// START THE SPECIFIC PARSER
 	/**
-	 * @description	parses a given html-site and tries to get rid of all the clutter surrounding
+	 * @description	parses a given html-site and extract any tries to get rid of all the clutter surrounding
 	 * 				the interesting main content of it
 	 * 
 	 * @param		page 	- the page to parse as a string containing the html sourcecode
@@ -114,11 +108,13 @@ public final class WOPageWebParser extends GenericWebParser implements IWebParse
 	 */
 	@Override
 	protected JSONObject extractContent(String page, URL url, List<String> tokens) {
-		logger.info("parsing site " + url.toString() + " and removing clutter");
+		logger.info("parsing site " + url.toString() + " and extracting content");
 		String title = null;
 		String description = null;
 		String keywords = null;
 		String text = null;
+		String plainText = "";
+		int elementCount = 0;
 		boolean truncated = Boolean.parseBoolean("false");
 		
 		try {
@@ -126,59 +122,25 @@ public final class WOPageWebParser extends GenericWebParser implements IWebParse
 			Source source = new Source(page);
 			source.fullSequentialParse();
 			
-			/**
-			 * This text extractor is used for generic Wallstreet Online sites. It has a negative
-			 * list of tags and markup elements, we want to get rid of.
-			 */
-			TextExtractor woGenericSiteTextExtractor=new TextExtractor(source) {
-				public boolean excludeElement(StartTag startTag) {
-					return startTag.getName()==HTMLElementName.TITLE
-							|| startTag.getName()==HTMLElementName.THEAD
-							|| startTag.getName()==HTMLElementName.SCRIPT
-							|| startTag.getName()==HTMLElementName.HEAD
-							|| startTag.getName()==HTMLElementName.META
-							|| "keywords".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "clear".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "modulecontent".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "cs mooMenu".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "toolbar".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "postingHead".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "postingFooter".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "fs grid".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "grid fs ".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "grid fs static ".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "grid fs poll ".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "grid ws threadbodybox ".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "grid ns ".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "modulecontent copyright".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "more_link".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "tbutton b".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							//|| "tab wotabs".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "voting_stars_display".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "pagination".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "tab_wrapper".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "pagination ".equalsIgnoreCase(startTag.getAttributeValue("class"))
-							|| "overflow:hidden".equalsIgnoreCase(startTag.getAttributeValue("style"))
-							|| "pagination".equalsIgnoreCase(startTag.getAttributeValue("form"))
-							|| "themes_postings_module".equalsIgnoreCase(startTag.getAttributeValue("id"))
-							|| "afterhead".equalsIgnoreCase(startTag.getAttributeValue("id"))
-							|| "breadcrumb".equalsIgnoreCase(startTag.getAttributeValue("id"))
-							|| "adsd_billboard_div".equalsIgnoreCase(startTag.getAttributeValue("id"))
-							|| "sitehead".equalsIgnoreCase(startTag.getAttributeValue("id"))
-							|| "footer".equalsIgnoreCase(startTag.getAttributeValue("id"))
-							|| "userDD".equalsIgnoreCase(startTag.getAttributeValue("id"))
-							|| "postingDD".equalsIgnoreCase(startTag.getAttributeValue("id"))
-							|| "Ads_TFM_BS".equalsIgnoreCase(startTag.getAttributeValue("id"))
-							|| "viewModeDD".equalsIgnoreCase(startTag.getAttributeValue("id"))
-							|| "userbar".equalsIgnoreCase(startTag.getAttributeValue("id"));
-					}
-				};
 			
-				String plainText = woGenericSiteTextExtractor.setIncludeAttributes(true).toString();
-				title = getTitle(source);
-				description = getMetaValue(source, "Description");
-				keywords = getMetaValue(source, "keywords");
-				
+			List<Element> siteElements = source.getAllElements("id", "pagecontainer", false);
+			for (int i=0;i<siteElements.size();i++) {
+				List<Element> subElements = siteElements.get(i).getAllElementsByClass("container");
+				for (int ii=0;ii<subElements.size();ii++) {
+					elementCount += 1;
+					logger.trace("#" +elementCount+ " container element(s) found");
+					plainText = new TextExtractor(subElements.get(ii)) {
+						public boolean includeElement(StartTag startTag) {
+							return "container".equalsIgnoreCase(startTag.getAttributeValue("class"));
+							}
+						}.toString();
+					logger.trace("subelement :: " + plainText);
+				}
+			}
+			
+			title = getTitle(source);
+			description = getMetaValue(source, "Description");
+			keywords = getMetaValue(source, "keywords");
 			
 			// now put the reduced text in the original text variable, so that it gets added to the json below
 			text = plainText;
@@ -217,14 +179,10 @@ public final class WOPageWebParser extends GenericWebParser implements IWebParse
 	
 	
 	
-	// multi threading implementation
-	@Override
-	public void run() {
-		// TODO implement run method for multi threaded parsing
-	}
+	
 	@Override
 	public Object execute(String page, URL url) {
-		// TODO implement execute-method tomake parser thread save
+		// TODO implement execute-method to make parser thread save
 		return null;
 	}
 	
@@ -236,10 +194,24 @@ public final class WOPageWebParser extends GenericWebParser implements IWebParse
 		// if both conditions are met, this is the right parser for this site
 		boolean iAmTheOne = false;
 		int hitRatio = 0;
+		int elementCount = 0;
 		
 		// we know, that discussion contains posting tags, so we give 5 points 
-		if (url.toString().contains("wallstreet-online.de")) hitRatio += 7;
+		if (url.toString().contains("wallstreet-online")) hitRatio += 3;
+		if (url.toString().contains("nachricht")) hitRatio += 3;
 		
+		Source source=new Source(page);
+		source.fullSequentialParse();
+		
+		List<Element> siteElements = source.getAllElements("id", "pagecontainer", false);
+		for (int i=0;i<siteElements.size();i++) {
+			List<Element> subElements = siteElements.get(i).getAllElementsByClass("container");
+			for (int ii=0;ii<subElements.size();ii++) {
+				elementCount += 1;
+				logger.trace("#" +elementCount+ " container element(s) found");
+			}
+		}
+		if (elementCount == 1) hitRatio += 1; else hitRatio += elementCount/2;
 		logger.trace("hit ratio is "+hitRatio+" for url " + url.toString());
 		// if the above two tests get a score at least 7 (that is 2/3 of 10 possible) points,
 		// we assume the parser to be right for the site.
@@ -248,11 +220,27 @@ public final class WOPageWebParser extends GenericWebParser implements IWebParse
 		return iAmTheOne;
 	}
 	
-
 	@Override
-	protected Boolean parse(String page) {logger.warn("method not impleented");return false;}
+	protected Boolean parse(String page) {logger.warn("method not implemented");return false;}
 	@Override
-	protected Boolean parse(InputStream is) {logger.warn("method not impleented");return false;}
+	protected Boolean parse(InputStream is) {logger.warn("method not implemented");return false;}
+	
+	
+	private String extractElement(String content, String element){
+		int postingsFound=0;
+		Source source=new Source(content);
+		Element ele=source.getFirstElementByClass("posting");
+		//Element mainContent=source.getElementById("main_content");
+		logger.trace("werdasliestistdoofundblödunddoofundblöd");
+		//List<Element> subElements = ele.getChildElements();
+		List<Element> subElements = ele.getAllElementsByClass("postingText");
+		for (int i=0;i<subElements.size();i++) {
+			logger.trace("subElement " + subElements.get(i) + " found");
+			postingsFound += 1;
+		}
+		
+		return ">>> NOTHING FOUND <<<";
+	}
 	
 
 	@SuppressWarnings("unchecked")

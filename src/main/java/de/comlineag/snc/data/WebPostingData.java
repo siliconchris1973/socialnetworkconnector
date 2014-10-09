@@ -66,7 +66,7 @@ public final class WebPostingData extends PostData {
 			
 			
 			// log the startup message
-			logger.debug("constructing new subset of data of page (WC-"  + id + ") from page");
+			logger.debug("constructing new data-subset from page (WC-"  + id + ")");
 			
 			// User ID
 			/*

@@ -299,12 +299,12 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 	
 	@Override
 	public Object execute(String page, URL url) {
-		// TODO Auto-generated method stub
+		// TODO implement execute method in SompleWebParser to make it thread save
 		return null;
 	}
 	
 	@Override
-	public boolean canExecute(URL url) {
+	public boolean canExecute(String page, URL url) {
 		// the simple parser will work on any page - thus returning true
 		return true;
 	}

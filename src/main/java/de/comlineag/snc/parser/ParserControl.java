@@ -112,7 +112,7 @@ public class ParserControl {
 		while (it.hasNext()) {
 		    IWebParser parser = it.next();
 		    logger.trace("querying if parser " + parser.getClass().getSimpleName().toString() + " can operate on site " + url.toString());
-		    if (parser.canExecute(url)) {
+		    if (parser.canExecute(page, url)) {
 		    	logger.debug("executing parser " + parser.getClass().getSimpleName().toString());
 		        return parser.parse(page, url, tTerms);
 		    }

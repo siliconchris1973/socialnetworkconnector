@@ -18,7 +18,6 @@ import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.StartTag;
 import net.htmlparser.jericho.TextExtractor;
-
 import de.comlineag.snc.handler.SimpleWebPosting;
 import de.comlineag.snc.helper.UniqueIdServices;
 
@@ -26,14 +25,16 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * 
  * @author 		Christian Guenther
  * @category 	Parser
- * @version		0.1				- 06.10.2014
- * @status		beta
+ * @version		0.2				- 09.10.2014
+ * @status		in development
  * 
- * @description SimpleWebParser is the implementation of the generic web parser for web sites.
+ * @description WOPostingWebParser is the implementation of the generic web parser for 
+ * 				wallstreet-online discussion web sites.
  * 				It tries to get the relevant content out of a given website and calls the 
  * 				persistence manager to store the text in the persistence layer
  * 
  * @changelog	0.1 (Chris)		created as extraction fromSimpleWebParser version 0.7
+ * 				0.2				implemented canExecute method
  * 
  * TODO 2 implement language detection (possibly with jroller http://www.jroller.com/melix/entry/jlangdetect_0_3_released_with)
  * TODO 3 extract user information from the website
@@ -78,15 +79,6 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 		}
 		
 		
-		
-		
-		/* invoke the persistence layer - should go in crawler
-		for (int ii = 0; ii < postings.size(); ii++) {
-			logger.info("calling persistence layer to save the postings from site " + url.toString());
-				SimpleWebPosting post = postings.get(ii);
-				post.save();
-		}
-		*/
 		logger.info("Wallstreet Online Postings parser END\n");
 		return postings;
 	}
@@ -143,10 +135,10 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 			
 			// the writer of the post
 			TextExtractor woDiskussionSitePostingUserExtractor=new TextExtractor(source) {
-			public boolean includeElement(StartTag startTag) {
-				return "avatar".equalsIgnoreCase(startTag.getAttributeValue("class"));
-				}
-			};
+				public boolean includeElement(StartTag startTag) {
+					return "avatar".equalsIgnoreCase(startTag.getAttributeValue("class"));
+					}
+				};
 			
 			String plainText = woDiskussionSitePostingExtractor.setIncludeAttributes(true).toString();
 			title = getTitle(source);
@@ -193,21 +185,64 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 	
 	@Override
 	public Object execute(String page, URL url) {
-		// TODO Auto-generated method stub
+		// TODO implement execute-method to make parser thread save
 		return null;
 	}
 	
 	@Override
-	public boolean canExecute(URL url) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean canExecute(String page, URL url) {
+		// there are two indication whether the parser can work with this page:
+		// 1st. the url contains diskussion or forum and
+		// 2nd. the page source code has class-tags "posting" in it
+		// if both conditions are met, this is the right parser for this site
+		boolean iAmTheOne = false;
+		int hitRatio = 0;
+		int elementCount = 0;
+		
+		// we know, that discussion contains posting tags, so we give 5 points 
+		if (url.toString().contains("diskussion")) hitRatio += 6;
+		
+		Source source=new Source(page);
+		source.fullSequentialParse();
+		
+		List<Element> postingsElement = source.getAllElementsByClass("posting");
+		for (int i=0;i<postingsElement.size();i++) {
+			List<Element> subElements = postingsElement.get(i).getAllElementsByClass("postingText");
+			for (int ii=0;ii<subElements.size();ii++) {
+				elementCount += 1;
+				logger.trace("#" +elementCount+ " postingText element(s) found");
+			}
+		}
+		if (elementCount == 1) hitRatio += 1; else hitRatio += elementCount/2;
+		logger.trace("hit ratio is "+hitRatio+" for url " + url.toString());
+		// if the above two tests get a score at least 7 (that is 2/3 of 10 possible) points,
+		// we assume the parser to be right for the site.
+		if (hitRatio >= 7) iAmTheOne = true;
+			
+		return iAmTheOne;
 	}
 	
 	@Override
-	protected Boolean parse(String page) {logger.warn("method not impleented");return false;}
+	protected Boolean parse(String page) {logger.warn("method not implemented");return false;}
 	@Override
-	protected Boolean parse(InputStream is) {logger.warn("method not impleented");return false;}
+	protected Boolean parse(InputStream is) {logger.warn("method not implemented");return false;}
 	
+	
+	private String extractElement(String content, String element){
+		int postingsFound=0;
+		Source source=new Source(content);
+		Element ele=source.getFirstElementByClass("posting");
+		//Element mainContent=source.getElementById("main_content");
+		logger.trace("werdasliestistdoofundblödunddoofundblöd");
+		//List<Element> subElements = ele.getChildElements();
+		List<Element> subElements = ele.getAllElementsByClass("postingText");
+		for (int i=0;i<subElements.size();i++) {
+			logger.trace("subElement " + subElements.get(i) + " found");
+			postingsFound += 1;
+		}
+		
+		return ">>> NOTHING FOUND <<<";
+	}
 	
 
 	@SuppressWarnings("unchecked")
