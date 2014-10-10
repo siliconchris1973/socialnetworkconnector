@@ -30,7 +30,7 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * 
  * @author 		Christian Guenther
  * @category 	Parser
- * @version		0.9				- 08.10.2014
+ * @version		0.9a			- 09.10.2014
  * @status		beta
  * 
  * @description SimpleWebParser is the simplest implementation of the generic web parser for web sites.
@@ -47,6 +47,8 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * 				0.8				removed Wallstreet Online specific implementation 
  *				0.9				implemented productive code to get substring of a page
  *								around the searched track terms 
+ *				0.9a			moved helkper methods returnTokenPosition and trimStringAtPosition
+ *								into GenericWebParser as it is also neede for other web parser
  * 
  * TODO 1 implement correct threaded parser to aid in multithreading
  * TODO 2 implement language detection (possibly with jroller http://www.jroller.com/melix/entry/jlangdetect_0_3_released_with)
@@ -118,13 +120,13 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 	 * 						  page_id = a long value created from the url by substituting every character to a number
 	 * 						  user_id = 0 
 	 */
-	@Override
 	protected JSONObject extractContent(String page, URL url, List<String> tokens) {
 		logger.debug("parsing site " + url.toString() + " and removing clutter");
 		String title = null;
 		String description = null;
 		String keywords = null;
 		String text = null;
+		String plainText = null;
 		boolean truncated = Boolean.parseBoolean("false");
 		
 		// vars for the token extraction
@@ -147,7 +149,7 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 			};
 			
 			
-			String plainText = genericSiteTextExtractor.setIncludeAttributes(true).toString();
+			plainText = genericSiteTextExtractor.setIncludeAttributes(true).toString();
 			//String plainText = aBigPlainText();
 			title = getTitle(source);
 			description = getMetaValue(source, "Description");
@@ -190,7 +192,7 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 			e.printStackTrace();
 		}
 		
-		JSONObject pageJson = createPageJsonObject(title, description, page, text, url, truncated);
+		JSONObject pageJson = createPageJsonObject(title, description, plainText, text, url, truncated);
 		return pageJson;
 	}
 	
@@ -217,83 +219,7 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 	
 	
 	
-	/**
-	 * @description takes a string and a token and returns a list of index position(s)  
-	 * 				of any occurrences of the given word within the given text
-	 * 
-	 * @param 		text - the haystack
-	 * @param 		a single token - the needle
-	 * @param		list of positions where needles where already found
-	 * @param		int lowBorderMark - how far before the searched token do we check for already found token
-	 * @param		int highBorderMark - how far after the searched token do we check for already found token
-	 * 
-	 * @return 		list of positions as integer
-	 */
-	protected ArrayList<Integer> returnTokenPosition(String haystack, String needle, ArrayList<Integer> positions, int lowBorderMark, int highBorderMark) {
-		//logger.trace("positions so far: ");
-		Pattern p = Pattern.compile(needle);
-		Matcher m = p.matcher(haystack);
-		while (m.find()) {
-			boolean putitin = true;
-			// only add the position of a token to the list, if it is not within a range of already added tokens
-			// we track 30 words before and after the given token position, so a token to add to the list should be at
-			// least 180 chars away (30 words á 5 characters plus 30 white spaces)
-			for (int i=0 ; i < positions.size();i++) {
-				int lowBorder = positions.get(i) - lowBorderMark;
-				int highBorder = positions.get(i) + highBorderMark;
-				logger.trace("token: " + needle + " low border " + lowBorder + " position " + m.start() + " high border " + highBorder);
-				
-				if (lowBorder < m.start() && m.start() < highBorder){
-					//logger.trace("position "+m.start()+" is between low border mark ("+lowBorder+") and high border mark ("+highBorder+"), not adding position to list");
-					putitin = false;
-				} else {
-					//logger.trace("position "+m.start()+" is outside of low border mark ("+lowBorder+") and high border mark ("+highBorder+"), adding position to list");
-					putitin = true;
-				}
-			}
-			
-			if (putitin) positions.add(m.start());
-		}
-		
-		return positions;
-    }
 	
-	
-	/**
-	 * @description	gets a page (or any other text), a position to look for and returns a substring with 
-	 * 				given number of words before and after the given token 
-	 * @param 		original page
-	 * @param 		wordsBefore
-	 * @param 		wordsAfter
-	 * @param 		token
-	 * @return 		trimmed text
-	 */
-	protected String trimStringAtPosition(String haystack, int position, int wordsBefore, int wordsAfter) {
-		if(haystack == null || haystack.trim().isEmpty()){
-			return haystack;
-		}
-		String textsegments = "";
-		
-		// first get the word we are looking for - that is the needle in the haystack 
-		// we find this word via the given position within the text and check for the 
-		// first whitespace to get the end of the word 
-		int endpos = haystack.indexOf(" ", position);
-		String needle = haystack.substring(position, endpos);
-		
-		logger.info("found the needle "+needle+" in the haystack from position " + position + " to " + endpos + " creating new text segment to store in db");
-		
-		String patternString = "((?:[a-zA-Z'-]+[^a-zA-Z'-]+){0,"+wordsBefore+"}\\b)" + needle + "(\\b(?:[^a-zA-Z'-]+[a-zA-Z'-]+){0,"+wordsAfter+"})";
-		
-		Pattern pattern = Pattern.compile(patternString);
-		Matcher matcher = pattern.matcher(haystack);
-		
-		while(matcher.find()){
-			String segText = matcher.group(1) + needle + matcher.group(2);
-			textsegments += segText;
-		}
-		
-		return textsegments;
-	}
 	
 	
 	
@@ -322,6 +248,7 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 		//truncated = Boolean.parseBoolean("false");
 		
 		// put some data in the json
+		pageJson.put("sn_id", "WC"); // TODO implement proper sn_id handling for websites
 		pageJson.put("subject", title);
 		pageJson.put("teaser", description);
 		pageJson.put("raw_text", page);
@@ -332,11 +259,17 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 		pageJson.put("truncated", truncated);
 		String s = Objects.toString(System.currentTimeMillis(), null);
 		pageJson.put("created_at", s);
+		pageJson.put("user_id", pageJson.get("page_id"));
 		
-		pageJson.put("user_id", "0"); // TODO find a way to extract user information from page
-		//JSONObject userJson = new JSONObject();
-		//userJson.put("id", "0");
-		//pageJson.put("user", userJson);
+		JSONObject userJson = new JSONObject();
+		userJson.put("sn_id", "WC"); // TODO implement proper sn_id handling for users from websites
+		userJson.put("id", pageJson.get("page_id"));
+		userJson.put("username", url.getHost());
+		
+		
+		pageJson.put("user", userJson);
+		
+		logger.trace("the json object:: " + pageJson.toJSONString());
 		return pageJson;
 	}
 	

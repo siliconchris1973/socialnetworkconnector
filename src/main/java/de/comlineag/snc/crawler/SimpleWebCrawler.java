@@ -41,7 +41,7 @@ import de.comlineag.snc.parser.ParserControl;
  *
  * @author 		Christian Guenther
  * @category 	job
- * @version		0.9b				- 06.10.2014
+ * @version		0.9c				- 06.10.2014
  * @status		Beta
  *
  * @description A minimal web crawler. Takes a URL from job control and fetches that page
@@ -58,9 +58,10 @@ import de.comlineag.snc.parser.ParserControl;
  * 				0.7				removed boilerpipe (does not work) and implemented jericho for html parsing
  * 				0.7a (Maic)		fixed boilerpipe issues
  * 				0.8	(Chris)		implemented combination of boilerpipe and jericho
- * 				0.9				moved the parsing in SimpleWebParser
+ * 				0.9				removed boilerpipe and moved the parsing in SimpleWebParser
  * 				0.9a			implemented map of blocked URL
- * 				0.9b			moved invocation of persistence layer from parser to crawler
+ * 				0.9b			brought invocation of persistence layer from parser back to crawler
+ * 				0.9c			implemented proper handling of page- and user data when passing on to persistence layer 
  *
  */
 public class SimpleWebCrawler extends GenericCrawler implements Job {

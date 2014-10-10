@@ -71,15 +71,8 @@
 	</logger>
 	
 	<!-- log infos from jericho framework -->
-	<!-- Boilerpipe -->
-	<logger name="de.l3s.boilerpipe">
-		<level value="debug"></level>
-		<appender-ref ref="console" />
-		<appender-ref ref="fileP" />
-	</logger>
 	<logger name="net.htmlparser.jericho">
 		<level value="debug"></level>
-		<appender-ref ref="console" />
 		<appender-ref ref="fileP" />
 	</logger>
 	<!-- log infos from spring framework -->

@@ -19,7 +19,7 @@ package de.comlineag.snc.data;
  */
 public class UserData {
 
-	protected long id;								// the id of the positng within the social network
+	protected long id;								// the id of the user within the social network
 	protected String domain;						// in which domain context was the user tracked
 	protected String customer;						// in which customer context was the user tracked
 	protected String sn_id;							// the social network id from enum SocialNetworks
