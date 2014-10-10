@@ -34,6 +34,7 @@ import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.SimpleWebPosting;
+import de.comlineag.snc.handler.SimpleWebUser;
 import de.comlineag.snc.parser.ParserControl;
 
 
@@ -339,12 +340,20 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 									// for each site is chosen by the ParserControl class. Therefore we do not
 									//simply call a specific parser here, but route this through parser control.
 									postings = ParserControl.submit(page, url, tTerms);
-									realRelevantPages++;
 									
 									// invoke the persistence layer - should go to crawler
 									for (int ii = 0; ii < postings.size(); ii++) {
-										logger.info("calling persistence layer to save the page " + url.toString());
+										realRelevantPages++;
 										SimpleWebPosting post = postings.get(ii);
+										
+										// first get the user-data out of the SimpleWebPosting
+										SimpleWebUser userData = new SimpleWebUser(post.getUser()); 
+										logger.info("calling persistence layer to save the user " );
+										userData.save();
+										
+										
+										// and now pass the web page on to the persistence layer
+										logger.info("calling persistence layer to save the page " + url.toString());
 										post.save();
 									}
 									/* TODO THE INVOCATION OF THE PERSISTENCE LAYER SHOULD GO HERE

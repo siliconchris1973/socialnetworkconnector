@@ -161,7 +161,7 @@ public class UserData {
 	}
 	
 	public String getDomain() {
-		return lang;
+		return domain;
 	}
 	public void setDomain(String dom) {
 		this.domain = dom;

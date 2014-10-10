@@ -15,12 +15,19 @@ import de.comlineag.snc.helper.DateTimeServices;
  * 
  * @author 		Christian Guenther
  * @category 	data type
- * @version 	0.1			- 25.09.2014
+ * @version 	0.2				- 10.10.2014
  * @status		productive
  * 
- * @description Describes a single twitter posting with all relevant informations.
- *              The class shall be used to make all methods handling a twitter
- *              posting type save.
+ * @description Describes a single web page with all relevant informations.
+ *              The class shall be used to make all methods handling a web page
+ *              type save.
+ *              The WebUserData handling differs from, say, Twitter User handling
+ *              in that the user-object is embedded within the page object.
+ *              As a consequence, the parser and the crawler have to operate
+ *              a bit different on the posting (aka page) and user-object. One
+ * 				consequence is, that the WebPostingData class introduces new
+ * 				new methods getUser and setUser - to get and set the embedded 
+ * 				user object.
  * 
  * @param <JSonObject>
  * 			  "domain" List
@@ -36,8 +43,10 @@ import de.comlineag.snc.helper.DateTimeServices;
  *            "subject" String
  *            "teaser" String
  *            "source" String
+ *            "user" JsonObject
  * 
  * @changelog	0.1 (Chris)		class created
+ * 				0.2				added json object for embedded user object
  * 
  */
 
@@ -49,6 +58,8 @@ public final class WebPostingData extends PostData {
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	//private final RuntimeConfiguration configuration = new RuntimeConfiguration();
+	
+	JSONObject user = new JSONObject();
 	
 	/**
 	 * Constructor, based on the JSONObject sent from Web Crawler the Data Object is prepared
@@ -69,12 +80,10 @@ public final class WebPostingData extends PostData {
 			logger.debug("constructing new data-subset from page (WC-"  + id + ")");
 			
 			// User ID
-			/*
 			JSONObject user = (JSONObject) jsonObject.get("user");
-			setUserId((Long) user.get("id"));
-			*/
-			setUserId(Long.valueOf((String) jsonObject.get("user_id")).longValue());
-			
+			setUser((JSONObject) user);
+			logger.trace("getting the user object " + user.toString());
+			setUserId(Long.valueOf((String) user.get("id")).longValue());
 			
 				
 			
@@ -156,6 +165,8 @@ public final class WebPostingData extends PostData {
 		
 		userId=0;
 		
+		user=null;
+		
 		posted_from_client = null;
 		truncated = null;
 		
@@ -175,5 +186,13 @@ public final class WebPostingData extends PostData {
 		hashtags = null;
 		symbols = null;
 		mentions = null;
+	}
+	
+	// new methods to get and set the user object within the page object
+	public void setUser(JSONObject userJson){
+		this.user = userJson;
+	}
+	public JSONObject getUser(){
+		return user;
 	}
 }

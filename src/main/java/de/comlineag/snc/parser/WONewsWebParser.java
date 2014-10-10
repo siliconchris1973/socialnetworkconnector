@@ -252,7 +252,9 @@ public final class WONewsWebParser extends GenericWebParser implements IWebParse
 		JSONObject userJson = new JSONObject();
 		userJson.put("sn_id", "WC"); // TODO implement proper sn_id handling for users from websites
 		userJson.put("id", pageJson.get("page_id"));
-		userJson.put("username", url.getHost());
+		userJson.put("name", url.getHost());
+		userJson.put("screen_name", url.getHost());
+		userJson.put("lang", "DE"); // TODO implement language recognition
 		
 		
 		pageJson.put("user", userJson);
