@@ -1,11 +1,8 @@
 package de.comlineag.snc.appstate;
 
 import java.io.File;
-import java.io.IOException;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -20,7 +17,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 import de.comlineag.snc.constants.SocialNetworks;
 
@@ -71,6 +67,9 @@ public final class RuntimeConfiguration implements Job {
 	// if for any reason the path to config file changes, you must adapt this variable
 	private static String configFile = "webapp/WEB-INF/SNC_Runtime_Configuration.xml";
 	
+	// if for any reason the path to config file changes, you must adapt this variable
+	private static String socialNetworkFile = "webapp/WEB-INF/SocialNetworkDefinitions.xml";
+		
 	// this is the configuration file containing all available web parser
 	private static String parserListFilePath = "webapp/WEB-INF/properties/Parser.xml"; 
 	
@@ -112,7 +111,6 @@ public final class RuntimeConfiguration implements Job {
 	private static boolean	WC_STAY_ON_DOMAIN					= true;
 	private static boolean	WC_STAY_BELOW_GIVEN_PATH			= false;
 	private static int		WC_WORD_DISTANCE_CUTOFF_MARGIN		= 30;
-	private static int		WC_THREAD_POOL_SIZE					= 10;		// number of threads for parallel downloading of pages
 	
 	// Threading options
 	private static int		PARSER_THREADING_POOL_SIZE			= 1;
@@ -121,15 +119,13 @@ public final class RuntimeConfiguration implements Job {
 	private static boolean	PARSER_THREADING_ENABLED			= false;
 	private static boolean	CRAWLER_THREADING_ENABLED			= false;
 	private static boolean	PERSISTENCE_THREADING_ENABLED		= false;
-	private static String	PARSER_THREADING_POOL_TYPE			= "fixed";
-	private static String	CRAWLER_THREADING_POOL_TYPE			= "fixed";
-	private static String	PERSISTENCE_THREADING_POOL_TYPE		= "fixed";
 	
 	// these values are section names within the configuration db 
 	private static String 	CONSTRAINT_TERM_TEXT				= "term";
 	private static String 	CONSTRAINT_USER_TEXT				= "user";
 	private static String 	CONSTRAINT_LANGUAGE_TEXT			= "language";
 	private static String 	CONSTRAINT_SITE_TEXT				= "site";
+	private static String 	CONSTRAINT_BLOCKEDSITE_TEXT			= "blockedsite";
 	private static String 	CONSTRAINT_BOARD_TEXT				= "board";
 	private static String 	CONSTRAINT_BLOG_TEXT				= "blog";
 	private static String 	CONSTRAINT_LOCATION_TEXT			= "geoLocation";
@@ -250,6 +246,9 @@ public final class RuntimeConfiguration implements Job {
 			
 			// ParserListFilePath
 			setParserListFilePath(getStringElement("runtime", "ParserListFilePath", xpath, doc));
+			
+			// SocialNetworkFile
+			setSocialNetworkFile(getStringElement("runtime", "SocialNetworkFile", xpath, doc));
 			
 			
 			// wcSearchLimit
@@ -418,14 +417,34 @@ public final class RuntimeConfiguration implements Job {
 			setCONSTRAINT_LOCATION_TEXT(getStringElement("XmlLayout", "CONSTRAINT_LOCATION_TEXT", xpath, doc));
 			debugMsg += " / CONSTRAINT_LOCATION_TEXT is " + getConstraintLocationText();
 			
-			/* CONSTRAINT_BLOCKED_SITE_TEXT
-			setCONSTRAINT_LOCATION_TEXT(getStringElement("XmlLayout", "CONSTRAINT_BLOCKED_SITE_TEXT", xpath, doc));
+			// CONSTRAINT_BLOCKED_SITE_TEXT
+			setCONSTRAINT_BLOCKEDSITE_TEXT(getStringElement("XmlLayout", "CONSTRAINT_BLOCKED_SITE_TEXT", xpath, doc));
 			debugMsg += " / CONSTRAINT_BLOCKED_SITE_TEXT is " + getConstraintBlockedSiteText();
-			*/
 			
 			// CrawlerRunIdentifier
 			setCrawlerRunIdentifier(getStringElement("XmlLayout", "crawlerRunIdentifier", xpath, doc));
 			debugMsg += " / CRAWLER_RUN_IDENTIFIER is " + getCrawlerRunIdentifier();
+			
+			
+			// ConfigFiletypeIdentifier
+			setConfigFileTypeIdentifier(getStringElement("XmlLayout", "configFileTypeIdentifier", xpath, doc));
+			debugMsg += " / ConfigFileTypeIdentifier is " + getConfigFileTypeIdentifier();
+
+			setThreadingIdentifier(getStringElement("XmlLayout", "THREADING_NAME", xpath, doc));
+			debugMsg += " / ConfigFileTypeIdentifier is " + getConfigFileTypeIdentifier();
+			setParserIdentifier(getStringElement("XmlLayout", "PARSER_NAME", xpath, doc));
+			debugMsg += " / ParserIdentifier is " + getParserIdentifier();
+			setCrawlerIdentifier(getStringElement("XmlLayout", "CRAWLER_NAME", xpath, doc));
+			debugMsg += " / CrawlerIdentifier is " + getCrawlerIdentifier();
+			setPersistenceIdentifier(getStringElement("XmlLayout", "PERSISTENCE_NAME", xpath, doc));
+			debugMsg += " / PersistenceIdentifier is " + getPersistenceIdentifier();
+			
+			setSocialNetworkConfiguration(getStringElement("XmlLayout", "socialNetworkConfiguration", xpath, doc));
+			debugMsg += " / SocialNetworkConfiguration is " + getSocialNetworkConfiguration();
+			setSocialNetworkIdentifier(getStringElement("XmlLayout", "socialNetworkIdentifier", xpath, doc));
+			debugMsg += " / SocialNetworkIdentifier is " + getSocialNetworkIdentifier();
+			setSocialNetworkName(getStringElement("XmlLayout", "socialNetworkNameIdentifier", xpath, doc));
+			debugMsg += " / SocialNetworkName is " + getSocialNetworkName();
 			
 			logger.trace(debugMsg);
 		} catch (Exception e) {
@@ -476,20 +495,11 @@ public final class RuntimeConfiguration implements Job {
 		}
 	}
 	
-	// getter and setter for the configuration path
+	// getter for the configuration path
 	public static String 	getConfigFile() { return RuntimeConfiguration.configFile;	}
-	public static void 		setConfigFile(String configFile) { RuntimeConfiguration.configFile = configFile;	}
+	public static String 	getSocialNetworkFile() {return socialNetworkFile;}
 	public static String 	getParserListFilePath() {return parserListFilePath;}
-	public static void 		setParserListFilePath(String parserListFile) {RuntimeConfiguration.parserListFilePath = parserListFile;}
-
-
-	// for configuration xml structure
-	private void 			setCONSTRAINT_TERM_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_TERM_TEXT = s; }
-	private void 			setCONSTRAINT_USER_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_USER_TEXT = s; }
-	private void 			setCONSTRAINT_SITE_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_SITE_TEXT = s; }
-	private void 			setCONSTRAINT_BOARD_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_BOARD_TEXT = s; }
-	private void 			setCONSTRAINT_BLOG_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_BLOG_TEXT = s; }
-	private void 			setCONSTRAINT_LOCATION_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_LOCATION_TEXT = s; }
+	
 	
 	// getter for the xml structure
 	public static String 	getRootidentifier() { return rootIdentifier; }
@@ -511,114 +521,120 @@ public final class RuntimeConfiguration implements Job {
 	public static String 	getConstraintUserText() { return CONSTRAINT_USER_TEXT; }
 	public static String 	getConstraintLanguageText() { return CONSTRAINT_LANGUAGE_TEXT; }
 	public static String 	getConstraintSiteText() { return CONSTRAINT_SITE_TEXT; }
+	public static String 	getConstraintBlockedSiteText() { return CONSTRAINT_BLOCKEDSITE_TEXT; }
 	public static String 	getConstraintBoardText() { return CONSTRAINT_BOARD_TEXT; }
 	public static String 	getConstraintBlogText() { return CONSTRAINT_BLOG_TEXT;}
 	public static String 	getConstraintLocationText() {return CONSTRAINT_LOCATION_TEXT;}
 	public static String 	getConfigFileTypeIdentifier() {return configFileTypeIdentifier;}
-	public static void 		setConfigFileTypeIdentifier(String configFileTypeIdentifier) {RuntimeConfiguration.configFileTypeIdentifier = configFileTypeIdentifier;}
 	public static String 	getCrawlerRunIdentifier() { return crawlerRunIdentifier; }
-	public static void 		setCrawlerRunIdentifier(String crawlerRunIdentifier) { RuntimeConfiguration.crawlerRunIdentifier = crawlerRunIdentifier;	}
 	public static String 	getThreadingIdentifier() {return threadingIdentifier;}
-	public static void 		setThreadingIdentifier(String threadingIdentifier) {RuntimeConfiguration.threadingIdentifier = threadingIdentifier;}
 	public static String 	getParserIdentifier() {return parserIdentifier;}
-	public static void 		setParserIdentifier(String parserIdentifier) {RuntimeConfiguration.parserIdentifier = parserIdentifier;}
 	public static String 	getCrawlerIdentifier() {return crawlerIdentifier;}
-	public static void 		setCrawlerIdentifier(String crawlerIdentifier) {RuntimeConfiguration.crawlerIdentifier = crawlerIdentifier;}
 	public static String 	getPersistenceIdentifier() {return persistenceIdentifier;}
-	public static void 		setPersistenceIdentifier(String persistenceIdentifier) {RuntimeConfiguration.persistenceIdentifier = persistenceIdentifier;	}
+	public static String 	getSocialNetworkConfiguration() {return socialNetworkConfiguration;}
+	public static String 	getSocialNetworkIdentifier() {return socialNetworkIdentifier;}
+	public static String 	getSocialNetworkName() {return socialNetworkName;}
 	
 	// for runtime state 
 	public static boolean 	getWarnOnSimpleConfig() {return RuntimeConfiguration.WARN_ON_SIMPLE_CONFIG;}
-	public static void 		setWarnOnSimpleConfig(boolean wARN_ON_SIMPLE_CONFIG) {RuntimeConfiguration.WARN_ON_SIMPLE_CONFIG = wARN_ON_SIMPLE_CONFIG;}
 	public static boolean 	getWarnOnSimpleXmlConfig() {return RuntimeConfiguration.WARN_ON_SIMPLE_XML_CONFIG;}
-	public static void 		setWarnOnSimpleXmlConfig(boolean wARN_ON_SIMPLE_XML_CONFIG) {RuntimeConfiguration.WARN_ON_SIMPLE_XML_CONFIG = wARN_ON_SIMPLE_XML_CONFIG;}
 	public static boolean 	isCREATE_POST_JSON_ON_ERROR() {return CREATE_POST_JSON_ON_ERROR;}
-	public static void 		setCREATE_POST_JSON_ON_ERROR(boolean cREATE_POST_JSON_ON_ERROR) {CREATE_POST_JSON_ON_ERROR = cREATE_POST_JSON_ON_ERROR;}
 	public static boolean 	isCREATE_USER_JSON_ON_ERROR() {return CREATE_USER_JSON_ON_ERROR;}
-	public static void 		setCREATE_USER_JSON_ON_ERROR(boolean cREATE_USER_JSON_ON_ERROR) {CREATE_USER_JSON_ON_ERROR = cREATE_USER_JSON_ON_ERROR;}
 	public static boolean 	isCREATE_POST_JSON_ON_SUCCESS() {return CREATE_POST_JSON_ON_SUCCESS;}
-	public static void 		setCREATE_POST_JSON_ON_SUCCESS(boolean cREATE_POST_JSON_ON_SUCCESS) {CREATE_POST_JSON_ON_SUCCESS = cREATE_POST_JSON_ON_SUCCESS;}
 	public static boolean 	isCREATE_USER_JSON_ON_SUCCESS() {return CREATE_USER_JSON_ON_SUCCESS;}
-	public static void 		setCREATE_USER_JSON_ON_SUCCESS(boolean cREATE_USER_JSON_ON_SUCCESS) {CREATE_USER_JSON_ON_SUCCESS = cREATE_USER_JSON_ON_SUCCESS;}
 	public static boolean 	isSTOP_SNC_ON_PERSISTENCE_FAILURE() {return STOP_SNC_ON_PERSISTENCE_FAILURE;}
-	public static void 		setSTOP_SNC_ON_PERSISTENCE_FAILURE(boolean sTOP_SNC_ON_PERSISTENCE_FAILURE) {STOP_SNC_ON_PERSISTENCE_FAILURE = sTOP_SNC_ON_PERSISTENCE_FAILURE;}
 	public static boolean 	isWARN_ON_REJECTED_ACTIONS() {return WARN_ON_REJECTED_ACTIONS;}
-	public static void 		setWARN_ON_REJECTED_ACTIONS(boolean wARN_ON_REJECTED_ACTIONS) {WARN_ON_REJECTED_ACTIONS = wARN_ON_REJECTED_ACTIONS;}
-	
-	// XML layout
-	public static String 	getSocialNetworkConfiguration() {return socialNetworkConfiguration;}
-	public static void 		setSocialNetworkConfiguration(String socialNetworkConfiguration) {RuntimeConfiguration.socialNetworkConfiguration = socialNetworkConfiguration;}
-	public static String 	getSocialNetworkIdentifier() {return socialNetworkIdentifier;}
-	public static void 		setSocialNetworkIdentifier(String socialNetworkIdentifier) {RuntimeConfiguration.socialNetworkIdentifier = socialNetworkIdentifier;}
-	public static String 	getSocialNetworkName() {return socialNetworkName;}
-	public static void 		setSocialNetworkName(String socialNetworkName) {RuntimeConfiguration.socialNetworkName = socialNetworkName;}
 	
 	// JSON Backup storage path
 	public static String 	getJSON_BACKUP_STORAGE_PATH() {return JSON_BACKUP_STORAGE_PATH;}
-	public static void 		setJSON_BACKUP_STORAGE_PATH(String jSON_BACKUP_STORAGE_PATH) {JSON_BACKUP_STORAGE_PATH = jSON_BACKUP_STORAGE_PATH;}
 	public static String 	getPROCESSED_JSON_BACKUP_STORAGE_PATH() {return PROCESSED_JSON_BACKUP_STORAGE_PATH; }
-	public static void 		setPROCESSED_JSON_BACKUP_STORAGE_PATH( String pROCESSED_JSON_BACKUP_STORAGE_PATH) { PROCESSED_JSON_BACKUP_STORAGE_PATH = pROCESSED_JSON_BACKUP_STORAGE_PATH; }
 	public static String 	getMOVE_OR_DELETE_PROCESSED_JSON_FILES() { return MOVE_OR_DELETE_PROCESSED_JSON_FILES; }
-	public static void 		setMOVE_OR_DELETE_PROCESSED_JSON_FILES(String mOVE_OR_DELETE_PROCESSED_JSON_FILES) {MOVE_OR_DELETE_PROCESSED_JSON_FILES = mOVE_OR_DELETE_PROCESSED_JSON_FILES;}
 	public static String 	getINVALID_JSON_BACKUP_STORAGE_PATH() {return INVALID_JSON_BACKUP_STORAGE_PATH;}
-	public static void 		setINVALID_JSON_BACKUP_STORAGE_PATH(	String iNVALID_JSON_BACKUP_STORAGE_PATH) {INVALID_JSON_BACKUP_STORAGE_PATH = iNVALID_JSON_BACKUP_STORAGE_PATH;}
 	public static String 	getSTORAGE_PATH() {return STORAGE_PATH;}
-	public static void 		setSTORAGE_PATH(String sTORAGE_PATH) {STORAGE_PATH = sTORAGE_PATH;}
 	
 	// DataDefinitions
 	public static boolean 	isTEASER_WITH_MARKUP() { return TEASER_WITH_MARKUP;}
-	public static void 		setTEASER_WITH_MARKUP(boolean tEASER_WITH_MARKUP) { TEASER_WITH_MARKUP = tEASER_WITH_MARKUP;}
 	public static int 		getTEASER_MAX_LENGTH() { return TEASER_MAX_LENGTH;}
-	public static void 		setTEASER_MAX_LENGTH(int tEASER_MAX_LENGTH) { TEASER_MAX_LENGTH = tEASER_MAX_LENGTH;}
 	public static int 		getTEASER_MIN_LENGTH() { return TEASER_MIN_LENGTH;}
-	public static void 		setTEASER_MIN_LENGTH(int tEASER_MIN_LENGTH) { TEASER_MIN_LENGTH = tEASER_MIN_LENGTH;}
 	public static boolean 	isSUBJECT_WITH_MARKUP() { return SUBJECT_WITH_MARKUP;}
-	public static void 		setSUBJECT_WITH_MARKUP(boolean sUBJECT_WITH_MARKUP) { SUBJECT_WITH_MARKUP = sUBJECT_WITH_MARKUP;}
 	public static int 		getSUBJECT_MAX_LENGTH() { return SUBJECT_MAX_LENGTH;}
-	public static void 		setSUBJECT_MAX_LENGTH(int sUBJECT_MAX_LENGTH) { SUBJECT_MAX_LENGTH = sUBJECT_MAX_LENGTH;}
 	public static int 		getSUBJECT_MIN_LENGTH() { return SUBJECT_MIN_LENGTH;}
-	public static void		setSUBJECT_MIN_LENGTH(int sUBJECT_MIN_LENGTH) { SUBJECT_MIN_LENGTH = sUBJECT_MIN_LENGTH;}
 	public static boolean 	isTEXT_WITH_MARKUP() { return TEXT_WITH_MARKUP;}
-	public static void 		setTEXT_WITH_MARKUP(boolean tEXT_WITH_MARKUP) { TEXT_WITH_MARKUP = tEXT_WITH_MARKUP;}
 	public static boolean 	isRAW_TEXT_WITH_MARKUP() { return RAW_TEXT_WITH_MARKUP;}
-	public static void 		setRAW_TEXT_WITH_MARKUP(boolean rAW_TEXT_WITH_MARKUP) { RAW_TEXT_WITH_MARKUP = rAW_TEXT_WITH_MARKUP;}
-
+	
 	// static configuration options for the web crawler
 	public static int 		getWC_SEARCH_LIMIT() {return WC_SEARCH_LIMIT;}
-	public static void 		setWC_SEARCH_LIMIT(int sEARCH_LIMIT) {WC_SEARCH_LIMIT = sEARCH_LIMIT;}
 	public static String 	getWC_ROBOT_DISALLOW_TEXT() { return WC_ROBOT_DISALLOW_TEXT;}
-	public static void 		setWC_ROBOT_DISALLOW_TEXT(String dISALLOW) {WC_ROBOT_DISALLOW_TEXT = dISALLOW;}
 	public static int 		getWC_CRAWLER_MAX_DOWNLOAD_SIZE() {return WC_CRAWLER_MAX_DOWNLOAD_SIZE;}
-	public static void 		setWC_CRAWLER_MAX_DOWNLOAD_SIZE(int mAXSIZE) {WC_CRAWLER_MAX_DOWNLOAD_SIZE = mAXSIZE;}
 	
 	public static boolean 	isWC_STAY_ON_DOMAIN() {return WC_STAY_ON_DOMAIN;}
-	public static void 		setWC_STAY_ON_DOMAIN(boolean sTAY_ON_DOMAIN) { WC_STAY_ON_DOMAIN = sTAY_ON_DOMAIN;}
 	public static boolean 	isWC_STAY_BELOW_GIVEN_PATH() {return WC_STAY_BELOW_GIVEN_PATH;}
-	public static void 		setWC_STAY_BELOW_GIVEN_PATH(boolean wC_STAY_BELOW_GIVEN_PATH) {WC_STAY_BELOW_GIVEN_PATH = wC_STAY_BELOW_GIVEN_PATH;}
-	public static int 		getWC_THREAD_POOL_SIZE() {return WC_THREAD_POOL_SIZE;}
-	public static void 		setWC_THREAD_POOL_SIZE(int wC_THREAD_POOL_SIZE) {WC_THREAD_POOL_SIZE = wC_THREAD_POOL_SIZE;}
 	public static int 		getWC_MAX_DEPTH() {return WC_MAX_DEPTH;}
-	public static void 		setWC_MAX_DEPTH(int wC_MAX_DEPTH) {WC_MAX_DEPTH = wC_MAX_DEPTH;}
 	public static int		getWC_WORD_DISTANCE_CUTOFF_MARGIN() {return WC_WORD_DISTANCE_CUTOFF_MARGIN;}
-	public static void		setWC_WORD_DISTANCE_CUTOFF_MARGIN(int wC_WORD_DISTANCE_CUTOFF_MARGIN) {WC_WORD_DISTANCE_CUTOFF_MARGIN = wC_WORD_DISTANCE_CUTOFF_MARGIN;}
 	
 	// Threading options
-	public static int 		getPARSER_THREADING_POOL_SIZE() {	return PARSER_THREADING_POOL_SIZE;	}
-	public static void 		setPARSER_THREADING_POOL_SIZE(int pARSER_THREADING_POOL_SIZE) {PARSER_THREADING_POOL_SIZE = pARSER_THREADING_POOL_SIZE;	}
+	public static int 		getPARSER_THREADING_POOL_SIZE() {return PARSER_THREADING_POOL_SIZE;	}
 	public static int 		getCRAWLER_THREADING_POOL_SIZE() {return CRAWLER_THREADING_POOL_SIZE;	}
-	public static void		setCRAWLER_THREADING_POOL_SIZE(int cRAWLER_THREADING_POOL_SIZE) {CRAWLER_THREADING_POOL_SIZE = cRAWLER_THREADING_POOL_SIZE;	}
 	public static int 		getPERSISTENCE_THREADING_POOL_SIZE() {return PERSISTENCE_THREADING_POOL_SIZE;}
-	public static void 		setPERSISTENCE_THREADING_POOL_SIZE(int pERSISTENCE_THREADING_POOL_SIZE) {PERSISTENCE_THREADING_POOL_SIZE = pERSISTENCE_THREADING_POOL_SIZE;	}
-	public static String 	getPARSER_THREADING_POOL_TYPE() {return PARSER_THREADING_POOL_TYPE;}
-	public static void 		setPARSER_THREADING_POOL_TYPE(String pARSER_THREADING_POOL_TYPE) {PARSER_THREADING_POOL_TYPE = pARSER_THREADING_POOL_TYPE;}
-	public static String 	getCRAWLER_THREADING_POOL_TYPE() {return CRAWLER_THREADING_POOL_TYPE;}
-	public static void 		setCRAWLER_THREADING_POOL_TYPE(String cRAWLER_THREADING_POOL_TYPE) {CRAWLER_THREADING_POOL_TYPE = cRAWLER_THREADING_POOL_TYPE;	}
-	public static String 	getPERSISTENCE_THREADING_POOL_TYPE() {return PERSISTENCE_THREADING_POOL_TYPE;}
-	public static void 		setPERSISTENCE_THREADING_POOL_TYPE(String pERSISTENCE_THREADING_POOL_TYPE) {PERSISTENCE_THREADING_POOL_TYPE = pERSISTENCE_THREADING_POOL_TYPE;	}
-	public static boolean isPARSER_THREADING_ENABLED() {return PARSER_THREADING_ENABLED;}
-	public static void setPARSER_THREADING_ENABLED(boolean pARSER_THREADING_ENABLED) {PARSER_THREADING_ENABLED = pARSER_THREADING_ENABLED;}
-	public static boolean isCRAWLER_THREADING_ENABLED() {return CRAWLER_THREADING_ENABLED;}
-	public static void setCRAWLER_THREADING_ENABLED(boolean cRAWLER_THREADING_ENABLED) {CRAWLER_THREADING_ENABLED = cRAWLER_THREADING_ENABLED;}
-	public static boolean isPERSISTENCE_THREADING_ENABLED() {return PERSISTENCE_THREADING_ENABLED;}
-	public static void setPERSISTENCE_THREADING_ENABLED(boolean pERSISTENCE_THREADING_ENABLED) {PERSISTENCE_THREADING_ENABLED = pERSISTENCE_THREADING_ENABLED;}
+	public static boolean 	isPARSER_THREADING_ENABLED() {return PARSER_THREADING_ENABLED;}
+	public static boolean 	isCRAWLER_THREADING_ENABLED() {return CRAWLER_THREADING_ENABLED;}
+	public static boolean 	isPERSISTENCE_THREADING_ENABLED() {return PERSISTENCE_THREADING_ENABLED;}
+	
+	// private setter
+		private void 		setConfigFile(String configFile) { RuntimeConfiguration.configFile = configFile;	}
+		private void 		setSocialNetworkFile(String socialNetworkFile) {RuntimeConfiguration.socialNetworkFile = socialNetworkFile;}
+		private void 		setParserListFilePath(String parserListFile) {RuntimeConfiguration.parserListFilePath = parserListFile;}
+		
+		private void 		setCONSTRAINT_TERM_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_TERM_TEXT = s; }
+		private void 		setCONSTRAINT_USER_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_USER_TEXT = s; }
+		private void 		setCONSTRAINT_SITE_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_SITE_TEXT = s; }
+		private void 		setCONSTRAINT_BLOCKEDSITE_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_BLOCKEDSITE_TEXT = s; }
+		private void 		setCONSTRAINT_BOARD_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_BOARD_TEXT = s; }
+		private void 		setCONSTRAINT_BLOG_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_BLOG_TEXT = s; }
+		private void 		setCONSTRAINT_LOCATION_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_LOCATION_TEXT = s; }
+		
+		private void 		setPARSER_THREADING_POOL_SIZE(int pARSER_THREADING_POOL_SIZE) {PARSER_THREADING_POOL_SIZE = pARSER_THREADING_POOL_SIZE;	}
+		private void		setCRAWLER_THREADING_POOL_SIZE(int cRAWLER_THREADING_POOL_SIZE) {CRAWLER_THREADING_POOL_SIZE = cRAWLER_THREADING_POOL_SIZE;	}
+		private void 		setPERSISTENCE_THREADING_POOL_SIZE(int pERSISTENCE_THREADING_POOL_SIZE) {PERSISTENCE_THREADING_POOL_SIZE = pERSISTENCE_THREADING_POOL_SIZE;	}
+		private void 		setPARSER_THREADING_ENABLED(boolean pARSER_THREADING_ENABLED) {PARSER_THREADING_ENABLED = pARSER_THREADING_ENABLED;}
+		private void 		setCRAWLER_THREADING_ENABLED(boolean cRAWLER_THREADING_ENABLED) {CRAWLER_THREADING_ENABLED = cRAWLER_THREADING_ENABLED;}
+		private void 		setPERSISTENCE_THREADING_ENABLED(boolean pERSISTENCE_THREADING_ENABLED) {PERSISTENCE_THREADING_ENABLED = pERSISTENCE_THREADING_ENABLED;}
+		private void 		setTEXT_WITH_MARKUP(boolean tEXT_WITH_MARKUP) { TEXT_WITH_MARKUP = tEXT_WITH_MARKUP;}
+		private void 		setWC_SEARCH_LIMIT(int sEARCH_LIMIT) {WC_SEARCH_LIMIT = sEARCH_LIMIT;}
+		private void 		setWC_ROBOT_DISALLOW_TEXT(String dISALLOW) {WC_ROBOT_DISALLOW_TEXT = dISALLOW;}
+		private void 		setWC_STAY_ON_DOMAIN(boolean sTAY_ON_DOMAIN) { WC_STAY_ON_DOMAIN = sTAY_ON_DOMAIN;}
+		private void 		setWC_STAY_BELOW_GIVEN_PATH(boolean wC_STAY_BELOW_GIVEN_PATH) {WC_STAY_BELOW_GIVEN_PATH = wC_STAY_BELOW_GIVEN_PATH;}
+		private void 		setWC_MAX_DEPTH(int wC_MAX_DEPTH) {WC_MAX_DEPTH = wC_MAX_DEPTH;}
+		private void		setWC_WORD_DISTANCE_CUTOFF_MARGIN(int wC_WORD_DISTANCE_CUTOFF_MARGIN) {WC_WORD_DISTANCE_CUTOFF_MARGIN = wC_WORD_DISTANCE_CUTOFF_MARGIN;}
+		private void 		setWC_CRAWLER_MAX_DOWNLOAD_SIZE(int mAXSIZE) {WC_CRAWLER_MAX_DOWNLOAD_SIZE = mAXSIZE;}
+		private void 		setRAW_TEXT_WITH_MARKUP(boolean rAW_TEXT_WITH_MARKUP) { RAW_TEXT_WITH_MARKUP = rAW_TEXT_WITH_MARKUP;}
+		private void		setSUBJECT_MIN_LENGTH(int sUBJECT_MIN_LENGTH) { SUBJECT_MIN_LENGTH = sUBJECT_MIN_LENGTH;}
+		private void 		setSUBJECT_MAX_LENGTH(int sUBJECT_MAX_LENGTH) { SUBJECT_MAX_LENGTH = sUBJECT_MAX_LENGTH;}
+		private void 		setSUBJECT_WITH_MARKUP(boolean sUBJECT_WITH_MARKUP) { SUBJECT_WITH_MARKUP = sUBJECT_WITH_MARKUP;}
+		private void 		setTEASER_MIN_LENGTH(int tEASER_MIN_LENGTH) { TEASER_MIN_LENGTH = tEASER_MIN_LENGTH;}
+		private void 		setTEASER_MAX_LENGTH(int tEASER_MAX_LENGTH) { TEASER_MAX_LENGTH = tEASER_MAX_LENGTH;}
+		private void 		setTEASER_WITH_MARKUP(boolean tEASER_WITH_MARKUP) { TEASER_WITH_MARKUP = tEASER_WITH_MARKUP;}
+		private void 		setCrawlerRunIdentifier(String crawlerRunIdentifier) { RuntimeConfiguration.crawlerRunIdentifier = crawlerRunIdentifier;	}
+		private void 		setWarnOnSimpleConfig(boolean wARN_ON_SIMPLE_CONFIG) {RuntimeConfiguration.WARN_ON_SIMPLE_CONFIG = wARN_ON_SIMPLE_CONFIG;}
+		private void 		setWarnOnSimpleXmlConfig(boolean wARN_ON_SIMPLE_XML_CONFIG) {RuntimeConfiguration.WARN_ON_SIMPLE_XML_CONFIG = wARN_ON_SIMPLE_XML_CONFIG;}
+		private void 		setCREATE_POST_JSON_ON_ERROR(boolean cREATE_POST_JSON_ON_ERROR) {CREATE_POST_JSON_ON_ERROR = cREATE_POST_JSON_ON_ERROR;}
+		private void 		setCREATE_USER_JSON_ON_ERROR(boolean cREATE_USER_JSON_ON_ERROR) {CREATE_USER_JSON_ON_ERROR = cREATE_USER_JSON_ON_ERROR;}
+		private void 		setCREATE_POST_JSON_ON_SUCCESS(boolean cREATE_POST_JSON_ON_SUCCESS) {CREATE_POST_JSON_ON_SUCCESS = cREATE_POST_JSON_ON_SUCCESS;}
+		private void 		setCREATE_USER_JSON_ON_SUCCESS(boolean cREATE_USER_JSON_ON_SUCCESS) {CREATE_USER_JSON_ON_SUCCESS = cREATE_USER_JSON_ON_SUCCESS;}
+		private void 		setSTOP_SNC_ON_PERSISTENCE_FAILURE(boolean sTOP_SNC_ON_PERSISTENCE_FAILURE) {STOP_SNC_ON_PERSISTENCE_FAILURE = sTOP_SNC_ON_PERSISTENCE_FAILURE;}
+		private void 		setWARN_ON_REJECTED_ACTIONS(boolean wARN_ON_REJECTED_ACTIONS) {WARN_ON_REJECTED_ACTIONS = wARN_ON_REJECTED_ACTIONS;}
+		private void 		setJSON_BACKUP_STORAGE_PATH(String jSON_BACKUP_STORAGE_PATH) {JSON_BACKUP_STORAGE_PATH = jSON_BACKUP_STORAGE_PATH;}
+		private void 		setPROCESSED_JSON_BACKUP_STORAGE_PATH( String pROCESSED_JSON_BACKUP_STORAGE_PATH) { PROCESSED_JSON_BACKUP_STORAGE_PATH = pROCESSED_JSON_BACKUP_STORAGE_PATH; }
+		private void 		setMOVE_OR_DELETE_PROCESSED_JSON_FILES(String mOVE_OR_DELETE_PROCESSED_JSON_FILES) {MOVE_OR_DELETE_PROCESSED_JSON_FILES = mOVE_OR_DELETE_PROCESSED_JSON_FILES;}
+		private void 		setINVALID_JSON_BACKUP_STORAGE_PATH(	String iNVALID_JSON_BACKUP_STORAGE_PATH) {INVALID_JSON_BACKUP_STORAGE_PATH = iNVALID_JSON_BACKUP_STORAGE_PATH;}
+		private void 		setSTORAGE_PATH(String sTORAGE_PATH) {STORAGE_PATH = sTORAGE_PATH;}
+		
+		private void 		setConfigFileTypeIdentifier(String configFileTypeIdentifier) {RuntimeConfiguration.configFileTypeIdentifier = configFileTypeIdentifier;}
+		private void 		setThreadingIdentifier(String threadingIdentifier) {RuntimeConfiguration.threadingIdentifier = threadingIdentifier;}
+		private void 		setParserIdentifier(String parserIdentifier) {RuntimeConfiguration.parserIdentifier = parserIdentifier;}
+		private void 		setCrawlerIdentifier(String crawlerIdentifier) {RuntimeConfiguration.crawlerIdentifier = crawlerIdentifier;}
+		private void 		setPersistenceIdentifier(String persistenceIdentifier) {RuntimeConfiguration.persistenceIdentifier = persistenceIdentifier;	}
+		private void 		setSocialNetworkConfiguration(String socialNetworkConfiguration) {RuntimeConfiguration.socialNetworkConfiguration = socialNetworkConfiguration;}
+		private void 		setSocialNetworkIdentifier(String socialNetworkIdentifier) {RuntimeConfiguration.socialNetworkIdentifier = socialNetworkIdentifier;}
+		private void 		setSocialNetworkName(String socialNetworkName) {RuntimeConfiguration.socialNetworkName = socialNetworkName;}
 }

@@ -76,10 +76,9 @@ public abstract class GenericCrawler implements Job {
 	 *						</network>
 	 *					</configuration>
 	 *
-	 * @TODO make this function work - returns NULL at the moment
+	 * @TODO check functionality of method whtAmI
 	 *    				
 	 */
-	@Deprecated
 	@SuppressWarnings("unchecked")
 	public JSONObject whatAmI() throws ParseException{
 		JSONObject obj = new JSONObject();

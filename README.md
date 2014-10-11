@@ -14,15 +14,15 @@ SNC was designed to be highly configurable. Take a look in the directory
 In there you'll find all the files necessary to adapt SNC to your needs. 
 
 applicationContext.xml
-applicationContext.xml is used to setup the basic runtime environment of SNC, like persistence and which configuration manager to use. You also define in here, which crawler to start. Take a look at the XML structure, it has loads of comments to show you what is used for what.
+applicationContext.xml is used to setup the low-level environment of SNC. In here you define which persistence manager, which configuration manager and what cryptographic support, if any, to use. Additionally the available crawler and their repsective start behaviour is defined in this file. Take a look at the XML structure, it has loads of comments to show you what is used for what.
 
 
 SNC_Crawler_Configuration
-In SNC_Crawler_Configuration you'll find the files to configure and adapt the crawler to your needs. take a look at the readme.md file there.
+In SNC_Crawler_Configuration you'll find the files to setup the search patterns for the crawler. You should take a look at the readme.md in the directory there.
 
 
 SNC_Runtime_Configuration.xml 
-SNC_Runtime_Configuration.xml is used to define the overall XML structure for the crawler configuration but also some runtime definition, like warnings and general persistence options.
+SNC_Runtime_Configuration.xml is used to adapt the overall runtime behaviour of the SNC. Every tunable aspect of the SNC's runtime behaviour can be configued in this file. You can, for example, configure if the system shall create a json file on disk, in case the creation of a dataset in the db fails. Also threading for the different parts of the SNC can be configured here. Third, the XML structure for the configuration files of the actual crawler is configured in this file. Fourth, some general data definitions are set - like whether or not to truncate specific fields (according to their respective field length) and if text shall be saved with or without markup elements (like html). 
 
 
 SNC_HANA_Configuration.xml

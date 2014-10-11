@@ -22,7 +22,7 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
  * 
  * @author 		Christian Guenther
  * @category 	data type
- * @version 	0.7			- 28.07.2014
+ * @version 	0.8				- 11.10.2014
  * @status		productive
  * 
  * @description contains an enumeration with shortcuts referencing the social networks
@@ -34,6 +34,8 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
  * 				0.5 			added youtube and finanzforum
  * 				0.6 			added ALL as an indicator for xml configuration for all networks
  * 				0.7				moved definition of the networks to RuntimeConfiguration.xml and made enum a class
+ * 				0.8				moved SocialNetwork definitions to their own file and adapted query for file
+ * 								and deleted deprecated enum
  * 
  */
 public final class SocialNetworks {
@@ -86,7 +88,7 @@ public final class SocialNetworks {
 		assert ("code".equals(key) && "name".equals(key) && "description".equals(key) && "domain".equals(key) && "supported".equals(key)) : "ERROR :: can only accept code, name, description, domain or supported as key";
 		
 		try {
-			File file = new File(RuntimeConfiguration.getConfigFile());
+			File file = new File(RuntimeConfiguration.getSocialNetworkFile());
 			
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
@@ -132,79 +134,6 @@ public final class SocialNetworks {
 			System.exit(-1);
 		}
 		return null;
-	}
-	
-	
-	
-	
-	
-	/**
-	 * 
-	 * @author 		Christian Guenther
-	 * @category 	enum
-	 * @version 	0.7			- 28.07.2014
-	 * @status		Deprecated
-	 * 
-	 * @description	contains an enumeration with shortcuts referencing the social networks
-	 * 
-	 * @Deprecated	Instead of using the enum, please make use of the class methods and
-	 * 				setup all relevant social networks in SNC_Runtime_Configuration.xml
-	 */
-	@SuppressWarnings("unused")
-	@Deprecated
-	private static enum SocialNetworkDefs{
-		//enum			value	Description
-		TWITTER			("TW", "Twitter"), 
-		FACEBOOK		("FB", "Facebook"), 
-		GOOGLE			("GP", "Google+"), 
-		LINKEDIN		("LI", "Linkedin"), 
-		XING			("XI", "XING"), 
-		STREAMWORK		("SW", "Streamwork"), 
-		INSTAGRAM		("IN", "Instagram"),
-		FOURSQUARE		("FS", "Foursquare"),
-		STACKOVERFLOW	("SO", "Stack Overflow"),
-		YOUTUBE			("YT", "Youtube"),
-		ALL				("AL", "All networks"),
-		UNKNOWN			("XY", "Unknown"),
-		LITHIUM			("CC", "Lithium"),
-		FINANZFORUM		("FF", "Finanzforum");
-		
-		private final String value;
-		private final String type;
-		
-		private SocialNetworkDefs(final String value, final String type) {
-			this.value = value;
-			this.type = type;
-		}
-		
-		public String getValue() {
-			return value;
-		}
-		
-		public String getType() {
-			return type;
-		}
-		
-		@Override
-		public String toString() {
-			return getValue();
-		}
-		
-		public static SocialNetworkDefs getNetworkNameByValue(String value){
-			for (SocialNetworkDefs name : SocialNetworkDefs.values()) {
-				if(name.getValue() == value)
-					return name;
-			}
-			return SocialNetworkDefs.UNKNOWN;
-		}
-		
-		public static String getNetworkTypeByValue(String value){
-			for (SocialNetworkDefs type : SocialNetworkDefs.values()) {
-				if(type.getValue().equals(value))
-					return type.getType();
-			}
-			return SocialNetworkDefs.UNKNOWN.getType();
-		}
 	}
 }
 

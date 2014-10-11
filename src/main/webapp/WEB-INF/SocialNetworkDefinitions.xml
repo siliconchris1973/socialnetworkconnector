@@ -24,7 +24,10 @@
 		 a post with the same combination of code and id - say CC-1295 for example. -->
 	<configuration scope="socialNetworkDefinition">
 		<!-- THE LITHIUM NETWORK - 
-			change this code for every customer -->
+			change this code for every customer but omit using any of the reserved codes. 
+		 	 Reserved codes are:
+		 	 	FB, TW, GP, PI, XI, LI, SW, IN, FS, YT, SO, PH, GH, WC, WP, AL, XY
+		 	 it's not possible to use any of the reserved codes without generating issues for the analytical system -->
 		<network name="CC"><name>LITHIUM</name></network>
 		<network name="LITHIUM">
 			<code>CC</code>												<!-- change this code for every customer -->
@@ -56,6 +59,7 @@
 			<supported>YES</supported>
 			<crawlertype>web</crawlertype>
 		</network>
+		
 		
 		
 		<!-- below this line the standard social networks are defined and it is highly discouraged to change any of them -->
@@ -187,6 +191,18 @@
 			<domain>github.com</domain>
 			<supported>NO</supported>
 			<crawlertype>native</crawlertype>
+		</network>
+		
+		<!-- SIMPLE WEB CRAWLER - the generic code for all web pages, if they do not have a dedicated code setup in
+			 the web crawler section of the crawler configuration file -->
+		<network name="WC"><name>WEBCRAWLER</name></network>
+		<network name="WEBCRAWLER">
+			<code>WC</code>
+			<name>Simple Web Crawler</name>
+			<description>any possible website</description>
+			<domain>https://www.everywhere.de</domain>
+			<supported>YES</supported>
+			<crawlertype>web</crawlertype>
 		</network>
 		
 		<network name="AL"><name>ALL</name></network>

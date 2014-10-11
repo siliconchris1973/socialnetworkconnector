@@ -19,12 +19,8 @@
 	specific fields (according to their respective field length) and if text shall be
 	saved with or without markup elements (like html). 
 	
-	Additionally the available social networks together with specific parameters
-	are defined in here - these will be moved to SocialNetworkDefinitions.xml in 
-	Revision 1.0.
 	
-	
-	THIS IS REVISION 0.9 OF THE CONFIGURATION FILE - 26.09.2014
+	THIS IS REVISION 0.9a OF THE CONFIGURATION FILE - 10.10.2014
 -->
 <configurations>
 	<!-- T H R E A D I N G   C O N F I G U R A T I O N
@@ -73,6 +69,18 @@
 		 This section contains options to change/modify the general runtime behavior of the SNC
 	-->
 	<configuration scope="runtime">
+		<!-- location of the file with the social network definitions -->
+		<param name="SocialNetworkFile">
+			<type>String</type>
+			<value>webapp/WEB-INF/SocialNetworkDefinitions.xml</value>
+		</param>
+		
+		<!-- location of the file with the available parsers -->
+		<param name="ParserListFilePath">
+			<type>String</type>
+			<value>webapp/WEB-INF/properties/webparser.xml</value>
+		</param>
+		
 		<!-- show warning in case the simple INI file configuration is used -->
 		<param name="WarnOnSimpleConfigOption">
 			<type>boolean</type>
@@ -146,12 +154,6 @@
 			<constant>MOVE_OR_DELETE_PROCESSED_JSON_FILES</constant>
 		</param>
 		
-		<!-- location of the file with the available parsers -->
-		<param name="ParserListFilePath">
-			<type>String</type>
-			<value>webapp/WEB-INF/properties/webparser.xml</value>
-		</param>
-		
 		<!-- stop the SNC in case connecting to persistence fails and is thus unable to save posts and users?
 			 Consequently, setting this to true is only useful, in case you do not setup the FsCrawler (see
 			 applicationContext.xml) plus you do not save failed posts and users to disk - as configured with 
@@ -162,7 +164,9 @@
 			<constant>STOP_SNC_ON_PERSISTENCE_FAILURE</constant>
 		</param>
 		
-		<!-- WEB CRAWLER SPECIFIC SETTINGS -->
+		
+		
+		<!-- SIMPLE AND MULTI WEB CRAWLER SPECIFIC SETTINGS -->
 		<!-- searchLimit - how many pages to download at all.
 			 This Runtime configuration acts as a safety margin to not exceed a certain maximum number of pages to download
 			 per run and overides the value of max_pages in the crawler configuration. You can, however, also set this to 
@@ -247,203 +251,6 @@
 	
 	
 	
-	<!-- S O C I A L   N E T W O R K   D E F I N I T I O N S - - 
-		 !!!!! ATTENTION MOVED TO SocialNetworkDefinitions.xml !!!!! 
-		 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-	     This section defines the social networks which can be used
-		 You can define values for a 2-digit code, a name, a domain and description plus if the network is supported 
-		 or not, for each social network to crawl.
-		 For each network you need to define two entries. One identified by the name of the network and the other 
-		 defined by the 2 digit code.
-		 
-		 You normally do not need to change anything in here except for the Lithium network. Lithium is special in 
-		 that it can be hosted by a company for their own domain of interest. Therefore, post- and user-id's are 
-		 not globally unique and you HAVE to define your own 2-letter code for each Lithium network to crawl. 
-		 Failing to do so could lead to a situation where two Lithium networks are crawled and both try to insert 
-		 a post with the same combination of code and id - say CC-1295 for example. -->
-	<configuration scope="socialNetworkDefinition">
-		<!-- THE LITHIUM NETWORK - 
-		 	 change this code for every customer. 
-		 	 Reserved codes are:
-		 	 	FB, TW, GP, PI, XI, LI, SW, IN, FS, YT, SO, PH, GH, WC, WP, AL, XY
-		 	 and it's not possible to use any of the reserved codes without generating issues for the analytical system
-		-->
-		<network name="CC"><name>LITHIUM</name></network>
-		<network name="LITHIUM">
-			<code>CC</code>												<!-- change this code for every customer -->
-			<name>Lithium</name>										<!-- keep this the same -->
-			<description>Lithium forum by Cortal Consors</description>
-			<domain>https://wissen.cortalconsors.de</domain>			<!-- change the url to the location of the lithium network in use by customer -->
-			<supported>YES</supported>
-			<crawlertype>native</crawlertype>
-		</network>
-		
-		
-		<!-- below this line the standard social networks are defined and it is highly discouraged to change any of them -->
-		<network name="TW"><name>TWITTER</name></network>
-		<network name="TWITTER">
-			<code>TW</code>
-			<name>Twitter</name>
-			<description>Twitter</description>
-			<domain>twitter.com</domain>
-			<supported>YES</supported>
-			<crawlertype>native</crawlertype>
-		</network>
-		
-		<network name="FB"><name>FACEBOOK</name></network>
-		<network name="FACEBOOK">
-			<code>FB</code>
-			<name>Facebook</name>
-			<description>Facebook</description>
-			<domain>facebook.com</domain>
-			<supported>NO</supported>
-			<crawlertype>native</crawlertype>
-		</network>
-		
-		<network name="GP"><name>GOOGLE+</name></network>
-		<network name="GOOGLE+">
-			<code>GP</code>
-			<name>Google+</name>
-			<description>Google+ - Facebook a la Google</description>
-			<domain>plus.google.com</domain>
-			<supported>NO</supported>
-			<crawlertype>native</crawlertype>
-		</network>
-		
-		<network name="LI"><name>LINKEDIN</name></network>
-		<network name="LINKEDIN">
-			<code>LI</code>
-			<name>Linkedin</name>
-			<description>Linkedin</description>
-			<domain>linkedin.com</domain>
-			<supported>NO</supported>
-			<crawlertype>native</crawlertype>
-		</network>
-		
-		<network name="XI"><name>XING</name></network>
-		<network name="XING">
-			<code>XI</code>
-			<name>XING</name>
-			<description>Xing</description>
-			<domain>xing.com</domain>
-			<supported>NO</supported>
-			<crawlertype>native</crawlertype>
-		</network>
-		
-		<network name="SW"><name>STREAMWORK</name></network>
-		<network name="STREAMWORK">
-			<code>SW</code>
-			<name>Streamwork</name>
-			<description>Streamwork - SAP's own social network community</description>
-			<domain>streamwork.com</domain>
-			<supported>NO</supported>
-			<crawlertype>native</crawlertype>
-		</network>
-		
-		<network name="IN"><name>INSTAGRAM</name></network>
-		<network name="INSTAGRAM">
-			<code>IN</code>
-			<name>Instagram</name>
-			<description>Instagram - take a look at what I shot</description>
-			<domain>instagram.com</domain>
-			<supported>NO</supported>
-			<crawlertype>native</crawlertype>
-		</network>
-		
-		<network name="FS"><name>FOURSQUARE</name></network>
-		<network name="FOURSQUARE">
-			<code>FS</code>
-			<name>Foursquare</name>
-			<description>Foursquare - where am I and what do I do</description>
-			<domain>foursquare.com</domain>
-			<supported>NO</supported>
-			<crawlertype>native</crawlertype>
-		</network>
-		
-		<network name="YT"><name>YOUTUBE</name></network>
-		<network name="YOUTUBE">
-			<code>YT</code>
-			<name>Youtube</name>
-			<description>Youtube</description>
-			<domain>youtube.com</domain>
-			<supported>NO</supported>
-			<crawlertype>native</crawlertype>
-		</network>
-		
-		<network name="SO"><name>STACKOVERFLOW</name></network>
-		<network name="STACKOVERFLOW">
-			<code>SO</code>
-			<name>Stack Overflow</name>
-			<description>Stack Overflow - developer forum</description>
-			<domain>stackoverflow.com</domain>
-			<supported>NO</supported>
-			<crawlertype>native</crawlertype>
-		</network>
-		
-		<network name="PH"><name>PHOTOBUCKET</name></network>
-		<network name="PHOTOBUCKET">
-			<code>PH</code>
-			<name>Photobucket</name>
-			<description>Photobucket - a photographer community</description>
-			<domain>photobucket.com</domain>
-			<supported>NO</supported>
-			<crawlertype>native</crawlertype>
-		</network>
-		
-		<network name="PI"><name>PINTEREST</name></network>
-		<network name="PINTEREST">
-			<code>PI</code>
-			<name>Pinterest</name>
-			<description>Pinterest - a general I like network</description>
-			<domain>pinterest.com</domain>
-			<supported>NO</supported>
-			<crawlertype>native</crawlertype>
-		</network>
-		
-		<network name="GH"><name>GITHUB</name></network>
-		<network name="GITHUB">
-			<code>GH</code>
-			<name>GitHub</name>
-			<description>A source code management system</description>
-			<domain>github.com</domain>
-			<supported>NO</supported>
-			<crawlertype>native</crawlertype>
-		</network>
-		
-		<!-- SIMPLE WEB CRAWLER - the generic code for all web pages, if they do not have a dedicated code setup in
-			 the web crawler section of the crawler configuration file -->
-		<network name="WC"><name>WEBCRAWLER</name></network>
-		<network name="WEBCRAWLER">
-			<code>WC</code>
-			<name>Simple Web Crawler</name>
-			<description>any possible website</description>
-			<domain>https://www.everywhere.de</domain>
-			<supported>YES</supported>
-			<crawlertype>web</crawlertype>
-		</network>
-		
-		<network name="AL"><name>ALL</name></network>
-		<network name="ALL">
-			<code>AL</code>
-			<name>All</name>
-			<description>All networks</description>
-			<domain>bugmenot.com</domain>
-			<supported>NO</supported>
-			<crawlertype>undefined</crawlertype>
-		</network>
-		
-		<network name="XY"><name>UNKNOWN</name></network>
-		<network name="UNKNOWN">
-			<code>XY</code>
-			<name>Unknown</name>
-			<description>Unknown network</description>
-			<domain>bugmenot.com</domain>
-			<supported>NO</supported>
-			<crawlertype>undefined</crawlertype>
-		</network>
-	</configuration>
-	
-	
 	<!-- DO NOT CHANGE ANYTHING BELOW THIS LINE, EXCEPT YOU ABSOLUTELY KNOW WHAT YOU ARE DOING
 	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	     
@@ -522,6 +329,10 @@
 			<type>String</type>
 			<value>site</value>
 		</param>
+		<param name="CONSTRAINT_BLOCKED_SITE_TEXT">
+			<type>String</type>
+			<value>blockedsite</value>
+		</param>
 		<param name="CONSTRAINT_BOARD_TEXT">
 			<type>String</type>
 			<value>board</value>
@@ -559,65 +370,66 @@
 		
 		
 		<!-- this section contains the xml structure for the crawler configuration changing these values 
-			 is (in parts) possible to reflect XML layout changes. As of the moment, August 2014, not all 
-			 of these values are changeable, as the RuntimeConfiguration-class lacks part of the code to 
-			 parse this section of the xml file completely! If an option can be changed, it is marked
-			 "changeable" -->
-		<param name="customerIdentifier"> 				<!-- changeable -->
+			 is (in parts) possible to reflect XML layout changes. -->
+		<param name="customerIdentifier">
 			<type>String</type>
 			<value>customer</value>
 		</param>
-		<param name="customerNameIdentifier"> 			<!-- changeable -->
+		<param name="customerNameIdentifier">
 			<type>String</type>
 			<value>name</value>
 		</param>
-		<param name="customerNameForAllValue"> 			<!-- changeable -->
+		<param name="customerNameForAllValue">
 			<type>String</type>
 			<value>ALL</value>
 		</param>
-		<param name="domainIdentifier"> 				<!-- changeable -->
+		<param name="domainIdentifier">
 			<type>String</type>
 			<value>domain</value>
 		</param>
-		<param name="domainStructureIdentifier"> 		<!-- changeable -->
+		<param name="domainStructureIdentifier">
 			<type>String</type>
 			<value>domainStructure</value>
 		</param>
-		<param name="domainNameIdentifier"> 			<!-- changeable -->
+		<param name="domainNameIdentifier">
 			<type>String</type>
 			<value>name</value>
 		</param>
-		<param name="domainNameForAllValue"> 			<!-- changeable -->
+		<param name="domainNameForAllValue">
 			<type>String</type>
 			<value>ALL</value>
 		</param>
-		<param name="constraintIdentifier"> 			<!-- changeable -->
+		<param name="constraintIdentifier">
 			<type>String</type>
 			<value>constraints</value>
 		</param>
-		<param name="scopeOnAllValue"> 					<!-- changeable -->
+		<param name="scopeOnAllValue">
 			<type>String</type>
 			<value>ALL</value>
 		</param>
-		<param name="singleConstraintIdentifier"> 		<!-- changeable -->
+		<param name="singleConstraintIdentifier">
 			<type>String</type>
 			<value>constraint</value>
 		</param>
-		<param name="codeIdentifier"> 					<!-- changeable -->
+		<param name="codeIdentifier">
 			<type>String</type>
 			<value>code</value>
 		</param>
-		<param name="socialNetworkIdentifier"> 			<!-- changeable -->
+		<param name="socialNetworkConfiguration">
 			<type>String</type>
 			<value>socialNetworkDefinition</value>
 		</param>
-		<param name="socialNetworkNameIdentifier"> 		<!-- changeable -->
+		<param name="socialNetworkIdentifier">
 			<type>String</type>
 			<value>network</value>
 		</param>
+		<param name="socialNetworkNameIdentifier">
+			<type>String</type>
+			<value>name</value>
+		</param>
 		
 		<!-- whether or not a specific crawler shall run -->
-		<param name="crawlerRunIdentifier"> 			<!-- changeable -->
+		<param name="crawlerRunIdentifier">
 			<type>String</type>
 			<value>CrawlerRun</value>
 		</param>
@@ -629,7 +441,7 @@
 			 even if you do so here, this won't have any effect as they need to be 
 			 and are hard coded in the RuntimeConfiguration class. 
 		 -->
-		<param name="rootIdentifier"> <!-- not changeable -->
+		<param name="rootIdentifier"> 				<!-- not changeable -->
 			<type>String</type>
 			<value>configurations</value>
 		</param>
@@ -637,11 +449,11 @@
 			<type>String</type>
 			<value>configuration</value>
 		</param>
-		<param name="valueIdentifier"> <!-- not changeable -->
+		<param name="valueIdentifier"> 				<!-- not changeable -->
 			<type>String</type>
 			<value>value</value>
 		</param>
-		<param name="scopeIdentifier"> <!-- not changeable -->
+		<param name="scopeIdentifier"> 				<!-- not changeable -->
 			<type>String</type>
 			<value>scope</value>
 		</param>
