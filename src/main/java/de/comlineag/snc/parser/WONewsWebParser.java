@@ -70,15 +70,27 @@ public final class WONewsWebParser extends GenericWebParser implements IWebParse
 	
 	@Override
 	public List<SimpleWebPosting> parse(String page, URL url, List<String> tokens) {
-		// log the startup message
 		logger.info("Wallstreet Online News parser START for url " + url.toString());
 				
 		List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
+		
+		// a single page
+		String sn_id = "WC"; // TODO implement proper social network id handling
+		long page_id = 0;
 		String title = null;
 		String description = null;
 		String keywords = null;
 		String text = null;
 		String plainText = "";
+		String page_lang = "DE"; // TODO implement proper language detection
+		
+		// the embedded user data
+		String user_name = "";
+		String screen_name = "";
+		long user_id = 0;
+		String user_lang = page_lang;
+		int postings_count = 0;
+		
 		boolean truncated = Boolean.parseBoolean("false");
 		
 		
@@ -148,7 +160,11 @@ public final class WONewsWebParser extends GenericWebParser implements IWebParse
 					//logger.trace("the plaintext >>> " + plainText);
 					text = plainText;
 					
-					JSONObject pageJson = createPageJsonObject(title, description, plainText, text, url, truncated);
+					user_name = url.toString();
+					screen_name = user_name;
+					
+					JSONObject pageJson = createPageJsonObject(sn_id, title, description, plainText, text, url, truncated, page_lang, page_id, user_id, user_name, screen_name, user_lang, postings_count);
+					
 					SimpleWebPosting parsedPageSimpleWebPosting = new SimpleWebPosting(pageJson);
 					// now check if we really really have the searched word within the text and only if so,
 					// write the content to disk. We should probably put this before calling the persistence
@@ -225,42 +241,6 @@ public final class WONewsWebParser extends GenericWebParser implements IWebParse
 		if (hitRatio >= 7) iAmTheOne = true;
 			
 		return iAmTheOne;
-	}
-	
-	@SuppressWarnings("unchecked")
-	protected JSONObject createPageJsonObject(String title, String description, String page, String text, URL url, Boolean truncated){
-		JSONObject pageJson = new JSONObject();
-		truncated = Boolean.parseBoolean("false");
-		
-		// put some data in the json
-		pageJson.put("sn_id", "WC"); // TODO implement proper sn_id handling for websites
-		pageJson.put("page_id", UniqueIdServices.createId(url.toString()).toString()); // the url is parsed and converted into a long number (returned as a string)
-		
-		pageJson.put("subject", title);
-		pageJson.put("teaser", description);
-		pageJson.put("raw_text", page);
-		pageJson.put("text", text);
-		pageJson.put("source", url.toString());
-		pageJson.put("lang", "DE"); // TODO implement language recognition
-		pageJson.put("truncated", truncated);
-		String s = Objects.toString(System.currentTimeMillis(), null);
-		pageJson.put("created_at", s);
-		
-		pageJson.put("user_id", "0"); // TODO find a way to extract user information from page
-		pageJson.put("user_id", pageJson.get("page_id"));
-		
-		JSONObject userJson = new JSONObject();
-		userJson.put("sn_id", "WC"); // TODO implement proper sn_id handling for users from websites
-		userJson.put("id", pageJson.get("page_id"));
-		userJson.put("name", url.getHost());
-		userJson.put("screen_name", url.getHost());
-		userJson.put("lang", "DE"); // TODO implement language recognition
-		
-		
-		pageJson.put("user", userJson);
-		
-		logger.trace("the json object:: " + pageJson.toJSONString());
-		return pageJson;
 	}
 	
 	@Override

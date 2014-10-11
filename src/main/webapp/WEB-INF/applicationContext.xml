@@ -196,7 +196,7 @@
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
 		<property name="jobDetail" ref="LithiumCrawlerDetail" />
 		<property name="startDelay" value="2000" />
-		<property name="repeatInterval" value="300000" />
+		<property name="repeatInterval" value="30000" />
 	</bean>
 	
 	
@@ -218,11 +218,10 @@
 				
 				<!-- set the starting url - the SimpleWebCrawler can only process ONE starting url 
 					 if you need/want to setup multiple parallel crawlers for different sites
-					 use the MultiWebCrawler which is only activated here but configured via it's
-					 own configuration file -->
-				<!--<entry key="server_url" value="http://www.wallstreet-online.de" /> -->
-				<entry key="server_url" value="http://www.wallstreet-online.de/nachricht/7068190-aktien-europa-erholung-guter-us-vorgaben-fed-protokoll" /> 
-				<!-- <entry key="server_url" value="http://www.wallstreet-online.de/diskussion/1198503-1-10/cortal-consors-trailing-stopp-loss" /> -->
+					 use the MultiWebCrawler below. -->
+				<entry key="server_url" value="http://www.wallstreet-online.de" />
+				<!-- <entry key="server_url" value="http://www.wallstreet-online.de/nachricht/7068190-aktien-europa-erholung-guter-us-vorgaben-fed-protokoll" /> -->
+				<!-- <entry key="server_url" value="http://www.wallstreet-online.de/diskussion/1106960-1-10/consors-jetzt-auch-ausserboerslich-laengerfristige-limits-ueber-tradegate" /> -->
 				
 				
 				<!-- if the website requires an authentication, set username and password here -->
@@ -268,10 +267,11 @@
 				<!-- getOnlyRelevantPages - Get only pages containing any of the track terms -->
 				<entry key="getOnlyRelevantPages" value = "true" />
 				
-				<!-- wordDistanceCutoffMargin - Distance from the searched word to cut off the text.
+				<!-- wordDistanceCutoffMargin - Number of words before and after track term to cut out.
 					 How many words shall be between the found word (as searched by via the trackTerms 
-					 from CrawlerConfiguration) and the start and end of cut out text. This option applies
-					 to the distance before and after the found word. -->
+					 from CrawlerConfiguration) and the start and end of cut out text. This option applies 
+					 ONLY to the SimpleWebParser. Other text parser, such as SimpleDiscussionParser or+
+					 specific ones, that use jericho to extract specific parts of a page, don't use it. -->
 				<entry key="wordDistanceCutoffMargin" value = "30" />
 				
 				<!-- useAllCrawlerConstraints - Shall the crawler incorporate constraints from the ALL 
@@ -283,37 +283,38 @@
 	<bean id="SimpleWebCrawlerTrigger"
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
 		<property name="jobDetail" ref="SimpleWebCrawlerDetail" />
-		<property name="startDelay" value="2000" />
-		<property name="repeatInterval" value="30000000" />
+		<property name="startDelay" value="3000" />
+		<property name="repeatInterval" value="30000" />
 	</bean>
 	
 	
-	<!-- M U L T I    D O M A I N    W E B    C R A W L E R    (SKELETON) 
+	<!-- M U L T I    D O M A I N    W E B    C R A W L E R    (SKELETON) --> 
 	<bean name="MultiWebCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.snc.crawler.MultiWebCrawler" />
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map>
-			-->
-				<!-- other than with the SimpleWebCrawler, the MultiWebCrawler can concurrently crawl multiple pages 
-					 therefore, all that he needs to know during startup is, where it's own configuration file is.
-					 In this file the different pages together with authentication options can be defined.
+				<!-- other than with the SimpleWebCrawler, the MultiWebCrawler can concurrently crawl 
+					 multiple pages. Therefore, all that he needs to know during startup is, where 
+					 it's own configuration file located. In the referenced configuration file the 
+					 different pages together with authentication options can be defined.
 					  
-					 You can also put the web crawler specific configuration in the general crawler configuration 
-					 file, specified in bean configurationManager (see below). In this case you MUST exactly enter 
+					 You can also put the web crawler specific configuration in the general crawler 
+					 configuration file, specified in bean configurationManager (see below). In this 
+					 case you MUST exactly enter 
 					 ___crawler_config___
-					 in the value for the configuration file here. What you should NOT do however, is put the name
-					 of the general crawler configuration file in here, as this could be cumbersome to keep up to date.
+					 in the value for the configuration file here. What you should NOT do however, is 
+					 put the name of the general crawler configuration file in here, as this could be 
+					 cumbersome to keep up to date.
 					 
-					 In general it is recommended to have the web crawler configuration within the general crawler
-					 configuration file and have the web crawler get it's configuration from there.
+					 In general it is recommended to have the web crawler configuration within the 
+					 general crawler configuration file and have the web crawler get it's configuration 
+					 from there.
 					 -->
-<!-- 
-				<entry key="configurationFile" value="webapp/WEB-INF/SNC_CrawlerConfiguration/HippWebCrawlerConfiguration.xml" />
--->
-				<!-- <entry key="configurationFile" value="___crawler_config___" /> -->
-<!-- 
+ 
+				<!--<entry key="configurationFile" value="webapp/WEB-INF/SNC_CrawlerConfiguration/HippWebCrawlerConfiguration.xml" />-->
+				<entry key="configurationFile" value="___crawler_config___" />
 			</map>
 		</property>
 	</bean>
@@ -323,7 +324,8 @@
 		<property name="startDelay" value="2000" />
 		<property name="repeatInterval" value="30000000" />
 	</bean>
--->
+	
+	
 	<!-- F A C E B O O K    C R A W L E R    (TO BE IMPLEMENTED) -->
 	<bean name="FacebookCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">

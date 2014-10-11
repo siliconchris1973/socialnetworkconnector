@@ -4,12 +4,13 @@ import java.util.List;
 
 import org.geojson.GeoJsonObject;
 import org.joda.time.LocalDateTime;
+import org.json.simple.JSONObject;
 
 /**
  * 
  * @author 		Magnus Leinemann, Christian Guenther
  * @category 	data class
- * @version 	0.3				- 22.08.2014
+ * @version 	0.4				- 10.10.2014
  * @status		productive
  * 
  * @description Data Class representing a Post from the OData Service
@@ -19,8 +20,9 @@ import org.joda.time.LocalDateTime;
  * 								- the markups are stripped for the normal text field
  * 				0.2a			added domain and customer
  * 				0.3				added method to fill all values from a passed json string 
- * 								first use case is the FsCrawler, which creates a posData object 
- * 								from a stored json file and then invokes the persistence layer  
+ * 								for use with the FsCrawler, which creates a posData object 
+ * 								from a stored json file and then invokes the persistence layer
+ * 				0.4				added possibility to store an embedded UserData object within the PostData object
  * 
  * TODO move GeneralDataDefinitions to RuntimeConfiguration and source it in from XML 
  */
@@ -155,6 +157,11 @@ public class PostData {
 	protected List<?> symbols;
 	protected List<?> mentions;
 	
+	/*
+	 * UserData userData - an embedded user object within th epage/post object
+	 */
+	protected UserData userData;
+	
 	// returns a string with all initialized variables as a concatenated string
 	public String getAllContent(){
 		String p = "objectStatus : " + getObjectStatus() + " / "
@@ -193,216 +200,134 @@ public class PostData {
 		return p;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public String toJsonString(){
+		JSONObject obj = new JSONObject();
+		obj.put("objectStatus", getObjectStatus());
+		obj.put("SN_ID", getSnId());
+		obj.put("ID", getId());
+		obj.put("Domain", getDomain());
+		obj.put("Customer", getCustomer());
+		obj.put("User Id", getUserId());
+		obj.put("text", getText().length());
+		obj.put("raw text", getRawText().length());
+		obj.put("teaser", getTeaser().length());
+		obj.put("subject", getSubject().length());
+		obj.put("lang", getLang());
+		obj.put("view count", getViewCount());
+		obj.put("favorite count", getFavoriteCount()); 
+		obj.put("time", getTime());
+		obj.put("timestamp", getTimestamp());
+		obj.put("client", getClient());
+		obj.put("truncated", getTruncated());
+		obj.put("in reply to post", getInReplyTo());
+		obj.put("in reply to user id", getInReplyToUser());
+		obj.put("in reply to user name", getInReplyToUserScreenName());
+		obj.put("longitude", getGeoLongitude());
+		obj.put("latitude", getGeoLatitude());
+		obj.put("place id", getGeoPlaceId());
+		obj.put("place name", getGeoPlaceName());
+		obj.put("place country", getGeoPlaceCountry()); 
+		obj.put("around longitude", getGeoAroundLongitude());
+		obj.put("around latitude", getGeoAroundLatitude());
+				
+				//protected GeoJsonObject place;
+				//protected List<?> hashtags;
+				//protected List<?> symbols;
+				//protected List<?> mentions;
+				
+		return obj.toJSONString();
+	}
+	
 	// getter and setter
-	public String getDomain() {
-		return domain;
-	}
-	public void setDomain(String dom) {
-		this.domain = dom;
-	}
+	public String getObjectStatus() {return objectStatus;}
+	public void setObjectStatus(String ostatus) {this.objectStatus = ostatus;}
 	
-	public String getCustomer() {
-		return customer;
-	}
-	public void setCustomer(String sub) {
-		this.customer = sub;
-	}
+	public String getDomain() {return domain;}
+	public void setDomain(String dom) {this.domain = dom;}
 	
-	public long getId() {
-		return id;
-	}
-	public void setId(long id) {
-		this.id = id;
-	}
+	public String getCustomer() {return customer;}
+	public void setCustomer(String sub) {this.customer = sub;}
 	
-	public String getSnId() {
-		return sn_id;
-	}
-	public void setSnId(String sn_id) {
-		this.sn_id = sn_id;
-	}
+	public long getId() {return id;}
+	public void setId(long id) {this.id = id;}
 	
-	public String getText() {
-		return text;
-	}
-	public void setText(String text) {
-		this.text = text;
-	}
+	public String getSnId() {return sn_id;}
+	public void setSnId(String sn_id) {this.sn_id = sn_id;}
 	
-	public String getRawText() {
-		return raw_text;
-	}
-	public void setRawText(String text) {
-		this.raw_text = text;
-	}
+	public String getText() {return text;}
+	public void setText(String text) {this.text = text;}
 	
-	public String getSubject() {
-		return subject;
-	}
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
+	public String getRawText() {return raw_text;}
+	public void setRawText(String text) {this.raw_text = text;}
 	
-	public String getTeaser() {
-		return teaser;
-	}
-	public void setTeaser(String teaser) {
-		this.teaser = teaser;
-	}
+	public String getSubject() {return subject;}
+	public void setSubject(String subject) {this.subject = subject;}
+	
+	public String getTeaser() {return teaser;}
+	public void setTeaser(String teaser) {this.teaser = teaser;}
 
-	public long getViewCount() {
-		return viewcount;
-	}
-	public void setViewCount(long viewcount) {
-		this.viewcount = viewcount;
-	}
+	public long getViewCount() {return viewcount;}
+	public void setViewCount(long viewcount) {this.viewcount = viewcount;}
 	
-	public long getFavoriteCount() {
-		return favoritecount;
-	}
-	public void setFavoriteCount(long favoritecount) {
-		this.favoritecount = favoritecount;
-	}
+	public long getFavoriteCount() {return favoritecount;}
+	public void setFavoriteCount(long favoritecount) {this.favoritecount = favoritecount;}
 	
-	public String getTime() {
-		return time;
-	}
-	public void setTime(String postTime) {
-		this.time = postTime;
-	}
+	public String getTime() {return time;}
+	public void setTime(String postTime) {this.time = postTime;}
+	public LocalDateTime getTimestamp() {return timestamp;}
+	public void setTimestamp(LocalDateTime timestamp) {this.timestamp = timestamp;}
 	
-	public String getClient() {
-		return posted_from_client;
-	}
-	public void setClient(String postClient) {
-		this.posted_from_client = postClient;
-	}
+	public String getClient() {return posted_from_client;}
+	public void setClient(String postClient) {this.posted_from_client = postClient;}
 	
-	public Boolean getTruncated() {
-		return truncated;
-	}
-	public void setTruncated(Boolean isTruncated) {
-		this.truncated = isTruncated;
-	}
+	public Boolean getTruncated() {return truncated;}
+	public void setTruncated(Boolean isTruncated) {this.truncated = isTruncated;}
 	
-	public long getInReplyTo() {
-		return in_reply_to_post;
-	}
-	public void setInReplyTo(Long inReplyTo) {
-		this.in_reply_to_post = inReplyTo;
-	}
+	public long getInReplyTo() {return in_reply_to_post;}
+	public void setInReplyTo(Long inReplyTo) {this.in_reply_to_post = inReplyTo;}
 	
-	public long getInReplyToUser() {
-		return in_reply_to_user;
-	}
-	public void setInReplyToUser(Long inReplyToUser) {
-		this.in_reply_to_user = inReplyToUser;
-	}
+	public long getInReplyToUser() {return in_reply_to_user;}
+	public void setInReplyToUser(Long inReplyToUser) {this.in_reply_to_user = inReplyToUser;}
 	
-	public String getInReplyToUserScreenName() {
-		return in_reply_to_user_screen_name;
-	}
-	public void setInReplyToUserScreenName(String inReplyToUserScreenName) {
-		this.in_reply_to_user_screen_name = inReplyToUserScreenName;
-	}
+	public String getInReplyToUserScreenName() {return in_reply_to_user_screen_name;}
+	public void setInReplyToUserScreenName(String inReplyToUserScreenName) {this.in_reply_to_user_screen_name = inReplyToUserScreenName;}
 
-	public GeoJsonObject getPlace() {
-		return place;
-	}
-	public void setPlace(GeoJsonObject place) {
-		this.place = place;
-	}
+	public GeoJsonObject getPlace() {return place;}
+	public void setPlace(GeoJsonObject place) {this.place = place;}
 
-	public List<?> getHashtags() {
-		return hashtags;
-	}
-	public void setHashtags(List<?> hashtags) {
-		this.hashtags = hashtags;
-	}
+	public List<?> getHashtags() {return hashtags;}
+	public void setHashtags(List<?> hashtags) {this.hashtags = hashtags;}
 
-	public List<?> getSymbols() {
-		return symbols;
-	}
-	public void setSymbols(List<?> symbols) {
-		this.symbols = symbols;
-	}
+	public List<?> getSymbols() {return symbols;}
+	public void setSymbols(List<?> symbols) {this.symbols = symbols;}
 
-	public List<?> getMentions() {
-		return symbols;
-	}
-	public void setMentions(List<?> mentions) {
-		this.mentions = mentions;
-	}
+	public List<?> getMentions() {return symbols;}
+	public void setMentions(List<?> mentions) {this.mentions = mentions;}
 	
-	public long getUserId() {
-		return userId;
-	}
-	public void setUserId(long userId) {
-		this.userId = userId;
-	}
+	public long getUserId() {return userId;}
+	public void setUserId(long userId) {this.userId = userId;}
 
-	public String getLang() {
-		return lang;
-	}
-	public void setLang(String lang) {
-		this.lang = lang;
-	}
+	public String getLang() {return lang;}
+	public void setLang(String lang) {this.lang = lang;}
 
-	public LocalDateTime getTimestamp() {
-		return timestamp;
-	}
-	public void setTimestamp(LocalDateTime timestamp) {
-		this.timestamp = timestamp;
-	}
-	
+	// embedded user data
+	public UserData getUserData(){return userData;}
+	public void setUserData(UserData userData){this.userData = userData;}
+		
 	// GEO data
-	public String getGeoLongitude() {
-		return geoLongitude;
-	}
-	public void setGeoLongitude(String geoLongitude) {
-		this.geoLongitude = geoLongitude;
-	}
-	public String getGeoLatitude() {
-		return geoLatitude;
-	}
-	public void setGeoLatitude(String geoLatitude) {
-		this.geoLatitude = geoLatitude;
-	}
-	public String getGeoPlaceId() {
-		return geoPlaceId;
-	}
-	public void setGeoPlaceId(String geoPlaceId) {
-		this.geoPlaceId = geoPlaceId;
-	}
-	public String getGeoPlaceName() {
-		return geoPlaceName;
-	}
-	public void setGeoPlaceName(String geoPlaceName) {
-		this.geoPlaceName = geoPlaceName;
-	}
-	public String getGeoPlaceCountry() {
-		return geoPlaceCountry;
-	}
-	public void setGeoPlaceCountry(String geoPlaceCountry) {
-		this.geoPlaceCountry = geoPlaceCountry;
-	}
-	public String getGeoAroundLongitude() {
-		return geoAroundLongitude;
-	}
-	public void setGeoAroundLongitude(String geoAroundLongitude) {
-		this.geoAroundLongitude = geoAroundLongitude;
-	}
-	public String getGeoAroundLatitude() {
-		return geoAroundLatitude;
-	}
-	public void setGeoAroundLatitude(String geoAroundLatitude) {
-		this.geoAroundLatitude = geoAroundLatitude;
-	}
-	
-	public String getObjectStatus() {
-		return objectStatus;
-	}
-	public void setObjectStatus(String ostatus) {
-		this.objectStatus = ostatus;
-	}
+	public String getGeoLongitude() {return geoLongitude;}
+	public void setGeoLongitude(String geoLongitude) {this.geoLongitude = geoLongitude;}
+	public String getGeoLatitude() {return geoLatitude;}
+	public void setGeoLatitude(String geoLatitude) {this.geoLatitude = geoLatitude;}
+	public String getGeoPlaceId() {return geoPlaceId;}
+	public void setGeoPlaceId(String geoPlaceId) {this.geoPlaceId = geoPlaceId;}
+	public String getGeoPlaceName() {return geoPlaceName;}
+	public void setGeoPlaceName(String geoPlaceName) {this.geoPlaceName = geoPlaceName;}
+	public String getGeoPlaceCountry() {return geoPlaceCountry;}
+	public void setGeoPlaceCountry(String geoPlaceCountry) {this.geoPlaceCountry = geoPlaceCountry;}
+	public String getGeoAroundLongitude() {return geoAroundLongitude;}
+	public void setGeoAroundLongitude(String geoAroundLongitude) {this.geoAroundLongitude = geoAroundLongitude;}
+	public String getGeoAroundLatitude() {return geoAroundLatitude;}
+	public void setGeoAroundLatitude(String geoAroundLatitude) {this.geoAroundLatitude = geoAroundLatitude;}
 }

@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
@@ -28,7 +30,7 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * 
  * @author 		Christian Guenther
  * @category 	Parser
- * @version		0.2				- 09.10.2014
+ * @version		0.3				- 10.10.2014
  * @status		in development
  * 
  * @description WOPostingWebParser is the implementation of the generic web parser for 
@@ -38,6 +40,7 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * 
  * @changelog	0.1 (Chris)		created as extraction fromSimpleWebParser version 0.7
  * 				0.2				implemented canExecute method
+ * 				0.3				implemented posting and user handling
  * 
  * TODO 2 implement language detection (possibly with jroller http://www.jroller.com/melix/entry/jlangdetect_0_3_released_with)
  * TODO 3 extract user information from the website
@@ -64,115 +67,94 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 	public Object execute(String page, URL url) {
 		ExecutorService persistenceExecutor = Executors.newFixedThreadPool(RuntimeConfiguration.getPERSISTENCE_THREADING_POOL_SIZE());
 		
-		// TODO implement execute-method tomake parser thread save
+		// TODO implement execute-method to make parser thread save
 		return null;
 	}
 	
 	@Override
 	public List<SimpleWebPosting> parse(String page, URL url, List<String> tokens) {
+		logger.info("Wallstreet Online Discussion parser START for url " + url.toString());
+		
 		List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
 		
-		// log the startup message
-		logger.info("Wallstreet Online Postings parser START for url " + url.toString());
-		
-		JSONObject parsedPageJson = null;
-		try {
-			parsedPageJson = extractContent(page, url, tokens);
-			SimpleWebPosting parsedPageSimpleWebPosting = new SimpleWebPosting(parsedPageJson);
-			
-			//logger.trace("PARSED PAGE AS JSON >>> " + parsedPageJson.toString());
-			
-			// now check if we really really have the searched word within the text and only if so,
-			// write the content to disk. We should probably put this before calling the persistence
-			if (findNeedleInHaystack(parsedPageJson.toString(), tokens)){
-				// add the parsed site to the message list for saving in the DB
-				postings.add(parsedPageSimpleWebPosting);
-			}
-		} catch (Exception e) {
-			logger.error("EXCEPTION :: " + e.getMessage() + " " + e);
-		}
-		
-		
-		logger.info("Wallstreet Online Postings parser END\n");
-		return postings;
-	}
-	
-	
-	
-	
-	
-	
-	// START THE SPECIFIC PARSER
-	/**
-	 * @description	parses a given html-site and extract any tries to get rid of all the clutter surrounding
-	 * 				the interesting main content of it
-	 * 
-	 * @param		page 	- the page to parse as a string containing the html sourcecode
-	 * @param		url		- the url to the site
-	 * @param		tokens	- a list of tokens we searched for when finding this page
-	 * @return		json	- a json object containing the following fields:
-	 * 						  text = the plain text of the main content of the site
-	 * 						  raw_text = the raw html markup sourcecode
-	 * 						  title = the page title
-	 * 						  description = the meta tag description of the page
-	 * 						  truncated = a boolean field indicating whether the page was truncated or not - usually true
-	 * 						  source = the url to the site
-	 * 						  created_at = a time value of the millisecond the page was parsed
-	 * 						  page_id = a long value created from the url by substituting every character to a number
-	 * 						  user_id = 0 
-	 */
-	protected JSONObject extractContent(String page, URL url, List<String> tokens) {
-		logger.info("parsing site " + url.toString() + " and extracting postings");
+		// a single page
+		String sn_id = "WC"; // TODO implement proper social network id handling
+		long page_id = 0;
 		String title = null;
 		String description = null;
 		String keywords = null;
 		String text = null;
-		String plainText = null;
+		String plainText = "";
+		String page_lang = "DE"; // TODO implement proper language detection
+		
+		// the embedded user data
+		String user_name = "";
+		String screen_name = "";
+		long user_id = 0;
+		String user_lang = page_lang;
+		int postings_count = 0;
+		
 		boolean truncated = Boolean.parseBoolean("false");
+		
 		
 		try {
 			// if so, get the plain text with
 			Source source = new Source(page);
 			source.fullSequentialParse();
 			
-			/**
-			 * This text extractor is specific to discussions on the Wallstreet Online sites. It has a positive 
-			 * (aka white list) list of tags and markup elements, we want to get extract, while implicitely 
-			 * discarding anything else.
-			 */
-			// the post itself
-			TextExtractor woDiskussionSitePostingExtractor=new TextExtractor(source) {
-				public boolean includeElement(StartTag startTag) {
-					return "posting".equalsIgnoreCase(startTag.getAttributeValue("class"));
-					}
-				};
-			
-			// the writer of the post
-			TextExtractor woDiskussionSitePostingUserExtractor=new TextExtractor(source) {
-				public boolean includeElement(StartTag startTag) {
-					return "avatar".equalsIgnoreCase(startTag.getAttributeValue("class"));
-					}
-				};
-			
-			plainText = woDiskussionSitePostingExtractor.setIncludeAttributes(true).toString();
+			// first we set some preliminary data for the json object
 			title = getTitle(source);
 			description = getMetaValue(source, "Description");
 			keywords = getMetaValue(source, "keywords");
 			
-			// now put the reduced text in the original text variable, so that it gets added to the json below
-			text = plainText;
-			// and also make sure that the truncated flag is set correctly
-			truncated = Boolean.parseBoolean("true");
+			List<Element> siteElements = source.getAllElementsByClass("posting");
+			for (int i=0;i<siteElements.size();i++) {
+				Element siteElement = siteElements.get(i).getFirstElementByClass("postingText");
+				//plainText = siteElement.getContent().getTextExtractor().excludeElement(StartTag startTag){return "keywords".equalsIgnoreCase(startTag.getAttributeValue("span"));}.toString();
+				
+				page_id = (Long.valueOf((String) siteElements.get(i).getAttributeValue("data-id")).longValue());
+				
+				plainText = new TextExtractor(siteElement) {
+					public boolean excludeElement(StartTag startTag){
+						return "s8 replyTo".equalsIgnoreCase(startTag.getAttributeValue("class"))
+								|| "postingHead".equalsIgnoreCase(startTag.getAttributeValue("class"))
+								|| "postingFooter".equalsIgnoreCase(startTag.getAttributeValue("class"));
+					}
+				}.toString();
+				
+				
+				//logger.trace("the plaintext >>> " + plainText);
+				text = plainText;
+				
+				Element userElement = siteElements.get(i).getFirstElementByClass("meta");
+				Element innerUserElement = userElement.getFirstElementByClass("user");
+				user_name = innerUserElement.getContent().toString();
+				screen_name = user_name;
+				user_id = (Long.valueOf((String) innerUserElement.getAttributeValue("data-userid")).longValue());
+				
+				JSONObject pageJson = createPageJsonObject(sn_id, title, description, plainText, text, url, truncated, page_lang, page_id, user_id, user_name, screen_name, user_lang, postings_count);
+				
+				SimpleWebPosting parsedPageSimpleWebPosting = new SimpleWebPosting(pageJson);
+				// now check if we really really have the searched word within the text and only if so,
+				// write the content to disk. We should probably put this before calling the persistence
+				if (findNeedleInHaystack(pageJson.toString(), tokens)){
+					// add the parsed site to the message list for saving in the DB
+					postings.add(parsedPageSimpleWebPosting);
+				}
+			}
+			
+			//logger.trace("PARSED PAGE AS JSON >>> " + parsedPageJson.toString());
+			
 			
 		} catch (Exception e) {
-			logger.error("EXCEPTION :: error during parsing of site content ", e );
+			logger.error("EXCEPTION :: " + e.getMessage() + " " + e);
 			e.printStackTrace();
 		}
 		
-		JSONObject pageJson = createPageJsonObject(title, description, plainText, text, url, truncated);
-		return pageJson;
+		
+		logger.info("Wallstreet Online Postings parser END\n");
+		return postings;
 	}
-	
 	
 	
 	// START OF JERICHO SPECIFIC PARSER STUFF
@@ -228,42 +210,6 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 		if (hitRatio >= 7) iAmTheOne = true;
 			
 		return iAmTheOne;
-	}
-	
-	@SuppressWarnings("unchecked")
-	protected JSONObject createPageJsonObject(String title, String description, String page, String text, URL url, Boolean truncated){
-		JSONObject pageJson = new JSONObject();
-		truncated = Boolean.parseBoolean("false");
-		
-		// put some data in the json
-		pageJson.put("sn_id", "WC"); // TODO implement proper sn_id handling for websites
-		pageJson.put("page_id", UniqueIdServices.createId(url.toString()).toString()); // the url is parsed and converted into a long number (returned as a string)
-		
-		pageJson.put("subject", title);
-		pageJson.put("teaser", description);
-		pageJson.put("raw_text", page);
-		pageJson.put("text", text);
-		pageJson.put("source", url.toString());
-		pageJson.put("lang", "DE"); // TODO implement language recognition
-		pageJson.put("truncated", truncated);
-		String s = Objects.toString(System.currentTimeMillis(), null);
-		pageJson.put("created_at", s);
-		
-		pageJson.put("user_id", "0"); // TODO find a way to extract user information from page
-		pageJson.put("user_id", pageJson.get("page_id"));
-		
-		JSONObject userJson = new JSONObject();
-		userJson.put("sn_id", "WC"); // TODO implement proper sn_id handling for users from websites
-		userJson.put("id", pageJson.get("page_id"));
-		userJson.put("name", url.getHost());
-		userJson.put("screen_name", url.getHost());
-		userJson.put("lang", "DE"); // TODO implement language recognition
-		
-		
-		pageJson.put("user", userJson);
-		
-		logger.trace("the json object:: " + pageJson.toJSONString());
-		return pageJson;
 	}
 	
 	@Override

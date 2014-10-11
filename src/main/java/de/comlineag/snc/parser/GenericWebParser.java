@@ -3,6 +3,7 @@ package de.comlineag.snc.parser;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 
 import de.comlineag.snc.handler.SimpleWebPosting;
+import de.comlineag.snc.helper.UniqueIdServices;
 
 
 /**
@@ -136,5 +138,47 @@ public abstract class GenericWebParser extends GenericParser implements IWebPars
 		}
 		
 		return textsegments;
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected JSONObject createPageJsonObject(String sn_id, String title, String description, String page, String text, URL url, Boolean truncated, String lang, long page_id, long user_id, String user_name, String screen_name, String user_lang, long postings_count){
+		JSONObject pageJson = new JSONObject();
+		truncated = Boolean.parseBoolean("false");
+		
+		// put some data in the json
+		pageJson.put("sn_id", sn_id);
+		if (page_id == 0)
+			// the url is parsed and converted into a long number (returned as a string)
+			pageJson.put("page_id", UniqueIdServices.createId(url.toString()).toString()); 
+		else
+			pageJson.put("page_id", Long.toString(page_id));
+		
+		pageJson.put("subject", title);
+		pageJson.put("teaser", description);
+		pageJson.put("raw_text", page);
+		pageJson.put("text", text);
+		pageJson.put("source", url.toString());
+		pageJson.put("lang", lang);
+		pageJson.put("truncated", truncated);
+		String s = Objects.toString(System.currentTimeMillis(), null);
+		pageJson.put("created_at", s);
+		
+		JSONObject userJson = new JSONObject();
+		userJson.put("sn_id", sn_id);
+		if (user_id == 0)
+			// the hostname part of the url is parsed and converted into a long number (returned as a string)
+			userJson.put("id", UniqueIdServices.createId(url.getHost().toString()).toString()); 
+		else 
+			userJson.put("id", Long.toString(user_id));
+		
+		pageJson.put("user_id", userJson.get("id"));
+		
+		userJson.put("name", user_name);
+		userJson.put("screen_name", screen_name);
+		userJson.put("lang", user_lang);
+		
+		pageJson.put("user", userJson);
+		
+		return pageJson;
 	}
 }

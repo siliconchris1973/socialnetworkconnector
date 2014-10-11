@@ -79,13 +79,6 @@ public final class WebPostingData extends PostData {
 			// log the startup message
 			logger.debug("constructing new data-subset from page (WC-"  + id + ")");
 			
-			// User ID
-			JSONObject user = (JSONObject) jsonObject.get("user");
-			setUser((JSONObject) user);
-			logger.trace("getting the user object " + user.toString());
-			setUserId(Long.valueOf((String) user.get("id")).longValue());
-			
-				
 			
 			
 			// langauge
@@ -131,6 +124,13 @@ public final class WebPostingData extends PostData {
 			// the url of the page
 			setClient((String) jsonObject.get("source"));
 			
+			// User ID
+			JSONObject user = (JSONObject) jsonObject.get("user");
+			setUser((JSONObject) user);
+			setUserId(Long.valueOf((String) user.get("id")).longValue());
+			
+			logger.trace("the page object " + jsonObject.toString());
+			logger.trace("the user object " + user.toString());
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: during parsing of json web page-object " + e.getLocalizedMessage());
 			e.printStackTrace();
@@ -189,10 +189,6 @@ public final class WebPostingData extends PostData {
 	}
 	
 	// new methods to get and set the user object within the page object
-	public void setUser(JSONObject userJson){
-		this.user = userJson;
-	}
-	public JSONObject getUser(){
-		return user;
-	}
+	public void setUser(JSONObject userJson){this.user = userJson;}
+	public JSONObject getUser(){return user;}
 }

@@ -78,8 +78,8 @@
 		 a crawler here, it will run, in case it is activated in 
 		 applicationContext.xml -->
 	<configuration scope="CrawlerRun">
-		<crawler name="TWITTER">false</crawler>
-		<crawler name="LITHIUM">false</crawler>
+		<crawler name="TWITTER">true</crawler>
+		<crawler name="LITHIUM">true</crawler>
 		<crawler name="FACEBOOK">false</crawler>
 		<crawler name="WEBCRAWLER">true</crawler>
 	</configuration>
@@ -663,10 +663,6 @@
 					</blockedsite>
 				</constraint>
 				<constraint>
-					<term>
-						<type>String</type>
-						<value>Wall Street</value>
-					</term>
 					<term>
 						<type>String</type>
 						<value>Cortal Consors</value>

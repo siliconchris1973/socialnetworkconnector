@@ -1,10 +1,12 @@
 package de.comlineag.snc.data;
 
+import org.json.simple.JSONObject;
+
 /**
  * 
  * @author		Magnus Leinemann, Christian Guenther
  * @category	Data Class
- * @version		0.4a		- 23.07.2014
+ * @version		0.4a			- 10.10.2014
  * @status		productive
  * 
  * @description core data type for the User Data
@@ -14,6 +16,7 @@ package de.comlineag.snc.data;
  * 				0.3				added fields average_rating_value, average_posting_rating_value and average_posting_ratio for Lithium user 
  * 				0.4				changed field name from location to geoLocation
  * 				0.4a			added fields for domain and customer
+ * 				0.4b			added method toJsonString() - returning all uerData content as a json string 
  * 
  * TODO 1. check if we need more/other fields for other social networks
  */
@@ -61,123 +64,79 @@ public class UserData {
 		return u;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public String toJsonString(){
+		JSONObject obj = new JSONObject();
+		obj.put("objectStatus", getObjectStatus());
+		obj.put("sn_id", getSnId());
+		obj.put("id", getId());
+		obj.put("domain", getDomain());
+		obj.put("customer", getCustomer());
+		obj.put("username", getUsername());
+		obj.put("lang", getLang());
+		obj.put("screen name", getScreenName());
+		obj.put("geoLocation", getGeoLocation());
+		obj.put("followers count", getFollowersCount());
+		obj.put("friends count", getFriendsCount());
+		obj.put("postings count", getPostingsCount());
+		obj.put("favorites count", getFavoritesCount());
+		obj.put("lists and groups count", getListsAndGroupsCount());
+		obj.put("average rating", getAverageRatingValue());
+		obj.put("average posting rating", getAveragePostingRatingValue());
+		obj.put("average posting rating", getAveragePostingRating());
+		
+		return obj.toJSONString();
+	}
+	
 	// getter and setter
-	public long getId() {
-		return id;
-	}
-	public void setId(long id) {
-		this.id = id;
-	}
+	public String getDomain() {return domain;}
+	public void setDomain(String dom) {this.domain = dom;}
 	
-	public String getSnId() {
-		return sn_id;
-	}
-	public void setSnId(String sn_id) {
-		this.sn_id = sn_id;
-	}
+	public String getCustomer() {return customer;}
+	public void setCustomer(String sub) {this.customer = sub;}
 	
-	public String getUsername() {
-		return username;
-	}
-	public void setUsername(String username) {
-		this.username = username;
-	}
+	public String getObjectStatus() {return objectStatus;}
+	public void setObjectStatus(String ostatus) {this.objectStatus = ostatus;}
 	
-	public String getScreenName() {
-		return screen_name;
-	}
-	public void setScreenName(String screenName) {
-		this.screen_name = screenName;
-	}
+	public long getId() {return id;}
+	public void setId(long id) {this.id = id;}
 	
-	public String getGeoLocation() {
-		return geoLocation;
-	}
-	public void setGeoLocation(String geoLocation) {
-		this.geoLocation = geoLocation;
-	}
+	public String getSnId() {return sn_id;}
+	public void setSnId(String sn_id) {this.sn_id = sn_id;}
 	
-	public long getFollowersCount() {
-		return followers_count;
-	}
-	public void setFollowersCount(long followersCount) {
-		this.followers_count = followersCount;
-	}
+	public String getUsername() {return username;}
+	public void setUsername(String username) {this.username = username;}
 	
-	public long getFriendsCount() {
-		return friends_count;
-	}
-	public void setFriendsCount(long friendsCount) {
-		this.friends_count = friendsCount;
-	}
+	public String getScreenName() {return screen_name;}
+	public void setScreenName(String screenName) {this.screen_name = screenName;}
 	
-	public long getPostingsCount() {
-		return postings_count;
-	}
-	public void setPostingsCount(long postingsCount) {
-		this.postings_count = postingsCount;
-	}
+	public String getGeoLocation() {return geoLocation;}
+	public void setGeoLocation(String geoLocation) {this.geoLocation = geoLocation;}
 	
-	public float getAverageRatingValue() {
-		return average_rating_value;
-	}
-	public void setAverageRatingValue(float average_rating_value) {
-		this.average_rating_value = average_rating_value;
-	}
+	public long getFollowersCount() {return followers_count;}
+	public void setFollowersCount(long followersCount) {this.followers_count = followersCount;}
 	
-	public float getAveragePostingRatingValue() {
-		return average_posting_rating_value;
-	}
-	public void setAveragePostingRatingValue(float average_posting_rating_value) {
-		this.average_posting_rating_value = average_posting_rating_value;
-	}
+	public long getFriendsCount() {return friends_count;}
+	public void setFriendsCount(long friendsCount) {this.friends_count = friendsCount;}
 	
-	public float getAveragePostingRating() {
-		return average_posting_ratio;
-	}
-	public void setAveragePostingRating(float average_posting_ratio) {
-		this.average_posting_ratio = average_posting_ratio;
-	}
+	public long getPostingsCount() {return postings_count;}
+	public void setPostingsCount(long postingsCount) {this.postings_count = postingsCount;}
 	
-	public long getListsAndGroupsCount() {
-		return lists_and_groups_count;
-	}
-	public void setListsAndGroupsCount(long listsAndGroupsCount) {
-		this.lists_and_groups_count = listsAndGroupsCount;
-	}
+	public float getAverageRatingValue() {return average_rating_value;}
+	public void setAverageRatingValue(float average_rating_value) {this.average_rating_value = average_rating_value;}
 	
-	public long getFavoritesCount() {
-		return favorites_count;
-	}
-	public void setFavoritesCount(long favoritesCount) {
-		this.favorites_count = favoritesCount;
-	}
+	public float getAveragePostingRatingValue() {return average_posting_rating_value;}
+	public void setAveragePostingRatingValue(float average_posting_rating_value) {this.average_posting_rating_value = average_posting_rating_value;}
 	
-	public String getLang() {
-		return lang;
-	}
-	public void setLang(String lang) {
-		this.lang = lang;
-	}
+	public float getAveragePostingRating() {return average_posting_ratio;}
+	public void setAveragePostingRating(float average_posting_ratio) {this.average_posting_ratio = average_posting_ratio;}
 	
-	public String getDomain() {
-		return domain;
-	}
-	public void setDomain(String dom) {
-		this.domain = dom;
-	}
+	public long getListsAndGroupsCount() {return lists_and_groups_count;}
+	public void setListsAndGroupsCount(long listsAndGroupsCount) {this.lists_and_groups_count = listsAndGroupsCount;}
 	
-	public String getCustomer() {
-		return customer;
-	}
-	public void setCustomer(String sub) {
-		this.customer = sub;
-	}
+	public long getFavoritesCount() {return favorites_count;}
+	public void setFavoritesCount(long favoritesCount) {this.favorites_count = favoritesCount;}
 	
-	public String getObjectStatus() {
-		return objectStatus;
-	}
-	public void setObjectStatus(String ostatus) {
-		this.objectStatus = ostatus;
-	}
+	public String getLang() {return lang;}
+	public void setLang(String lang) {this.lang = lang;}
 }
