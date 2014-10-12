@@ -7,9 +7,9 @@ package de.comlineag.snc.constants;
  * @version 	0.1
  * @status		productive
  * 
- * @description contains all relevant Status Codes for teh SNC
+ * @description contains all relevant Status Codes for the SNC
  * 
- * @changelog	0.1 (Chris)		class created
+ * @changelog	0.1 (Chris)		enum created
  * 
  */
 public enum SNCStatusCodes {

@@ -4,7 +4,7 @@ package de.comlineag.snc.constants;
  * 
  * @author 		Christian Guenther
  * @category	helper class
- * @version 	0.3		- 10.07.2014
+ * @version 	0.3				- 10.07.2014
  * @status		productive
  * 
  * @description provides constants for use with the Lithium Network crawler and parser. 
