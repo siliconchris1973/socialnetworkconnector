@@ -217,7 +217,7 @@
 		</param>
 		
 		<!-- Shall the crawler ONLY get pages below the initially given path
-			 Think of this option like an even stricter stayOnDomain. Not only we can't leave the
+			 You can think of this option like an even stricter stayOnDomain. Not only we can't leave the
 			 initial given domain, but any link encountered must point to some page on or below
 			 the above given url. 
 			 That also means, if you set this to true, you do not need to set stayOnDomain, or 
@@ -313,6 +313,65 @@
 		 Changing any of these values is possible to reflect changes in the xml configuration layout
 		 but it is highly discouraged. -->
 	<configuration scope="XmlLayout">
+		<!-- identifies the parameter in crawler configuration that defines whether or not a specific crawler shall run -->
+		<param name="crawlerRunIdentifier">
+			<type>String</type>
+			<value>CrawlerRun</value>
+		</param>
+		
+		<!-- these values are for the constraints setup within crawler configuration. If, for example,
+			 you don't want the configuration of a crawler be named constraint anymore, but rather
+			 WhatYouShouldGet, then change the value of constraint to WhatYouShouldGet and adapt
+			 the crawler configuration XML file accordingly -->
+		<param name="constraintIdentifier">
+			<type>String</type>
+			<value>constraints</value>
+		</param>
+		<param name="singleConstraintIdentifier">
+			<type>String</type>
+			<value>constraint</value>
+		</param>
+		<param name="scopeOnAllValue">
+			<type>String</type>
+			<value>ALL</value>
+		</param>
+		<param name="codeIdentifier">
+			<type>String</type>
+			<value>code</value>
+		</param>
+		
+		<!-- this section contains the identifier for domain of interest and customer used within the
+			 crawler configuration XML file. -->
+		<param name="customerIdentifier">
+			<type>String</type>
+			<value>customer</value>
+		</param>
+		<param name="customerNameIdentifier">
+			<type>String</type>
+			<value>name</value>
+		</param>
+		<param name="customerNameForAllValue">
+			<type>String</type>
+			<value>ALL</value>
+		</param>
+		<param name="domainIdentifier">
+			<type>String</type>
+			<value>domain</value>
+		</param>
+		<param name="domainStructureIdentifier">
+			<type>String</type>
+			<value>domainStructure</value>
+		</param>
+		<param name="domainNameIdentifier">
+			<type>String</type>
+			<value>name</value>
+		</param>
+		<param name="domainNameForAllValue">
+			<type>String</type>
+			<value>ALL</value>
+		</param>
+		
+		<!-- these values define the naming of the single constraints definitions in crawler configuration -->
 		<param name="CONSTRAINT_TERM_TEXT">
 			<type>String</type>
 			<value>term</value>
@@ -346,6 +405,27 @@
 			<value>geoLocation</value>
 		</param>
 		
+		<!-- identifies the section containing socical network definitions in SocialNetworkDefinitions.xml-->
+		<param name="socialNetworkConfiguration">
+			<type>String</type>
+			<value>socialNetworkDefinition</value>
+		</param>
+		<!-- identifies a configuration for a social network -->
+		<param name="socialNetworkIdentifier">
+			<type>String</type>
+			<value>network</value>
+		</param>
+		<!-- identifies the name of a social network -->
+		<param name="socialNetworkNameIdentifier">
+			<type>String</type>
+			<value>name</value>
+		</param>
+		<!-- identifies the section within crawler configuration file that declares with which
+			 kind of configuration manager the file type is associated -->
+		<param name="configFileTypeIdentifier">
+			<type>String</type>
+			<value>configFileType</value>
+		</param>
 		
 		<!-- from these values the threading model can be constructed (see top of the file section Threading). 
 			 For example, if you want to change the name of the ParserThreading-section (although I really
@@ -366,72 +446,6 @@
 		<param name="PERSISTENCE_NAME">
 			<type>Sting</type>
 			<value>Persistence</value>
-		</param>
-		
-		
-		<!-- this section contains the xml structure for the crawler configuration changing these values 
-			 is (in parts) possible to reflect XML layout changes. -->
-		<param name="customerIdentifier">
-			<type>String</type>
-			<value>customer</value>
-		</param>
-		<param name="customerNameIdentifier">
-			<type>String</type>
-			<value>name</value>
-		</param>
-		<param name="customerNameForAllValue">
-			<type>String</type>
-			<value>ALL</value>
-		</param>
-		<param name="domainIdentifier">
-			<type>String</type>
-			<value>domain</value>
-		</param>
-		<param name="domainStructureIdentifier">
-			<type>String</type>
-			<value>domainStructure</value>
-		</param>
-		<param name="domainNameIdentifier">
-			<type>String</type>
-			<value>name</value>
-		</param>
-		<param name="domainNameForAllValue">
-			<type>String</type>
-			<value>ALL</value>
-		</param>
-		<param name="constraintIdentifier">
-			<type>String</type>
-			<value>constraints</value>
-		</param>
-		<param name="scopeOnAllValue">
-			<type>String</type>
-			<value>ALL</value>
-		</param>
-		<param name="singleConstraintIdentifier">
-			<type>String</type>
-			<value>constraint</value>
-		</param>
-		<param name="codeIdentifier">
-			<type>String</type>
-			<value>code</value>
-		</param>
-		<param name="socialNetworkConfiguration">
-			<type>String</type>
-			<value>socialNetworkDefinition</value>
-		</param>
-		<param name="socialNetworkIdentifier">
-			<type>String</type>
-			<value>network</value>
-		</param>
-		<param name="socialNetworkNameIdentifier">
-			<type>String</type>
-			<value>name</value>
-		</param>
-		
-		<!-- whether or not a specific crawler shall run -->
-		<param name="crawlerRunIdentifier">
-			<type>String</type>
-			<value>CrawlerRun</value>
 		</param>
 		
 		

@@ -461,7 +461,7 @@ public final class RuntimeConfiguration implements Job {
 				+ "param[@name='"+pathContent+"']/"+valueIdentifier;
 		node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 		if (node == null) {
-			logger.warn("Did not receive any information for "+pathContent+" from " + configFile + " using expression " + expression);
+			logger.warn("Did not receive any information for "+pathContent+" in area "+configArea+" from " + configFile + " using expression " + expression);
 			return true;
 		} else {
 			if ("true".equals(node.getTextContent()))
@@ -476,7 +476,7 @@ public final class RuntimeConfiguration implements Job {
 				+ "param[@name='"+pathContent+"']/"+valueIdentifier;
 		node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 		if (node == null) {
-			logger.warn("Did not receive any information for CONSTRAINT_TERM_TEXT from " + configFile + " using expression " + expression);
+			logger.warn("Did not receive any information for "+pathContent+" in area "+configArea+" from " + configFile + " using expression " + expression);
 			return null;
 		} else {
 			return (node.getTextContent());
@@ -488,7 +488,7 @@ public final class RuntimeConfiguration implements Job {
 				+ "param[@name='"+pathContent+"']/"+valueIdentifier;
 		node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 		if (node == null) {
-			logger.warn("Did not receive any information for CONSTRAINT_TERM_TEXT from " + configFile + " using expression " + expression);
+			logger.warn("Did not receive any information for "+pathContent+" in area "+configArea+" from " + configFile + " using expression " + expression);
 			return -666;
 		} else {
 			return (Integer.parseInt(node.getTextContent()));

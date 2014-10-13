@@ -63,6 +63,8 @@
 			<!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> -->
 		</layout>
 	</appender>
+	
+	
 	<!-- pushing every log entry in the same file and on the console -->
 	<logger name="de.comlineag.snc">
 		<level value="info"></level>
@@ -72,31 +74,31 @@
 	
 	<!-- log infos from jericho framework -->
 	<logger name="net.htmlparser.jericho">
-		<level value="debug"></level>
+		<level value="warn"></level>
 		<appender-ref ref="fileP" />
 	</logger>
 	<!-- log infos from spring framework -->
 	<logger name="org.springframework">
-		<level value="info"></level>
+		<level value="error"></level>
 		<appender-ref ref="console" />
 		<appender-ref ref="fileJ" />
 	</logger>
 	<!-- log infos from apache framework -->
 	<logger name="org.apache">
-		<level value="info"></level>
+		<level value="warn"></level>
 		<appender-ref ref="console" />
 		<appender-ref ref="fileH" />
 	</logger>
 	<!-- log infos from apache framework -->
 	<logger name="httpclient.wire">
-		<level value="info"></level>
+		<level value="warn"></level>
 		<appender-ref ref="console" />
 		<appender-ref ref="fileH" />
 	</logger>
 	
 	<!-- log infos from facebook4j -->
 	<logger name="facebook4j.internal.http">
-		<level value="info"></level>
+		<level value="warn"></level>
 		<appender-ref ref="console" />
 		<appender-ref ref="fileH" />
 	</logger>

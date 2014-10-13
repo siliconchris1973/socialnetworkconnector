@@ -43,30 +43,19 @@ import de.comlineag.snc.parser.ParserControl;
  *
  * @author 		Christian Guenther
  * @category 	job
- * @version		0.9c				- 06.10.2014
- * @status		Beta
+ * @version		0.1				- 13.10.2014
+ * @status		in development
  *
- * @description A minimal web crawler. Takes a URL from job control and fetches that page
- * 				plus all linked pages up to max number of pages and max depth of links defined
- * 				either in applicationContext or RuntimeConfiguration (section web crawler)
+ * @description A web crawler to download multiple URLs in parallel. Takes a list of URLs from 
+ * 				the SNC crawler configuration file and fetches all linked pages up to max number 
+ * 				of pages and max depth of links defined either in Crawler configuration per start
+ * 				URL or RuntimeConfiguration (section web crawler)
  *
  *
- * @changelog	0.1 (Chris)		class created as copy from http://cs.nyu.edu/courses/fall02/G22.3033-008/WebCrawler.java
- * 				0.2				implemented configuration options from RuntimeConfiguration
- * 				0.3				implemented KCE from http://sourceforge.net/projects/senews/files/KeyContentExtractor/KCE-1.0/
- * 				0.4				added support for runState configuration, to check if the crawler shall actually run
- * 				0.5	(Maic)		replaced ref-parsing with regular expression in the link-search method
- * 				0.6 (Chris)		implemented boilerpipe to get only the main content from page without any clutter
- * 				0.7				removed boilerpipe (does not work) and implemented jericho for html parsing
- * 				0.7a (Maic)		fixed boilerpipe issues
- * 				0.8	(Chris)		implemented combination of boilerpipe and jericho
- * 				0.9				removed boilerpipe and moved the parsing in SimpleWebParser
- * 				0.9a			implemented map of blocked URL
- * 				0.9b			brought invocation of persistence layer from parser back to crawler
- * 				0.9c			implemented proper handling of page- and user data when passing on to persistence layer 
+ * @changelog	0.1 (Chris)		class created as copy from SimpleWebCrawler Revision 0.9c
  *
  */
-public class SimpleWebCrawler extends GenericCrawler implements Job {
+public class MultiWebCrawler extends GenericCrawler implements Job {
 	// it is VERY imoportant to set the crawler name (all in uppercase) here
 	private static String CRAWLER_NAME="WEBCRAWLER";
 
@@ -78,20 +67,12 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	// instantiate a new fixed thread pool (size configured in SNC_Runtime_Configuration.xml) for parsing of the web page
 	ExecutorService executor = Executors.newFixedThreadPool(RuntimeConfiguration.getPARSER_THREADING_POOL_SIZE());
 	
-	
-	// whether or not to follow links OFF of the initial domain
-	private Boolean stayOnDomain = true;
-	// whether or not to parse urls above the initial given path of the url
-	private Boolean stayBelowGivenPath = false;
-	// whether or not the crawler shall only get pages containing any of the track terms
-	private boolean getOnlyRelevantPages = false;
-	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml
 	private final ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
 	
 	
 	//private final ParserControl pageContent;
-	public SimpleWebCrawler(){
+	public MultiWebCrawler(){
 		// TODO instantiate the Web-Parser via parserControl 
 		//pageContent = new ParserControl();
 	}
@@ -112,6 +93,12 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			URL url = null;
 			int maxDepth = 0;
 			int maxPages = 0; 
+			// whether or not to follow links OFF of the initial domain
+			boolean stayOnDomain = true;
+			// whether or not to parse urls above the initial given path of the url
+			boolean stayBelowGivenPath = false;
+			// whether or not the crawler shall only get pages containing any of the track terms
+			boolean getOnlyRelevantPages = false;
 			
 			// authentication options
 			String user;
@@ -129,14 +116,10 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				JSONObject configurationScope = crawlerConfig.getCrawlerConfigurationScope();
 				configurationScope.put("SN_ID", SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
 				
-				if (arg0.getJobDetail().getJobDataMap().containsKey("useAllCrawlerConstraints"))
-					configurationScope.put("INCLUDE_ALL", arg0.getJobDetail().getJobDataMap().containsKey("useAllCrawlerConstraints"));
-				
-				
 				// set the customer we start the crawler for and log the startup message
 				String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
 				String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
-	
+				
 				if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
 					logger.info(CRAWLER_NAME+"-Crawler START");
 				} else {
@@ -152,6 +135,9 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				
 				// THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
 				logger.info("retrieving restrictions from configuration db");
+				// TODO take this from crawler configuration file
+				configurationScope.put("INCLUDE_ALL", "false");
+				
 				ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope);
 				ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintSiteText(), configurationScope);
 				ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope);
@@ -169,13 +155,14 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				//if (tLocas.size()>0) { smallLogMessage += " specific Locations "; }
 				if (bURLs.size()>0) { smallLogMessage += " honor blacklist for sites "; }
 				
-				// get the initial server url and extract host and port for the authentication process from it
+				// TODO get the initial server url and extract host and port for the authentication process from it
 				if (!arg0.getJobDetail().getJobDataMap().containsKey("server_url")){
 					logger.error("ERROR :: no url to parse given - this is fatal: exiting");
 					//System.exit(SNCStatusCodes.FATAL.getErrorCode());
 					return;
 				}
 				
+				// TODO get this from crawler configuration 
 				// check if the configuration setting to stay below the given path is set in the
 				// job control and if not, get it from the runtime configuration (global setting)
 				if (arg0.getJobDetail().getJobDataMap().containsKey("stayBelowGivenPath")) {
@@ -221,6 +208,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				if (maxPages == -1) smallLogMessage += " on unlimited pages "; else smallLogMessage += " on max "+maxPages+" pages ";
 				if (maxDepth == -1) smallLogMessage += " unlimited depth "; else smallLogMessage += " max "+maxDepth+" levels deep ";
 				
+				
+				
 				// initialize the url that we want to parse
 				urlToParse = "";
 				if (arg0.getJobDetail().getJobDataMap().containsKey("server_url")){
@@ -243,7 +232,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				port = url.getPort();
 				initialPath = url.getPath();
 				
-				
+				// TODO get this from crawler configuration per starting url
 				// is username/password given for authentication 
 				if ((arg0.getJobDetail().getJobDataMap().containsKey("user")) && (arg0.getJobDetail().getJobDataMap().containsKey("passwd"))) {
 					try {
@@ -396,7 +385,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 								// end of parser specific
 								
 								
-								if (page.length() != 0) getLinksFromPage(url, page, knownURLs, newURLs, blockedURLs, initialPath);
+								if (page.length() != 0) getLinksFromPage(url, page, knownURLs, newURLs, blockedURLs, initialPath, stayBelowGivenPath, stayOnDomain);
 								if (newURLs.isEmpty()) {
 									logger.info(CRAWLER_NAME+"-Crawler END - scanned " + pageCount + " pages and found " + possibleRelevantPages + " matching ones");
 									break;
@@ -465,7 +454,9 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 									Map<URL, Integer> knownURLs, 
 									List<URL> newURLs, 
 									Map<URL, Integer> blockedURLs, 
-									String initialPath) {
+									String initialPath,
+									boolean stayBelowGivenPath,
+									boolean stayOnDomain) {
 		//logger.debug("getLinksFromPage called for " + url.toString());
 		String lcPage = page.toLowerCase(); // Page in lower case
 
@@ -481,7 +472,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				//logger.error(String.format("Link %s could not be parsed as a URL.", link), e);
 				continue;
 			}
-			addNewUrl(url, newURL, knownURLs, newURLs, blockedURLs, initialPath);
+			addNewUrl(url, newURL, knownURLs, newURLs, blockedURLs, initialPath, stayBelowGivenPath, stayOnDomain);
 		}
 	}
 
@@ -501,7 +492,9 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							Map<URL, Integer> knownURLs, 
 							List<URL> newURLs, 
 							Map<URL, Integer> blockedURLs, 
-							String initialPath) {
+							String initialPath,
+							boolean stayBelowGivenPath,
+							boolean stayOnDomain) {
 		Boolean proceed = false;
 		
 		// first of all, we check if the url in question is on the blocking-list
