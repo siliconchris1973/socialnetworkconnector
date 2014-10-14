@@ -44,6 +44,13 @@ import org.w3c.dom.NodeList;
  *  TODO 1. implement code for missing methods - see below
  */
 public class ComplexXmlConfigurationPersistence<T> implements IConfigurationManager<T>  {
+	// this holds a reference to the runtime cinfiguration
+	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	
+	// we use simple org.apache.log4j.Logger for lgging
+	private final Logger logger = Logger.getLogger(getClass().getName());
+	// in case you want a log-manager use this line and change the import above
+	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	// the path to the configuration file
 	private String configDbHandler;
@@ -59,10 +66,6 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	private int customerPriority = 0;
 	private JSONObject crawlerConfigurationScope = new JSONObject();
 	
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	@Override
 	public Boolean getRunState(String socialNetwork) {
@@ -78,9 +81,9 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			XPathFactory xPathfactory = XPathFactory.newInstance();
 			XPath xpath = xPathfactory.newXPath();
 			
-			expression = "//"+RuntimeConfiguration.getRootidentifier()+"/"
-								+RuntimeConfiguration.getSingleconfigurationidentifier()
-									+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getCrawlerRunIdentifier()+"']/"
+			expression = "//"+rtc.getRootidentifier()+"/"
+								+rtc.getSingleconfigurationidentifier()
+									+"[@"+rtc.getScopeidentifier()+"='"+rtc.getCrawlerRunIdentifier()+"']/"
 								+"crawler"
 									+"[@name='"+socialNetwork+"']";
 			
@@ -150,64 +153,64 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			NodeList nodeList = null;
 			
 			// first step is to get all constraints for all domains within a specified social network 
-			expression = "/"+RuntimeConfiguration.getRootidentifier()+"/"
-					+RuntimeConfiguration.getSingleconfigurationidentifier()
-											+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getDomainidentifier()+"']/"
-					+RuntimeConfiguration.getDomainidentifier()
-											+"[@"+RuntimeConfiguration.getDomainnameidentifier()+"='"+RuntimeConfiguration.getDomainnameforallvalue()+"']/"
-					+RuntimeConfiguration.getConstraintidentifier()
-											+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getScopeonallvalue()+"']/"
-					+RuntimeConfiguration.getSingleconstraintidentifier()+"/"
+			expression = "/"+rtc.getRootidentifier()+"/"
+					+rtc.getSingleconfigurationidentifier()
+											+"[@"+rtc.getScopeidentifier()+"='"+rtc.getDomainidentifier()+"']/"
+					+rtc.getDomainidentifier()
+											+"[@"+rtc.getDomainnameidentifier()+"='"+rtc.getDomainnameforallvalue()+"']/"
+					+rtc.getConstraintidentifier()
+											+"[@"+rtc.getScopeidentifier()+"='"+rtc.getScopeonallvalue()+"']/"
+					+rtc.getSingleconstraintidentifier()+"/"
 					+section+"/"
-					+RuntimeConfiguration.getValueidentifier();
+					+rtc.getValueidentifier();
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			//logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
 			for (int i = 0 ; i < nodeList.getLength() ; i++)
 				ar.add((T) nodeList.item(i).getTextContent());
 			
 			// second step is to get all constraints for all domains within a specified social network 
-			expression = "/"+RuntimeConfiguration.getRootidentifier()+"/"
-					+RuntimeConfiguration.getSingleconfigurationidentifier()
-											+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getDomainidentifier()+"']/"
-					+RuntimeConfiguration.getDomainidentifier()
-											+"[@"+RuntimeConfiguration.getDomainnameidentifier()+"='"+RuntimeConfiguration.getDomainnameforallvalue()+"']/"
-					+RuntimeConfiguration.getConstraintidentifier()
-											+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+SN+"']/"
-					+RuntimeConfiguration.getSingleconstraintidentifier()+"/"
+			expression = "/"+rtc.getRootidentifier()+"/"
+					+rtc.getSingleconfigurationidentifier()
+											+"[@"+rtc.getScopeidentifier()+"='"+rtc.getDomainidentifier()+"']/"
+					+rtc.getDomainidentifier()
+											+"[@"+rtc.getDomainnameidentifier()+"='"+rtc.getDomainnameforallvalue()+"']/"
+					+rtc.getConstraintidentifier()
+											+"[@"+rtc.getScopeidentifier()+"='"+SN+"']/"
+					+rtc.getSingleconstraintidentifier()+"/"
 					+section+"/"
-					+RuntimeConfiguration.getValueidentifier();
+					+rtc.getValueidentifier();
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			//logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
 			for (int i = 0 ; i < nodeList.getLength() ; i++)
 				ar.add((T) nodeList.item(i).getTextContent());
 			
 			// third step is to get all general constraints 
-			expression = "/"+RuntimeConfiguration.getRootidentifier()+"/"
-					+RuntimeConfiguration.getSingleconfigurationidentifier()
-											+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getDomainidentifier()+"']/"
-					+RuntimeConfiguration.getDomainidentifier()
-											+"[@"+RuntimeConfiguration.getDomainnameidentifier()+"='"+domain+"']/"
-					+RuntimeConfiguration.getConstraintidentifier()
-											+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getScopeonallvalue()+"']/"
-					+RuntimeConfiguration.getSingleconstraintidentifier()+"/"
+			expression = "/"+rtc.getRootidentifier()+"/"
+					+rtc.getSingleconfigurationidentifier()
+											+"[@"+rtc.getScopeidentifier()+"='"+rtc.getDomainidentifier()+"']/"
+					+rtc.getDomainidentifier()
+											+"[@"+rtc.getDomainnameidentifier()+"='"+domain+"']/"
+					+rtc.getConstraintidentifier()
+											+"[@"+rtc.getScopeidentifier()+"='"+rtc.getScopeonallvalue()+"']/"
+					+rtc.getSingleconstraintidentifier()+"/"
 					+section+"/"
-					+RuntimeConfiguration.getValueidentifier();
+					+rtc.getValueidentifier();
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			//logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + ": \r");
 			for (int i = 0 ; i < nodeList.getLength() ; i++) 
 				ar.add((T) nodeList.item(i).getTextContent());
 			
 			// fourth step is to get all constraints for the specified social network 
-			expression = "/"+RuntimeConfiguration.getRootidentifier()+"/"
-					+RuntimeConfiguration.getSingleconfigurationidentifier()
-											+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getDomainidentifier()+"']/"
-					+RuntimeConfiguration.getDomainidentifier()
-											+"[@"+RuntimeConfiguration.getDomainnameidentifier()+"='"+domain+"']/"
-					+RuntimeConfiguration.getConstraintidentifier()
-											+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+SN+"']/"
-					+RuntimeConfiguration.getSingleconstraintidentifier()+"/"
+			expression = "/"+rtc.getRootidentifier()+"/"
+					+rtc.getSingleconfigurationidentifier()
+											+"[@"+rtc.getScopeidentifier()+"='"+rtc.getDomainidentifier()+"']/"
+					+rtc.getDomainidentifier()
+											+"[@"+rtc.getDomainnameidentifier()+"='"+domain+"']/"
+					+rtc.getConstraintidentifier()
+											+"[@"+rtc.getScopeidentifier()+"='"+SN+"']/"
+					+rtc.getSingleconstraintidentifier()+"/"
 					+section+"/"
-					+RuntimeConfiguration.getValueidentifier();
+					+rtc.getValueidentifier();
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			//logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
 			for (int i = 0 ; i < nodeList.getLength() ; i++)
@@ -218,64 +221,64 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			
 			// AND NOW FOR CUSTOMER
 			// first step is to get all constraints for all domains within a specified social network 
-			expression = "/"+RuntimeConfiguration.getRootidentifier()+"/"
-					+RuntimeConfiguration.getSingleconfigurationidentifier()
-											+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getCustomeridentifier()+"']/"
-					+RuntimeConfiguration.getCustomeridentifier()
-											+"[@"+RuntimeConfiguration.getCustomernameidentifier()+"='"+RuntimeConfiguration.getCustomernameforallvalue()+"']/"
-					+RuntimeConfiguration.getConstraintidentifier()
-											+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getScopeonallvalue()+"']/"
-					+RuntimeConfiguration.getSingleconstraintidentifier()+"/"
+			expression = "/"+rtc.getRootidentifier()+"/"
+					+rtc.getSingleconfigurationidentifier()
+											+"[@"+rtc.getScopeidentifier()+"='"+rtc.getCustomeridentifier()+"']/"
+					+rtc.getCustomeridentifier()
+											+"[@"+rtc.getCustomernameidentifier()+"='"+rtc.getCustomernameforallvalue()+"']/"
+					+rtc.getConstraintidentifier()
+											+"[@"+rtc.getScopeidentifier()+"='"+rtc.getScopeonallvalue()+"']/"
+					+rtc.getSingleconstraintidentifier()+"/"
 					+section+"/"
-					+RuntimeConfiguration.getValueidentifier();
+					+rtc.getValueidentifier();
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			//logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
 			for (int i = 0 ; i < nodeList.getLength() ; i++)
 				ar.add((T) nodeList.item(i).getTextContent());
 			
 			// second step is to get all constraints for all customers within a specified social network 
-			expression = "/"+RuntimeConfiguration.getRootidentifier()+"/"
-					+RuntimeConfiguration.getSingleconfigurationidentifier()
-											+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getCustomeridentifier()+"']/"
-					+RuntimeConfiguration.getCustomeridentifier()
-											+"[@"+RuntimeConfiguration.getCustomernameidentifier()+"='"+RuntimeConfiguration.getCustomernameforallvalue()+"']/"
-					+RuntimeConfiguration.getConstraintidentifier()
-											+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+SN+"']/"
-					+RuntimeConfiguration.getSingleconstraintidentifier()+"/"
+			expression = "/"+rtc.getRootidentifier()+"/"
+					+rtc.getSingleconfigurationidentifier()
+											+"[@"+rtc.getScopeidentifier()+"='"+rtc.getCustomeridentifier()+"']/"
+					+rtc.getCustomeridentifier()
+											+"[@"+rtc.getCustomernameidentifier()+"='"+rtc.getCustomernameforallvalue()+"']/"
+					+rtc.getConstraintidentifier()
+											+"[@"+rtc.getScopeidentifier()+"='"+SN+"']/"
+					+rtc.getSingleconstraintidentifier()+"/"
 					+section+"/"
-					+RuntimeConfiguration.getValueidentifier();
+					+rtc.getValueidentifier();
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			//logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
 			for (int i = 0 ; i < nodeList.getLength() ; i++)
 				ar.add((T) nodeList.item(i).getTextContent());
 			
 			// third step is to get all general constraints 
-			expression = "/"+RuntimeConfiguration.getRootidentifier()+"/"
-								+RuntimeConfiguration.getSingleconfigurationidentifier()
-														+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getCustomeridentifier()+"']/"
-								+RuntimeConfiguration.getCustomeridentifier()
-														+"[@"+RuntimeConfiguration.getCustomernameidentifier()+"='"+customer+"']/"
-								+RuntimeConfiguration.getConstraintidentifier()
-														+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getScopeonallvalue()+"']/"
-								+RuntimeConfiguration.getSingleconstraintidentifier()+"/"
+			expression = "/"+rtc.getRootidentifier()+"/"
+								+rtc.getSingleconfigurationidentifier()
+														+"[@"+rtc.getScopeidentifier()+"='"+rtc.getCustomeridentifier()+"']/"
+								+rtc.getCustomeridentifier()
+														+"[@"+rtc.getCustomernameidentifier()+"='"+customer+"']/"
+								+rtc.getConstraintidentifier()
+														+"[@"+rtc.getScopeidentifier()+"='"+rtc.getScopeonallvalue()+"']/"
+								+rtc.getSingleconstraintidentifier()+"/"
 								+section+"/"
-								+RuntimeConfiguration.getValueidentifier();
+								+rtc.getValueidentifier();
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			//logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + ": \r");
 			for (int i = 0 ; i < nodeList.getLength() ; i++) 
 				ar.add((T) nodeList.item(i).getTextContent());
 			
 			// fourth step is to get all constraints for the specified social network 
-			expression = "/"+RuntimeConfiguration.getRootidentifier()+"/"
-					+RuntimeConfiguration.getSingleconfigurationidentifier()
-											+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getCustomeridentifier()+"']/"
-					+RuntimeConfiguration.getCustomeridentifier()
-											+"[@"+RuntimeConfiguration.getCustomernameidentifier()+"='"+customer+"']/"
-					+RuntimeConfiguration.getConstraintidentifier()
-											+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+SN+"']/"
-					+RuntimeConfiguration.getSingleconstraintidentifier()+"/"
+			expression = "/"+rtc.getRootidentifier()+"/"
+					+rtc.getSingleconfigurationidentifier()
+											+"[@"+rtc.getScopeidentifier()+"='"+rtc.getCustomeridentifier()+"']/"
+					+rtc.getCustomeridentifier()
+											+"[@"+rtc.getCustomernameidentifier()+"='"+customer+"']/"
+					+rtc.getConstraintidentifier()
+											+"[@"+rtc.getScopeidentifier()+"='"+SN+"']/"
+					+rtc.getSingleconstraintidentifier()+"/"
 					+section+"/"
-					+RuntimeConfiguration.getValueidentifier();
+					+rtc.getValueidentifier();
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			//logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
 			for (int i = 0 ; i < nodeList.getLength() ; i++)
@@ -340,24 +343,24 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			
 			String expression = null;
 			Node node = null; 
-			String basicStructure = "/"+RuntimeConfiguration.getRootidentifier()+"/"
-										+RuntimeConfiguration.getSingleconfigurationidentifier()
-											+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"
-												+RuntimeConfiguration.getDomainstructureidentifier()+"']/"
-										+RuntimeConfiguration.getDomainstructureidentifier();
+			String basicStructure = "/"+rtc.getRootidentifier()+"/"
+										+rtc.getSingleconfigurationidentifier()
+											+"[@"+rtc.getScopeidentifier()+"='"
+												+rtc.getDomainstructureidentifier()+"']/"
+										+rtc.getDomainstructureidentifier();
 			
 			// first step is to get the domain
-			expression = basicStructure + "/"+RuntimeConfiguration.getDomainidentifier()+"/"+RuntimeConfiguration.getValueidentifier();
+			expression = basicStructure + "/"+rtc.getDomainidentifier()+"/"+rtc.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.error("Did not receive information on the domain using expression " + expression);
 			} else {
-				crawlerConfigurationScope.put((String) RuntimeConfiguration.getDomainidentifier(), (String) node.getTextContent());
+				crawlerConfigurationScope.put((String) rtc.getDomainidentifier(), (String) node.getTextContent());
 				setDomain((String) node.getTextContent());
 			}
 			
 			// whether or not it is active
-			expression = basicStructure + "/"+RuntimeConfiguration.getDomainidentifier()+"[@"+RuntimeConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/isActive/"+RuntimeConfiguration.getValueidentifier();
+			expression = basicStructure + "/"+rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/isActive/"+rtc.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.warn("did not receive a domain activation - setting to false");
@@ -369,10 +372,10 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 					setDomainIsActive(false);
 			}
 			// and the corresponding priority
-			expression = basicStructure + "/"+RuntimeConfiguration.getDomainidentifier()
-													+"[@"+RuntimeConfiguration.getDomainnameidentifier()
+			expression = basicStructure + "/"+rtc.getDomainidentifier()
+													+"[@"+rtc.getDomainnameidentifier()
 															+"='"+getDomain()+"']"
-												+ "/priority/"+RuntimeConfiguration.getValueidentifier();
+												+ "/priority/"+rtc.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.warn("did not receive a domain priority - setting to 0");
@@ -386,16 +389,16 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			
 			
 			// second step is to get the customer
-			expression = basicStructure + "/"+RuntimeConfiguration.getDomainidentifier()+"[@"+RuntimeConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/"+RuntimeConfiguration.getCustomeridentifier()+"/"+RuntimeConfiguration.getValueidentifier();
+			expression = basicStructure + "/"+rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/"+rtc.getCustomeridentifier()+"/"+rtc.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.error("Did not receive information on customer using expression " + expression);
 			} else {
-				crawlerConfigurationScope.put((String) RuntimeConfiguration.getCustomeridentifier(), (String) node.getTextContent());
+				crawlerConfigurationScope.put((String) rtc.getCustomeridentifier(), (String) node.getTextContent());
 				setCustomer((String) node.getTextContent());
 			}
 			// whether or not it is active
-			expression = basicStructure + "/"+RuntimeConfiguration.getDomainidentifier()+"[@"+RuntimeConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/"+RuntimeConfiguration.getCustomeridentifier()+"[@"+RuntimeConfiguration.getCustomernameidentifier()+"='"+getCustomer()+"']/isActive/"+RuntimeConfiguration.getValueidentifier();
+			expression = basicStructure + "/"+rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/"+rtc.getCustomeridentifier()+"[@"+rtc.getCustomernameidentifier()+"='"+getCustomer()+"']/isActive/"+rtc.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.warn("did not receive a customer activation - setting to false");
@@ -407,7 +410,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 					setCustomerIsActive(false);
 			}
 			// and the corresponding priority
-			expression = basicStructure + "/"+RuntimeConfiguration.getDomainidentifier()+"[@"+RuntimeConfiguration.getDomainnameidentifier()+"='"+getDomain()+"']/"+RuntimeConfiguration.getCustomeridentifier()+"[@"+RuntimeConfiguration.getCustomernameidentifier()+"='"+getCustomer()+"']/priority/"+RuntimeConfiguration.getValueidentifier();
+			expression = basicStructure + "/"+rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/"+rtc.getCustomeridentifier()+"[@"+rtc.getCustomernameidentifier()+"='"+getCustomer()+"']/priority/"+rtc.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.warn("did not receive a customer priority - setting to 0");
@@ -508,10 +511,10 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			
 			String expression = null;
 			Node node = null; 
-			expression = "/"+RuntimeConfiguration.getRootidentifier()+"/"
-										+RuntimeConfiguration.getSingleconfigurationidentifier()
-											+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"
-												+RuntimeConfiguration.getConfigFileTypeIdentifier()+"']/type";
+			expression = "/"+rtc.getRootidentifier()+"/"
+										+rtc.getSingleconfigurationidentifier()
+											+"[@"+rtc.getScopeidentifier()+"='"
+												+rtc.getConfigFileTypeIdentifier()+"']/type";
 										
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {

@@ -19,7 +19,7 @@ import java.util.ArrayList;
 /**
  * @author		Christian Guenther
  * @category	Persistence manager
- * @version		0.8				- 16.09.2014
+ * @version		0.8a			- 14.10.2014
  * @status		productive - but some functions are still missing
  * 
  * 
@@ -39,10 +39,13 @@ import java.util.ArrayList;
  * 								for XMLFileCustomerSpecificConfiguration
  * 				0.7b			Adapted signature to match JSON Object instead of String 
  * 				0.8				Added support for getRunState
+ * 				0.8a			changed access to runtime configuration to non-static
  *  
  *  TODO 1. implement code to insert/update a value and write a new config file
  */
 public class IniFileConfigurationPersistence<T> implements IConfigurationManager<T>  {
+	// this holds a reference to the runtime configuration
+	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// the path to the configuration file
 	private String configDbHandler;
@@ -55,8 +58,8 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 
 	@Override
 	public Boolean getRunState(String socialNetwork) {
-		if (RuntimeConfiguration.getWarnOnSimpleConfig())
-			logger.warn("no possibility to activate/deactivate certain crawler - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + RuntimeConfiguration.getRuntimeConfigFile().substring(RuntimeConfiguration.getRuntimeConfigFile().lastIndexOf("/")+1));
+		if (rtc.getWarnOnSimpleConfig())
+			logger.warn("no possibility to activate/deactivate certain crawler - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + rtc.getRuntimeConfigFile().substring(rtc.getRuntimeConfigFile().lastIndexOf("/")+1));
 		
 		return true;
 	}
@@ -72,9 +75,9 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 			return (ArrayList<T>)ar;
 		} else {
 			logger.debug("reading constraints on " + category + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")+1));
-			//if ((RuntimeConfiguration.getCustomerIsActive() || RuntimeConfiguration.getDomainIsActive()) && RuntimeConfiguration.getWarnOnSimpleConfig())
-			if (RuntimeConfiguration.getWarnOnSimpleConfig())
-				logger.warn("no customer and network specific configuration and no type safety guranteed - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + RuntimeConfiguration.getRuntimeConfigFile().substring(RuntimeConfiguration.getRuntimeConfigFile().lastIndexOf("/")+1));
+			//if ((rtc.getCustomerIsActive() || rtc.getDomainIsActive()) && rtc.getWarnOnSimpleConfig())
+			if (rtc.getWarnOnSimpleConfig())
+				logger.warn("no customer and network specific configuration and no type safety guranteed - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + rtc.getRuntimeConfigFile().substring(rtc.getRuntimeConfigFile().lastIndexOf("/")+1));
 			
 			return (ArrayList<T>)getDataFromIni(category);
 		}
@@ -147,8 +150,8 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 	@Override
 	public JSONObject getCrawlerConfigurationScope() {
 		JSONObject crawlerConfigurationScope = new JSONObject();
-		crawlerConfigurationScope.put((String) RuntimeConfiguration.getDomainidentifier(), (String) "undefined");
-		crawlerConfigurationScope.put((String) RuntimeConfiguration.getCustomeridentifier(), (String) "undefined");
+		crawlerConfigurationScope.put((String) rtc.getDomainidentifier(), (String) "undefined");
+		crawlerConfigurationScope.put((String) rtc.getCustomeridentifier(), (String) "undefined");
 		return crawlerConfigurationScope;
 	}
 }

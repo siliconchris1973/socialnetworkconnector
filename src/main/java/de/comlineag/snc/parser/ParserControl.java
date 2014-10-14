@@ -66,6 +66,8 @@ public class ParserControl {
 	// the ParserControl instance - used during instantiation of the class and later to retrieve the list 
 	private static ParserControl pc = null;
 	
+	// this holds a reference to the runtime cinfiguration
+	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	
 	// ParserControl is not to be directly instantiated by other classes
@@ -126,7 +128,7 @@ public class ParserControl {
 	private List<IWebParser> getAllParser()
 			throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, 
 					InstantiationException, IllegalAccessException, ClassNotFoundException, DOMException {
-		String fileName = RuntimeConfiguration.getParserListFilePath();
+		String fileName = rtc.getParserListFilePath();
 		List<IWebParser> ar = new ArrayList<IWebParser>();
 		
 		File file = new File(fileName);

@@ -54,6 +54,9 @@ import facebook4j.conf.ConfigurationBuilder;
  */
 @DisallowConcurrentExecution 
 public class Facebook4JFbCrawler extends GenericCrawler implements Job {
+	// this holds a reference to the runtime cinfiguration
+	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	
 	private static String CRAWLER_NAME="FACEBOOK";
 	
 	// we use simple org.apache.log4j.Logger for lgging
@@ -103,8 +106,6 @@ public class Facebook4JFbCrawler extends GenericCrawler implements Job {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
-		
 		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
 		
@@ -118,8 +119,8 @@ public class Facebook4JFbCrawler extends GenericCrawler implements Job {
 			configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
 			
 			// set the customer we start the crawler for and log the startup message
-			String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
-			String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
+			String curDomain = (String) configurationScope.get(rtc.getDomainidentifier());
+			String curCustomer = (String) configurationScope.get(rtc.getCustomeridentifier());
 			
 			// this is the status code for the http connection
 			HttpStatusCodes httpStatusCodes = null;
@@ -146,11 +147,11 @@ public class Facebook4JFbCrawler extends GenericCrawler implements Job {
 			
 			// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS, GEO-LOCATIONS and PAGES (aka sites)
 			logger.info("retrieving restrictions from configuration db");
-			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope);
-			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope);
-			ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
-			ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(RuntimeConfiguration.getConstraintLocationText(), configurationScope);
-			ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintSiteText(), configurationScope);
+			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintTermText(), configurationScope);
+			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintLanguageText(), configurationScope);
+			ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(rtc.getConstraintUserText(), configurationScope);
+			ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(rtc.getConstraintLocationText(), configurationScope);
+			ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintSiteText(), configurationScope);
 	
 			if (tTerms.size()>0) {
 				smallLogMessage += "specific terms ";

@@ -30,7 +30,7 @@ import de.comlineag.snc.handler.DataCryptoHandler;
  * 					CreateUserJsonOnError		- create a user json on error
  * 					CreatePostJsonOnSuccess		- create a post json on success as well
  * 					CreateUserJsonOnSuccess		- create a user json on success as well
- * 				from RuntimeConfiguration.xml must be set to true. 
+ * 				from SNC_Runtime_Configuration.xml must be set to true. 
  * 
  * @changelog	0.1 (Chris)		class created
  * 				0.2				changed class to implement IPersistenceManager
@@ -38,9 +38,11 @@ import de.comlineag.snc.handler.DataCryptoHandler;
  * 
  */
 public class JsonFilePersistence implements IPersistenceManager {
+	// this holds a reference to the runtime configuration
+	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// define where and the files shall be saved
-	private String savePoint = RuntimeConfiguration.getSTORAGE_PATH()+System.getProperty("file.separator")+RuntimeConfiguration.getJSON_BACKUP_STORAGE_PATH();
+	private String savePoint = rtc.getSTORAGE_PATH()+System.getProperty("file.separator")+rtc.getJSON_BACKUP_STORAGE_PATH();
 	private String objectStatusPriorSaving; // was storing of the object prior saving to disk (e.g. n a db) successful (ok) or not (fail)
 	private String objectTypeToSave;		// can either be user or post
 	

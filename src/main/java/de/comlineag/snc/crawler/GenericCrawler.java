@@ -37,6 +37,9 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
  * 
  */
 public abstract class GenericCrawler implements Job {
+	// this holds a reference to the runtime cinfiguration
+	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	
 	private static String CRAWLER_NAME;
 	
 	// we use simple org.apache.log4j.Logger for lgging
@@ -86,7 +89,7 @@ public abstract class GenericCrawler implements Job {
 		obj.put((String)"networkNameUpperCase", (String)CRAWLER_NAME);
 		
 		try {
-			File file = new File(RuntimeConfiguration.getRuntimeConfigFile());
+			File file = new File(rtc.getRuntimeConfigFile());
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			Document doc = db.parse(file);
@@ -98,51 +101,51 @@ public abstract class GenericCrawler implements Job {
 			Node node = null; 
 			 
 			//String expressionStatic = "/configurations/configuration[@scope='socialNetworkDefinition']/network[@name='"+CRAWLER_NAME+"']/";
-			expression = "/"+RuntimeConfiguration.getRootidentifier()
-						+"/"+RuntimeConfiguration.getSingleconfigurationidentifier()
-						+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getSocialNetworkConfiguration()+"']"
+			expression = "/"+rtc.getRootidentifier()
+						+"/"+rtc.getSingleconfigurationidentifier()
+						+"[@"+rtc.getScopeidentifier()+"='"+rtc.getSocialNetworkConfiguration()+"']"
 						+"/network"
-						+"[@"+RuntimeConfiguration.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
+						+"[@"+rtc.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
 						+"/name";
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			obj.put((String)"networkName", (String)node.getTextContent());
 			
-			expression = "/"+RuntimeConfiguration.getRootidentifier()
-						+"/"+RuntimeConfiguration.getSingleconfigurationidentifier()
-						+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getSocialNetworkConfiguration()+"']"
+			expression = "/"+rtc.getRootidentifier()
+						+"/"+rtc.getSingleconfigurationidentifier()
+						+"[@"+rtc.getScopeidentifier()+"='"+rtc.getSocialNetworkConfiguration()+"']"
 						+"/network"
-						+"[@"+RuntimeConfiguration.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
+						+"[@"+rtc.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
 						+"/code";
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			obj.put((String)"networkCode", (String)node.getTextContent());
 			
-			expression = "/"+RuntimeConfiguration.getRootidentifier()
-						+"/"+RuntimeConfiguration.getSingleconfigurationidentifier()
-						+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getSocialNetworkConfiguration()+"']"
+			expression = "/"+rtc.getRootidentifier()
+						+"/"+rtc.getSingleconfigurationidentifier()
+						+"[@"+rtc.getScopeidentifier()+"='"+rtc.getSocialNetworkConfiguration()+"']"
 						+"/network"
-						+"[@"+RuntimeConfiguration.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
+						+"[@"+rtc.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
 						+"/description";
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			obj.put((String)"description", (String)node.getTextContent());
 			
-			expression = "/"+RuntimeConfiguration.getRootidentifier()
-						+"/"+RuntimeConfiguration.getSingleconfigurationidentifier()
-						+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getSocialNetworkConfiguration()+"']"
+			expression = "/"+rtc.getRootidentifier()
+						+"/"+rtc.getSingleconfigurationidentifier()
+						+"[@"+rtc.getScopeidentifier()+"='"+rtc.getSocialNetworkConfiguration()+"']"
 						+"/network"
-						+"[@"+RuntimeConfiguration.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
+						+"[@"+rtc.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
 						+"/domain";
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			obj.put((String)"domain", (String)node.getTextContent());
 			
-			expression = "/"+RuntimeConfiguration.getRootidentifier()
-						+"/"+RuntimeConfiguration.getSingleconfigurationidentifier()
-						+"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getSocialNetworkConfiguration()+"']"
+			expression = "/"+rtc.getRootidentifier()
+						+"/"+rtc.getSingleconfigurationidentifier()
+						+"[@"+rtc.getScopeidentifier()+"='"+rtc.getSocialNetworkConfiguration()+"']"
 						+"/network"
-						+"[@"+RuntimeConfiguration.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
+						+"[@"+rtc.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
 						+"/supported";
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);

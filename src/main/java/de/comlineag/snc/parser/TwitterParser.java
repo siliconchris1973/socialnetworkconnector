@@ -37,7 +37,9 @@ import de.comlineag.snc.handler.TwitterUser;
  * 
  */
 public final class TwitterParser extends GenericParser {
-
+	// this holds a reference to the runtime cinfiguration
+	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
@@ -85,7 +87,7 @@ public final class TwitterParser extends GenericParser {
 		}
 		
 		for (int ii = 0; ii < postings.size(); ii++) {
-			if (RuntimeConfiguration.isPERSISTENCE_THREADING_ENABLED()){
+			if (rtc.isPERSISTENCE_THREADING_ENABLED()){
 				// execute persistence layer in a new thread, so that it does NOT block the crawler
 				logger.trace("execute persistence layer in a new thread...");
 				final TwitterPosting postT = (TwitterPosting) postings.get(ii);

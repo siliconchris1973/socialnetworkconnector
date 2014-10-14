@@ -75,6 +75,9 @@ import de.comlineag.snc.parser.TwitterParser;
  */
 @DisallowConcurrentExecution 
 public class TwitterCrawler extends GenericCrawler implements Job {
+	// this holds a reference to the runtime cinfiguration
+	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	
 	// it is VERY imoportant to set the crawler name (all in uppercase) here
 	private static String CRAWLER_NAME="TWITTER";
 	
@@ -107,8 +110,6 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
-		
 		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
 			
@@ -122,8 +123,8 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
 			
 			// set the customer we start the crawler for and log the startup message
-			String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
-			String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
+			String curDomain = (String) configurationScope.get(rtc.getDomainidentifier());
+			String curCustomer = (String) configurationScope.get(rtc.getCustomeridentifier());
 	
 			if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
 				logger.info(CRAWLER_NAME+"-Crawler START");
@@ -143,16 +144,16 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			
 			// THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
 			logger.info("retrieving restrictions from configuration db");
-			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope);
-			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope);
-			ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
-			ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(RuntimeConfiguration.getConstraintLocationText(), configurationScope);
+			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintTermText(), configurationScope);
+			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintLanguageText(), configurationScope);
+			ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(rtc.getConstraintUserText(), configurationScope);
+			ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(rtc.getConstraintLocationText(), configurationScope);
 			
 			/*
-			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope);
-			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope);
-			ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
-			ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(RuntimeConfiguration.getConstraintLocationText(), configurationScope);
+			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintTermText(), configurationScope);
+			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintLanguageText(), configurationScope);
+			ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(rtc.getConstraintUserText(), configurationScope);
+			ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(rtc.getConstraintLocationText(), configurationScope);
 			*/
 			
 			// log output AND setup of the filter end point

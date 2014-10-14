@@ -47,7 +47,9 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * 
  */
 public final class WOPostingWebParser extends GenericWebParser implements IWebParser {
-
+	// this holds a reference to the runtime cinfiguration
+	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
@@ -65,7 +67,7 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 	}
 	@Override
 	public Object execute(String page, URL url) {
-		ExecutorService persistenceExecutor = Executors.newFixedThreadPool(RuntimeConfiguration.getPERSISTENCE_THREADING_POOL_SIZE());
+		ExecutorService persistenceExecutor = Executors.newFixedThreadPool(rtc.getPERSISTENCE_THREADING_POOL_SIZE());
 		
 		// TODO implement execute-method to make parser thread save
 		return null;

@@ -43,7 +43,7 @@ import de.comlineag.snc.parser.ParserControl;
  *
  * @author 		Christian Guenther
  * @category 	job
- * @version		0.9c				- 06.10.2014
+ * @version		0.9d			- 14.10.2014
  * @status		Beta
  *
  * @description A minimal web crawler. Takes a URL from job control and fetches that page
@@ -63,10 +63,14 @@ import de.comlineag.snc.parser.ParserControl;
  * 				0.9				removed boilerpipe and moved the parsing in SimpleWebParser
  * 				0.9a			implemented map of blocked URL
  * 				0.9b			brought invocation of persistence layer from parser back to crawler
- * 				0.9c			implemented proper handling of page- and user data when passing on to persistence layer 
+ * 				0.9c			implemented proper handling of page- and user data when passing on to persistence layer
+ * 				0.9d			changed access to runtime configuration to non-static 
  *
  */
 public class SimpleWebCrawler extends GenericCrawler implements Job {
+	// this holds a reference to the runtime cinfiguration
+	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	
 	// it is VERY imoportant to set the crawler name (all in uppercase) here
 	private static String CRAWLER_NAME="WEBCRAWLER";
 
@@ -76,8 +80,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	// instantiate a new fixed thread pool (size configured in SNC_Runtime_Configuration.xml) for parsing of the web page
-	ExecutorService executor = Executors.newFixedThreadPool(RuntimeConfiguration.getPARSER_THREADING_POOL_SIZE());
-	
+	//ExecutorService executor = Executors.newFixedThreadPool(rtc.getPARSER_THREADING_POOL_SIZE());
 	
 	// whether or not to follow links OFF of the initial domain
 	private Boolean stayOnDomain = true;
@@ -88,7 +91,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml
 	private final ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
-	
 	
 	//private final ParserControl pageContent;
 	public SimpleWebCrawler(){
@@ -103,8 +105,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
-		
 		try {
 			String smallLogMessage = "";	
 			// runtime settings and crawler constraints
@@ -137,8 +137,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				
 				
 				// set the customer we start the crawler for and log the startup message
-				String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
-				String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
+				String curDomain = (String) configurationScope.get(rtc.getDomainidentifier());
+				String curCustomer = (String) configurationScope.get(rtc.getCustomeridentifier());
 	
 				if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
 					logger.info(CRAWLER_NAME+"-Crawler START");
@@ -155,14 +155,14 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				
 				// THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
 				logger.info("retrieving restrictions from configuration db");
-				ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope);
-				ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintSiteText(), configurationScope);
-				ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope);
-				ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
-				//ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(RuntimeConfiguration.getConstraintLocationText(), configurationScope);
+				ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintTermText(), configurationScope);
+				ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintSiteText(), configurationScope);
+				ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintLanguageText(), configurationScope);
+				ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(rtc.getConstraintUserText(), configurationScope);
+				//ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(rtc.getConstraintLocationText(), configurationScope);
 				
 				// blocked URLs
-				ArrayList<String> bURLs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintBlockedSiteText(), configurationScope);
+				ArrayList<String> bURLs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintBlockedSiteText(), configurationScope);
 				
 				// log output
 				if (tTerms.size()>0) { smallLogMessage += " specific terms "; }
@@ -185,7 +185,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					stayBelowGivenPath = arg0.getJobDetail().getJobDataMap().getBooleanFromString("stayBelowGivenPath");
 				} else {
 					logger.trace("configuration setting stayBelowGivenPath not found in job control, getting from runtime configuration");
-					stayBelowGivenPath = RuntimeConfiguration.isWC_STAY_BELOW_GIVEN_PATH();
+					stayBelowGivenPath = rtc.isWC_STAY_BELOW_GIVEN_PATH();
 				}
 				if (stayBelowGivenPath) {
 					stayOnDomain = true;
@@ -197,7 +197,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 						stayOnDomain = arg0.getJobDetail().getJobDataMap().getBooleanFromString("stayOnDomain");
 					} else {
 						logger.trace("configuration setting stayOnDomain not found in job control, getting from runtime configuration");
-						stayOnDomain = RuntimeConfiguration.isWC_STAY_ON_DOMAIN();
+						stayOnDomain = rtc.isWC_STAY_ON_DOMAIN();
 					}
 					
 					if (stayOnDomain)
@@ -219,8 +219,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				// if maxPages or maxDepth (given by crawler configuration) is higher then maximum value in runtime configuration
 				// take the values from runtime configuration. otherwise stick with the values from crawler configuration otherwise,
 				// or if non values are given by crawler configuration, take the values from runtime configuration
-				if (maxPages > RuntimeConfiguration.getWC_SEARCH_LIMIT() || maxPages == 0) maxPages = RuntimeConfiguration.getWC_SEARCH_LIMIT();
-				if (maxDepth > RuntimeConfiguration.getWC_MAX_DEPTH() || maxDepth == 0) maxDepth = RuntimeConfiguration.getWC_MAX_DEPTH();
+				if (maxPages > rtc.getWC_SEARCH_LIMIT() || maxPages == 0) maxPages = rtc.getWC_SEARCH_LIMIT();
+				if (maxDepth > rtc.getWC_MAX_DEPTH() || maxDepth == 0) maxDepth = rtc.getWC_MAX_DEPTH();
 				if (maxPages == -1) smallLogMessage += " on unlimited pages "; else smallLogMessage += " on max "+maxPages+" pages ";
 				if (maxDepth == -1) smallLogMessage += " unlimited depth "; else smallLogMessage += " max "+maxDepth+" levels deep ";
 				
@@ -364,7 +364,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 									 * // invoke the persistence layer
 									for (int ii = 0; ii < postings.size(); ii++) {
 										logger.info("calling persistence layer to save the post from site " + url.toString());
-										if (RuntimeConfiguration.isPERSISTENCE_THREADING_ENABLED()){
+										if (rtc.isPERSISTENCE_THREADING_ENABLED()){
 											// execute persistence layer in a new thread, so that it does NOT block the crawler
 											logger.debug("execute persistence layer in a new thread...");
 											final SimpleWebPosting postT = postings.get(ii);
@@ -438,7 +438,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			byte b[] = new byte[1000];
 			int numRead = urlStream.read(b);
 			String content = new String(b, 0, numRead);
-			while ( (numRead != -1) && (content.length() < RuntimeConfiguration.getWC_CRAWLER_MAX_DOWNLOAD_SIZE()) ) {
+			while ( (numRead != -1) && (content.length() < rtc.getWC_CRAWLER_MAX_DOWNLOAD_SIZE()) ) {
 				numRead = urlStream.read(b);
 				if (numRead != -1) {
 					String newContent = new String(b, 0, numRead);
@@ -536,7 +536,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							proceed = true;
 						} else {
 							proceed = false;
-							if (RuntimeConfiguration.isWARN_ON_REJECTED_ACTIONS())
+							if (rtc.isWARN_ON_REJECTED_ACTIONS())
 								logger.debug("rejecting url " + url.getPath() + " because it not below initial path "+initialPath+" and stayBelowGivenPath is " + stayBelowGivenPath);
 						}
 					} else {
@@ -545,7 +545,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					}
 				} else {
 					proceed = false;
-					if (RuntimeConfiguration.isWARN_ON_REJECTED_ACTIONS())
+					if (rtc.isWARN_ON_REJECTED_ACTIONS())
 						logger.debug("rejecting host " + url.getHost() + " because it is not on the initial domain "+oldURL.getHost()+" and stayOnDomain is " + stayOnDomain);
 				}
 			} else {
@@ -555,14 +555,14 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					proceed = true;
 				} else {
 					proceed = false;
-					if (RuntimeConfiguration.isWARN_ON_REJECTED_ACTIONS())
+					if (rtc.isWARN_ON_REJECTED_ACTIONS())
 						logger.debug("rejecting host " + url.getHost() + " because it is not on the initial domain "+oldURL.getHost()+" and stayonDomain is " + stayOnDomain);
 				}
 			}
 		}
 		
 		if (blockedURLs.containsKey(url)) {
-			if (RuntimeConfiguration.isWARN_ON_REJECTED_ACTIONS())
+			if (rtc.isWARN_ON_REJECTED_ACTIONS())
 				logger.debug("rejecting url " + url + " because it is in the list of blocked urls");
 			proceed = false;
 		}
@@ -641,8 +641,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		String strURL = url.getFile();
 		int index = 0;
 
-		while ((index = strCommands.indexOf(RuntimeConfiguration.getWC_ROBOT_DISALLOW_TEXT(), index)) != -1) {
-			index += RuntimeConfiguration.getWC_ROBOT_DISALLOW_TEXT().length();
+		while ((index = strCommands.indexOf(rtc.getWC_ROBOT_DISALLOW_TEXT(), index)) != -1) {
+			index += rtc.getWC_ROBOT_DISALLOW_TEXT().length();
 			String strPath = strCommands.substring(index);
 			StringTokenizer st = new StringTokenizer(strPath);
 

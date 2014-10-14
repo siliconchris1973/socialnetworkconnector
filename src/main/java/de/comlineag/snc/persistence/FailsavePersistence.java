@@ -38,9 +38,11 @@ import de.comlineag.snc.handler.DataCryptoHandler;
  * 
  */
 public class FailsavePersistence implements IPersistenceManager {
+	// this holds a reference to the runtime configuration
+	RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// define where and the files shall be saved
-	private String savePoint = RuntimeConfiguration.getJSON_BACKUP_STORAGE_PATH();
+	private String savePoint = rtc.getJSON_BACKUP_STORAGE_PATH();
 	private String objectStatusPriorSaving; // was storing of the object prior saving to disk (e.g. n a db) successful (ok) or not (fail)
 	private String objectTypeToSave;		// can either be user or post
 	

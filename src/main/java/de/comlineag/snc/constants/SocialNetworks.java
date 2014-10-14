@@ -22,7 +22,7 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
  * 
  * @author 		Christian Guenther
  * @category 	data type
- * @version 	0.8a			- 14.10.2014
+ * @version 	0.8b			- 14.10.2014
  * @status		productive
  * 
  * @description contains an enumeration with shortcuts referencing the social networks
@@ -37,9 +37,12 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
  * 				0.8				moved SocialNetwork definitions to their own file and adapted query for file
  * 								and deleted deprecated enum
  * 				0.8a			changed exit code to SNCStatusCodes
+ * 				0.8b			changed access to runtime configuration to non-static
  * 
  */
 public final class SocialNetworks {
+	// this holds a reference to the runtime cinfiguration
+	private static RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// we use simple org.apache.log4j.Logger for logging
 	private static Logger logger = Logger.getLogger("de.comlineag.snc.SocialNetworks");
@@ -89,7 +92,7 @@ public final class SocialNetworks {
 		assert ("code".equals(key) && "name".equals(key) && "description".equals(key) && "domain".equals(key) && "supported".equals(key)) : "ERROR :: can only accept code, name, description, domain or supported as key";
 		
 		try {
-			File file = new File(RuntimeConfiguration.getSocialNetworkFile());
+			File file = new File(rtc.getSocialNetworkFile());
 			
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
@@ -111,16 +114,16 @@ public final class SocialNetworks {
 			//		<supported>YES</supported>
 			//	</network>
 			// /configurations/configuration[@scope=socialNetworkDefinition]/network[@name='TWITTER']/code
-			expression = "/"+RuntimeConfiguration.getRootidentifier()+"/" +
-						RuntimeConfiguration.getSingleconfigurationidentifier() +
-							"[@"+RuntimeConfiguration.getScopeidentifier()+"='"+RuntimeConfiguration.getSocialNetworkConfiguration()+"']/" + 
-						RuntimeConfiguration.getSocialNetworkIdentifier() + 
-							"[@"+RuntimeConfiguration.getSocialNetworkName()+"='"+snname+"']/"+
+			expression = "/"+rtc.getRootidentifier()+"/" +
+						rtc.getSingleconfigurationidentifier() +
+							"[@"+rtc.getScopeidentifier()+"='"+rtc.getSocialNetworkConfiguration()+"']/" + 
+						rtc.getSocialNetworkIdentifier() + 
+							"[@"+rtc.getSocialNetworkName()+"='"+snname+"']/"+
 						key;
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
-				logger.error("Did not receive any node information on "+key+" for social network "+snname+" from " + RuntimeConfiguration.getRuntimeConfigFile() + " using expression " + expression);
+				logger.error("Did not receive any node information on "+key+" for social network "+snname+" from " + rtc.getSocialNetworkFile() + " using expression " + expression);
 				return null;
 			} else {
 				return node.getTextContent();

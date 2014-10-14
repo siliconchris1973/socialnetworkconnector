@@ -55,7 +55,9 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * 
  */
 public final class SimpleWebParser extends GenericWebParser implements IWebParser {
-
+	// this holds a reference to the runtime cinfiguration
+	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
@@ -171,8 +173,8 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 			for (int i=0;i<positions.size();i++) {
 				int position = positions.get(i);
 				segmentText += trimStringAtPosition(plainText, position, 
-													RuntimeConfiguration.getWC_WORD_DISTANCE_CUTOFF_MARGIN(), 
-													RuntimeConfiguration.getWC_WORD_DISTANCE_CUTOFF_MARGIN());
+													rtc.getWC_WORD_DISTANCE_CUTOFF_MARGIN(), 
+													rtc.getWC_WORD_DISTANCE_CUTOFF_MARGIN());
 			}
 			//logger.trace("TruncatedText: >>> " + segmentText);
 			

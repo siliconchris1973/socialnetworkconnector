@@ -16,6 +16,8 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import de.comlineag.snc.appstate.RuntimeConfiguration;
+
 
 /**
  * 
@@ -30,13 +32,15 @@ import org.w3c.dom.Node;
  *
  */
 public final class HanaConfiguration {
+	// this holds a reference to the runtime configuration
+	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
-	private static String hanaConfigFile = "webapp/WEB-INF/SNC_HANA_Configuration.xml";
+	private static String hanaConfigFile;
 	
 	private static String PATH_TO_TABLES = "comline.saa.data.tables";
 	private static String SCHEMA_NAME = "CL_SAA";
@@ -66,8 +70,11 @@ public final class HanaConfiguration {
 	
 	
 	public HanaConfiguration(){
+		// first set the location of the HANA Configuration file from RuntimeConfiguration
+		setConfigFile(rtc.getHanaConfigFile());
+		
 		try {
-			
+			//File file = new File(hanaConfigFile);
 			File file = new File(getConfigFile());
 			
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -111,9 +118,9 @@ public final class HanaConfiguration {
 				setUSERS_TABLE(node.getTextContent());
 			}
 		} catch (IOException e) {
-			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
+			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage());
 		} catch (Exception e) {
-			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
+			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage());
 			e.printStackTrace();
 		}
 	}

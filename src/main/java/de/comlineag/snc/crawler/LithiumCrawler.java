@@ -73,6 +73,9 @@ import de.comlineag.snc.parser.LithiumParser;
  */
 @DisallowConcurrentExecution 
 public class LithiumCrawler extends GenericCrawler implements Job {
+	// this holds a reference to the runtime cinfiguration
+	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	
 	// it is VERY imoportant to set the crawler name (all in uppercase) here
 	private static String CRAWLER_NAME="LITHIUM";
 	
@@ -98,8 +101,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
-		
 		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
 		
@@ -114,8 +115,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
 			
 			// set the customer we start the crawler for and log the startup message
-			String curDomain = (String) configurationScope.get(RuntimeConfiguration.getDomainidentifier());
-			String curCustomer = (String) configurationScope.get(RuntimeConfiguration.getCustomeridentifier());
+			String curDomain = (String) configurationScope.get(rtc.getDomainidentifier());
+			String curCustomer = (String) configurationScope.get(rtc.getCustomeridentifier());
 	
 			if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
 				logger.info(CRAWLER_NAME+"-Crawler START");
@@ -165,10 +166,10 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			
 			// THESE VALUES ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND SITES (aka boards)
 			logger.debug("retrieving restrictions from configuration db");
-			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintTermText(), configurationScope); 
-			ArrayList<String> tUsers = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintUserText(), configurationScope);
-			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintLanguageText(), configurationScope); 
-			ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(RuntimeConfiguration.getConstraintSiteText(), configurationScope);
+			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintTermText(), configurationScope); 
+			ArrayList<String> tUsers = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintUserText(), configurationScope);
+			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintLanguageText(), configurationScope); 
+			ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintSiteText(), configurationScope);
 			
 			// simple log output
 			if (tTerms.size()>0)
@@ -304,7 +305,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 								JSONObject messageResponse = SendObjectRequest(messageRef, REST_API_URL, LithiumConstants.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
 								if (messageResponse != null) {
 									// first save the message
-									if (RuntimeConfiguration.isPERSISTENCE_THREADING_ENABLED()){
+									if (rtc.isPERSISTENCE_THREADING_ENABLED()){
 										// execute persistence layer in a new thread, so that it does NOT block the crawler
 										logger.trace("execute persistence layer in a new thread...");
 										final LithiumPosting litPost = new LithiumPosting(messageResponse);

@@ -33,6 +33,8 @@ import de.comlineag.snc.persistence.JsonFilePersistence;
  * 
  */
 public class RiakDbPersistence implements IPersistenceManager {
+	// this holds a reference to the runtime configuration
+	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// Servicelocation taken from applicationContext.xml
 	private String host;
@@ -122,13 +124,13 @@ public class RiakDbPersistence implements IPersistenceManager {
 		} catch (ClientHandlerException e) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: could not connect to Riak-DB ring " + e.getLocalizedMessage());
-			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
+			if (rtc.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
 				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		} catch (Exception le) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: unforseen error condition processing post "+postData.getSnId()+"-"+postData.getId()+": " + le.getLocalizedMessage());
 			le.printStackTrace();
-			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
+			if (rtc.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
 				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 	}
@@ -153,13 +155,13 @@ public class RiakDbPersistence implements IPersistenceManager {
 		} catch (ClientHandlerException e) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: could not connect to Riak-DB ring " + e.getLocalizedMessage());
-			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
+			if (rtc.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
 				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		} catch (Exception le) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: unforseen error condition processing user "+userData.getSnId()+"-"+userData.getId()+": " + le.getLocalizedMessage());
 			le.printStackTrace();
-			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
+			if (rtc.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
 				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 	}
@@ -319,7 +321,7 @@ public class RiakDbPersistence implements IPersistenceManager {
 			*/
 			logger.info("post ("+postData.getSnId()+"-"+postData.getId()+") created");
 			
-			if (RuntimeConfiguration.isCREATE_POST_JSON_ON_SUCCESS()) {
+			if (rtc.isCREATE_POST_JSON_ON_SUCCESS()) {
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
 				JsonFilePersistence failsave = new JsonFilePersistence(postData);
@@ -333,7 +335,7 @@ public class RiakDbPersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: could not create post ("+postData.getSnId()+"-"+postData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
 			
-			if (RuntimeConfiguration.isCREATE_POST_JSON_ON_ERROR()) {
+			if (rtc.isCREATE_POST_JSON_ON_ERROR()) {
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
 				JsonFilePersistence failsave = new JsonFilePersistence(postData);
@@ -389,7 +391,7 @@ public class RiakDbPersistence implements IPersistenceManager {
 			 */
 			logger.info("user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") created");
 		
-			if (RuntimeConfiguration.isCREATE_USER_JSON_ON_SUCCESS()){
+			if (rtc.isCREATE_USER_JSON_ON_SUCCESS()){
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
 				JsonFilePersistence failsave = new JsonFilePersistence(userData);
@@ -407,7 +409,7 @@ public class RiakDbPersistence implements IPersistenceManager {
 			logger.error("ERROR :: Could not create user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
 			
-			if (RuntimeConfiguration.isCREATE_USER_JSON_ON_ERROR()){
+			if (rtc.isCREATE_USER_JSON_ON_ERROR()){
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
 				JsonFilePersistence failsave = new JsonFilePersistence(userData);
