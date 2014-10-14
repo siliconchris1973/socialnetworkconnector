@@ -86,7 +86,7 @@ public abstract class GenericCrawler implements Job {
 		obj.put((String)"networkNameUpperCase", (String)CRAWLER_NAME);
 		
 		try {
-			File file = new File(RuntimeConfiguration.getConfigFile());
+			File file = new File(RuntimeConfiguration.getRuntimeConfigFile());
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			Document doc = db.parse(file);

@@ -17,6 +17,7 @@ import org.odata4j.core.OEntity;
 import org.odata4j.core.OProperties;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
+import de.comlineag.snc.constants.SNCStatusCodes;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.data.PostData;
@@ -196,7 +197,7 @@ public class HANAPersistence implements IPersistenceManager {
 			}
 			
 			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
-				System.exit(-1);
+				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		} catch (Exception le) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: unforseen error condition processing post "+postData.getSnId()+"-"+postData.getId()+": " + le.getLocalizedMessage());
@@ -212,7 +213,7 @@ public class HANAPersistence implements IPersistenceManager {
 			}
 			
 			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
-				System.exit(-1);
+				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		} 
 	}
 	
@@ -265,7 +266,7 @@ public class HANAPersistence implements IPersistenceManager {
 			}
 			
 			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
-				System.exit(-1);
+				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		} catch (Exception le) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: unforseen error condition processing user "+userData.getSnId()+"-"+userData.getId()+": " + le.getLocalizedMessage());
@@ -281,7 +282,7 @@ public class HANAPersistence implements IPersistenceManager {
 			}
 			
 			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
-				System.exit(-1);
+				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 	}
 	

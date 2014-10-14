@@ -9,6 +9,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
+import de.comlineag.snc.constants.SNCStatusCodes;
 import de.comlineag.snc.constants.SocialNetworks;
 
 import java.io.IOException;
@@ -128,14 +129,14 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 			
 			//if ((RuntimeConfiguration.getCustomerIsActive() || RuntimeConfiguration.getDomainIsActive()) && RuntimeConfiguration.getWarnOnSimpleXmlConfig())
 			if (RuntimeConfiguration.getWarnOnSimpleXmlConfig())
-				logger.warn("no customer or domain specific configuration possible - consider using complex xml or db configuration manager\nyou can turn off this warning by setting WARN_ON_SIMPLE_XML_CONFIG to false in " + RuntimeConfiguration.getConfigFile().substring(RuntimeConfiguration.getConfigFile().lastIndexOf("/")+1));
+				logger.warn("no customer or domain specific configuration possible - consider using complex xml or db configuration manager\nyou can turn off this warning by setting WARN_ON_SIMPLE_XML_CONFIG to false in " + RuntimeConfiguration.getRuntimeConfigFile().substring(RuntimeConfiguration.getRuntimeConfigFile().lastIndexOf("/")+1));
 		} catch (ParseException e1) {
 			logger.error("ERROR :: could not parse configurationScope json " + e1.getLocalizedMessage());
 		}
 		
 		// first check, if the correct configuration file type was specified and if not, bail out the hard way
 		if (!isConfigFileCorrect()){
-			System.exit(-1);
+			System.exit(SNCStatusCodes.ERROR.getErrorCode());
 		}
 		
 		return (ArrayList<T>) getDataFromXml(category, SN);
@@ -172,11 +173,11 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 			logger.trace("    " + ar.toString());
 		} catch (IOException e) {
 			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(-1);
+			System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
 			e.printStackTrace();
-			System.exit(-1);
+			System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 
         return (ArrayList<T>) ar;

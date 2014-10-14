@@ -1,6 +1,10 @@
 package de.comlineag.snc.appstate;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -11,29 +15,26 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
 //import org.apache.logging.log4j.Logger;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import de.comlineag.snc.constants.SNCStatusCodes;
 import de.comlineag.snc.constants.SocialNetworks;
 
 
 /**
  * 
- * @author 		Christina Guenther
+ * @author 		Christian Guenther
  * @category	handler
- * @revision	0.6				- 26.09.2014
- * @status		productive with minor limitations
+ * @revision	0.7a			- 14.10.2014
+ * @status		productive
  * 
  * @description	this class is used to setup the overall configuration of the SNC.
  * 				All runtime configuration options, like whether or not to warn on 
  * 				weak encryption or simple configuration options, are configured via 
- * 				this class. 
- * 				It is instantiated by the job control from applicationContext.xml 
- * 				
+ * 				this class.
+ * 				RuntimeConfiguration uses a singleton design, so that it is only instantiated
+ * 				once.
  * 
  * @limitation	xml structure is not fetched from RuntimeConfiguration.xml but hard coded
  * 
@@ -51,29 +52,32 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 				0.5c			added wcWordDistanceCutoffMargin for the web crawler
  * 				0.6				added threading options
  * 				0.6a			added Parser.xml options ParserListFilePath
+ * 				0.7				changed RuntimeConfiguration to be called by AppContext instead of as 
+ * 								a job from quartz job control. Also made it a singleton 
+ * 				0.7a			changed calling of RuntimeConfiguration to be issued by the crawler
+ * 								and not by AppContxt (did not work).
  *
- * TODO 1. get the xml layout structure elements from RuntimeConfiguration.xml
- * TODO 2. use nodelist instead of single expressions for each node
+ * TODO 1 use nodelist instead of single expressions for each node
+ * TODO 2 remove bloody hack that gets the path to the WEB-INF directory from a file in /opt 
  * 
  */
-@DisallowConcurrentExecution
-public final class RuntimeConfiguration implements Job {
-	
+public final class RuntimeConfiguration { 
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
-	// if for any reason the path to config file changes, you must adapt this variable
-	private static String configFile = "webapp/WEB-INF/SNC_Runtime_Configuration.xml";
+	// a hidden class variable of type class
+	private static RuntimeConfiguration instance;
+	// in case you want to change the name of the runtime configuration file - you need to change this variable and recompile
+	private static final String RTCF = "SNC_Runtime_Configuration.xml";
 	
-	// if for any reason the path to config file changes, you must adapt this variable
-	private static String socialNetworkFile = "webapp/WEB-INF/SocialNetworkDefinitions.xml";
-		
-	// this is the configuration file containing all available web parser
-	private static String parserListFilePath = "webapp/WEB-INF/properties/Parser.xml"; 
+	// configuration file path variables
+	private static String runtimeConfigFile = "";
+	private static String hanaConfigFile = "";
+	private static String socialNetworkFile = "";
+	private static String parserListFilePath = ""; 
 	
-	// some important and static runtime informations
 	// whether or not to warn in the log in case a "simple" configuration option was chosen
 	private static boolean 	WARN_ON_SIMPLE_CONFIG 				= true;
 	private static boolean 	WARN_ON_SIMPLE_XML_CONFIG 			= true;
@@ -158,30 +162,59 @@ public final class RuntimeConfiguration implements Job {
 	private static String 	crawlerIdentifier 					= "Crawler";
 	private static String 	persistenceIdentifier 				= "Persistence";
 	
-	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		setConfigFile((String) arg0.getJobDetail().getJobDataMap().get("configFile"));
-		logger.debug("setting global configuration parameters using configuration file " + arg0.getJobDetail().getJobDataMap().get("configFile") + " from job control");
+
+	// an access method on class level which instantiates the class object exactly one time
+	// every subsequent call, will simply return the already instantiated class
+	public static RuntimeConfiguration getInstance () {
+		if (RuntimeConfiguration.instance == null) {
+			RuntimeConfiguration.instance = new RuntimeConfiguration();
+		}
+		return RuntimeConfiguration.instance;
+	}
+	
+	// this gets the absolute file path to the runtime configuration XML-file  
+	// FIXME very very dirty hack to get the runtime config file - fix in version 1.0
+	private String getWebInfDirectory(){
+		String result = null;
+		try{
+			FileInputStream fs= new FileInputStream("/opt/runtimeconfighackfile.txt");
+			BufferedReader br = new BufferedReader(new InputStreamReader(fs));
+			result = br.readLine();
+			br.close();
+			fs.close();																						
+		}catch(Exception e){
+			logger.error("EXCEPTION :: can't access /opt/runtimeconfighackfile.txt " + e.getLocalizedMessage());
+			e.printStackTrace();
+			System.exit(SNCStatusCodes.FATAL.getErrorCode());
+		}
+		return result;
+	}
+	
+	
+	// the constructor is NOT to be executed externally, but only via getInstance()
+	private RuntimeConfiguration(){
+		logger.debug("initializing runtime configuration");
+		setRuntimeConfigFile(getWebInfDirectory()+RTCF);
 		
 		// set the xml layout
-		setXmlLayout();
+		setXmlLayout(runtimeConfigFile);
 		// set the runtime configuration 
-		setRuntimeConfiguration();
+		setRuntimeConfiguration(runtimeConfigFile);
 		// set the data definitions
-		setDataDefinitions();
+		setDataDefinitions(runtimeConfigFile);
 		// set the data definitions
-		setThreadingModel();
+		setThreadingModel(runtimeConfigFile);
 		// instantiate the social networks class
 		@SuppressWarnings("unused")
 		SocialNetworks sn = SocialNetworks.getInstance();
 	}
 	
-	
-	private void setRuntimeConfiguration(){
+	private void setRuntimeConfiguration(String runtimeConfigFile){
 		logger.trace("--- setting runtime configuration");
 		String debugMsg = "";
 		
 		try {
-			File file = new File(getConfigFile());
+			File file = new File(getRuntimeConfigFile());
 			
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
@@ -193,105 +226,108 @@ public final class RuntimeConfiguration implements Job {
 			
 			// set boolean values of runtime environment
 			// WarnOnSimpleConfig
-			setWarnOnSimpleConfig(getBooleanElement("runtime", "WarnOnSimpleConfigOption", xpath, doc));
+			setWarnOnSimpleConfig(getBooleanElement("runtime", "WarnOnSimpleConfigOption", xpath, doc, runtimeConfigFile));
 			debugMsg += "    WarnOnSimpleConfigOption is " + getWarnOnSimpleConfig(); 
 			
 			// WarnOnSimpleXmlConfig
-			setWarnOnSimpleXmlConfig(getBooleanElement("runtime", "WarnOnSimpleXmlConfigOption", xpath, doc));
+			setWarnOnSimpleXmlConfig(getBooleanElement("runtime", "WarnOnSimpleXmlConfigOption", xpath, doc, runtimeConfigFile));
 			debugMsg += " / WarnOnSimpleXmlConfigOption is " + getWarnOnSimpleXmlConfig();
 			
 			// WarnOnSimpleXmlConfig
-			setWARN_ON_REJECTED_ACTIONS(getBooleanElement("runtime", "WarnOnRejectedActions", xpath, doc));
+			setWARN_ON_REJECTED_ACTIONS(getBooleanElement("runtime", "WarnOnRejectedActions", xpath, doc, runtimeConfigFile));
 			debugMsg += " / WarnRejectedActions is " + isWARN_ON_REJECTED_ACTIONS();
 			
 			// CREATE_POST_JSON_ON_ERROR
-			setCREATE_POST_JSON_ON_ERROR(getBooleanElement("runtime", "CreatePostJsonOnError", xpath, doc));
+			setCREATE_POST_JSON_ON_ERROR(getBooleanElement("runtime", "CreatePostJsonOnError", xpath, doc, runtimeConfigFile));
 			debugMsg += " / CREATE_POST_JSON_ON_ERROR is " + isCREATE_POST_JSON_ON_ERROR(); 
 			
 			// CREATE_USER_JSON_ON_ERROR
-			setCREATE_USER_JSON_ON_ERROR(getBooleanElement("runtime", "CreateUserJsonOnError", xpath, doc));
+			setCREATE_USER_JSON_ON_ERROR(getBooleanElement("runtime", "CreateUserJsonOnError", xpath, doc, runtimeConfigFile));
 			debugMsg += " / CREATE_USER_JSON_ON_ERROR is " + isCREATE_USER_JSON_ON_ERROR();
 					
 			// CREATE_POST_JSON_ON_SUCCESS
-			setCREATE_POST_JSON_ON_SUCCESS(getBooleanElement("runtime", "CreatePostJsonOnSuccess", xpath, doc));
+			setCREATE_POST_JSON_ON_SUCCESS(getBooleanElement("runtime", "CreatePostJsonOnSuccess", xpath, doc, runtimeConfigFile));
 			debugMsg += " / CREATE_POST_JSON_ON_SUCCESS is " + isCREATE_POST_JSON_ON_SUCCESS(); 
 			
 			// CREATE_USER_JSON_ON_SUCCESS
-			setCREATE_USER_JSON_ON_SUCCESS(getBooleanElement("runtime", "CreateUserJsonOnSuccess", xpath, doc));
+			setCREATE_USER_JSON_ON_SUCCESS(getBooleanElement("runtime", "CreateUserJsonOnSuccess", xpath, doc, runtimeConfigFile));
 			debugMsg += " / CREATE_USER_JSON_ON_SUCCESS is " + isCREATE_USER_JSON_ON_SUCCESS();
 			
 			// STORAGE_PATH
-			setSTORAGE_PATH(getStringElement("runtime", "StoragePath", xpath, doc));
+			setSTORAGE_PATH(getStringElement("runtime", "StoragePath", xpath, doc, runtimeConfigFile));
 			debugMsg += " / STORAGE_PATH is " + getSTORAGE_PATH();
 			
 			// JSON_BACKUP_STORAGE_PATH
-			setJSON_BACKUP_STORAGE_PATH(getStringElement("runtime", "JsonBackupStoragePath", xpath, doc));
+			setJSON_BACKUP_STORAGE_PATH(getStringElement("runtime", "JsonBackupStoragePath", xpath, doc, runtimeConfigFile));
 			debugMsg += " / JSON_BACKUP_STORAGE_PATH is " + getJSON_BACKUP_STORAGE_PATH();
 			
 			// PROCESSED_JSON_BACKUP_STORAGE_PATH
-			setPROCESSED_JSON_BACKUP_STORAGE_PATH(getStringElement("runtime", "ProcessedJsonBackupStoragePath", xpath, doc));
+			setPROCESSED_JSON_BACKUP_STORAGE_PATH(getStringElement("runtime", "ProcessedJsonBackupStoragePath", xpath, doc, runtimeConfigFile));
 			debugMsg += " / PROCESSED_JSON_BACKUP_STORAGE_PATH is " + getPROCESSED_JSON_BACKUP_STORAGE_PATH();
 			
 			// INVALID_JSON_BACKUP_STORAGE_PATH
-			setINVALID_JSON_BACKUP_STORAGE_PATH(getStringElement("runtime", "InvalidJsonBackupStoragePath", xpath, doc));
+			setINVALID_JSON_BACKUP_STORAGE_PATH(getStringElement("runtime", "InvalidJsonBackupStoragePath", xpath, doc, runtimeConfigFile));
 			debugMsg += " / INVALID_JSON_BACKUP_STORAGE_PATH is " + getINVALID_JSON_BACKUP_STORAGE_PATH();
 			
 			// MOVE_OR_DELETE_PROCESSED_JSON_FILES 
-			setMOVE_OR_DELETE_PROCESSED_JSON_FILES(getStringElement("runtime", "MoveOrDeleteProcessedJsonFiles", xpath, doc));
+			setMOVE_OR_DELETE_PROCESSED_JSON_FILES(getStringElement("runtime", "MoveOrDeleteProcessedJsonFiles", xpath, doc, runtimeConfigFile));
 			debugMsg += " / MOVE_OR_DELETE_PROCESSED_JSON_FILES is " + getMOVE_OR_DELETE_PROCESSED_JSON_FILES();
 			
 			// STOP_SNC_ON_PERSISTENCE_FAILURE
-			setSTOP_SNC_ON_PERSISTENCE_FAILURE(getBooleanElement("runtime", "ExitOnPersistenceFailure", xpath, doc));
+			setSTOP_SNC_ON_PERSISTENCE_FAILURE(getBooleanElement("runtime", "ExitOnPersistenceFailure", xpath, doc, runtimeConfigFile));
 			debugMsg += " / STOP_SNC_ON_PERSISTENCE_FAILURE is " + isSTOP_SNC_ON_PERSISTENCE_FAILURE();
-			
-			// ParserListFilePath
-			setParserListFilePath(getStringElement("runtime", "ParserListFilePath", xpath, doc));
-			
-			// SocialNetworkFile
-			setSocialNetworkFile(getStringElement("runtime", "SocialNetworkFile", xpath, doc));
 			
 			
 			// wcSearchLimit
-			setWC_SEARCH_LIMIT(getIntElement("runtime", "wcSearchLimit", xpath, doc));
+			setWC_SEARCH_LIMIT(getIntElement("runtime", "wcSearchLimit", xpath, doc, runtimeConfigFile));
 			debugMsg += " / WC_SEARCH_LIMIT is " + getWC_SEARCH_LIMIT();
 			
 			// wcMaxDepth
-			setWC_MAX_DEPTH(getIntElement("runtime", "wcMaxDepth", xpath, doc));
+			setWC_MAX_DEPTH(getIntElement("runtime", "wcMaxDepth", xpath, doc, runtimeConfigFile));
 			debugMsg += " / WC_MAX_DEPTH is " + getWC_MAX_DEPTH();
 			
 			// wcRobotDisallowText 
-			setWC_ROBOT_DISALLOW_TEXT(getStringElement("runtime", "wcRobotDisallowText", xpath, doc));
+			setWC_ROBOT_DISALLOW_TEXT(getStringElement("runtime", "wcRobotDisallowText", xpath, doc, runtimeConfigFile));
 			debugMsg += " / WC_ROBOT_DISALLOW_TEXT is " + getWC_ROBOT_DISALLOW_TEXT();
 						
 			// wcCrawlerMaxDownloadSize
-			setWC_CRAWLER_MAX_DOWNLOAD_SIZE(getIntElement("runtime", "wcCrawlerMaxDownloadSize", xpath, doc));
+			setWC_CRAWLER_MAX_DOWNLOAD_SIZE(getIntElement("runtime", "wcCrawlerMaxDownloadSize", xpath, doc, runtimeConfigFile));
 			debugMsg += " / WC_CRAWLER_MAX_DOWNLOAD_SIZE is " + getWC_CRAWLER_MAX_DOWNLOAD_SIZE();
 			
 			// wcStayOnDomain
-			setWC_STAY_ON_DOMAIN(getBooleanElement("runtime", "wcStayOnDomain", xpath, doc));
+			setWC_STAY_ON_DOMAIN(getBooleanElement("runtime", "wcStayOnDomain", xpath, doc, runtimeConfigFile));
 			debugMsg += " / WC_STAY_ON_DOMAIN is " + isWC_STAY_ON_DOMAIN();
 			
 			// wcStayBelowGivenPath
-			setWC_STAY_BELOW_GIVEN_PATH(getBooleanElement("runtime", "wcStayBelowGivenPath", xpath, doc));
+			setWC_STAY_BELOW_GIVEN_PATH(getBooleanElement("runtime", "wcStayBelowGivenPath", xpath, doc, runtimeConfigFile));
 			debugMsg += " / WC_STAY_BELOW_GIVEN_PATH is " + isWC_STAY_BELOW_GIVEN_PATH();
 			
 			// wcWordDistanceCutoffMargin
-			setWC_WORD_DISTANCE_CUTOFF_MARGIN(getIntElement("runtime", "wcWordDistanceCutoffMargin", xpath, doc));
+			setWC_WORD_DISTANCE_CUTOFF_MARGIN(getIntElement("runtime", "wcWordDistanceCutoffMargin", xpath, doc, runtimeConfigFile));
 			debugMsg += " / WC_WORD_DISTANCE_CUTOFF_MARGIN is " + getWC_WORD_DISTANCE_CUTOFF_MARGIN();
+			
+			// ParserListFilePath
+			setParserListFilePath(getWebInfDirectory()+getStringElement("runtime", "ParserListFilePath", xpath, doc, runtimeConfigFile));
+			
+			// HanaConfigurationFilePath
+			setHanaConfigFile(getWebInfDirectory()+getStringElement("runtime", "HanaConfigurationFilePath", xpath, doc, runtimeConfigFile));
+			
+			// SocialNetworkDefintiionFile
+			setSocialNetworkFile(getWebInfDirectory()+getStringElement("runtime", "SocialNetworkFile", xpath, doc, runtimeConfigFile));
 			
 			logger.trace(debugMsg);
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: error reading runtime configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(-1);
+			System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 	}
 	
-	private void setThreadingModel(){
+	private void setThreadingModel(String runtimeConfigFile){
 		logger.trace("--- setting threading configuration");
 		String debugMsg = "";
 		
 		try {
-			File file = new File(getConfigFile());
+			File file = new File(getRuntimeConfigFile());
 			
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
@@ -301,40 +337,40 @@ public final class RuntimeConfiguration implements Job {
 			XPath xpath = xPathfactory.newXPath();
 			
 			// CrawlerThreadingPoolSize
-			setCRAWLER_THREADING_POOL_SIZE(getIntElement("threading", "CrawlerThreadingPoolSize", xpath, doc));
+			setCRAWLER_THREADING_POOL_SIZE(getIntElement("threading", "CrawlerThreadingPoolSize", xpath, doc, runtimeConfigFile));
 			debugMsg += "    CRAWLER_THREADING_POOL_SIZE is " + getCRAWLER_THREADING_POOL_SIZE();
 			// ParserThreadingPoolSize
-			setPARSER_THREADING_POOL_SIZE(getIntElement("threading", "ParserThreadingPoolSize", xpath, doc));
+			setPARSER_THREADING_POOL_SIZE(getIntElement("threading", "ParserThreadingPoolSize", xpath, doc, runtimeConfigFile));
 			debugMsg += " / PARSER_THREADING_POOL_SIZE is " + getPARSER_THREADING_POOL_SIZE();
 			// PersistenceThreadingPoolSize
-			setPERSISTENCE_THREADING_POOL_SIZE(getIntElement("threading", "PersistenceThreadingPoolSize", xpath, doc));
+			setPERSISTENCE_THREADING_POOL_SIZE(getIntElement("threading", "PersistenceThreadingPoolSize", xpath, doc, runtimeConfigFile));
 			debugMsg += " / PERSISTENCE_THREADING_POOL_SIZE is " + getPERSISTENCE_THREADING_POOL_SIZE();
 			
 			// CrawlerThreadingEnabled
-			setCRAWLER_THREADING_ENABLED(getBooleanElement("threading", "CrawlerThreadingEnabled", xpath, doc));
+			setCRAWLER_THREADING_ENABLED(getBooleanElement("threading", "CrawlerThreadingEnabled", xpath, doc, runtimeConfigFile));
 			debugMsg += " / CRAWLER_THREADING_ENABLED is " + isCRAWLER_THREADING_ENABLED();
 			// ParserThreadingEnabled
-			setPARSER_THREADING_ENABLED(getBooleanElement("threading", "ParserThreadingEnabled", xpath, doc));
+			setPARSER_THREADING_ENABLED(getBooleanElement("threading", "ParserThreadingEnabled", xpath, doc, runtimeConfigFile));
 			debugMsg += " / PARSER_THREADING_ENABLED is " + isPARSER_THREADING_ENABLED();
 			// PersistenceThreadingEnabled
-			setPERSISTENCE_THREADING_ENABLED(getBooleanElement("threading", "PersistenceThreadingEnabled", xpath, doc));
+			setPERSISTENCE_THREADING_ENABLED(getBooleanElement("threading", "PersistenceThreadingEnabled", xpath, doc, runtimeConfigFile));
 			debugMsg += " / PERSISTENCE_THREADING_ENABLED is " + isPERSISTENCE_THREADING_ENABLED();
 			
 			logger.trace(debugMsg);
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: error reading threading configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(-1);
+			System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 	}
 		
 	
 	// DataDefinitions
-	private void setDataDefinitions(){
+	private void setDataDefinitions(String runtimeConfigFile){
 		logger.trace("--- setting data definitions");
 		String debugMsg = "";
 		
 		try {
-			File file = new File(getConfigFile());
+			File file = new File(getRuntimeConfigFile());
 			
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
@@ -344,46 +380,46 @@ public final class RuntimeConfiguration implements Job {
 			XPath xpath = xPathfactory.newXPath();
 			
 			// teaserWithMarkup
-			setTEASER_WITH_MARKUP(getBooleanElement("DataDefinitions", "teaserWithMarkup", xpath, doc));
+			setTEASER_WITH_MARKUP(getBooleanElement("DataDefinitions", "teaserWithMarkup", xpath, doc, runtimeConfigFile));
 			debugMsg += "    TEASER_WITH_MARKUP is " + isTEASER_WITH_MARKUP();
 			
 			// teaserMaxLength
-			setTEASER_MAX_LENGTH(getIntElement("DataDefinitions", "teaserMaxLength", xpath, doc));
+			setTEASER_MAX_LENGTH(getIntElement("DataDefinitions", "teaserMaxLength", xpath, doc, runtimeConfigFile));
 			debugMsg += " / TEASER_MAX_LENGTH is " + getTEASER_MAX_LENGTH();
 			// teaserMinLength
-			setTEASER_MIN_LENGTH(getIntElement("DataDefinitions", "teaserMinLength", xpath, doc));
+			setTEASER_MIN_LENGTH(getIntElement("DataDefinitions", "teaserMinLength", xpath, doc, runtimeConfigFile));
 			debugMsg += " / TEASER_MIN_LENGTH is " + getTEASER_MIN_LENGTH();
 			
 			// subjectWithMarkup
-			setSUBJECT_WITH_MARKUP(getBooleanElement("DataDefinitions", "subjectWithMarkup", xpath, doc));
+			setSUBJECT_WITH_MARKUP(getBooleanElement("DataDefinitions", "subjectWithMarkup", xpath, doc, runtimeConfigFile));
 			debugMsg += " / SUBJECT_WITH_MARKUP is " + isSUBJECT_WITH_MARKUP();
 			// subjectMaxLength
-			setSUBJECT_MAX_LENGTH(getIntElement("DataDefinitions", "subjectMaxLength", xpath, doc));
+			setSUBJECT_MAX_LENGTH(getIntElement("DataDefinitions", "subjectMaxLength", xpath, doc, runtimeConfigFile));
 			debugMsg += " / SUBJECT_MAX_LENGTH is " + getSUBJECT_MAX_LENGTH();
 			// subjectMinLength
-			setSUBJECT_MIN_LENGTH(getIntElement("DataDefinitions", "subjectMinLength", xpath, doc));
+			setSUBJECT_MIN_LENGTH(getIntElement("DataDefinitions", "subjectMinLength", xpath, doc, runtimeConfigFile));
 			debugMsg += " / SUBJECT_MIN_LENGTH is " + getSUBJECT_MIN_LENGTH();
 			
 			// textWithMarkup
-			setTEXT_WITH_MARKUP(getBooleanElement("DataDefinitions", "textWithMarkup", xpath, doc));
+			setTEXT_WITH_MARKUP(getBooleanElement("DataDefinitions", "textWithMarkup", xpath, doc, runtimeConfigFile));
 			debugMsg += " / TEXT_WITH_MARKUP is " + isTEXT_WITH_MARKUP();
 			// rawTextWithMarkup
-			setRAW_TEXT_WITH_MARKUP(getBooleanElement("DataDefinitions", "rawTextWithMarkup", xpath, doc));
+			setRAW_TEXT_WITH_MARKUP(getBooleanElement("DataDefinitions", "rawTextWithMarkup", xpath, doc, runtimeConfigFile));
 			debugMsg += " / RAW_TEXT_WITH_MARKUP is " + isRAW_TEXT_WITH_MARKUP();
 			
 			logger.trace(debugMsg);
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: error reading data definition configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(-1);
+			System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 	}
 	
 	
-	private void setXmlLayout(){
+	private void setXmlLayout(String runtimeConfigFile){
 		logger.trace ("--- setting XML layout");
 		String debugMsg = "";
 		try {
-			File file = new File(getConfigFile());
+			File file = new File(getRuntimeConfigFile());
 			
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
@@ -394,74 +430,74 @@ public final class RuntimeConfiguration implements Job {
 			
 			// set text identifiers for the constraints from XML file 
 			// CONSTRAINT_TERM_TEXT
-			setCONSTRAINT_TERM_TEXT(getStringElement("XmlLayout", "CONSTRAINT_TERM_TEXT", xpath, doc));
+			setCONSTRAINT_TERM_TEXT(getStringElement("XmlLayout", "CONSTRAINT_TERM_TEXT", xpath, doc, runtimeConfigFile));
 			debugMsg += "    CONSTRAINT_TERM_TEXT is " + getConstraintTermText();
 			
 			// CONSTRAINT_USER_TEXT
-			setCONSTRAINT_USER_TEXT(getStringElement("XmlLayout", "CONSTRAINT_USER_TEXT", xpath, doc));
+			setCONSTRAINT_USER_TEXT(getStringElement("XmlLayout", "CONSTRAINT_USER_TEXT", xpath, doc, runtimeConfigFile));
 			debugMsg += " / CONSTRAINT_USER_TEXT is " + getConstraintUserText();
 			
 			// CONSTRAINT_SITE_TEXT
-			setCONSTRAINT_SITE_TEXT(getStringElement("XmlLayout", "CONSTRAINT_SITE_TEXT", xpath, doc));
+			setCONSTRAINT_SITE_TEXT(getStringElement("XmlLayout", "CONSTRAINT_SITE_TEXT", xpath, doc, runtimeConfigFile));
 			debugMsg += " / CONSTRAINT_SITE_TEXT is " + getConstraintSiteText();
 			
 			// CONSTRAINT_BOARD_TEXT
-			setCONSTRAINT_BOARD_TEXT(getStringElement("XmlLayout", "CONSTRAINT_BOARD_TEXT", xpath, doc));
+			setCONSTRAINT_BOARD_TEXT(getStringElement("XmlLayout", "CONSTRAINT_BOARD_TEXT", xpath, doc, runtimeConfigFile));
 			debugMsg += " / CONSTRAINT_BOARD_TEXT is " + getConstraintBoardText();
 			
 			// CONSTRAINT_BLOG_TEXT
-			setCONSTRAINT_BLOG_TEXT(getStringElement("XmlLayout", "CONSTRAINT_BLOG_TEXT", xpath, doc));
+			setCONSTRAINT_BLOG_TEXT(getStringElement("XmlLayout", "CONSTRAINT_BLOG_TEXT", xpath, doc, runtimeConfigFile));
 			debugMsg += " / CONSTRAINT_BLOG_TEXT is " + getConstraintBlogText();
 			
 			// CONSTRAINT_LOCATION_TEXT
-			setCONSTRAINT_LOCATION_TEXT(getStringElement("XmlLayout", "CONSTRAINT_LOCATION_TEXT", xpath, doc));
+			setCONSTRAINT_LOCATION_TEXT(getStringElement("XmlLayout", "CONSTRAINT_LOCATION_TEXT", xpath, doc, runtimeConfigFile));
 			debugMsg += " / CONSTRAINT_LOCATION_TEXT is " + getConstraintLocationText();
 			
 			// CONSTRAINT_BLOCKED_SITE_TEXT
-			setCONSTRAINT_BLOCKEDSITE_TEXT(getStringElement("XmlLayout", "CONSTRAINT_BLOCKED_SITE_TEXT", xpath, doc));
+			setCONSTRAINT_BLOCKEDSITE_TEXT(getStringElement("XmlLayout", "CONSTRAINT_BLOCKED_SITE_TEXT", xpath, doc, runtimeConfigFile));
 			debugMsg += " / CONSTRAINT_BLOCKED_SITE_TEXT is " + getConstraintBlockedSiteText();
 			
 			// CrawlerRunIdentifier
-			setCrawlerRunIdentifier(getStringElement("XmlLayout", "crawlerRunIdentifier", xpath, doc));
+			setCrawlerRunIdentifier(getStringElement("XmlLayout", "crawlerRunIdentifier", xpath, doc, runtimeConfigFile));
 			debugMsg += " / CRAWLER_RUN_IDENTIFIER is " + getCrawlerRunIdentifier();
 			
 			
 			// ConfigFiletypeIdentifier
-			setConfigFileTypeIdentifier(getStringElement("XmlLayout", "configFileTypeIdentifier", xpath, doc));
+			setConfigFileTypeIdentifier(getStringElement("XmlLayout", "configFileTypeIdentifier", xpath, doc, runtimeConfigFile));
 			debugMsg += " / ConfigFileTypeIdentifier is " + getConfigFileTypeIdentifier();
 
-			setThreadingIdentifier(getStringElement("XmlLayout", "THREADING_NAME", xpath, doc));
+			setThreadingIdentifier(getStringElement("XmlLayout", "THREADING_NAME", xpath, doc, runtimeConfigFile));
 			debugMsg += " / ConfigFileTypeIdentifier is " + getConfigFileTypeIdentifier();
-			setParserIdentifier(getStringElement("XmlLayout", "PARSER_NAME", xpath, doc));
+			setParserIdentifier(getStringElement("XmlLayout", "PARSER_NAME", xpath, doc, runtimeConfigFile));
 			debugMsg += " / ParserIdentifier is " + getParserIdentifier();
-			setCrawlerIdentifier(getStringElement("XmlLayout", "CRAWLER_NAME", xpath, doc));
+			setCrawlerIdentifier(getStringElement("XmlLayout", "CRAWLER_NAME", xpath, doc, runtimeConfigFile));
 			debugMsg += " / CrawlerIdentifier is " + getCrawlerIdentifier();
-			setPersistenceIdentifier(getStringElement("XmlLayout", "PERSISTENCE_NAME", xpath, doc));
+			setPersistenceIdentifier(getStringElement("XmlLayout", "PERSISTENCE_NAME", xpath, doc, runtimeConfigFile));
 			debugMsg += " / PersistenceIdentifier is " + getPersistenceIdentifier();
 			
-			setSocialNetworkConfiguration(getStringElement("XmlLayout", "socialNetworkConfiguration", xpath, doc));
+			setSocialNetworkConfiguration(getStringElement("XmlLayout", "socialNetworkConfiguration", xpath, doc, runtimeConfigFile));
 			debugMsg += " / SocialNetworkConfiguration is " + getSocialNetworkConfiguration();
-			setSocialNetworkIdentifier(getStringElement("XmlLayout", "socialNetworkIdentifier", xpath, doc));
+			setSocialNetworkIdentifier(getStringElement("XmlLayout", "socialNetworkIdentifier", xpath, doc, runtimeConfigFile));
 			debugMsg += " / SocialNetworkIdentifier is " + getSocialNetworkIdentifier();
-			setSocialNetworkName(getStringElement("XmlLayout", "socialNetworkNameIdentifier", xpath, doc));
+			setSocialNetworkName(getStringElement("XmlLayout", "socialNetworkNameIdentifier", xpath, doc, runtimeConfigFile));
 			debugMsg += " / SocialNetworkName is " + getSocialNetworkName();
 			
 			logger.trace(debugMsg);
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: error reading xml-layout configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(-1);
+			System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 	}
 	
 	
 
-	private Boolean getBooleanElement(String configArea, String pathContent, XPath xpath, Document doc) throws XPathExpressionException{
+	private Boolean getBooleanElement(String configArea, String pathContent, XPath xpath, Document doc, String runtimeConfigFile) throws XPathExpressionException{
 		Node node = null; 
 		String expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+configArea+"']/"
 				+ "param[@name='"+pathContent+"']/"+valueIdentifier;
 		node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 		if (node == null) {
-			logger.warn("Did not receive any information for "+pathContent+" in area "+configArea+" from " + configFile + " using expression " + expression);
+			logger.warn("Did not receive any information for "+pathContent+" in area "+configArea+" from " + runtimeConfigFile + " using expression " + expression);
 			return true;
 		} else {
 			if ("true".equals(node.getTextContent()))
@@ -470,25 +506,25 @@ public final class RuntimeConfiguration implements Job {
 				return false;
 		}
 	}
-	private String getStringElement(String configArea, String pathContent, XPath xpath, Document doc) throws XPathExpressionException{
+	private String getStringElement(String configArea, String pathContent, XPath xpath, Document doc, String runtimeConfigFile) throws XPathExpressionException{
 		Node node = null;
 		String expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+configArea+"']/"
 				+ "param[@name='"+pathContent+"']/"+valueIdentifier;
 		node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 		if (node == null) {
-			logger.warn("Did not receive any information for "+pathContent+" in area "+configArea+" from " + configFile + " using expression " + expression);
+			logger.warn("Did not receive any information for "+pathContent+" in area "+configArea+" from " + runtimeConfigFile + " using expression " + expression);
 			return null;
 		} else {
 			return (node.getTextContent());
 		}
 	}
-	private int getIntElement(String configArea, String pathContent, XPath xpath, Document doc) throws XPathExpressionException{
+	private int getIntElement(String configArea, String pathContent, XPath xpath, Document doc, String runtimeConfigFile) throws XPathExpressionException{
 		Node node = null;
 		String expression = "/"+rootIdentifier+"/"+singleConfigurationIdentifier+"[@"+scopeIdentifier+"='"+configArea+"']/"
 				+ "param[@name='"+pathContent+"']/"+valueIdentifier;
 		node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 		if (node == null) {
-			logger.warn("Did not receive any information for "+pathContent+" in area "+configArea+" from " + configFile + " using expression " + expression);
+			logger.warn("Did not receive any information for "+pathContent+" in area "+configArea+" from " + runtimeConfigFile + " using expression " + expression);
 			return -666;
 		} else {
 			return (Integer.parseInt(node.getTextContent()));
@@ -496,7 +532,8 @@ public final class RuntimeConfiguration implements Job {
 	}
 	
 	// getter for the configuration path
-	public static String 	getConfigFile() { return RuntimeConfiguration.configFile;	}
+	public static String 	getRuntimeConfigFile() { return runtimeConfigFile;	}
+	public static String 	getHanaConfigFile() {return hanaConfigFile;}
 	public static String 	getSocialNetworkFile() {return socialNetworkFile;}
 	public static String 	getParserListFilePath() {return parserListFilePath;}
 	
@@ -536,8 +573,8 @@ public final class RuntimeConfiguration implements Job {
 	public static String 	getSocialNetworkName() {return socialNetworkName;}
 	
 	// for runtime state 
-	public static boolean 	getWarnOnSimpleConfig() {return RuntimeConfiguration.WARN_ON_SIMPLE_CONFIG;}
-	public static boolean 	getWarnOnSimpleXmlConfig() {return RuntimeConfiguration.WARN_ON_SIMPLE_XML_CONFIG;}
+	public static boolean 	getWarnOnSimpleConfig() {return WARN_ON_SIMPLE_CONFIG;}
+	public static boolean 	getWarnOnSimpleXmlConfig() {return WARN_ON_SIMPLE_XML_CONFIG;}
 	public static boolean 	isCREATE_POST_JSON_ON_ERROR() {return CREATE_POST_JSON_ON_ERROR;}
 	public static boolean 	isCREATE_USER_JSON_ON_ERROR() {return CREATE_USER_JSON_ON_ERROR;}
 	public static boolean 	isCREATE_POST_JSON_ON_SUCCESS() {return CREATE_POST_JSON_ON_SUCCESS;}
@@ -580,18 +617,21 @@ public final class RuntimeConfiguration implements Job {
 	public static boolean 	isCRAWLER_THREADING_ENABLED() {return CRAWLER_THREADING_ENABLED;}
 	public static boolean 	isPERSISTENCE_THREADING_ENABLED() {return PERSISTENCE_THREADING_ENABLED;}
 	
+	
+	
 	// private setter
-		private void 		setConfigFile(String configFile) { RuntimeConfiguration.configFile = configFile;	}
-		private void 		setSocialNetworkFile(String socialNetworkFile) {RuntimeConfiguration.socialNetworkFile = socialNetworkFile;}
-		private void 		setParserListFilePath(String parserListFile) {RuntimeConfiguration.parserListFilePath = parserListFile;}
+		private void 		setRuntimeConfigFile(String runtimeConfigFile) 	{ RuntimeConfiguration.runtimeConfigFile = runtimeConfigFile;}
+		private void 		setSocialNetworkFile(String socialNetworkFile) 	{ RuntimeConfiguration.socialNetworkFile = socialNetworkFile;}
+		private void 		setParserListFilePath(String parserListFile) 	{ RuntimeConfiguration.parserListFilePath = parserListFile;}
+		private void		setHanaConfigFile(String hanaConfigFile) 		{ RuntimeConfiguration.hanaConfigFile = hanaConfigFile;}
 		
-		private void 		setCONSTRAINT_TERM_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_TERM_TEXT = s; }
-		private void 		setCONSTRAINT_USER_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_USER_TEXT = s; }
-		private void 		setCONSTRAINT_SITE_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_SITE_TEXT = s; }
-		private void 		setCONSTRAINT_BLOCKEDSITE_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_BLOCKEDSITE_TEXT = s; }
-		private void 		setCONSTRAINT_BOARD_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_BOARD_TEXT = s; }
-		private void 		setCONSTRAINT_BLOG_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_BLOG_TEXT = s; }
-		private void 		setCONSTRAINT_LOCATION_TEXT(final String s) { RuntimeConfiguration.CONSTRAINT_LOCATION_TEXT = s; }
+		private void 		setCONSTRAINT_TERM_TEXT(String s) { RuntimeConfiguration.CONSTRAINT_TERM_TEXT = s; }
+		private void 		setCONSTRAINT_USER_TEXT(String s) { RuntimeConfiguration.CONSTRAINT_USER_TEXT = s; }
+		private void 		setCONSTRAINT_SITE_TEXT(String s) { RuntimeConfiguration.CONSTRAINT_SITE_TEXT = s; }
+		private void 		setCONSTRAINT_BLOCKEDSITE_TEXT(String s) { RuntimeConfiguration.CONSTRAINT_BLOCKEDSITE_TEXT = s; }
+		private void 		setCONSTRAINT_BOARD_TEXT(String s) { RuntimeConfiguration.CONSTRAINT_BOARD_TEXT = s; }
+		private void 		setCONSTRAINT_BLOG_TEXT(String s) { RuntimeConfiguration.CONSTRAINT_BLOG_TEXT = s; }
+		private void 		setCONSTRAINT_LOCATION_TEXT(String s) { RuntimeConfiguration.CONSTRAINT_LOCATION_TEXT = s; }
 		
 		private void 		setPARSER_THREADING_POOL_SIZE(int pARSER_THREADING_POOL_SIZE) {PARSER_THREADING_POOL_SIZE = pARSER_THREADING_POOL_SIZE;	}
 		private void		setCRAWLER_THREADING_POOL_SIZE(int cRAWLER_THREADING_POOL_SIZE) {CRAWLER_THREADING_POOL_SIZE = cRAWLER_THREADING_POOL_SIZE;	}
@@ -626,7 +666,7 @@ public final class RuntimeConfiguration implements Job {
 		private void 		setJSON_BACKUP_STORAGE_PATH(String jSON_BACKUP_STORAGE_PATH) {JSON_BACKUP_STORAGE_PATH = jSON_BACKUP_STORAGE_PATH;}
 		private void 		setPROCESSED_JSON_BACKUP_STORAGE_PATH( String pROCESSED_JSON_BACKUP_STORAGE_PATH) { PROCESSED_JSON_BACKUP_STORAGE_PATH = pROCESSED_JSON_BACKUP_STORAGE_PATH; }
 		private void 		setMOVE_OR_DELETE_PROCESSED_JSON_FILES(String mOVE_OR_DELETE_PROCESSED_JSON_FILES) {MOVE_OR_DELETE_PROCESSED_JSON_FILES = mOVE_OR_DELETE_PROCESSED_JSON_FILES;}
-		private void 		setINVALID_JSON_BACKUP_STORAGE_PATH(	String iNVALID_JSON_BACKUP_STORAGE_PATH) {INVALID_JSON_BACKUP_STORAGE_PATH = iNVALID_JSON_BACKUP_STORAGE_PATH;}
+		private void 		setINVALID_JSON_BACKUP_STORAGE_PATH(String iNVALID_JSON_BACKUP_STORAGE_PATH) {INVALID_JSON_BACKUP_STORAGE_PATH = iNVALID_JSON_BACKUP_STORAGE_PATH;}
 		private void 		setSTORAGE_PATH(String sTORAGE_PATH) {STORAGE_PATH = sTORAGE_PATH;}
 		
 		private void 		setConfigFileTypeIdentifier(String configFileTypeIdentifier) {RuntimeConfiguration.configFileTypeIdentifier = configFileTypeIdentifier;}
@@ -637,4 +677,5 @@ public final class RuntimeConfiguration implements Job {
 		private void 		setSocialNetworkConfiguration(String socialNetworkConfiguration) {RuntimeConfiguration.socialNetworkConfiguration = socialNetworkConfiguration;}
 		private void 		setSocialNetworkIdentifier(String socialNetworkIdentifier) {RuntimeConfiguration.socialNetworkIdentifier = socialNetworkIdentifier;}
 		private void 		setSocialNetworkName(String socialNetworkName) {RuntimeConfiguration.socialNetworkName = socialNetworkName;}
+		
 }

@@ -103,6 +103,8 @@ public class Facebook4JFbCrawler extends GenericCrawler implements Job {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+		
 		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
 		

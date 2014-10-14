@@ -6,7 +6,9 @@ import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
 //import org.apache.logging.log4j.Logger;
 
+
 import de.comlineag.snc.appstate.RuntimeConfiguration;
+import de.comlineag.snc.constants.SNCStatusCodes;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.data.PostData;
@@ -117,13 +119,13 @@ public class CouchDbPersistence implements IPersistenceManager {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: could not connect to CouchDb system " + e.getLocalizedMessage());
 			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
-				System.exit(-1);
+				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		} catch (Exception le) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: unforseen error condition processing post "+postData.getSnId()+"-"+postData.getId()+": " + le.getLocalizedMessage());
 			le.printStackTrace();
 			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
-				System.exit(-1);
+				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 	}
 	
@@ -148,13 +150,13 @@ public class CouchDbPersistence implements IPersistenceManager {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: could not connect to CouchDb system " + e.getLocalizedMessage());
 			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
-				System.exit(-1);
+				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		} catch (Exception le) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: unforseen error condition processing user "+userData.getSnId()+"-"+userData.getId()+": " + le.getLocalizedMessage());
 			le.printStackTrace();
 			if (RuntimeConfiguration.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
-				System.exit(-1);
+				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 	}
 	

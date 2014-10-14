@@ -16,6 +16,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.data.PostData;
 import de.comlineag.snc.data.UserData;
@@ -70,6 +71,8 @@ public class FsCrawler implements Job {
 	
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException{
+		RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+		
 		logger.info("FileSystem-Crawler START");
 		JsonBackupStoragePath = (String) arg0.getJobDetail().getJobDataMap().get("StoragePath")+System.getProperty("file.separator")+arg0.getJobDetail().getJobDataMap().get("JsonBackupStoragePath");
 		InvalidJsonBackupStoragePath = (String) arg0.getJobDetail().getJobDataMap().get("StoragePath")+System.getProperty("file.separator")+(String) arg0.getJobDetail().getJobDataMap().get("InvalidJsonBackupStoragePath");

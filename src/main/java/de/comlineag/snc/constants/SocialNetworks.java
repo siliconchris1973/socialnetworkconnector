@@ -22,7 +22,7 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
  * 
  * @author 		Christian Guenther
  * @category 	data type
- * @version 	0.8				- 11.10.2014
+ * @version 	0.8a			- 14.10.2014
  * @status		productive
  * 
  * @description contains an enumeration with shortcuts referencing the social networks
@@ -36,6 +36,7 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
  * 				0.7				moved definition of the networks to RuntimeConfiguration.xml and made enum a class
  * 				0.8				moved SocialNetwork definitions to their own file and adapted query for file
  * 								and deleted deprecated enum
+ * 				0.8a			changed exit code to SNCStatusCodes
  * 
  */
 public final class SocialNetworks {
@@ -119,7 +120,7 @@ public final class SocialNetworks {
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
-				logger.error("Did not receive any node information on "+key+" for social network "+snname+" from " + RuntimeConfiguration.getConfigFile() + " using expression " + expression);
+				logger.error("Did not receive any node information on "+key+" for social network "+snname+" from " + RuntimeConfiguration.getRuntimeConfigFile() + " using expression " + expression);
 				return null;
 			} else {
 				return node.getTextContent();
@@ -131,7 +132,7 @@ public final class SocialNetworks {
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
 			e.printStackTrace();
-			System.exit(-1);
+			System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 		return null;
 	}

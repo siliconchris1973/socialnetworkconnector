@@ -9,6 +9,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
+import de.comlineag.snc.constants.SNCStatusCodes;
 import de.comlineag.snc.constants.SocialNetworks;
 
 import java.io.IOException;
@@ -115,7 +116,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 		
 		// first check, if the correct configuration file type was specified and if not, bail out the hard way
 		if (!isConfigFileCorrect()){
-			System.exit(-1);
+			System.exit(SNCStatusCodes.ERROR.getErrorCode());
 		}
 		
 		// get configuration scope

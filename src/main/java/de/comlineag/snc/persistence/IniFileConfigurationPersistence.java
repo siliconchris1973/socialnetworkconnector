@@ -1,6 +1,7 @@
 package de.comlineag.snc.persistence;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
+import de.comlineag.snc.constants.SNCStatusCodes;
 
 import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
@@ -55,7 +56,7 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 	@Override
 	public Boolean getRunState(String socialNetwork) {
 		if (RuntimeConfiguration.getWarnOnSimpleConfig())
-			logger.warn("no possibility to activate/deactivate certain crawler - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + RuntimeConfiguration.getConfigFile().substring(RuntimeConfiguration.getConfigFile().lastIndexOf("/")+1));
+			logger.warn("no possibility to activate/deactivate certain crawler - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + RuntimeConfiguration.getRuntimeConfigFile().substring(RuntimeConfiguration.getRuntimeConfigFile().lastIndexOf("/")+1));
 		
 		return true;
 	}
@@ -73,7 +74,7 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 			logger.debug("reading constraints on " + category + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")+1));
 			//if ((RuntimeConfiguration.getCustomerIsActive() || RuntimeConfiguration.getDomainIsActive()) && RuntimeConfiguration.getWarnOnSimpleConfig())
 			if (RuntimeConfiguration.getWarnOnSimpleConfig())
-				logger.warn("no customer and network specific configuration and no type safety guranteed - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + RuntimeConfiguration.getConfigFile().substring(RuntimeConfiguration.getConfigFile().lastIndexOf("/")+1));
+				logger.warn("no customer and network specific configuration and no type safety guranteed - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + RuntimeConfiguration.getRuntimeConfigFile().substring(RuntimeConfiguration.getRuntimeConfigFile().lastIndexOf("/")+1));
 			
 			return (ArrayList<T>)getDataFromIni(category);
 		}
@@ -90,10 +91,10 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 			ini = new Ini(new FileReader((String)getConfigDbHandler()));
 		} catch (InvalidIniFormatException e1) {
 			logger.error("EXCEPTION :: invalid ini format " + e1.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(-1);
+			System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		} catch (IOException e2) {
 			logger.error("EXCEPTION :: error reading configuration file " + e2.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(-1);
+			System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 		
 		// now add config elements one by one to array

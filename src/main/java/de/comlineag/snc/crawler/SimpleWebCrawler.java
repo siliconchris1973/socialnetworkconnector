@@ -99,9 +99,12 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
 	
 	
-	@SuppressWarnings("unchecked")
+	
 	@Override
+	@SuppressWarnings("unchecked")
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+		
 		try {
 			String smallLogMessage = "";	
 			// runtime settings and crawler constraints

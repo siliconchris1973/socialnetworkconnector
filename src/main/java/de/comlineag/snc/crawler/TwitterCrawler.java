@@ -104,9 +104,11 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	}
 	
 	
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+		
 		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
 			

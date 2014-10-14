@@ -81,6 +81,13 @@
 			<value>webapp/WEB-INF/properties/webparser.xml</value>
 		</param>
 		
+		<!-- location of the file with the configuration options for the hana database -->
+		<param name="HanaConfigurationFilePath">
+			<type>String</type>
+			<value>webapp/WEB-INF/SNC_HANA_Configuration.xml</value>
+		</param>
+		
+		
 		<!-- show warning in case the simple INI file configuration is used -->
 		<param name="WarnOnSimpleConfigOption">
 			<type>boolean</type>

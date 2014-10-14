@@ -20,16 +20,6 @@ import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
 //import org.apache.logging.log4j.Logger;
 
-
-
-
-
-
-
-
-
-
-
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.ConfigurationConstants;
@@ -45,7 +35,6 @@ import de.comlineag.snc.handler.GenericCrawlerException;
 import de.comlineag.snc.handler.LithiumPosting;
 import de.comlineag.snc.handler.LithiumStatusException;
 import de.comlineag.snc.handler.LithiumUser;
-import de.comlineag.snc.handler.SimpleWebPosting;
 import de.comlineag.snc.parser.LithiumParser;
 
 /**
@@ -109,6 +98,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+		
 		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
 		
@@ -155,7 +146,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				_passwd = configurationCryptoProvider.decryptValue((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_PASSWORD_KEY));
 			} catch (GenericCryptoException e) {
 				logger.error("EXCEPTION :: could not decrypt value for user/passwd with " + configurationCryptoProvider.getClass().getSimpleName() + ": " + e.toString(), e);
-				System.exit(-1);
 			}
 			
 			// some static vars for the lithium crawler taken from applicationContext.xml

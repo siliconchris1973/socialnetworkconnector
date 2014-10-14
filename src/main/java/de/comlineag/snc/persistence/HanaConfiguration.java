@@ -36,7 +36,7 @@ public final class HanaConfiguration {
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
-	private static String configFile = "webapp/WEB-INF/SNC_HANA_Configuration.xml";
+	private static String hanaConfigFile = "webapp/WEB-INF/SNC_HANA_Configuration.xml";
 	
 	private static String PATH_TO_TABLES = "comline.saa.data.tables";
 	private static String SCHEMA_NAME = "CL_SAA";
@@ -85,51 +85,45 @@ public final class HanaConfiguration {
 			expression = "/configurations/configuration[@scope=\"DbLayout\"]/param[@name=\"PathToTables\"]";
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
-				logger.error("Did not receive any information from " + configFile + " using expression " + expression);
-				System.exit(-1);
+				logger.error("Did not receive any information from " + hanaConfigFile + " using expression " + expression);
 			} else {
 				setPATH_TO_TABLES(node.getTextContent());
 			}
 			expression = "/configurations/configuration[@scope=\"DbLayout\"]/param[@name=\"SchemaName\"]";
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
-				logger.error("Did not receive any information from " + configFile + " using expression " + expression);
-				System.exit(-1);
+				logger.error("Did not receive any information from " + hanaConfigFile + " using expression " + expression);
 			} else {
 				setSCHEMA_NAME(node.getTextContent());
 			}
 			expression = "/configurations/configuration[@scope=\"DbLayout\"]/param[@name=\"PostsTable\"]";
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
-				logger.error("Did not receive any information from " + configFile + " using expression " + expression);
-				System.exit(-1);
+				logger.error("Did not receive any information from " + hanaConfigFile + " using expression " + expression);
 			} else {
 				setPOSTS_TABLE(node.getTextContent());
 			}
 			expression = "/configurations/configuration[@scope=\"DbLayout\"]/param[@name=\"UsersTable\"]";
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
-				logger.error("Did not receive any information from " + configFile + " using expression " + expression);
-				System.exit(-1);
+				logger.error("Did not receive any information from " + hanaConfigFile + " using expression " + expression);
 			} else {
 				setUSERS_TABLE(node.getTextContent());
 			}
 		} catch (IOException e) {
 			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(-1);
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
 			e.printStackTrace();
-			System.exit(-1);
 		}
 	}
 	
 	// getter and setter for the configuration path
 	public static String getConfigFile() {
-		return HanaConfiguration.configFile;
+		return HanaConfiguration.hanaConfigFile;
 	}
 	public static void setConfigFile(String configFile) {
-		HanaConfiguration.configFile = configFile;
+		HanaConfiguration.hanaConfigFile = configFile;
 	}
 	
 	public static String getPATH_TO_TABLES() {

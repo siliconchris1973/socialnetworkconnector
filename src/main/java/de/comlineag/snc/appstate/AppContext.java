@@ -11,15 +11,14 @@ import org.springframework.context.ApplicationContext;
  * 
  * @description defines the application context
  * 
- * @changelog	0.1 (Magnus)		class created
+ * @changelog	0.1 (Magnus)	class created
  * 
  */
 public class AppContext {
-
+	
 	public static ApplicationContext Context;
-
+	
 	public static void setApplicationContext(ApplicationContext ctx) {
 		Context = ctx;
 	}
-
 }

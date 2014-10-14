@@ -12,10 +12,12 @@
 	* Administration-servlet.xml		- for the web administration servlet
 	* web.xml							- for general web configuration
 	* log4j.xml							- for logging options
+	* quartz.properties					- for jmx support
+	* properties/webparser.xml			- for available web parser that can be used by the web crawler
 	
 	The first thing you will want to configure, however is which configuration option
 	for the crawler to use. Usually this is done via an xml file but you can also opt 
-	for a database. If a file is used, then you need to define which in the section 
+	for a database. If a file is used, then you need to define it in the section 
 	configuration provider at around line 373 (well, was that line on September, the 
 	17th anyway)
 
@@ -88,8 +90,7 @@
 					activate each crawler you want the SNC to scan through. 
 					Make sure to set the threadCount number above according to the number of activated 
 					crawlers. The total number of threads must include the number of actual crawlers in
-					this section plus the FsCrawler below and the GeneralConfgurationTrigger - resulting 
-					in number of crawlers plus 2 as the threadcount -->
+					this section plus the FsCrawler below - resulting in number of crawlers plus 1  -->
 				<ref bean="TwitterCrawlerTrigger" />
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
@@ -108,12 +109,6 @@
 					inserts in a backup directory (can be configured in SNC_Runtime_Configuration.xml), 
 					in which case there would be no sense scanning :-) -->
 				<!-- <ref bean="FsCrawlerTrigger" /> -->
-				
-				<!-- RUNTIME CONFIGURATION
-					this is the basic configuration for the social network connector if you deactivate it,
-					the SNC will cease to function as no information regarding the runtime environment
-					of the SNC can be retrieved by the other components of the SNC -->
-				<ref bean="RuntimeConfigurationTrigger" />
 			</list>
 		</property>
 	</bean>
@@ -665,27 +660,6 @@
 		<property name="startDelay" value="300" />
 		<property name="repeatInterval" value="180000" />
 	</bean>
-	
-	<!-- R U N T I M E    S E T T I N G S -->
-	<bean name="RuntimeConfigurationDetail"
-		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="de.comlineag.snc.appstate.RuntimeConfiguration" />
-		<property name="Durability" value="true"/>
-		<!-- <property name="Concurrent" value="false" /> --> 
-		<!-- <property name="Singleton" value="true"/> -->
-		<property name="jobDataAsMap">
-			<map>
-				<entry key="configFile" value="webapp/WEB-INF/SNC_Runtime_Configuration.xml" />
-			</map>
-		</property>
-	</bean>
-	<bean id="RuntimeConfigurationTrigger"
-		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
-		<property name="jobDetail" ref="RuntimeConfigurationDetail" />
-		<property name="startDelay" value="1" />
-		<property name="repeatInterval" value="2000000" />
-	</bean>
-	
 	
 	<!-- Quartz scheduler properties 
 		 these entries are needed for the JMX Access to the Job Factory, 

@@ -67,7 +67,7 @@
 	
 	<!-- pushing every log entry in the same file and on the console -->
 	<logger name="de.comlineag.snc">
-		<level value="info"></level>
+		<level value="trace"></level>
 		<appender-ref ref="console" />
 		<appender-ref ref="fileA" />
 	</logger>
@@ -79,7 +79,7 @@
 	</logger>
 	<!-- log infos from spring framework -->
 	<logger name="org.springframework">
-		<level value="error"></level>
+		<level value="warn"></level>
 		<appender-ref ref="console" />
 		<appender-ref ref="fileJ" />
 	</logger>

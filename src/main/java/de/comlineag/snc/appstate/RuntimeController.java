@@ -7,10 +7,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.io.IOException;
 
 /**
  * 
@@ -24,7 +24,7 @@ import java.io.IOException;
  * 				The model that this class returns is actually resolved via a ViewResolver. 
  * 				Since we have not explicitly defined a ViewResolver, we are going to be given 
  * 				a default one by Spring that simply forwards to a URL matching the name of 
- * 				the view specified. We will modify this later on.
+ * 				the view specified.
  *
  * @changelog	0.1 (Chris)		class created
  * 
@@ -37,7 +37,8 @@ public class RuntimeController implements Controller {
 	public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		logger.info("Returning hello view");
+		logger.info("Returning index.jsp");
 		return new ModelAndView("index.jsp");
+		
 	}
 }

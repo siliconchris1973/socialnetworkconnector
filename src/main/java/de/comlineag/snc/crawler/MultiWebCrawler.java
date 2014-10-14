@@ -79,10 +79,11 @@ public class MultiWebCrawler extends GenericCrawler implements Job {
 	
 	List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
 	
-	
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+		
 		try {
 			String smallLogMessage = "";	
 			// runtime settings and crawler constraints
@@ -158,7 +159,6 @@ public class MultiWebCrawler extends GenericCrawler implements Job {
 				// TODO get the initial server url and extract host and port for the authentication process from it
 				if (!arg0.getJobDetail().getJobDataMap().containsKey("server_url")){
 					logger.error("ERROR :: no url to parse given - this is fatal: exiting");
-					//System.exit(SNCStatusCodes.FATAL.getErrorCode());
 					return;
 				}
 				
@@ -222,7 +222,7 @@ public class MultiWebCrawler extends GenericCrawler implements Job {
 					}
 				} else {
 					logger.error("No url to crawl given - exiting");
-					System.exit(-1);
+					return;
 				}
 				// URLs to be searched
 				List<URL> newURLs = new ArrayList<URL>();
@@ -244,6 +244,7 @@ public class MultiWebCrawler extends GenericCrawler implements Job {
 						}
 					} catch (GenericCryptoException e1) {
 						logger.error("Could not decrypt username and password from applicationContext.xml");
+						return;
 					}
 				}
 				
