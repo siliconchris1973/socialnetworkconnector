@@ -44,10 +44,10 @@ import org.w3c.dom.NodeList;
  *  TODO 1. implement code for missing methods - see below
  */
 public class ComplexXmlConfigurationPersistence<T> implements IConfigurationManager<T>  {
-	// this holds a reference to the runtime cinfiguration
-	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	// this holds a reference to the runtime configuration
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
-	// we use simple org.apache.log4j.Logger for lgging
+	// we use simple org.apache.log4j.Logger for logging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
@@ -65,6 +65,109 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	private int domainPriority = 0;
 	private int customerPriority = 0;
 	private JSONObject crawlerConfigurationScope = new JSONObject();
+	
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public JSONObject getCrawlerConfigurationScope() {
+		logger.info("setting up crawler configuration scope");
+		
+		try {
+			File file = new File(getConfigDbHandler());
+			
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(file);
+			
+			XPathFactory xPathfactory = XPathFactory.newInstance();
+			XPath xpath = xPathfactory.newXPath();
+			
+			String expression = null;
+			Node node = null; 
+			String basicStructure = "/"+rtc.getRootidentifier()+"/"
+										+rtc.getSingleconfigurationidentifier()
+											+"[@"+rtc.getScopeidentifier()+"='"
+												+rtc.getDomainstructureidentifier()+"']/"
+										+rtc.getDomainstructureidentifier();
+			
+			// first step is to get the domain
+			expression = basicStructure + "/"+rtc.getDomainidentifier()+"/"+rtc.getValueidentifier();
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.error("Did not receive information on the domain using expression " + expression);
+			} else {
+				crawlerConfigurationScope.put((String) rtc.getDomainidentifier(), (String) node.getTextContent());
+				setDomain((String) node.getTextContent());
+			}
+			
+			// whether or not it is active
+			expression = basicStructure + "/"+rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/isActive/"+rtc.getValueidentifier();
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("did not receive a domain activation - setting to false");
+				setDomainIsActive(false);
+			} else {
+				if ("true".equals(node.getTextContent()))
+					setDomainIsActive(true);
+				else
+					setDomainIsActive(false);
+			}
+			// and the corresponding priority
+			expression = basicStructure + "/"+rtc.getDomainidentifier()
+													+"[@"+rtc.getDomainnameidentifier()
+															+"='"+getDomain()+"']"
+												+ "/priority/"+rtc.getValueidentifier();
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("did not receive a domain priority - setting to 0");
+				setDomainPriority((int) 0);
+			} else {
+				setDomainPriority(Integer.parseInt(node.getTextContent()));
+			}
+			crawlerConfigurationScope.put((String) "domainIsActive", (boolean) getDomainIsActive());
+			crawlerConfigurationScope.put((String) "domainPriority", (int) getDomainPriority());
+			logger.debug("the domain "+getDomain()+" is active " + getDomainIsActiveAsString() + " and has priority "+ getDomainPriority());
+			
+			
+			// second step is to get the customer
+			expression = basicStructure + "/"+rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/"+rtc.getCustomeridentifier()+"/"+rtc.getValueidentifier();
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.error("Did not receive information on customer using expression " + expression);
+			} else {
+				crawlerConfigurationScope.put((String) rtc.getCustomeridentifier(), (String) node.getTextContent());
+				setCustomer((String) node.getTextContent());
+			}
+			// whether or not it is active
+			expression = basicStructure + "/"+rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/"+rtc.getCustomeridentifier()+"[@"+rtc.getCustomernameidentifier()+"='"+getCustomer()+"']/isActive/"+rtc.getValueidentifier();
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("did not receive a customer activation - setting to false");
+				setCustomerIsActive(false);
+			} else {
+				if ("true".equals(node.getTextContent()))
+					setCustomerIsActive(true);
+				else
+					setCustomerIsActive(false);
+			}
+			// and the corresponding priority
+			expression = basicStructure + "/"+rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/"+rtc.getCustomeridentifier()+"[@"+rtc.getCustomernameidentifier()+"='"+getCustomer()+"']/priority/"+rtc.getValueidentifier();
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.warn("did not receive a customer priority - setting to 0");
+				setCustomerPriority((int) 0);
+			} else {
+				setCustomerPriority(Integer.parseInt(node.getTextContent()));
+			}
+			crawlerConfigurationScope.put((String) "customerIsActive", (boolean) getCustomerIsActive());
+			crawlerConfigurationScope.put((String) "customerPriority", (int) getCustomerPriority());
+			logger.debug("the customer "+getCustomer()+" is active " + getCustomerIsActiveAsString() + " and has priority " + getCustomerPriority());
+			
+		} catch (Exception e) {
+			logger.error("EXCEPTION :: could not get crawler configuration " + e.getLocalizedMessage());
+		}
+		return crawlerConfigurationScope;
+	}
 	
 	
 	@Override
@@ -109,30 +212,6 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 		return true;
 	}
 	
-	// general invocation for every constraint
-	@Override
-	public ArrayList<T> getConstraint(String category, JSONObject configurationScope) {
-		assert (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category) && !"blockedsite".equals(category))  : "ERROR :: can only accept term, site, blockedsite, user, language or geoLocation as category";
-		
-		if (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category) && !"blockedsite".equals(category)) 
-			logger.warn("received "+category+" as category, but can only process term, site, blockedsite, user, language or geoLocation");
-		
-		// first check, if the correct configuration file type was specified and if not, bail out the hard way
-		if (!isConfigFileCorrect()){
-			System.exit(SNCStatusCodes.ERROR.getErrorCode());
-		}
-		
-		// get configuration scope
-		try {
-			obj = parser.parse(configurationScope.toString());
-			JSONObject jsonObject = (JSONObject) obj;
-			SN = (String) jsonObject.get("SN_ID");
-		} catch (ParseException e1) {
-			logger.error("ERROR :: could not parse configurationScope json " + e1.getLocalizedMessage());
-		}
-		
-		return (ArrayList<T>) getDataFromXml(category, SN);
-	}
 	
 	@SuppressWarnings("unchecked")
 	private ArrayList<T> getDataFromXml(String section, String SN) {
@@ -298,204 +377,79 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
         return (ArrayList<T>) ar;
 	}
 	
+	
+	
+	// general invocation for every constraint
+	@Override
+	public ArrayList<T> getConstraint(String category, JSONObject configurationScope) {
+		assert (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category) && !"blockedsite".equals(category))  : "ERROR :: can only accept term, site, blockedsite, user, language or geoLocation as category";
+		
+		if (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category) && !"blockedsite".equals(category)) 
+			logger.warn("received "+category+" as category, but can only process term, site, blockedsite, user, language or geoLocation");
+		
+		// first check, if the correct configuration file type was specified and if not, bail out the hard way
+		if (!isConfigFileCorrect()){
+			System.exit(SNCStatusCodes.ERROR.getErrorCode());
+		}
+		
+		// get configuration scope
+		try {
+			obj = parser.parse(configurationScope.toString());
+			JSONObject jsonObject = (JSONObject) obj;
+			SN = (String) jsonObject.get("SN_ID");
+		} catch (ParseException e1) {
+			logger.error("ERROR :: could not parse configurationScope json " + e1.getLocalizedMessage());
+		}
+		
+		return (ArrayList<T>) getDataFromXml(category, SN);
+	}
+	
 	@Override
 	public String getConfigurationElement(String key, String path) {
 		// TODO implement code to retrieve one single configuration element
 		logger.warn("The method getConfigurationElement is currently not implemented for configuration type xml-file");
 		return null;
 	}
-
 	@Override
 	public void setConfigurationElement(String key, String value, String path) {
 		// TODO implement code to update a configuration element 
 		logger.warn("The method setConfigurationElement is currently not implemented for configuration type xml-file");
 	}
-	
 	@Override
 	public void writeNewConfiguration(String xml) {
 		// TODO implement writeNewConfiguration
 		logger.warn("The method writeNewConfiguration is not yet implemented for configuration type xml-file");
 	}
 	
+	
+	
 	// getter and setter for the configuration path
-	public String getConfigDbHandler() {
-		return this.configDbHandler;
-	}
-	public void setConfigDbHandler(String configDbHandler) {
-		this.configDbHandler = configDbHandler;
-	}
+	public String getConfigDbHandler() {return rtc.returnQualifiedConfigPath(this.configDbHandler);}
+	public void setConfigDbHandler(String configDb) {this.configDbHandler = configDb;}
 	
+	// getter and setter for domain and customer
+	@Override
+	public String getDomain() {	return domain;}
+	@Override
+	public String getCustomer() {return customer;}
+	@Override
+	public void setDomain(String domain) {this.domain = domain;}
+	@Override
+	public void setCustomer(String customer) {this.customer = customer;}
 	
-	@SuppressWarnings("unchecked")
-	@Override
-	public JSONObject getCrawlerConfigurationScope() {
-		logger.info("setting up crawler configuration scope");
-		
-		try {
-			File file = new File(getConfigDbHandler());
-			
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.parse(file);
-			
-			XPathFactory xPathfactory = XPathFactory.newInstance();
-			XPath xpath = xPathfactory.newXPath();
-			
-			String expression = null;
-			Node node = null; 
-			String basicStructure = "/"+rtc.getRootidentifier()+"/"
-										+rtc.getSingleconfigurationidentifier()
-											+"[@"+rtc.getScopeidentifier()+"='"
-												+rtc.getDomainstructureidentifier()+"']/"
-										+rtc.getDomainstructureidentifier();
-			
-			// first step is to get the domain
-			expression = basicStructure + "/"+rtc.getDomainidentifier()+"/"+rtc.getValueidentifier();
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.error("Did not receive information on the domain using expression " + expression);
-			} else {
-				crawlerConfigurationScope.put((String) rtc.getDomainidentifier(), (String) node.getTextContent());
-				setDomain((String) node.getTextContent());
-			}
-			
-			// whether or not it is active
-			expression = basicStructure + "/"+rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/isActive/"+rtc.getValueidentifier();
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("did not receive a domain activation - setting to false");
-				setDomainIsActive(false);
-			} else {
-				if ("true".equals(node.getTextContent()))
-					setDomainIsActive(true);
-				else
-					setDomainIsActive(false);
-			}
-			// and the corresponding priority
-			expression = basicStructure + "/"+rtc.getDomainidentifier()
-													+"[@"+rtc.getDomainnameidentifier()
-															+"='"+getDomain()+"']"
-												+ "/priority/"+rtc.getValueidentifier();
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("did not receive a domain priority - setting to 0");
-				setDomainPriority((int) 0);
-			} else {
-				setDomainPriority(Integer.parseInt(node.getTextContent()));
-			}
-			crawlerConfigurationScope.put((String) "domainIsActive", (boolean) getDomainIsActive());
-			crawlerConfigurationScope.put((String) "domainPriority", (int) getDomainPriority());
-			logger.debug("the domain "+getDomain()+" is active " + getDomainIsActiveAsString() + " and has priority "+ getDomainPriority());
-			
-			
-			// second step is to get the customer
-			expression = basicStructure + "/"+rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/"+rtc.getCustomeridentifier()+"/"+rtc.getValueidentifier();
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.error("Did not receive information on customer using expression " + expression);
-			} else {
-				crawlerConfigurationScope.put((String) rtc.getCustomeridentifier(), (String) node.getTextContent());
-				setCustomer((String) node.getTextContent());
-			}
-			// whether or not it is active
-			expression = basicStructure + "/"+rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/"+rtc.getCustomeridentifier()+"[@"+rtc.getCustomernameidentifier()+"='"+getCustomer()+"']/isActive/"+rtc.getValueidentifier();
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("did not receive a customer activation - setting to false");
-				setCustomerIsActive(false);
-			} else {
-				if ("true".equals(node.getTextContent()))
-					setCustomerIsActive(true);
-				else
-					setCustomerIsActive(false);
-			}
-			// and the corresponding priority
-			expression = basicStructure + "/"+rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/"+rtc.getCustomeridentifier()+"[@"+rtc.getCustomernameidentifier()+"='"+getCustomer()+"']/priority/"+rtc.getValueidentifier();
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("did not receive a customer priority - setting to 0");
-				setCustomerPriority((int) 0);
-			} else {
-				setCustomerPriority(Integer.parseInt(node.getTextContent()));
-			}
-			crawlerConfigurationScope.put((String) "customerIsActive", (boolean) getCustomerIsActive());
-			crawlerConfigurationScope.put((String) "customerPriority", (int) getCustomerPriority());
-			logger.debug("the customer "+getCustomer()+" is active " + getCustomerIsActiveAsString() + " and has priority " + getCustomerPriority());
-			
-		} catch (Exception e) {
-			logger.error("EXCEPTION :: could not get crawler configuration " + e.getLocalizedMessage());
-		}
-		return crawlerConfigurationScope;
-	}
+	private int getCustomerPriority() {return customerPriority;}
+	private void setCustomerPriority(int i) {customerPriority = i;}
+	private int getDomainPriority() {return domainPriority;}
+	private void setDomainPriority(int i) {domainPriority = i;}
+	public boolean getDomainIsActive(){return domainIsActive;}
+	public void setDomainIsActive(boolean isActive){domainIsActive = isActive;}
+	public boolean getCustomerIsActive(){return customerIsActive;}
+	public void setCustomerIsActive(boolean isActive){customerIsActive = isActive;}
+	public String getDomainIsActiveAsString(){if (domainIsActive) return "true"; else return "false"; }
+	public void setDomainIsActive(String isActive){if ("isActive".equals("true")) domainIsActive = true; else domainIsActive = false; }
+	public String getCustomerIsActiveAsString(){if (customerIsActive) return "true"; else return "false";}
+	public void setCustomerIsActive(String isActive){if ("isActive".equals("true"))	customerIsActive = true; else customerIsActive = false;}
 	
-	
-	// getter and setter for above method data
-	@Override
-	public String getDomain() {
-		return domain;
-	}
-	@Override
-	public String getCustomer() {
-		return customer;
-	}
-	@Override
-	public void setDomain(String domain) {
-		this.domain = domain;
-	}
-	@Override
-	public void setCustomer(String customer) {
-		this.customer = customer;
-	}
-	private int getCustomerPriority() {
-		return customerPriority;
-	}
-	private void setCustomerPriority(int i) {
-		customerPriority = i;
-	}
-
-	private int getDomainPriority() {
-		return domainPriority;
-	}
-
-	private void setDomainPriority(int i) {
-		domainPriority = i;
-	}
-	public boolean getDomainIsActive(){
-		return domainIsActive;
-	}
-	public void setDomainIsActive(boolean isActive){
-		domainIsActive = isActive;
-	}
-	public boolean getCustomerIsActive(){
-		return customerIsActive;
-	}
-	public void setCustomerIsActive(boolean isActive){
-		customerIsActive = isActive;
-	}
-	public String getDomainIsActiveAsString(){
-		if (domainIsActive)
-			return "true";
-		else
-			return "false";
-	}
-	public void setDomainIsActive(String isActive){
-		if ("isActive".equals("true"))
-			domainIsActive = true;
-		else
-			domainIsActive = false;
-	}
-	public String getCustomerIsActiveAsString(){
-		if (customerIsActive)
-			return "true";
-		else
-			return "false";
-	}
-	public void setCustomerIsActive(String isActive){
-		if ("isActive".equals("true"))
-			customerIsActive = true;
-		else
-			customerIsActive = false;
-	}
 	
 	// check to see, if provided configuration file is correct for chosen configuration manager
 	public boolean isConfigFileCorrect(){

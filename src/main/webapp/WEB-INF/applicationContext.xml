@@ -125,7 +125,7 @@
 		 URL AND SERVER NAME ETC. ADAPTED.
 	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	
-	<!-- T W I T T E R    C R A W L E R    (WORKS)		-->
+	<!-- T W I T T E R    C R A W L E R    (PRODUCTIVE)		-->
 	<bean name="TwitterCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.snc.crawler.TwitterCrawler" />
@@ -158,7 +158,7 @@
 	</bean>
 	
 	
-	<!-- L I T H I U M    C R A W L E R    (WORKS) -->
+	<!-- L I T H I U M    C R A W L E R    (PRODUCTIVE) -->
 	<bean name="LithiumCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.snc.crawler.LithiumCrawler" />
@@ -195,8 +195,8 @@
 	</bean>
 	
 	
-	<!-- S I M P L E    W E B    C R A W L E R    (IN DEVELOPMENT) -->
-	<!-- this is the simplest way of crawling a webpage. It has significant disadvantages to the MultiWebCrawler
+	<!-- S I M P L E    W E B    C R A W L E R    (PRODUCTIVE) -->
+	<!-- this is the easiest way of crawling a webpage, but it has significant disadvantages to the MultiWebCrawler
 		 and should only be used in the most simple environment. First of all, you have to setup the url to crawl
 		 within this file, rather than in the crawler configuration file. Second you can only pass one webpage/domain
 		 as a starting point. And finally, it is very cumbersome to use an individual SN_ID (social network) code
@@ -403,7 +403,7 @@
 	     You may choose exactly one of the provided configuration manager 
 	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	
-	<!-- this is the bean to get the crawler configuration from the HANA (TO BE IMPLEMENETED) -->
+	<!-- this is the bean to get the crawler configuration from the HANA (TO BE IMPLEMENTED) -->
 	<!-- 
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.HANAConfigurationPersistence"> 
 		<property name="protocol" value="http" /> 
@@ -418,14 +418,21 @@
 	-->
 
 	<!-- this is the bean to get the crawler configuration specific for individual customers AND/OR domains from an xml file
-		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR EITHER CUSTOMER OR DOMAIN) -->
- 
+		(WORKS AND PROVIDES THE ABILITY TO SETUP DIFFERENT CRAWLER CONFIGURATIONS FOR EITHER CUSTOMER OR DOMAIN)
+ 		If you change file name or location you can either put an absolute path in here, or a relative one. If
+ 		you enter a relative path, this HAS to be below WEB-INF! This is because the runtime configuration checks 
+ 		for an absolute path and if it does not find one (no / // or drive letter like c: at the start), it 
+ 		assumes the file to be located in or below the WEB-INF directory -->
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.ComplexXmlConfigurationPersistence"> 
-		<property name="configDbHandler" value="webapp/WEB-INF/SNC_Crawler_Configuration/CortalConsorsSpecificCrawlerConfiguration.xml" />
+		<property name="configDbHandler" value="SNC_Crawler_Configuration/CortalConsorsSpecificCrawlerConfiguration.xml" />
 	</bean> 
 	
 	<!-- this is the bean to get the crawler configuration from a simple xml file 
-		(WORKS BUT NO CUSTOMER SPECIFIC CONFIGURATION POSSIBLE)	-->
+		(WORKS BUT NO CUSTOMER SPECIFIC CONFIGURATION POSSIBLE)	
+ 		If you change file name or location you can either put an absolute path in here, or a relative one. If
+ 		you enter a relative path, this HAS to be below WEB-INF! This is because the runtime configuration checks 
+ 		for an absolute path and if it does not find one (no / // or drive letter like c: at the start), it 
+ 		assumes the file to be located in or below the WEB-INF directory -->
 <!-- 
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.SimpleXmlConfigurationPersistence"> 
 		<property name="configDbHandler" value="webapp/WEB-INF/SNC_Crawler_Configuration/SimpleCrawlerConfiguration.xml" /> 
@@ -433,7 +440,11 @@
 -->
 	 
 	<!-- this is the bean to get the crawler configuration from an ini file 
-		(WORKS WITH RESTRICTIONS - NO CUSTOMER AND NO CRAWLER SPECIFIC CONFIGURATION POSSIBLE) -->
+		(WORKS WITH RESTRICTIONS - NO CUSTOMER AND NO CRAWLER SPECIFIC CONFIGURATION POSSIBLE) 
+ 		If you change file name or location you can either put an absolute path in here, or a relative one. If
+ 		you enter a relative path, this HAS to be below WEB-INF! This is because the runtime configuration checks 
+ 		for an absolute path and if it does not find one (no / // or drive letter like c: at the start), it 
+ 		assumes the file to be located in or below the WEB-INF directory -->
 <!-- 
 	<bean id="configurationManager" class="de.comlineag.snc.persistence.IniFileConfigurationPersistence">
 		<property name="configDbHandler" value="webapp/WEB-INF/SNC_Crawler_Configuration/CrawlerConfiguration.ini" />

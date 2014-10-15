@@ -44,7 +44,7 @@ import de.comlineag.snc.helper.UniqueIdServices;
  */
 public final class WONewsWebParser extends GenericWebParser implements IWebParser {
 	// this holds a reference to the runtime cinfiguration
-	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());

@@ -47,7 +47,7 @@ import com.google.common.base.Joiner;
 @DisallowConcurrentExecution 
 public class FacebookSpringFbCrawler extends GenericCrawler implements Job {
 	// this holds a reference to the runtime cinfiguration
-	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	private static String CRAWLER_NAME="FACEBOOK";
 	

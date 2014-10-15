@@ -56,6 +56,9 @@ import de.comlineag.snc.parser.IWebParser;
  * 
  */
 public class ParserControl {
+	// this holds a reference to the runtime configuration
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	
 	// we use simple org.apache.log4j.Logger for lgging
 	private static final Logger logger = Logger.getLogger("de.comlineag.snc.parser.ParserControl");
 	// in case you want a log-manager use this line and change the import above
@@ -65,10 +68,6 @@ public class ParserControl {
 	private List<IWebParser> webParser; 
 	// the ParserControl instance - used during instantiation of the class and later to retrieve the list 
 	private static ParserControl pc = null;
-	
-	// this holds a reference to the runtime cinfiguration
-	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
-	
 	
 	// ParserControl is not to be directly instantiated by other classes
 	private ParserControl() {
@@ -128,7 +127,7 @@ public class ParserControl {
 	private List<IWebParser> getAllParser()
 			throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, 
 					InstantiationException, IllegalAccessException, ClassNotFoundException, DOMException {
-		String fileName = rtc.getParserListFilePath();
+		String fileName = rtc.getWebParserListFilePath();
 		List<IWebParser> ar = new ArrayList<IWebParser>();
 		
 		File file = new File(fileName);

@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,7 +25,6 @@ import org.json.simple.JSONObject;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
@@ -57,7 +54,7 @@ import de.comlineag.snc.parser.ParserControl;
  */
 public class MultiWebCrawler extends GenericCrawler implements Job {
 	// this holds a reference to the runtime cinfiguration
-	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// it is VERY imoportant to set the crawler name (all in uppercase) here
 	private static String CRAWLER_NAME="WEBCRAWLER";

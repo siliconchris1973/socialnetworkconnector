@@ -55,7 +55,7 @@ import facebook4j.conf.ConfigurationBuilder;
 @DisallowConcurrentExecution 
 public class Facebook4JFbCrawler extends GenericCrawler implements Job {
 	// this holds a reference to the runtime cinfiguration
-	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	private static String CRAWLER_NAME="FACEBOOK";
 	

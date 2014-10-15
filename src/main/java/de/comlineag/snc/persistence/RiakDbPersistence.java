@@ -34,7 +34,18 @@ import de.comlineag.snc.persistence.JsonFilePersistence;
  */
 public class RiakDbPersistence implements IPersistenceManager {
 	// this holds a reference to the runtime configuration
-	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	
+	// we use simple org.apache.log4j.Logger for lgging
+	private final Logger logger = Logger.getLogger(getClass().getName());
+	// in case you want a log-manager use this line and change the import above
+	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	
+	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
+	private final ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
+	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
+	private final DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
+	
 	
 	// Servicelocation taken from applicationContext.xml
 	private String host;
@@ -55,17 +66,6 @@ public class RiakDbPersistence implements IPersistenceManager {
 	private Long Id;
 	private SocialNetworks SN;
 	
-	
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
-	
-	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
-	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
-
 	
 	public RiakDbPersistence() {
 		//@SuppressWarnings("unused")

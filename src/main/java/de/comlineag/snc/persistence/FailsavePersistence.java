@@ -39,7 +39,7 @@ import de.comlineag.snc.handler.DataCryptoHandler;
  */
 public class FailsavePersistence implements IPersistenceManager {
 	// this holds a reference to the runtime configuration
-	RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// define where and the files shall be saved
 	private String savePoint = rtc.getJSON_BACKUP_STORAGE_PATH();

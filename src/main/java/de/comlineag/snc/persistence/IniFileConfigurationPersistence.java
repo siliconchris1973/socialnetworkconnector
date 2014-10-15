@@ -45,21 +45,20 @@ import java.util.ArrayList;
  */
 public class IniFileConfigurationPersistence<T> implements IConfigurationManager<T>  {
 	// this holds a reference to the runtime configuration
-	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
-	
-	// the path to the configuration file
-	private String configDbHandler;
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
-
+	// the path to the configuration file
+	private String configDbHandler;
+	
 	@Override
 	public Boolean getRunState(String socialNetwork) {
 		if (rtc.getWarnOnSimpleConfig())
-			logger.warn("no possibility to activate/deactivate certain crawler - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + rtc.getRuntimeConfigFile().substring(rtc.getRuntimeConfigFile().lastIndexOf("/")+1));
+			logger.warn("no possibility to activate/deactivate certain crawler - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + rtc.getRuntimeConfigFilePath());
 		
 		return true;
 	}
@@ -77,7 +76,7 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 			logger.debug("reading constraints on " + category + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")+1));
 			//if ((rtc.getCustomerIsActive() || rtc.getDomainIsActive()) && rtc.getWarnOnSimpleConfig())
 			if (rtc.getWarnOnSimpleConfig())
-				logger.warn("no customer and network specific configuration and no type safety guranteed - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + rtc.getRuntimeConfigFile().substring(rtc.getRuntimeConfigFile().lastIndexOf("/")+1));
+				logger.warn("no customer and network specific configuration and no type safety guranteed - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + rtc.getRuntimeConfigFilePath().substring(rtc.getRuntimeConfigFilePath().lastIndexOf("/")+1));
 			
 			return (ArrayList<T>)getDataFromIni(category);
 		}
@@ -120,18 +119,16 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 		logger.warn("The method setConfigurationElement is currently not supported on configuration type ini-file");
 	}
 	
-	// getter and setter for the configuration path
-	public String getConfigDbHandler() {
-		return this.configDbHandler;
-	}
-	public void setConfigDbHandler(String configDbHandler) {
-		this.configDbHandler = configDbHandler;
-	}
-
 	@Override
 	public void writeNewConfiguration(String xml) {
 		logger.warn("The method writeNewConfiguration from XML is currently not supported on configuration type ini-file");
 	}
+	
+	// getter and setter for the configuration path
+	public String getConfigDbHandler() {return rtc.returnQualifiedConfigPath(this.configDbHandler);}
+	public void setConfigDbHandler(String configDb) {this.configDbHandler = configDb;}
+	
+	// getter and setter for the domain data
 	@Override
 	public String getDomain() {
 		return "undefined";

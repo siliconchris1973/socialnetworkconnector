@@ -75,8 +75,8 @@ import de.comlineag.snc.parser.TwitterParser;
  */
 @DisallowConcurrentExecution 
 public class TwitterCrawler extends GenericCrawler implements Job {
-	// this holds a reference to the runtime cinfiguration
-	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	// this holds a reference to the runtime configuration
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// it is VERY imoportant to set the crawler name (all in uppercase) here
 	private static String CRAWLER_NAME="TWITTER";

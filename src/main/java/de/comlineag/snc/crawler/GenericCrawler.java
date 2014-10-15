@@ -38,7 +38,7 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
  */
 public abstract class GenericCrawler implements Job {
 	// this holds a reference to the runtime cinfiguration
-	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	private static String CRAWLER_NAME;
 	
@@ -89,7 +89,7 @@ public abstract class GenericCrawler implements Job {
 		obj.put((String)"networkNameUpperCase", (String)CRAWLER_NAME);
 		
 		try {
-			File file = new File(rtc.getRuntimeConfigFile());
+			File file = new File(rtc.getRuntimeConfigFilePath());
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			Document doc = db.parse(file);

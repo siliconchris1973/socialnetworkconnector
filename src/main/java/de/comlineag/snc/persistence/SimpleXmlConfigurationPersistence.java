@@ -54,7 +54,13 @@ import org.w3c.dom.NodeList;
  */
 public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManager<T>  {
 	// this holds a reference to the runtime cinfiguration
-	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	
+	// we use simple org.apache.log4j.Logger for lgging
+	private final Logger logger = Logger.getLogger(getClass().getName());
+	// in case you want a log-manager use this line and change the import above
+	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	
 	
 	// the path to the configuration file
 	private String configDbHandler;
@@ -68,12 +74,7 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 	private boolean customerIsActive = false;
 	private JSONObject crawlerConfigurationScope = new JSONObject();
 	
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
-
 	@Override
 	public Boolean getRunState(String socialNetwork) {
 		String expression = null;
@@ -132,7 +133,7 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 			
 			//if ((rtc.getCustomerIsActive() || rtc.getDomainIsActive()) && rtc.getWarnOnSimpleXmlConfig())
 			if (rtc.getWarnOnSimpleXmlConfig())
-				logger.warn("no customer or domain specific configuration possible - consider using complex xml or db configuration manager\nyou can turn off this warning by setting WARN_ON_SIMPLE_XML_CONFIG to false in " + rtc.getRuntimeConfigFile().substring(rtc.getRuntimeConfigFile().lastIndexOf("/")+1));
+				logger.warn("no customer or domain specific configuration possible - consider using complex xml or db configuration manager\nyou can turn off this warning by setting WARN_ON_SIMPLE_XML_CONFIG to false in " + rtc.getRuntimeConfigFilePath());
 		} catch (ParseException e1) {
 			logger.error("ERROR :: could not parse configurationScope json " + e1.getLocalizedMessage());
 		}
@@ -205,14 +206,6 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 		logger.warn("The method writeNewConfiguration is not yet implemented for configuration type xml-file");
 	}
 	
-	// getter and setter for the configuration path
-	public String getConfigDbHandler() {
-		return this.configDbHandler;
-	}
-	public void setConfigDbHandler(String configDbHandler) {
-		this.configDbHandler = configDbHandler;
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public JSONObject getCrawlerConfigurationScope() {
@@ -312,6 +305,11 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 		*/
 		return crawlerConfigurationScope;
 	}
+	
+	// getter and setter for the configuration path
+	public String getConfigDbHandler() {return rtc.returnQualifiedConfigPath(this.configDbHandler);}
+	public void setConfigDbHandler(String configDb) {this.configDbHandler = configDb;}
+	
 	// getter and setter for above method data
 	@Override
 	public String getDomain() {

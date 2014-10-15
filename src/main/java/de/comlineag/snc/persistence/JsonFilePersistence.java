@@ -39,12 +39,7 @@ import de.comlineag.snc.handler.DataCryptoHandler;
  */
 public class JsonFilePersistence implements IPersistenceManager {
 	// this holds a reference to the runtime configuration
-	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
-	
-	// define where and the files shall be saved
-	private String savePoint = rtc.getSTORAGE_PATH()+System.getProperty("file.separator")+rtc.getJSON_BACKUP_STORAGE_PATH();
-	private String objectStatusPriorSaving; // was storing of the object prior saving to disk (e.g. n a db) successful (ok) or not (fail)
-	private String objectTypeToSave;		// can either be user or post
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
@@ -52,8 +47,13 @@ public class JsonFilePersistence implements IPersistenceManager {
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 		
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
+	private final DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
 	
+	
+	// define where and the files shall be saved
+	private String savePoint = rtc.getSTORAGE_PATH()+System.getProperty("file.separator")+rtc.getJSON_BACKUP_STORAGE_PATH();
+	private String objectStatusPriorSaving; // was storing of the object prior saving to disk (e.g. n a db) successful (ok) or not (fail)
+	private String objectTypeToSave;		// can either be user or post
 	
 	public JsonFilePersistence() {
 		File f = new File(savePoint);

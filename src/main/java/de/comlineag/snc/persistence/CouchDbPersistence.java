@@ -31,7 +31,7 @@ import de.comlineag.snc.persistence.JsonFilePersistence;
  */
 public class CouchDbPersistence implements IPersistenceManager {
 	// this holds a reference to the runtime cinfiguration
-	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// Servicelocation taken from applicationContext.xml
 	private String host;

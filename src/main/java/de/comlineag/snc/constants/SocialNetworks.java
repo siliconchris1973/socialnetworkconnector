@@ -25,7 +25,12 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
  * @version 	0.8b			- 14.10.2014
  * @status		productive
  * 
- * @description contains an enumeration with shortcuts referencing the social networks
+ * @description provides access to all defined social networks.
+ * 				SocialNetworks acts like a dynamic constant in such that it can be extended by 
+ * 				appending new social networks to the file SocialNetworkDefinitions.xml. As a 
+ * 				side effect, there is no real reason to instantiate the class but instead you 
+ * 				can just call the access method to get information on a social network and it 
+ * 				will fetch the requested data from the definition file.
  * 
  * @changelog	0.1 (Chris)		enum created with unknown, twitter, facebook, google+ and linkedin
  * 				0.2 			added xing
@@ -41,8 +46,8 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
  * 
  */
 public final class SocialNetworks {
-	// this holds a reference to the runtime cinfiguration
-	private static RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	// this holds a reference to the runtime configuration
+	private static final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// we use simple org.apache.log4j.Logger for logging
 	private static Logger logger = Logger.getLogger("de.comlineag.snc.SocialNetworks");
@@ -50,30 +55,9 @@ public final class SocialNetworks {
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	
-	// a (hidden) class variable who's type is of its own class - used to see, if we are already instantiated
-	private static SocialNetworks instance;
 	// make the constructor private so that it can only be called from inside the class itself, thus preventing 
 	// the initialization from someplace (more important unmanaged place) else
 	private SocialNetworks() {}
-	
-	/**
-	 * @description	a caller method on class level which instantiates the 
-	 * 				object exactly ones and then returns it.
-	 * 				by 'synchronized' we make sure that this method can 
-	 * 				only be executed by one thread at a time so that the 
-	 * 				first thread really creates the object while a possible 
-	 * 				second thread always uses an already instantiated object
-	 * 
-	 * @return		instance of SocialNetworks
-	 */
-	public static synchronized SocialNetworks getInstance () {
-		if (SocialNetworks.instance == null) {
-			SocialNetworks.instance = new SocialNetworks ();
-		}
-		return SocialNetworks.instance;
-	}
-	
-	
 	
 	/**
 	 * @description	retrieves a configuration element for a given social network
@@ -92,7 +76,7 @@ public final class SocialNetworks {
 		assert ("code".equals(key) && "name".equals(key) && "description".equals(key) && "domain".equals(key) && "supported".equals(key)) : "ERROR :: can only accept code, name, description, domain or supported as key";
 		
 		try {
-			File file = new File(rtc.getSocialNetworkFile());
+			File file = new File(getConfigFile());
 			
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
@@ -123,7 +107,7 @@ public final class SocialNetworks {
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
-				logger.error("Did not receive any node information on "+key+" for social network "+snname+" from " + rtc.getSocialNetworkFile() + " using expression " + expression);
+				logger.error("Did not receive any node information on "+key+" for social network "+snname+" from " + rtc.getSocialNetworkFilePath() + " using expression " + expression);
 				return null;
 			} else {
 				return node.getTextContent();
@@ -139,5 +123,8 @@ public final class SocialNetworks {
 		}
 		return null;
 	}
+	
+	// the path to the xml file containing the social network definitions 
+	private static String getConfigFile() {return rtc.getSocialNetworkFilePath();}
 }
 

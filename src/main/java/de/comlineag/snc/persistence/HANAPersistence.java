@@ -32,7 +32,7 @@ import de.comlineag.snc.persistence.JsonFilePersistence;
  *
  * @author 		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Persistence Manager
- * @version 	0.9k				- 14.10.2014
+ * @version 	0.9l				- 15.10.2014
  * @status		productive
  *
  * @description handles the connectivity to the SAP HANA Systems and saves and updates posts and users in the DB
@@ -59,6 +59,7 @@ import de.comlineag.snc.persistence.JsonFilePersistence;
  *				0.9j				added support for objectStatus. can be new, old, ok or fail. the field is used by FsCrawler to determine
  *									if an object shall be uploaded to persistence db or not
  *				0.9k				changed access to runtime configuration to non-static
+ *				0.9l				changed access to HANA Data configuration to non-static
  * 
  * TODO 1. fix crawler bug, that causes the persistence to try to insert a post or user multiple times
  * 			This bug has something to do with the number of threads provided by the Quartz job control
@@ -78,7 +79,18 @@ import de.comlineag.snc.persistence.JsonFilePersistence;
  */
 public class HANAPersistence implements IPersistenceManager {
 	// this holds a reference to the runtime configuration
-	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	// we use simple org.apache.log4j.Logger for lgging
+	private final Logger logger = Logger.getLogger(getClass().getName());
+	// in case you want a log-manager use this line and change the import above
+	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	
+	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
+	private final ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
+	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
+	private final DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
+	// this is a reference to the HANA configuration settings
+	private final HanaConfiguration hco = new HanaConfiguration();
 	
 	// Servicelocation taken from applicationContext.xml
 	private String host;
@@ -100,22 +112,7 @@ public class HANAPersistence implements IPersistenceManager {
 	private Long Id;
 	private SocialNetworks SN;
 	
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
-	
-	
-	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
-	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
-
-	
-	public HANAPersistence() {
-		@SuppressWarnings("unused")
-		final HanaConfiguration hanaConfig = new HanaConfiguration();
-	}
+	public HANAPersistence() {}
 
 	/**
 	 * @description save a post from social network to the HANA DB
@@ -435,7 +432,7 @@ public class HANAPersistence implements IPersistenceManager {
             java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
 			
             // prepare the SQL statement
-			String sql="INSERT INTO \""+HanaConfiguration.getSCHEMA_NAME()+"\".\""+HanaConfiguration.getPATH_TO_TABLES()+"::"+HanaConfiguration.getPOSTS_TABLE()+"\" "
+			String sql="INSERT INTO \""+hco.getSCHEMA_NAME()+"\".\""+hco.getPATH_TO_TABLES()+"::"+hco.getPOSTS_TABLE()+"\" "
 					+ "("
 					+ "     \"sn_id\" "
 					+ ",	\"sn_id\" "
@@ -659,7 +656,7 @@ public class HANAPersistence implements IPersistenceManager {
             logger.debug("trying to insert data with jdbc url="+url+" user="+user);
             
             java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
-            String sql="INSERT INTO \""+HanaConfiguration.getSCHEMA_NAME()+"\".\""+HanaConfiguration.getPATH_TO_TABLES()+"::"+HanaConfiguration.getUSERS_TABLE()+"\" "
+            String sql="INSERT INTO \""+hco.getSCHEMA_NAME()+"\".\""+hco.getPATH_TO_TABLES()+"::"+hco.getUSERS_TABLE()+"\" "
             		+ "("
             		+ "		\"sn_id\" "
             		+ ",	\"user_id\" "
@@ -837,7 +834,7 @@ public class HANAPersistence implements IPersistenceManager {
             java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
 			
             // prepare the SQL statement
-            String sql="UPDATE \""+HanaConfiguration.getSCHEMA_NAME()+"\".\""+HanaConfiguration.getPATH_TO_TABLES()+"::"+HanaConfiguration.getPOSTS_TABLE()+"\" "
+            String sql="UPDATE \""+hco.getSCHEMA_NAME()+"\".\""+hco.getPATH_TO_TABLES()+"::"+hco.getPOSTS_TABLE()+"\" "
 					+ " SET ("
 					+ "\"domain\" = ? "
 					+ "\"user_id\" = ? "
@@ -1067,7 +1064,7 @@ public class HANAPersistence implements IPersistenceManager {
             logger.debug("trying to update user "+SN+"-"+Id+" with jdbc url="+url+" user="+user);
             
             java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
-            String sql="UPDATE \""+HanaConfiguration.getSCHEMA_NAME()+"\".\""+HanaConfiguration.getPATH_TO_TABLES()+"::"+HanaConfiguration.getUSERS_TABLE()+"\" "
+            String sql="UPDATE \""+hco.getSCHEMA_NAME()+"\".\""+hco.getPATH_TO_TABLES()+"::"+hco.getUSERS_TABLE()+"\" "
             		+ " SET ("
             		+ ",\"userName\" = ? "
             		+ ",\"nickName\" = ? "

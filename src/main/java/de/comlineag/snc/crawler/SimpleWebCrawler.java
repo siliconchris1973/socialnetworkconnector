@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,13 +66,13 @@ import de.comlineag.snc.parser.ParserControl;
  *
  */
 public class SimpleWebCrawler extends GenericCrawler implements Job {
-	// this holds a reference to the runtime cinfiguration
-	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	// this holds a reference to the runtime configuration
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
-	// it is VERY imoportant to set the crawler name (all in uppercase) here
+	// it is VERY important to set the crawler name (all in upper case) here
 	private static String CRAWLER_NAME="WEBCRAWLER";
 
-	// we use simple org.apache.log4j.Logger for lgging
+	// we use simple org.apache.log4j.Logger for logging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());

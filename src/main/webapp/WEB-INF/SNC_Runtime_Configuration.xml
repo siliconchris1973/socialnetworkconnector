@@ -23,68 +23,59 @@
 	THIS IS REVISION 0.9a OF THE CONFIGURATION FILE - 10.10.2014
 -->
 <configurations>
-	<!-- T H R E A D I N G   C O N F I G U R A T I O N
-		 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		 This section contains options to modify the threading model of the SNC - mainly it configures
-		 whether or not the three main parts of the SNC (crawler, parser and persistence) shall be called
-		 in individual threads and what size the thread-pool shall have
-	-->
-	<configuration scope="threading">
-		<!-- CrawlerThreading - configures threading and size of the thread pool for the crawler. 
-			 if enabled, the executing searches against the endpoint (twitter api, or website etc)  
-			 is executed within a separate thread -->
-		<param name="CrawlerThreadingEnabled">
-			<type>boolean</type>
-			<value>false</value>
-		</param>
-		<param name="CrawlerThreadingPoolSize">
-			<type>int</type>
-			<value>5</value>
-		</param>
-		<!-- ParserThreading - configures threading and size of the thread pool for the parser 
-			 if enabled, the call to the parser from the crawler is executed within a separate thread -->
-		<param name="ParserThreadingEnabled">
-			<type>boolean</type>
-			<value>false</value>
-		</param>
-		<param name="ParserThreadingPoolSize">
-			<type>int</type>
-			<value>5</value>
-		</param>
-		<!-- PersistenceThreading - configures threading and size of the thread pool for the persistence layer 
-			 if enabled, the call to the persistence to save posts and users from the parser is executed within 
-			 a separate thread -->
-		<param name="PersistenceThreadingEnabled">
-			<type>boolean</type>
-			<value>true</value>
-		</param>
-		<param name="PersistenceThreadingPoolSize">
-			<type>int</type>
-			<value>5</value>
-		</param>
-	</configuration>
-	
 	<!-- R U N T I M E   C O N F I G U R A T I O N
 		 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		 This section contains options to change/modify the general runtime behavior of the SNC
 	-->
 	<configuration scope="runtime">
+		<!-- for all given configuration files, note the following:
+			 You can either put an absolute path in here, or a relative one. If you enter a relative 
+			 path, this HAS to be below WEB-INF! This restriction is because the runtime configuration  
+ 			 class checks for an absolute path and if it does not find one (no / // or drive letter like 
+ 			 c: at the start), it assumes the file to be located in or below the WEB-INF directory -->
+ 			 
 		<!-- location of the file with the social network definitions -->
-		<param name="SocialNetworkFile">
+		<param name="SocialNetworkFilePath">
 			<type>String</type>
-			<value>webapp/WEB-INF/SocialNetworkDefinitions.xml</value>
+			<value>SocialNetworkDefinitions.xml</value>
 		</param>
 		
 		<!-- location of the file with the available parsers -->
 		<param name="ParserListFilePath">
 			<type>String</type>
-			<value>webapp/WEB-INF/properties/webparser.xml</value>
+			<value>/properties/webparser.xml</value>
 		</param>
 		
 		<!-- location of the file with the configuration options for the hana database -->
 		<param name="HanaConfigurationFilePath">
 			<type>String</type>
-			<value>webapp/WEB-INF/SNC_HANA_Configuration.xml</value>
+			<value>SNC_HANA_Configuration.xml</value>
+		</param>
+		
+		<!-- location of the file with the configuration options for the crawler - this
+			 is usually also in the runtime configuration file, section crawler. In case you move
+			 the section crawler from this file to someplace else, enter the filename here. -->
+		<param name="CrawlerConfigFilePath">
+			<type>String</type>
+			<value>SNC_Runtime_Configuration.xml</value>
+		</param>
+		
+		<!-- location of the file with the configuration options for the data structure - this
+			 is usually also in the runtime configuration file, section DataDefinitions. In case 
+			 you move the section DataDefinitions from this file to someplace else, enter the 
+			 filename here. -->
+		<param name="DataConfigFilePath">
+			<type>String</type>
+			<value>SNC_Runtime_Configuration.xml</value>
+		</param>
+		
+		<!-- location of the file with the configuration options for the threading model - this
+			 is usually also in the runtime configuration file, section Threading. In case 
+			 you move the section Threading from this file to someplace else, enter the 
+			 filename here. -->
+		<param name="ThreadingConfigFilePath">
+			<type>String</type>
+			<value>SNC_Runtime_Configuration.xml</value>
 		</param>
 		
 		
@@ -170,27 +161,81 @@
 			<value>false</value>
 			<constant>STOP_SNC_ON_PERSISTENCE_FAILURE</constant>
 		</param>
-		
-		
-		
+	</configuration>
+	
+	
+	<!-- T H R E A D I N G   C O N F I G U R A T I O N
+		 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		 This section contains options to modify the threading model of the SNC - mainly it configures
+		 whether or not the three main parts of the SNC (crawler, parser and persistence) shall be called
+		 in individual threads and what size the thread-pool shall have
+		 
+		 You can put this section in it's own file, but you must keep the general XML structure. If you
+		 move the section, update the entry ThreadingConfigFilePath below to point to the new file.
+	-->
+	<configuration scope="threading">
+		<!-- CrawlerThreading - configures threading and size of the thread pool for the crawler. 
+			 if enabled, the executing searches against the endpoint (twitter api, or website etc)  
+			 is executed within a separate thread -->
+		<param name="CrawlerThreadingEnabled">
+			<type>boolean</type>
+			<value>false</value>
+		</param>
+		<param name="CrawlerThreadingPoolSize">
+			<type>int</type>
+			<value>5</value>
+		</param>
+		<!-- ParserThreading - configures threading and size of the thread pool for the parser 
+			 if enabled, the call to the parser from the crawler is executed within a separate thread -->
+		<param name="ParserThreadingEnabled">
+			<type>boolean</type>
+			<value>false</value>
+		</param>
+		<param name="ParserThreadingPoolSize">
+			<type>int</type>
+			<value>5</value>
+		</param>
+		<!-- PersistenceThreading - configures threading and size of the thread pool for the persistence layer 
+			 if enabled, the call to the persistence to save posts and users from the parser is executed within 
+			 a separate thread -->
+		<param name="PersistenceThreadingEnabled">
+			<type>boolean</type>
+			<value>true</value>
+		</param>
+		<param name="PersistenceThreadingPoolSize">
+			<type>int</type>
+			<value>5</value>
+		</param>
+	</configuration>
+	
+	
+	<!-- C R A W L E R   C O N F I G U R A T I O N
+		 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		 This section contains basic settings for the crawler
+		 
+		 You can put this section in it's own file, but you must keep the general XML structure. If you
+		 move the section, update the entry CrawlerConfigFilePath to point to the new file.
+	-->
+	<configuration scope="crawler">
 		<!-- SIMPLE AND MULTI WEB CRAWLER SPECIFIC SETTINGS -->
 		<!-- searchLimit - how many pages to download at all.
-			 This Runtime configuration acts as a safety margin to not exceed a certain maximum number of pages to download
-			 per run and overides the value of max_pages in the crawler configuration. You can, however, also set this to 
-			 -1 in which case there will be no limit on the number of downloaded pages. Be careful though, as this may 
-			 lead to a huge amount of pages. As a last safeguard in case this value is set to -1, this will also implicitly 
-			 set the parameter of stayOnDomain to true. -->
+			 This Runtime configuration acts as a safety margin to not exceed a certain maximum 
+			 number of pages to download per run. It overrides the value of max_pages in the crawler 
+			 configuration. You can, however, also set this to -1 in which case there will be no limit 
+			 on the number of downloaded pages. Be careful though, as this may lead to a huge amount 
+			 of pages. As a last safeguard in case this value is set to -1, this will also implicitly 
+			 set the parameter of stayOnDomain (see below) to true. -->
 		<param name="wcSearchLimit">
 			<type>int</type>
 			<value>10000</value>
 			<constant>WC_SEARCH_LIMIT</constant>
 		</param>
 		<!-- max_depth - how many levels of cascaded links to follow.
-			 If you set this higher then the value of WC_MAX_DEPTH in SNC_Runtim_Configuration (currently 5) then 
-			 that value will be used. This Runtime configuration acts as a safety margin to not exceed a certain scanning depth. 
-			 You can, however, also set this to -1 in which case there will be no limit on how deep links will be followed
-			 Be advised though, as this may lead to quite a huge amount of pages. As a last safeguard in case this value is set to 
-			 -1, this will also implicitly set the parameter of stayOnDomain to true. -->
+			 This Runtime configuration acts as a safety margin to not exceed a certain scanning depth. 
+			 You can, however, also set this to -1 in which case there will be no limit on how deep 
+			 links will be followed. Be advised though, as this may lead to quite a huge amount of pages. 
+			 As a last safeguard in case this value is set to -1, this will also implicitly set the 
+			 parameter of stayOnDomain (see below) to true. -->
 		<param name="wcMaxDepth">
 			<type>int</type>
 			<value>5</value>
@@ -212,25 +257,24 @@
 		</param>
 		
 		<!-- whether or not the crawler is allowed to follow links off of the initial domain 
-					 If set to true, then the crawler is NOT allowed to fetch pages from a new domain.
-					 It is generally not recommended to set this to false (thus allowing to leave the 
-					 domain) AND have a high value in max_depth and max_pages, as this could lead to 
-					 a lot of pages being downloaded from any place on the net just by following some 
-					 nice linklist one has setup on his/her page  -->
+			 If set to true, then the crawler is NOT allowed to fetch pages from a new domain.
+			 It is generally not recommended to set this to false (thus allowing to leave the 
+			 domain) AND have a high value in max_depth and max_pages, as this could lead to 
+			 a lot of pages being downloaded from any place on the net just by following some 
+			 nice linklist one has setup on his/her page  -->
 		<param name="wcStayOnDomain">
 			<type>Boolean</type>
 			<value>true</value>
 			<constant>WC_STAY_ON_DOMAIN</constant>
 		</param>
 		
-		<!-- Shall the crawler ONLY get pages below the initially given path
-			 You can think of this option like an even stricter stayOnDomain. Not only we can't leave the
-			 initial given domain, but any link encountered must point to some page on or below
-			 the above given url. 
-			 That also means, if you set this to true, you do not need to set stayOnDomain, or 
-			 rather the value of stayOnDomain is ignored.
+		<!-- Shall the crawler only get pages below the initially given path
+			 You can think of this option like an even stricter stayOnDomain. Not only we can't 
+			 leave the initial given domain, but any link encountered must point to some page on 
+			 or below the above given url. Consequently, if you set this to true, you do not need 
+			 to set stayOnDomain to true as the value of stayOnDomain is ignored.
 					 
-			 Note: if you did not give path as part of the url, then / as the path starting point is used -->
+			 Note: if you did not give a path as part of the url, then / is used -->
 		<param name="wcStayBelowGivenPath">
 			<type>Boolean</type>
 			<value>false</value>
@@ -247,8 +291,8 @@
 			<constant>WC_WORD_DISTANCE_CUTOFF_MARGIN</constant>
 		</param>
 		
-		<!-- the command (word) as returned by a website when declining the crawler's request to fetch the content 
-			 YOU SHOULD PROBABLY NOT CHANGE THIS -->
+		<!-- the command (word) as returned by a website when declining the crawler's request to 
+			 fetch the content. YOU SHOULD PROBABLY NOT CHANGE THIS -->
 		<param name="wcRobotDisallowText">
 			<type>String</type>
 			<value>Disallow</value>
@@ -258,12 +302,16 @@
 	
 	
 	
-	<!-- DO NOT CHANGE ANYTHING BELOW THIS LINE, EXCEPT YOU ABSOLUTELY KNOW WHAT YOU ARE DOING
-	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	<!-- DO NOT CHANGE ANYTHING BELOW THIS POINT, EXCEPT YOU ABSOLUTELY KNOW WHAT YOU ARE DOING -->
 	     
-	     G E N E R A L   D A T A   D E F I N I T I O N S
+	     
+	<!-- G E N E R A L   D A T A   D E F I N I T I O N S
+	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	     In this section you can define how long certain fields are, for example how many  
-	     characters a teaser can have and if a teaser shall be saved with markup elements or not. -->
+	     characters a teaser can have and if a teaser shall be saved with markup elements or not. 
+	     
+	     You can put this section in it's own file, but you must keep the general XML structure. If you
+		 move the section, update the entry DataConfigFilePath to point to the new file. -->
 	<configuration scope="DataDefinitions">
 		<!-- shall a teaser be saved with or without html markup elements -->
 		<param name="teaserWithMarkup">
@@ -299,21 +347,23 @@
 			<value>7</value>
 			<constant>SUBJECT_MIN_LENGTH</constant>
 		</param>
-		<!-- shall the posts be saved with or without html markup elements - this should usually be kept false
-			 the text-field of the database is normally only used for the semantic analysis and therefore does
-			 not need any markups -->
+		<!-- shall the posts be saved with or without html markup elements - this should usually 
+			 be kept false as the text-field of the database is normally only used for the semantic 
+			 analysis and therefore does not need any markups -->
 		<param name="textWithMarkup">
 			<type>boolean</type>
 			<value>false</value>
 			<constant>TEXT_WITH_MARKUP</constant>
 		</param>
-		<!-- shall the raw text field contain text with html markup elements - this should usually be kept true -->
+		<!-- shall the raw text field contain text with html markup elements - this should usually 
+			 be kept true, as we use this column to save the original post or page -->
 		<param name="rawTextWithMarkup">
 			<type>boolean</type>
 			<value>true</value>
 			<constant>RAW_TEXT_WITH_MARKUP</constant>
 		</param>
 	</configuration>
+	
 	
 	<!-- X M L   L A Y O U T   C O N F I G U R A T I O N
 	     the values in this section define how the crawler configuration xml files are structured.

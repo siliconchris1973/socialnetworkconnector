@@ -74,13 +74,10 @@ import de.comlineag.snc.parser.LithiumParser;
 @DisallowConcurrentExecution 
 public class LithiumCrawler extends GenericCrawler implements Job {
 	// this holds a reference to the runtime cinfiguration
-	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// it is VERY imoportant to set the crawler name (all in uppercase) here
 	private static String CRAWLER_NAME="LITHIUM";
-	
-	// shall the system grab messages directly or through threads
-	String threadsOrMessages = "messages";
 	
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
@@ -88,8 +85,11 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
-
+	private final ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
+	
+	// shall the system grab messages directly or through threads
+	String threadsOrMessages = "messages";
+	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
 	private String smallLogMessage = "";

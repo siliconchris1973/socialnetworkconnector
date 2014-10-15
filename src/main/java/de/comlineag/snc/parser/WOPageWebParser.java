@@ -47,7 +47,7 @@ import de.comlineag.snc.helper.UniqueIdServices;
  */
 public final class WOPageWebParser extends GenericWebParser implements IWebParser, Runnable {
 	// this holds a reference to the runtime cinfiguration
-	private RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
