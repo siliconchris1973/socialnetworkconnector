@@ -3,6 +3,7 @@ package de.comlineag.snc.crawler;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
@@ -14,6 +15,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import com.google.common.base.Stopwatch;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;
@@ -35,7 +37,7 @@ import de.comlineag.snc.parser.TwitterParser;
  *
  * @author 		Christian Guenther
  * @category 	Job
- * @version		0.9d				- 16.09.2014
+ * @version		0.9e				- 16.10.2014
  * @status		productive	but with occasional error while inserting data
  *
  * @description this is the actual crawler of the twitter network. It is
@@ -60,6 +62,7 @@ import de.comlineag.snc.parser.TwitterParser;
  *				0.9b (Chris)		added parameter for customer specific configuration
  *				0.9c				changed method signature for crawler configuration to match JSON object
  *				0.9d				added support for runState configuration, to check if the crawler shall actually run
+ *				0.9e				added time measure
  *
  * TODO 1. fix crawler bug, that causes the persistence to try to insert a post or user multiple times
  * 			This bug has something to do with the number of threads provided by the Quartz job control
@@ -110,6 +113,8 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		Stopwatch timer = new Stopwatch().start();
+		
 		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
 			
@@ -215,7 +220,8 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				logger.error("Error while processing messages", e);
 			}
 			client.stop();
-			logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages\n");
+			timer.stop();
+			logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages in "+timer.elapsed(TimeUnit.SECONDS)+" seconds\n");
 		}
 	}
 }

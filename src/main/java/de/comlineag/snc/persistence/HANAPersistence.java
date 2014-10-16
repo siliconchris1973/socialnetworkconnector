@@ -390,7 +390,7 @@ public class HANAPersistence implements IPersistenceManager {
 		
 		// check value of dataSet (for debugging) and return it
 		if (theDataset == null)
-			logger.info("the " + type + " " + SN.toString() + "-" + Id + " does not exist");
+			logger.debug("the " + type + " " + SN.toString() + "-" + Id + " does not exist");
 		else 
 			logger.debug("found the " + type + " " + SN + "-" + Id);
 		
@@ -891,7 +891,7 @@ public class HANAPersistence implements IPersistenceManager {
 			@SuppressWarnings("unused")
 			int rowCount = stmt.executeUpdate();
 			
-			logger.info("post ("+postData.getSnId()+"-"+postData.getId()+") updated");
+			logger.debug("post ("+postData.getSnId()+"-"+postData.getId()+") updated");
 			
 			stmt.close() ; conn.close() ;
 			
@@ -995,7 +995,7 @@ public class HANAPersistence implements IPersistenceManager {
 					
 					.execute();
 			
-			logger.info("post ("+postData.getSnId()+"-"+postData.getId()+") updated");
+			logger.debug("post ("+postData.getSnId()+"-"+postData.getId()+") updated");
 			
 			if (rtc.isCREATE_POST_JSON_ON_SUCCESS()){
 				postData.setObjectStatus("ok");
@@ -1175,7 +1175,7 @@ public class HANAPersistence implements IPersistenceManager {
 					
 					.execute();
 			
-			logger.info("user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") updated");
+			logger.debug("user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") updated");
 			
 			if (rtc.isCREATE_USER_JSON_ON_SUCCESS()){
 				userData.setObjectStatus("ok");

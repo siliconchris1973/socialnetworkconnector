@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +27,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import com.google.common.base.Stopwatch;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
@@ -104,6 +106,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	@SuppressWarnings("unchecked")
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		try {
+			Stopwatch timer = new Stopwatch().start();
+			
 			String smallLogMessage = "";	
 			// runtime settings and crawler constraints
 			String initialPath = "/";
@@ -399,7 +403,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 								
 								if (page.length() != 0) getLinksFromPage(url, page, knownURLs, newURLs, blockedURLs, initialPath);
 								if (newURLs.isEmpty()) {
-									logger.info(CRAWLER_NAME+"-Crawler END - scanned " + pageCount + " pages and found " + possibleRelevantPages + " matching ones");
+									logger.info(CRAWLER_NAME+"-Crawler END - scanned " + pageCount + " pages in "+timer.elapsed(TimeUnit.SECONDS)+" seconds and found " + possibleRelevantPages + " matching ones\n");
 									break;
 								}
 								pageCount++;
@@ -407,7 +411,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							if (maxPages != -1) runCounter++;
 						} // end of for loop over maxPages
 						
-						logger.info(CRAWLER_NAME+"-Crawler END - scanned " + pageCount + " pages and found " + possibleRelevantPages + " matching ones");
+						timer.stop();
+						logger.info(CRAWLER_NAME+"-Crawler END - scanned " + pageCount + " pages in "+timer.elapsed(TimeUnit.SECONDS)+" seconds and found " + possibleRelevantPages + " matching ones\n");
 		//			}
 		//		}).start();
 			} // end of crawler deactivation

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -19,6 +20,10 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
 //import org.apache.logging.log4j.Logger;
+
+
+
+import com.google.common.base.Stopwatch;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
@@ -101,6 +106,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		Stopwatch timer = new Stopwatch().start();
+		
 		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
 		
@@ -355,7 +362,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 				logger.error("EXCEPTION :: Crawler Error: " + e.toString(), e);
 			}
 			
-			logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages\n");
+			timer.stop();
+			logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages in "+timer.elapsed(TimeUnit.SECONDS)+" seconds\n");
 		}
 	}
 	

@@ -1,6 +1,7 @@
 package de.comlineag.snc.crawler;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -13,13 +14,14 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import com.google.common.base.Stopwatch;
+
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.HttpStatusCodes;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.parser.FacebookParser;
-
 import facebook4j.Event;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
@@ -106,6 +108,8 @@ public class Facebook4JFbCrawler extends GenericCrawler implements Job {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		Stopwatch timer = new Stopwatch().start();
+		
 		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
 		
@@ -248,7 +252,8 @@ public class Facebook4JFbCrawler extends GenericCrawler implements Job {
 			}
 			// kill the connection
 			//client.stop();
-			logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages\n");
+			timer.stop();
+			logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages in "+timer.elapsed(TimeUnit.SECONDS)+" seconds\n");
 		}
 	}
 	

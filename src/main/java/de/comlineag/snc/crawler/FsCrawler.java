@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,6 +16,8 @@ import org.json.simple.parser.ParseException;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+
+import com.google.common.base.Stopwatch;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
@@ -73,6 +76,7 @@ public class FsCrawler implements Job {
 	
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException{
+		Stopwatch timer = new Stopwatch().start();
 		logger.info("FileSystem-Crawler START");
 		JsonBackupStoragePath = (String) arg0.getJobDetail().getJobDataMap().get("StoragePath")+System.getProperty("file.separator")+arg0.getJobDetail().getJobDataMap().get("JsonBackupStoragePath");
 		InvalidJsonBackupStoragePath = (String) arg0.getJobDetail().getJobDataMap().get("StoragePath")+System.getProperty("file.separator")+(String) arg0.getJobDetail().getJobDataMap().get("InvalidJsonBackupStoragePath");
@@ -167,8 +171,9 @@ public class FsCrawler implements Job {
 			logger.warn("Could not read file " + fileName + " - " + e.getLocalizedMessage());
 		}
 		
+		timer.stop();
 		if (allObjectsCount >0)
-			logger.info("FileSystem-Crawler END - processed "+allObjectsCount+" objects (successfully processed "+postObjectsCount+" post(s) and "+userObjectsCount+" user(s))\n");
+			logger.info("FileSystem-Crawler END - in "+timer.elapsed(TimeUnit.SECONDS)+" seconds processed "+allObjectsCount+" objects (successfully processed "+postObjectsCount+" post(s) and "+userObjectsCount+" user(s))\n");
 		else
 			logger.info("FileSystem-Crawler END - no files to process");
 	}

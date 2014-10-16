@@ -1,6 +1,7 @@
 package de.comlineag.snc.crawler;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -24,6 +25,7 @@ import de.comlineag.snc.constants.FacebookConstants;
 import de.comlineag.snc.parser.FacebookParser;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Stopwatch;
 
 /**
  *
@@ -78,6 +80,8 @@ public class FacebookSpringFbCrawler extends GenericCrawler implements Job {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		Stopwatch timer = new Stopwatch().start();
+		
 		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
 		
@@ -157,7 +161,8 @@ public class FacebookSpringFbCrawler extends GenericCrawler implements Job {
 			}
 			// kill the connection
 			//client.stop();
-			logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages\n");
+			timer.stop();
+			logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages in "+timer.elapsed(TimeUnit.SECONDS)+" seconds\n");
 		}
 	}
 }
