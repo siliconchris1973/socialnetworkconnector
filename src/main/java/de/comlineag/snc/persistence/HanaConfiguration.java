@@ -23,14 +23,15 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
  * 
  * @author 		Christina Guenther
  * @category	handler
- * @revision	0.2				- 15.10.2014
+ * @revision	0.3				- 16.10.2014
  * @status		productive
  * 
  * @description	this class is used to setup schema and db layout of the SAP HANA DB
  * 
  * @changelog	0.1 (Chris) 	class created as copy from RuntimeConfiguration Version 0.3
  * 				0.2				routed access to config file through runtime configuration to get the absolute path
- * 								changed static methods and variables to non-static 
+ * 								changed static methods and variables to non-static
+ * 				0.3				made HanaConfiguration a singleton, so that the query to the XML is only done once
  *
  */
 public final class HanaConfiguration {
@@ -41,6 +42,11 @@ public final class HanaConfiguration {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	
+	// singleton design pattern using Initialization-on-demand holder idiom, 
+	private static class Holder { static final HanaConfiguration instance = new HanaConfiguration(); }
+    public static HanaConfiguration getInstance() { return Holder.instance; }
+    
 	
 	private String hanaConfigFile;
 	
@@ -71,7 +77,7 @@ public final class HanaConfiguration {
 	private int USERLOCATION_TEXT_SIZE = 1024;
 	
 	
-	public HanaConfiguration(){
+	private HanaConfiguration(){
 		// first set the location of the HANA Configuration file from RuntimeConfiguration
 		setConfigFile(rtc.getHanaConfigFilePath());
 		

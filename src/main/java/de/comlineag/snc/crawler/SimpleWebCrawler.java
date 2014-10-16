@@ -72,8 +72,9 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// it is VERY important to set the crawler name (all in upper case) here
-	private static String CRAWLER_NAME="WEBCRAWLER";
-
+	private static final String CRAWLER_NAME="WEBCRAWLER";
+	private static String name="SimpleWebCrawler";
+	
 	// we use simple org.apache.log4j.Logger for logging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
@@ -349,6 +350,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 									// invoke the persistence layer - should go to crawler
 									for (int ii = 0; ii < postings.size(); ii++) {
 										realRelevantPages++;
+										setPostsTracked(realRelevantPages);
+										
 										SimpleWebPosting post = postings.get(ii);
 										
 										// first get the user-data out of the SimpleWebPosting
@@ -700,4 +703,9 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		
 		return false;
 	}
+	
+	
+	// these are the getter and setter for the name value - used for JMX support, I think
+	public static String getName() {return name;}
+	public static void setName(String name) {SimpleWebCrawler.name = name;}
 }

@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 
 
 
+
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 
 /**
@@ -41,6 +42,7 @@ public abstract class GenericCrawler implements Job {
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	private static String CRAWLER_NAME;
+	private long postsTracked;
 	
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
@@ -159,4 +161,10 @@ public abstract class GenericCrawler implements Job {
 		logger.trace("constructed json object is " + obj.toString());
 		return obj;
 	}
+	
+	public static String getCrawlerName() {return CRAWLER_NAME;}
+	
+	// exposes the number of messages, posts or pages tracked by each crawler
+	public long getPostsTracked() {	return postsTracked;}
+	protected void setPostsTracked(long postsTracked) {this.postsTracked = postsTracked;}
 }
