@@ -72,6 +72,53 @@
 		 holds a static variable and getter method to return the path to the WEB-INF directory -->
 	<bean id="contextWebApplicationContextProvider" class="de.comlineag.snc.appstate.ResourcePathHolder"></bean>
 	
+	
+	<!-- TODO check whether or not to use JMX at all and if yes, activate either one of  these -->
+	<!-- this is to register a new MBeanServer for the JMX support - we need JMX for JWatch to monitor the SNC -->
+<!-- 
+	<bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean"/>
+ -->
+	<!-- this bean needs to be eagerly pre-instantiated in order for the exporting to occur;
+		 this means that it must not be marked as lazily initialized -->
+<!-- 
+	<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter">
+		<property name="beans">
+			<map>
+				<entry key="bean:name=sncBean1" value-ref="sncBean"/>
+			</map>
+		</property>
+		<property name="server" ref="mbeanServer"/>
+	</bean>
+	<bean id="sncBean" class="org.springframework.jmx.JmxTestBean">
+		<property name="name" value="TEST"/>
+		<property name="age" value="100"/>
+	</bean>
+-->
+	
+	<!-- This is for automatic registration with an existing MBeanServer for the JMX support 
+		 - we need JMX for JWatch to monitor the SNC-->
+	<!-- this bean must not be lazily initialized if the exporting is to happen -->
+<!-- 
+	<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
+		<property name="beans">
+			<map>
+				<entry key="bean:name=SimpleWebCrawlerBean" value-ref="SimpleWebCrawlerBean"/>
+				<entry key="bean:name=TwitterCrawlerBean" value-ref="TwitterCrawlerBean"/>
+				<entry key="bean:name=LithiumCrawlerBean" value-ref="LithiumCrawlerBean"/>
+			</map>
+		</property>
+	</bean>
+	<bean id="SimpleWebCrawlerBean" class="de.comlineag.snc.crawler.SimpleWebCrawler">
+		<property name="name" value="SimpleWebCrawler"/>
+	</bean>
+	<bean id="TwitterCrawlerBean" class="de.comlineag.snc.crawler.TwitterCrawler">
+		<property name="name" value="TwitterCrawler"/>
+	</bean>
+	<bean id="LithiumCrawlerBean" class="de.comlineag.snc.crawler.LithiumCrawler">
+		<property name="name" value="LithiumCrawler"/>
+	</bean>
+ -->
+	
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 	     J O B    C O N T R O L    S E T T I N G S  -  J O B    C O N T R O L    S E T
 	     this is the section in which to turn on/off the different crawler 

@@ -60,7 +60,8 @@ public class MultiWebCrawler extends GenericCrawler implements Job {
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// it is VERY imoportant to set the crawler name (all in uppercase) here
-	private static String CRAWLER_NAME="WEBCRAWLER";
+	private static final String CRAWLER_NAME="WEBCRAWLER";
+	private static String name="SimpleWebCrawler";
 
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
@@ -336,6 +337,8 @@ public class MultiWebCrawler extends GenericCrawler implements Job {
 									// invoke the persistence layer - should go to crawler
 									for (int ii = 0; ii < postings.size(); ii++) {
 										realRelevantPages++;
+										setPostsTracked(realRelevantPages);
+										
 										SimpleWebPosting post = postings.get(ii);
 										
 										// first get the user-data out of the SimpleWebPosting
@@ -691,4 +694,8 @@ public class MultiWebCrawler extends GenericCrawler implements Job {
 		
 		return false;
 	}
+	
+	// these are the getter and setter for the name value - used for JMX support, I think
+	public static String getName() {return name;}
+	public static void setName(String name) {MultiWebCrawler.name = name;}
 }

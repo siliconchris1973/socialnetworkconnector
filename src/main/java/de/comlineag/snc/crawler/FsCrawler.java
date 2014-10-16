@@ -43,6 +43,17 @@ import de.comlineag.snc.persistence.HANAPersistence;
  */
 public class FsCrawler implements Job {
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	// we use simple org.apache.log4j.Logger for lgging
+	private final Logger logger = Logger.getLogger(getClass().getName());
+	// in case you want a log-manager use this line and change the import above
+	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	
+	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
+	//private DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
+	
+	// it is VERY important to set the crawler name (all in upper case) here
+	private static final String CRAWLER_NAME="FSCRAWLER";
+	private static String name="FsCrawler";
 	
 	String fileName = null;
 	String JsonBackupStoragePath = "json";
@@ -62,13 +73,6 @@ public class FsCrawler implements Job {
     UserData uData = new UserData();
     HANAPersistence hana = new HANAPersistence();
     
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
-		
-	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	//private DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
 	
 	public FsCrawler() {
 		super();

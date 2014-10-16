@@ -149,6 +149,7 @@ public class FacebookSpringFbCrawler extends GenericCrawler implements Job {
 				// Do whatever needs to be done with messages
 				for (int msgRead = 0; msgRead < 1000; msgRead++) {
 					messageCount++;
+					setPostsTracked(messageCount);
 					
 					logger.info("New message tracked from " + msg.toString().substring(15, 45) + "... / number " + messageCount + " in this job run");
 					logger.trace("   content: " + msg );
