@@ -197,7 +197,8 @@ public final class RuntimeConfiguration {
 		}catch(Exception e){
 			logger.error("EXCEPTION :: can't access /opt/tomcat/runtimeconfighackfile.txt " + e.getLocalizedMessage());
 			e.printStackTrace();
-			System.exit(SNCStatusCodes.FATAL.getErrorCode());
+			if (isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 		return result;
 	}
@@ -218,8 +219,7 @@ public final class RuntimeConfiguration {
 	// the constructor is NOT to be executed externally, but only via getInstance()
 	private RuntimeConfiguration(){
 		logger.debug("initializing runtime configuration");
-		//setRuntimeConfigFilePath(	returnQualifiedConfigPath(RTCF));
-		setRuntimeConfigFilePath(RTCF);
+		setRuntimeConfigFilePath(	returnQualifiedConfigPath(RTCF));
 		
 		// set the xml layout
 		setXmlLayout(				getRuntimeConfigFilePath());
