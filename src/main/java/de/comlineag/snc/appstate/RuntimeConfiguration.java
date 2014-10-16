@@ -19,14 +19,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import de.comlineag.snc.constants.SNCStatusCodes;
-import de.comlineag.snc.constants.SocialNetworks;
 
 
 /**
  * 
  * @author 		Christian Guenther
  * @category	handler
- * @revision	0.9				- 16.10.2014
+ * @revision	0.9a			- 16.10.2014
  * @status		productive
  * 
  * @description	this class is used to setup the overall configuration of the SNC.
@@ -57,10 +56,10 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 				0.7a			changed calling of RuntimeConfiguration to be issued by the crawler
  * 								and not by AppContxt (did not work).
  * 				0.8				made all static vars non-static and changed access to non-static
- * 				0.9				changed singleton pattern to use initialization on demand holder idiom 
+ * 				0.9				changed singleton pattern to use initialization on demand holder design
+ * 				0.9a			implemented ResourcePathHolder class to get the real path to the WEB-INF directory 
  *
  * TODO 1 use nodelist instead of single expressions for each node
- * TODO 2 remove bloody hack that gets the path to the WEB-INF directory from a file in /opt 
  * 
  */
 public final class RuntimeConfiguration { 
@@ -75,6 +74,7 @@ public final class RuntimeConfiguration {
     
     // in case you want to change the name of the runtime configuration file - you need to change this variable and recompile
 	private static final String RTCF = "SNC_Runtime_Configuration.xml";
+	
 	
 	// Every variable below is usually defined in the file SNC_Runtime_Configuration.xml. Although it is possible to
 	// put some of them can also be moved to other configuration files. For an explanation of what each variable is
@@ -181,39 +181,34 @@ public final class RuntimeConfiguration {
 	
 	// from this point on the methods to setup the global runtime environment are defined 
 	
-	// this gets the absolute file path to the runtime configuration XML-file  
-	// FIXME very very dirty hack to get the runtime config file - fix in version 1.0
+	// this gets the absolute file path to the runtime configuration XML-file 
+	// FIXME get rid of this bloody hack
+	@Deprecated
 	private String getWebInfDirectory(){
 		String result = null;
 		try{
-			FileInputStream fs= new FileInputStream("/opt/runtimeconfighackfile.txt");
+			FileInputStream fs= new FileInputStream("/opt/tomcat/runtimeconfighackfile.txt");
 			BufferedReader br = new BufferedReader(new InputStreamReader(fs));
 			result = br.readLine();
 			br.close();
 			fs.close();																						
 		}catch(Exception e){
-			logger.error("EXCEPTION :: can't access /opt/runtimeconfighackfile.txt " + e.getLocalizedMessage());
+			logger.error("EXCEPTION :: can't access /opt/tomcat/runtimeconfighackfile.txt " + e.getLocalizedMessage());
 			e.printStackTrace();
 			System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 		return result;
 	}
 	
-	
-	/**
-	 * @description returns an absolute path to the given snc configuration file
-	 * @param  inputPath - absolute or relative path to a config file
-	 * @return qualified path to the snc configuration file given as input
-	 * 
-	 * TODO get rid of this bloody hack - returning the path to the config directory should not be necessary
-	 */
 	public String returnQualifiedConfigPath(String inputPath){
 		if ("//".equals(inputPath.substring(0,1))
 				|| "/".equals(inputPath.substring(0,0)) 
 				|| ":".equals(inputPath.substring(1,1))){
 			return inputPath;
 		} else {
-			return getWebInfDirectory() + File.separator + inputPath;
+			// TODO change the bloody hack to correct resource handler
+			//return ResourcePathHolder.getResourcePath() + File.separator + inputPath;
+			return getWebInfDirectory()+ File.separator + inputPath;
 		}
 	}
 	
@@ -221,7 +216,8 @@ public final class RuntimeConfiguration {
 	// the constructor is NOT to be executed externally, but only via getInstance()
 	private RuntimeConfiguration(){
 		logger.debug("initializing runtime configuration");
-		setRuntimeConfigFilePath(	returnQualifiedConfigPath(RTCF));
+		//setRuntimeConfigFilePath(	returnQualifiedConfigPath(RTCF));
+		setRuntimeConfigFilePath(RTCF);
 		
 		// set the xml layout
 		setXmlLayout(				getRuntimeConfigFilePath());
@@ -236,6 +232,14 @@ public final class RuntimeConfiguration {
 		setWebParserListFilePath(	returnQualifiedConfigPath(	getWebParserListFilePath()));
 		setSocialNetworkFilePath(	returnQualifiedConfigPath(	getSocialNetworkFilePath()));
 		
+		/*
+		setCrawlerConfigFilePath(	ResourcePathHolder.getResourcePath()+File.separator+getCrawlerConfigFilePath());
+		setDataConfigFilePath(		ResourcePathHolder.getResourcePath()+File.separator+getDataConfigFilePath());
+		setThreadingConfigFilePath(	ResourcePathHolder.getResourcePath()+File.separator+getThreadingConfigFilePath());
+		setHanaConfigFilePath(		ResourcePathHolder.getResourcePath()+File.separator+getHanaConfigFilePath());
+		setWebParserListFilePath(	ResourcePathHolder.getResourcePath()+File.separator+getWebParserListFilePath());
+		setSocialNetworkFilePath(	ResourcePathHolder.getResourcePath()+File.separator+getSocialNetworkFilePath());
+		*/
 		// set the threading model
 		setThreadingModel(			getThreadingConfigFilePath());
 		
@@ -698,68 +702,68 @@ public final class RuntimeConfiguration {
 	
 	
 	// private setter
-		private void 		setRuntimeConfigFilePath(String runtimeConfigFile) 	{ runtimeConfigFilePath = runtimeConfigFile;}
-		private void 		setSocialNetworkFilePath(String socialNetworkFile) 	{ socialNetworkFilePath = socialNetworkFile;}
-		private void 		setWebParserListFilePath(String parserListFile) 	{ webParserListFilePath = parserListFile;}
-		private void		setHanaConfigFilePath(String hanaConfigFile) 		{ hanaConfigFilePath = hanaConfigFile;}
-		private void		setCrawlerConfigFilePath(String crawlerConfigFile)	{ crawlerConfigFilePath = crawlerConfigFile;}
-		private void		setDataConfigFilePath(String dataConfigFile)		{ dataConfigFilePath = dataConfigFile; }
-		private void 		setThreadingConfigFilePath(String threadingConfigFile) {threadingConfigFilePath = threadingConfigFile;}
-		
-		private void 		setINVALID_JSON_BACKUP_STORAGE_PATH(String iNVALID_JSON_BACKUP_STORAGE_PATH) {INVALID_JSON_BACKUP_STORAGE_PATH = iNVALID_JSON_BACKUP_STORAGE_PATH;}
-		private void 		setSTORAGE_PATH(String sTORAGE_PATH) {STORAGE_PATH = sTORAGE_PATH;}
-		private void 		setJSON_BACKUP_STORAGE_PATH(String jSON_BACKUP_STORAGE_PATH) {JSON_BACKUP_STORAGE_PATH = jSON_BACKUP_STORAGE_PATH;}
-		private void 		setPROCESSED_JSON_BACKUP_STORAGE_PATH( String pROCESSED_JSON_BACKUP_STORAGE_PATH) { PROCESSED_JSON_BACKUP_STORAGE_PATH = pROCESSED_JSON_BACKUP_STORAGE_PATH; }
-		private void 		setMOVE_OR_DELETE_PROCESSED_JSON_FILES(String mOVE_OR_DELETE_PROCESSED_JSON_FILES) {MOVE_OR_DELETE_PROCESSED_JSON_FILES = mOVE_OR_DELETE_PROCESSED_JSON_FILES;}
-		
-		private void 		setCONSTRAINT_TERM_TEXT(String s) { CONSTRAINT_TERM_TEXT = s; }
-		private void 		setCONSTRAINT_USER_TEXT(String s) { CONSTRAINT_USER_TEXT = s; }
-		private void 		setCONSTRAINT_SITE_TEXT(String s) { CONSTRAINT_SITE_TEXT = s; }
-		private void 		setCONSTRAINT_BLOCKEDSITE_TEXT(String s) { CONSTRAINT_BLOCKEDSITE_TEXT = s; }
-		private void 		setCONSTRAINT_BOARD_TEXT(String s) { CONSTRAINT_BOARD_TEXT = s; }
-		private void 		setCONSTRAINT_BLOG_TEXT(String s) { CONSTRAINT_BLOG_TEXT = s; }
-		private void 		setCONSTRAINT_LOCATION_TEXT(String s) { CONSTRAINT_LOCATION_TEXT = s; }
+	private void 		setRuntimeConfigFilePath(String runtimeConfigFile) 	{ runtimeConfigFilePath = runtimeConfigFile;}
+	private void 		setSocialNetworkFilePath(String socialNetworkFile) 	{ socialNetworkFilePath = socialNetworkFile;}
+	private void 		setWebParserListFilePath(String parserListFile) 	{ webParserListFilePath = parserListFile;}
+	private void		setHanaConfigFilePath(String hanaConfigFile) 		{ hanaConfigFilePath = hanaConfigFile;}
+	private void		setCrawlerConfigFilePath(String crawlerConfigFile)	{ crawlerConfigFilePath = crawlerConfigFile;}
+	private void		setDataConfigFilePath(String dataConfigFile)		{ dataConfigFilePath = dataConfigFile; }
+	private void 		setThreadingConfigFilePath(String threadingConfigFile) {threadingConfigFilePath = threadingConfigFile;}
+	
+	private void 		setINVALID_JSON_BACKUP_STORAGE_PATH(String iNVALID_JSON_BACKUP_STORAGE_PATH) {INVALID_JSON_BACKUP_STORAGE_PATH = iNVALID_JSON_BACKUP_STORAGE_PATH;}
+	private void 		setSTORAGE_PATH(String sTORAGE_PATH) {STORAGE_PATH = sTORAGE_PATH;}
+	private void 		setJSON_BACKUP_STORAGE_PATH(String jSON_BACKUP_STORAGE_PATH) {JSON_BACKUP_STORAGE_PATH = jSON_BACKUP_STORAGE_PATH;}
+	private void 		setPROCESSED_JSON_BACKUP_STORAGE_PATH( String pROCESSED_JSON_BACKUP_STORAGE_PATH) { PROCESSED_JSON_BACKUP_STORAGE_PATH = pROCESSED_JSON_BACKUP_STORAGE_PATH; }
+	private void 		setMOVE_OR_DELETE_PROCESSED_JSON_FILES(String mOVE_OR_DELETE_PROCESSED_JSON_FILES) {MOVE_OR_DELETE_PROCESSED_JSON_FILES = mOVE_OR_DELETE_PROCESSED_JSON_FILES;}
+	
+	private void 		setCONSTRAINT_TERM_TEXT(String s) { CONSTRAINT_TERM_TEXT = s; }
+	private void 		setCONSTRAINT_USER_TEXT(String s) { CONSTRAINT_USER_TEXT = s; }
+	private void 		setCONSTRAINT_SITE_TEXT(String s) { CONSTRAINT_SITE_TEXT = s; }
+	private void 		setCONSTRAINT_BLOCKEDSITE_TEXT(String s) { CONSTRAINT_BLOCKEDSITE_TEXT = s; }
+	private void 		setCONSTRAINT_BOARD_TEXT(String s) { CONSTRAINT_BOARD_TEXT = s; }
+	private void 		setCONSTRAINT_BLOG_TEXT(String s) { CONSTRAINT_BLOG_TEXT = s; }
+	private void 		setCONSTRAINT_LOCATION_TEXT(String s) { CONSTRAINT_LOCATION_TEXT = s; }
 
-		private void 		setCrawlerRunIdentifier(String crawlerRunIdent) { crawlerRunIdentifier = crawlerRunIdent;	}
-		private void 		setConfigFileTypeIdentifier(String configFileTypeIdent) { configFileTypeIdentifier = configFileTypeIdent;}
-		private void 		setThreadingIdentifier(String threadingIdent) { threadingIdentifier = threadingIdent;}
-		private void 		setParserIdentifier(String parserIdent) { parserIdentifier = parserIdent;}
-		private void 		setCrawlerIdentifier(String crawlerIdent) { crawlerIdentifier = crawlerIdent;}
-		private void 		setPersistenceIdentifier(String persistenceIdent) { persistenceIdentifier = persistenceIdent;	}
-		private void 		setSocialNetworkConfiguration(String socialNetworkConfig) { socialNetworkConfiguration = socialNetworkConfig;}
-		private void 		setSocialNetworkIdentifier(String socialNetworkIdent) { socialNetworkIdentifier = socialNetworkIdent;}
-		private void 		setSocialNetworkName(String socialNetworkNam) { socialNetworkName = socialNetworkNam;}
-		
-		private void 		setPARSER_THREADING_POOL_SIZE(int pARSER_THREADING_POOL_SIZE) {PARSER_THREADING_POOL_SIZE = pARSER_THREADING_POOL_SIZE;	}
-		private void		setCRAWLER_THREADING_POOL_SIZE(int cRAWLER_THREADING_POOL_SIZE) {CRAWLER_THREADING_POOL_SIZE = cRAWLER_THREADING_POOL_SIZE;	}
-		private void 		setPERSISTENCE_THREADING_POOL_SIZE(int pERSISTENCE_THREADING_POOL_SIZE) {PERSISTENCE_THREADING_POOL_SIZE = pERSISTENCE_THREADING_POOL_SIZE;	}
-		private void 		setPARSER_THREADING_ENABLED(boolean pARSER_THREADING_ENABLED) {PARSER_THREADING_ENABLED = pARSER_THREADING_ENABLED;}
-		private void 		setCRAWLER_THREADING_ENABLED(boolean cRAWLER_THREADING_ENABLED) {CRAWLER_THREADING_ENABLED = cRAWLER_THREADING_ENABLED;}
-		private void 		setPERSISTENCE_THREADING_ENABLED(boolean pERSISTENCE_THREADING_ENABLED) {PERSISTENCE_THREADING_ENABLED = pERSISTENCE_THREADING_ENABLED;}
-		
-		private void 		setTEXT_WITH_MARKUP(boolean tEXT_WITH_MARKUP) { TEXT_WITH_MARKUP = tEXT_WITH_MARKUP;}
-		private void 		setRAW_TEXT_WITH_MARKUP(boolean rAW_TEXT_WITH_MARKUP) { RAW_TEXT_WITH_MARKUP = rAW_TEXT_WITH_MARKUP;}
-		private void		setSUBJECT_MIN_LENGTH(int sUBJECT_MIN_LENGTH) { SUBJECT_MIN_LENGTH = sUBJECT_MIN_LENGTH;}
-		private void 		setSUBJECT_MAX_LENGTH(int sUBJECT_MAX_LENGTH) { SUBJECT_MAX_LENGTH = sUBJECT_MAX_LENGTH;}
-		private void 		setSUBJECT_WITH_MARKUP(boolean sUBJECT_WITH_MARKUP) { SUBJECT_WITH_MARKUP = sUBJECT_WITH_MARKUP;}
-		private void 		setTEASER_MIN_LENGTH(int tEASER_MIN_LENGTH) { TEASER_MIN_LENGTH = tEASER_MIN_LENGTH;}
-		private void 		setTEASER_MAX_LENGTH(int tEASER_MAX_LENGTH) { TEASER_MAX_LENGTH = tEASER_MAX_LENGTH;}
-		private void 		setTEASER_WITH_MARKUP(boolean tEASER_WITH_MARKUP) { TEASER_WITH_MARKUP = tEASER_WITH_MARKUP;}
-		
-		private void 		setWC_SEARCH_LIMIT(int sEARCH_LIMIT) {WC_SEARCH_LIMIT = sEARCH_LIMIT;}
-		private void 		setWC_ROBOT_DISALLOW_TEXT(String dISALLOW) {WC_ROBOT_DISALLOW_TEXT = dISALLOW;}
-		private void 		setWC_STAY_ON_DOMAIN(boolean sTAY_ON_DOMAIN) { WC_STAY_ON_DOMAIN = sTAY_ON_DOMAIN;}
-		private void 		setWC_STAY_BELOW_GIVEN_PATH(boolean wC_STAY_BELOW_GIVEN_PATH) {WC_STAY_BELOW_GIVEN_PATH = wC_STAY_BELOW_GIVEN_PATH;}
-		private void 		setWC_MAX_DEPTH(int wC_MAX_DEPTH) {WC_MAX_DEPTH = wC_MAX_DEPTH;}
-		private void		setWC_WORD_DISTANCE_CUTOFF_MARGIN(int wC_WORD_DISTANCE_CUTOFF_MARGIN) {WC_WORD_DISTANCE_CUTOFF_MARGIN = wC_WORD_DISTANCE_CUTOFF_MARGIN;}
-		private void 		setWC_CRAWLER_MAX_DOWNLOAD_SIZE(int mAXSIZE) {WC_CRAWLER_MAX_DOWNLOAD_SIZE = mAXSIZE;}
-		
-		private void 		setWarnOnSimpleConfig(boolean wARN_ON_SIMPLE_CONFIG) { WARN_ON_SIMPLE_CONFIG = wARN_ON_SIMPLE_CONFIG;}
-		private void 		setWarnOnSimpleXmlConfig(boolean wARN_ON_SIMPLE_XML_CONFIG) { WARN_ON_SIMPLE_XML_CONFIG = wARN_ON_SIMPLE_XML_CONFIG;}
-		private void 		setCREATE_POST_JSON_ON_ERROR(boolean cREATE_POST_JSON_ON_ERROR) {CREATE_POST_JSON_ON_ERROR = cREATE_POST_JSON_ON_ERROR;}
-		private void 		setCREATE_USER_JSON_ON_ERROR(boolean cREATE_USER_JSON_ON_ERROR) {CREATE_USER_JSON_ON_ERROR = cREATE_USER_JSON_ON_ERROR;}
-		private void 		setCREATE_POST_JSON_ON_SUCCESS(boolean cREATE_POST_JSON_ON_SUCCESS) {CREATE_POST_JSON_ON_SUCCESS = cREATE_POST_JSON_ON_SUCCESS;}
-		private void 		setCREATE_USER_JSON_ON_SUCCESS(boolean cREATE_USER_JSON_ON_SUCCESS) {CREATE_USER_JSON_ON_SUCCESS = cREATE_USER_JSON_ON_SUCCESS;}
-		private void 		setSTOP_SNC_ON_PERSISTENCE_FAILURE(boolean sTOP_SNC_ON_PERSISTENCE_FAILURE) {STOP_SNC_ON_PERSISTENCE_FAILURE = sTOP_SNC_ON_PERSISTENCE_FAILURE;}
-		private void 		setWARN_ON_REJECTED_ACTIONS(boolean wARN_ON_REJECTED_ACTIONS) {WARN_ON_REJECTED_ACTIONS = wARN_ON_REJECTED_ACTIONS;}
+	private void 		setCrawlerRunIdentifier(String crawlerRunIdent) { crawlerRunIdentifier = crawlerRunIdent;	}
+	private void 		setConfigFileTypeIdentifier(String configFileTypeIdent) { configFileTypeIdentifier = configFileTypeIdent;}
+	private void 		setThreadingIdentifier(String threadingIdent) { threadingIdentifier = threadingIdent;}
+	private void 		setParserIdentifier(String parserIdent) { parserIdentifier = parserIdent;}
+	private void 		setCrawlerIdentifier(String crawlerIdent) { crawlerIdentifier = crawlerIdent;}
+	private void 		setPersistenceIdentifier(String persistenceIdent) { persistenceIdentifier = persistenceIdent;	}
+	private void 		setSocialNetworkConfiguration(String socialNetworkConfig) { socialNetworkConfiguration = socialNetworkConfig;}
+	private void 		setSocialNetworkIdentifier(String socialNetworkIdent) { socialNetworkIdentifier = socialNetworkIdent;}
+	private void 		setSocialNetworkName(String socialNetworkNam) { socialNetworkName = socialNetworkNam;}
+	
+	private void 		setPARSER_THREADING_POOL_SIZE(int pARSER_THREADING_POOL_SIZE) {PARSER_THREADING_POOL_SIZE = pARSER_THREADING_POOL_SIZE;	}
+	private void		setCRAWLER_THREADING_POOL_SIZE(int cRAWLER_THREADING_POOL_SIZE) {CRAWLER_THREADING_POOL_SIZE = cRAWLER_THREADING_POOL_SIZE;	}
+	private void 		setPERSISTENCE_THREADING_POOL_SIZE(int pERSISTENCE_THREADING_POOL_SIZE) {PERSISTENCE_THREADING_POOL_SIZE = pERSISTENCE_THREADING_POOL_SIZE;	}
+	private void 		setPARSER_THREADING_ENABLED(boolean pARSER_THREADING_ENABLED) {PARSER_THREADING_ENABLED = pARSER_THREADING_ENABLED;}
+	private void 		setCRAWLER_THREADING_ENABLED(boolean cRAWLER_THREADING_ENABLED) {CRAWLER_THREADING_ENABLED = cRAWLER_THREADING_ENABLED;}
+	private void 		setPERSISTENCE_THREADING_ENABLED(boolean pERSISTENCE_THREADING_ENABLED) {PERSISTENCE_THREADING_ENABLED = pERSISTENCE_THREADING_ENABLED;}
+	
+	private void 		setTEXT_WITH_MARKUP(boolean tEXT_WITH_MARKUP) { TEXT_WITH_MARKUP = tEXT_WITH_MARKUP;}
+	private void 		setRAW_TEXT_WITH_MARKUP(boolean rAW_TEXT_WITH_MARKUP) { RAW_TEXT_WITH_MARKUP = rAW_TEXT_WITH_MARKUP;}
+	private void		setSUBJECT_MIN_LENGTH(int sUBJECT_MIN_LENGTH) { SUBJECT_MIN_LENGTH = sUBJECT_MIN_LENGTH;}
+	private void 		setSUBJECT_MAX_LENGTH(int sUBJECT_MAX_LENGTH) { SUBJECT_MAX_LENGTH = sUBJECT_MAX_LENGTH;}
+	private void 		setSUBJECT_WITH_MARKUP(boolean sUBJECT_WITH_MARKUP) { SUBJECT_WITH_MARKUP = sUBJECT_WITH_MARKUP;}
+	private void 		setTEASER_MIN_LENGTH(int tEASER_MIN_LENGTH) { TEASER_MIN_LENGTH = tEASER_MIN_LENGTH;}
+	private void 		setTEASER_MAX_LENGTH(int tEASER_MAX_LENGTH) { TEASER_MAX_LENGTH = tEASER_MAX_LENGTH;}
+	private void 		setTEASER_WITH_MARKUP(boolean tEASER_WITH_MARKUP) { TEASER_WITH_MARKUP = tEASER_WITH_MARKUP;}
+	
+	private void 		setWC_SEARCH_LIMIT(int sEARCH_LIMIT) {WC_SEARCH_LIMIT = sEARCH_LIMIT;}
+	private void 		setWC_ROBOT_DISALLOW_TEXT(String dISALLOW) {WC_ROBOT_DISALLOW_TEXT = dISALLOW;}
+	private void 		setWC_STAY_ON_DOMAIN(boolean sTAY_ON_DOMAIN) { WC_STAY_ON_DOMAIN = sTAY_ON_DOMAIN;}
+	private void 		setWC_STAY_BELOW_GIVEN_PATH(boolean wC_STAY_BELOW_GIVEN_PATH) {WC_STAY_BELOW_GIVEN_PATH = wC_STAY_BELOW_GIVEN_PATH;}
+	private void 		setWC_MAX_DEPTH(int wC_MAX_DEPTH) {WC_MAX_DEPTH = wC_MAX_DEPTH;}
+	private void		setWC_WORD_DISTANCE_CUTOFF_MARGIN(int wC_WORD_DISTANCE_CUTOFF_MARGIN) {WC_WORD_DISTANCE_CUTOFF_MARGIN = wC_WORD_DISTANCE_CUTOFF_MARGIN;}
+	private void 		setWC_CRAWLER_MAX_DOWNLOAD_SIZE(int mAXSIZE) {WC_CRAWLER_MAX_DOWNLOAD_SIZE = mAXSIZE;}
+	
+	private void 		setWarnOnSimpleConfig(boolean wARN_ON_SIMPLE_CONFIG) { WARN_ON_SIMPLE_CONFIG = wARN_ON_SIMPLE_CONFIG;}
+	private void 		setWarnOnSimpleXmlConfig(boolean wARN_ON_SIMPLE_XML_CONFIG) { WARN_ON_SIMPLE_XML_CONFIG = wARN_ON_SIMPLE_XML_CONFIG;}
+	private void 		setCREATE_POST_JSON_ON_ERROR(boolean cREATE_POST_JSON_ON_ERROR) {CREATE_POST_JSON_ON_ERROR = cREATE_POST_JSON_ON_ERROR;}
+	private void 		setCREATE_USER_JSON_ON_ERROR(boolean cREATE_USER_JSON_ON_ERROR) {CREATE_USER_JSON_ON_ERROR = cREATE_USER_JSON_ON_ERROR;}
+	private void 		setCREATE_POST_JSON_ON_SUCCESS(boolean cREATE_POST_JSON_ON_SUCCESS) {CREATE_POST_JSON_ON_SUCCESS = cREATE_POST_JSON_ON_SUCCESS;}
+	private void 		setCREATE_USER_JSON_ON_SUCCESS(boolean cREATE_USER_JSON_ON_SUCCESS) {CREATE_USER_JSON_ON_SUCCESS = cREATE_USER_JSON_ON_SUCCESS;}
+	private void 		setSTOP_SNC_ON_PERSISTENCE_FAILURE(boolean sTOP_SNC_ON_PERSISTENCE_FAILURE) {STOP_SNC_ON_PERSISTENCE_FAILURE = sTOP_SNC_ON_PERSISTENCE_FAILURE;}
+	private void 		setWARN_ON_REJECTED_ACTIONS(boolean wARN_ON_REJECTED_ACTIONS) {WARN_ON_REJECTED_ACTIONS = wARN_ON_REJECTED_ACTIONS;}
 }

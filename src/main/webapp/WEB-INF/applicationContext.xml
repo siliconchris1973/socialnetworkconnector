@@ -66,6 +66,11 @@
 	<tx:annotation-driven />
 	
 	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.appstate.ApplicationContextProvider"></bean>
+	<!-- this is used to get the path to the WEB-INF directory from within the application without
+		 an explicit implementation of the servlet context in each class that requires access to the directory.
+		 Mainly it is implemented by a class ResourcePathHolder (instantiated by spring via this bean) that
+		 holds a static variable and getter method to return the path to the WEB-INF directory -->
+	<bean id="contextWebApplicationContextProvider" class="de.comlineag.snc.appstate.ResourcePathHolder"></bean>
 	
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 	     J O B    C O N T R O L    S E T T I N G S  -  J O B    C O N T R O L    S E T

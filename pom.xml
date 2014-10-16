@@ -29,7 +29,7 @@
 	-->
 	<groupId>de.comlineag.snc</groupId>
 	<artifactId>SocialNetworkConnector</artifactId>
-	<version>0.7.4-Beta</version>
+	<version>0.7.6-Beta</version>
 	
 	<name>Social Network Connector</name>
 	<url>https://clsbm.comlineag.de</url>
@@ -330,13 +330,11 @@
 		</dependency>
 		
 		<!-- activate to work with SAP HANA - external JDBC Driver --> 
-<!--
 		<dependency>
 			<groupId>com.sap</groupId>
 			<artifactId>ngdbc</artifactId>
 			<version>1.00.68</version>
 		</dependency>
--->
 	</dependencies>
 
 	<!-- a local maven repository - currently only for the external ngdbc.jar - jdbc library for sap hana -->

@@ -1,5 +1,6 @@
 package de.comlineag.snc.persistence;
 
+import de.comlineag.snc.appstate.ResourcePathHolder;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SNCStatusCodes;
 
@@ -11,6 +12,7 @@ import org.ini4j.Ini;
 import org.ini4j.InvalidIniFormatException;
 import org.json.simple.JSONObject;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -126,6 +128,7 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 	
 	// getter and setter for the configuration path
 	public String getConfigDbHandler() {return rtc.returnQualifiedConfigPath(this.configDbHandler);}
+	//public String getConfigDbHandler() {return ResourcePathHolder.getResourcePath()+File.separator+this.configDbHandler;}
 	public void setConfigDbHandler(String configDb) {this.configDbHandler = configDb;}
 	
 	// getter and setter for the domain data
