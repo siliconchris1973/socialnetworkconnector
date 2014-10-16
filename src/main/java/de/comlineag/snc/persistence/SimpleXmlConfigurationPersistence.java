@@ -8,7 +8,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import de.comlineag.snc.appstate.ResourcePathHolder;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SNCStatusCodes;
 import de.comlineag.snc.constants.SocialNetworks;
@@ -141,7 +140,8 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 		
 		// first check, if the correct configuration file type was specified and if not, bail out the hard way
 		if (!isConfigFileCorrect()){
-			System.exit(SNCStatusCodes.ERROR.getErrorCode());
+			if (rtc.isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+				System.exit(SNCStatusCodes.ERROR.getErrorCode());
 		}
 		
 		return (ArrayList<T>) getDataFromXml(category, SN);
@@ -177,12 +177,14 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 			
 			logger.trace("    " + ar.toString());
 		} catch (IOException e) {
-			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(SNCStatusCodes.FATAL.getErrorCode());
+			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious!");
+			if (rtc.isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+				System.exit(SNCStatusCodes.CRITICAL.getErrorCode());
 		} catch (Exception e) {
-			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
+			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage() + ". This is serious!");
 			e.printStackTrace();
-			System.exit(SNCStatusCodes.FATAL.getErrorCode());
+			if (rtc.isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+				System.exit(SNCStatusCodes.CRITICAL.getErrorCode());
 		}
 
         return (ArrayList<T>) ar;

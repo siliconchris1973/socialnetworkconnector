@@ -161,6 +161,16 @@
 			<value>false</value>
 			<constant>STOP_SNC_ON_PERSISTENCE_FAILURE</constant>
 		</param>
+		
+		<!-- stop the SNC in case reading or writing to configuration fails?
+			 The purpose of this setting is mainly in debugging: In case the of the configuration files can
+			 not be found, the server goes down together with the SNC. This somewhat scks and thus I introduced
+			 this option. Can't really think of a reason to set this in a production environment to false -->
+		<param name="ExitOnConfigurationFailure">
+			<type>boolean</type>
+			<value>false</value>
+			<constant>STOP_SNC_ON_CONFIGURATION_FAILURE</constant>
+		</param>
 	</configuration>
 	
 	

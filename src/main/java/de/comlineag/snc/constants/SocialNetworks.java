@@ -114,12 +114,14 @@ public final class SocialNetworks {
 			}
 			
 		} catch (IOException e) {
-			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(-1);
+			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious!");
+			if (rtc.isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+				System.exit(SNCStatusCodes.CRITICAL.getErrorCode());
 		} catch (Exception e) {
-			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
+			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage() + ". This is serious!");
 			e.printStackTrace();
-			System.exit(SNCStatusCodes.FATAL.getErrorCode());
+			if (rtc.isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+				System.exit(SNCStatusCodes.CRITICAL.getErrorCode());
 		}
 		return null;
 	}

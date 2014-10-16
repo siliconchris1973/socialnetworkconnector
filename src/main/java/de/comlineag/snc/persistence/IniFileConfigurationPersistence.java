@@ -1,6 +1,5 @@
 package de.comlineag.snc.persistence;
 
-import de.comlineag.snc.appstate.ResourcePathHolder;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SNCStatusCodes;
 
@@ -12,7 +11,6 @@ import org.ini4j.Ini;
 import org.ini4j.InvalidIniFormatException;
 import org.json.simple.JSONObject;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -94,11 +92,13 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 		try {
 			ini = new Ini(new FileReader((String)getConfigDbHandler()));
 		} catch (InvalidIniFormatException e1) {
-			logger.error("EXCEPTION :: invalid ini format " + e1.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(SNCStatusCodes.FATAL.getErrorCode());
+			logger.error("EXCEPTION :: invalid ini format " + e1.getLocalizedMessage() + ". This is serious!");
+			if (rtc.isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+				System.exit(SNCStatusCodes.ERROR.getErrorCode());
 		} catch (IOException e2) {
-			logger.error("EXCEPTION :: error reading configuration file " + e2.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(SNCStatusCodes.FATAL.getErrorCode());
+			logger.error("EXCEPTION :: error reading configuration file " + e2.getLocalizedMessage() + ". This is serious!");
+			if (rtc.isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+				System.exit(SNCStatusCodes.CRITICAL.getErrorCode());
 		}
 		
 		// now add config elements one by one to array

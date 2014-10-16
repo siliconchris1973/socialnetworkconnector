@@ -8,7 +8,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import de.comlineag.snc.appstate.ResourcePathHolder;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SNCStatusCodes;
 import de.comlineag.snc.constants.SocialNetworks;
@@ -367,12 +366,14 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			logger.debug("found " + ar.size() + " constraints on " + section);
 			logger.trace("    " + ar.toString());
 		} catch (IOException e) {
-			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(-1);
+			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious!");
+			if (rtc.isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+				System.exit(SNCStatusCodes.CRITICAL.getErrorCode());
 		} catch (Exception e) {
-			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
+			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage() + ". This is serious!");
 			e.printStackTrace();
-			System.exit(-1);
+			if (rtc.isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+				System.exit(SNCStatusCodes.CRITICAL.getErrorCode());
 		}
 
         return (ArrayList<T>) ar;
@@ -390,7 +391,8 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 		
 		// first check, if the correct configuration file type was specified and if not, bail out the hard way
 		if (!isConfigFileCorrect()){
-			System.exit(SNCStatusCodes.ERROR.getErrorCode());
+			if (rtc.isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+				System.exit(SNCStatusCodes.ERROR.getErrorCode());
 		}
 		
 		// get configuration scope

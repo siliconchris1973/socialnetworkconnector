@@ -25,7 +25,7 @@ import de.comlineag.snc.constants.SNCStatusCodes;
  * 
  * @author 		Christian Guenther
  * @category	handler
- * @revision	0.9a			- 16.10.2014
+ * @revision	0.9b			- 16.10.2014
  * @status		productive
  * 
  * @description	this class is used to setup the overall configuration of the SNC.
@@ -57,7 +57,8 @@ import de.comlineag.snc.constants.SNCStatusCodes;
  * 								and not by AppContxt (did not work).
  * 				0.8				made all static vars non-static and changed access to non-static
  * 				0.9				changed singleton pattern to use initialization on demand holder design
- * 				0.9a			implemented ResourcePathHolder class to get the real path to the WEB-INF directory 
+ * 				0.9a			implemented ResourcePathHolder class to get the real path to the WEB-INF directory
+ * 				0.9b			added support for shutdown on any error in XML-file
  *
  * TODO 1 use nodelist instead of single expressions for each node
  * 
@@ -102,6 +103,7 @@ public final class RuntimeConfiguration {
 	private boolean 	CREATE_POST_JSON_ON_SUCCESS 		= false;
 	private boolean 	CREATE_USER_JSON_ON_SUCCESS 		= false;
 	private boolean 	STOP_SNC_ON_PERSISTENCE_FAILURE 	= false;
+	private boolean 	STOP_SNC_ON_CONFIGURATION_FAILURE 	= false; // set this to true before building productive version
 	
 	// where to store and how to process json files
 	private String 		STORAGE_PATH 						= "storage";
@@ -319,6 +321,10 @@ public final class RuntimeConfiguration {
 			setSTOP_SNC_ON_PERSISTENCE_FAILURE(getBooleanElement("runtime", "ExitOnPersistenceFailure", xpath, doc, configFile));
 			debugMsg += " / STOP_SNC_ON_PERSISTENCE_FAILURE is " + isSTOP_SNC_ON_PERSISTENCE_FAILURE();
 			
+			// STOP_SNC_ON_CONFIGURATION_FAILURE
+			setSTOP_SNC_ON_CONFIGURATION_FAILURE(getBooleanElement("runtime", "ExitOnConfigurationFailure", xpath, doc, configFile));
+			debugMsg += " / STOP_SNC_ON_CONFIGURATION_FAILURE is " + isSTOP_SNC_ON_CONFIGURATION_FAILURE();
+			
 			
 			// ParserListFilePath
 			setWebParserListFilePath(getStringElement("runtime", "ParserListFilePath", xpath, doc, configFile));
@@ -346,8 +352,9 @@ public final class RuntimeConfiguration {
 			
 			logger.trace(debugMsg);
 		} catch (Exception e) {
-			logger.error("EXCEPTION :: error reading runtime configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(SNCStatusCodes.FATAL.getErrorCode());
+			logger.error("EXCEPTION :: error reading runtime configuration " + e.getLocalizedMessage() + ". This is serious!");
+			if (isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 	}
 	
@@ -396,8 +403,9 @@ public final class RuntimeConfiguration {
 			
 			logger.trace(debugMsg);
 		} catch (Exception e) {
-			logger.error("EXCEPTION :: error reading runtime configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(SNCStatusCodes.FATAL.getErrorCode());
+			logger.error("EXCEPTION :: error reading runtime configuration " + e.getLocalizedMessage() + ". This is serious!");
+			if (isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 	}
 	
@@ -437,8 +445,9 @@ public final class RuntimeConfiguration {
 			
 			logger.trace(debugMsg);
 		} catch (Exception e) {
-			logger.error("EXCEPTION :: error reading threading configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(SNCStatusCodes.FATAL.getErrorCode());
+			logger.error("EXCEPTION :: error reading threading configuration " + e.getLocalizedMessage() + ". This is serious!");
+			if (isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 	}
 		
@@ -488,8 +497,9 @@ public final class RuntimeConfiguration {
 			
 			logger.trace(debugMsg);
 		} catch (Exception e) {
-			logger.error("EXCEPTION :: error reading data definition configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(SNCStatusCodes.FATAL.getErrorCode());
+			logger.error("EXCEPTION :: error reading data definition configuration " + e.getLocalizedMessage() + ". This is serious!");
+			if (isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 	}
 	
@@ -563,8 +573,9 @@ public final class RuntimeConfiguration {
 			
 			logger.trace(debugMsg);
 		} catch (Exception e) {
-			logger.error("EXCEPTION :: error reading xml-layout configuration " + e.getLocalizedMessage() + ". This is serious, I'm giving up!");
-			System.exit(SNCStatusCodes.FATAL.getErrorCode());
+			logger.error("EXCEPTION :: error reading xml-layout configuration " + e.getLocalizedMessage() + ". This is serious!");
+			if (isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 	}
 	
@@ -669,6 +680,7 @@ public final class RuntimeConfiguration {
 	public boolean 	isCREATE_POST_JSON_ON_SUCCESS() {return CREATE_POST_JSON_ON_SUCCESS;}
 	public boolean 	isCREATE_USER_JSON_ON_SUCCESS() {return CREATE_USER_JSON_ON_SUCCESS;}
 	public boolean 	isSTOP_SNC_ON_PERSISTENCE_FAILURE() {return STOP_SNC_ON_PERSISTENCE_FAILURE;}
+	public boolean 	isSTOP_SNC_ON_CONFIGURATION_FAILURE() {return STOP_SNC_ON_CONFIGURATION_FAILURE;}
 	public boolean 	isWARN_ON_REJECTED_ACTIONS() {return WARN_ON_REJECTED_ACTIONS;}
 	
 	// DataDefinitions
@@ -765,5 +777,6 @@ public final class RuntimeConfiguration {
 	private void 		setCREATE_POST_JSON_ON_SUCCESS(boolean cREATE_POST_JSON_ON_SUCCESS) {CREATE_POST_JSON_ON_SUCCESS = cREATE_POST_JSON_ON_SUCCESS;}
 	private void 		setCREATE_USER_JSON_ON_SUCCESS(boolean cREATE_USER_JSON_ON_SUCCESS) {CREATE_USER_JSON_ON_SUCCESS = cREATE_USER_JSON_ON_SUCCESS;}
 	private void 		setSTOP_SNC_ON_PERSISTENCE_FAILURE(boolean sTOP_SNC_ON_PERSISTENCE_FAILURE) {STOP_SNC_ON_PERSISTENCE_FAILURE = sTOP_SNC_ON_PERSISTENCE_FAILURE;}
+	private void		setSTOP_SNC_ON_CONFIGURATION_FAILURE(boolean sTOP_SNC_ON_CONFIGURATION_FAILURE) {STOP_SNC_ON_CONFIGURATION_FAILURE = sTOP_SNC_ON_CONFIGURATION_FAILURE;}
 	private void 		setWARN_ON_REJECTED_ACTIONS(boolean wARN_ON_REJECTED_ACTIONS) {WARN_ON_REJECTED_ACTIONS = wARN_ON_REJECTED_ACTIONS;}
 }
