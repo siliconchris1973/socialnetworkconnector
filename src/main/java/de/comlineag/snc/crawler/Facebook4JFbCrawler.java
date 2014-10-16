@@ -222,6 +222,8 @@ public class Facebook4JFbCrawler extends GenericCrawler implements Job {
 				// Do whatever needs to be done with messages
 				for (int msgRead = 0; msgRead < feed.size(); msgRead++) {
 					messageCount++;
+					setPostsTracked(messageCount);
+					
 					Post msg = posts.get(msgRead);
 					
 					logger.info("New message tracked from " + msg.getName() + "... / number " + messageCount + " in this job run");

@@ -82,8 +82,9 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// it is VERY imoportant to set the crawler name (all in uppercase) here
-	private static String CRAWLER_NAME="TWITTER";
-	
+	private static final String CRAWLER_NAME="TWITTER";
+	private static String name="TwitterCrawler";
+		
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
@@ -202,6 +203,8 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				// Do whatever needs to be done with messages
 				for (int msgRead = 0; msgRead < 1000; msgRead++) {
 					messageCount++;
+					setPostsTracked(messageCount);
+					
 					String msg = "";
 					try {
 						msg = msgQueue.take();
@@ -224,4 +227,8 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages in "+timer.elapsed(TimeUnit.SECONDS)+" seconds\n");
 		}
 	}
+	
+	// these are the getter and setter for the name value - used for JMX support, I think
+	public static String getName() {return name;}
+	public static void setName(String name) {TwitterCrawler.name = name;}
 }

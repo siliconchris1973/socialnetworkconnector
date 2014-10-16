@@ -90,7 +90,7 @@ public class HANAPersistence implements IPersistenceManager {
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
 	private final DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
 	// this is a reference to the HANA configuration settings
-	private final HanaConfiguration hco = new HanaConfiguration();
+	private final HanaConfiguration hco = HanaConfiguration.getInstance();
 	
 	// Servicelocation taken from applicationContext.xml
 	private String host;
@@ -859,9 +859,8 @@ public class HANAPersistence implements IPersistenceManager {
 					+ ",\"plAround_longitude\" = ? "
 					+ ",\"plAround_latitude\" = ? "
 					+ ") "
-					+ "WHERE (\"sn_id\" = ? AND \"post_id\" ?)";					
+					+ "WHERE (\"sn_id\" = ? AND \"post_id\" = ?)";					
 			PreparedStatement stmt = conn.prepareStatement(sql);
-			logger.trace("SQL: "+sql);
 			
 			stmt.setString(1, postData.getDomain());
 			stmt.setLong(2,new Long(postData.getUserId()));
@@ -887,6 +886,8 @@ public class HANAPersistence implements IPersistenceManager {
 			stmt.setString(22, postData.getGeoAroundLatitude());
 			stmt.setString(23, postData.getSnId());
 			stmt.setLong(24, new Long(postData.getId()));
+			
+			logger.trace("SQL: "+sql);
 			
 			@SuppressWarnings("unused")
 			int rowCount = stmt.executeUpdate();

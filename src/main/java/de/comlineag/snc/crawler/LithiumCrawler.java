@@ -23,6 +23,8 @@ import org.apache.log4j.Logger;
 
 
 
+
+
 import com.google.common.base.Stopwatch;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
@@ -83,6 +85,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	
 	// it is VERY imoportant to set the crawler name (all in uppercase) here
 	private static String CRAWLER_NAME="LITHIUM";
+	private static String name="LithiumCrawler";
 	
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = Logger.getLogger(getClass().getName());
@@ -304,6 +307,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 							
 							for(Object messageObj : messageArray){
 								messageCount++;
+								setPostsTracked(messageCount);
 								
 								String messageRef = (String) ((JSONObject)messageObj).get(LithiumConstants.JSON_MESSAGE_REFERENCE);
 								
@@ -477,4 +481,8 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			}
 		});
 	}
+	
+	// these are the getter and setter for the name value - used for JMX support, I think
+	public static String getName() {return name;}
+	public static void setName(String name) {LithiumCrawler.name = name;}
 }
