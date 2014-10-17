@@ -3,6 +3,7 @@ package de.comlineag.snc.parser;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
@@ -11,6 +12,8 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import com.google.common.base.Stopwatch;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.handler.TwitterPosting;
@@ -49,8 +52,11 @@ public final class TwitterParser extends GenericParser {
 
 	@Override
 	protected Boolean parse(String strTweet) {
+		String PARSER_NAME="Twitter";
+		Stopwatch timer = new Stopwatch().start();
+		
 		// log the startup message
-		logger.debug("Twitter parser START");
+		logger.debug(PARSER_NAME + " parser START");
 
 		// macht ein JSon Decode aus dem uebergebenen String
 		JSONParser parser = new JSONParser();
@@ -110,7 +116,8 @@ public final class TwitterParser extends GenericParser {
 			user.save();
 		}
 		
-		logger.debug("Twitter parser END\n");
+		timer.stop();
+		logger.debug(PARSER_NAME + " parser END - parsing took "+timer.elapsed(TimeUnit.SECONDS)+" seconds");
 		return true;
 	}
 

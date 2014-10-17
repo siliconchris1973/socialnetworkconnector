@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,6 +14,8 @@ import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.Logger;
 
 import org.json.simple.JSONObject;
+
+import com.google.common.base.Stopwatch;
 
 import net.htmlparser.jericho.CharacterReference;
 import net.htmlparser.jericho.Element;
@@ -72,12 +75,15 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 	
 	@Override
 	public List<SimpleWebPosting> parse(String page, URL url, List<String> tokens) {
-		List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
+		String PARSER_NAME="SimpleWebParser";
+		Stopwatch timer = new Stopwatch().start();
 		
 		// log the startup message
-		logger.info("Simple Web parser START for url " + url.toString());
+		logger.debug(PARSER_NAME + " parser START for url " + url.toString());
 		
 		JSONObject parsedPageJson = null;
+		List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
+		
 		try {
 			parsedPageJson = extractContent(page, url, tokens);
 			SimpleWebPosting parsedPageSimpleWebPosting = new SimpleWebPosting(parsedPageJson);
@@ -94,7 +100,8 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 			logger.error("EXCEPTION :: " + e.getMessage() + " " + e);
 		}
 		
-		logger.info("Simple Web parser END\n");
+		timer.stop();
+		logger.debug(PARSER_NAME + " parser END - parsing took "+timer.elapsed(TimeUnit.SECONDS)+" seconds");
 		return postings;
 	}
 	
