@@ -98,13 +98,13 @@
 	<!-- This is for automatic registration with an existing MBeanServer for the JMX support 
 		 - we need JMX for JWatch to monitor the SNC-->
 	<!-- this bean must not be lazily initialized if the exporting is to happen -->
-<!-- 
 	<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
 		<property name="beans">
 			<map>
 				<entry key="bean:name=SimpleWebCrawlerBean" value-ref="SimpleWebCrawlerBean"/>
 				<entry key="bean:name=TwitterCrawlerBean" value-ref="TwitterCrawlerBean"/>
 				<entry key="bean:name=LithiumCrawlerBean" value-ref="LithiumCrawlerBean"/>
+				<entry key="bean:name=HanaPersistenceBean" value-ref="HanaPersistenceBean"/>
 			</map>
 		</property>
 	</bean>
@@ -117,7 +117,8 @@
 	<bean id="LithiumCrawlerBean" class="de.comlineag.snc.crawler.LithiumCrawler">
 		<property name="name" value="LithiumCrawler"/>
 	</bean>
- -->
+	<bean id="HanaPersistenceBean" class="de.comlineag.snc.persistence.HANAPersistence"></bean>
+	
 	
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 	     J O B    C O N T R O L    S E T T I N G S  -  J O B    C O N T R O L    S E T
