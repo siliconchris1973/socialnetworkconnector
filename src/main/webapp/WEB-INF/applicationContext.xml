@@ -140,10 +140,10 @@
 		<property name="triggers">
 			<list>
 				<!-- SOCIAL NETWORK CRAWLER
-					activate each crawler you want the SNC to scan through. 
-					Make sure to set the threadCount number above according to the number of activated 
-					crawlers. The total number of threads must include the number of actual crawlers in
-					this section plus the FsCrawler below - resulting in number of crawlers plus 1  -->
+					 activate each crawler you want the SNC to scan through. 
+					 Make sure to set the threadCount number above according to the number of activated 
+					 crawlers. The total number of threads must include the number of actual crawlers in
+					 this section plus the FsCrawler below - resulting in number of crawlers plus 1  -->
 				<ref bean="TwitterCrawlerTrigger" />
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->

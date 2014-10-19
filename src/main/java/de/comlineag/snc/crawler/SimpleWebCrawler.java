@@ -22,6 +22,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.log4j.Logger;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -108,7 +109,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	
 	
 	/**
-	 * @description constructor for the SimpleWebParser
+	 * @description constructor for the SimpleWebCrawler with multiple parameters
 	 * 
 	 * @param url					- the url to crawl
 	 * @param bURLs					- array of blocked urls
@@ -161,6 +162,9 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		doCrawl(url, bURLs, maxPages, maxDepth, stayOnDomain, stayBelowGivenPath, getOnlyRelevantPages, user, passwd, tTerms, curCustomer, curDomain);
 		
 	}
+	
+	
+	
 	
 	// this way the crawler is run from jobcontrol. It can also be started for exactly one url as done by twitter parser
 	@Override

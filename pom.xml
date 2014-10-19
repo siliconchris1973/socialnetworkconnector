@@ -29,7 +29,7 @@
 	-->
 	<groupId>de.comlineag.snc</groupId>
 	<artifactId>SocialNetworkConnector</artifactId>
-	<version>0.7.8-Beta</version>
+	<version>0.7.9-Beta</version>
 	
 	<name>Social Network Connector</name>
 	<url>https://clsbm.comlineag.de</url>
@@ -50,6 +50,13 @@
 		<tomcat.version>8.0.8</tomcat.version>
 		<java.version>1.7</java.version>
 		 -->
+		 
+		 <!-- set some versions for later referencing in the dependencies -->
+		<spring.version>4.0.6.RELEASE</spring.version>
+		<apache.version>4.3.4</apache.version>
+		<hbc-twitter.version>2.2.0</hbc-twitter.version>
+		<neo4j.version>2.0.3</neo4j.version>
+		<quartz.version>2.2.1</quartz.version>
 	</properties>
 	
 	<build>
@@ -93,6 +100,7 @@
 	</build>
 	<!-- END OF APPLICATION SERVER PLUGINS -->
 	
+	
 	<!-- Dependencies for the project -->
 	<dependencies>
 		<!-- as mentioned by Till Wohlatz to overcome build error -->
@@ -113,17 +121,17 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
-			<version>4.0.6.RELEASE</version>
+			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-tx</artifactId>
-			<version>4.0.6.RELEASE</version>
+			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context-support</artifactId>
-			<version>4.0.6.RELEASE</version>
+			<version>${spring.version}</version>
 		</dependency>
 		
 		<!-- JMX support within Spring -->
@@ -164,13 +172,14 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
-			<version>4.0.6.RELEASE</version>
+			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
-			<version>4.0.6.RELEASE</version>
+			<version>${spring.version}</version>
 		</dependency>
+		
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
@@ -184,12 +193,12 @@
 		<dependency>
 			<groupId>com.twitter</groupId>
 			<artifactId>hbc-core</artifactId> 
-			<version>2.2.0</version> 
+			<version>${hbc-twitter.version}</version> 
 		</dependency>
 		<dependency>
 			<groupId>com.twitter</groupId>
 			<artifactId>hbc-twitter4j</artifactId> 
-			<version>2.2.0</version> 
+			<version>${hbc-twitter.version}</version> 
 		</dependency>
 		
 		<!-- to work with the facebook api -->
@@ -212,12 +221,12 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>4.3.4</version>
+			<version>${apache.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpmime</artifactId>
-			<version>4.3.4</version>
+			<version>${apache.version}</version>
 		</dependency>
 		<!-- TODO get rid of this. it is only needed for the HttpErrorMessages and HttpStatusCode Implementation -->
 		<dependency>
@@ -290,7 +299,7 @@
 		<dependency>
 			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
-			<version>2.2.1</version>
+			<version>${quartz.version}</version>
 		</dependency>
 		
 		<!-- the logging mechanism - you can either use org.apache.logging.log4j or log4j. in case you opt 
@@ -328,7 +337,7 @@
 		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo4j</artifactId>
-			<version>2.0.3</version>
+			<version>${neo4j.version}</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>neo4j-cypher-compiler-1.9</artifactId>
