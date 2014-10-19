@@ -224,6 +224,8 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 						post.process(msg);
 						
 						// TODO implement method to retrieve a web-page from the post
+						
+						
 					}
 				} else {
 					// now track all relevant tweets up to maximum number configured
