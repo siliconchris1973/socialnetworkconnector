@@ -223,8 +223,8 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 	}
 	
 	@Override
-	protected Boolean parse(String page) {logger.warn("method not implemented");return false;}
+	protected boolean parse(String page) {logger.warn("method not implemented");return false;}
 	@Override
-	protected Boolean parse(InputStream is) {logger.warn("method not implemented");return false;}
+	protected boolean parse(InputStream is) {logger.warn("method not implemented");return false;}
 }
 

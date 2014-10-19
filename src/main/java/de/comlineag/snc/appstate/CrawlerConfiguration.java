@@ -58,7 +58,7 @@ public class CrawlerConfiguration<T> extends GenericConfigurationManager {
 	public JSONObject getCrawlerConfigurationScope(){
 		return configurationManager.getCrawlerConfigurationScope();
 	}
-	public Boolean getRunState(String socialNetwork) {
+	public boolean getRunState(String socialNetwork) {
 		return configurationManager.getRunState(socialNetwork);
 	}
 	

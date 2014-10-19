@@ -1,6 +1,7 @@
 package de.comlineag.snc.parser;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +52,7 @@ public final class TwitterParser extends GenericParser {
 	public TwitterParser() {}
 
 	@Override
-	protected Boolean parse(String strTweet) {
+	protected boolean parse(String strTweet) {
 		String PARSER_NAME="Twitter";
 		Stopwatch timer = new Stopwatch().start();
 		
@@ -70,10 +71,6 @@ public final class TwitterParser extends GenericParser {
 			
 			// add posting to list
 			postings.add(posting);
-			
-			// placing failsave method here, so that the original data object is stored on file
-			// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
-			// intialize faile save persistence
 			
 			// retweeted posts need to go in message array as well
 			JSONObject jsonReTweeted = (JSONObject) jsonTweetResource.get("retweeted_status");
@@ -122,7 +119,7 @@ public final class TwitterParser extends GenericParser {
 	}
 
 	@Override
-	protected Boolean parse(InputStream is) {
+	protected boolean parse(InputStream is) {
 		// THIS METHOD IS NOT USED
 		return false;
 	}

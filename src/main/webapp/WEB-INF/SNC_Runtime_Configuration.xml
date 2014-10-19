@@ -308,6 +308,14 @@
 			<value>Disallow</value>
 			<constant>WC_ROBOT_DISALLOW_TEXT</constant>
 		</param>
+		
+		<!-- defines the maximum number of tweets to track per crawler run
+			 if this is set to -1 then the crawler will track unlimited tweets -->
+		<param name="twMaxTweetsPerCrawlerRun">
+			<type>int</type>
+			<value>-1</value>
+			<constant>TW_MAX_TWEETS_PER_CRAWLER_RUN</constant>
+		</param>
 	</configuration>
 	
 	

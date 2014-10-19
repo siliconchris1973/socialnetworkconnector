@@ -43,7 +43,7 @@ public final class FacebookParser extends GenericParser {
 	public FacebookParser() {}
 
 	@Override
-	protected Boolean parse(String strPost) {
+	protected boolean parse(String strPost) {
 		String PARSER_NAME="Facebook";
 		Stopwatch timer = new Stopwatch().start();
 		
@@ -92,5 +92,5 @@ public final class FacebookParser extends GenericParser {
 	}
 
 	@Override
-	protected Boolean parse(InputStream is) {return false;}
+	protected boolean parse(InputStream is) {return false;}
 }

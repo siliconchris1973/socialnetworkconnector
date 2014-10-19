@@ -22,7 +22,6 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.log4j.Logger;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -123,6 +122,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	 * @param tTerms				- array of terms to look for in fetched pages
 	 * @param curCustomer			- part of the page dataset handed over to the persistence layer
 	 * @param curDomain				- curCustomer is the customer and curDomain the domain of interest (eg Banking)
+	 * 
 	 */
 	public SimpleWebCrawler(URL url, ArrayList<String> bURLs, int maxPages, int maxDepth, boolean stayOnDomain, boolean stayBelowGivenPath, boolean getOnlyRelevantPages, String user, String passwd, ArrayList<String> tTerms, String curCustomer, String curDomain){
 		String smallLogMessage = "";

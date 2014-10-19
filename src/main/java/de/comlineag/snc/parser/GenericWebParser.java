@@ -27,7 +27,7 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * 
  * @changelog	0.1 (Chris)		first version
  * 				0.2				added method to return list of indices for the needle in the haystack
- * 				0.3				changed return value of parse to Boolean
+ * 				0.3				changed return value of parse to boolean
  * 				0.4				introduced IWebParser Interface
  * 				1.0				productive version without deprecated writeContentToDisk method
  * 				1.0a			removed abstract method extractContent because only needed by SimpleWebParser
@@ -141,7 +141,7 @@ public abstract class GenericWebParser extends GenericParser implements IWebPars
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected JSONObject createPageJsonObject(String sn_id, String title, String description, String page, String text, URL url, Boolean truncated, String lang, long page_id, long user_id, String user_name, String screen_name, String user_lang, long postings_count){
+	protected JSONObject createPageJsonObject(String sn_id, String title, String description, String page, String text, URL url, boolean truncated, String lang, long page_id, long user_id, String user_name, String screen_name, String user_lang, long postings_count){
 		JSONObject pageJson = new JSONObject();
 		truncated = Boolean.parseBoolean("false");
 		

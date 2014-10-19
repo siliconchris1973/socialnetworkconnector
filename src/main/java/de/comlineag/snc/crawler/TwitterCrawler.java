@@ -1,9 +1,13 @@
 package de.comlineag.snc.crawler;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
@@ -62,18 +66,9 @@ import de.comlineag.snc.parser.TwitterParser;
  *				0.9b (Chris)		added parameter for customer specific configuration
  *				0.9c				changed method signature for crawler configuration to match JSON object
  *				0.9d				added support for runState configuration, to check if the crawler shall actually run
- *				0.9e				added time measure
+ *				0.9e				added time measure and new loop to track unlimited messages
  *
- * TODO 1. fix crawler bug, that causes the persistence to try to insert a post or user multiple times
- * 			This bug has something to do with the number of threads provided by the Quartz job control
- * 			In case 1 thread is provided, everything is fine, but if 2 or possibly more threads are provided 
- * 			(as needed when multiple crawler are started) the Twitter crawler tries to insert some posts more 
- * 			then once - an attempt obviously doomed to fail. We log the following error: 
- * 				could not create post (TW-488780024691322880): Expected status 201, found 400
- * 			and the hana db returns this message:
- * 				Service exception: unique constraint violated.
- * 
- * TODO 2. find out and fix the following warning:
+ * TODO 1. find out how to fix the following warning:
  * 			HttpMethodBase - Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
  */
 @DisallowConcurrentExecution 
@@ -115,6 +110,10 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	@SuppressWarnings("unchecked")
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		Stopwatch timer = new Stopwatch().start();
+		int messageCount = 0;
+		
+		// TODO check if we can change the StatusesFilterEndpoint to a Streaming endpoint
+		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 		
 		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
@@ -144,16 +143,17 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 						logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer);
 				}
 			}
-			int messageCount = 0;
-			
-			StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 			
 			// THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
-			logger.info("retrieving restrictions from configuration db");
+			logger.debug("retrieving restrictions from configuration db");
 			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintTermText(), configurationScope);
 			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintLanguageText(), configurationScope);
 			ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(rtc.getConstraintUserText(), configurationScope);
 			ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(rtc.getConstraintLocationText(), configurationScope);
+			
+			// blocked URLs
+			ArrayList<String> bURLs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintBlockedSiteText(), configurationScope);
+			
 			
 			/*
 			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintTermText(), configurationScope);
@@ -179,6 +179,8 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				smallLogMessage += "specific Locations ";
 				endpoint.locations(tLocas);
 			}
+
+			logger.info("New "+CRAWLER_NAME+" crawler instantiated - restricted to track " + smallLogMessage);
 			
 			Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_CLIENT_ID_KEY),
 												(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_CLIENT_SECRET_KEY),
@@ -188,6 +190,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			// Create a new BasicClient. By default gzip is enabled.
 			Client client = new ClientBuilder().hosts(Constants.STREAM_HOST).endpoint(endpoint).authentication(sn_Auth)
 					.processor(new StringDelimitedProcessor(msgQueue)).connectionTimeout(1000).build();
+			
 			try {
 				// Establish a connection
 				try {
@@ -198,26 +201,51 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 					client.stop();
 				}
 				
-				logger.info("New "+CRAWLER_NAME+" crawler instantiated - restricted to track " + smallLogMessage);
-				
-				// Do whatever needs to be done with messages
-				for (int msgRead = 0; msgRead < 1000; msgRead++) {
-					messageCount++;
-					setPostsTracked(messageCount);
-					
-					String msg = "";
-					try {
-						msg = msgQueue.take();
-					} catch (InterruptedException e) {
-						logger.error("ERROR :: Message loop interrupted " + e.getMessage());
-					} catch (Exception ee) {
-						logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
+				// check if there is a limit on the maximum number of tweets to track per crawler run
+				if (rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN() == -1) {
+					// now track all relevant tweets as long as new tweets exist in the queue
+					logger.debug("tracking unlimited messages");
+					while (!msgQueue.isEmpty()){
+						messageCount++;
+						setPostsTracked(messageCount);
+						
+						String msg = "";
+						try {
+							msg = msgQueue.take();
+						} catch (InterruptedException e) {
+							logger.error("ERROR :: Message loop interrupted " + e.getMessage());
+						} catch (Exception ee) {
+							logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
+						}
+						logger.debug("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
+						//logger.trace("   content: " + msg );
+						
+						// each tweet is now passed to the parser TwitterParser
+						post.process(msg);
+						
+						// TODO implement method to retrieve a web-page from the post
 					}
-					logger.info("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
-					logger.trace("   content: " + msg );
-					
-					// Jede einzelne Message wird nun an den Parser TwitterParser uebergeben
-					post.process(msg);
+				} else {
+					// now track all relevant tweets up to maximum number configured
+					logger.debug("tracking max "+rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN()+" messages");
+					for (int msgRead = 0; msgRead < rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN(); msgRead++) {
+						messageCount++;
+						setPostsTracked(messageCount);
+						
+						String msg = "";
+						try {
+							msg = msgQueue.take();
+						} catch (InterruptedException e) {
+							logger.error("ERROR :: Message loop interrupted " + e.getMessage());
+						} catch (Exception ee) {
+							logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
+						}
+						logger.debug("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
+						//logger.trace("   content: " + msg );
+
+						// each tweet is now passed to the parser TwitterParser
+						post.process(msg);
+					}
 				}
 			} catch (Exception e) {
 				logger.error("Error while processing messages", e);
@@ -227,6 +255,64 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages in "+timer.elapsed(TimeUnit.SECONDS)+" seconds\n");
 		}
 	}
+	
+	
+	
+	/**
+	 * 
+	 * @param msg
+	 * @return url
+	 */
+	private URL getUrlFromTweet(String msg){
+		//logger.debug("getLinksFromPage called for " + url.toString());
+		String lcPage = msg.toLowerCase(); // tweet in lower case
+
+		Pattern p = Pattern.compile("href=\"(.*?)\"");
+		Matcher m = p.matcher(lcPage);
+		while(m.find()){
+			String link = m.group(1);
+			if(link == null) continue;
+			URL newURL = null;
+			try {
+				newURL = new URL(link);
+			} catch (MalformedURLException e) {
+				//logger.error(String.format("Link %s could not be parsed as a URL.", link), e);
+				continue;
+			}
+			return newURL;
+		}
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param msg
+	 * @param bURLs
+	 * @param tTerms
+	 * @param curCustomer
+	 * @param curDomain
+	 */
+	private void eecuteHyperLinkFromTweet(String msg, ArrayList <String> bURLs, ArrayList<String> tTerms, String curCustomer, String curDomain){
+		//logger.debug("getLinksFromPage called for " + url.toString());
+		String lcPage = msg.toLowerCase(); // tweet in lower case
+
+		Pattern p = Pattern.compile("href=\"(.*?)\"");
+		Matcher m = p.matcher(lcPage);
+		while(m.find()){
+			String link = m.group(1);
+			if(link == null) continue;
+			URL newURL = null;
+			try {
+				newURL = new URL(link);
+				SimpleWebCrawler pCrawl = new SimpleWebCrawler(newURL, bURLs, 1, 1, true, true, true, null, null, tTerms, curCustomer, curDomain);
+				
+			} catch (MalformedURLException e) {
+				//logger.error(String.format("Link %s could not be parsed as a URL.", link), e);
+				continue;
+			}
+		}
+	}
+	
 	
 	// these are the getter and setter for the name value - used for JMX support, I think
 	public static String getName() {return name;}

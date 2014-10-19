@@ -171,7 +171,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	
 	
 	@Override
-	public Boolean getRunState(String socialNetwork) {
+	public boolean getRunState(String socialNetwork) {
 		String expression = null;
 		Node node = null;
 		

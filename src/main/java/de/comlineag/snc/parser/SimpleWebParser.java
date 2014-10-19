@@ -245,14 +245,14 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 	}
 	
 	@Override
-	protected Boolean parse(String page) {logger.warn("method not impleented");return false;}
+	protected boolean parse(String page) {logger.warn("method not impleented");return false;}
 	@Override
-	protected Boolean parse(InputStream is) {logger.warn("method not impleented");return false;}
+	protected boolean parse(InputStream is) {logger.warn("method not impleented");return false;}
 	
 	
 
 	@SuppressWarnings("unchecked")
-	protected JSONObject createPageJsonObject(String title, String description, String page, String text, URL url, Boolean truncated){
+	protected JSONObject createPageJsonObject(String title, String description, String page, String text, URL url, boolean truncated){
 		JSONObject pageJson = new JSONObject();
 		//truncated = Boolean.parseBoolean("false");
 		

@@ -137,13 +137,13 @@ public final class LithiumParser extends GenericParser {
 	}
 	
 	@Override
-	public Boolean parse(String jsonString) {
+	public boolean parse(String jsonString) {
 		// this parse method is NOT used for the Lithium community
 		return false;
 	}
 
 	@Override
-	protected Boolean parse(InputStream is) {
+	protected boolean parse(InputStream is) {
 		// this parse method is NOT used for the Lithium community
 		return false;
 	}

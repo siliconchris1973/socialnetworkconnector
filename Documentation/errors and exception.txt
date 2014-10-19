@@ -1,0 +1,27 @@
+
+ org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:568)
+17-Oct-2014 10:40:50.892 WARNING [http-nio-8088-exec-23] org.apache.catalina.loader.WebappClassLoaderBase.clearReferencesThreads The web application [/SNC-Beta] appears to have started a thread named [DefaultQuartzScheduler_Worker-9] but has failed to stop it. This is very likely to create a memory leak. Stack trace of thread:
+ java.lang.Object.wait(Native Method)
+ 
+ 
+ java.lang.IllegalStateException: BeanFactory not initialized or already closed - call 'refresh' before accessing beans via the ApplicationContext
+ 	at org.springframework.context.support.AbstractRefreshableApplicationContext.getBeanFactory(AbstractRefreshableApplicationContext.java:170)
+ 	at org.springframework.context.support.AbstractApplicationContext.getBean(AbstractApplicationContext.java:973)
+ 	at de.comlineag.snc.handler.GenericDataManager.<init>(GenericDataManager.java:31)
+ 	at de.comlineag.snc.handler.SimpleWebPosting.<init>(SimpleWebPosting.java:37)
+ 	at de.comlineag.snc.parser.WOPageWebParser.parse(WOPageWebParser.java:183)
+ 	at de.comlineag.snc.parser.ParserControl.submit(ParserControl.java:118)
+ 	at de.comlineag.snc.crawler.SimpleWebCrawler.execute(SimpleWebCrawler.java:348)
+ 	at org.quartz.core.JobRunShell.run(JobRunShell.java:202)
+ 	at org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:573)
+ 
+ java.lang.IllegalStateException: BeanFactory not initialized or already closed - call 'refresh' before accessing beans via the ApplicationContext
+ 	at org.springframework.context.support.AbstractRefreshableApplicationContext.getBeanFactory(AbstractRefreshableApplicationContext.java:170)
+ 	at org.springframework.context.support.AbstractApplicationContext.getBeanFactoryan(AbstractApplicationContext.java:973)
+ 	at de.comlineag.snc.handler.GenericDataManager.<init>(GenericDataManager.java:31)
+ 	at de.comlineag.snc.handler.SimpleWebPosting.<init>(SimpleWebPosting.java:37)
+ 	at de.comlineag.snc.parser.WOPageWebParser.parse(WOPageWebParser.java:183)
+ 	at de.comlineag.snc.parser.ParserControl.submit(ParserControl.java:118)
+ 	at de.comlineag.snc.crawler.SimpleWebCrawler.execute(SimpleWebCrawler.java:348)
+ 	at org.quartz.core.JobRunShell.run(JobRunShell.java:202)
+ 	at org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:573)

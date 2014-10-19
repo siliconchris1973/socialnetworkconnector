@@ -116,7 +116,7 @@ public class PostData {
 	/*
 	 * <Property Name="truncated" Type="Edm.Byte" DefaultValue="0"/>
 	 */
-	protected Boolean truncated;
+	protected boolean truncated;
 
 	/*
 	 * Metadata for post replies
@@ -281,8 +281,8 @@ public class PostData {
 	public String getClient() {return posted_from_client;}
 	public void setClient(String postClient) {this.posted_from_client = postClient;}
 	
-	public Boolean getTruncated() {return truncated;}
-	public void setTruncated(Boolean isTruncated) {this.truncated = isTruncated;}
+	public boolean getTruncated() {return truncated;}
+	public void setTruncated(boolean isTruncated) {this.truncated = isTruncated;}
 	
 	public long getInReplyTo() {return in_reply_to_post;}
 	public void setInReplyTo(Long inReplyTo) {this.in_reply_to_post = inReplyTo;}

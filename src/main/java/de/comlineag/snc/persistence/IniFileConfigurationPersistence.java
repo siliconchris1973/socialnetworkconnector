@@ -56,7 +56,7 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 	private String configDbHandler;
 	
 	@Override
-	public Boolean getRunState(String socialNetwork) {
+	public boolean getRunState(String socialNetwork) {
 		if (rtc.getWarnOnSimpleConfig())
 			logger.warn("no possibility to activate/deactivate certain crawler - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + rtc.getRuntimeConfigFilePath());
 		
