@@ -182,14 +182,28 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	
 				logger.info("New "+CRAWLER_NAME+" crawler instantiated - restricted to track " + smallLogMessage);
 				
+				
+				
 				Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_CLIENT_ID_KEY),
 													(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_CLIENT_SECRET_KEY),
 													(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_TOKEN_ID_KEY),
 													(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_TOKEN_SECRET_KEY));
 				
+				int connectionTimeOut = 1000;
+				
+				if(arg0.getJobDetail().getJobDataMap().containsKey(ConfigurationConstants.TWITTER_API_CLIENT_CONNECTIONTIMEOUT_KEY)){
+					try {
+						connectionTimeOut = Integer.parseInt((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.TWITTER_API_CLIENT_CONNECTIONTIMEOUT_KEY));
+						
+					} catch (Exception e) {
+						logger.error("Could not parse "+ConfigurationConstants.TWITTER_API_CLIENT_CONNECTIONTIMEOUT_KEY);
+					}
+				}
+				
+				
 				// Create a new BasicClient. By default gzip is enabled.
 				Client client = new ClientBuilder().hosts(Constants.STREAM_HOST).endpoint(endpoint).authentication(sn_Auth)
-						.processor(new StringDelimitedProcessor(msgQueue)).connectionTimeout(1000).build();
+						.processor(new StringDelimitedProcessor(msgQueue)).connectionTimeout(connectionTimeOut).build();
 				
 				try {
 					// Establish a connection
@@ -232,25 +246,39 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	*/
 						// now track all relevant tweets up to maximum number configured
 						logger.debug("tracking max "+rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN()+" messages");
-						for (int msgRead = 0; msgRead < rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN(); msgRead++) {
-							logger.trace("message " + messageCount + " received");
+						
+						int msgRead = 0;
+						String msg = null;
+						while((msg = ReadMessage(connectionTimeOut)) != null && msgRead < rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN()){
+							msgRead++;
 							messageCount++;
 							setPostsTracked(messageCount);
-							
-							String msg = "";
-							try {
-								msg = msgQueue.take();
-							} catch (InterruptedException e) {
-								logger.error("ERROR :: Message loop interrupted " + e.getMessage());
-							} catch (Exception ee) {
-								logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
-							}
+							logger.trace("message " + messageCount + " received");
 							logger.debug("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
-							//logger.trace("   content: " + msg );
-	
+							
 							// each tweet is now passed to the parser TwitterParser
 							post.process(msg);
 						}
+						
+//						for (int msgRead = 0; msgRead < rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN(); msgRead++) {
+//							logger.trace("message " + messageCount + " received");
+//							messageCount++;
+//							setPostsTracked(messageCount);
+//							
+//							String msg = null;
+//							try {
+//								msg = msgQueue.take();
+//							} catch (InterruptedException e) {
+//								logger.error("ERROR :: Message loop interrupted " + e.getMessage());
+//							} catch (Exception ee) {
+//								logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
+//							}
+//							logger.debug("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
+//							//logger.trace("   content: " + msg );
+//	
+//							// each tweet is now passed to the parser TwitterParser
+//							post.process(msg);
+//						}
 	//				}
 				} catch (Exception e) {
 					logger.error("Error while processing messages", e);
@@ -263,6 +291,18 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				e.printStackTrace();
 			}
 		} 
+	}
+	
+	private String ReadMessage(int connectionTimeOut){
+		String msg = null;
+		try {
+			msg = msgQueue.poll(connectionTimeOut, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			logger.error("ERROR :: Message polling interrupted " + e.getMessage());
+		} catch (Exception ee) {
+			logger.error("EXCEPTION :: Exception while polling message " + ee.getMessage());
+		}
+		return msg;
 	}
 	
 	

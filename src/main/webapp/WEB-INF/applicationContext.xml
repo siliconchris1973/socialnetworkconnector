@@ -196,6 +196,10 @@
 				<entry key="consumerSecret" value="xzqH6lLWnXLvlHJooNDaCDXlzJzv976JcWt8y2eyHBk" />
 				<entry key="token" value="754994-KDec8qJBwEggHwHQ9XO0X7QBx1VCOZwgbgtpYiibWjl" />
 				<entry key="tokenSecret" value="qm1dqrJas8Lf2ANU8Lx470TkcUSndWLwvJ1I2huZKvJrc" />
+				
+				
+				<entry key="connectionTimeout" value="1000" />
+				
 			</map>
 		</property>
 	</bean>

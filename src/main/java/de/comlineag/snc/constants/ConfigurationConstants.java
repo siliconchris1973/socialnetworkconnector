@@ -45,6 +45,8 @@ public class ConfigurationConstants {
 	public static final String AUTHENTICATION_TOKEN_ID_KEY 			= "token";
 	public static final String AUTHENTICATION_TOKEN_SECRET_KEY 		= "tokenSecret";
 	
+	public static final String TWITTER_API_CLIENT_CONNECTIONTIMEOUT_KEY = "connectionTimeout";
+	
 	// cryptographic keys for authentication (introduced for facebook api)
 	public static final String AUTHENTICATION_APP_ID_KEY 			= "appId";
 	public static final String AUTHENTICATION_APP_SECRET_KEY 		= "appSecret";
