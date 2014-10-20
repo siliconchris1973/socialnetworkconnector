@@ -4,7 +4,7 @@ package de.comlineag.snc.constants;
  * 
  * @author 		Christian Guenther
  * @category	helper class
- * @version 	0.4		- 21.07.2014
+ * @version 	0.4				- 21.07.2014
  * @status		productive
  * 
  * @description provides constants for use by the Social Network crawler and parser. 
@@ -18,8 +18,6 @@ package de.comlineag.snc.constants;
  * 
  */
 public class ConfigurationConstants {
-	// the following are basic terms as constants defining entries n the various xml files
-	
 	// these values are for job details from within applicationContext.xml 
 	// connection end points
 	public static final String HTTP_ENDPOINT_PROTOCOL_KEY 			= "protocol";
@@ -45,7 +43,10 @@ public class ConfigurationConstants {
 	public static final String AUTHENTICATION_TOKEN_ID_KEY 			= "token";
 	public static final String AUTHENTICATION_TOKEN_SECRET_KEY 		= "tokenSecret";
 	
+	// this is used to define a maximum number of milliseconds to block the open connection to
+	// the twitter endpoint, before closing the connection if no tweet is received
 	public static final String TWITTER_API_CLIENT_CONNECTIONTIMEOUT_KEY = "connectionTimeout";
+	
 	
 	// cryptographic keys for authentication (introduced for facebook api)
 	public static final String AUTHENTICATION_APP_ID_KEY 			= "appId";

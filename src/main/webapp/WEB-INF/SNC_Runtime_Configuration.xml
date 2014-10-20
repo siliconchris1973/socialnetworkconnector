@@ -165,7 +165,7 @@
 		<!-- stop the SNC in case reading or writing to configuration fails?
 			 The purpose of this setting is mainly in debugging: In case the of the configuration files can
 			 not be found, the server goes down together with the SNC. This somewhat scks and thus I introduced
-			 this option. Can't really think of a reason to set this in a production environment to false -->
+			 this option. Can't really imagine a reason to set this to false in a production environment -->
 		<param name="ExitOnConfigurationFailure">
 			<type>boolean</type>
 			<value>false</value>
@@ -315,6 +315,14 @@
 			<type>int</type>
 			<value>10000</value>
 			<constant>TW_MAX_TWEETS_PER_CRAWLER_RUN</constant>
+		</param>
+		
+		<!-- defines the number of milliseconds until timeout while connected to the
+			 twitter endpoint without receiving a new tweet -->
+		<param name="twConnectionTimeout">
+			<type>int</type>
+			<value>60000</value>
+			<constant>TW_CONNECTION_TIMEOUT</constant>
 		</param>
 	</configuration>
 	

@@ -113,7 +113,12 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		
 		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
-			
+		
+		int messageCount = 0;
+		int connectionTimeOut = 1000;
+		
+		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
+		
 		// first check is to get the information, if the crawler was 
 		// deactivated from within the crawler configuration, even if 
 		// it is active in applicationContext.xml
@@ -139,10 +144,15 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 							logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer);
 					}
 				}
-				int messageCount = 0;
 				
-				StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 				
+				if(arg0.getJobDetail().getJobDataMap().containsKey(ConfigurationConstants.TWITTER_API_CLIENT_CONNECTIONTIMEOUT_KEY)){
+					try {
+						connectionTimeOut = Integer.parseInt((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.TWITTER_API_CLIENT_CONNECTIONTIMEOUT_KEY));
+					} catch (Exception e) {
+						logger.error("Could not parse "+ConfigurationConstants.TWITTER_API_CLIENT_CONNECTIONTIMEOUT_KEY);
+					}
+				}
 				
 				// THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
 				logger.debug("retrieving restrictions from configuration db");
@@ -188,17 +198,6 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 													(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_CLIENT_SECRET_KEY),
 													(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_TOKEN_ID_KEY),
 													(String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_TOKEN_SECRET_KEY));
-				
-				int connectionTimeOut = 1000;
-				
-				if(arg0.getJobDetail().getJobDataMap().containsKey(ConfigurationConstants.TWITTER_API_CLIENT_CONNECTIONTIMEOUT_KEY)){
-					try {
-						connectionTimeOut = Integer.parseInt((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.TWITTER_API_CLIENT_CONNECTIONTIMEOUT_KEY));
-						
-					} catch (Exception e) {
-						logger.error("Could not parse "+ConfigurationConstants.TWITTER_API_CLIENT_CONNECTIONTIMEOUT_KEY);
-					}
-				}
 				
 				
 				// Create a new BasicClient. By default gzip is enabled.
@@ -293,6 +292,12 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		} 
 	}
 	
+	
+	/**
+	 * takes messages from the msgQueue  
+	 * @param connectionTimeOut
+	 * @return
+	 */
 	private String ReadMessage(int connectionTimeOut){
 		String msg = null;
 		try {
@@ -341,7 +346,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	 * @param curCustomer
 	 * @param curDomain
 	 */
-	private void eecuteHyperLinkFromTweet(String msg, ArrayList <String> bURLs, ArrayList<String> tTerms, String curCustomer, String curDomain){
+	private void followHyperLinkFromTweet(String msg, ArrayList <String> bURLs, ArrayList<String> tTerms, String curCustomer, String curDomain){
 		//logger.debug("getLinksFromPage called for " + url.toString());
 		String lcPage = msg.toLowerCase(); // tweet in lower case
 

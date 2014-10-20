@@ -135,6 +135,7 @@ public final class RuntimeConfiguration {
 	private int			WC_WORD_DISTANCE_CUTOFF_MARGIN		= 30;
 	// for twitter
 	private int 		TW_MAX_TWEETS_PER_CRAWLER_RUN		= 10000;
+	private int 		TW_CONNECTION_TIMEOUT				= 60000;
 	
 	
 	
@@ -188,8 +189,7 @@ public final class RuntimeConfiguration {
 	
 	// from this point on the methods to setup the global runtime environment are defined 
 	
-	// this gets the absolute file path to the runtime configuration XML-file 
-	// FIXME get rid of this bloody hack
+	/* this gets the absolute file path to the runtime configuration XML-file 
 	@Deprecated
 	private String getWebInfDirectory(){
 		String result = null;
@@ -207,14 +207,13 @@ public final class RuntimeConfiguration {
 		}
 		return result;
 	}
-	
+	*/
 	public String returnQualifiedConfigPath(String inputPath){
 //		if ("//".equals(inputPath.substring(0,1))
 //				|| "/".equals(inputPath.substring(0,0)) 
 //				|| ":".equals(inputPath.substring(1,1))){
 //			return inputPath;
 //		} else {
-//			// TODO change the bloody hack to correct resource handler
 //			//return ResourcePathHolder.getResourcePath() + File.separator + inputPath;
 //			return getWebInfDirectory()+ File.separator + inputPath;
 //		}
@@ -410,6 +409,10 @@ public final class RuntimeConfiguration {
 			// twMaxTweetsPerCrawlerRun
 			setTW_MAX_TWEETS_PER_CRAWLER_RUN(getIntElement("crawler", "twMaxTweetsPerCrawlerRun", xpath, doc, configFile));
 			debugMsg += " / TW_MAX_TWEETS_PER_CRAWLER_RUN is " + getTW_MAX_TWEETS_PER_CRAWLER_RUN();
+			
+			// twMaxTweetsPerCrawlerRun
+			setTW_CONNECTION_TIMEOUT(getIntElement("crawler", "twConnectionTimeout", xpath, doc, configFile));
+			debugMsg += " / TW_CONNECTION_TIMEOUT is " + getTW_CONNECTION_TIMEOUT();
 			
 			logger.trace(debugMsg);
 		} catch (Exception e) {
@@ -714,7 +717,9 @@ public final class RuntimeConfiguration {
 	
 	// configuration options for twitter - not so much
 	public int 		getTW_MAX_TWEETS_PER_CRAWLER_RUN() {return TW_MAX_TWEETS_PER_CRAWLER_RUN;}
-
+	public int 		getTW_CONNECTION_TIMEOUT() {return TW_CONNECTION_TIMEOUT;}
+	
+	
 	// Threading options
 	public int 		getPARSER_THREADING_POOL_SIZE() {return PARSER_THREADING_POOL_SIZE;	}
 	public int 		getCRAWLER_THREADING_POOL_SIZE() {return CRAWLER_THREADING_POOL_SIZE;	}
@@ -782,7 +787,8 @@ public final class RuntimeConfiguration {
 	private void		setWC_WORD_DISTANCE_CUTOFF_MARGIN(int wC_WORD_DISTANCE_CUTOFF_MARGIN) {WC_WORD_DISTANCE_CUTOFF_MARGIN = wC_WORD_DISTANCE_CUTOFF_MARGIN;}
 	private void 		setWC_CRAWLER_MAX_DOWNLOAD_SIZE(int mAXSIZE) {WC_CRAWLER_MAX_DOWNLOAD_SIZE = mAXSIZE;}
 	private void 		setTW_MAX_TWEETS_PER_CRAWLER_RUN(int tW_MAX_TWEETS_PER_CRAWLER_RUN) {TW_MAX_TWEETS_PER_CRAWLER_RUN = tW_MAX_TWEETS_PER_CRAWLER_RUN;}
-
+	private void 		setTW_CONNECTION_TIMEOUT(int tW_CONNECTION_TIMEOUT) {TW_CONNECTION_TIMEOUT = tW_CONNECTION_TIMEOUT;}
+	
 	private void 		setWarnOnSimpleConfig(boolean wARN_ON_SIMPLE_CONFIG) { WARN_ON_SIMPLE_CONFIG = wARN_ON_SIMPLE_CONFIG;}
 	private void 		setWarnOnSimpleXmlConfig(boolean wARN_ON_SIMPLE_XML_CONFIG) { WARN_ON_SIMPLE_XML_CONFIG = wARN_ON_SIMPLE_XML_CONFIG;}
 	private void 		setCREATE_POST_JSON_ON_ERROR(boolean cREATE_POST_JSON_ON_ERROR) {CREATE_POST_JSON_ON_ERROR = cREATE_POST_JSON_ON_ERROR;}
