@@ -209,15 +209,16 @@ public final class RuntimeConfiguration {
 	}
 	
 	public String returnQualifiedConfigPath(String inputPath){
-		if ("//".equals(inputPath.substring(0,1))
-				|| "/".equals(inputPath.substring(0,0)) 
-				|| ":".equals(inputPath.substring(1,1))){
-			return inputPath;
-		} else {
-			// TODO change the bloody hack to correct resource handler
-			//return ResourcePathHolder.getResourcePath() + File.separator + inputPath;
-			return getWebInfDirectory()+ File.separator + inputPath;
-		}
+//		if ("//".equals(inputPath.substring(0,1))
+//				|| "/".equals(inputPath.substring(0,0)) 
+//				|| ":".equals(inputPath.substring(1,1))){
+//			return inputPath;
+//		} else {
+//			// TODO change the bloody hack to correct resource handler
+//			//return ResourcePathHolder.getResourcePath() + File.separator + inputPath;
+//			return getWebInfDirectory()+ File.separator + inputPath;
+//		}
+		return ContextLoaderListener.getServletContext().getRealPath("/WEB-INF/"+ inputPath);
 	}
 	
 	
