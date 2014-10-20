@@ -56,6 +56,12 @@ public class JsonFilePersistence implements IPersistenceManager {
 	private String objectTypeToSave;		// can either be user or post
 	
 	public JsonFilePersistence() {
+		File d = new File(rtc.getSTORAGE_PATH());
+		if (!d.isDirectory()) {
+			// create the json diretory
+			d.mkdir();
+		}
+		
 		File f = new File(savePoint);
 		if (!f.isDirectory()) {
 			// create the json diretory
@@ -69,6 +75,12 @@ public class JsonFilePersistence implements IPersistenceManager {
 	 */
 	public JsonFilePersistence(PostData postData) {
 		logger.trace("checking if storage directory "+savePoint+" exists");
+		File d = new File(rtc.getSTORAGE_PATH());
+		if (!d.isDirectory()) {
+			// create the json diretory
+			d.mkdir();
+		}
+		
 		File f = new File(savePoint);
 		if (!f.isDirectory()) {
 			// create the json diretory
@@ -83,6 +95,12 @@ public class JsonFilePersistence implements IPersistenceManager {
 	 */
 	public JsonFilePersistence(UserData userData) {
 		logger.trace("checking if storage directory "+savePoint+" exists");
+		File d = new File(rtc.getSTORAGE_PATH());
+		if (!d.isDirectory()) {
+			// create the json diretory
+			d.mkdir();
+		}
+		
 		File f = new File(savePoint);
 		if (!f.isDirectory()) {
 			// create the json diretory
@@ -98,6 +116,12 @@ public class JsonFilePersistence implements IPersistenceManager {
 	 */
 	public JsonFilePersistence(JSONObject json) {
 		logger.trace("checking if storage directory "+savePoint+" exists");
+		File d = new File(rtc.getSTORAGE_PATH());
+		if (!d.isDirectory()) {
+			// create the json diretory
+			d.mkdir();
+		}
+		
 		File f = new File(savePoint);
 		if (!f.isDirectory()) {
 			// create the json diretory

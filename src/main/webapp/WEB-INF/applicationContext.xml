@@ -136,7 +136,7 @@
 			<props>
 				<!-- ThreadPool -->
 				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
-				<prop key="org.quartz.threadPool.threadCount">5</prop>
+				<prop key="org.quartz.threadPool.threadCount">3</prop>
 			</props>
 		</property>
 		<property name="triggers">
@@ -151,8 +151,8 @@
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="MultiWebCrawlerTrigger"/> -->
-				<ref bean="SimpleWebCrawlerTrigger"/>
-				<ref bean="LithiumCrawlerTrigger" />
+				<!-- <ref bean="SimpleWebCrawlerTrigger"/>
+				<ref bean="LithiumCrawlerTrigger" /> -->
 				
 				
 				<!-- FILESYSTEM CRAWLER - SAFEGUARD

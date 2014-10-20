@@ -110,10 +110,6 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	@SuppressWarnings("unchecked")
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		Stopwatch timer = new Stopwatch().start();
-		int messageCount = 0;
-		
-		// TODO check if we can change the StatusesFilterEndpoint to a Streaming endpoint
-		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 		
 		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
@@ -143,6 +139,10 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 						logger.info(CRAWLER_NAME+"-Crawler START for " + curCustomer);
 				}
 			}
+			int messageCount = 0;
+			
+			StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
+			
 			
 			// THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
 			logger.debug("retrieving restrictions from configuration db");
@@ -152,7 +152,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(rtc.getConstraintLocationText(), configurationScope);
 			
 			// blocked URLs
-			ArrayList<String> bURLs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintBlockedSiteText(), configurationScope);
+			//ArrayList<String> bURLs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintBlockedSiteText(), configurationScope);
 			
 			
 			/*
@@ -164,19 +164,19 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			
 			// log output AND setup of the filter end point
 			if (tTerms.size()>0) {
-				smallLogMessage += "specific terms ";
+				smallLogMessage += " specific terms ";
 				endpoint.trackTerms(tTerms);
 			}
 			if (tUsers.size()>0) {
-				smallLogMessage += "specific users ";
+				smallLogMessage += " specific users ";
 				endpoint.followings(tUsers);
 			}
 			if (tLangs.size()>0) {
-				smallLogMessage += "specific languages ";
+				smallLogMessage += " specific languages ";
 				endpoint.languages(tLangs);
 			}
 			if (tLocas.size()>0) {
-				smallLogMessage += "specific Locations ";
+				smallLogMessage += " specific Locations ";
 				endpoint.locations(tLocas);
 			}
 
@@ -202,6 +202,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				}
 				
 				// check if there is a limit on the maximum number of tweets to track per crawler run
+/*
 				if (rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN() == -1) {
 					// now track all relevant tweets as long as new tweets exist in the queue
 					logger.debug("tracking unlimited messages");
@@ -228,9 +229,11 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 						
 					}
 				} else {
+*/
 					// now track all relevant tweets up to maximum number configured
 					logger.debug("tracking max "+rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN()+" messages");
 					for (int msgRead = 0; msgRead < rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN(); msgRead++) {
+						logger.trace("message " + messageCount + " received");
 						messageCount++;
 						setPostsTracked(messageCount);
 						
@@ -248,7 +251,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 						// each tweet is now passed to the parser TwitterParser
 						post.process(msg);
 					}
-				}
+//				}
 			} catch (Exception e) {
 				logger.error("Error while processing messages", e);
 			}

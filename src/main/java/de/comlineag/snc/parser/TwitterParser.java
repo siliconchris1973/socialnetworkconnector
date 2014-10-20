@@ -89,11 +89,26 @@ public final class TwitterParser extends GenericParser {
 			logger.error("EXCEPTION :: " + e.getMessage() + " " + e);
 		}
 		
+		
+		
 		// need to add users first, because a tweet needs to be able to point to a posting user in the db
 		logger.trace("trying to save " + users.size() + " users");
 		for (int ii = 0; ii < users.size(); ii++) {
-			TwitterUser user = (TwitterUser) users.get(ii);
-			user.save();
+			if (rtc.isPERSISTENCE_THREADING_ENABLED()){
+				// execute persistence layer in a new thread, so that it does NOT block the crawler
+				logger.trace("execute persistence layer in a new thread...");
+				final TwitterUser userT = (TwitterUser) users.get(ii);
+				new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+							userT.save();
+					}
+				}).start();
+			} else {
+				TwitterUser user = (TwitterUser) users.get(ii);
+				user.save();
+			}
 		}
 		
 		logger.trace("trying to save " + postings.size() + " tweets");
