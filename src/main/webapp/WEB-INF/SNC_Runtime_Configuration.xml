@@ -210,7 +210,7 @@
 			 a separate thread -->
 		<param name="PersistenceThreadingEnabled">
 			<type>boolean</type>
-			<value>true</value>
+			<value>false</value>
 		</param>
 		<param name="PersistenceThreadingPoolSize">
 			<type>int</type>
@@ -313,7 +313,7 @@
 			 if this is set to -1 then the crawler will track unlimited tweets -->
 		<param name="twMaxTweetsPerCrawlerRun">
 			<type>int</type>
-			<value>-1</value>
+			<value>10000</value>
 			<constant>TW_MAX_TWEETS_PER_CRAWLER_RUN</constant>
 		</param>
 	</configuration>

@@ -134,7 +134,7 @@ public final class RuntimeConfiguration {
 	private boolean		WC_STAY_BELOW_GIVEN_PATH			= false;
 	private int			WC_WORD_DISTANCE_CUTOFF_MARGIN		= 30;
 	// for twitter
-	private int 		TW_MAX_TWEETS_PER_CRAWLER_RUN		= -1;		// unlimited
+	private int 		TW_MAX_TWEETS_PER_CRAWLER_RUN		= 10000;
 	
 	
 	
@@ -407,7 +407,7 @@ public final class RuntimeConfiguration {
 			debugMsg += " / WC_WORD_DISTANCE_CUTOFF_MARGIN is " + getWC_WORD_DISTANCE_CUTOFF_MARGIN();
 			
 			// twMaxTweetsPerCrawlerRun
-			setWC_WORD_DISTANCE_CUTOFF_MARGIN(getIntElement("crawler", "twMaxTweetsPerCrawlerRun", xpath, doc, configFile));
+			setTW_MAX_TWEETS_PER_CRAWLER_RUN(getIntElement("crawler", "twMaxTweetsPerCrawlerRun", xpath, doc, configFile));
 			debugMsg += " / TW_MAX_TWEETS_PER_CRAWLER_RUN is " + getTW_MAX_TWEETS_PER_CRAWLER_RUN();
 			
 			logger.trace(debugMsg);

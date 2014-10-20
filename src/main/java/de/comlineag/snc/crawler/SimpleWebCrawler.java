@@ -98,13 +98,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
 	
 	
-	/* IS THIS STILL NEEDED??? if not, delete this comment, the line below and the one above constructor name
-	private final ParserControl pageContent;
-	private SimpleWebCrawler(){
-		// instantiate the Web-Parser via parserControl 
-		//pageContent = new ParserControl();
-	}
-	*/
+	public SimpleWebCrawler(){}
+	
 	
 	
 	/**
@@ -395,6 +390,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			
 			
 			while (runCounter < maxPages) {
+				//logger.trace("runCounter is " + runCounter + " and maxPages is " + maxPages);
+				
 				url = newURLs.get(0);
 				newURLs.remove(0);
 				
@@ -427,6 +424,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 						possibleRelevantPages++;
 						logger.info("Url "+url+" is page #" + possibleRelevantPages + " tracked");
 					}
+					
+					
 					
 					if (relPage) {
 						// parsing of the page content is either done to get a list of postings
@@ -488,12 +487,11 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							}
 						}
 						 */
-					}
-					// end of parser specific
+					}// end of get only relevant pages
 					
 					
 					
-					if ((page.length()) != 0 && (maxPages > 1)) getLinksFromPage(url, page, knownURLs, newURLs, blockedURLs, initialPath, stayOnDomain, stayBelowGivenPath);
+					if ((page.length()) != 0) getLinksFromPage(url, page, knownURLs, newURLs, blockedURLs, initialPath, stayOnDomain, stayBelowGivenPath);
 					
 					if (newURLs.isEmpty()) {
 						logger.info(CRAWLER_NAME+"-Crawler END - scanned " + pageCount + " pages in "+timer.elapsed(TimeUnit.SECONDS)+" seconds and found " + possibleRelevantPages + " matching ones\n");
@@ -535,6 +533,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					content += newContent;
 				}
 			}
+			//logger.trace("page Content >>> " + content.substring(0, 20)+"...");
 			return content;
 
 		} catch (IOException e) {
