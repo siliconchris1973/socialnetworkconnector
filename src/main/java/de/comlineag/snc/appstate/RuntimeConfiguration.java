@@ -25,7 +25,7 @@ import de.comlineag.snc.constants.SNCStatusCodes;
  * 
  * @author 		Christian Guenther
  * @category	handler
- * @revision	0.9b			- 16.10.2014
+ * @revision	0.9c			- 19.10.2014
  * @status		productive
  * 
  * @description	this class is used to setup the overall configuration of the SNC.
@@ -59,6 +59,7 @@ import de.comlineag.snc.constants.SNCStatusCodes;
  * 				0.9				changed singleton pattern to use initialization on demand holder design
  * 				0.9a			implemented ResourcePathHolder class to get the real path to the WEB-INF directory
  * 				0.9b			added support for shutdown on any error in XML-file
+ * 				0.9c			added twMaxTweetsPerCrawlerRun to define how many tweets the crawler shall track per job run
  *
  * TODO 1 use nodelist instead of single expressions for each node
  * 
@@ -132,6 +133,11 @@ public final class RuntimeConfiguration {
 	private boolean		WC_STAY_ON_DOMAIN					= true;
 	private boolean		WC_STAY_BELOW_GIVEN_PATH			= false;
 	private int			WC_WORD_DISTANCE_CUTOFF_MARGIN		= 30;
+	// for twitter
+	private int 		TW_MAX_TWEETS_PER_CRAWLER_RUN		= 10000;
+	private int 		TW_CONNECTION_TIMEOUT				= 60000;
+	
+	
 	
 	// Threading options
 	private int			PARSER_THREADING_POOL_SIZE			= 1;
@@ -183,8 +189,7 @@ public final class RuntimeConfiguration {
 	
 	// from this point on the methods to setup the global runtime environment are defined 
 	
-	// this gets the absolute file path to the runtime configuration XML-file 
-	// FIXME get rid of this bloody hack
+	/* this gets the absolute file path to the runtime configuration XML-file 
 	@Deprecated
 	private String getWebInfDirectory(){
 		String result = null;
@@ -202,17 +207,17 @@ public final class RuntimeConfiguration {
 		}
 		return result;
 	}
-	
+	*/
 	public String returnQualifiedConfigPath(String inputPath){
-		if ("//".equals(inputPath.substring(0,1))
-				|| "/".equals(inputPath.substring(0,0)) 
-				|| ":".equals(inputPath.substring(1,1))){
-			return inputPath;
-		} else {
-			// TODO change the bloody hack to correct resource handler
-			//return ResourcePathHolder.getResourcePath() + File.separator + inputPath;
-			return getWebInfDirectory()+ File.separator + inputPath;
-		}
+//		if ("//".equals(inputPath.substring(0,1))
+//				|| "/".equals(inputPath.substring(0,0)) 
+//				|| ":".equals(inputPath.substring(1,1))){
+//			return inputPath;
+//		} else {
+//			//return ResourcePathHolder.getResourcePath() + File.separator + inputPath;
+//			return getWebInfDirectory()+ File.separator + inputPath;
+//		}
+		return ContextLoaderListener.getServletContext().getRealPath("/WEB-INF/"+ inputPath);
 	}
 	
 	
@@ -400,6 +405,14 @@ public final class RuntimeConfiguration {
 			// wcWordDistanceCutoffMargin
 			setWC_WORD_DISTANCE_CUTOFF_MARGIN(getIntElement("crawler", "wcWordDistanceCutoffMargin", xpath, doc, configFile));
 			debugMsg += " / WC_WORD_DISTANCE_CUTOFF_MARGIN is " + getWC_WORD_DISTANCE_CUTOFF_MARGIN();
+			
+			// twMaxTweetsPerCrawlerRun
+			setTW_MAX_TWEETS_PER_CRAWLER_RUN(getIntElement("crawler", "twMaxTweetsPerCrawlerRun", xpath, doc, configFile));
+			debugMsg += " / TW_MAX_TWEETS_PER_CRAWLER_RUN is " + getTW_MAX_TWEETS_PER_CRAWLER_RUN();
+			
+			// twMaxTweetsPerCrawlerRun
+			setTW_CONNECTION_TIMEOUT(getIntElement("crawler", "twConnectionTimeout", xpath, doc, configFile));
+			debugMsg += " / TW_CONNECTION_TIMEOUT is " + getTW_CONNECTION_TIMEOUT();
 			
 			logger.trace(debugMsg);
 		} catch (Exception e) {
@@ -693,15 +706,19 @@ public final class RuntimeConfiguration {
 	public boolean 	isTEXT_WITH_MARKUP() { return TEXT_WITH_MARKUP;}
 	public boolean 	isRAW_TEXT_WITH_MARKUP() { return RAW_TEXT_WITH_MARKUP;}
 	
-	// static configuration options for the web crawler
+	// configuration options for the web crawler
 	public int 		getWC_SEARCH_LIMIT() {return WC_SEARCH_LIMIT;}
 	public String 	getWC_ROBOT_DISALLOW_TEXT() { return WC_ROBOT_DISALLOW_TEXT;}
 	public int 		getWC_CRAWLER_MAX_DOWNLOAD_SIZE() {return WC_CRAWLER_MAX_DOWNLOAD_SIZE;}
-	
 	public boolean 	isWC_STAY_ON_DOMAIN() {return WC_STAY_ON_DOMAIN;}
 	public boolean 	isWC_STAY_BELOW_GIVEN_PATH() {return WC_STAY_BELOW_GIVEN_PATH;}
 	public int 		getWC_MAX_DEPTH() {return WC_MAX_DEPTH;}
 	public int		getWC_WORD_DISTANCE_CUTOFF_MARGIN() {return WC_WORD_DISTANCE_CUTOFF_MARGIN;}
+	
+	// configuration options for twitter - not so much
+	public int 		getTW_MAX_TWEETS_PER_CRAWLER_RUN() {return TW_MAX_TWEETS_PER_CRAWLER_RUN;}
+	public int 		getTW_CONNECTION_TIMEOUT() {return TW_CONNECTION_TIMEOUT;}
+	
 	
 	// Threading options
 	public int 		getPARSER_THREADING_POOL_SIZE() {return PARSER_THREADING_POOL_SIZE;	}
@@ -769,6 +786,8 @@ public final class RuntimeConfiguration {
 	private void 		setWC_MAX_DEPTH(int wC_MAX_DEPTH) {WC_MAX_DEPTH = wC_MAX_DEPTH;}
 	private void		setWC_WORD_DISTANCE_CUTOFF_MARGIN(int wC_WORD_DISTANCE_CUTOFF_MARGIN) {WC_WORD_DISTANCE_CUTOFF_MARGIN = wC_WORD_DISTANCE_CUTOFF_MARGIN;}
 	private void 		setWC_CRAWLER_MAX_DOWNLOAD_SIZE(int mAXSIZE) {WC_CRAWLER_MAX_DOWNLOAD_SIZE = mAXSIZE;}
+	private void 		setTW_MAX_TWEETS_PER_CRAWLER_RUN(int tW_MAX_TWEETS_PER_CRAWLER_RUN) {TW_MAX_TWEETS_PER_CRAWLER_RUN = tW_MAX_TWEETS_PER_CRAWLER_RUN;}
+	private void 		setTW_CONNECTION_TIMEOUT(int tW_CONNECTION_TIMEOUT) {TW_CONNECTION_TIMEOUT = tW_CONNECTION_TIMEOUT;}
 	
 	private void 		setWarnOnSimpleConfig(boolean wARN_ON_SIMPLE_CONFIG) { WARN_ON_SIMPLE_CONFIG = wARN_ON_SIMPLE_CONFIG;}
 	private void 		setWarnOnSimpleXmlConfig(boolean wARN_ON_SIMPLE_XML_CONFIG) { WARN_ON_SIMPLE_XML_CONFIG = wARN_ON_SIMPLE_XML_CONFIG;}

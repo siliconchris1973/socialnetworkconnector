@@ -168,7 +168,7 @@ public final class WebPostingData extends PostData {
 		user=null;
 		
 		posted_from_client = null;
-		truncated = null;
+		truncated = true;
 		
 		in_reply_to_post = 0;
 		in_reply_to_user = 0;

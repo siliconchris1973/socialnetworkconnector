@@ -40,7 +40,7 @@ public interface IConfigurationManager<T> {
 	 * 				querying crawler or false in case there is an entry with 
 	 * 				value false. 
 	 */
-	public abstract Boolean getRunState(String socialNetwork);
+	public abstract boolean getRunState(String socialNetwork);
 	/**
 	 * @description set and get the active domain
 	 */

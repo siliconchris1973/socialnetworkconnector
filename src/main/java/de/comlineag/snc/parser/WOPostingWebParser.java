@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,6 +16,8 @@ import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.Logger;
 
 import org.json.simple.JSONObject;
+
+import com.google.common.base.Stopwatch;
 
 import net.htmlparser.jericho.CharacterReference;
 import net.htmlparser.jericho.Element;
@@ -75,7 +78,11 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 	
 	@Override
 	public List<SimpleWebPosting> parse(String page, URL url, List<String> tokens) {
-		logger.info("Wallstreet Online Discussion parser START for url " + url.toString());
+		String PARSER_NAME="Wallstreet Online Discussion";
+		Stopwatch timer = new Stopwatch().start();
+		
+		// log the startup message
+		logger.debug(PARSER_NAME + " parser START for url " + url.toString());
 		
 		List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
 		
@@ -154,7 +161,8 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 		}
 		
 		
-		logger.info("Wallstreet Online Postings parser END\n");
+		timer.stop();
+		logger.debug(PARSER_NAME + " parser END - parsing took "+timer.elapsed(TimeUnit.SECONDS)+" seconds");
 		return postings;
 	}
 	
@@ -215,8 +223,8 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 	}
 	
 	@Override
-	protected Boolean parse(String page) {logger.warn("method not implemented");return false;}
+	protected boolean parse(String page) {logger.warn("method not implemented");return false;}
 	@Override
-	protected Boolean parse(InputStream is) {logger.warn("method not implemented");return false;}
+	protected boolean parse(InputStream is) {logger.warn("method not implemented");return false;}
 }
 

@@ -30,12 +30,14 @@ import de.comlineag.snc.parser.IWebParser;
  * @author 		Christian Guenther
  * @category 	Handler
  * @version		0.1				- 06.10.2014
- * @status		beta
+ * @status		in production
  * 
  * @description ParserControl is the generic caller class for each web parser. Whenever a web page
- * 				is crawled it is handed over to ParserControl. PC queries each registered parse
- * 				to determine if it can parse the page. In effect, every registered parser must provide
- * 				a method canExecute() and return true (can be parsed) or false (can not be parsed).
+ * 				is crawled it is handed over to ParserControl. PC queries each registered parser
+ * 				listed in properties/webparser.xml below WEB-INF directory) to determine if it can 
+ * 				parse the page. Tpo achieve this, every registered parser must provide the method
+ * 				canExecute() and return true (can be parsed) or false (can not be parsed) on calling.
+ * 
  * 				To register a new web parser you have to create the class and enter it's details in 
  * 				the properties file (SNC_WebParser.properties). 
  * 				
@@ -46,10 +48,11 @@ import de.comlineag.snc.parser.IWebParser;
  * 				method is called for the first time. This technique ensures that singleton instances 
  * 				are created only when needed.
  * 				 
- * 				Upon first call, PC will get all available parser from the properties file and create 
+ * 				Upon first call, PC will get all available parser from the webparser.xml file and create 
  * 				an ordered list of them. Every subsequent call will loop through this list querying the 
  * 				parser whether it can parse the page and, upon receiving true from the parser, hand the 
- * 				page, the original url and the list of track terms over to it.
+ * 				page, the original url and the list of track terms over to it. The loop works as a first-
+ * 				match-wins decision - th efirst parser to return true on a page, will get the page.
  * 
  * @changelog	0.1 (Chris)		class created
  * 
@@ -127,6 +130,8 @@ public class ParserControl {
 	private List<IWebParser> getAllParser()
 			throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, 
 					InstantiationException, IllegalAccessException, ClassNotFoundException, DOMException {
+		logger.debug("building list of available web parser");
+		
 		String fileName = rtc.getWebParserListFilePath();
 		List<IWebParser> ar = new ArrayList<IWebParser>();
 		

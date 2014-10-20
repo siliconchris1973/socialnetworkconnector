@@ -1,6 +1,7 @@
 package de.comlineag.snc.parser;
 
 import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
@@ -10,6 +11,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import com.google.common.base.Stopwatch;
 
 import de.comlineag.snc.constants.LithiumConstants;
 import de.comlineag.snc.constants.LithiumStatusCode;
@@ -67,7 +70,11 @@ public final class LithiumParser extends GenericParser {
 	 * 					of json objects
 	 */
 	public  JSONArray parseMessages(String jsonString) {
-		logger.debug("Lithium parser instantiated");
+		String PARSER_NAME="Lithium";
+		Stopwatch timer = new Stopwatch().start();
+		
+		// log the startup message
+		logger.debug(PARSER_NAME + " parser START");
 		//logger.trace("   message content is: " + jsonString);
 	
 		// this is the status code within the json object string
@@ -117,6 +124,8 @@ public final class LithiumParser extends GenericParser {
 				messageArray = (JSONArray) messages.get(LithiumConstants.JSON_SINGLE_THREAD_OBJECT_IDENTIFIER);
 			}
 			
+			timer.stop();
+			logger.debug(PARSER_NAME + " parser END - parsing took "+timer.elapsed(TimeUnit.SECONDS)+" seconds");
 			return messageArray;
 			
 		} catch (ParseException e) {
@@ -128,13 +137,13 @@ public final class LithiumParser extends GenericParser {
 	}
 	
 	@Override
-	public Boolean parse(String jsonString) {
+	public boolean parse(String jsonString) {
 		// this parse method is NOT used for the Lithium community
 		return false;
 	}
 
 	@Override
-	protected Boolean parse(InputStream is) {
+	protected boolean parse(InputStream is) {
 		// this parse method is NOT used for the Lithium community
 		return false;
 	}

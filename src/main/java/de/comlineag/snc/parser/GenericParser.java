@@ -34,7 +34,7 @@ public abstract class GenericParser {
 	 * 				parse can either receive string or input stream
 	 * 				this one is for strings
 	 */
-	protected abstract Boolean parse(String strPosting);
+	protected abstract boolean parse(String strPosting);
 	
 	/**
 	 * @name 		parse
@@ -44,7 +44,7 @@ public abstract class GenericParser {
 	 * 				parse can either receive string or input stream
 	 * 				this one is for input streams 
 	 */
-	protected abstract Boolean parse(InputStream is);
+	protected abstract boolean parse(InputStream is);
 	
 	/**
 	 * @name 		process

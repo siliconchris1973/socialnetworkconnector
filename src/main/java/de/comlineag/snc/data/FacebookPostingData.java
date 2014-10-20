@@ -277,7 +277,7 @@ public final class FacebookPostingData extends PostData {
 		lang = null;
 		
 		posted_from_client = null;
-		truncated = null;
+		truncated = false;
 		
 		in_reply_to_post = 0;
 		in_reply_to_user = 0;

@@ -337,7 +337,7 @@ public class HANAPersistence implements IPersistenceManager {
 		//logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
 		
 		try {
-			logger.debug("decrypting authorization details from job control with " + configurationCryptoProvider.getCryptoProviderName());
+			logger.trace("decrypting authorization details from job control with " + configurationCryptoProvider.getCryptoProviderName());
 			_user = configurationCryptoProvider.decryptValue(this.user);
 			_pw = configurationCryptoProvider.decryptValue(this.pass);
 			bAuth = new BasicAuthenticationBehavior(_user, _pw);
@@ -363,7 +363,7 @@ public class HANAPersistence implements IPersistenceManager {
 				logger.warn("runtime exception while searching for " + type + " " + SN + "-" + Id + " ... retrying");
 				theDataset = userService.getEntities(type).filter("user_id eq '"+Id+"' and sn_id eq '" + SN.toString() + "'").top(1).execute().firstOrNull();
 			} catch (Exception e) {
-				logger.debug("EXCEPTION :: " + e.getLocalizedMessage());
+				logger.error("EXCEPTION :: " + e.getLocalizedMessage());
 				e.printStackTrace();
 			}
 		// looking for ppst not user

@@ -1,8 +1,10 @@
 package de.comlineag.snc.parser;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
@@ -11,6 +13,8 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import com.google.common.base.Stopwatch;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.handler.TwitterPosting;
@@ -48,9 +52,12 @@ public final class TwitterParser extends GenericParser {
 	public TwitterParser() {}
 
 	@Override
-	protected Boolean parse(String strTweet) {
+	protected boolean parse(String strTweet) {
+		String PARSER_NAME="Twitter";
+		Stopwatch timer = new Stopwatch().start();
+		
 		// log the startup message
-		logger.debug("Twitter parser START");
+		logger.debug(PARSER_NAME + " parser START");
 
 		// macht ein JSon Decode aus dem uebergebenen String
 		JSONParser parser = new JSONParser();
@@ -64,10 +71,6 @@ public final class TwitterParser extends GenericParser {
 			
 			// add posting to list
 			postings.add(posting);
-			
-			// placing failsave method here, so that the original data object is stored on file
-			// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
-			// intialize faile save persistence
 			
 			// retweeted posts need to go in message array as well
 			JSONObject jsonReTweeted = (JSONObject) jsonTweetResource.get("retweeted_status");
@@ -86,6 +89,29 @@ public final class TwitterParser extends GenericParser {
 			logger.error("EXCEPTION :: " + e.getMessage() + " " + e);
 		}
 		
+		
+		
+		// need to add users first, because a tweet needs to be able to point to a posting user in the db
+		logger.trace("trying to save " + users.size() + " users");
+		for (int ii = 0; ii < users.size(); ii++) {
+			if (rtc.isPERSISTENCE_THREADING_ENABLED()){
+				// execute persistence layer in a new thread, so that it does NOT block the crawler
+				logger.trace("execute persistence layer in a new thread...");
+				final TwitterUser userT = (TwitterUser) users.get(ii);
+				new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+							userT.save();
+					}
+				}).start();
+			} else {
+				TwitterUser user = (TwitterUser) users.get(ii);
+				user.save();
+			}
+		}
+		
+		logger.trace("trying to save " + postings.size() + " tweets");
 		for (int ii = 0; ii < postings.size(); ii++) {
 			if (rtc.isPERSISTENCE_THREADING_ENABLED()){
 				// execute persistence layer in a new thread, so that it does NOT block the crawler
@@ -105,17 +131,14 @@ public final class TwitterParser extends GenericParser {
 			}
 		}
 		
-		for (int ii = 0; ii < users.size(); ii++) {
-			TwitterUser user = (TwitterUser) users.get(ii);
-			user.save();
-		}
 		
-		logger.debug("Twitter parser END\n");
+		timer.stop();
+		logger.debug(PARSER_NAME + " parser END - parsing took "+timer.elapsed(TimeUnit.SECONDS)+" seconds");
 		return true;
 	}
 
 	@Override
-	protected Boolean parse(InputStream is) {
+	protected boolean parse(InputStream is) {
 		// THIS METHOD IS NOT USED
 		return false;
 	}

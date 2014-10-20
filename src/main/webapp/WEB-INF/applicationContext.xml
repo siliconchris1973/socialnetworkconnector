@@ -73,8 +73,8 @@
 	<bean id="contextWebApplicationContextProvider" class="de.comlineag.snc.appstate.ResourcePathHolder"></bean>
 	
 	
-	<!-- TODO check whether or not to use JMX at all and if yes, activate either one of  these -->
-	<!-- this is to register a new MBeanServer for the JMX support - we need JMX for JWatch to monitor the SNC -->
+	<!-- this is to register a new MBeanServer for the JMX support - either use this or the automatic 
+		 registration option below -->
 <!-- 
 	<bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean"/>
  -->
@@ -98,6 +98,7 @@
 	<!-- This is for automatic registration with an existing MBeanServer for the JMX support 
 		 - we need JMX for JWatch to monitor the SNC-->
 	<!-- this bean must not be lazily initialized if the exporting is to happen -->
+<!-- 
 	<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
 		<property name="beans">
 			<map>
@@ -118,6 +119,7 @@
 		<property name="name" value="LithiumCrawler"/>
 	</bean>
 	<bean id="HanaPersistenceBean" class="de.comlineag.snc.persistence.HANAPersistence"></bean>
+ -->
 	
 	
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -134,23 +136,23 @@
 			<props>
 				<!-- ThreadPool -->
 				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
-				<prop key="org.quartz.threadPool.threadCount">5</prop>
+				<prop key="org.quartz.threadPool.threadCount">3</prop>
 			</props>
 		</property>
 		<property name="triggers">
 			<list>
 				<!-- SOCIAL NETWORK CRAWLER
-					activate each crawler you want the SNC to scan through. 
-					Make sure to set the threadCount number above according to the number of activated 
-					crawlers. The total number of threads must include the number of actual crawlers in
-					this section plus the FsCrawler below - resulting in number of crawlers plus 1  -->
+					 activate each crawler you want the SNC to scan through. 
+					 Make sure to set the threadCount number above according to the number of activated 
+					 crawlers. The total number of threads must include the number of actual crawlers in
+					 this section plus the FsCrawler below - resulting in number of crawlers plus 1  -->
 				<ref bean="TwitterCrawlerTrigger" />
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="MultiWebCrawlerTrigger"/> -->
-				<ref bean="SimpleWebCrawlerTrigger"/>
-				<ref bean="LithiumCrawlerTrigger" />
+				<!-- <ref bean="SimpleWebCrawlerTrigger"/>
+				<ref bean="LithiumCrawlerTrigger" /> -->
 				
 				
 				<!-- FILESYSTEM CRAWLER - SAFEGUARD
@@ -194,6 +196,10 @@
 				<entry key="consumerSecret" value="xzqH6lLWnXLvlHJooNDaCDXlzJzv976JcWt8y2eyHBk" />
 				<entry key="token" value="754994-KDec8qJBwEggHwHQ9XO0X7QBx1VCOZwgbgtpYiibWjl" />
 				<entry key="tokenSecret" value="qm1dqrJas8Lf2ANU8Lx470TkcUSndWLwvJ1I2huZKvJrc" />
+				
+				
+				<entry key="connectionTimeout" value="1000" />
+				
 			</map>
 		</property>
 	</bean>
@@ -249,11 +255,26 @@
 	
 	
 	<!-- S I M P L E    W E B    C R A W L E R    (PRODUCTIVE) -->
-	<!-- this is the easiest way of crawling a webpage, but it has significant disadvantages to the MultiWebCrawler
-		 and should only be used in the most simple environment. First of all, you have to setup the url to crawl
-		 within this file, rather than in the crawler configuration file. Second you can only pass one webpage/domain
-		 as a starting point. And finally, it is very cumbersome to use an individual SN_ID (social network) code
-		 for each page. Because of these three points, I recommend to opt for MultiWebCrawler instead of SimpleWebCrawler. 
+	<!-- this is the easiest way of crawling a web page. It takes an initial url and some information (such as
+		 how many links to follow, whether or not to follow links that lead off the initial domain or are not
+		 below the initial given path and the like) and the crawler will fetch all relevant pages (a page is 
+		 relevant if it contains any of the track terms from the crawler configuration file) that are linked 
+		 to the initial url. It hands all pages to ParserControl for content extraction and passes the extracted
+		 data to the persistence layer.
+		 
+		 Although the SimpleWebCrawler is, despite it's name, already quite sophisticated, it has some 
+		 disadvantages to the MultiWebCrawler:
+		 
+		 * First of all, you have to setup the initial URL to crawl within this file rather than in the crawler 
+		   configuration file - that is a somewhat awkward design and difficult to configure. 
+		 * Second you can only pass one webpage/domain as a starting point to crawl. 
+		 * Third and finally, it is very cumbersome to use an individual SN_ID (social network) code for 
+		   different sites. 
+		 
+		 In effect, in order to start the crawl process off of multiple pages in parallel you would need to 
+		 duplicate this entire section, with different bean-ids of course, and each with it's own starting url.
+		   
+		 Because of these three points, I recommend to opt for MultiWebCrawler instead of SimpleWebCrawler. 
 		 But nevertheless, it works and you can use it :-) -->
 	<bean name="SimpleWebCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
@@ -265,35 +286,46 @@
 				<entry key="SN_ID_CODE" value="WC" />
 				
 				<!-- set the starting url - the SimpleWebCrawler can only process ONE starting url 
-					 if you need/want to setup multiple parallel crawlers for different sites
-					 use the MultiWebCrawler below. -->
+					 if you need/want to setup multiple parallel crawlers for different sites you
+					 can either duplicate this entire bean section plus the trigger or use the 
+					 MultiWebCrawler below. -->
 				<entry key="server_url" value="http://www.wallstreet-online.de" />
 				<!-- <entry key="server_url" value="http://www.wallstreet-online.de/nachricht/7068190-aktien-europa-erholung-guter-us-vorgaben-fed-protokoll" /> -->
 				<!-- <entry key="server_url" value="http://www.wallstreet-online.de/diskussion/1106960-1-10/consors-jetzt-auch-ausserboerslich-laengerfristige-limits-ueber-tradegate" /> -->
 				
 				
-				<!-- if the website requires an authentication, set username and password here -->
+				<!-- if the website requires authentication, set username and password here -->
 				<entry key="user" value="Y29taW5lMjAxNA==" />		<!-- comine2014 -->
 				<entry key="passwd" value="TUd1LTZ0Yy1BUjUtdTdS" /> <!-- MGu-6tc-AR5-u7R -->
 				
-				<!-- max_depth - how many levels of cascaded links to follow.
-					 If you set this higher then the value of WC_MAX_DEPTH in SNC_Runtim_Configuration (currently 5) then 
-					 that value will be used. This Runtime configuration acts as a safety margin to not exceed a certain scanning depth. 
-					 You can, however, also set this to -1 in which case there will be no limit on how deep links will be followed
-					 Be advised though, as this may lead to quite a huge amount of pages. As a last safeguard in case this value is set to 
-					 -1, this will also implicitly set the parameter of stayOnDomain to true. -->
+				<!-- max_depth - how many levels of cascaded links to follow. 
+					 Be careful what you do here. A level of three would mean: follow all links from the page 
+					 that was linked from the page that was linked from the page that was linked from the 
+					 starting url.
+					  
+					 If you set this higher then the value of WC_MAX_DEPTH in SNC_Runtim_Configuration (5 at
+					 the moment) then that value will be used. This Runtime configuration acts as a safety 
+					 margin to not exceed a certain scanning depth. 
+					 You can, however, also set this to -1 in which case there will be no limit on how deep 
+					 links will be followed Be advised though, as this may lead to quite a huge amount of pages. 
+					 As a last safeguard in case this value is set to  -1, this will also implicitly set the 
+					 parameter of stayOnDomain to true. -->
 				<entry key="max_depth" value="10" />
 				
-				<!-- max_pages - how many pages to download at all.
-					 If you set this higher then the value of WC_SEARCH_LIMIT in SNC_Runtim_Configuration (currently 10000) then 
-					 that value will be used. This Runtime configuration acts as a safety margin to not exceed a certain maximum number 
-					 of pages to download per run. You can, however, also set this to -1 in which case there will be no limit
-					 on the number of downloaded pages. Be careful though, as this may lead to a huge amount of pages. As a
-					 last safeguard in case this value is set to -1, this will also implicitly set the parameter of stayOnDomain
-					 to true. -->
+				<!-- max_pages - how many pages to download at all per run.
+					 If you set this higher then the value of WC_SEARCH_LIMIT in SNC_Runtim_Configuration 
+					 (currently 10000) then that value will be used. This Runtime configuration acts as a 
+					 safety margin to not exceed a certain maximum number of pages to download per run. You 
+					 can, however, also set this to -1 in which case there will be no limit on the number 
+					 of downloaded pages. Be careful though, as this may lead to a huge amount of pages. 
+					 As a last safeguard in case this value is set to -1, this will also implicitly set the 
+					 parameter of stayOnDomain to true.As a rule of thumb: If you want to check for all your 
+					 keywords on one big news site, set this to -1. If you just want to get some sites off 
+					 of a bulletin board, put something around 2000 in-->
 				<entry key="max_pages" value="-1" />
 				
-				<!-- stayOnDomain - whether or not the crawler is allowed to follow links off of the initial domain 
+				<!-- stayOnDomain - whether or not the crawler is allowed to follow links off of the 
+					 initial domain 
 					 If set to true, then the crawler is NOT allowed to fetch pages from a new domain.
 					 It is generally not recommended to set this to false (thus allowing to leave the 
 					 domain) AND have a high value in max_depth and max_pages, as this could lead to 
@@ -302,7 +334,7 @@
 				<entry key="stayOnDomain" value = "true" /> 
 				
 				<!-- stayBelowGivenPath - Shall the crawler ONLY get pages below the initially given path
-					 Think of this option like an even stricter stayOnDomain. Not only we can't leave the
+					 This option is like an even stricter stayOnDomain. Not only we can't leave the
 					 initial given domain, but any link encountered must point to some page on or below
 					 the above given url. 
 					 That also means, if you set this to true, you do not need to set stayOnDomain, or 
@@ -337,6 +369,14 @@
 	
 	
 	<!-- M U L T I    D O M A I N    W E B    C R A W L E R    (SKELETON) --> 
+	<!-- this is the parallel web crawler. It can take a list of initial urls from a configuration file. 
+		 To every URL, the list of runtime settings from the SimpleWebCrawler can be configured - such 
+		 as how many links to follow, whether or not to follow links that lead off the initial domain 
+		 or are not below the initial given path and the like. The crawler will then fork a number of
+		 parallel processes and fetch all relevant pages (a page is relevant if it contains any of the 
+		 track terms from the crawler configuration file) that are linked to the initial url. Like the 
+		 SimpleWebParser, the MultiWebParser hands the fetched pages over to ParserControl for content
+		 extraction. -->
 	<bean name="MultiWebCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.snc.crawler.MultiWebCrawler" />
@@ -344,9 +384,11 @@
 		<property name="jobDataAsMap">
 			<map>
 				<!-- other than with the SimpleWebCrawler, the MultiWebCrawler can concurrently crawl 
-					 multiple pages. Therefore, all that he needs to know during startup is, where 
-					 it's own configuration file located. In the referenced configuration file the 
-					 different pages together with authentication options can be defined.
+					 multiple pages. Therefore, all that he needs to know during startup is where 
+					 it's own configuration file is located. Therefore this is the only configuration
+					 option here. The referenced configuration file then defines the different pages 
+					 together with authentication options and all settings the SimpleWebCrawler can 
+					 also work with - see above.
 					  
 					 You can also put the web crawler specific configuration in the general crawler 
 					 configuration file, specified in bean configurationManager (see below). In this 
@@ -358,7 +400,7 @@
 					 
 					 In general it is recommended to have the web crawler configuration within the 
 					 general crawler configuration file and have the web crawler get it's configuration 
-					 from there.
+					 from there - that is also the default.
 					 -->
  
 				<!--<entry key="configurationFile" value="webapp/WEB-INF/SNC_CrawlerConfiguration/HippWebCrawlerConfiguration.xml" />-->

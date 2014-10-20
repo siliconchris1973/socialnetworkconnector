@@ -76,7 +76,7 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 	
 	
 	@Override
-	public Boolean getRunState(String socialNetwork) {
+	public boolean getRunState(String socialNetwork) {
 		String expression = null;
 		Node node = null;
 		

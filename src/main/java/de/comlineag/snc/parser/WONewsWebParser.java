@@ -7,12 +7,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
 //import org.apache.logging.log4j.Logger;
 
 import org.json.simple.JSONObject;
+
+import com.google.common.base.Stopwatch;
 
 import net.htmlparser.jericho.CharacterReference;
 import net.htmlparser.jericho.Element;
@@ -72,7 +75,11 @@ public final class WONewsWebParser extends GenericWebParser implements IWebParse
 	
 	@Override
 	public List<SimpleWebPosting> parse(String page, URL url, List<String> tokens) {
-		logger.info("Wallstreet Online News parser START for url " + url.toString());
+		String PARSER_NAME="Wallstreet Online News";
+		Stopwatch timer = new Stopwatch().start();
+		
+		// log the startup message
+		logger.debug(PARSER_NAME + " parser START for url " + url.toString());
 				
 		List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
 		
@@ -186,7 +193,8 @@ public final class WONewsWebParser extends GenericWebParser implements IWebParse
 		}
 		
 		
-		logger.info("Wallstreet Online News parser END\n");
+		timer.stop();
+		logger.debug(PARSER_NAME + " parser END - parsing took "+timer.elapsed(TimeUnit.SECONDS)+" seconds");
 		return postings;
 	}
 	
@@ -246,8 +254,8 @@ public final class WONewsWebParser extends GenericWebParser implements IWebParse
 	}
 	
 	@Override
-	protected Boolean parse(String page) {logger.warn("method not implemented");return false;}
+	protected boolean parse(String page) {logger.warn("method not implemented");return false;}
 	@Override
-	protected Boolean parse(InputStream is) {logger.warn("method not implemented");return false;}
+	protected boolean parse(InputStream is) {logger.warn("method not implemented");return false;}
 }
 

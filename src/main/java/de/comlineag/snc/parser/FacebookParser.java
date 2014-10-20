@@ -3,6 +3,7 @@ package de.comlineag.snc.parser;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
@@ -11,6 +12,8 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import com.google.common.base.Stopwatch;
 
 import de.comlineag.snc.handler.FacebookPosting;
 import de.comlineag.snc.handler.FacebookUser;
@@ -40,9 +43,12 @@ public final class FacebookParser extends GenericParser {
 	public FacebookParser() {}
 
 	@Override
-	protected Boolean parse(String strPost) {
+	protected boolean parse(String strPost) {
+		String PARSER_NAME="Facebook";
+		Stopwatch timer = new Stopwatch().start();
+		
 		// log the startup message
-		logger.debug("Facebook parser START");
+		logger.debug(PARSER_NAME + " parser START");
 
 		// macht ein JSon Decode aus dem uebergebenen String
 		JSONParser parser = new JSONParser();
@@ -79,10 +85,12 @@ public final class FacebookParser extends GenericParser {
 			FacebookUser user = (FacebookUser) users.get(ii);
 			user.save();
 		}
-		logger.debug("Facebook parser END");
+		
+		timer.stop();
+		logger.debug(PARSER_NAME + " parser END - parsing took "+timer.elapsed(TimeUnit.SECONDS)+" seconds");
 		return true;
 	}
 
 	@Override
-	protected Boolean parse(InputStream is) {return false;}
+	protected boolean parse(InputStream is) {return false;}
 }
