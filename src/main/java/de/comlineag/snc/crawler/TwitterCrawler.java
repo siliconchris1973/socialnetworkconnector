@@ -41,7 +41,7 @@ import de.comlineag.snc.parser.TwitterParser;
  *
  * @author 		Christian Guenther
  * @category 	Job
- * @version		0.9e				- 16.10.2014
+ * @version		0.9f				- 21.10.2014
  * @status		productive	but with occasional error while inserting data
  *
  * @description this is the actual crawler of the twitter network. It is
@@ -51,7 +51,7 @@ import de.comlineag.snc.parser.TwitterParser;
  *
  * @limitation	Currently the class uses annotation @DisallowConcurrentExecution
  *              because we can't let the job run multiple times for the sake of 
- *              data consistency - this will be resolved in version 1.1 
+ *              data consistency 
  *
  * @changelog	0.1 (Chris)			first skeleton against rest-api
  * 				0.2	(Maic)			static version retrieves posts
@@ -67,6 +67,7 @@ import de.comlineag.snc.parser.TwitterParser;
  *				0.9c				changed method signature for crawler configuration to match JSON object
  *				0.9d				added support for runState configuration, to check if the crawler shall actually run
  *				0.9e				added time measure and new loop to track unlimited messages
+ *				0.9f				deactivated loop to track unlimited messages
  *
  * TODO 1. find out how to fix the following warning:
  * 			HttpMethodBase - Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
@@ -215,7 +216,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 					}
 					
 					// check if there is a limit on the maximum number of tweets to track per crawler run
-	/*
+/*
 					if (rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN() == -1) {
 						// now track all relevant tweets as long as new tweets exist in the queue
 						logger.debug("tracking unlimited messages");
@@ -242,22 +243,9 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 							
 						}
 					} else {
-	*/
+*/
 						// now track all relevant tweets up to maximum number configured
 						logger.debug("tracking max "+rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN()+" messages");
-						
-//						int msgRead = 0;
-//						String msg = null;
-//						while((msg = ReadMessage(connectionTimeOut)) != null && msgRead < rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN()){
-//							msgRead++;
-//							messageCount++;
-//							setPostsTracked(messageCount);
-//							logger.trace("message " + messageCount + " received");
-//							logger.debug("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
-//							
-//							// each tweet is now passed to the parser TwitterParser
-//							post.process(msg);
-//						}
 						
 						for (int msgRead = 0; msgRead < rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN(); msgRead++) {
 							logger.trace("message " + messageCount + " received");
@@ -293,11 +281,11 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	}
 	
 	
-	/**
+	/*
 	 * takes messages from the msgQueue  
 	 * @param connectionTimeOut
 	 * @return
-	 */
+	 
 	private String ReadMessage(int connectionTimeOut){
 		String msg = null;
 		try {
@@ -309,7 +297,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		}
 		return msg;
 	}
-	
+	*/
 	
 	
 	/**

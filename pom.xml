@@ -29,7 +29,7 @@
 	-->
 	<groupId>de.comlineag.snc</groupId>
 	<artifactId>SocialNetworkConnector</artifactId>
-	<version>0.8.1-Beta</version>
+	<version>0.8.2-Beta</version>
 	
 	<name>Social Network Connector</name>
 	<url>https://clsbm.comlineag.de</url>
