@@ -246,39 +246,39 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 						// now track all relevant tweets up to maximum number configured
 						logger.debug("tracking max "+rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN()+" messages");
 						
-						int msgRead = 0;
-						String msg = null;
-						while((msg = ReadMessage(connectionTimeOut)) != null && msgRead < rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN()){
-							msgRead++;
-							messageCount++;
-							setPostsTracked(messageCount);
-							logger.trace("message " + messageCount + " received");
-							logger.debug("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
-							
-							// each tweet is now passed to the parser TwitterParser
-							post.process(msg);
-						}
-						
-//						for (int msgRead = 0; msgRead < rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN(); msgRead++) {
-//							logger.trace("message " + messageCount + " received");
+//						int msgRead = 0;
+//						String msg = null;
+//						while((msg = ReadMessage(connectionTimeOut)) != null && msgRead < rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN()){
+//							msgRead++;
 //							messageCount++;
 //							setPostsTracked(messageCount);
-//							
-//							String msg = null;
-//							try {
-//								msg = msgQueue.take();
-//							} catch (InterruptedException e) {
-//								logger.error("ERROR :: Message loop interrupted " + e.getMessage());
-//							} catch (Exception ee) {
-//								logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
-//							}
+//							logger.trace("message " + messageCount + " received");
 //							logger.debug("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
-//							//logger.trace("   content: " + msg );
-//	
+//							
 //							// each tweet is now passed to the parser TwitterParser
 //							post.process(msg);
 //						}
-	//				}
+						
+						for (int msgRead = 0; msgRead < rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN(); msgRead++) {
+							logger.trace("message " + messageCount + " received");
+							messageCount++;
+							setPostsTracked(messageCount);
+							
+							String msg = null;
+							try {
+								msg = msgQueue.take();
+							} catch (InterruptedException e) {
+								logger.error("ERROR :: Message loop interrupted " + e.getMessage());
+							} catch (Exception ee) {
+								logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
+							}
+							logger.debug("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
+							//logger.trace("   content: " + msg );
+	
+							// each tweet is now passed to the parser TwitterParser
+							post.process(msg);
+						}
+//					}
 				} catch (Exception e) {
 					logger.error("Error while processing messages", e);
 				}
