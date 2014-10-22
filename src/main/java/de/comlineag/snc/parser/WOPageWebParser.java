@@ -234,7 +234,6 @@ public final class WOPageWebParser extends GenericWebParser implements IWebParse
 			}.toString();
 	}
 	
-	
 	private static String getTitle(Source source) {
 		Element titleElement=source.getFirstElement(HTMLElementName.TITLE);
 		if (titleElement==null) return null;
@@ -269,6 +268,7 @@ public final class WOPageWebParser extends GenericWebParser implements IWebParse
 		List<Element> siteElements = source.getAllElementsByClass("pagecontainer");
 		if (siteElements.size() > 0)
 			hitRatio += 1;
+		
 		for (int i=0;i<siteElements.size();i++) {
 			if (!siteElements.get(i).getFirstElement("id", "page", false).isEmpty());
 				hitRatio += 3;
@@ -281,55 +281,6 @@ public final class WOPageWebParser extends GenericWebParser implements IWebParse
 		return iAmTheOne;
 	}
 	
-	/*
-	@SuppressWarnings("unchecked")
-	protected JSONObject createPageJsonObject(String sn_id, 
-												String title, 
-												String description, 
-												String page, 
-												String text, 
-												URL url, 
-												boolean truncated, 
-												String page_lang,
-												String curCustomer,
-												String curDomain) {
-		JSONObject pageJson = new JSONObject();
-		truncated = Boolean.parseBoolean("false");
-		
-		// put some data in the json
-		pageJson.put("sn_id", sn_id);
-		pageJson.put("page_id", UniqueIdServices.createMD5(url.toString()).toString()); // the url is parsed and converted into a long number (returned as a string)
-		pageJson.put("Customer", curCustomer);
-		pageJson.put("Domain", curDomain);
-		
-		pageJson.put("subject", title);
-		pageJson.put("teaser", description);
-		pageJson.put("raw_text", page);
-		pageJson.put("text", text);
-		pageJson.put("source", url.toString());
-		pageJson.put("lang", page_lang);
-		pageJson.put("truncated", truncated);
-		String s = Objects.toString(System.currentTimeMillis(), null);
-		pageJson.put("created_at", s);
-		
-		//pageJson.put("user_id", "0");
-		pageJson.put("user_id", pageJson.get("page_id"));
-		
-		JSONObject userJson = new JSONObject();
-		userJson.put("sn_id", sn_id);
-		userJson.put("id", pageJson.get("page_id"));
-		userJson.put("name", url.getHost());
-		userJson.put("screen_name", url.getHost());
-		userJson.put("lang", page_lang);
-		
-		
-		pageJson.put("user", userJson);
-		
-		logger.trace("the json object:: " + pageJson.toJSONString());
-		return pageJson;
-	}
-	*/
-
 	@Override
 	protected boolean parse(String page) {logger.warn("method not implemented");return false;}
 	@Override
