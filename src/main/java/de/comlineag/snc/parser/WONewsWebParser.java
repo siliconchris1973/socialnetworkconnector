@@ -117,55 +117,7 @@ public final class WONewsWebParser extends GenericWebParser implements IWebParse
 			for (int i=0;i<siteElements.size();i++) {
 				List<Element> subElements = siteElements.get(i).getAllElements("id", "newsArticle", false);
 				for (int ii=0;ii<subElements.size();ii++) {
-					plainText = new TextExtractor(subElements.get(ii)) {
-						public boolean includeElement(StartTag startTag) {
-							return "content".equalsIgnoreCase(startTag.getAttributeValue("class"));
-							}
-						public boolean excludeElement(StartTag startTag){
-							return startTag.getName()==HTMLElementName.TITLE
-									|| startTag.getName()==HTMLElementName.THEAD
-									|| startTag.getName()==HTMLElementName.SCRIPT
-									|| startTag.getName()==HTMLElementName.HEAD
-									|| startTag.getName()==HTMLElementName.META
-									|| "keywords".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "clear".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "modulecontent".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "cs mooMenu".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "toolbar".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "postingHead".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "postingFooter".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "fs grid".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "grid fs ".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "grid fs static ".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "grid fs poll ".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "grid ws threadbodybox ".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "grid ns ".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "modulecontent copyright".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "more_link".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "tbutton b".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									//|| "tab wotabs".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "voting_stars_display".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "pagination".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "tab_wrapper".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "pagination ".equalsIgnoreCase(startTag.getAttributeValue("class"))
-									|| "overflow:hidden".equalsIgnoreCase(startTag.getAttributeValue("style"))
-									|| "pagination".equalsIgnoreCase(startTag.getAttributeValue("form"))
-									|| "alt".equalsIgnoreCase(startTag.getAttributeValue("img"))
-									|| "themes_postings_module".equalsIgnoreCase(startTag.getAttributeValue("id"))
-									|| "afterhead".equalsIgnoreCase(startTag.getAttributeValue("id"))
-									|| "breadcrumb".equalsIgnoreCase(startTag.getAttributeValue("id"))
-									|| "adsd_billboard_div".equalsIgnoreCase(startTag.getAttributeValue("id"))
-									|| "sitehead".equalsIgnoreCase(startTag.getAttributeValue("id"))
-									|| "footer".equalsIgnoreCase(startTag.getAttributeValue("id"))
-									|| "userDD".equalsIgnoreCase(startTag.getAttributeValue("id"))
-									|| "postingDD".equalsIgnoreCase(startTag.getAttributeValue("id"))
-									|| "Ads_TFM_BS".equalsIgnoreCase(startTag.getAttributeValue("id"))
-									|| "Ads_TFM_*".equalsIgnoreCase(startTag.getAttributeValue("id"))
-									|| "viewModeDD".equalsIgnoreCase(startTag.getAttributeValue("id"))
-									|| "newsArticleIdentity".equalsIgnoreCase(startTag.getAttributeValue("id"))
-									|| "userbar".equalsIgnoreCase(startTag.getAttributeValue("id"));
-							}
-						}.toString();
+					plainText = getPlainText(subElements.get(ii));
 					//logger.trace("the plaintext >>> " + plainText);
 					text = plainText;
 					
@@ -199,7 +151,65 @@ public final class WONewsWebParser extends GenericWebParser implements IWebParse
 	}
 	
 	
-	// START OF JERICHO SPECIFIC PARSER STUFF
+	// start of some jericho magic methods
+	/**
+	 * takes a site element and returns the plain text as a combination of allowed and disallowed site tags
+	 * @param siteElement
+	 * @return plainText
+	 */
+	private String getPlainText(Element element) {
+		return new TextExtractor(element) {
+			public boolean includeElement(StartTag startTag) {
+				return "content".equalsIgnoreCase(startTag.getAttributeValue("class"));
+				}
+			public boolean excludeElement(StartTag startTag){
+				return startTag.getName()==HTMLElementName.TITLE
+						|| startTag.getName()==HTMLElementName.THEAD
+						|| startTag.getName()==HTMLElementName.SCRIPT
+						|| startTag.getName()==HTMLElementName.HEAD
+						|| startTag.getName()==HTMLElementName.META
+						|| "keywords".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "clear".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "modulecontent".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "cs mooMenu".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "toolbar".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "postingHead".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "postingFooter".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "fs grid".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "grid fs ".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "grid fs static ".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "grid fs poll ".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "grid ws threadbodybox ".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "grid ns ".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "modulecontent copyright".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "more_link".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "tbutton b".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						//|| "tab wotabs".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "voting_stars_display".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "pagination".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "tab_wrapper".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "pagination ".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "overflow:hidden".equalsIgnoreCase(startTag.getAttributeValue("style"))
+						|| "pagination".equalsIgnoreCase(startTag.getAttributeValue("form"))
+						|| "alt".equalsIgnoreCase(startTag.getAttributeValue("img"))
+						|| "themes_postings_module".equalsIgnoreCase(startTag.getAttributeValue("id"))
+						|| "afterhead".equalsIgnoreCase(startTag.getAttributeValue("id"))
+						|| "breadcrumb".equalsIgnoreCase(startTag.getAttributeValue("id"))
+						|| "adsd_billboard_div".equalsIgnoreCase(startTag.getAttributeValue("id"))
+						|| "sitehead".equalsIgnoreCase(startTag.getAttributeValue("id"))
+						|| "footer".equalsIgnoreCase(startTag.getAttributeValue("id"))
+						|| "userDD".equalsIgnoreCase(startTag.getAttributeValue("id"))
+						|| "postingDD".equalsIgnoreCase(startTag.getAttributeValue("id"))
+						|| "Ads_TFM_BS".equalsIgnoreCase(startTag.getAttributeValue("id"))
+						|| "Ads_TFM_*".equalsIgnoreCase(startTag.getAttributeValue("id"))
+						|| "viewModeDD".equalsIgnoreCase(startTag.getAttributeValue("id"))
+						|| "newsArticleIdentity".equalsIgnoreCase(startTag.getAttributeValue("id"))
+						|| "userbar".equalsIgnoreCase(startTag.getAttributeValue("id"));
+				}
+			}.toString();
+	}
+	
+	
 	private static String getTitle(Source source) {
 		Element titleElement=source.getFirstElement(HTMLElementName.TITLE);
 		if (titleElement==null) return null;

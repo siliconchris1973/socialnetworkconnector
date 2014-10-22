@@ -93,7 +93,7 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 			
 			// now check if we really really have the searched word within the text and only if so,
 			// write the content to disk. We should probably put this before calling the persistence
-			if (findNeedleInHaystack(parsedPageJson.toString(), tokens)){
+			if (!rtc.isWC_GET_ONLY_RELEVANT_PAGES() || findNeedleInHaystack(parsedPageJson.toString(), tokens)){
 				// add the parsed site to the message list for saving in the DB
 				postings.add(parsedPageSimpleWebPosting);
 			}

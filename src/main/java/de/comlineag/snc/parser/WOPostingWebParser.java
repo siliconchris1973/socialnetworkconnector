@@ -123,14 +123,7 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 				// generate the posting id (aka page_id) as a md5 hash from posting text
 				//page_id = UniqueIdServices.createId(siteElements.get(i).getFirstElementByClass("postingText").toString());
 				
-				plainText = new TextExtractor(siteElement) {
-					public boolean excludeElement(StartTag startTag){
-						return "s8 replyTo".equalsIgnoreCase(startTag.getAttributeValue("class"))
-								|| "postingHead".equalsIgnoreCase(startTag.getAttributeValue("class"))
-								|| "postingFooter".equalsIgnoreCase(startTag.getAttributeValue("class"));
-					}
-				}.toString();
-				
+				plainText = getReplyToPlainText(siteElement);
 				
 				//logger.trace("the plaintext >>> " + plainText);
 				text = plainText;
@@ -167,6 +160,15 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 	}
 	
 	
+	private String getReplyToPlainText(Element siteElement) {
+		return new TextExtractor(siteElement) {
+			public boolean excludeElement(StartTag startTag){
+				return "s8 replyTo".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "postingHead".equalsIgnoreCase(startTag.getAttributeValue("class"))
+						|| "postingFooter".equalsIgnoreCase(startTag.getAttributeValue("class"));
+			}
+		}.toString();
+	}
 	// START OF JERICHO SPECIFIC PARSER STUFF
 	private static String getTitle(Source source) {
 		Element titleElement=source.getFirstElement(HTMLElementName.TITLE);

@@ -234,7 +234,7 @@ public final class WOPageWebParser extends GenericWebParser implements IWebParse
 			}.toString();
 	}
 	
-	// START OF JERICHO SPECIFIC PARSER STUFF
+	
 	private static String getTitle(Source source) {
 		Element titleElement=source.getFirstElement(HTMLElementName.TITLE);
 		if (titleElement==null) return null;
