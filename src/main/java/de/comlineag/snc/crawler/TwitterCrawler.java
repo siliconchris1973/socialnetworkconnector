@@ -70,6 +70,7 @@ import de.comlineag.snc.parser.TwitterParser;
  *				0.9f				deactivated loop to track unlimited messages
  *
  * TODO check if we can use getResponseBodyAsStrema to fix the following warning: Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
+ * TODO implement possibility have black-list of combinations not to track: e.g. Depot YES / Home Depot NO 
  */
 @DisallowConcurrentExecution 
 public class TwitterCrawler extends GenericCrawler implements Job {

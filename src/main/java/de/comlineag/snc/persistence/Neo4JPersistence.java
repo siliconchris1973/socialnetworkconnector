@@ -50,9 +50,9 @@ import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
  * 				0.7b			added support for different encryption provider, the actual one is set in applicationContext.xml
  * 				0.7c			changed id from Long to String 
  * 
- * TODO 1. implement code to check if a node already exists prior inserting one
- * TODO 2. implement code for graph traversal
- * TODO 3. check implementation of geo geoLocation
+ * TODO implement code to check if a node already exists prior inserting one
+ * TODO implement code for graph traversal
+ * TODO check implementation of geo geoLocation
  */
 public class Neo4JPersistence implements IPersistenceManager {
 	// we use simple org.apache.log4j.Logger for lgging

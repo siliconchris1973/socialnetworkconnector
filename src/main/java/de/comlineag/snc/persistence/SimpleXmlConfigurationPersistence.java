@@ -50,7 +50,6 @@ import org.w3c.dom.NodeList;
  * 				0.8				Added support for getRunState
  * 				0.8a			changed access to runtime configuration to non-static
  *  
- *  TODO 1. implement code for missing methods
  */
 public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManager<T>  {
 	// this holds a reference to the runtime cinfiguration

@@ -38,7 +38,7 @@ import de.comlineag.snc.data.FacebookPostingData;
  * 
  * @changelog	0.1 (Chris)		copy from TwitterPosting
  * 
- * TODO 1. implement real code
+ * TODO implement real code
  */
 
 public class FacebookPosting extends GenericDataManager<FacebookPostingData> {

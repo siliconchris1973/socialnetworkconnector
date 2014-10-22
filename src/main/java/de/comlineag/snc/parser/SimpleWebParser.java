@@ -54,8 +54,8 @@ import de.comlineag.snc.helper.UniqueIdServices;
  *				0.9a			moved helkper methods returnTokenPosition and trimStringAtPosition
  *								into GenericWebParser as it is also neede for other web parser
  * 
- * TODO 1 implement correct threaded parser to aid in multithreading
- * TODO 2 implement language detection (possibly with jroller http://www.jroller.com/melix/entry/jlangdetect_0_3_released_with)
+ * TODO implement correct threaded parser to aid in multithreading
+ * TODO implement language detection (possibly with jroller http://www.jroller.com/melix/entry/jlangdetect_0_3_released_with)
  * 
  */
 public final class SimpleWebParser extends GenericWebParser implements IWebParser {
