@@ -99,6 +99,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 				setDomain((String) node.getTextContent());
 			}
 			
+			
 			// whether or not it is active
 			expression = basicStructure + "/"+rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/isActive/"+rtc.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
@@ -128,8 +129,13 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			logger.debug("the domain "+getDomain()+" is active " + getDomainIsActiveAsString() + " and has priority "+ getDomainPriority());
 			
 			
+			
+			
 			// second step is to get the customer
-			expression = basicStructure + "/"+rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/"+rtc.getCustomeridentifier()+"/"+rtc.getValueidentifier();
+			expression = basicStructure + 
+							"/"+rtc.getDomainidentifier()+
+							"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/"+
+							rtc.getCustomeridentifier()+"/"+rtc.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.error("Did not receive information on customer using expression " + expression);
@@ -137,6 +143,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 				crawlerConfigurationScope.put((String) rtc.getCustomeridentifier(), (String) node.getTextContent());
 				setCustomer((String) node.getTextContent());
 			}
+			
 			// whether or not it is active
 			expression = basicStructure + "/"+rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/"+rtc.getCustomeridentifier()+"[@"+rtc.getCustomernameidentifier()+"='"+getCustomer()+"']/isActive/"+rtc.getValueidentifier();
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
