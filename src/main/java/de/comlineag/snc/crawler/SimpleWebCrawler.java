@@ -49,12 +49,12 @@ import de.comlineag.snc.parser.ParserControl;
  * @description A minimal web crawler. It can either be started from job control or via a constructor from
  * 				any other crawler. On calling it takes (either from job control or as starting parameter) 
  * 				one initial url, a list of blocked urls, and some boolean vars (see below) plus the list of 
- * 				track terms and starts crawling the initial url. It then fetches the initial and all linked
- * 				sites up to max number of pages and max depth of links defined either in applicationContext, 
- * 				RuntimeConfiguration (section web crawler) or passed on to the constructor and checks if 
- * 				they are relevant (contain any of the search terms). If so it hands the page over to 
- * 				ParserControl which determines the correct parser and extracts the interesting part of the 
- * 				site. The parsed site is then given to the epersistence layer.
+ * 				track terms. It then starts crawling the initial url fetching all linked sites up to max 
+ * 				number of pages and max depth of links defined as well either in applicationContext, 
+ * 				RuntimeConfiguration (section web crawler) or passed on to the constructor. Each page is  
+ * 				checked against the track terms provided. If a track term is found the crawler hands the page 
+ * 				over to ParserControl which determines the correct parser and extracts the interesting part 
+ * 				of the site. The parsed site is then given to the persistence layer for storing.
  *
  *
  * @changelog	0.1 (Chris)		class created as copy from http://cs.nyu.edu/courses/fall02/G22.3033-008/WebCrawler.java
@@ -119,12 +119,13 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	 * @param curDomain				- curCustomer is the customer and curDomain the domain of interest (eg Banking)
 	 * 
 	 */
-	public SimpleWebCrawler(URL url, ArrayList<String> bURLs, int maxPages, int maxDepth, boolean stayOnDomain, boolean stayBelowGivenPath, boolean getOnlyRelevantPages, String user, String passwd, ArrayList<String> tTerms, String curCustomer, String curDomain){
+	public SimpleWebCrawler(URL url, ArrayList<String> bURLs, int maxPages, int maxDepth, boolean stayOnDomain, boolean stayBelowGivenPath, boolean getOnlyRelevantPages, String user, String passwd, ArrayList<String> tTerms, String curCustomer, String curDomain, String sn_id){
 		String smallLogMessage = "";
 		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
 		JSONObject configurationScope = crawlerConfig.getCrawlerConfigurationScope();
-		configurationScope.put("SN_ID", SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
+		//configurationScope.put("SN_ID", SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
+		configurationScope.put("SN_ID", sn_id);
 		
 		if (tTerms.size()>0) smallLogMessage += " specific terms ";
 		if (stayBelowGivenPath) {
@@ -154,7 +155,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		
 		
 		// now execute the crawler
-		doCrawl(url, bURLs, maxPages, maxDepth, stayOnDomain, stayBelowGivenPath, getOnlyRelevantPages, user, passwd, tTerms, curCustomer, curDomain);
+		doCrawl(url, bURLs, maxPages, maxDepth, stayOnDomain, stayBelowGivenPath, getOnlyRelevantPages, user, passwd, tTerms, curCustomer, curDomain, sn_id);
 		
 	}
 	
@@ -177,7 +178,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			boolean stayBelowGivenPath = false;
 			// whether or not the crawler shall only get pages containing any of the track terms
 			boolean getOnlyRelevantPages = false;
-			
+			String sn_id;
 			// authentication options
 			String user = null;
 			String passwd = null;
@@ -192,7 +193,13 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			if (crawlerConfig.getRunState(CRAWLER_NAME)) {
 				//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
 				JSONObject configurationScope = crawlerConfig.getCrawlerConfigurationScope();
-				configurationScope.put("SN_ID", SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
+				if (arg0.getJobDetail().getJobDataMap().containsKey("SN_ID_CODE")){
+					configurationScope.put("SN_ID", (String) arg0.getJobDetail().getJobDataMap().get("SN_ID_CODE"));
+					sn_id=(String) arg0.getJobDetail().getJobDataMap().get("SN_ID_CODE");
+				} else {
+					configurationScope.put("SN_ID", SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
+					sn_id=SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME);
+				}
 				
 				if (arg0.getJobDetail().getJobDataMap().containsKey("useAllCrawlerConstraints"))
 					configurationScope.put("INCLUDE_ALL", arg0.getJobDetail().getJobDataMap().containsKey("useAllCrawlerConstraints"));
@@ -308,7 +315,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 								+ " / # " + tTerms.size() + " track terms"
 								+ " / curCustomer " + curCustomer
 								+ " / curDomain " + curDomain);
-				doCrawl(url, bURLs, maxPages, maxDepth, stayOnDomain, stayBelowGivenPath, getOnlyRelevantPages, user, passwd, tTerms, curCustomer, curDomain);
+				doCrawl(url, bURLs, maxPages, maxDepth, stayOnDomain, stayBelowGivenPath, getOnlyRelevantPages, user, passwd, tTerms, curCustomer, curDomain, sn_id);
 				
 			} // end of crawler deactivation
 
@@ -335,7 +342,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	 * @param curDomain				- curCustomer is the customer and curDomain the domain of interest (eg Banking)
 	 * 
 	 */
-	private void doCrawl(URL url, ArrayList<String> bURLs, int maxPages, int maxDepth, boolean stayOnDomain, boolean stayBelowGivenPath, boolean getOnlyRelevantPages, String user, String passwd, ArrayList<String> tTerms, String curCustomer, String curDomain){
+	private void doCrawl(URL url, ArrayList<String> bURLs, int maxPages, int maxDepth, boolean stayOnDomain, boolean stayBelowGivenPath, boolean getOnlyRelevantPages, String user, String passwd, ArrayList<String> tTerms, String curCustomer, String curDomain, String sn_id){
 		try {
 			Stopwatch timer = new Stopwatch().start();
 			
@@ -422,19 +429,20 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 						// proceed in any way
 						relPage = true;
 						possibleRelevantPages++;
-						logger.info("Url "+url+" is page #" + possibleRelevantPages + " tracked");
+						logger.info("Url "+url+" is page #" + possibleRelevantPages + " tracked ");
 					}
 					
 					
 					
 					if (relPage) {
+						logger.debug(realRelevantPages + " pages to store in persistence layer tracked");
 						// parsing of the page content is either done to get a list of postings
 						// or one cleaned up page (that is without the clutter like ads and the like)
 						// or at least a plain text representation of some words around the searched
 						// track term. To achieve this, we use different parser and the right parser
 						// for each site is chosen by the ParserControl class. Therefore we do not
 						// simply call a specific parser here, but route this through parser control.
-						postings = ParserControl.submit(page, url, tTerms);
+						postings = ParserControl.submit(page, url, tTerms, sn_id, curCustomer, curDomain);
 						
 						// invoke the persistence layer - should go to crawler
 						for (int ii = 0; ii < postings.size(); ii++) {
@@ -600,7 +608,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							boolean stayBelowGivenPath) {
 		Boolean proceed = false;
 		
-		// first of all, we check if the url in question is on the blocking-list
 		
 		// there are two possibilities to restrict the urls to add to the parsing list
 		// one is based on the path and the other is based on the domain.
@@ -654,6 +661,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			}
 		}
 		
+		// the last check is, is the url in question on the blocking-list
 		if (blockedURLs.containsKey(url)) {
 			if (rtc.isWARN_ON_REJECTED_ACTIONS())
 				logger.debug("rejecting url " + url + " because it is in the list of blocked urls");
@@ -662,8 +670,9 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		
 		// only process urls that passed the tests above.
 		if (proceed){
-
-			if (!knownURLs.containsKey(url) || !blockedURLs.containsKey(url)) {
+			// and only if the url is not already in the list of known urls (the ones we already checked)
+			// and is not in the list of blocked urls we proceed and add the url
+			if (!knownURLs.containsKey(url) && !blockedURLs.containsKey(url)) {
 				/*
 				 * if you only want html pages, then set wcContentTypeToDownload in RuntimeConfiguration
 				String filename =  url.getFile();

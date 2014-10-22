@@ -146,13 +146,13 @@
 					 Make sure to set the threadCount number above according to the number of activated 
 					 crawlers. The total number of threads must include the number of actual crawlers in
 					 this section plus the FsCrawler below - resulting in number of crawlers plus 1  -->
-				<ref bean="TwitterCrawlerTrigger" />
+				<!-- <ref bean="TwitterCrawlerTrigger" /> -->
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="MultiWebCrawlerTrigger"/> -->
-				<!-- <ref bean="SimpleWebCrawlerTrigger"/>
-				<ref bean="LithiumCrawlerTrigger" /> -->
+				<ref bean="SimpleWebCrawlerTrigger"/>
+				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
 				
 				
 				<!-- FILESYSTEM CRAWLER - SAFEGUARD
@@ -250,7 +250,7 @@
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
 		<property name="jobDetail" ref="LithiumCrawlerDetail" />
 		<property name="startDelay" value="2000" />
-		<property name="repeatInterval" value="30000" />
+		<property name="repeatInterval" value="86400000" /> <!-- 24 Stunden -->
 	</bean>
 	
 	
@@ -283,13 +283,14 @@
 		<property name="jobDataAsMap">
 			<map>
 				<!-- THIS MUST BE SET ACCORDING TO AN EXISTING CODE FOR A SOCIAL NETWORK ENTRY IN SNC_Runtime_Configuration.xml -->
-				<entry key="SN_ID_CODE" value="WC" />
+				<entry key="SN_ID_CODE" value="WO" />
 				
 				<!-- set the starting url - the SimpleWebCrawler can only process ONE starting url 
 					 if you need/want to setup multiple parallel crawlers for different sites you
 					 can either duplicate this entire bean section plus the trigger or use the 
 					 MultiWebCrawler below. -->
-				<entry key="server_url" value="http://www.wallstreet-online.de" />
+				<entry key="server_url" value="http://www.wallstreet-online.de/community" />
+				<!-- <entry key="server_url" value="http://www.wallstreet-online.de/broker/cortal-consors" /> -->
 				<!-- <entry key="server_url" value="http://www.wallstreet-online.de/nachricht/7068190-aktien-europa-erholung-guter-us-vorgaben-fed-protokoll" /> -->
 				<!-- <entry key="server_url" value="http://www.wallstreet-online.de/diskussion/1106960-1-10/consors-jetzt-auch-ausserboerslich-laengerfristige-limits-ueber-tradegate" /> -->
 				
@@ -364,7 +365,7 @@
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
 		<property name="jobDetail" ref="SimpleWebCrawlerDetail" />
 		<property name="startDelay" value="3000" />
-		<property name="repeatInterval" value="30000" />
+		<property name="repeatInterval" value="86400000" /> <!-- 24 Stunden -->
 	</bean>
 	
 	

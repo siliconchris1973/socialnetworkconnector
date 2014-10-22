@@ -2,6 +2,7 @@ package de.comlineag.snc.parser;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -68,13 +69,13 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 	
 	public SimpleWebParser() {}
 	// this constructor is used to call the parser in a multi threaded environment
-	public SimpleWebParser(String page, URL url, ArrayList<String> tTerms) {
-		parse(page, url, tTerms);
+	public SimpleWebParser(String page, URL url, ArrayList<String> tTerms, String sn_id, String curCustomer, String curDomain) {
+		parse(page, url, tTerms, sn_id, curCustomer, curDomain);
 	}
 	
 	
 	@Override
-	public List<SimpleWebPosting> parse(String page, URL url, List<String> tokens) {
+	public List<SimpleWebPosting> parse(String page, URL url, List<String> tokens, String sn_id, String curCustomer, String curDomain) {
 		String PARSER_NAME="SimpleWebParser";
 		Stopwatch timer = new Stopwatch().start();
 		
@@ -85,7 +86,7 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 		List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
 		
 		try {
-			parsedPageJson = extractContent(page, url, tokens);
+			parsedPageJson = extractContent(page, url, tokens, sn_id, curCustomer, curDomain);
 			SimpleWebPosting parsedPageSimpleWebPosting = new SimpleWebPosting(parsedPageJson);
 			
 			//logger.trace("PARSED PAGE AS JSON >>> " + parsedPageJson.toString());
@@ -129,13 +130,20 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 	 * 						  page_id = a long value created from the url by substituting every character to a number
 	 * 						  user_id = 0 
 	 */
-	protected JSONObject extractContent(String page, URL url, List<String> tokens) {
+	protected JSONObject extractContent(String page, URL url, List<String> tokens, String sn_id, String curCustomer, String curDomain) {
 		logger.debug("parsing site " + url.toString() + " and removing clutter");
 		String title = null;
 		String description = null;
 		String keywords = null;
 		String text = null;
 		String plainText = null;
+		String pageLang = "DE";
+		String user_name = "";
+		String screen_name = "";
+		String page_id = "";
+		String user_id = "";
+		String userLang = pageLang;
+		long postings_count = 0;
 		boolean truncated = Boolean.parseBoolean("false");
 		
 		// vars for the token extraction
@@ -194,14 +202,19 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 			} else {
 				truncated = Boolean.parseBoolean("false");
 			} 
-				
+			
+			user_name = url.getHost().toString();
+			screen_name = user_name;
+			page_id = UniqueIdServices.createMessageDigest(plainText);
+			user_id = UniqueIdServices.createMessageDigest(user_name);
 			
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: error during parsing of site content ", e );
 			e.printStackTrace();
 		}
 		
-		JSONObject pageJson = createPageJsonObject(title, description, plainText, text, url, truncated);
+		JSONObject pageJson = createPageJsonObject(sn_id, title, description, plainText, text, url, truncated, pageLang, page_id, user_id, user_name, screen_name, userLang, postings_count, curCustomer, curDomain);
+		
 		return pageJson;
 	}
 	
@@ -250,32 +263,43 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 	protected boolean parse(InputStream is) {logger.warn("method not impleented");return false;}
 	
 	
-
+/*
 	@SuppressWarnings("unchecked")
-	protected JSONObject createPageJsonObject(String title, String description, String page, String text, URL url, boolean truncated){
+	protected JSONObject createPageJsonObject(String sn_id, 
+												String title, 
+												String description, 
+												String page, 
+												String text, 
+												URL url, 
+												boolean truncated, 
+												String pageLang,
+												String curCustomer,
+												String curDomain) {
 		JSONObject pageJson = new JSONObject();
 		//truncated = Boolean.parseBoolean("false");
 		
 		// put some data in the json
-		pageJson.put("sn_id", "WC"); // TODO implement proper sn_id handling for websites
+		pageJson.put("sn_id", sn_id);
+		pageJson.put("Customer", curCustomer);
+		pageJson.put("Domain", curDomain);
 		pageJson.put("subject", title);
 		pageJson.put("teaser", description);
 		pageJson.put("raw_text", page);
 		pageJson.put("text", text);
 		pageJson.put("source", url.toString());
-		pageJson.put("page_id", UniqueIdServices.createId(url.toString()).toString()); // the url is parsed and converted into a long number (returned as a string)
-		pageJson.put("lang", "DE"); // TODO implement language recognition
+		pageJson.put("page_id", UniqueIdServices.createMD5(url.toString()).toString()); // the url is parsed and converted into a long number (returned as a string)
+		pageJson.put("lang", pageLang); // TODO implement language recognition
 		pageJson.put("truncated", truncated);
 		String s = Objects.toString(System.currentTimeMillis(), null);
 		pageJson.put("created_at", s);
 		pageJson.put("user_id", pageJson.get("page_id"));
 		
 		JSONObject userJson = new JSONObject();
-		userJson.put("sn_id", "WC"); // TODO implement proper sn_id handling for users from websites
+		userJson.put("sn_id", sn_id);
 		userJson.put("id", pageJson.get("page_id"));
 		userJson.put("name", url.getHost());
 		userJson.put("screen_name", url.getHost());
-		userJson.put("lang", "DE"); // TODO implement language recognition
+		userJson.put("lang", pageLang); // TODO implement language recognition
 		
 		
 		pageJson.put("user", userJson);
@@ -283,5 +307,6 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 		logger.trace("the json object:: " + pageJson.toJSONString());
 		return pageJson;
 	}
+	*/
 }
 

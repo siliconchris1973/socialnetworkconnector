@@ -32,7 +32,7 @@ import de.comlineag.snc.persistence.JsonFilePersistence;
  *
  * @author 		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Persistence Manager
- * @version 	0.9l				- 15.10.2014
+ * @version 	0.9m				- 22.10.2014
  * @status		productive
  *
  * @description handles the connectivity to the SAP HANA Systems and saves and updates posts and users in the DB
@@ -60,6 +60,7 @@ import de.comlineag.snc.persistence.JsonFilePersistence;
  *									if an object shall be uploaded to persistence db or not
  *				0.9k				changed access to runtime configuration to non-static
  *				0.9l				changed access to HANA Data configuration to non-static
+ *				0.9m				changed id from Long to String
  * 
  * TODO 1. fix crawler bug, that causes the persistence to try to insert a post or user multiple times
  * 			This bug has something to do with the number of threads provided by the Quartz job control
@@ -301,7 +302,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * 
 	 * @return 		OData entity handler to the object on success (found) or null if not found or in case of ANY error
 	 */
-	private OEntity returnOEntityHandler(String SN, Long Id, String type) {
+	private OEntity returnOEntityHandler(String SN, String Id, String type) {
 		assert (!"user".equals(type) && !"post".equals(type)) : "ERROR :: type must be either \'user\' or \'post\'";
 		
 		/*
@@ -562,8 +563,8 @@ public class HANAPersistence implements IPersistenceManager {
 			postService.createEntity("post")
 					.properties(OProperties.string("domain", postData.getDomain()))
 					.properties(OProperties.string("sn_id", postData.getSnId()))
-					.properties(OProperties.string("post_id", new String(new Long(postData.getId()).toString())))
-					.properties(OProperties.string("user_id", new String(new Long(postData.getUserId()).toString())))
+					.properties(OProperties.string("post_id", postData.getId()))
+					.properties(OProperties.string("user_id", postData.getUserId()))
 					.properties(OProperties.datetime("timestamp", postData.getTimestamp()))
 					.properties(OProperties.string("postLang", postData.getLang()))
 					
@@ -674,7 +675,7 @@ public class HANAPersistence implements IPersistenceManager {
 			 
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			stmt.setString(1, userData.getSnId());
-			stmt.setLong(2, userData.getId());
+			stmt.setString(2, userData.getId());
 			stmt.setString(3, dataCryptoProvider.encryptValue(userData.getUsername()));
 			stmt.setString(4, dataCryptoProvider.encryptValue(userData.getScreenName()));
 			stmt.setString(5, userData.getLang());
@@ -751,7 +752,7 @@ public class HANAPersistence implements IPersistenceManager {
 		try {
 			userService.createEntity("user")
 					.properties(OProperties.string("sn_id", userData.getSnId()))
-					.properties(OProperties.string("user_id", new String(new Long(userData.getId()).toString())))
+					.properties(OProperties.string("user_id", userData.getId()))
 					.properties(OProperties.string("userName", dataCryptoProvider.encryptValue(userData.getUsername())))
 
 					.properties(OProperties.string("nickName", dataCryptoProvider.encryptValue(userData.getScreenName())))
@@ -967,7 +968,7 @@ public class HANAPersistence implements IPersistenceManager {
 					//.properties(OProperties.string("sn_id", postData.getSnId()))
 					//.properties(OProperties.string("post_id", new String(new Long(postData.getId()).toString())))
 					.properties(OProperties.string("domain", postData.getDomain()))
-					.properties(OProperties.string("user_id", new String(new Long(postData.getUserId()).toString())))
+					.properties(OProperties.string("user_id", postData.getUserId()))
 					.properties(OProperties.datetime("timestamp", postData.getTimestamp()))
 					.properties(OProperties.string("postLang", postData.getLang()))
 					
@@ -1091,7 +1092,7 @@ public class HANAPersistence implements IPersistenceManager {
 			stmt.setString(9, userData.getSnId());
 			//stmt.setString(10, userData.getGeoLocation()); // activate above and this geoLocation and increase numbers below by one
 			stmt.setString(10, userData.getSnId());
-			stmt.setLong(11, userData.getId());
+			stmt.setString(11, userData.getId());
 			
 			@SuppressWarnings("unused")
 			int rowCount = stmt.executeUpdate();

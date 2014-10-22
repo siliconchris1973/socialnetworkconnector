@@ -6,7 +6,7 @@ import org.json.simple.JSONObject;
  * 
  * @author		Magnus Leinemann, Christian Guenther
  * @category	Data Class
- * @version		0.4a			- 10.10.2014
+ * @version		0.4c			- 22.10.2014
  * @status		productive
  * 
  * @description core data type for the User Data
@@ -17,12 +17,13 @@ import org.json.simple.JSONObject;
  * 				0.4				changed field name from location to geoLocation
  * 				0.4a			added fields for domain and customer
  * 				0.4b			added method toJsonString() - returning all uerData content as a json string 
+ * 				0.4c			changed user_id from Long to String
  * 
  * TODO 1. check if we need more/other fields for other social networks
  */
 public class UserData {
 
-	protected long id;								// the id of the user within the social network
+	protected String id;							// the id of the user within the social network
 	protected String domain;						// in which domain context was the user tracked
 	protected String customer;						// in which customer context was the user tracked
 	protected String sn_id;							// the social network id from enum SocialNetworks
@@ -98,8 +99,8 @@ public class UserData {
 	public String getObjectStatus() {return objectStatus;}
 	public void setObjectStatus(String ostatus) {this.objectStatus = ostatus;}
 	
-	public long getId() {return id;}
-	public void setId(long id) {this.id = id;}
+	public String getId() {return id;}
+	public void setId(String id) {this.id = id;}
 	
 	public String getSnId() {return sn_id;}
 	public void setSnId(String sn_id) {this.sn_id = sn_id;}

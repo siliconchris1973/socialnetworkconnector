@@ -19,7 +19,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  * 
  * @author 		Christian Guenther
  * @category 	data type
- * @version 	0.1		- 10.07.2014
+ * @version 	0.2			- 22.10.2014
  * @status		in development
  * 
  * @description Describes a single Facebook posting with all relevant informations.
@@ -28,7 +28,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  * 
  * @param <JSonObject>
  * 			  "domain" String
- *            "id" Long
+ *            "id" String
  *            "sn_id" String
  *            "created_at" String
  *            "text" String
@@ -45,6 +45,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  *            "mentions" List
  * 
  * @changelog	0.1 (Chris)		class copied from TwitterPostingData revision 0.9b
+ * 				0.2				changed id from long to String
  * 
  * TODO 1. create actual implementation
  * 
@@ -74,12 +75,12 @@ public final class FacebookPostingData extends PostData {
 		
 		try {
 			// posting ID 
-			setId((Long) jsonObject.get("id"));
+			setId((String) jsonObject.get("id"));
 			
 			
 			// User ID
 			JSONObject user = (JSONObject) jsonObject.get("user");
-			setUserId((Long) user.get("id"));
+			setUserId((String) user.get("id"));
 			
 			
 			// langauge
@@ -261,7 +262,7 @@ public final class FacebookPostingData extends PostData {
 		// setting everything to 0 or null default value.
 		// so I can check on initialized or not initialized values for the
 		// posting
-		id = 0;
+		id = "0";
 		
 		domain = new CrawlerConfiguration<String>().getDomain();
 		customer = new CrawlerConfiguration<String>().getCustomer();

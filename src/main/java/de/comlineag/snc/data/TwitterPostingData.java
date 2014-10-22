@@ -19,7 +19,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  * 
  * @author 		Christian Guenther, Magnus Leinemann
  * @category 	data type
- * @version 	0.9c		- 20.07.2014
+ * @version 	0.9d		- 22.10.2014
  * @status		in production (but some fields are still missing)
  * 
  * @description Describes a single twitter posting with all relevant informations.
@@ -29,7 +29,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  * @param <JSonObject>
  * 			  "domain" List
  * 			  "customer" List
- *            "id" Long - sometimes also post_id
+ *            "id" String - sometimes also post_id
  *            "sn_id" String
  *            "user_id" Long
  *            "created_at" String
@@ -58,7 +58,8 @@ import de.comlineag.snc.helper.DateTimeServices;
  * 				0.9a			field length on teaser and subject and stripping of html for text
  * 				0.9b			added domain
  * 				0.9c			bug fixing for the id and post_id issue (sometimes, id is post_id as it seems)
- * 				0.9d			Symbols, Hashtags and Mentions - yet to come
+ * 				0.9d			changed id (post_id) from Long to String
+ * 				
  * 
  * @TODO 1. create code for hashtags
  * @TODO 2. create code for symbols
@@ -85,16 +86,16 @@ public final class TwitterPostingData extends PostData {
 		try {
 			// posting ID - is either id or post_id
 			if (jsonObject.get("id")==null)
-				setId((Long) jsonObject.get("post_id"));
+				setId((String) jsonObject.get("post_id"));
 			else 
-				setId((Long) jsonObject.get("id"));
+				setId((String) jsonObject.get("id"));
 			
 			// log the startup message
 			logger.debug("constructing new subset of data of tweet (TW-"  + id + ") from twitter post-object");
 			
 			// User ID
 			JSONObject user = (JSONObject) jsonObject.get("user");
-			setUserId((Long) user.get("id"));
+			setUserId((String) user.get("id"));
 			
 			
 			// langauge
@@ -278,7 +279,7 @@ public final class TwitterPostingData extends PostData {
 		// setting everything to 0 or null default value.
 		// so I can check on initialized or not initialized values for the
 		// posting
-		id = 0;
+		id = "0";
 		
 		objectStatus = "new";
 		domain = new CrawlerConfiguration<String>().getDomain();

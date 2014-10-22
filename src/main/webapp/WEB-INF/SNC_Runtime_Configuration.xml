@@ -291,6 +291,15 @@
 			<constant>WC_STAY_BELOW_GIVEN_PATH</constant>
 		</param>
 		
+		<!-- Shall the parser only return page content which, after parsing and reduction still
+			 contains any of the track-terms. If set to false, you might get a lot of pages in
+			 the db, which do not, in the end, contain any of your keywords! -->
+		<param name="wcGetOnlyRelevantPages">
+			<type>Boolean</type>
+			<value>true</value>
+			<constant>WC_GET_ONLY_RELEVANT_PAGES</constant>
+		</param>
+		
 		<!-- wordDistanceCutoffMargin - Distance from the searched word to cut off the text.
 			 How many words shall be between the found word (as searched by via the trackTerms 
 			 from CrawlerConfiguration) and the start and end of cut out text. This option applies

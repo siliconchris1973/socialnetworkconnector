@@ -30,8 +30,8 @@ import de.comlineag.snc.helper.DateTimeServices;
  * 				user object.
  * 
  * @param <JSonObject>
- * 			  "domain" List
- * 			  "customer" List
+ * 			  "Domain" String
+ * 			  "Customer" String
  *            "id" Long - sometimes also post_id
  *            "sn_id" String
  *            "user_id" Long
@@ -68,16 +68,20 @@ public final class WebPostingData extends PostData {
 	 *            one single page or news article
 	 */
 	public WebPostingData(JSONObject jsonObject) {
-		// set all values to zero
-		initialize();
-		
 		try {
-			// page ID
-			setId(Long.valueOf((String) jsonObject.get("page_id")).longValue());
+			// set all values to zero
+			initialize();
 			
+			// page ID
+			setId((String) jsonObject.get("page_id"));
+			// SN_ID
+			setSnId((String) jsonObject.get("sn_id"));
+			
+			setDomain((String) jsonObject.get("Domain"));
+			setCustomer((String) jsonObject.get("Customer"));
 			
 			// log the startup message
-			logger.debug("constructing new data-subset from page (WC-"  + id + ")");
+			logger.debug("constructing new data-subset from page ("+getSnId()+"-"  + getId() + ")");
 			
 			
 			
@@ -127,7 +131,7 @@ public final class WebPostingData extends PostData {
 			// User ID
 			JSONObject user = (JSONObject) jsonObject.get("user");
 			setUser((JSONObject) user);
-			setUserId(Long.valueOf((String) user.get("id")).longValue());
+			setUserId((String) user.get("id"));
 			
 			logger.trace("the page object " + jsonObject.toString());
 			logger.trace("the user object " + user.toString());
@@ -144,7 +148,7 @@ public final class WebPostingData extends PostData {
 		// setting everything to 0 or null default value.
 		// so I can check on initialized or not initialized values for the
 		// posting
-		id = 0;
+		id = "0";
 		
 		objectStatus = "new";
 		domain = new CrawlerConfiguration<String>().getDomain();
@@ -163,7 +167,7 @@ public final class WebPostingData extends PostData {
 		viewcount = 0;
 		favoritecount=0;
 		
-		userId=0;
+		userId="0";
 		
 		user=null;
 		

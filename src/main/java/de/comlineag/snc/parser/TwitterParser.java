@@ -136,10 +136,9 @@ public final class TwitterParser extends GenericParser {
 		logger.debug(PARSER_NAME + " parser END - parsing took "+timer.elapsed(TimeUnit.SECONDS)+" seconds");
 		return true;
 	}
-
-	@Override
-	protected boolean parse(InputStream is) {
-		// THIS METHOD IS NOT USED
-		return false;
-	}
+	
+	
+	// THIS METHOD IS NOT USED
+	@Override 
+	protected boolean parse(InputStream is) {return false;}
 }

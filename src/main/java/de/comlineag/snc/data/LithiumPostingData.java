@@ -17,7 +17,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  * 
  * @author 		Christian Guenther
  * @category 	data type
- * @version 	0.6a		- 20.07.2014
+ * @version 	0.6b		- 22.10.2014
  * @status		productive
  * 
  * @description Describes a single Lithium posting with all relevant informations. 
@@ -33,7 +33,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  * @param <JSonObject>
  * 			Our internal column name	data type	element in json object
  *            "domain" 					String		domain
- *            "id" 						Long		id
+ *            "id" 						String		id
  *            "sn_id" 					String		fixed to LT
  *            "created_at" 				String		post_time
  *            "text" 					String		body
@@ -67,6 +67,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  * 				0.5				set the truncated flag, if posts are truncated due to length violation on MAX_NVARCHAR_SIZE
  * 				0.6				changed field handling according to new constants from GeneralDataDefinitions
  * 				0.6a			added field domain
+ * 				0.6b			changed id from long to String
  * 
  * TODO 1. Add support for labels
  * TODO 3. find a new/better method to truncate html
@@ -198,7 +199,7 @@ public final class LithiumPostingData extends PostData {
 			obj = parser.parse(jsonObject.get("id").toString());
 			JSONObject jsonObjId = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			setId((Long) jsonObjId.get("$"));
+			setId((String) jsonObjId.get("$"));
 			
 			
 			// the user
@@ -213,7 +214,7 @@ public final class LithiumPostingData extends PostData {
 			JSONObject jsonObjAuthor = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
 			String userHref = jsonObjAuthor.get("href").toString().substring(jsonObjAuthor.get("href").toString().lastIndexOf('/') + 1); 
-			setUserId((Long.parseLong(userHref.trim())));
+			setUserId(userHref.trim());
 			
 			
 			// number of kudos (favorites count)
@@ -406,7 +407,7 @@ public final class LithiumPostingData extends PostData {
 		// setting everything to 0 or null default value.
 		// so I can check on initialized or not initialized values for the
 		// posting
-		id = 0;
+		id = "0";
 		
 		domain = new CrawlerConfiguration<String>().getDomain();
 		customer = new CrawlerConfiguration<String>().getCustomer();

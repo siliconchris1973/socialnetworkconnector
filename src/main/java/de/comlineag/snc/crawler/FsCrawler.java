@@ -30,7 +30,7 @@ import de.comlineag.snc.persistence.HANAPersistence;
  * 
  * @author 		Christian Guenther
  * @category 	Job
- * @version		0.2
+ * @version		0.2a				- 22.10.2014
  * @status		in development
  * 
  * @description a crawler that gets all files (with a specific name pattern) from a file system 
@@ -40,6 +40,7 @@ import de.comlineag.snc.persistence.HANAPersistence;
  * 
  * @changelog	0.1 (Chris)		class created
  * 				0.2				skeleton for parsing and passing over
+ * 				0.2a			changed id from Long to String
  */
 public class FsCrawler implements Job {
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
@@ -236,10 +237,10 @@ public class FsCrawler implements Job {
 		
 		if (jsonObject.get("id") == null) {
 			logger.trace("    user_id\t"+jsonObject.get("user_id").toString());
-			uData.setId(Long.parseLong(jsonObject.get("user_id").toString()));
+			uData.setId((String) jsonObject.get("user_id"));
 		} else {
 			logger.trace("    id\t"+jsonObject.get("id").toString());
-			uData.setId(Long.parseLong(jsonObject.get("id").toString()));
+			uData.setId((String) jsonObject.get("id"));
 		}
 		
 		if (jsonObject.get("userName") != null) {
@@ -354,10 +355,10 @@ public class FsCrawler implements Job {
 		
 		if (jsonObject.get("id") == null) {
 			logger.trace("    post_id \t" + Long.parseLong(jsonObject.get("post_id").toString()));
-			pData.setId(Long.parseLong(jsonObject.get("post_id").toString()));
+			pData.setId((String) jsonObject.get("post_id"));
 		} else {
 			logger.trace("    id \t" + jsonObject.get("id").toString());
-			pData.setId(Long.parseLong(jsonObject.get("id").toString()));
+			pData.setId((String) jsonObject.get("id"));
 		}
 		
 		if (jsonObject.get("postLang") != null) {

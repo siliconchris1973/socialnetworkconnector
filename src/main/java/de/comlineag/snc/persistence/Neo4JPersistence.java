@@ -33,7 +33,7 @@ import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
  *
  * @author 		Christian Guenther
  * @category 	Connector Class
- * @version 	0.7b
+ * @version 	0.7c
  * @status		in development
  *
  * @description handles the connectivity to the Neo4J Graph Database and saves posts, 
@@ -47,7 +47,8 @@ import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
  * 				0.6 			bugfixing and wrap up
  * 				0.7 			skeleton for graph traversal
  * 				0.7a			removed Base64Encryption (now in its own class)
- * 				0.7b			added support for different encryption provider, the actual one is set in applicationContext.xml 
+ * 				0.7b			added support for different encryption provider, the actual one is set in applicationContext.xml
+ * 				0.7c			changed id from Long to String 
  * 
  * TODO 1. implement code to check if a node already exists prior inserting one
  * TODO 2. implement code for graph traversal
@@ -387,7 +388,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	 * @param id
 	 * @return
 	 */
-	private String findNodeByIdAndLabel(String field, long id, String label) {
+	private String findNodeByIdAndLabel(String field, String id, String label) {
 		
 		String output = null;
 		HttpClient client = new HttpClient();

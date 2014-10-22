@@ -132,7 +132,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				// set the customer we start the crawler for and log the startup message
 				String curDomain = (String) configurationScope.get(rtc.getDomainidentifier());
 				String curCustomer = (String) configurationScope.get(rtc.getCustomeridentifier());
-		
+				
 				if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
 					logger.info(CRAWLER_NAME+"-Crawler START");
 				} else {
@@ -346,7 +346,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			URL newURL = null;
 			try {
 				newURL = new URL(link);
-				SimpleWebCrawler pCrawl = new SimpleWebCrawler(newURL, bURLs, 1, 1, true, true, true, null, null, tTerms, curCustomer, curDomain);
+				SimpleWebCrawler pCrawl = new SimpleWebCrawler(newURL, bURLs, 1, 1, true, true, true, null, null, tTerms, curCustomer, curDomain, "TW");
 				
 			} catch (MalformedURLException e) {
 				//logger.error(String.format("Link %s could not be parsed as a URL.", link), e);

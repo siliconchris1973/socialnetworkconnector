@@ -619,7 +619,7 @@
 			<!-- END OF LITHIUM CONSTRAINTS -->
 			
 			<!-- START OF WEBCRAWLER CONFIG -->
-			<constraints scope="WC">
+			<constraints scope="WO">
 				<constraint>
 					<blockedsite>
 						<type>String</type>

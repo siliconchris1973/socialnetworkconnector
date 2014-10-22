@@ -1,6 +1,7 @@
 package de.comlineag.snc.parser;
 
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -38,7 +39,7 @@ public abstract class GenericWebParser extends GenericParser implements IWebPars
 	
 	public GenericWebParser() {}
 
-	public abstract List<SimpleWebPosting> parse(String page, URL url, List<String> tokens);
+	public abstract List<SimpleWebPosting> parse(String page, URL url, List<String> tokens, String sn_id, String curCustomer, String curDomain);
 	
 	
 	/**
@@ -141,18 +142,35 @@ public abstract class GenericWebParser extends GenericParser implements IWebPars
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected JSONObject createPageJsonObject(String sn_id, String title, String description, String page, String text, URL url, boolean truncated, String lang, long page_id, long user_id, String user_name, String screen_name, String user_lang, long postings_count){
+	protected JSONObject createPageJsonObject(String sn_id, 
+												String title, 
+												String description, 
+												String page, 
+												String text, 
+												URL url, 
+												boolean truncated, 
+												String lang, 
+												String page_id, 
+												String user_id, 
+												String user_name, 
+												String screen_name, 
+												String user_lang, 
+												long postings_count,
+												String curCustomer,
+												String curDomain) {
 		JSONObject pageJson = new JSONObject();
 		truncated = Boolean.parseBoolean("false");
 		
 		// put some data in the json
 		pageJson.put("sn_id", sn_id);
-		if (page_id == 0)
+		if ("0".equals(page_id) || page_id == null)
 			// the url is parsed and converted into a long number (returned as a string)
-			pageJson.put("page_id", UniqueIdServices.createId(url.toString()).toString()); 
+			pageJson.put("page_id", UniqueIdServices.createMessageDigest(text)); 
 		else
-			pageJson.put("page_id", Long.toString(page_id));
+			pageJson.put("page_id", page_id);
 		
+		pageJson.put("Customer", curCustomer);
+		pageJson.put("Domain", curDomain);
 		pageJson.put("subject", title);
 		pageJson.put("teaser", description);
 		pageJson.put("raw_text", page);
@@ -165,11 +183,11 @@ public abstract class GenericWebParser extends GenericParser implements IWebPars
 		
 		JSONObject userJson = new JSONObject();
 		userJson.put("sn_id", sn_id);
-		if (user_id == 0)
+		if ("0".equals(user_id) || user_id == null)
 			// the hostname part of the url is parsed and converted into a long number (returned as a string)
-			userJson.put("id", UniqueIdServices.createId(url.getHost().toString()).toString()); 
+			userJson.put("id", UniqueIdServices.createMessageDigest(text)); 
 		else 
-			userJson.put("id", Long.toString(user_id));
+			userJson.put("id", user_id);
 		
 		pageJson.put("user_id", userJson.get("id"));
 		

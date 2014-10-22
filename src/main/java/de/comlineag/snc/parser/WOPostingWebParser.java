@@ -4,12 +4,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.LogManager;
@@ -38,8 +35,8 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * 
  * @description WOPostingWebParser is the implementation of the generic web parser for 
  * 				wallstreet-online discussion web sites.
- * 				It tries to get the relevant content out of a given website and calls the 
- * 				persistence manager to store the text in the persistence layer
+ * 				It tries to get the relevant content out of a given wo-discussion site and returns a 
+ * 				list of SimpleWebPosting objects with extracted page content to the crawler
  * 
  * @changelog	0.1 (Chris)		created as extraction fromSimpleWebParser version 0.7
  * 				0.2				implemented canExecute method
@@ -60,8 +57,8 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 	
 	public WOPostingWebParser() {}
 	// this constructor is used to call the parser in a multi threaded environment
-	public WOPostingWebParser(String page, URL url, ArrayList<String> tTerms) {
-		parse(page, url, tTerms);
+	public WOPostingWebParser(String page, URL url, ArrayList<String> tTerms, String sn_id, String curCustomer, String curDomain) {
+		parse(page, url, tTerms, sn_id, curCustomer, curDomain);
 	}
 	
 	// multi threading implementation
@@ -77,7 +74,7 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 	}
 	
 	@Override
-	public List<SimpleWebPosting> parse(String page, URL url, List<String> tokens) {
+	public List<SimpleWebPosting> parse(String page, URL url, List<String> tokens, String sn_id, String curCustomer, String curDomain) {
 		String PARSER_NAME="Wallstreet Online Discussion";
 		Stopwatch timer = new Stopwatch().start();
 		
@@ -87,23 +84,23 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 		List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
 		
 		// a single page
-		String sn_id = "WC"; // TODO implement proper social network id handling
-		long page_id = 0;
+		String page_id = "0";
 		String title = null;
 		String description = null;
 		String keywords = null;
 		String text = null;
 		String plainText = "";
+		int pageSize = page.length()/8/1024;
 		String page_lang = "DE"; // TODO implement proper language detection
+		boolean truncated = Boolean.parseBoolean("false");
 		
 		// the embedded user data
 		String user_name = "";
 		String screen_name = "";
-		long user_id = 0;
+		String user_id = "0";
 		String user_lang = page_lang;
 		int postings_count = 0;
 		
-		boolean truncated = Boolean.parseBoolean("false");
 		
 		
 		try {
@@ -121,7 +118,10 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 				Element siteElement = siteElements.get(i).getFirstElementByClass("postingText");
 				//plainText = siteElement.getContent().getTextExtractor().excludeElement(StartTag startTag){return "keywords".equalsIgnoreCase(startTag.getAttributeValue("span"));}.toString();
 				
-				page_id = (Long.valueOf((String) siteElements.get(i).getAttributeValue("data-id")).longValue());
+				
+				page_id = ((String) siteElements.get(i).getAttributeValue("data-id"));
+				// generate the posting id (aka page_id) as a md5 hash from posting text
+				//page_id = UniqueIdServices.createId(siteElements.get(i).getFirstElementByClass("postingText").toString());
 				
 				plainText = new TextExtractor(siteElement) {
 					public boolean excludeElement(StartTag startTag){
@@ -139,15 +139,15 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 				Element innerUserElement = userElement.getFirstElementByClass("user");
 				user_name = innerUserElement.getContent().toString();
 				screen_name = user_name;
-				user_id = (Long.valueOf((String) innerUserElement.getAttributeValue("data-userid")).longValue());
+				user_id = ((String) innerUserElement.getAttributeValue("data-userid"));
 				
-				JSONObject pageJson = createPageJsonObject(sn_id, title, description, plainText, text, url, truncated, page_lang, page_id, user_id, user_name, screen_name, user_lang, postings_count);
-				
-				SimpleWebPosting parsedPageSimpleWebPosting = new SimpleWebPosting(pageJson);
-				// now check if we really really have the searched word within the text and only if so,
-				// write the content to disk. We should probably put this before calling the persistence
-				if (findNeedleInHaystack(pageJson.toString(), tokens)){
+				// add page to list if it contains the track terms or if we want all pages
+				if (!rtc.isWC_GET_ONLY_RELEVANT_PAGES() || findNeedleInHaystack(text, tokens)){
+					logger.trace("adding extracted page content to posting list");
+					
 					// add the parsed site to the message list for saving in the DB
+					JSONObject pageJson = createPageJsonObject(sn_id, title, description, plainText, text, url, truncated, page_lang, page_id, user_id, user_name, screen_name, user_lang, postings_count, curCustomer, curDomain);
+					SimpleWebPosting parsedPageSimpleWebPosting = new SimpleWebPosting(pageJson);
 					postings.add(parsedPageSimpleWebPosting);
 				}
 			}
@@ -162,7 +162,7 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 		
 		
 		timer.stop();
-		logger.debug(PARSER_NAME + " parser END - parsing took "+timer.elapsed(TimeUnit.SECONDS)+" seconds");
+		logger.debug(PARSER_NAME + " parser END - parsing took "+timer.elapsed(TimeUnit.SECONDS)+" seconds for " + pageSize +"Kb");
 		return postings;
 	}
 	

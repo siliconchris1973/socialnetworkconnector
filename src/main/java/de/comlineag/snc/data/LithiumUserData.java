@@ -14,7 +14,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  * @author 		Christian Guenther
  * @category 	data type
- * @version 	0.4
+ * @version 	0.4a
  * @status		productive
  * 
  * @description Describes a single lithium user with all relevant informations.
@@ -22,7 +22,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  *              user type save.
  * 
  * @param <JSonObject>
- *            "id" Long
+ *            "id" String
  *            "sn_id" String
  *            "name" String
  *            "screen_name" String
@@ -38,6 +38,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 				0.2 			added parsing of 2nd and 3rd level of json string
  * 				0.3 			bugfixing
  * 				0.4 			first productive version - without geo geoLocation
+ * 				0.4a			changed id from Long to String
  * 
  * TODO 1. implement geo geoLocation support for users
  * TODO 2. check if user profile can and shall be used
@@ -119,7 +120,7 @@ public final class LithiumUserData extends UserData {
 			obj = parser.parse(jsonObject.get("id").toString());
 			JSONObject jsonObjId = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			setId((Long) jsonObjId.get("$"));
+			setId((String) jsonObjId.get("$"));
 			
 			// username / login and nickname, all the same at lithium
 			// Structure
@@ -166,7 +167,7 @@ public final class LithiumUserData extends UserData {
 	}
 	
 	private void initialize(){
-		id 						= 0;
+		id 						= "0";
 		//sn_id 					= SocialNetworks.LITHIUM.getValue();
 		sn_id 					= SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM");
 		username 				= null;

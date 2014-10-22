@@ -100,6 +100,9 @@ public class ParserControl {
 	 * @param 		page 	- the web page as a String
 	 * @param 		url		- the url the page is coming from 
 	 * @param 		tTerms	- a list of track terms 
+	 * @param 		sn_id	- the two digit code identifying the page, or network
+	 * @param		curCustomer
+	 * @param		curDomain
 	 * @return 		List of simple web postings (a json structure with 1-n postings (or pages)
 	 * 
 	 * @throws SAXException 
@@ -108,7 +111,7 @@ public class ParserControl {
 	 * @throws IOException 
 	 * 
 	 */
-	public static List<SimpleWebPosting> submit(String page, URL url, ArrayList<String> tTerms) 
+	public static List<SimpleWebPosting> submit(String page, URL url, ArrayList<String> tTerms, String sn_id, String curCustomer, String curDomain) 
 			throws XPathExpressionException, ParserConfigurationException, SAXException, IOException{
 		pc = getInstance();
 		
@@ -118,7 +121,7 @@ public class ParserControl {
 		    logger.trace("querying if parser " + parser.getClass().getSimpleName().toString() + " can operate on site " + url.toString());
 		    if (parser.canExecute(page, url)) {
 		    	logger.debug("executing parser " + parser.getClass().getSimpleName().toString());
-		        return parser.parse(page, url, tTerms);
+		        return parser.parse(page, url, tTerms, sn_id, curCustomer, curDomain);
 		    }
 		}
 		

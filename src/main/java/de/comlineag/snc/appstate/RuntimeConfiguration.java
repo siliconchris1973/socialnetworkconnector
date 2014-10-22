@@ -133,6 +133,7 @@ public final class RuntimeConfiguration {
 	private boolean		WC_STAY_ON_DOMAIN					= true;
 	private boolean		WC_STAY_BELOW_GIVEN_PATH			= false;
 	private int			WC_WORD_DISTANCE_CUTOFF_MARGIN		= 30;
+	private boolean		WC_GET_ONLY_RELEVANT_PAGES			= true;
 	// for twitter
 	private int 		TW_MAX_TWEETS_PER_CRAWLER_RUN		= 10000;
 	private int 		TW_CONNECTION_TIMEOUT				= 60000;
@@ -401,6 +402,10 @@ public final class RuntimeConfiguration {
 			// wcStayBelowGivenPath
 			setWC_STAY_BELOW_GIVEN_PATH(getBooleanElement("crawler", "wcStayBelowGivenPath", xpath, doc, configFile));
 			debugMsg += " / WC_STAY_BELOW_GIVEN_PATH is " + isWC_STAY_BELOW_GIVEN_PATH();
+			
+			// wcGetOnlyRelevantPages
+			setWC_GET_ONLY_RELEVANT_PAGES(getBooleanElement("crawler", "wcGetOnlyRelevantPages", xpath, doc, configFile));
+			debugMsg += " / WC_GET_ONLY_RELEVANT_PAGES is " + isWC_GET_ONLY_RELEVANT_PAGES();
 			
 			// wcWordDistanceCutoffMargin
 			setWC_WORD_DISTANCE_CUTOFF_MARGIN(getIntElement("crawler", "wcWordDistanceCutoffMargin", xpath, doc, configFile));
@@ -714,7 +719,7 @@ public final class RuntimeConfiguration {
 	public boolean 	isWC_STAY_BELOW_GIVEN_PATH() {return WC_STAY_BELOW_GIVEN_PATH;}
 	public int 		getWC_MAX_DEPTH() {return WC_MAX_DEPTH;}
 	public int		getWC_WORD_DISTANCE_CUTOFF_MARGIN() {return WC_WORD_DISTANCE_CUTOFF_MARGIN;}
-	
+	public boolean	isWC_GET_ONLY_RELEVANT_PAGES() {return WC_GET_ONLY_RELEVANT_PAGES;}
 	// configuration options for twitter - not so much
 	public int 		getTW_MAX_TWEETS_PER_CRAWLER_RUN() {return TW_MAX_TWEETS_PER_CRAWLER_RUN;}
 	public int 		getTW_CONNECTION_TIMEOUT() {return TW_CONNECTION_TIMEOUT;}
@@ -786,6 +791,9 @@ public final class RuntimeConfiguration {
 	private void 		setWC_MAX_DEPTH(int wC_MAX_DEPTH) {WC_MAX_DEPTH = wC_MAX_DEPTH;}
 	private void		setWC_WORD_DISTANCE_CUTOFF_MARGIN(int wC_WORD_DISTANCE_CUTOFF_MARGIN) {WC_WORD_DISTANCE_CUTOFF_MARGIN = wC_WORD_DISTANCE_CUTOFF_MARGIN;}
 	private void 		setWC_CRAWLER_MAX_DOWNLOAD_SIZE(int mAXSIZE) {WC_CRAWLER_MAX_DOWNLOAD_SIZE = mAXSIZE;}
+	private void 		setWC_GET_ONLY_RELEVANT_PAGES(boolean wC_GET_ONLY_RELEVANT_PAGES) {WC_GET_ONLY_RELEVANT_PAGES = wC_GET_ONLY_RELEVANT_PAGES;}
+
+
 	private void 		setTW_MAX_TWEETS_PER_CRAWLER_RUN(int tW_MAX_TWEETS_PER_CRAWLER_RUN) {TW_MAX_TWEETS_PER_CRAWLER_RUN = tW_MAX_TWEETS_PER_CRAWLER_RUN;}
 	private void 		setTW_CONNECTION_TIMEOUT(int tW_CONNECTION_TIMEOUT) {TW_CONNECTION_TIMEOUT = tW_CONNECTION_TIMEOUT;}
 	
