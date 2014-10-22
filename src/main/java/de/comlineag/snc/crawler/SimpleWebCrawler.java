@@ -435,7 +435,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					
 					
 					if (relPage) {
-						logger.debug(realRelevantPages + " pages to store in persistence layer tracked");
 						// parsing of the page content is either done to get a list of postings
 						// or one cleaned up page (that is without the clutter like ads and the like)
 						// or at least a plain text representation of some words around the searched
@@ -447,6 +446,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 						// invoke the persistence layer - should go to crawler
 						for (int ii = 0; ii < postings.size(); ii++) {
 							realRelevantPages++;
+							logger.debug(realRelevantPages + " pages to store in persistence layer tracked");
+							
 							setPostsTracked(realRelevantPages);
 							
 							SimpleWebPosting post = postings.get(ii);

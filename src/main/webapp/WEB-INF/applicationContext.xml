@@ -150,7 +150,6 @@
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
-				<!-- <ref bean="MultiWebCrawlerTrigger"/> -->
 				<ref bean="SimpleWebCrawlerTrigger"/>
 				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
 				
@@ -263,7 +262,7 @@
 		 data to the persistence layer.
 		 
 		 Although the SimpleWebCrawler is, despite it's name, already quite sophisticated, it has some 
-		 disadvantages to the MultiWebCrawler:
+		 disadvantages:
 		 
 		 * First of all, you have to setup the initial URL to crawl within this file rather than in the crawler 
 		   configuration file - that is a somewhat awkward design and difficult to configure. 
@@ -272,10 +271,7 @@
 		   different sites. 
 		 
 		 In effect, in order to start the crawl process off of multiple pages in parallel you would need to 
-		 duplicate this entire section, with different bean-ids of course, and each with it's own starting url.
-		   
-		 Because of these three points, I recommend to opt for MultiWebCrawler instead of SimpleWebCrawler. 
-		 But nevertheless, it works and you can use it :-) -->
+		 duplicate this entire section, with different bean-ids of course, and each with it's own starting url.-->
 	<bean name="SimpleWebCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.snc.crawler.SimpleWebCrawler" />
@@ -368,53 +364,6 @@
 		<property name="repeatInterval" value="86400000" /> <!-- 24 Stunden -->
 	</bean>
 	
-	
-	<!-- M U L T I    D O M A I N    W E B    C R A W L E R    (SKELETON) --> 
-	<!-- this is the parallel web crawler. It can take a list of initial urls from a configuration file. 
-		 To every URL, the list of runtime settings from the SimpleWebCrawler can be configured - such 
-		 as how many links to follow, whether or not to follow links that lead off the initial domain 
-		 or are not below the initial given path and the like. The crawler will then fork a number of
-		 parallel processes and fetch all relevant pages (a page is relevant if it contains any of the 
-		 track terms from the crawler configuration file) that are linked to the initial url. Like the 
-		 SimpleWebParser, the MultiWebParser hands the fetched pages over to ParserControl for content
-		 extraction. -->
-	<bean name="MultiWebCrawlerDetail"
-		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="de.comlineag.snc.crawler.MultiWebCrawler" />
-		<property name="durability" value="true" />
-		<property name="jobDataAsMap">
-			<map>
-				<!-- other than with the SimpleWebCrawler, the MultiWebCrawler can concurrently crawl 
-					 multiple pages. Therefore, all that he needs to know during startup is where 
-					 it's own configuration file is located. Therefore this is the only configuration
-					 option here. The referenced configuration file then defines the different pages 
-					 together with authentication options and all settings the SimpleWebCrawler can 
-					 also work with - see above.
-					  
-					 You can also put the web crawler specific configuration in the general crawler 
-					 configuration file, specified in bean configurationManager (see below). In this 
-					 case you MUST exactly enter 
-					 ___crawler_config___
-					 in the value for the configuration file here. What you should NOT do however, is 
-					 put the name of the general crawler configuration file in here, as this could be 
-					 cumbersome to keep up to date.
-					 
-					 In general it is recommended to have the web crawler configuration within the 
-					 general crawler configuration file and have the web crawler get it's configuration 
-					 from there - that is also the default.
-					 -->
- 
-				<!--<entry key="configurationFile" value="webapp/WEB-INF/SNC_CrawlerConfiguration/HippWebCrawlerConfiguration.xml" />-->
-				<entry key="configurationFile" value="___crawler_config___" />
-			</map>
-		</property>
-	</bean>
-	<bean id="MultiWebCrawlerTrigger"
-		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
-		<property name="jobDetail" ref="MultiWebCrawlerDetail" />
-		<property name="startDelay" value="2000" />
-		<property name="repeatInterval" value="30000000" />
-	</bean>
 	
 	
 	<!-- F A C E B O O K    C R A W L E R    (TO BE IMPLEMENTED) -->

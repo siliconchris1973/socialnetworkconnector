@@ -113,7 +113,7 @@ public final class WOCommunityWebParser extends GenericWebParser implements IWeb
 			keywords = getMetaValue(source, "keywords");
 			
 			
-			List<Element> siteElements = source.getAllElements("id", "page", false);
+			List<Element> siteElements = source.getAllElements("id", "main_content", false);
 			for (int i=0;i<siteElements.size();i++) {
 				// pass the site element on to a private method (below) that extracts the pure plain text content according to white and blacklist given
 				plainText = getGridFsPlainText(siteElements.get(i));
