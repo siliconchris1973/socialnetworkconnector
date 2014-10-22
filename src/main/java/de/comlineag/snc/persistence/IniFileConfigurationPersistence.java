@@ -41,7 +41,6 @@ import java.util.ArrayList;
  * 				0.8				Added support for getRunState
  * 				0.8a			changed access to runtime configuration to non-static
  *  
- *  TODO 1. implement code to insert/update a value and write a new config file
  */
 public class IniFileConfigurationPersistence<T> implements IConfigurationManager<T>  {
 	// this holds a reference to the runtime configuration
@@ -112,17 +111,20 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 	
 	@Override
 	public String getConfigurationElement(String key, String path) {
+		// TODO implement code to retrieve a single element from the configuration file 
 		logger.warn("The method getConfigurationElement is currently not supported on configuration type ini-file");
 		return null;
 	}
 
 	@Override
 	public void setConfigurationElement(String key, String value, String path) {
+		// TODO implement code to insert/update a value in the configuration file 
 		logger.warn("The method setConfigurationElement is currently not supported on configuration type ini-file");
 	}
 	
 	@Override
 	public void writeNewConfiguration(String xml) {
+		// TODO implement code to write the configuration file back to disk 
 		logger.warn("The method writeNewConfiguration from XML is currently not supported on configuration type ini-file");
 	}
 	

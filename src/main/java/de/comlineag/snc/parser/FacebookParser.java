@@ -31,7 +31,7 @@ import de.comlineag.snc.handler.FacebookUser;
  * 
  * @changelog	0.1 (Chris)		copy from TwitterParser
  * 
- * TODO 1. implement real code
+ * TODO implement facebook data parser
  */
 public final class FacebookParser extends GenericParser {
 

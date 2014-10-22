@@ -22,7 +22,7 @@ import de.comlineag.snc.data.GenericInputType;
  * @changelog	0.1 (Chris)		copy from the web
  * 				0.2 			refactoring from output to GenericExecutorService
  * 
- * TODO 1. check if we need our own executor service and if not delete it
+ * TODO check if we need our own executor service and if not delete this class
  */
 public class GenericExecutorService {
 	public List<GenericExecutorService> processInputs(List<GenericInputType> genericInputTypes)

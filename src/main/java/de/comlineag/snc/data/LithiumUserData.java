@@ -40,10 +40,10 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 				0.4 			first productive version - without geo geoLocation
  * 				0.4a			changed id from Long to String
  * 
- * TODO 1. implement geo geoLocation support for users
- * TODO 2. check if user profile can and shall be used
- * TODO 3. check if we need to support for the anonymous and deleted flag
- * TODO 4. add support for average_rating_value, average_posting_rating_value and average_posting_ratio
+ * TODO implement geo geoLocation support for users
+ * TODO check if user profile can and shall be used
+ * TODO check if we need to support for the anonymous and deleted flag
+ * TODO add support for average_rating_value, average_posting_rating_value and average_posting_ratio
  * 
  * JSON Structure:
  * 		1. Level			directly accessible through passed JSONObject

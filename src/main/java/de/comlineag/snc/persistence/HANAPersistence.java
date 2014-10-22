@@ -62,20 +62,9 @@ import de.comlineag.snc.persistence.JsonFilePersistence;
  *				0.9l				changed access to HANA Data configuration to non-static
  *				0.9m				changed id from Long to String
  * 
- * TODO 1. fix crawler bug, that causes the persistence to try to insert a post or user multiple times
- * 			This bug has something to do with the number of threads provided by the Quartz job control
- * 			In case 1 thread is provided, everything is fine, but if 2 threads are provided (as needed if two crawler
- * 			run - Twitter and Lithium) the Twitter crawler tries to insert some posts more then once - an attempt 
- * 			obviously doomed. We log the following error: 
- * 				could not create post (TW-488780024691322880): Expected status 201, found 400
- * 			and the hana db returns this message:
- * 				Service exception: unique constraint violated.
- * 
- * TODO 2. fix another error that occasionally occurs when trying to insert a dataset in the db. This second error 
- * 			states that there is a syntax error at line 0. - happens more often then error 1
- *  
- * TODO	3. establish proper error handling and find out how to get the HTTP error code during OData calls
- * TODO 4. enable geoLocation support for users
+ * TODO fix error while inserting/updating dataset with SQL
+ * TODO establish proper error handling to get the HTTP error code from OData calls
+ * TODO enable geoLocation support for users
  * 
  */
 public class HANAPersistence implements IPersistenceManager {

@@ -19,7 +19,6 @@ import org.json.simple.JSONObject;
  * 				0.4b			added method toJsonString() - returning all uerData content as a json string 
  * 				0.4c			changed user_id from Long to String
  * 
- * TODO 1. check if we need more/other fields for other social networks
  */
 public class UserData {
 

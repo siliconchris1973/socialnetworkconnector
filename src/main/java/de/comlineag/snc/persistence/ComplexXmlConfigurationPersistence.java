@@ -41,7 +41,6 @@ import org.w3c.dom.NodeList;
  * 				0.2				added parts from RuntimeConfiguration (domain and customer)
  * 				0.3				Added support for getRunState
  *  
- *  TODO 1. implement code for missing methods - see below
  */
 public class ComplexXmlConfigurationPersistence<T> implements IConfigurationManager<T>  {
 	// this holds a reference to the runtime configuration
@@ -415,12 +414,12 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	}
 	@Override
 	public void setConfigurationElement(String key, String value, String path) {
-		// TODO implement code to update a configuration element 
+		// TODO implement code to update a single configuration element 
 		logger.warn("The method setConfigurationElement is currently not implemented for configuration type xml-file");
 	}
 	@Override
 	public void writeNewConfiguration(String xml) {
-		// TODO implement writeNewConfiguration
+		// TODO implement method to create new configuration-file
 		logger.warn("The method writeNewConfiguration is not yet implemented for configuration type xml-file");
 	}
 	

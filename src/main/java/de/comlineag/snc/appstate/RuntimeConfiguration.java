@@ -61,7 +61,7 @@ import de.comlineag.snc.constants.SNCStatusCodes;
  * 				0.9b			added support for shutdown on any error in XML-file
  * 				0.9c			added twMaxTweetsPerCrawlerRun to define how many tweets the crawler shall track per job run
  *
- * TODO 1 use nodelist instead of single expressions for each node
+ * TODO use nodelist instead of single expressions for each node
  * 
  */
 public final class RuntimeConfiguration { 

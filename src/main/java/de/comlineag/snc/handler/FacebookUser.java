@@ -33,7 +33,7 @@ import de.comlineag.snc.data.FacebookUserData;
  * 
  * @changelog	0.1 (CHris)		copy from TwitterUser
  * 
- * TODO 1. implement real code
+ * TODO implement code for facebook user handling
  */
 
 public class FacebookUser extends GenericDataManager<FacebookUserData> {

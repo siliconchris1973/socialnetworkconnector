@@ -137,7 +137,7 @@ public class FsCrawler implements Job {
 							// after creating a new PostData object from json content, store it in the persistence layer
 							logger.info("initializing HANA DB to save post");
 							
-							// TODO make this generic for every possible db manager
+							// TODO make savePost generic to deal with different persistence managers at runtime
 							hana.savePosts(pData);
 						} else if ("user".equals(entryType)) {
 							userObjectsCount++;
@@ -399,7 +399,6 @@ public class FsCrawler implements Job {
 			pData.setSubject((String) jsonObject.get("subject"));
 		}
 		
-		// TODO check what source is
 		if (jsonObject.get("source") != null){
 			logger.trace("    source\t" + jsonObject.get("source").toString());
 			pData.setClient((String) jsonObject.get("source"));
@@ -428,7 +427,7 @@ public class FsCrawler implements Job {
 			pData.setInReplyToUserScreenName((String) jsonObject.get("inReplyToScreenName"));
 		}
 		
-		// TODO check how to get geo location elements from json file
+		// TODO implement code to retrieve geo location elements from json file
 		if (jsonObject.get("coordinates") != null) {
 			logger.trace("    geoLongitude and geoLatitude");
 			pData.setGeoLongitude((String) jsonObject.get("geoLongitude"));

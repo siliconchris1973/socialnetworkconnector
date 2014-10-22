@@ -11,7 +11,6 @@ package de.comlineag.snc.handler;
  * 
  * @changelog	0.1 (Maic)		class created
  * 
- * TODO 1. check if we need to implement more sophisticated error handling here
  */
 public class LithiumStatusException extends Exception {
 	

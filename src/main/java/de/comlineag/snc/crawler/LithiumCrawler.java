@@ -75,8 +75,8 @@ import de.comlineag.snc.parser.LithiumParser;
  *				1.2				changed search against rest api url to use method parameter instead of for-loop 
  *				1.3				added support for runState configuration, to check if the crawler shall actually run
  *
- * TODO 1. find out and fix the following warning:
- * 			HttpMethodBase - Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
+ * TODO change data retrieval to use getResponseBodyAsStream - fixes warning: Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
+ * TODO make parser work when using threads instead of messages
  */
 @DisallowConcurrentExecution 
 public class LithiumCrawler extends GenericCrawler implements Job {
@@ -205,7 +205,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 						logger.debug("MESSAGES chosen");
 						tSites.add(REST_API_URL+LithiumConstants.REST_MESSAGES_SEARCH_URI);
 					} else if ("threads".equals(threadsOrMessages)) {
-						// TODO make parser work when using threads instead of messages
 						logger.debug("THREADS chosen");
 						tSites.add(REST_API_URL+LithiumConstants.REST_THREADS_URI+"/recent");
 					}
@@ -223,7 +222,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 							logger.debug("MESSAGES chosen");
 							tSites.set(i, REST_API_URL + t + LithiumConstants.REST_MESSAGES_SEARCH_URI);
 						} else if ("threads".equals(threadsOrMessages)) {
-							// TODO make parser work when using threads instead of messages
 							logger.debug("THREADS chosen");
 							tSites.set(i, REST_API_URL + t + LithiumConstants.REST_THREADS_URI);
 						}

@@ -63,16 +63,12 @@ public class Base64CryptoProvider implements ICryptoProvider {
 	 *					entropy source
 	 *
 	 */
-	public void setEntropy(String param){
-		// NOT NEEDED AND NOT IMPLEMENTED
-	}
+	public void setEntropy(String param){}
 	/**
 	 * @description get an initial vector
 	 * 
 	 * @return null
 	 * 
 	 */
-	public String getEntropy(){
-		return null;
-	}
+	public String getEntropy(){return null;}
 }

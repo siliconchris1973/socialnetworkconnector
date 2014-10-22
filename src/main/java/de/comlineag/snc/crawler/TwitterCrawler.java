@@ -69,8 +69,7 @@ import de.comlineag.snc.parser.TwitterParser;
  *				0.9e				added time measure and new loop to track unlimited messages
  *				0.9f				deactivated loop to track unlimited messages
  *
- * TODO 1. find out how to fix the following warning:
- * 			HttpMethodBase - Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
+ * TODO check if we can use getResponseBodyAsStrema to fix the following warning: Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
  */
 @DisallowConcurrentExecution 
 public class TwitterCrawler extends GenericCrawler implements Job {
@@ -238,7 +237,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 							// each tweet is now passed to the parser TwitterParser
 							post.process(msg);
 							
-							// TODO implement method to retrieve a web-page from the post
+							// TODO implement SimpleWebCrawler to retrieve a web-page referenced in a tweet by a hyperlink
 							
 							
 						}

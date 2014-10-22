@@ -41,8 +41,8 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * 
  * @changelog	0.1 (Chris)		created as extraction from WOPostingWebParser version 0.2
  * 
- * TODO 2 implement language detection (possibly with jroller http://www.jroller.com/melix/entry/jlangdetect_0_3_released_with)
- * TODO 3 extract user information from the website
+ * TODO implement language detection (possibly with jroller http://www.jroller.com/melix/entry/jlangdetect_0_3_released_with)
+ * TODO extract user information from the website
  * 
  */
 public final class WONewsWebParser extends GenericWebParser implements IWebParser {

@@ -42,8 +42,8 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * 				0.2				implemented canExecute method
  * 				0.3				implemented posting and user handling
  * 
- * TODO 2 implement language detection (possibly with jroller http://www.jroller.com/melix/entry/jlangdetect_0_3_released_with)
- * TODO 3 extract user information from the website
+ * TODO implement language detection (possibly with jroller http://www.jroller.com/melix/entry/jlangdetect_0_3_released_with)
+ * TODO extract user information from the website
  * 
  */
 public final class WOPostingWebParser extends GenericWebParser implements IWebParser {

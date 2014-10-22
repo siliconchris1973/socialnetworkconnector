@@ -47,7 +47,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  * @changelog	0.1 (Chris)		class copied from TwitterPostingData revision 0.9b
  * 				0.2				changed id from long to String
  * 
- * TODO 1. create actual implementation
+ * TODO create implementation for facebook posting data
  * 
  */
 
@@ -216,7 +216,6 @@ public final class FacebookPostingData extends PostData {
 			 * 	}
 			 * 
 			 */
-			// TODO implement proper handling of hashtags, symbols and mentions - this currently kills the parser
 			//setHashtags((List<?>)jsonObject.get("hashtags"));
 			//setSymbols((List<?>)jsonObject.get("symbols"));
 			//setMentions((List<?>)jsonObject.get("user_mentions"));
@@ -229,7 +228,7 @@ public final class FacebookPostingData extends PostData {
 	
 	
 	public void setMentions(List<?> listOfMentions) {
-		// TODO Implement proper algorithm to deal with user mentions
+		// TODO Implement algorithm to deal with user mentions
 		logger.trace("List of mentioned users received, creating something different from it");
 		Iterator<?> itr = listOfMentions.iterator();
 		while(itr.hasNext()){
@@ -238,7 +237,7 @@ public final class FacebookPostingData extends PostData {
 	}
 	
 	public void setSymbols(List<?> listOfSymbols) {
-		// TODO Implement proper algorithm to deal with symbols
+		// TODO Implement algorithm to deal with symbols
 		logger.trace("List of symbols received, creating something different from it");
 		Iterator<?> itr = listOfSymbols.iterator();
 		while(itr.hasNext()){
@@ -247,7 +246,7 @@ public final class FacebookPostingData extends PostData {
 	}
 	
 	public void setHashtags(List<?> listOfHashtags) {
-		// TODO Implement proper algorithm to deal with hashtags
+		// TODO Implement algorithm to deal with hashtags
 		logger.trace("List of Hashtags received, creating something different from it");
 		Iterator<?> itr = listOfHashtags.iterator();
 		while(itr.hasNext()){

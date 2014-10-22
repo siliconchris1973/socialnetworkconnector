@@ -47,9 +47,9 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * 								specific jericho configuration
  * 				0.4				introduced GET_ONLY_RELEVANT_PAGES option and some debugging
  * 
- * TODO 1 implement correct threaded parser to aid in multithreading
- * TODO 2 implement proper data handling for site and user
- * TODO 3 implement language detection (possibly with jroller http://www.jroller.com/melix/entry/jlangdetect_0_3_released_with)
+ * TODO implement correct threaded parser to aid in multithreading
+ * TODO implement proper data handling for site and user
+ * TODO implement language detection (possibly with jroller http://www.jroller.com/melix/entry/jlangdetect_0_3_released_with)
  * 
  */
 public final class WOPageWebParser extends GenericWebParser implements IWebParser, Runnable {
@@ -291,7 +291,7 @@ public final class WOPageWebParser extends GenericWebParser implements IWebParse
 		String s = Objects.toString(System.currentTimeMillis(), null);
 		pageJson.put("created_at", s);
 		
-		//pageJson.put("user_id", "0"); // TODO find a way to extract user information from page
+		//pageJson.put("user_id", "0");
 		pageJson.put("user_id", pageJson.get("page_id"));
 		
 		JSONObject userJson = new JSONObject();

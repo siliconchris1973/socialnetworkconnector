@@ -69,9 +69,9 @@ import de.comlineag.snc.helper.DateTimeServices;
  * 				0.6a			added field domain
  * 				0.6b			changed id from long to String
  * 
- * TODO 1. Add support for labels
- * TODO 3. find a new/better method to truncate html
- * TODO 4. check if we need to safe the thread from which the posting originated
+ * TODO Add support for labels
+ * TODO implement jericho to truncate html
+ * TODO check if we need to safe the thread from which the posting originated
  * 
  * 
  * JSON Structure:
@@ -360,7 +360,7 @@ public final class LithiumPostingData extends PostData {
 			*/
 			
 			// labels may contain some more valuable information, but we do not use them at the moment
-			// TODO : when implementing this, be aware of multiple occurrences for Label within Labels 
+			// when implementing this, be aware of multiple occurrences for Label within Labels 
 			// Structure:
 			//	{}labels
 			//		{}label

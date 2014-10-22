@@ -11,7 +11,7 @@ package de.comlineag.snc.data;
  * 
  * @changelog 	0.1 (Chris)		class created as input type - no content so far
  * 
- * TODO 1. check if useful and if not delete
+ * TODO check if we need a generic input type for anything and if not delete this class
  */
 public class GenericInputType {
 
