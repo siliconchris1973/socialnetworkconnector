@@ -66,7 +66,7 @@ public class StreamingWebCrawler extends GenericCrawler implements Job {
 	
 	// it is VERY important to set the crawler name (all in upper case) here
 	private static final String CRAWLER_NAME="WEBCRAWLER";
-	private static String name="SimpleWebCrawler";
+	private static String name="StramingWebCrawler";
 	
 	// we use simple org.apache.log4j.Logger for logging
 	private final Logger logger = Logger.getLogger(getClass().getName());
