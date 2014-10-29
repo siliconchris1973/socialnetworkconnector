@@ -1,4 +1,4 @@
-package de.comlineag.snc.appstate;
+package de.comlineag.snc.data;
 
 /**
 *
@@ -15,7 +15,7 @@ package de.comlineag.snc.appstate;
 * @changelog	0.1 (Chris)		class created
 * 
 */
-public class Option {
+public class RuntimeOption {
     private String name;
     private String type;
     private String value;

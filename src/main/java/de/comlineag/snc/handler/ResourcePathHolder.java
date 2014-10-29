@@ -1,4 +1,4 @@
-package de.comlineag.snc.appstate;
+package de.comlineag.snc.handler;
 
 import javax.servlet.ServletContext;
 

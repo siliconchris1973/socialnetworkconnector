@@ -1,4 +1,4 @@
-package de.comlineag.snc.appstate;
+package de.comlineag.snc.handler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,19 +9,21 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import de.comlineag.snc.data.RuntimeOption;
+
 public class RuntimeOptionsParser extends DefaultHandler {
     private final StringBuilder valueBuffer = new StringBuilder();
-    private final Map<String, Option> resultAsMap = new HashMap<String, Option>();
-    private final List<Option> options = new ArrayList<Option>();
+    private final Map<String, RuntimeOption> resultAsMap = new HashMap<String, RuntimeOption>();
+    private final List<RuntimeOption> runtimeOptions = new ArrayList<RuntimeOption>();
 
     //variable to store the values from xml temporarily
-    private Option temp;
+    private RuntimeOption temp;
 
-    public List<Option> getOptions() {
-        return options;
+    public List<RuntimeOption> getOptions() {
+        return runtimeOptions;
     }
 
-    public Map<String, Option> getResultAsMap() {
+    public Map<String, RuntimeOption> getResultAsMap() {
         return resultAsMap;
     }
 
@@ -29,7 +31,7 @@ public class RuntimeOptionsParser extends DefaultHandler {
     public void startElement(final String uri, final String localName, final String qName,
             final Attributes attributes) throws SAXException {
         if("option".equalsIgnoreCase(qName)) {
-            temp = new Option();
+            temp = new RuntimeOption();
         }
     }
 
@@ -55,7 +57,7 @@ public class RuntimeOptionsParser extends DefaultHandler {
             break;
         case "option":
             // this is the end of option tag add it to the list
-            options.add(temp);
+            runtimeOptions.add(temp);
             temp = null;
             break;
         default:
