@@ -38,12 +38,12 @@ public class RuntimeOptionsParser extends DefaultHandler {
     @Override
     public void endElement(final String uri, final String localName, final String qName)
             throws SAXException {
-        //read the value into a string to set them to option object
+        // read the value into a string to set them to option object
         final String value = valueBuffer.toString().trim();
         switch (qName) {
         case "name":
             temp.setName(value);
-            // set the value into map and name of the option is the key
+            // set the value into map with name of the option as the key
             resultAsMap.put(value, temp);
             break;
         case "type":

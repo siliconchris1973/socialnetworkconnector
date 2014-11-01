@@ -27,7 +27,15 @@
 			 path, this HAS to be below WEB-INF! This restriction is because the runtime configuration  
  			 class checks for an absolute path and if it does not find one (no / // or drive letter like 
  			 c: at the start), it assumes the file to be located in or below the WEB-INF directory -->
- 			 
+ 		
+ 		<!-- location of the file containing the layout information of the configuration files -->
+ 		<option>
+			<name>XmlLayoutFilePath</name>
+			<type>String</type>
+			<value>SNC_Runtime_Configuration-1.0.xml</value>
+			<constant>XML_LAYOUT_FILE_PATH</constant>
+		</option>
+		
 		<!-- location of the file with the social network definitions -->
 		<option>
 			<name>SocialNetworkFilePath</name>
@@ -58,7 +66,7 @@
 		<option>
 			<name>CrawlerConfigurationFilePath</name>
 			<type>String</type>
-			<value>SNC_Runtime_Configuration.xml</value>
+			<value>SNC_Runtime_Configuration-1.0.xml</value>
 			<constant>CRAWLER_CONFIGURATION_FILE_PATH</constant>
 		</option>
 		
@@ -69,7 +77,7 @@
 		<option>
 			<name>DataConfigurationFilePath</name>
 			<type>String</type>
-			<value>SNC_Runtime_Configuration.xml</value>
+			<value>SNC_Runtime_Configuration-1.0.xml</value>
 			<constant>DATA_CONFIGURATION_FILE_PATH</constant>
 		</option>
 		
@@ -80,7 +88,7 @@
 		<option>
 			<name>ThreadingConfigurationFilePath</name>
 			<type>String</type>
-			<value>SNC_Runtime_Configuration.xml</value>
+			<value>SNC_Runtime_Configuration-1.0.xml</value>
 			<constant>THREADING_CONFIGURATION_FILE_PATH</constant>
 		</option>
 		
@@ -175,10 +183,10 @@
 			 applicationContext.xml) plus you do not save failed posts and users to disk - as configured with 
 			 above optioneters. -->
 		<option>
-			<name>ExitOnPersistenceFailure</name>
+			<name>StopOnPersistenceFailure</name>
 			<type>boolean</type>
 			<value>false</value>
-			<constant>STOP_SNC_ON_PERSISTENCE_FAILURE</constant>
+			<constant>STOP_ON_PERSISTENCE_FAILURE</constant>
 		</option>
 		
 		<!-- stop the SNC in case reading or writing to configuration fails?
@@ -186,10 +194,10 @@
 			 not be found, the server goes down together with the SNC. This somewhat scks and thus I introduced
 			 this option. Can't really imagine a reason to set this to false in a production environment -->
 		<option>
-			<name>ExitOnConfigurationFailure</name>
+			<name>StopOnConfigurationFailure</name>
 			<type>boolean</type>
 			<value>false</value>
-			<constant>STOP_SNC_ON_CONFIGURATION_FAILURE</constant>
+			<constant>STOP_ON_CONFIGURATION_FAILURE</constant>
 		</option>
 	</configuration>
 	
@@ -270,7 +278,7 @@
 			 of pages. As a last safeguard in case this value is set to -1, this will also implicitly 
 			 set the parameter of stayOnDomain (see below) to true. -->
 		<option>
-			<name>wcSearchLimit</name>
+			<name>WcSearchLimit</name>
 			<type>int</type>
 			<value>10000</value>
 			<constant>WC_SEARCH_LIMIT</constant>
@@ -283,7 +291,7 @@
 			 As a last safeguard in case this value is set to -1, this will also implicitly set the 
 			 parameter of stayOnDomain (see below) to true. -->
 		<option>
-			<name>wcMaxDepth</name>
+			<name>WcMaxDepth</name>
 			<type>int</type>
 			<value>5</value>
 			<constant>WC_MAX_DEPTH</constant>
@@ -291,7 +299,7 @@
 		
 		<!-- the maximum page size the simple web crawler shall fetch -->
 		<option>
-			<name>wcCrawlerMaxDownloadSize</name>
+			<name>WcCrawlerMaxDownloadSize</name>
 			<type>int</type>
 			<value>2000000</value>
 			<constant>WC_CRAWLER_MAX_DOWNLOAD_SIZE</constant>
@@ -299,7 +307,7 @@
 		
 		<!-- content types to fetch - NOT YET IMPLEMENTED -->
 		<option>
-			<name>wcContentTypesToDownload</name>
+			<name>WcContentTypesToDownload</name>
 			<type>List</type>
 			<value>html</value>
 			<value>xml</value>
@@ -314,7 +322,7 @@
 			 a lot of pages being downloaded from any place on the net just by following some 
 			 nice linklist one has setup on his/her page  -->
 		<option>
-			<name>wcStayOnDomain</name>
+			<name>WcStayOnDomain</name>
 			<type>Boolean</type>
 			<value>true</value>
 			<constant>WC_STAY_ON_DOMAIN</constant>
@@ -328,7 +336,7 @@
 					 
 			 Note: if you did not give a path as part of the url, then / is used -->
 		<option>
-			<name>wcStayBelowGivenPath</name>
+			<name>WcStayBelowGivenPath</name>
 			<type>Boolean</type>
 			<value>false</value>
 			<constant>WC_STAY_BELOW_GIVEN_PATH</constant>
@@ -338,7 +346,7 @@
 			 contains any of the track-terms. If set to false, you might get a lot of pages in
 			 the db, which do not, in the end, contain any of your keywords! -->
 		<option>
-			<name>wcGetOnlyRelevantPages</name>
+			<name>WcGetOnlyRelevantPages</name>
 			<type>Boolean</type>
 			<value>true</value>
 			<constant>WC_GET_ONLY_RELEVANT_PAGES</constant>
@@ -349,7 +357,7 @@
 			 from CrawlerConfiguration) and the start and end of cut out text. This option applies
 			 to the distance before and after the found word. -->
 		<option>
-			<name>wcWordDistanceCutoffMargin</name>
+			<name>WcWordDistanceCutoffMargin</name>
 			<type>int</type>
 			<value>30</value>
 			<constant>WC_WORD_DISTANCE_CUTOFF_MARGIN</constant>
@@ -358,7 +366,7 @@
 		<!-- the command (word) as returned by a website when declining the crawler's request to 
 			 fetch the content. YOU SHOULD PROBABLY NOT CHANGE THIS -->
 		<option>
-			<name>wcRobotDisallowText</name>
+			<name>WcRobotDisallowText</name>
 			<type>String</type>
 			<value>Disallow</value>
 			<constant>WC_ROBOT_DISALLOW_TEXT</constant>
@@ -367,7 +375,7 @@
 		<!-- defines the maximum number of tweets to track per crawler run
 			 if this is set to -1 then the crawler will track unlimited tweets -->
 		<option>
-			<name>twMaxTweetsPerCrawlerRun</name>
+			<name>TwMaxTweetsPerCrawlerRun</name>
 			<type>int</type>
 			<value>10000</value>
 			<constant>TW_MAX_TWEETS_PER_CRAWLER_RUN</constant>
@@ -376,7 +384,7 @@
 		<!-- defines the number of milliseconds until timeout while connected to the
 			 twitter endpoint without receiving a new tweet -->
 		<option>
-			<name>twConnectionTimeout</name>
+			<name>TwConnectionTimeout</name>
 			<type>int</type>
 			<value>60000</value>
 			<constant>TW_CONNECTION_TIMEOUT</constant>
@@ -398,7 +406,7 @@
 	<configuration scope="DataDefinitions">
 		<!-- shall a teaser be saved with or without html markup elements -->
 		<option>
-			<name>teaserWithMarkup</name>
+			<name>TeaserWithMarkup</name>
 			<type>boolean</type>
 			<value>false</value>
 			<constant>TEASER_WITH_MARKUP</constant>
@@ -406,7 +414,7 @@
 		
 		<!-- how long shall a teaser be at max -->
 		<option>
-			<name>teaserMaxLength</name>
+			<name>TeaserMaxLength</name>
 			<type>int</type>
 			<value>256</value>
 			<constant>TEASER_MAX_LENGTH</constant>
@@ -414,7 +422,7 @@
 		
 		<!-- what shall the minimal length of a teaser be? -->
 		<option>
-			<name>teaserMinLength</name>
+			<name>TeaserMinLength</name>
 			<type>int</type>
 			<value>20</value>
 			<constant>TEASER_MIN_LENGTH</constant>
@@ -422,19 +430,19 @@
 		
 		<!-- shall the subject of a post be saved with or without html markup elements -->
 		<option>
-			<name>subjectWithMarkup</name>
+			<name>SubjectWithMarkup</name>
 			<type>boolean</type>
 			<value>false</value>
 			<constant>SUBJECT_WITH_MARKUP</constant>
 		</option>
 		<option>
-			<name>subjectMaxLength</name>
+			<name>SubjectMaxLength</name>
 			<type>int</type>
 			<value>100</value>
 			<constant>SUBJECT_MAX_LENGTH</constant>
 		</option>
 		<option>
-			<name>subjectMinLength</name>
+			<name>SubjectMinLength</name>
 			<type>int</type>
 			<value>7</value>
 			<constant>SUBJECT_MIN_LENGTH</constant>
@@ -444,7 +452,7 @@
 			 be kept false as the text-field of the database is normally only used for the semantic 
 			 analysis and therefore does not need any markups -->
 		<option>
-			<name>textWithMarkup</name>
+			<name>TextWithMarkup</name>
 			<type>boolean</type>
 			<value>false</value>
 			<constant>TEXT_WITH_MARKUP</constant>
@@ -453,7 +461,7 @@
 		<!-- shall the raw text field contain text with html markup elements - this should usually 
 			 be kept true, as we use this column to save the original post or page -->
 		<option>
-			<name>rawTextWithMarkup</name>
+			<name>RawTextWithMarkup</name>
 			<type>boolean</type>
 			<value>true</value>
 			<constant>RAW_TEXT_WITH_MARKUP</constant>
@@ -468,7 +476,7 @@
 	<configuration scope="XmlLayout">
 		<!-- identifies the parameter in crawler configuration that defines whether or not a specific crawler shall run -->
 		<option>
-			<name>crawlerRunIdentifier</name>
+			<name>CrawlerRunIdentifier</name>
 			<type>String</type>
 			<value>CrawlerRun</value>
 			<constant>CRAWLER_RUN_IDENTIFIER</constant>
@@ -479,25 +487,25 @@
 			 WhatYouShouldGet, then change the value of constraint to WhatYouShouldGet and adapt
 			 the crawler configuration XML file accordingly -->
 		<option>
-			<name>constraintIdentifier</name>
+			<name>ConstraintIdentifier</name>
 			<type>String</type>
 			<value>constraints</value>
 			<constant>CONSTRAINT_IDENTIFIER</constant>
 		</option>
 		<option>
-			<name>singleConstraintIdentifier</name>
+			<name>SingleConstraintIdentifier</name>
 			<type>String</type>
 			<value>constraint</value>
 			<constant>SINGLE_CONSTRAINT_IDENTIFIER</constant>
 		</option>
 		<option>
-			<name>scopeOnAllValue</name>
+			<name>ScopeOnAllValue</name>
 			<type>String</type>
 			<value>ALL</value>
 			<constant>SCOPE_ON_ALL_VALUE</constant>
 		</option>
 		<option>
-			<name>codeIdentifier</name>
+			<name>CodeIdentifier</name>
 			<type>String</type>
 			<value>code</value>
 			<constant>CODE_IDENTIFIER</constant>
@@ -506,43 +514,43 @@
 		<!-- this section contains the identifier for domain of interest and customer used within the
 			 crawler configuration XML file. -->
 		<option>
-			<name>customerIdentifier</name>
+			<name>CustomerIdentifier</name>
 			<type>String</type>
 			<value>customer</value>
 			<constant>CUSTOMER_IDENTIFIER</constant>
 		</option>
 		<option>
-			<name>customerNameIdentifier</name>
+			<name>CustomerNameIdentifier</name>
 			<type>String</type>
 			<value>name</value>
 			<constant>CUSTOMER_NAME_IDENTIFIER</constant>
 		</option>
 		<option>
-			<name>customerNameForAllValue</name>
+			<name>CustomerNameForAllValue</name>
 			<type>String</type>
 			<value>ALL</value>
 			<constant>CUSTOMER_NAME_FOR_ALL_VALUE</constant>
 		</option>
 		<option>
-			<name>domainIdentifier</name>
+			<name>DomainIdentifier</name>
 			<type>String</type>
 			<value>domain</value>
 			<constant>DOMAIN_IDENTIFIER</constant>
 		</option>
 		<option>
-			<name>domainStructureIdentifier</name>
+			<name>DomainStructureIdentifier</name>
 			<type>String</type>
 			<value>domainStructure</value>
 			<constant>DOMAIN_STRUCTURE_IDENTIFIER</constant>
 		</option>
 		<option>
-			<name>domainNameIdentifier</name>
+			<name>DomainNameIdentifier</name>
 			<type>String</type>
 			<value>name</value>
 			<constant>DOMAIN_NAME_IDENTIFIER</constant>
 		</option>
 		<option>
-			<name>domainNameForAllValue</name>
+			<name>DomainNameForAllValue</name>
 			<type>String</type>
 			<value>ALL</value>
 			<constant>DOMAIN_NAME_FOR_ALL_VALUE</constant>
@@ -550,49 +558,49 @@
 		
 		<!-- these values define the naming of the single constraints definitions in crawler configuration -->
 		<option>
-			<name>CONSTRAINT_TERM_TEXT</name>
+			<name>ConstraintTermText</name>
 			<type>String</type>
 			<value>term</value>
 			<constant>CONSTRAINT_TERM_TEXT</constant>
 		</option>
 		<option>
-			<name>CONSTRAINT_USER_TEXT</name>
+			<name>ConstraintUserText</name>
 			<type>String</type>
 			<value>user</value>
 			<constant>CONSTRAINT_USER_TEXT</constant>
 		</option>
 		<option>
-			<name>CONSTRAINT_LANGUAGE_TEXT</name>
+			<name>ConstraintLanguageText</name>
 			<type>String</type>
 			<value>language</value>
 			<constant>CONSTRAINT_LANGUAGE_TEXT</constant>
 		</option>
 		<option>
-			<name>CONSTRAINT_SITE_TEXT</name>
+			<name>ConstraintSiteText</name>
 			<type>String</type>
 			<value>site</value>
 			<constant>CONSTRAINT_SITE_TEXT</constant>
 		</option>
 		<option>
-			<name>CONSTRAINT_BLOCKED_SITE_TEXT</name>
+			<name>ConstraintBlockedSiteText</name>
 			<type>String</type>
 			<value>blockedsite</value>
 			<constant>CONSTRAINT_BLOCKED_SITE_TEXT</constant>
 		</option>
 		<option>
-			<name>CONSTRAINT_BOARD_TEXT</name>
+			<name>ConstraintBoardText</name>
 			<type>String</type>
 			<value>board</value>
 			<constant>CONSTRAINT_BOARD_TEXT</constant>
 		</option>
 		<option>
-			<name>CONSTRAINT_BLOG_TEXT</name>
+			<name>ConstraintBlogText</name>
 			<type>String</type>
 			<value>blog</value>
 			<constant>CONSTRAINT_BLOG_TEXT</constant>
 		</option>
 		<option>
-			<name>CONSTRAINT_LOCATION_TEXT</name>
+			<name>ConstraintLocationText</name>
 			<type>String</type>
 			<value>geoLocation</value>
 			<constant>CONSTRAINT_LOCATION_TEXT</constant>
@@ -600,21 +608,21 @@
 		
 		<!-- identifies the section containing socical network definitions in SocialNetworkDefinitions.xml-->
 		<option>
-			<name>socialNetworkConfiguration</name>
+			<name>SocialNetworkConfiguration</name>
 			<type>String</type>
 			<value>socialNetworkDefinition</value>
 			<constant>SOCIAL_NETWORK_CONFIGURATION</constant>
 		</option>
 		<!-- identifies a configuration for a social network -->
 		<option>
-			<name>socialNetworkIdentifier</name>
+			<name>SocialNetworkIdentifier</name>
 			<type>String</type>
 			<value>network</value>
 			<constant>SOCIAL_NETWORK_IDENTIFIER</constant>
 		</option>
 		<!-- identifies the name of a social network -->
 		<option>
-			<name>socialNetworkNameIdentifier</name>
+			<name>SocialNetworkNameIdentifier</name>
 			<type>String</type>
 			<value>name</value>
 			<constant>SOCIAL_NETWORK_NAME_IDENTIFIER</constant>
@@ -622,7 +630,7 @@
 		<!-- identifies the section within crawler configuration file that declares with which
 			 kind of configuration manager the file type is associated -->
 		<option>
-			<name>configFileTypeIdentifier</name>
+			<name>ConfigFileTypeIdentifier</name>
 			<type>String</type>
 			<value>configFileType</value>
 			<constant>CONFIG_FILE_TYPE_IDENTIFIER</constant>
@@ -633,25 +641,25 @@
 			 have no clue why you would want to do so) to FriedaThreading, then all you have to do is change
 			 the value in section PARSER_NAME from Parser to Frieda. -->
 		<option>
-			<name>THREADING_NAME</name>
+			<name>ThreadingName</name>
 			<type>Sting</type>
 			<value>Threading</value>
 			<constant>THREADING_NAME</constant>
 		</option>
 		<option>
-			<name>PARSER_NAME</name>
+			<name>ParserName</name>
 			<type>Sting</type>
 			<value>Parser</value>
 			<constant>PARSER_NAME</constant>
 		</option>
 		<option>
-			<name>CRAWLER_NAME</name>
+			<name>CrawlerName</name>
 			<type>Sting</type>
 			<value>Crawler</value>
 			<constant>CRAWLER_NAME</constant>
 		</option>
 		<option>
-			<name>PERSISTENCE_NAME</name>
+			<name>PersistenceName</name>
 			<type>Sting</type>
 			<value>Persistence</value>
 			<constant>PERSISTENCE_NAME</constant>
@@ -663,41 +671,42 @@
 			 singleConfiguration-, option-, name-, value- and scopeIdentifier) 
 			 						CAN NOT BE CHANGED! 
 			 
-			 Even if you do so here, this won't have any effect as they need to be 
-			 and are hard coded in the RuntimeConfiguration class.
+			 If you do change these identifiers you will get a mismatch between the 
+			 initial setup of the SNC and subsequent searches by other parts of it.
+			 Confusing as it may sound, this will likely lead to exception and errors.
 		 -->
 		<option>
-			<name>rootIdentifier</name> 				<!-- not changeable -->
+			<name>RootIdentifier</name> 				<!-- not changeable -->
 			<type>String</type>
 			<value>configurations</value>
 			<constant>ROOT_IDENTIFIER</constant>
 		</option>
 		<option>
-			<name>singleConfigurationIdentifier</name>	<!-- not changeable -->
+			<name>SingleConfigurationIdentifier</name>	<!-- not changeable -->
 			<type>String</type>
 			<value>configuration</value>
 			<constant>SINGLE_CONFIGURATION_IDENTIFIER</constant>
 		</option>
 		<option>
-			<name>optionIdentifier</name> 				<!-- not changeable -->
+			<name>OptionIdentifier</name> 				<!-- not changeable -->
 			<type>String</type>
 			<value>option</value>
 			<constant>OPTION_IDENTIFIER</constant>
 		</option>
 		<option>
-			<name>nameIdentifier</name> 				<!-- not changeable -->
+			<name>NameIdentifier</name> 				<!-- not changeable -->
 			<type>String</type>
 			<value>name</value>
 			<constant>NAME_IDENTIFIER</constant>
 		</option>
 		<option>
-			<name>valueIdentifier</name> 				<!-- not changeable -->
+			<name>ValueIdentifier</name> 				<!-- not changeable -->
 			<type>String</type>
 			<value>value</value>
 			<constant>VALUE_IDENTIFIER</constant>
 		</option>
 		<option>
-			<name>scopeIdentifier</name> 				<!-- not changeable -->
+			<name>ScopeIdentifier</name> 				<!-- not changeable -->
 			<type>String</type>
 			<value>scope</value>
 			<constant>SCOPE_IDENTIFIER</constant>

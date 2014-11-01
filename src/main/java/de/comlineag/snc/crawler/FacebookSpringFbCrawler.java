@@ -70,6 +70,20 @@ public class FacebookSpringFbCrawler extends GenericCrawler implements Job {
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
 	private String smallLogMessage = "";
 	
+	
+	private final String constraintTermText = rtc.getStringValue("ConstraintTermText", "XmlLayout");
+	private final String constraintLangText = rtc.getStringValue("ConstraintLanguageText", "XmlLayout");
+	private final String constraintUserText = rtc.getStringValue("ConstraintUserText", "XmlLayout");
+	private final String constraintSiteText = rtc.getStringValue("ConstraintSiteText", "XmlLayout");
+	private final String constraintLocaText = rtc.getStringValue("ConstraintLocationText", "XmlLayout");
+	//private final String constraintBSiteText = rtc.getStringValue("ConstraintBlockedSiteText", "XmlLayout");
+
+	// convenience variables to make the code easier to read and reduce number of calls to RuntimeConfiguration
+	private final String domainKey = rtc.getStringValue("DomainIdentifier", "XmlLayout");
+	private final String customerKey = rtc.getStringValue("CustomerIdentifier", "XmlLayout");
+	
+	
+	
 	@Inject
 	public FacebookSpringFbCrawler() {
 		// instantiate the Facebook-Posting-Manager
@@ -95,8 +109,8 @@ public class FacebookSpringFbCrawler extends GenericCrawler implements Job {
 			configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
 			
 			// set the customer we start the crawler for and log the startup message
-			String curDomain = (String) configurationScope.get(rtc.getDomainidentifier());
-			String curCustomer = (String) configurationScope.get(rtc.getCustomeridentifier());
+			String curDomain = (String) configurationScope.get(domainKey);
+			String curCustomer = (String) configurationScope.get(customerKey);
 			
 			if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
 				logger.info(CRAWLER_NAME+"-Crawler START");
@@ -113,12 +127,15 @@ public class FacebookSpringFbCrawler extends GenericCrawler implements Job {
 			int messageCount = 0;
 			
 			
-			// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
+			// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS, GEO-LOCATIONS and PAGES (aka sites)
 			logger.info("retrieving restrictions from configuration db");
-			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintTermText(), configurationScope);
-			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintLanguageText(), configurationScope);
-			ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(rtc.getConstraintUserText(), configurationScope);
-			ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(rtc.getConstraintLocationText(), configurationScope);
+			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(constraintTermText, configurationScope);
+			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(constraintLangText, configurationScope);
+			ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(constraintUserText, configurationScope);
+			ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(constraintSiteText, configurationScope);
+			ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(constraintLocaText, configurationScope);
+			// blocked URLs
+			//ArrayList<String> bURLs = new CrawlerConfiguration<String>().getConstraint(constraintBSiteText, configurationScope);
 			
 			// log output AND setup of the filter end point
 			if (tTerms.size()>0) {

@@ -49,6 +49,10 @@ public final class TwitterParser extends GenericParser {
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
+	
+	private final boolean rtcPersistenceThreading = rtc.getBooleanValue("PersistenceThreadingEnabled", "runtime");
+	
+	
 	public TwitterParser() {}
 
 	@Override
@@ -94,7 +98,7 @@ public final class TwitterParser extends GenericParser {
 		// need to add users first, because a tweet needs to be able to point to a posting user in the db
 		logger.trace("trying to save " + users.size() + " users");
 		for (int ii = 0; ii < users.size(); ii++) {
-			if (rtc.isPERSISTENCE_THREADING_ENABLED()){
+			if (rtcPersistenceThreading){
 				// execute persistence layer in a new thread, so that it does NOT block the crawler
 				logger.trace("execute persistence layer in a new thread...");
 				final TwitterUser userT = (TwitterUser) users.get(ii);
@@ -113,7 +117,7 @@ public final class TwitterParser extends GenericParser {
 		
 		logger.trace("trying to save " + postings.size() + " tweets");
 		for (int ii = 0; ii < postings.size(); ii++) {
-			if (rtc.isPERSISTENCE_THREADING_ENABLED()){
+			if (rtcPersistenceThreading){
 				// execute persistence layer in a new thread, so that it does NOT block the crawler
 				logger.trace("execute persistence layer in a new thread...");
 				final TwitterPosting postT = (TwitterPosting) postings.get(ii);

@@ -1,12 +1,14 @@
 package de.comlineag.snc.appstate;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -17,15 +19,18 @@ import org.apache.log4j.Logger;
 //import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import de.comlineag.snc.constants.SNCStatusCodes;
+import de.comlineag.snc.data.RuntimeOption;
+import de.comlineag.snc.handler.RuntimeOptionsParser;
 
 
 /**
  * 
  * @author 		Christian Guenther
  * @category	handler
- * @revision	0.9c			- 19.10.2014
+ * @revision	1.0				- 29.10.2014
  * @status		productive
  * 
  * @description	this class is used to setup the overall configuration of the SNC.
@@ -60,9 +65,12 @@ import de.comlineag.snc.constants.SNCStatusCodes;
  * 				0.9a			implemented ResourcePathHolder class to get the real path to the WEB-INF directory
  * 				0.9b			added support for shutdown on any error in XML-file
  * 				0.9c			added twMaxTweetsPerCrawlerRun to define how many tweets the crawler shall track per job run
+ * 				1.0				changed programming to make use of RuntimeOptionsParser together with a Map of 
+ * 								options (data type defined in RuntimeOption). The Map is populated from the
+ * 								SNC_Runtime_Configuration.xml file and new methods are defined to get a value by
+ * 								name (for String, Int or Boolean value). In turn, all the old methods and variables 
+ * 								are removed!
  *
- * TODO use nodelist instead of single expressions for each node
- * 
  */
 public final class RuntimeConfiguration { 
 	// we use simple org.apache.log4j.Logger for lgging
@@ -74,13 +82,10 @@ public final class RuntimeConfiguration {
 	private static class Holder { static final RuntimeConfiguration instance = new RuntimeConfiguration(); }
     public static RuntimeConfiguration getInstance() { return Holder.instance; }
     
+    
     // in case you want to change the name of the runtime configuration file - you need to change this variable and recompile
-	private static final String RTCF = "SNC_Runtime_Configuration.xml";
+	private static final String RTCF = "SNC_Runtime_Configuration-1.0.xml";
 	
-	
-	// Every variable below is usually defined in the file SNC_Runtime_Configuration.xml. Although it is possible to
-	// put some of them can also be moved to other configuration files. For an explanation of what each variable is
-	// used for, see the configuration XML file.
 	
 	// configuration file path variables - these variables are used internally by the RuntimeConfiguration class in case
 	// any of these sections are moved out of the runtime configuration xml in other files.
@@ -91,7 +96,220 @@ public final class RuntimeConfiguration {
 	private String		crawlerConfigFilePath;	// this file contains definitions for the crawler (usually in SNC_Runtime_Configuration.xml)
 	private String		dataConfigFilePath;		// this file contains global data definitions (usually in SNC_Runtime_Configuration.xml)
 	private String		threadingConfigFilePath;// this file contains the threading configuration (usually in SNC_Runtime_Configuration.xml)
+	private String		xmlLayoutFilePath;		// this file contains the XML Layout information for the configuration files (usually in SNC_Runtime_Configuration.xml)
 	
+	/**
+	 * @description returns for a given configuration area the corresponding file path
+	 * @param 	configArea
+	 * @return 	the corresponding file path
+	 */
+	private String getConfigFilePath(String configArea){
+		String configFilePath = null;
+		
+		if (configArea.equals("XmlLayout"))
+			configFilePath=getXmlLayoutFilePath();
+		else if (configArea.equals("crawler"))
+			configFilePath=getCrawlerConfigFilePath();
+		else if (configArea.equals("threading"))
+			configFilePath=getThreadingConfigFilePath();
+		else if (configArea.equals("data"))
+			configFilePath=getDataConfigFilePath();
+		else if (configArea.equals("hana"))
+			configFilePath=getHanaConfigFilePath();
+		else if (configArea.equals("socialnetwork"))
+			configFilePath=getSocialNetworkFilePath();
+		else if (configArea.equals("webparserlist"))
+			configFilePath=getWebParserListFilePath();
+		else
+			configFilePath=getRuntimeConfigFilePath();
+		return configFilePath;
+	}
+	
+	// return a string element
+	public String getStringValue(String parameter, String configArea){
+		String temp =null;
+		
+		try {
+			temp = getValueByName(parameter, getConfigFilePath(configArea));
+		} catch (SAXException | ParserConfigurationException e) {
+            logger.error("EXCEPTION :: could not parse the config file while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea)+" the exception is -- " + e.getMessage());
+		} catch (NullPointerException e){ 
+        	logger.error("EXCEPTION :: element or file not found while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea));
+        	e.printStackTrace();
+        	System.exit(-1);
+		} catch (IOException e){
+	        	logger.error("EXCEPTION :: IO Error while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea)+" the exception is -- " + e.getMessage());
+		} catch (Exception e){
+        	logger.error("EXCEPTION :: Somethig went wrong while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea)+" the exception is -- " + e.getMessage());
+        }
+		
+		//logger.trace("received " + temp + " for " + parameter + " in section " +configArea+ " of file " + getConfigFilePath(configArea));
+		
+		if (temp == null) {
+			logger.warn("Did not receive any information for "+parameter+" in area "+configArea+" - returning null");
+			return null;
+		} else {
+			return temp;
+		}
+	}
+	// return a boolean element
+	public boolean getBooleanValue(String parameter, String configArea){
+		String temp = null;
+		
+		try {
+			temp = getValueByName(parameter, getConfigFilePath(configArea));
+		} catch (SAXException | ParserConfigurationException e) {
+            logger.error("EXCEPTION :: could not parse the config file while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea)+" the exception is -- " + e.getMessage());
+		} catch (NullPointerException e){ 
+        	logger.error("EXCEPTION :: element or file not found while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea));
+        	e.printStackTrace();
+        	System.exit(-1);
+		} catch (IOException e){
+	        	logger.error("EXCEPTION :: IO Error while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea)+" the exception is -- " + e.getMessage());
+		} catch (Exception e){
+        	logger.error("EXCEPTION :: Somethig went wrong while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea)+" the exception is -- " + e.getMessage());
+        }
+		
+		//logger.trace("received " + temp + " for " + parameter + " in section " +configArea+ " of file " + getConfigFilePath(configArea));
+		
+		if (temp == null) {
+			logger.warn("Did not receive any information for "+parameter+" in area "+configArea+" - returning true");
+			return true;
+		} else {
+			if ("true".equals(temp))
+				return true;
+			else
+				return false;
+		}
+	}
+	// return an int element
+	public int getIntValue(String parameter, String configArea){
+		String temp =null;
+		
+		try {
+			temp = getValueByName(parameter, getConfigFilePath(configArea));
+		} catch (SAXException | ParserConfigurationException e) {
+            logger.error("EXCEPTION :: could not parse the config file while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea)+" the exception is -- " + e.getMessage());
+		} catch (NullPointerException e){ 
+        	logger.error("EXCEPTION :: element or file not found while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea));
+        	e.printStackTrace();
+        	System.exit(-1);
+		} catch (IOException e){
+	        	logger.error("EXCEPTION :: IO Error while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea)+" the exception is -- " + e.getMessage());
+		} catch (Exception e){
+        	logger.error("EXCEPTION :: Somethig went wrong while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea)+" the exception is -- " + e.getMessage());
+        }
+		
+		//logger.trace("received " + temp + " for " + parameter + " in section " +configArea+ " of file " + getConfigFilePath(configArea));
+		
+		if (temp == null) {
+			logger.warn("Did not receive any information for "+parameter+" in area "+configArea+" - returning -666");
+			return -666;
+		} else {
+			return (Integer.parseInt(temp));
+		}
+	}
+	
+	private String getValueByName(String parameter, String configFile) throws SAXException, IOException, ParserConfigurationException, NullPointerException {
+		final RuntimeOptionsParser handler = new RuntimeOptionsParser();
+		
+		SAXParserFactory.newInstance().newSAXParser().parse(configFile, handler);
+		
+		Map<String, RuntimeOption> result = handler.getResultAsMap();
+		Collection<RuntimeOption> values = result.values();
+		
+		for (RuntimeOption option : values) {
+			//logger.trace("checking OPTION: " + option.getName() + " TYPE: " + option.getType()+ " VALUE: " + option.getValue());
+			if (option.getName().equalsIgnoreCase(parameter)) {
+				logger.trace("PARAMETER "+parameter+" matches OPTION: " + option.getName() + " of TYPE: " + option.getType()+ " with VALUE: " + option.getValue());
+				return option.getValue();
+			}
+		}
+		
+		return null;
+    }
+	
+	// get the full qualified path to the given configuration file
+	public String returnQualifiedConfigPath(String inputPath){
+		return ContextLoaderListener.getServletContext().getRealPath("/WEB-INF/"+ inputPath);
+	}
+	
+	
+	// the constructor is NOT to be executed externally, but only via getInstance()
+	private RuntimeConfiguration(){
+		logger.debug("initializing runtime configuration");
+		setRuntimeConfigFilePath(	returnQualifiedConfigPath(RTCF));
+		
+		logger.debug("setting path to configuration files");
+		setXmlLayoutFilePath(		returnQualifiedConfigPath(	getStringValue("XmlLayoutFilePath", "runtime")));
+		setCrawlerConfigFilePath(	returnQualifiedConfigPath(	getStringValue("CrawlerConfigurationFilePath", "runtime")));
+		setDataConfigFilePath(		returnQualifiedConfigPath(	getStringValue("DataConfigurationFilePath", "runtime")));
+		setThreadingConfigFilePath(	returnQualifiedConfigPath(	getStringValue("ThreadingConfigurationFilePath", "runtime")));
+		setHanaConfigFilePath(		returnQualifiedConfigPath(	getStringValue("HanaConfigurationFilePath", "runtime")));
+		setWebParserListFilePath(	returnQualifiedConfigPath(	getStringValue("ParserListFilePath", "runtime")));
+		setSocialNetworkFilePath(	returnQualifiedConfigPath(	getStringValue("SocialNetworkFilePath", "runtime")));
+		
+		logger.debug("All pathes set...");
+		//System.exit(0);
+		
+		/* set the xml layout
+		setXmlLayout(				getRuntimeConfigFilePath());
+		
+		// set the runtime configuration 
+		setRuntimeConfiguration(	getRuntimeConfigFilePath());
+		
+		// set the threading model
+		setThreadingModel(			getThreadingConfigFilePath());
+		
+		// set basic crawler
+		setCrawlerConfiguration(	getCrawlerConfigFilePath());
+		
+		// set the data definitions
+		setDataDefinitions(			getDataConfigFilePath());
+		*/
+	}
+	
+	
+	
+	// getter for the configuration file path
+	public String 	getRuntimeConfigFilePath()	{ return runtimeConfigFilePath; }
+	public String 	getHanaConfigFilePath() 	{ return hanaConfigFilePath; }
+	public String 	getSocialNetworkFilePath()	{ return socialNetworkFilePath; }
+	public String 	getWebParserListFilePath()	{ return webParserListFilePath; }
+	public String 	getCrawlerConfigFilePath()	{ return crawlerConfigFilePath; }
+	public String 	getDataConfigFilePath()		{ return dataConfigFilePath; }
+	public String	getThreadingConfigFilePath(){ return threadingConfigFilePath; }
+	public String	getXmlLayoutFilePath()		{ return xmlLayoutFilePath; }
+	// setter for the configuration file path
+	private void 	setRuntimeConfigFilePath(String runtimeConfigFile) 		{ runtimeConfigFilePath = runtimeConfigFile;}
+	private void 	setSocialNetworkFilePath(String socialNetworkFile) 		{ socialNetworkFilePath = socialNetworkFile;}
+	private void 	setWebParserListFilePath(String parserListFile) 		{ webParserListFilePath = parserListFile;}
+	private void	setHanaConfigFilePath(String hanaConfigFile) 			{ hanaConfigFilePath = hanaConfigFile;}
+	private void	setCrawlerConfigFilePath(String crawlerConfigFile)		{ crawlerConfigFilePath = crawlerConfigFile;}
+	private void	setDataConfigFilePath(String dataConfigFile)			{ dataConfigFilePath = dataConfigFile; }
+	private void 	setThreadingConfigFilePath(String threadingConfigFile)	{ threadingConfigFilePath = threadingConfigFile;}
+	private void 	setXmlLayoutFilePath(String xmlLayoutFile)				{ xmlLayoutFilePath = xmlLayoutFile;}
+	
+	
+	/*
+	 * marked everything as a comment below this point because not needed anymore 
+	
+	public void printOptions(String pathtoconfig) {
+        final RuntimeOptionsParser handler = new RuntimeOptionsParser();
+        try {
+            SAXParserFactory.newInstance().newSAXParser()
+                    .parse(pathtoconfig, handler);
+        } catch (SAXException | IOException | ParserConfigurationException e) {
+            logger.error("EXCEPTION :: Somethig went wrong while parsing the input file the exception is -- " + e.getMessage() + " -- ");
+        }
+        Map<String, RuntimeOption> result = handler.getResultAsMap();
+        Collection<RuntimeOption> values = result.values();
+        for (RuntimeOption option : values) {
+            logger.trace("OPTION: " + option.getName() + " TYPE: " + option.getType()+ " VALUE: " + option.getValue());
+        }
+
+    }
+
 	// Runtime configuration
 	// whether or not to warn in the log in case a "simple" configuration option was chosen
 	private boolean 	WARN_ON_SIMPLE_CONFIG 				= true;
@@ -137,8 +355,6 @@ public final class RuntimeConfiguration {
 	// for twitter
 	private int 		TW_MAX_TWEETS_PER_CRAWLER_RUN		= 10000;
 	private int 		TW_CONNECTION_TIMEOUT				= 60000;
-	
-	
 	
 	// Threading options
 	private int			PARSER_THREADING_POOL_SIZE			= 1;
@@ -186,78 +402,6 @@ public final class RuntimeConfiguration {
 	private String 		parserIdentifier 					= "Parser";
 	private String 		crawlerIdentifier 					= "Crawler";
 	private String 		persistenceIdentifier 				= "Persistence";
-	
-	
-	// from this point on the methods to setup the global runtime environment are defined 
-	
-	/* this gets the absolute file path to the runtime configuration XML-file 
-	@Deprecated
-	private String getWebInfDirectory(){
-		String result = null;
-		try{
-			FileInputStream fs= new FileInputStream("/opt/tomcat/runtimeconfighackfile.txt");
-			BufferedReader br = new BufferedReader(new InputStreamReader(fs));
-			result = br.readLine();
-			br.close();
-			fs.close();																						
-		}catch(Exception e){
-			logger.error("EXCEPTION :: can't access /opt/tomcat/runtimeconfighackfile.txt " + e.getLocalizedMessage());
-			e.printStackTrace();
-			if (isSTOP_SNC_ON_CONFIGURATION_FAILURE())
-				System.exit(SNCStatusCodes.FATAL.getErrorCode());
-		}
-		return result;
-	}
-	*/
-	public String returnQualifiedConfigPath(String inputPath){
-//		if ("//".equals(inputPath.substring(0,1))
-//				|| "/".equals(inputPath.substring(0,0)) 
-//				|| ":".equals(inputPath.substring(1,1))){
-//			return inputPath;
-//		} else {
-//			//return ResourcePathHolder.getResourcePath() + File.separator + inputPath;
-//			return getWebInfDirectory()+ File.separator + inputPath;
-//		}
-		return ContextLoaderListener.getServletContext().getRealPath("/WEB-INF/"+ inputPath);
-	}
-	
-	
-	// the constructor is NOT to be executed externally, but only via getInstance()
-	private RuntimeConfiguration(){
-		logger.debug("initializing runtime configuration");
-		setRuntimeConfigFilePath(	returnQualifiedConfigPath(RTCF));
-		
-		// set the xml layout
-		setXmlLayout(				getRuntimeConfigFilePath());
-		
-		// set the runtime configuration 
-		setRuntimeConfiguration(	getRuntimeConfigFilePath());
-		
-		setCrawlerConfigFilePath(	returnQualifiedConfigPath(	getCrawlerConfigFilePath()));
-		setDataConfigFilePath(		returnQualifiedConfigPath(	getDataConfigFilePath()));
-		setThreadingConfigFilePath(	returnQualifiedConfigPath(	getThreadingConfigFilePath()));
-		setHanaConfigFilePath(		returnQualifiedConfigPath(	getHanaConfigFilePath()));
-		setWebParserListFilePath(	returnQualifiedConfigPath(	getWebParserListFilePath()));
-		setSocialNetworkFilePath(	returnQualifiedConfigPath(	getSocialNetworkFilePath()));
-		
-		/*
-		setCrawlerConfigFilePath(	ResourcePathHolder.getResourcePath()+File.separator+getCrawlerConfigFilePath());
-		setDataConfigFilePath(		ResourcePathHolder.getResourcePath()+File.separator+getDataConfigFilePath());
-		setThreadingConfigFilePath(	ResourcePathHolder.getResourcePath()+File.separator+getThreadingConfigFilePath());
-		setHanaConfigFilePath(		ResourcePathHolder.getResourcePath()+File.separator+getHanaConfigFilePath());
-		setWebParserListFilePath(	ResourcePathHolder.getResourcePath()+File.separator+getWebParserListFilePath());
-		setSocialNetworkFilePath(	ResourcePathHolder.getResourcePath()+File.separator+getSocialNetworkFilePath());
-		*/
-		// set the threading model
-		setThreadingModel(			getThreadingConfigFilePath());
-		
-		// set basic crawler
-		setCrawlerConfiguration(	getCrawlerConfigFilePath());
-		
-		// set the data definitions
-		setDataDefinitions(			getDataConfigFilePath());
-	}
-	
 	
 	private void setRuntimeConfiguration(String configFile){
 		logger.debug(">>> setting runtime configuration");
@@ -639,15 +783,6 @@ public final class RuntimeConfiguration {
 		}
 	}
 	
-	// getter for the configuration path
-	public String 	getRuntimeConfigFilePath()	{ return runtimeConfigFilePath; }
-	public String 	getHanaConfigFilePath() 	{ return hanaConfigFilePath; }
-	public String 	getSocialNetworkFilePath()	{ return socialNetworkFilePath; }
-	public String 	getWebParserListFilePath()	{ return webParserListFilePath; }
-	public String 	getCrawlerConfigFilePath()	{ return crawlerConfigFilePath; }
-	public String 	getDataConfigFilePath()		{ return dataConfigFilePath; }
-	public String	getThreadingConfigFilePath(){ return threadingConfigFilePath; }
-	
 	// JSON Backup storage path
 	public String 	getSTORAGE_PATH() {return STORAGE_PATH;}
 	public String 	getJSON_BACKUP_STORAGE_PATH() {return JSON_BACKUP_STORAGE_PATH;}
@@ -693,12 +828,12 @@ public final class RuntimeConfiguration {
 	// for runtime state 
 	public boolean 	getWarnOnSimpleConfig() {return WARN_ON_SIMPLE_CONFIG;}
 	public boolean 	getWarnOnSimpleXmlConfig() {return WARN_ON_SIMPLE_XML_CONFIG;}
-	public boolean 	isCREATE_POST_JSON_ON_ERROR() {return CREATE_POST_JSON_ON_ERROR;}
-	public boolean 	isCREATE_USER_JSON_ON_ERROR() {return CREATE_USER_JSON_ON_ERROR;}
-	public boolean 	isCREATE_POST_JSON_ON_SUCCESS() {return CREATE_POST_JSON_ON_SUCCESS;}
-	public boolean 	isCREATE_USER_JSON_ON_SUCCESS() {return CREATE_USER_JSON_ON_SUCCESS;}
-	public boolean 	isSTOP_SNC_ON_PERSISTENCE_FAILURE() {return STOP_SNC_ON_PERSISTENCE_FAILURE;}
-	public boolean 	isSTOP_SNC_ON_CONFIGURATION_FAILURE() {return STOP_SNC_ON_CONFIGURATION_FAILURE;}
+	public boolean 	isCreatePostJsonOnError() {return CREATE_POST_JSON_ON_ERROR;}
+	public boolean 	isCreateUserJsonOnError() {return CREATE_USER_JSON_ON_ERROR;}
+	public boolean 	isCreatePostJsonOnSuccess() {return CREATE_POST_JSON_ON_SUCCESS;}
+	public boolean 	isCreateUserJsonOnSuccess() {return CREATE_USER_JSON_ON_SUCCESS;}
+	public boolean 	isStopOnPersistenceFailure() {return STOP_SNC_ON_PERSISTENCE_FAILURE;}
+	public boolean 	isStopOnConfigurationFailure() {return STOP_SNC_ON_CONFIGURATION_FAILURE;}
 	public boolean 	isWARN_ON_REJECTED_ACTIONS() {return WARN_ON_REJECTED_ACTIONS;}
 	
 	// DataDefinitions
@@ -735,14 +870,6 @@ public final class RuntimeConfiguration {
 	
 	
 	
-	// private setter
-	private void 		setRuntimeConfigFilePath(String runtimeConfigFile) 	{ runtimeConfigFilePath = runtimeConfigFile;}
-	private void 		setSocialNetworkFilePath(String socialNetworkFile) 	{ socialNetworkFilePath = socialNetworkFile;}
-	private void 		setWebParserListFilePath(String parserListFile) 	{ webParserListFilePath = parserListFile;}
-	private void		setHanaConfigFilePath(String hanaConfigFile) 		{ hanaConfigFilePath = hanaConfigFile;}
-	private void		setCrawlerConfigFilePath(String crawlerConfigFile)	{ crawlerConfigFilePath = crawlerConfigFile;}
-	private void		setDataConfigFilePath(String dataConfigFile)		{ dataConfigFilePath = dataConfigFile; }
-	private void 		setThreadingConfigFilePath(String threadingConfigFile) {threadingConfigFilePath = threadingConfigFile;}
 	
 	private void 		setINVALID_JSON_BACKUP_STORAGE_PATH(String iNVALID_JSON_BACKUP_STORAGE_PATH) {INVALID_JSON_BACKUP_STORAGE_PATH = iNVALID_JSON_BACKUP_STORAGE_PATH;}
 	private void 		setSTORAGE_PATH(String sTORAGE_PATH) {STORAGE_PATH = sTORAGE_PATH;}
@@ -806,4 +933,5 @@ public final class RuntimeConfiguration {
 	private void 		setSTOP_SNC_ON_PERSISTENCE_FAILURE(boolean sTOP_SNC_ON_PERSISTENCE_FAILURE) {STOP_SNC_ON_PERSISTENCE_FAILURE = sTOP_SNC_ON_PERSISTENCE_FAILURE;}
 	private void		setSTOP_SNC_ON_CONFIGURATION_FAILURE(boolean sTOP_SNC_ON_CONFIGURATION_FAILURE) {STOP_SNC_ON_CONFIGURATION_FAILURE = sTOP_SNC_ON_CONFIGURATION_FAILURE;}
 	private void 		setWARN_ON_REJECTED_ACTIONS(boolean wARN_ON_REJECTED_ACTIONS) {WARN_ON_REJECTED_ACTIONS = wARN_ON_REJECTED_ACTIONS;}
+	*/
 }

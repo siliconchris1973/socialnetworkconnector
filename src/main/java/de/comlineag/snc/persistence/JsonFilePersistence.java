@@ -51,12 +51,12 @@ public class JsonFilePersistence implements IPersistenceManager {
 	
 	
 	// define where and the files shall be saved
-	private String savePoint = rtc.getSTORAGE_PATH()+System.getProperty("file.separator")+rtc.getJSON_BACKUP_STORAGE_PATH();
+	private String savePoint = rtc.getStringValue("StoragePath", "runtime")+System.getProperty("file.separator")+rtc.getStringValue("JsonBackupStoragePath", "runtime");
 	private String objectStatusPriorSaving; // was storing of the object prior saving to disk (e.g. n a db) successful (ok) or not (fail)
 	private String objectTypeToSave;		// can either be user or post
 	
 	public JsonFilePersistence() {
-		File d = new File(rtc.getSTORAGE_PATH());
+		File d = new File(rtc.getStringValue("StoragePath", "runtime"));
 		if (!d.isDirectory()) {
 			// create the json diretory
 			d.mkdir();
@@ -75,7 +75,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 	 */
 	public JsonFilePersistence(PostData postData) {
 		logger.trace("checking if storage directory "+savePoint+" exists");
-		File d = new File(rtc.getSTORAGE_PATH());
+		File d = new File(rtc.getStringValue("StoragePath", "runtime"));
 		if (!d.isDirectory()) {
 			// create the json diretory
 			d.mkdir();
@@ -95,7 +95,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 	 */
 	public JsonFilePersistence(UserData userData) {
 		logger.trace("checking if storage directory "+savePoint+" exists");
-		File d = new File(rtc.getSTORAGE_PATH());
+		File d = new File(rtc.getStringValue("StoragePath", "runtime"));
 		if (!d.isDirectory()) {
 			// create the json diretory
 			d.mkdir();
@@ -116,7 +116,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 	 */
 	public JsonFilePersistence(JSONObject json) {
 		logger.trace("checking if storage directory "+savePoint+" exists");
-		File d = new File(rtc.getSTORAGE_PATH());
+		File d = new File(rtc.getStringValue("StoragePath", "runtime"));
 		if (!d.isDirectory()) {
 			// create the json diretory
 			d.mkdir();

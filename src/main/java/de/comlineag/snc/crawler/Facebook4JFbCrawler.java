@@ -98,6 +98,19 @@ public class Facebook4JFbCrawler extends GenericCrawler implements Job {
 	private int messageCount = 0;
 	
 	
+	private final String constraintTermText = rtc.getStringValue("ConstraintTermText", "XmlLayout");
+	private final String constraintLangText = rtc.getStringValue("ConstraintLanguageText", "XmlLayout");
+	private final String constraintUserText = rtc.getStringValue("ConstraintUserText", "XmlLayout");
+	private final String constraintSiteText = rtc.getStringValue("ConstraintSiteText", "XmlLayout");
+	private final String constraintLocaText = rtc.getStringValue("ConstraintLocationText", "XmlLayout");
+	//private final String constraintBSiteText = rtc.getStringValue("ConstraintBlockedSiteText", "XmlLayout");
+	
+	
+	// convenience variables to make the code easier to read and reduce number of calls to RuntimeConfiguration
+	private final String domainKey = rtc.getStringValue("DomainIdentifier", "XmlLayout");
+	private final String customerKey = rtc.getStringValue("CustomerIdentifier", "XmlLayout");
+	
+	
 	
 	public Facebook4JFbCrawler() {
 		// instantiate the Facebook-Posting-Manager - probably wrong
@@ -123,8 +136,8 @@ public class Facebook4JFbCrawler extends GenericCrawler implements Job {
 			configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
 			
 			// set the customer we start the crawler for and log the startup message
-			String curDomain = (String) configurationScope.get(rtc.getDomainidentifier());
-			String curCustomer = (String) configurationScope.get(rtc.getCustomeridentifier());
+			String curDomain = (String) configurationScope.get(domainKey);
+			String curCustomer = (String) configurationScope.get(customerKey);
 			
 			// this is the status code for the http connection
 			HttpStatusCodes httpStatusCodes = null;
@@ -151,12 +164,15 @@ public class Facebook4JFbCrawler extends GenericCrawler implements Job {
 			
 			// THESE ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS, GEO-LOCATIONS and PAGES (aka sites)
 			logger.info("retrieving restrictions from configuration db");
-			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintTermText(), configurationScope);
-			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintLanguageText(), configurationScope);
-			ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(rtc.getConstraintUserText(), configurationScope);
-			ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(rtc.getConstraintLocationText(), configurationScope);
-			ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintSiteText(), configurationScope);
-	
+			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(constraintTermText, configurationScope);
+			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(constraintLangText, configurationScope);
+			ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(constraintUserText, configurationScope);
+			ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(constraintSiteText, configurationScope);
+			ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(constraintLocaText, configurationScope);
+			// blocked URLs
+			//ArrayList<String> bURLs = new CrawlerConfiguration<String>().getConstraint(constraintBSiteText, configurationScope);
+			
+			
 			if (tTerms.size()>0) {
 				smallLogMessage += "specific terms ";
 			}

@@ -55,6 +55,13 @@ public final class SocialNetworks {
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	
+	private static final String configurationsKey = rtc.getStringValue("RootIdentifier", "XmlLayout");
+	private static final String configurationKey = rtc.getStringValue("SingleConfigurationIdentifier", "XmlLayout");
+	private static final String scopeKey = rtc.getStringValue("ScopeIdentifier", "XmlLayout");
+	private static final String socNetConfKey = rtc.getStringValue("SocialNetworkConfiguration", "XmlLayout");
+	private static final String socNetKey = rtc.getStringValue("SocialNetworkIdentifier", "XmlLayout");
+	private static final String socNetNameKey = rtc.getStringValue("SocialNetworkNameIdentifier", "XmlLayout");
+	
 	// make the constructor private so that it can only be called from inside the class itself, thus preventing 
 	// the initialization from someplace (more important unmanaged place) else
 	private SocialNetworks() {}
@@ -98,12 +105,12 @@ public final class SocialNetworks {
 			//		<supported>YES</supported>
 			//	</network>
 			// /configurations/configuration[@scope=socialNetworkDefinition]/network[@name='TWITTER']/code
-			expression = "/"+rtc.getRootidentifier()+"/" +
-						rtc.getSingleconfigurationidentifier() +
-							"[@"+rtc.getScopeidentifier()+"='"+rtc.getSocialNetworkConfiguration()+"']/" + 
-						rtc.getSocialNetworkIdentifier() + 
-							"[@"+rtc.getSocialNetworkName()+"='"+snname+"']/"+
-						key;
+			expression = "/"+configurationsKey+"/" 
+							+configurationKey 
+								+"[@"+scopeKey+"='"+socNetConfKey+"']/" 
+							+socNetKey 
+								+"[@"+socNetNameKey+"='"+snname+"']/"
+							+key;
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
@@ -115,12 +122,12 @@ public final class SocialNetworks {
 			
 		} catch (IOException e) {
 			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious!");
-			if (rtc.isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+			if (rtc.getBooleanValue("STOP_SNC_ON_CONFIGURATION_FAILURE", "runtime"))
 				System.exit(SNCStatusCodes.CRITICAL.getErrorCode());
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage() + ". This is serious!");
 			e.printStackTrace();
-			if (rtc.isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+			if (rtc.getBooleanValue("STOP_SNC_ON_CONFIGURATION_FAILURE", "runtime"))
 				System.exit(SNCStatusCodes.CRITICAL.getErrorCode());
 		}
 		return null;

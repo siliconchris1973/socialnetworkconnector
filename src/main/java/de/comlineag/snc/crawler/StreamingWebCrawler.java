@@ -84,6 +84,27 @@ public class StreamingWebCrawler extends GenericCrawler implements Job {
 	List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
 	
 	
+	private final boolean rtcWarnOnRejectedActions = rtc.getBooleanValue("WarnOnRejectedActions", "crawler");
+	private final int rtcCrawlerMaxDownloadSize = rtc.getIntValue("WcCrawlerMaxDownloadSize", "crawler");
+	private final int rtcSearchLimit = rtc.getIntValue("WcSearchLimit", "crawler");
+	private final int rtcMaxDepth = rtc.getIntValue("WcMaxDepth", "crawler");
+	private final boolean rtcStayOnDomain = rtc.getBooleanValue("WcStayOnDomain", "crawler");
+	private final boolean rtcStayBelowGivenPath = rtc.getBooleanValue("WcStayBelowGivenPath", "crawler");
+	
+	private final String constraintTermText = rtc.getStringValue("ConstraintTermText", "XmlLayout");
+	private final String constraintLangText = rtc.getStringValue("ConstraintLanguageText", "XmlLayout");
+	private final String constraintUserText = rtc.getStringValue("ConstraintUserText", "XmlLayout");
+	private final String constraintSiteText = rtc.getStringValue("ConstraintSiteText", "XmlLayout");
+	//private final String constraintLocaText = rtc.getStringValue("ConstraintLocationText", "XmlLayout");
+	private final String constraintBSiteText = rtc.getStringValue("ConstraintBlockedSiteText", "XmlLayout");
+	
+	private final String rtcDomainKey = rtc.getStringValue("DomainIdentifier", "XmlLayout");
+	private final String rtcCustomerKey = rtc.getStringValue("CustomerIdentifier", "XmlLayout");
+	
+	private final String rtcRobotDisallowText = rtc.getStringValue("WcRobotDisallowText", "crawler");
+	
+	
+	
 	public StreamingWebCrawler(){}
 	
 	
@@ -119,8 +140,8 @@ public class StreamingWebCrawler extends GenericCrawler implements Job {
 			smallLogMessage += " below given path ";
 		}
 		if (stayOnDomain) smallLogMessage += " on initial domain ";
-		if (maxPages > rtc.getWC_SEARCH_LIMIT() || maxPages == 0) maxPages = rtc.getWC_SEARCH_LIMIT();
-		if (maxDepth > rtc.getWC_MAX_DEPTH() || maxDepth == 0) maxDepth = rtc.getWC_MAX_DEPTH();
+		if (maxPages > rtcSearchLimit || maxPages == 0) maxPages = rtcSearchLimit;
+		if (maxDepth > rtcMaxDepth || maxDepth == 0) maxDepth = rtcMaxDepth;
 		if (maxPages == -1) smallLogMessage += " on unlimited pages "; else smallLogMessage += " on max "+maxPages+" pages ";
 		if (maxDepth == -1) smallLogMessage += " unlimited depth "; else smallLogMessage += " max "+maxDepth+" levels deep ";
 		
@@ -369,7 +390,7 @@ public class StreamingWebCrawler extends GenericCrawler implements Job {
 			byte b[] = new byte[1000];
 			int numRead = urlStream.read(b);
 			String content = new String(b, 0, numRead);
-			while ( (numRead != -1) && (content.length() < rtc.getWC_CRAWLER_MAX_DOWNLOAD_SIZE()) ) {
+			while ( (numRead != -1) && (content.length() < rtcCrawlerMaxDownloadSize)) {
 				numRead = urlStream.read(b);
 				if (numRead != -1) {
 					String newContent = new String(b, 0, numRead);
@@ -471,7 +492,7 @@ public class StreamingWebCrawler extends GenericCrawler implements Job {
 							proceed = true;
 						} else {
 							proceed = false;
-							if (rtc.isWARN_ON_REJECTED_ACTIONS())
+							if (rtcWarnOnRejectedActions)
 								logger.debug("rejecting url " + url.getPath() + " because it not below initial path "+initialPath+" and stayBelowGivenPath is " + stayBelowGivenPath);
 						}
 					} else {
@@ -480,7 +501,7 @@ public class StreamingWebCrawler extends GenericCrawler implements Job {
 					}
 				} else {
 					proceed = false;
-					if (rtc.isWARN_ON_REJECTED_ACTIONS())
+					if (rtcWarnOnRejectedActions)
 						logger.debug("rejecting host " + url.getHost() + " because it is not on the initial domain "+oldURL.getHost()+" and stayOnDomain is " + stayOnDomain);
 				}
 			} else {
@@ -490,7 +511,7 @@ public class StreamingWebCrawler extends GenericCrawler implements Job {
 					proceed = true;
 				} else {
 					proceed = false;
-					if (rtc.isWARN_ON_REJECTED_ACTIONS())
+					if (rtcWarnOnRejectedActions)
 						logger.debug("rejecting host " + url.getHost() + " because it is not on the initial domain "+oldURL.getHost()+" and stayonDomain is " + stayOnDomain);
 				}
 			}
@@ -498,7 +519,7 @@ public class StreamingWebCrawler extends GenericCrawler implements Job {
 		
 		// the last check is, is the url in question on the blocking-list
 		if (blockedURLs.containsKey(url)) {
-			if (rtc.isWARN_ON_REJECTED_ACTIONS())
+			if (rtcWarnOnRejectedActions)
 				logger.debug("rejecting url " + url + " because it is in the list of blocked urls");
 			proceed = false;
 		}
@@ -578,8 +599,8 @@ public class StreamingWebCrawler extends GenericCrawler implements Job {
 		String strURL = url.getFile();
 		int index = 0;
 
-		while ((index = strCommands.indexOf(rtc.getWC_ROBOT_DISALLOW_TEXT(), index)) != -1) {
-			index += rtc.getWC_ROBOT_DISALLOW_TEXT().length();
+		while ((index = strCommands.indexOf(rtcRobotDisallowText, index)) != -1) {
+			index += rtcRobotDisallowText.length();
 			String strPath = strCommands.substring(index);
 			StringTokenizer st = new StringTokenizer(strPath);
 

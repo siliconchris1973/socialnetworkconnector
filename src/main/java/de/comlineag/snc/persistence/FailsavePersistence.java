@@ -42,7 +42,7 @@ public class FailsavePersistence implements IPersistenceManager {
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// define where and the files shall be saved
-	private String savePoint = rtc.getJSON_BACKUP_STORAGE_PATH();
+	private String savePoint = rtc.getStringValue("JsonBackupStoreagePath", "runtime");
 	private String objectStatusPriorSaving; // was storing of the object prior saving to disk (e.g. n a db) successful (ok) or not (fail)
 	private String objectTypeToSave;		// can either be user or post
 	

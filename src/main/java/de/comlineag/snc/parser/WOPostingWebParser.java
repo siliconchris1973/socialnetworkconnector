@@ -55,6 +55,13 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
+	
+	private final boolean rtcGetOnlyRelevantPages = rtc.getBooleanValue("WcGetOnlyRelevantPages", "crawler");
+	//private final int rtcWordDistanceCutoffMargin = rtc.getIntValue("WcWordDistanceCutoffMargin", "crawler");
+	//private final boolean rtcPersistenceThreading = rtc.getBooleanValue("PersistenceThreadingEnabled", "runtime");
+	private final int rtcPersistenceThreadingPoolSize = rtc.getIntValue("PersistenceThreadingPoolSize", "runtime");
+	
+	
 	public WOPostingWebParser() {}
 	// this constructor is used to call the parser in a multi threaded environment
 	public WOPostingWebParser(String page, URL url, ArrayList<String> tTerms, String sn_id, String curCustomer, String curDomain) {
@@ -67,7 +74,7 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 	}
 	@Override
 	public Object execute(String page, URL url) {
-		ExecutorService persistenceExecutor = Executors.newFixedThreadPool(rtc.getPERSISTENCE_THREADING_POOL_SIZE());
+		ExecutorService persistenceExecutor = Executors.newFixedThreadPool(rtcPersistenceThreadingPoolSize);
 		
 		// TODO implement execute-method to make parser thread save
 		return null;
@@ -135,7 +142,7 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 				user_id = ((String) innerUserElement.getAttributeValue("data-userid"));
 				
 				// add page to list if it contains the track terms or if we want all pages
-				if (!rtc.isWC_GET_ONLY_RELEVANT_PAGES() || findNeedleInHaystack(text, tokens)){
+				if (!rtcGetOnlyRelevantPages || findNeedleInHaystack(text, tokens)){
 					logger.trace("adding extracted page content to posting list");
 					
 					// add the parsed site to the message list for saving in the DB

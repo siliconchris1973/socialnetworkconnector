@@ -103,51 +103,51 @@ public abstract class GenericCrawler implements Job {
 			Node node = null; 
 			 
 			//String expressionStatic = "/configurations/configuration[@scope='socialNetworkDefinition']/network[@name='"+CRAWLER_NAME+"']/";
-			expression = "/"+rtc.getRootidentifier()
-						+"/"+rtc.getSingleconfigurationidentifier()
-						+"[@"+rtc.getScopeidentifier()+"='"+rtc.getSocialNetworkConfiguration()+"']"
+			expression = "/"+rtc.getStringValue("Rootidentifier", "XmlLayout")
+						+"/"+rtc.getStringValue("Singleconfigurationidentifier", "XmlLayout")
+						+"[@"+rtc.getStringValue("Scopeidentifier", "XmlLayout")+"='"+rtc.getStringValue("SocialNetworkConfiguration", "XmlLayout")+"']"
 						+"/network"
-						+"[@"+rtc.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
+						+"[@"+rtc.getStringValue("SocialNetworkName", "XmlLayout") + "='"+CRAWLER_NAME+"']"
 						+"/name";
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			obj.put((String)"networkName", (String)node.getTextContent());
 			
-			expression = "/"+rtc.getRootidentifier()
-						+"/"+rtc.getSingleconfigurationidentifier()
-						+"[@"+rtc.getScopeidentifier()+"='"+rtc.getSocialNetworkConfiguration()+"']"
+			expression = "/"+rtc.getStringValue("Rootidentifier", "XmlLayout")
+						+"/"+rtc.getStringValue("Singleconfigurationidentifier", "XmlLayout")
+						+"[@"+rtc.getStringValue("Scopeidentifier", "XmlLayout")+"='"+rtc.getStringValue("SocialNetworkConfiguration", "XmlLayout")+"']"
 						+"/network"
-						+"[@"+rtc.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
+						+"[@"+rtc.getStringValue("SocialNetworkName", "XmlLayout") + "='"+CRAWLER_NAME+"']"
 						+"/code";
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			obj.put((String)"networkCode", (String)node.getTextContent());
 			
-			expression = "/"+rtc.getRootidentifier()
-						+"/"+rtc.getSingleconfigurationidentifier()
-						+"[@"+rtc.getScopeidentifier()+"='"+rtc.getSocialNetworkConfiguration()+"']"
+			expression = "/"+rtc.getStringValue("Rootidentifier", "XmlLayout")
+						+"/"+rtc.getStringValue("Singleconfigurationidentifier", "XmlLayout")
+						+"[@"+rtc.getStringValue("Scopeidentifier", "XmlLayout")+"='"+rtc.getStringValue("SocialNetworkConfiguration", "XmlLayout")+"']"
 						+"/network"
-						+"[@"+rtc.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
+						+"[@"+rtc.getStringValue("SocialNetworkName", "XmlLayout") + "='"+CRAWLER_NAME+"']"
 						+"/description";
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			obj.put((String)"description", (String)node.getTextContent());
 			
-			expression = "/"+rtc.getRootidentifier()
-						+"/"+rtc.getSingleconfigurationidentifier()
-						+"[@"+rtc.getScopeidentifier()+"='"+rtc.getSocialNetworkConfiguration()+"']"
+			expression = "/"+rtc.getStringValue("Rootidentifier", "XmlLayout")
+						+"/"+rtc.getStringValue("Singleconfigurationidentifier", "XmlLayout")
+						+"[@"+rtc.getStringValue("Scopeidentifier", "XmlLayout")+"='"+rtc.getStringValue("SocialNetworkConfiguration", "XmlLayout")+"']"
 						+"/network"
-						+"[@"+rtc.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
+						+"[@"+rtc.getStringValue("SocialNetworkName", "XmlLayout") + "='"+CRAWLER_NAME+"']"
 						+"/domain";
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			obj.put((String)"domain", (String)node.getTextContent());
 			
-			expression = "/"+rtc.getRootidentifier()
-						+"/"+rtc.getSingleconfigurationidentifier()
-						+"[@"+rtc.getScopeidentifier()+"='"+rtc.getSocialNetworkConfiguration()+"']"
+			expression = "/"+rtc.getStringValue("Rootidentifier", "XmlLayout")
+						+"/"+rtc.getStringValue("Singleconfigurationidentifier", "XmlLayout")
+						+"[@"+rtc.getStringValue("Scopeidentifier", "XmlLayout")+"='"+rtc.getStringValue("SocialNetworkConfiguration", "XmlLayout")+"']"
 						+"/network"
-						+"[@"+rtc.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
+						+"[@"+rtc.getStringValue("SocialNetworkName", "XmlLayout") + "='"+CRAWLER_NAME+"']"
 						+"/supported";
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);

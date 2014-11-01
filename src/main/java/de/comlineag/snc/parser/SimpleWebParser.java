@@ -67,6 +67,11 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
+	
+	private final boolean rtcGetOnlyRelevantPages = rtc.getBooleanValue("WcGetOnlyRelevantPages", "crawler");
+	private final int rtcWordDistanceCutoffMargin = rtc.getIntValue("WcWordDistanceCutoffMargin", "crawler");
+	
+	
 	public SimpleWebParser() {}
 	// this constructor is used to call the parser in a multi threaded environment
 	public SimpleWebParser(String page, URL url, ArrayList<String> tTerms, String sn_id, String curCustomer, String curDomain) {
@@ -93,7 +98,7 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 			
 			// now check if we really really have the searched word within the text and only if so,
 			// write the content to disk. We should probably put this before calling the persistence
-			if (!rtc.isWC_GET_ONLY_RELEVANT_PAGES() || findNeedleInHaystack(parsedPageJson.toString(), tokens)){
+			if (!rtcGetOnlyRelevantPages || findNeedleInHaystack(parsedPageJson.toString(), tokens)){
 				// add the parsed site to the message list for saving in the DB
 				postings.add(parsedPageSimpleWebPosting);
 			}
@@ -188,8 +193,8 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 			for (int i=0;i<positions.size();i++) {
 				int position = positions.get(i);
 				segmentText += trimStringAtPosition(plainText, position, 
-													rtc.getWC_WORD_DISTANCE_CUTOFF_MARGIN(), 
-													rtc.getWC_WORD_DISTANCE_CUTOFF_MARGIN());
+													rtcWordDistanceCutoffMargin, 
+													rtcWordDistanceCutoffMargin);
 			}
 			//logger.trace("TruncatedText: >>> " + segmentText);
 			

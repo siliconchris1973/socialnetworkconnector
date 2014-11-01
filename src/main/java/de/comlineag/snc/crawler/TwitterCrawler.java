@@ -86,6 +86,21 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
+	
+	private final String constraintTermText = rtc.getStringValue("ConstraintTermText", "XmlLayout");
+	private final String constraintLangText = rtc.getStringValue("ConstraintLanguageText", "XmlLayout");
+	private final String constraintUserText = rtc.getStringValue("ConstraintUserText", "XmlLayout");
+	//private final String constraintSiteText = rtc.getStringValue("ConstraintSiteText", "XmlLayout");
+	private final String constraintLocaText = rtc.getStringValue("ConstraintLocationText", "XmlLayout");
+	//private final String constraintBSiteText = rtc.getStringValue("ConstraintBlockedSiteText", "XmlLayout");
+
+	private final String rtcDomainKey = rtc.getStringValue("DomainIdentifier", "XmlLayout");
+	private final String rtcCustomerKey = rtc.getStringValue("CustomerIdentifier", "XmlLayout");
+	
+	private final int rtcMaxTweetsPerRun = rtc.getIntValue("TwMaxTweetsPerCrawlerRun", "crawler");
+	
+	
+	
 	// Set up your blocking queues: Be sure to size these properly based on
 	// expected TPS of your stream
 	private final BlockingQueue<String> msgQueue;
@@ -130,8 +145,8 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
 				
 				// set the customer we start the crawler for and log the startup message
-				String curDomain = (String) configurationScope.get(rtc.getDomainidentifier());
-				String curCustomer = (String) configurationScope.get(rtc.getCustomeridentifier());
+				String curDomain = (String) configurationScope.get(rtcDomainKey);
+				String curCustomer = (String) configurationScope.get(rtcCustomerKey);
 				
 				if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
 					logger.info(CRAWLER_NAME+"-Crawler START");
@@ -157,21 +172,15 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				
 				// THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
 				logger.debug("retrieving restrictions from configuration db");
-				ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintTermText(), configurationScope);
-				ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintLanguageText(), configurationScope);
-				ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(rtc.getConstraintUserText(), configurationScope);
-				ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(rtc.getConstraintLocationText(), configurationScope);
-				
+				ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(constraintTermText, configurationScope);
+				ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(constraintLangText, configurationScope);
+				ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(constraintUserText, configurationScope);
+				//ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(constraintSiteText, configurationScope);
+				ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(constraintLocaText, configurationScope);
 				// blocked URLs
-				//ArrayList<String> bURLs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintBlockedSiteText(), configurationScope);
+				//ArrayList<String> bURLs = new CrawlerConfiguration<String>().getConstraint(constraintBSiteText, configurationScope);
 				
 				
-				/*
-				ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintTermText(), configurationScope);
-				ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintLanguageText(), configurationScope);
-				ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(rtc.getConstraintUserText(), configurationScope);
-				ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(rtc.getConstraintLocationText(), configurationScope);
-				*/
 				
 				// log output AND setup of the filter end point
 				if (tTerms.size()>0) {
@@ -217,7 +226,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 					
 					// check if there is a limit on the maximum number of tweets to track per crawler run
 /*
-					if (rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN() == -1) {
+					if (rtcMaxTweetsPerRun == -1) {
 						// now track all relevant tweets as long as new tweets exist in the queue
 						logger.debug("tracking unlimited messages");
 						while (!msgQueue.isEmpty()){
@@ -245,9 +254,9 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 					} else {
 */
 						// now track all relevant tweets up to maximum number configured
-						logger.debug("tracking max "+rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN()+" messages");
+						logger.debug("tracking max "+rtcMaxTweetsPerRun+" messages");
 						
-						for (int msgRead = 0; msgRead < rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN(); msgRead++) {
+						for (int msgRead = 0; msgRead < rtcMaxTweetsPerRun; msgRead++) {
 							logger.trace("message " + messageCount + " received");
 							messageCount++;
 							setPostsTracked(messageCount);
