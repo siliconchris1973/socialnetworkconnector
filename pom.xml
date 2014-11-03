@@ -197,7 +197,7 @@
 			<version>3.1</version>
 		</dependency>
 		
-		<!-- used by the WebCrawler -->
+		<!-- used by the WebCrawler (SNC's own implementation of the crawler4j crawler framework) -->
 		<dependency>
 			<groupId>com.sleepycat</groupId>
 			<artifactId>je</artifactId>
@@ -276,17 +276,21 @@
 			<version>${quartz.version}</version>
 		</dependency>
 		
-		<!-- logging is done via slf4j - simple logging facade 4 java -->
+		<!-- logging is done via slf4j (Simple Logging Facade 4 Java) -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
+			<scope>compile</scope>
 			<version>1.7.7</version>
 		</dependency>
+		<!-- which masks the standard log4j logger -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
+			<scope>compile</scope>
 			<version>1.7.7</version>
 		</dependency>
+		<!-- which we consequently also need in our dependencies -->
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
@@ -307,6 +311,7 @@
 			<artifactId>ini4j</artifactId>
 			<version>0.3.3</version>
 		</dependency>
+		
 		
 		<!-- to work with the neo4j graph database -->
 		<dependency>

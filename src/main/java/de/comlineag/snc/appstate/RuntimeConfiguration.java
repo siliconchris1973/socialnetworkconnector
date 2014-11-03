@@ -7,14 +7,11 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
-
+import org.xml.sax.SAXException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.xml.sax.SAXException;
-
-import de.comlineag.snc.constants.SNCStatusCodes;
 import de.comlineag.snc.data.RuntimeOption;
 import de.comlineag.snc.handler.RuntimeOptionsParser;
 
@@ -66,10 +63,7 @@ import de.comlineag.snc.handler.RuntimeOptionsParser;
  *
  */
 public final class RuntimeConfiguration { 
-	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	// singleton design pattern using Initialization-on-demand holder idiom, 
 	private static class Holder { static final RuntimeConfiguration instance = new RuntimeConfiguration(); }

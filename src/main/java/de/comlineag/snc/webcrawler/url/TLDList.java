@@ -53,10 +53,12 @@ public class TLDList {
         if (line.isEmpty() || line.startsWith("//")) {
           continue;
         }
+        logger.trace("adding TLD {} to list", line);
         tldSet.add(line);
       }
       reader.close();
       stream.close();
+      logger.trace("finished");
     } catch (Exception e) {
       logger.error("Couldn't find " + TLD_NAMES_TXT_FILENAME, e);
       System.exit(-1);
