@@ -2,7 +2,9 @@ package de.comlineag.snc.handler;
 
 import javax.servlet.ServletContext;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
@@ -33,10 +35,7 @@ import org.springframework.web.context.WebApplicationContext;
  * 
  */ 
 public class ResourcePathHolder implements ApplicationContextAware, InitializingBean {
-	// we use simple org.apache.log4j.Logger for lgging
-	private static final Logger logger = Logger.getLogger("de.comlineag.snc.appstate.ResourcePathHolder");
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private static final Logger logger = LoggerFactory.getLogger(ResourcePathHolder.class);
 	
 	private WebApplicationContext wac;
 	private static String resourcePath;

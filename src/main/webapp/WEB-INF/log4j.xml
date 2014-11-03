@@ -83,6 +83,12 @@
 		<appender-ref ref="console" />
 		<appender-ref ref="fileJ" />
 	</logger>
+	<!-- log infos from quartz job control -->
+	<logger name="org.quartz.impl">
+		<level value="warn"></level>
+		<appender-ref ref="console" />
+		<appender-ref ref="fileJ" />
+	</logger>
 	<!-- log infos from apache framework -->
 	<logger name="org.apache">
 		<level value="warn"></level>
@@ -95,7 +101,6 @@
 		<appender-ref ref="console" />
 		<appender-ref ref="fileH" />
 	</logger>
-	
 	<!-- log infos from facebook4j -->
 	<logger name="facebook4j.internal.http">
 		<level value="warn"></level>

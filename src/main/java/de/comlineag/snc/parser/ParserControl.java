@@ -15,7 +15,9 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -62,10 +64,7 @@ public class ParserControl {
 	// this holds a reference to the runtime configuration
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
-	// we use simple org.apache.log4j.Logger for lgging
-	private static final Logger logger = Logger.getLogger("de.comlineag.snc.parser.ParserControl");
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private static final Logger logger = LoggerFactory.getLogger(ParserControl.class);
 		
 	// the list of operational web parser as taken from the properties file is stored within this structure
 	private List<IWebParser> webParser; 

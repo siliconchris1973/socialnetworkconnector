@@ -5,9 +5,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.json.simple.JSONObject;
 import org.quartz.DisallowConcurrentExecution;
@@ -21,10 +20,8 @@ import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.SocialNetworks;
-import de.comlineag.snc.constants.FacebookConstants;
 import de.comlineag.snc.parser.FacebookParser;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 
 /**
@@ -54,7 +51,7 @@ public class FacebookSpringFbCrawler extends GenericCrawler implements Job {
 	private static String CRAWLER_NAME="FACEBOOK";
 	
 	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	

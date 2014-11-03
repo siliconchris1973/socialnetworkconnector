@@ -11,6 +11,17 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import de.comlineag.snc.data.RuntimeOption;
 
+/**
+*
+* @author 		Christian Guenther
+* @category 	parser
+* @version 		0.1				- 22.10.2014
+* @status		productive
+*
+* @description	parses the runtime configuration file nd returning a map of elements contained within
+* 
+* @changelog	0.1 (Chris)		class created
+*/
 public class RuntimeOptionsParser extends DefaultHandler {
     private final StringBuilder valueBuffer = new StringBuilder();
     private final Map<String, RuntimeOption> resultAsMap = new HashMap<String, RuntimeOption>();

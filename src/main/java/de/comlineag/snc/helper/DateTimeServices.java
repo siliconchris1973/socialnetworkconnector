@@ -1,10 +1,10 @@
 package de.comlineag.snc.helper;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -13,10 +13,7 @@ import org.joda.time.format.DateTimeFormatter;
 import de.comlineag.snc.constants.SocialNetworks;
 
 public class DateTimeServices {
-	// we use simple org.apache.log4j.Logger for lgging
-	static Logger logger = Logger.getLogger("de.comlineag.snc.helper.DateTimeServices");
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	static Logger logger = LoggerFactory.getLogger(DateTimeServices.class);
 	
 	// the class is not to be instantiated
 	private DateTimeServices() {}

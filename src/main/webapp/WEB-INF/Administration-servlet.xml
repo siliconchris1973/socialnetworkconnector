@@ -17,6 +17,6 @@
 
   <!-- the application context definition for the spring mvc DispatcherServlet -->
 
-  <bean name="/index.jsp" class="de.comlineag.snc.appstate.RuntimeController"/>
+  <bean name="/index.jsp" class="de.comlineag.snc.controller.RuntimeController"/>
 
 </beans>

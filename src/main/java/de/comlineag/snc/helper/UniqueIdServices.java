@@ -12,12 +12,11 @@ import java.security.NoSuchAlgorithmException;
  * @version 	0.2					- 22.10.2014
  * @status		productive
  *
- * @description creates an MD5Hash from a given input string 
+ * @description creates an SHA-256 from a given input string 
  * 
  * @changelog	0.1 (Chris)			class created
- * 				0.2					changed class to create an md5 hash
+ * 				0.2					changed class to create an SHA-256 hash
  *
- * TODO move this in the crypto package, as really MD5 is a crypto provider of sorts
  */
 public final class UniqueIdServices {
 	public static String createMessageDigest(String inputString) {

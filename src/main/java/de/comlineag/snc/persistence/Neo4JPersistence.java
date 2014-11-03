@@ -11,9 +11,8 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.json.simple.JSONObject;
 
@@ -55,10 +54,7 @@ import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
  * TODO check implementation of geo geoLocation
  */
 public class Neo4JPersistence implements IPersistenceManager {
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	// Servicelocation
 	private String host;
@@ -674,7 +670,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	        
 	        mGet.releaseConnection();
 	    }catch(Exception e){
-	    	logger.error(e);
+	    	logger.error("EXCEPTION :: " + e.getLocalizedMessage());
 	    }
         
 	    return status;

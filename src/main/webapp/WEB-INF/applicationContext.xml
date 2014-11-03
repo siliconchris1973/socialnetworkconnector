@@ -150,7 +150,8 @@
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
-				<ref bean="SimpleWebCrawlerTrigger"/>
+				<!-- <ref bean="SimpleWebCrawlerTrigger"/> -->
+				<ref bean="BasicWebCrawlerTrigger"/>
 				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
 				
 				
@@ -251,6 +252,28 @@
 		<property name="startDelay" value="2000" />
 		<property name="repeatInterval" value="86400000" /> <!-- 24 Stunden -->
 	</bean>
+	
+	
+	
+	<!-- B A S I C W E B C R A W L E R -->
+	<bean name="BasicWebCrawlerDetail"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="de.comlineag.snc.controller.BasicWebCrawlerController" />
+		<property name="durability" value="true" />
+		<property name="jobDataAsMap">
+			<map>
+				<!-- THIS MUST BE SET ACCORDING TO AN EXISTING CODE FOR A SOCIAL NETWORK ENTRY IN SNC_Runtime_Configuration.xml -->
+				<entry key="SN_ID_CODE" value="WO" />
+			</map>
+		</property>
+	</bean>
+	<bean id="BasicWebCrawlerTrigger"
+		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="BasicWebCrawlerDetail" />
+		<property name="startDelay" value="3000" />
+		<property name="repeatInterval" value="86400000" /> <!-- 24 Stunden -->
+	</bean>
+	
 	
 	
 	<!-- S I M P L E    W E B    C R A W L E R    (PRODUCTIVE) -->

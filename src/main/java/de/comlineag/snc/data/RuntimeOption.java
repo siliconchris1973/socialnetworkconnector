@@ -9,7 +9,7 @@ package de.comlineag.snc.data;
 *
 * @description 	representation of the runtime configuration data. The class is used by
 * 				RuntimeOptionsParser to setup a map of options. The options come from
-* 				the runtime configuration xml-file SNC_Runtime_Configuration_1.0.xml
+* 				the runtime configuration xml-file SNC_Runtime_Configuration-1.0.xml
 *				RuntimeOptionsParser is in turn used by the RuntimeConfiguration class
 *
 * @changelog	0.1 (Chris)		class created

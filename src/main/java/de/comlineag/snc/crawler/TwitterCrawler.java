@@ -9,9 +9,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.json.simple.JSONObject;
 import org.quartz.DisallowConcurrentExecution;
@@ -81,10 +80,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	private static final String CRAWLER_NAME="TWITTER";
 	private static String name="TwitterCrawler";
 		
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	
 	private final String constraintTermText = rtc.getStringValue("ConstraintTermText", "XmlLayout");

@@ -1,4 +1,4 @@
-package de.comlineag.snc.appstate;
+package de.comlineag.snc.controller;
 
 import org.springframework.web.servlet.mvc.Controller;
 import org.springframework.web.servlet.ModelAndView;
@@ -9,8 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -31,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
  */
 //@Controller
 public class RuntimeController implements Controller {
-	protected final Log logger = LogFactory.getLog(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(RuntimeController.class);
 	
 	//@RequestMapping("/admin")
 	public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)

@@ -1,24 +1,17 @@
 package de.comlineag.snc.appstate;
 
-import java.io.File;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.xml.sax.SAXException;
 
 import de.comlineag.snc.constants.SNCStatusCodes;
@@ -74,7 +67,7 @@ import de.comlineag.snc.handler.RuntimeOptionsParser;
  */
 public final class RuntimeConfiguration { 
 	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
@@ -221,7 +214,7 @@ public final class RuntimeConfiguration {
 		for (RuntimeOption option : values) {
 			//logger.trace("checking OPTION: " + option.getName() + " TYPE: " + option.getType()+ " VALUE: " + option.getValue());
 			if (option.getName().equalsIgnoreCase(parameter)) {
-				logger.trace("PARAMETER "+parameter+" matches OPTION: " + option.getName() + " of TYPE: " + option.getType()+ " with VALUE: " + option.getValue());
+				//logger.trace("PARAMETER "+parameter+" matches OPTION: " + option.getName() + " of TYPE: " + option.getType()+ " with VALUE: " + option.getValue());
 				return option.getValue();
 			}
 		}
@@ -240,7 +233,7 @@ public final class RuntimeConfiguration {
 		logger.debug("initializing runtime configuration");
 		setRuntimeConfigFilePath(	returnQualifiedConfigPath(RTCF));
 		
-		logger.debug("setting path to configuration files");
+		//logger.debug("setting path to configuration files");
 		setXmlLayoutFilePath(		returnQualifiedConfigPath(	getStringValue("XmlLayoutFilePath", "runtime")));
 		setCrawlerConfigFilePath(	returnQualifiedConfigPath(	getStringValue("CrawlerConfigurationFilePath", "runtime")));
 		setDataConfigFilePath(		returnQualifiedConfigPath(	getStringValue("DataConfigurationFilePath", "runtime")));
@@ -248,25 +241,6 @@ public final class RuntimeConfiguration {
 		setHanaConfigFilePath(		returnQualifiedConfigPath(	getStringValue("HanaConfigurationFilePath", "runtime")));
 		setWebParserListFilePath(	returnQualifiedConfigPath(	getStringValue("ParserListFilePath", "runtime")));
 		setSocialNetworkFilePath(	returnQualifiedConfigPath(	getStringValue("SocialNetworkFilePath", "runtime")));
-		
-		logger.debug("All pathes set...");
-		//System.exit(0);
-		
-		/* set the xml layout
-		setXmlLayout(				getRuntimeConfigFilePath());
-		
-		// set the runtime configuration 
-		setRuntimeConfiguration(	getRuntimeConfigFilePath());
-		
-		// set the threading model
-		setThreadingModel(			getThreadingConfigFilePath());
-		
-		// set basic crawler
-		setCrawlerConfiguration(	getCrawlerConfigFilePath());
-		
-		// set the data definitions
-		setDataDefinitions(			getDataConfigFilePath());
-		*/
 	}
 	
 	
@@ -293,6 +267,7 @@ public final class RuntimeConfiguration {
 	
 	/*
 	 * marked everything as a comment below this point because not needed anymore 
+	 * all the vars and methods were used in the old runtime configuration.
 	
 	public void printOptions(String pathtoconfig) {
         final RuntimeOptionsParser handler = new RuntimeOptionsParser();

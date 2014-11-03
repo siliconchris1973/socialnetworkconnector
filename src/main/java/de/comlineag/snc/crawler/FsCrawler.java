@@ -8,7 +8,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.joda.time.LocalDateTime;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -44,10 +46,7 @@ import de.comlineag.snc.persistence.HANAPersistence;
  */
 public class FsCrawler implements Job {
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
 	//private DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
