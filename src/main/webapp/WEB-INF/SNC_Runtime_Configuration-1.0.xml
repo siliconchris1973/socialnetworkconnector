@@ -111,7 +111,7 @@
 		<option>
 			<name>WarnOnRejectedActions</name>
 			<type>boolean</type>
-			<value>false</value>
+			<value>true</value>
 			<constant>WARN_ON_REJECTED_ACTIONS</constant>
 		</option>
 		<!-- save a json file with the post data in case creating it in persistence fails -->
@@ -218,7 +218,7 @@
 		<option>
 			<name>CrawlerThreadingEnabled</name>
 			<type>boolean</type>
-			<value>false</value>
+			<value>true</value>
 			<constant>CRAWLER_THREADING_ENABLED</constant>
 		</option>
 		<option>
@@ -280,7 +280,7 @@
 		<option>
 			<name>WcSearchLimit</name>
 			<type>int</type>
-			<value>10000</value>
+			<value>10</value>
 			<constant>WC_SEARCH_LIMIT</constant>
 		</option>
 		
@@ -309,10 +309,19 @@
 		<option>
 			<name>WcContentTypesToDownload</name>
 			<type>List</type>
-			<value>html</value>
-			<value>xml</value>
-			<value>jpeg</value>
+			<values>
+				<value>html</value>
+				<value>htm</value>
+			</values>
 			<constant>WC_CONTENT_TYPES_TO_DOWNLOAD</constant>
+		</option>
+		
+		<!-- time to wait between connection tries in milliseconds ONLY used by TheWebCrawler -->
+		<option>
+			<name>WcPolitenessDelay</name>
+			<type>int</type>
+			<value>1000</value>
+			<constant>WC_POLITENESS_DELAY</constant>
 		</option>
 		
 		<!-- whether or not the crawler is allowed to follow links off of the initial domain 
@@ -331,10 +340,12 @@
 		<!-- Shall the crawler only get pages below the initially given path
 			 You can think of this option like an even stricter stayOnDomain. Not only we can't 
 			 leave the initial given domain, but any link encountered must point to some page on 
-			 or below the above given url. Consequently, if you set this to true, you do not need 
+			 or below the initial given url. Consequently, if you set this to true, you do not need 
 			 to set stayOnDomain to true as the value of stayOnDomain is ignored.
-					 
-			 Note: if you did not give a path as part of the url, then / is used -->
+				 
+			 Note:	This option only works with the SimpleWebCrawler crawler. It has NO effect .
+			 		when using THEWebCrawler!
+			 -->
 		<option>
 			<name>WcStayBelowGivenPath</name>
 			<type>Boolean</type>
@@ -574,6 +585,12 @@
 			<type>String</type>
 			<value>language</value>
 			<constant>CONSTRAINT_LANGUAGE_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintDnsDomainText</name>
+			<type>String</type>
+			<value>dnsdomain</value>
+			<constant>CONSTRAINT_DNS_DOMAIN_TEXT</constant>
 		</option>
 		<option>
 			<name>ConstraintSiteText</name>

@@ -223,7 +223,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				}
 				
 				if (arg0.getJobDetail().getJobDataMap().containsKey("useAllCrawlerConstraints"))
-					configurationScope.put("INCLUDE_ALL", arg0.getJobDetail().getJobDataMap().containsKey("useAllCrawlerConstraints"));
+					configurationScope.put("INCLUDE_ALL", arg0.getJobDetail().getJobDataMap().get("useAllCrawlerConstraints"));
 				
 				// set the customer we start the crawler for and log the startup message
 				String curDomain = (String) configurationScope.get(rtcDomainKey);

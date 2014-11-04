@@ -22,7 +22,6 @@ import de.comlineag.snc.webcrawler.fetcher.CustomFetchStatus;
 import de.comlineag.snc.webcrawler.fetcher.PageFetcher;
 import de.comlineag.snc.webcrawler.frontier.DocIDServer;
 import de.comlineag.snc.webcrawler.frontier.Frontier;
-import de.comlineag.snc.webcrawler.parser.HtmlParseData;
 import de.comlineag.snc.webcrawler.parser.NotAllowedContentException;
 import de.comlineag.snc.webcrawler.parser.ParseData;
 import de.comlineag.snc.webcrawler.parser.WebCrawlerParser;

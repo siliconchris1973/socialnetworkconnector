@@ -9,3 +9,5 @@
 *.json
 .project
 /.settings/*
+storage
+target

@@ -52,6 +52,10 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	private String configDbHandler;
 	private JSONParser parser = new JSONParser();
 	private String SN = null;
+	// the configuration file to use. This can either be the one passed from applicationContext.xml 
+	// from section configuration manager or one that was provided (overridden) when calling the
+	// configuration manager
+	private String CONF_FILE = null; 
 	private Object obj = null;
 	
 	private String domain = null;
@@ -424,19 +428,25 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 		if (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category) && !"blockedsite".equals(category)) 
 			logger.warn("received "+category+" as category, but can only process term, site, blockedsite, user, language or geoLocation");
 		
-		// first check, if the correct configuration file type was specified and if not, bail out the hard way
-		if (!isConfigFileCorrect()){
-			if (rtc.getBooleanValue("StopOnConfigurationFailure", "runtime"))
-				System.exit(SNCStatusCodes.ERROR.getErrorCode());
-		}
-		
 		// get configuration scope
 		try {
 			obj = parser.parse(configurationScope.toString());
 			JSONObject jsonObject = (JSONObject) obj;
 			SN = (String) jsonObject.get("SN_ID");
+			CONF_FILE = (String) jsonObject.get("configDbHandler");
 		} catch (ParseException e1) {
 			logger.error("ERROR :: could not parse configurationScope json " + e1.getLocalizedMessage());
+		}
+		
+		// in case a specific configuration file was given within the configurationScope object, set it here
+		if (!"___CRAWLER_CONFIGURATION___".equals(CONF_FILE) && CONF_FILE != null) {
+			logger.debug("configuration file from configDbHandler overriden with " + CONF_FILE);
+			setConfigDbHandler(CONF_FILE);
+		}
+		// first check, if the correct configuration file type was specified and if not, bail out the hard way
+		if (!isConfigFileCorrect()){
+			if (rtc.getBooleanValue("StopOnConfigurationFailure", "runtime"))
+				System.exit(SNCStatusCodes.ERROR.getErrorCode());
 		}
 		
 		return (ArrayList<T>) getDataFromXml(category, SN);
@@ -463,8 +473,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	
 	// getter and setter for the configuration path
 	public String getConfigDbHandler() {return rtc.returnQualifiedConfigPath(this.configDbHandler);}
-	//public String getConfigDbHandler() {return ResourcePathHolder.getResourcePath", "XmlLayout")+File.separator+this.configDbHandler;}
-	public void setConfigDbHandler(String configDb) {this.configDbHandler = configDb;}
+	private void setConfigDbHandler(String configDb) {this.configDbHandler = configDb;}
 	
 	// getter and setter for domain and customer
 	@Override
@@ -476,18 +485,18 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	@Override
 	public void setCustomer(String customer) {this.customer = customer;}
 	
-	private int getCustomerPriority() {return customerPriority;}
+	public int getCustomerPriority() {return customerPriority;}
 	private void setCustomerPriority(int i) {customerPriority = i;}
-	private int getDomainPriority() {return domainPriority;}
+	public int getDomainPriority() {return domainPriority;}
 	private void setDomainPriority(int i) {domainPriority = i;}
 	public boolean getDomainIsActive(){return domainIsActive;}
-	public void setDomainIsActive(boolean isActive){domainIsActive = isActive;}
+	private void setDomainIsActive(boolean isActive){domainIsActive = isActive;}
 	public boolean getCustomerIsActive(){return customerIsActive;}
-	public void setCustomerIsActive(boolean isActive){customerIsActive = isActive;}
+	private void setCustomerIsActive(boolean isActive){customerIsActive = isActive;}
 	public String getDomainIsActiveAsString(){if (domainIsActive) return "true"; else return "false"; }
-	public void setDomainIsActive(String isActive){if ("isActive".equals("true")) domainIsActive = true; else domainIsActive = false; }
+	//private void setDomainIsActive(String isActive){if ("isActive".equals("true")) domainIsActive = true; else domainIsActive = false; }
 	public String getCustomerIsActiveAsString(){if (customerIsActive) return "true"; else return "false";}
-	public void setCustomerIsActive(String isActive){if ("isActive".equals("true"))	customerIsActive = true; else customerIsActive = false;}
+	//private void setCustomerIsActive(String isActive){if ("isActive".equals("true"))	customerIsActive = true; else customerIsActive = false;}
 	
 	
 	// check to see, if provided configuration file is correct for chosen configuration manager

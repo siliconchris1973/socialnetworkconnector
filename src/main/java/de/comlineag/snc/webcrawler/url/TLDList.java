@@ -53,7 +53,7 @@ public class TLDList {
         if (line.isEmpty() || line.startsWith("//")) {
           continue;
         }
-        logger.trace("adding TLD {} to list", line);
+        //logger.trace("adding TLD {} to list", line);
         tldSet.add(line);
       }
       reader.close();

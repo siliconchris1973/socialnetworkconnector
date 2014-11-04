@@ -54,12 +54,12 @@
 	<context:annotation-config />
 		<context:component-scan base-package="de.comlineag.snc.appstate" />
 		<context:component-scan base-package="de.comlineag.snc.constants" />
+		<context:component-scan base-package="de.comlineag.snc.controller" />
 		<context:component-scan base-package="de.comlineag.snc.crawler" />
 		<context:component-scan base-package="de.comlineag.snc.crypto" />
 		<context:component-scan base-package="de.comlineag.snc.data" />
 		<context:component-scan base-package="de.comlineag.snc.handler" />
 		<context:component-scan base-package="de.comlineag.snc.helper" />
-		<context:component-scan base-package="de.comlineag.snc.job" />
 		<context:component-scan base-package="de.comlineag.snc.neo4j" />
 		<context:component-scan base-package="de.comlineag.snc.parser" />
 		<context:component-scan base-package="de.comlineag.snc.persistence" />
@@ -151,7 +151,7 @@
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="SimpleWebCrawlerTrigger"/> -->
-				<ref bean="BasicWebCrawlerTrigger"/>
+				<ref bean="THEWebCrawlerTrigger"/>
 				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
 				
 				
@@ -217,6 +217,9 @@
 	</bean>
 	
 	
+	
+	
+	
 	<!-- L I T H I U M    C R A W L E R    (PRODUCTIVE) -->
 	<bean name="LithiumCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
@@ -255,25 +258,6 @@
 	
 	
 	
-	<!-- B A S I C W E B C R A W L E R -->
-	<bean name="BasicWebCrawlerDetail"
-		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="de.comlineag.snc.controller.BasicWebCrawlerController" />
-		<property name="durability" value="true" />
-		<property name="jobDataAsMap">
-			<map>
-				<!-- THIS MUST BE SET ACCORDING TO AN EXISTING CODE FOR A SOCIAL NETWORK ENTRY IN SNC_Runtime_Configuration.xml -->
-				<entry key="SN_ID_CODE" value="WO" />
-			</map>
-		</property>
-	</bean>
-	<bean id="BasicWebCrawlerTrigger"
-		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
-		<property name="jobDetail" ref="BasicWebCrawlerDetail" />
-		<property name="startDelay" value="3000" />
-		<property name="repeatInterval" value="86400000" /> <!-- 24 Stunden -->
-	</bean>
-	
 	
 	
 	<!-- S I M P L E    W E B    C R A W L E R    (PRODUCTIVE) -->
@@ -292,9 +276,12 @@
 		 * Second you can only pass one webpage/domain as a starting point to crawl. 
 		 * Third and finally, it is very cumbersome to use an individual SN_ID (social network) code for 
 		   different sites. 
+		 * Forth and last, the software design of the SimpleWebCrawler is single threaded and sequential
+		   thus making it slow if it is to crawl a lot of pages
 		 
-		 In effect, in order to start the crawl process off of multiple pages in parallel you would need to 
-		 duplicate this entire section, with different bean-ids of course, and each with it's own starting url.-->
+		 In effect, if you want to crawl a complete site with a lot of pages and maybe even want to follow off 
+		 of the initial site to other linked sites, you should opt for the THEWebCrawler below, as it is much 
+		 faster in the desribed scenario. -->
 	<bean name="SimpleWebCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.snc.crawler.SimpleWebCrawler" />
@@ -389,6 +376,39 @@
 	
 	
 	
+	
+	
+	<!-- T H E   W E B   C R A W L E R 
+		 THEWebCrawler is an implementation of the open source web crawler crawler4j (see
+		 https://code.google.com/p/crawler4j/). 
+		 It has a multi threaded software design which crawls, fetches and parses sites in parallel.
+		 Because of this software design it is ightning fast and can take an arbitrary number of initial
+		 urls to start the crawl process. Because of this, the only option THEWebCrawler needs to get from 
+		 here, is where it's configuration file comes from. The configuration file can either be a seperate
+		 file, or a section within the general crawler configuration file. In the former case, state the 
+		 name of configuration file here, in the latter case enter exactly ___CRAWLER_CONFIGURATION___ -->
+	<bean name="THEWebCrawlerDetail"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="de.comlineag.snc.controller.THEWebCrawlerController" />
+		<property name="durability" value="true" />
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="configDBHandler" value="CortalConsorsSpecificWebCrawlerConfiguration.xml" />
+				<!-- <entry key="configDbHandler" value="___CRAWLER_CONFIGURATION___" />-->
+			</map>
+		</property>
+	</bean>
+	<bean id="THEWebCrawlerTrigger"
+		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="THEWebCrawlerDetail" />
+		<property name="startDelay" value="3000" />
+		<property name="repeatInterval" value="86400000" /> <!-- 24 Stunden -->
+	</bean>
+	
+	
+	
+	
+	
 	<!-- F A C E B O O K    C R A W L E R    (TO BE IMPLEMENTED) -->
 	<bean name="FacebookCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
@@ -426,6 +446,9 @@
 							30000 - 5 minutes -->
 		<property name="repeatInterval" value="30000" />
 	</bean>
+	
+	
+	
 	
 	
 	<!-- G O O G L E    C R A W L E R    (TO BE DEFINED) -->
