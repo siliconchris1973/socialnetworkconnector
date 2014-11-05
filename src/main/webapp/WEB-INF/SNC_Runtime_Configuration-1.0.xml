@@ -293,7 +293,7 @@
 		<option>
 			<name>WcMaxDepth</name>
 			<type>int</type>
-			<value>5</value>
+			<value>10</value>
 			<constant>WC_MAX_DEPTH</constant>
 		</option>
 		

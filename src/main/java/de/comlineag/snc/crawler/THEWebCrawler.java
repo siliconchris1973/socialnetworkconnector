@@ -21,10 +21,8 @@ import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SNCStatusCodes;
-import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.SimpleWebPosting;
@@ -66,7 +64,7 @@ public class THEWebCrawler extends WebCrawler {
 	
 	// it is VERY important to set the crawler name (all in upper case) here
 	// FIXME the CRAWLER_NAME must be WEBCRAWLER and SN_ID must be passed on from controller or taken dynamically 
-	private static final String CRAWLER_NAME="WALLSTREETONLINE";
+	private static final String CRAWLER_NAME="WEBCRAWLER";
 	private static String name="THEWebCrawler";
 	
 	
@@ -84,22 +82,27 @@ public class THEWebCrawler extends WebCrawler {
 	private final boolean rtcStayBelowGivenPath = rtc.getBooleanValue("WcStayBelowGivenPath", "crawler");
 	private final boolean rtcStopOnConfigurationFailure = rtc.getBooleanValue("StopOnConfigurationFailure", "crawler");
 	private final String constraintTermText = rtc.getStringValue("ConstraintTermText", "XmlLayout");
+	private final String constraintLangText = rtc.getStringValue("ConstraintLanguageText", "XmlLayout");
+	private final String constraintUserText = rtc.getStringValue("ConstraintUserText", "XmlLayout");
+	private final String constraintSiteText = rtc.getStringValue("ConstraintSiteText", "XmlLayout");
+	//private final String constraintLocaText = rtc.getStringValue("ConstraintLocationText", "XmlLayout");
 	private final String constraintBSiteText = rtc.getStringValue("ConstraintBlockedSiteText", "XmlLayout");
 	private final String rtcDomainKey = rtc.getStringValue("DomainIdentifier", "XmlLayout");
 	private final String rtcCustomerKey = rtc.getStringValue("CustomerIdentifier", "XmlLayout");
 	
 	
-	private String userName = null;
-	private String password = null;
-	private String host = null;
-	private int port = 0;
-	private URL url = null;
-	private String sn_id = null;
-	private ArrayList<String> tTerms = null;
-	private ArrayList<String> bURLs = null;
-	private String curDomain = null;
-	private String curCustomer = null;
-	private Map<URL, Integer> blockedURLs = new HashMap<URL, Integer>();
+	private String userName = null;				// for authentication
+	private String password = null;				// for authentication
+	private String host = null;					// for authentication
+	private int port = 0;						// for authentication
+	private URL url = null;						// for authentication
+	private String sn_id = null;				// Social Network ID
+	private String curDomain = null;			// the customer we crawl for
+	private String curCustomer = null;			// the domain of interest we crawl for
+	private ArrayList<String> tTerms = null;	// the terms to look for
+	private ArrayList<String> bURLs = null;		// the list of blocked urls
+	private Map<URL, Integer> blockedURLs = new HashMap<URL, Integer>(); // list of blocked urls as a map
+	private List<String> myCrawlData;			// this liszt can be returned to the controller
 	
 	// the array holds the given domains to crawl (or stay on) passed on by THEWebCrawlerController
 	private String[] theCrawlDomains;
@@ -108,24 +111,36 @@ public class THEWebCrawler extends WebCrawler {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onStart() {
-		// setup the crawler configuration settings
-		@SuppressWarnings("rawtypes")
-		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
-		JSONObject configurationScope = crawlerConfig.getCrawlerConfigurationScope();
-		configurationScope.put("SN_ID", SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
-		sn_id=SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME);
-		
-		// retrieve the track terms and the blocked urls
-		bURLs = new CrawlerConfiguration<String>().getConstraint(constraintBSiteText, configurationScope);
-		tTerms = new CrawlerConfiguration<String>().getConstraint(constraintTermText, configurationScope);
-		// set the customer we start the crawler for
-		curDomain = (String) configurationScope.get(rtcDomainKey);
-		curCustomer = (String) configurationScope.get(rtcCustomerKey);
+		// setup the crawler configuration settings as passed along via custom data from controller
+		//JSONParser parser = new JSONParser();
+		Object obj = myController.getCustomData();
+		try {
+			//obj = parser.parse(jsonString);
+			
+			JSONObject configurationScope = obj instanceof JSONObject ?(JSONObject) obj : null;
+			
+			logger.debug("the given json object is " + configurationScope.toJSONString().length() + " characters long and the parsed object has " + configurationScope.size() + " key/value mappings of type " + configurationScope.keySet().toString());
+			
+			sn_id = (String) configurationScope.get("SN_ID");
+			// retrieve the track terms and the blocked urls
+			bURLs = (ArrayList<String>) configurationScope.get(constraintBSiteText);
+			tTerms = (ArrayList<String>) configurationScope.get(constraintTermText);
+			// set the customer we start the crawler for
+			curDomain = (String) configurationScope.get(rtcDomainKey);
+			curCustomer = (String) configurationScope.get(rtcCustomerKey);
+			// get the initial crawl domains
+			theCrawlDomains = (String[]) configurationScope.get("theCrawlDomains");
+			userName = (String) configurationScope.get("userName");
+			password = (String) configurationScope.get("password");
+		} catch (Exception e){
+			logger.error("error while retrieving custom data from controller - {}", e);
+		}
 		
 		// create the map of blocked urls - we need to convert this to a map to make use of
 		// the contains method when checking, whether or not a link should be visited.
-		logger.trace("setting up list of blocked urls");
+		logger.debug("setting up list of blocked urls");
 		for (int i=0;i<bURLs.size();i++) {
+			logger.trace("adding {} to list of blocked urls", bURLs.get(i));
 			try {
 				blockedURLs.put(new URL(bURLs.get(i)),new Integer(1));
 			} catch (MalformedURLException e) {
@@ -135,7 +150,7 @@ public class THEWebCrawler extends WebCrawler {
 		
 			
 		// initiate the first given domain as use this to authenticate
-		theCrawlDomains = (String[]) myController.getCustomData();
+		//theCrawlDomains = (String[]) myController.getCustomData();
 		if (theCrawlDomains.length > 0) {
 			logger.trace("the first domain to crawl is " + theCrawlDomains[0].toString().toLowerCase());
 			// in case the use did not add the http to the first domain, we add it, so that the authentication works
@@ -145,34 +160,47 @@ public class THEWebCrawler extends WebCrawler {
 			
 			
 			// if username/password is given, then decrypt it
-			// TODO retrieve username/password from crawler configuration
 			try {
-				userName = configurationCryptoProvider.decryptValue((String) "Y29taW5lMjAxNA==");
-				password = configurationCryptoProvider.decryptValue((String) "TUd1LTZ0Yy1BUjUtdTdS");
-			} catch (GenericCryptoException e1) {
-				logger.warn("Could not decrypt username and password - authentication likely to fail");
-			}
-			// now authenticate to site with username/password
-			if ((userName != null) && (password != null)) {
-				if (userName.length() > 1 && password.length() > 1) {
-					try {
-						url = new URL(temp);
-					} catch (MalformedURLException e) {
-						logger.error("EXCEPTION :: malformed url ({}) received from THEWebCrawlerController ", temp );
-						if (rtcStopOnConfigurationFailure)
-							System.exit(SNCStatusCodes.ERROR.getErrorCode());
-						return;
+				userName = configurationCryptoProvider.decryptValue((String) userName);
+				password = configurationCryptoProvider.decryptValue((String) password);
+				// now authenticate to site with username/password
+				if ((userName != null) && (password != null)) {
+					if (userName.length() > 1 && password.length() > 1) {
+						try {
+							url = new URL(temp);
+						} catch (MalformedURLException e) {
+							logger.error("EXCEPTION :: malformed url ({}) received from THEWebCrawlerController ", temp );
+							if (rtcStopOnConfigurationFailure)
+								System.exit(SNCStatusCodes.ERROR.getErrorCode());
+							return;
+						}
+						
+						host = url.getHost();
+						port = url.getPort();
+						logger.debug("trying to authenticate against site " +  host);
+						HttpBasicAuthentication(host, port, userName, password);
 					}
-					
-					host = url.getHost();
-					port = url.getPort();
-					logger.debug("trying to authenticate against site " +  host);
-					HttpBasicAuthentication(host, port, userName, password);
 				}
+			} catch (GenericCryptoException e1) {
+				logger.warn("Could not decrypt username and password - not authenticating to site");
 			}
 		}
 	}
 	
+	
+	/**
+     * The CrawlController instance that has created this crawler instance will
+     * call this function just before terminating this crawler thread. Classes
+     * that extend WebCrawler can override this function to pass their local
+     * data to their controller. The controller then puts these local data in a
+     * List that can then be used for processing the local data of crawlers (if
+     * needed).
+     */
+	@Override
+	public Object getMyLocalData() {
+		// TODO add some interesting facts about this crawler run in here, so we can get it from the controller
+        return myCrawlData;
+	}
 	
 	
 	

@@ -397,6 +397,9 @@
 			<map>
 				<!-- THIS MUST BE SET ACCORDING TO AN EXISTING CODE FOR A SOCIAL NETWORK ENTRY IN SocialNetworkDefinitions.xml -->
 				<entry key="SN_ID_CODE" value="WO" />
+				<!-- if the website requires authentication, set username and password here -->
+				<entry key="user" value="Y29taW5lMjAxNA==" />		<!-- comine2014 -->
+				<entry key="passwd" value="TUd1LTZ0Yy1BUjUtdTdS" /> <!-- MGu-6tc-AR5-u7R -->
 				
 				<!-- TODO make passing a specific crawler configuration file possible -->
 				<!-- <entry key="configDBHandler" value="CortalConsorsSpecificWebCrawlerConfiguration.xml" /> -->
