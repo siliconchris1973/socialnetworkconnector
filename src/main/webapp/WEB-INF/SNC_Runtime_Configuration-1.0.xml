@@ -280,7 +280,7 @@
 		<option>
 			<name>WcSearchLimit</name>
 			<type>int</type>
-			<value>100000</value>
+			<value>1000</value>
 			<constant>WC_SEARCH_LIMIT</constant>
 		</option>
 		

@@ -190,7 +190,12 @@ public class THEWebCrawlerController implements Job {
 				    controller2.waitUntilFinish();
 				    controller3.waitUntilFinish();
 				    
-					logger.info(CRAWLER_NAME+" END - took "+timer.elapsed(TimeUnit.SECONDS)+" seconds");
+				    long seconds = timer.elapsed(TimeUnit.SECONDS);
+				    long minutes = timer.elapsed(TimeUnit.MINUTES);
+				    long hours = timer.elapsed(TimeUnit.HOURS);
+				    long days = timer.elapsed(TimeUnit.DAYS);
+				    
+					logger.info(CRAWLER_NAME+" END - took {} days {} hours {} minutes {} seconds", days, hours, minutes, seconds);
 					timer.stop();
 				} catch (Exception e) {
 					logger.error("error during execution of crawling process " + e.getMessage());

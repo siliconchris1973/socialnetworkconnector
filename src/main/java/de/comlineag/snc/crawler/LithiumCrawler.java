@@ -377,7 +377,13 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			}
 			
 			timer.stop();
-			logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages in "+timer.elapsed(TimeUnit.SECONDS)+" seconds\n");
+			
+			long seconds = timer.elapsed(TimeUnit.SECONDS);
+			long minutes = timer.elapsed(TimeUnit.MINUTES);
+			long hours = timer.elapsed(TimeUnit.HOURS);
+			long days = timer.elapsed(TimeUnit.DAYS);
+			
+			logger.info(CRAWLER_NAME+"-Crawler END - tracked {} messages in {} days {} hours {} minutes {} seconds\n", messageCount, days, hours, minutes, seconds);
 		}
 	}
 	
