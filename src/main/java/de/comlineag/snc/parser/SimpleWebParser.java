@@ -130,7 +130,7 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 	 * 						  user_id = 0 
 	 */
 	protected JSONObject extractContent(String page, URL url, List<String> tokens, String sn_id, String curCustomer, String curDomain) {
-		logger.debug("parsing site " + url.toString() + " and removing clutter");
+		logger.trace("parsing site " + url.toString() + " and removing clutter");
 		String title = null;
 		String description = null;
 		String keywords = null;

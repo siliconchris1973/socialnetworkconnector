@@ -1210,6 +1210,7 @@ public class HANAPersistence implements IPersistenceManager {
 		if (postData.getText() != null && postData.getText().length()>HanaDataConstants.POSTING_TEXT_SIZE) {
 			logger.warn("truncating text of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.POSTING_TEXT_SIZE);
 			postData.setText(postData.getText().substring(0, HanaDataConstants.POSTING_TEXT_SIZE));
+			logger.debug("     truncated text now has " + postData.getText().length() + " characters");
 			postData.setTruncated(true);
 		}
 		if (postData.getRawText() != null && postData.getRawText().length()>HanaDataConstants.POSTING_TEXT_SIZE) {
@@ -1219,23 +1220,23 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.debug("     truncated raw text now has " + postData.getRawText().length() + " characters");
 		}
 		if (postData.getTeaser() != null && postData.getTeaser().length()>HanaDataConstants.TEASER_TEXT_SIZE) {
-			logger.info("truncating teaser of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.TEASER_TEXT_SIZE);
+			logger.debug("truncating teaser of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.TEASER_TEXT_SIZE);
 			postData.setTeaser(postData.getTeaser().substring(0, HanaDataConstants.TEASER_TEXT_SIZE));
 		}
 		if (postData.getSubject() != null && postData.getSubject().length()>HanaDataConstants.SUBJECT_TEXT_SIZE) {
-			logger.info("truncating subject of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.SUBJECT_TEXT_SIZE);
+			logger.debug("truncating subject of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.SUBJECT_TEXT_SIZE);
 			postData.setSubject(postData.getSubject().substring(0, HanaDataConstants.SUBJECT_TEXT_SIZE));
 		}
 		if (postData.getLang() != null && postData.getLang().length()>HanaDataConstants.POSTLANG_TEXT_SIZE) {
-			logger.error("truncating language of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.POSTLANG_TEXT_SIZE + "! This is probably bad.");
+			logger.warn("truncating language of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.POSTLANG_TEXT_SIZE + "! This is probably bad.");
 			postData.setLang(postData.getLang().substring(0, HanaDataConstants.POSTLANG_TEXT_SIZE));
 		}
 		if (postData.getGeoLongitude() != null && postData.getGeoLongitude().length()>HanaDataConstants.LONGITUDE_TEXT_SIZE) {
-			logger.error("truncating geo longitude of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.LONGITUDE_TEXT_SIZE + "! This is probably bad.");
+			logger.warn("truncating geo longitude of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.LONGITUDE_TEXT_SIZE + "! This is probably bad.");
 			postData.setGeoLongitude(postData.getGeoLongitude().substring(0, HanaDataConstants.LONGITUDE_TEXT_SIZE));
 		}
 		if (postData.getGeoLatitude() != null && postData.getGeoLatitude().length()>HanaDataConstants.LATITUDE_TEXT_SIZE) {
-			logger.error("truncating geo latitude of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.LATITUDE_TEXT_SIZE + "! This is probably bad.");
+			logger.warn("truncating geo latitude of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.LATITUDE_TEXT_SIZE + "! This is probably bad.");
 			postData.setGeoLatitude(postData.getGeoLatitude().substring(0, HanaDataConstants.LATITUDE_TEXT_SIZE));
 		}
 		if (postData.getClient() != null && postData.getClient().length()>HanaDataConstants.CLIENT_TEXT_SIZE) {

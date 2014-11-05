@@ -170,7 +170,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 				
 				JSONObject obj = new JSONObject();
 				obj.put("sn_id", userData.getSnId());
-				obj.put("user_id", new Long(userData.getId()).toString());
+				obj.put("user_id", userData.getId());
 				obj.put("userName", userData.getUsername());
 				obj.put("nickName", userData.getScreenName());
 				obj.put("userLang", userData.getLang());

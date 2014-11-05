@@ -621,6 +621,34 @@
 			<!-- START OF WEBCRAWLER CONFIG -->
 			<constraints scope="WO">
 				<constraint>
+					<dnsdomain>
+						<type>String</type>
+						<value>www.wallstreet-online.de</value>
+					</dnsdomain>
+					<dnsdomain>
+						<type>String</type>
+						<value>wallstreet-online.de</value>
+					</dnsdomain>
+				</constraint>
+				<constraint>
+					<site>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/forum/28-1-50/daytrader</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/community/letzte-neueintraege.html</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/diskussion/1192569-1-10/depotuebertrag-lynx-cortalconsors</value>
+					</site>
+				</constraint>
+				<constraint>
 					<blockedsite>
 						<type>String</type>
 						<value>http://www.wallstreet-online.de/userzentrum/registrierung.html</value>

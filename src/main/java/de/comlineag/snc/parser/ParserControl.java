@@ -37,7 +37,7 @@ import de.comlineag.snc.parser.IWebParser;
  * @description ParserControl is the generic caller class for each web parser. Whenever a web page
  * 				is crawled it is handed over to ParserControl. PC queries each registered parser
  * 				listed in properties/webparser.xml below WEB-INF directory) to determine if it can 
- * 				parse the page. Tpo achieve this, every registered parser must provide the method
+ * 				parse the page. To achieve this, every registered parser must provide the method
  * 				canExecute() and return true (can be parsed) or false (can not be parsed) on calling.
  * 
  * 				To register a new web parser you have to create the class and enter it's details in 
@@ -45,16 +45,15 @@ import de.comlineag.snc.parser.IWebParser;
  * 				
  * 				PC is designed as a singleton class. It maintains a static reference to the lone 
  * 				singleton instance and returns that reference from the static getInstance() method. 
- * 				To achieve this we employ a technique known as lazy instantiation to create the 
- * 				singleton; as a result, the singleton instance is not created until the getInstance() 
- * 				method is called for the first time. This technique ensures that singleton instances 
- * 				are created only when needed.
+ * 				We employ a technique known as lazy instantiation to create the singleton in which 
+ * 				the singleton instance is not created until the getInstance() method is called for 
+ * 				the first time. This technique ensures that singleton instances are created only if needed. 
  * 				 
  * 				Upon first call, PC will get all available parser from the webparser.xml file and create 
  * 				an ordered list of them. Every subsequent call will loop through this list querying the 
  * 				parser whether it can parse the page and, upon receiving true from the parser, hand the 
  * 				page, the original url and the list of track terms over to it. The loop works as a first-
- * 				match-wins decision - th efirst parser to return true on a page, will get the page.
+ * 				match-wins decision - the first parser to return true on a page, will get the page.
  * 
  * @changelog	0.1 (Chris)		class created
  * 

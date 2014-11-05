@@ -423,10 +423,10 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	// general invocation for every constraint
 	@Override
 	public ArrayList<T> getConstraint(String category, JSONObject configurationScope) {
-		assert (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category) && !"blockedsite".equals(category))  : "ERROR :: can only accept term, site, blockedsite, user, language or geoLocation as category";
+		assert (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category) && !"blockedsite".equals(category) && !"dnsdomain".equals(category))  : "ERROR :: can only accept term, site, blockedsite, user, language or geoLocation as category";
 		
-		if (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category) && !"blockedsite".equals(category)) 
-			logger.warn("received "+category+" as category, but can only process term, site, blockedsite, user, language or geoLocation");
+		if (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category) && !"blockedsite".equals(category) && !"dnsdomain".equals(category)) 
+			logger.warn("received "+category+" as category, but can only process term, dnsdomain, site, blockedsite, user, language or geoLocation");
 		
 		// get configuration scope
 		try {
@@ -439,7 +439,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 		}
 		
 		// in case a specific configuration file was given within the configurationScope object, set it here
-		if (!"___CRAWLER_CONFIGURATION___".equals(CONF_FILE) && CONF_FILE != null) {
+		if (!"___CRAWLER_CONFIGURATION___".equals(CONF_FILE)) {
 			logger.debug("configuration file from configDbHandler overriden with " + CONF_FILE);
 			setConfigDbHandler(CONF_FILE);
 		}
@@ -473,7 +473,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	
 	// getter and setter for the configuration path
 	public String getConfigDbHandler() {return rtc.returnQualifiedConfigPath(this.configDbHandler);}
-	private void setConfigDbHandler(String configDb) {this.configDbHandler = configDb;}
+	public void setConfigDbHandler(String configDb) {this.configDbHandler = configDb;}
 	
 	// getter and setter for domain and customer
 	@Override

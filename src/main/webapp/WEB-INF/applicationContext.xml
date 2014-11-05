@@ -295,12 +295,8 @@
 					 if you need/want to setup multiple parallel crawlers for different sites you
 					 can either duplicate this entire bean section plus the trigger or use the 
 					 MultiWebCrawler below. -->
-				<entry key="server_url" value="http://www.wallstreet-online.de/community" />
-				<!-- <entry key="server_url" value="http://www.wallstreet-online.de/broker/cortal-consors" /> -->
-				<!-- <entry key="server_url" value="http://www.wallstreet-online.de/nachricht/7068190-aktien-europa-erholung-guter-us-vorgaben-fed-protokoll" /> -->
-				<!-- <entry key="server_url" value="http://www.wallstreet-online.de/diskussion/1106960-1-10/consors-jetzt-auch-ausserboerslich-laengerfristige-limits-ueber-tradegate" /> -->
-				
-				
+				<entry key="server_url" value="http://www.wallstreet-online.de" />
+								
 				<!-- if the website requires authentication, set username and password here -->
 				<entry key="user" value="Y29taW5lMjAxNA==" />		<!-- comine2014 -->
 				<entry key="passwd" value="TUd1LTZ0Yy1BUjUtdTdS" /> <!-- MGu-6tc-AR5-u7R -->
@@ -386,15 +382,25 @@
 		 urls to start the crawl process. Because of this, the only option THEWebCrawler needs to get from 
 		 here, is where it's configuration file comes from. The configuration file can either be a seperate
 		 file, or a section within the general crawler configuration file. In the former case, state the 
-		 name of configuration file here, in the latter case enter exactly ___CRAWLER_CONFIGURATION___ -->
+		 name of configuration file here, in the latter case enter exactly ___CRAWLER_CONFIGURATION___ 
+		 
+		 ATTENTION: As of this moment, Release 0.9 it is NOT possible to pass a specific configuration file
+		 			here. So you must stick with the entry ___CRAWLER_CONFIGURATION___ and put all your
+		 			web crawler specific settings in the standard configuration file provided by the 
+		 			configuration manager below.  
+		 -->
 	<bean name="THEWebCrawlerDetail"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="de.comlineag.snc.controller.THEWebCrawlerController" />
 		<property name="durability" value="true" />
 		<property name="jobDataAsMap">
 			<map>
-				<entry key="configDBHandler" value="CortalConsorsSpecificWebCrawlerConfiguration.xml" />
-				<!-- <entry key="configDbHandler" value="___CRAWLER_CONFIGURATION___" />-->
+				<!-- THIS MUST BE SET ACCORDING TO AN EXISTING CODE FOR A SOCIAL NETWORK ENTRY IN SocialNetworkDefinitions.xml -->
+				<entry key="SN_ID_CODE" value="WO" />
+				
+				<!-- TODO make passing a specific crawler configuration file possible -->
+				<!-- <entry key="configDBHandler" value="CortalConsorsSpecificWebCrawlerConfiguration.xml" /> -->
+				<entry key="configDbHandler" value="___CRAWLER_CONFIGURATION___" />
 			</map>
 		</property>
 	</bean>
