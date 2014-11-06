@@ -575,10 +575,22 @@
 			<constant>CONSTRAINT_TERM_TEXT</constant>
 		</option>
 		<option>
+			<name>ConstraintBlockedTermText</name>
+			<type>String</type>
+			<value>blockedterm</value>
+			<constant>CONSTRAINT_BLOCKED_TERM_TEXT</constant>
+		</option>
+		<option>
 			<name>ConstraintUserText</name>
 			<type>String</type>
 			<value>user</value>
 			<constant>CONSTRAINT_USER_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintBlockedUserText</name>
+			<type>String</type>
+			<value>blockeduser</value>
+			<constant>CONSTRAINT_BLOCKED_USER_TEXT</constant>
 		</option>
 		<option>
 			<name>ConstraintLanguageText</name>
@@ -587,10 +599,22 @@
 			<constant>CONSTRAINT_LANGUAGE_TEXT</constant>
 		</option>
 		<option>
+			<name>ConstraintBlockedLanguageText</name>
+			<type>String</type>
+			<value>blockedlanguage</value>
+			<constant>CONSTRAINT_BLOCKED_LANGUAGE_TEXT</constant>
+		</option>
+		<option>
 			<name>ConstraintDnsDomainText</name>
 			<type>String</type>
 			<value>dnsdomain</value>
 			<constant>CONSTRAINT_DNS_DOMAIN_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintBlockedDnsDomainText</name>
+			<type>String</type>
+			<value>blockeddnsdomain</value>
+			<constant>CONSTRAINT_BLOCKED_DNS_DOMAIN_TEXT</constant>
 		</option>
 		<option>
 			<name>ConstraintSiteText</name>
@@ -611,16 +635,34 @@
 			<constant>CONSTRAINT_BOARD_TEXT</constant>
 		</option>
 		<option>
+			<name>ConstraintBlockedBoardText</name>
+			<type>String</type>
+			<value>blockedboard</value>
+			<constant>CONSTRAINT_BLOCKED_BOARD_TEXT</constant>
+		</option>
+		<option>
 			<name>ConstraintBlogText</name>
 			<type>String</type>
 			<value>blog</value>
 			<constant>CONSTRAINT_BLOG_TEXT</constant>
 		</option>
 		<option>
+			<name>ConstraintBlockedBlogText</name>
+			<type>String</type>
+			<value>blockedblog</value>
+			<constant>CONSTRAINT_BLOCKED_BLOG_TEXT</constant>
+		</option>
+		<option>
 			<name>ConstraintLocationText</name>
 			<type>String</type>
-			<value>geoLocation</value>
+			<value>location</value>
 			<constant>CONSTRAINT_LOCATION_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintBlockedLocationText</name>
+			<type>String</type>
+			<value>blockedlocation</value>
+			<constant>CONSTRAINT_BLOCKED_LOCATION_TEXT</constant>
 		</option>
 		
 		<!-- identifies the section containing socical network definitions in SocialNetworkDefinitions.xml-->

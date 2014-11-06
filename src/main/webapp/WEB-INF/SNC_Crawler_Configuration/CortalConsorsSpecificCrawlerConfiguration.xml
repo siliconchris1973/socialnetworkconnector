@@ -41,11 +41,12 @@
 				</category>
 				
 				<constraint>
-					<ANY one of term, langauage, user, blocked site (only for the web crawler) 
-						site or geo location>
+					<ANY one of term, blockedterm, langauage, blockedlangauge, user, 
+								blockeduser, site, blocked site (only for the web crawler) 
+								or (geo) location and blockedlocation>
 						<type>data type - e.g. String</type>
 						<value>what to track/restrict to</value>
-					</term|language|user|site|blockedsite|location>
+					</term|blockedterm|language|blockedlanguage|user|blockeduser|site|blockedsite|location|blockedlocation>
 				</constraint>
 			</customer>
 		</configuration>
@@ -125,6 +126,14 @@
 			<constraints scope="ALL">
 				<!-- track only messages (aka posts) with specific keywords -->
 				<constraint>
+					<blockedterm>
+						<type>String</type>
+						<value>Home Depot</value>
+					</blockedterm>
+					<blockedterm>
+						<type>String</type>
+						<value>HomeDepot</value>
+					</blockedterm>
 				<!-- 
 					<term>
 						<type>String</type>

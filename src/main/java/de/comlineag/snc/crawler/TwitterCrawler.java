@@ -3,6 +3,7 @@ package de.comlineag.snc.crawler;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -11,7 +12,7 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -40,7 +41,7 @@ import de.comlineag.snc.parser.TwitterParser;
  *
  * @author 		Christian Guenther
  * @category 	Job
- * @version		0.9f				- 21.10.2014
+ * @version		0.9g				- 06.11.2014
  * @status		productive	but with occasional error while inserting data
  *
  * @description this is the actual crawler of the twitter network. It is
@@ -67,6 +68,7 @@ import de.comlineag.snc.parser.TwitterParser;
  *				0.9d				added support for runState configuration, to check if the crawler shall actually run
  *				0.9e				added time measure and new loop to track unlimited messages
  *				0.9f				deactivated loop to track unlimited messages
+ *				0.9g				added possibility to reject tweets if the contain any of the blocked terms
  *
  * TODO check if we can use getResponseBodyAsStrema to fix the following warning: Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
  * TODO implement possibility have black-list of combinations not to track: e.g. Depot YES / Home Depot NO 
@@ -84,6 +86,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	
 	
 	private final String constraintTermText = rtc.getStringValue("ConstraintTermText", "XmlLayout");
+	private final String constraintBlockedTermText = rtc.getStringValue("ConstraintBlockedTermText", "XmlLayout");
 	private final String constraintLangText = rtc.getStringValue("ConstraintLanguageText", "XmlLayout");
 	private final String constraintUserText = rtc.getStringValue("ConstraintUserText", "XmlLayout");
 	//private final String constraintSiteText = rtc.getStringValue("ConstraintSiteText", "XmlLayout");
@@ -94,7 +97,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	private final String rtcCustomerKey = rtc.getStringValue("CustomerIdentifier", "XmlLayout");
 	
 	private final int rtcMaxTweetsPerRun = rtc.getIntValue("TwMaxTweetsPerCrawlerRun", "crawler");
-	
+	private final boolean rtcWarnOnRejectedActions = rtc.getBooleanValue("WarnOnRejectedActions", "runtime");
 	
 	
 	// Set up your blocking queues: Be sure to size these properly based on
@@ -169,6 +172,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				// THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
 				logger.debug("retrieving restrictions from configuration db");
 				ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(constraintTermText, configurationScope);
+				ArrayList<String> btTerms = new CrawlerConfiguration<String>().getConstraint(constraintBlockedTermText, configurationScope);
 				ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(constraintLangText, configurationScope);
 				ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(constraintUserText, configurationScope);
 				//ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(constraintSiteText, configurationScope);
@@ -182,6 +186,9 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				if (tTerms.size()>0) {
 					smallLogMessage += " specific terms ";
 					endpoint.trackTerms(tTerms);
+				}
+				if (tTerms.size()>0) {
+					smallLogMessage += " specific blocked terms ";
 				}
 				if (tUsers.size()>0) {
 					smallLogMessage += " specific users ";
@@ -253,10 +260,6 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 						logger.debug("tracking max "+rtcMaxTweetsPerRun+" messages");
 						
 						for (int msgRead = 0; msgRead < rtcMaxTweetsPerRun; msgRead++) {
-							logger.trace("message " + messageCount + " received");
-							messageCount++;
-							setPostsTracked(messageCount);
-							
 							String msg = null;
 							try {
 								msg = msgQueue.take();
@@ -265,11 +268,23 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 							} catch (Exception ee) {
 								logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
 							}
-							logger.debug("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
-							//logger.trace("   content: " + msg );
-	
-							// each tweet is now passed to the parser TwitterParser
-							post.process(msg);
+							
+							// check that there is non of the blocked terms in the tweet. Only process
+							// tweet if it does NOT contain any of those terms
+							if (!containsWord(msg, btTerms)){
+								logger.trace("message " + messageCount + " received");
+								messageCount++;
+								setPostsTracked(messageCount);
+								
+								logger.debug("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
+								//logger.trace("   content: " + msg );
+		
+								// each tweet is now passed to the parser TwitterParser
+								post.process(msg);
+							} else {
+								if (rtcWarnOnRejectedActions)
+									logger.debug("message rejected because it cantains one of the blocked terms");
+							}
 						}
 //					}
 				} catch (Exception e) {
@@ -347,6 +362,26 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			return newURL;
 		}
 		return null;
+	}
+	
+	/**
+	 * @description 	checks if any word of a given set of tokens is found in the given text
+	 * 					this check is done a second time in the parser, after all irrelevant content
+	 * 					like advertisement and the like has been stripped off the page.
+	 * @param 			text
+	 * @param 			tokens
+	 * @return 			true if any of the tokens was found, otherwise false
+	 */
+	private boolean containsWord(String text, List<String> tokens){
+		String patternString = "\\b(" + StringUtils.join(tokens, "|") + ")\\b";
+		Pattern pattern = Pattern.compile(patternString);
+		Matcher matcher = pattern.matcher(text);
+
+		while (matcher.find()) {
+		    return true;
+		}
+		
+		return false;
 	}
 	
 	/**
