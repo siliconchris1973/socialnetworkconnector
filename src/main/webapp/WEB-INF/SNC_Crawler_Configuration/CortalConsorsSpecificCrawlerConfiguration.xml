@@ -9,33 +9,12 @@
 	also add a section with scope="ALL" resulting in this section being applied to 
 	all domains or all customers respectively.
 	
-	There are three examples in this directory:
-	*	The configuration file CustomerSpecificConfiguration.xml is the skeleton for 
-		your customer oriented setup 
-	*	The xml DomainSpecificCrawlerConfiguration.xml contains the exact same crawler 
-		setup, but with ONLY a domain approach. 
-	*	the configuration CustomerAndDomainCrawlerConfiguration.xml is an example 
-		for a setup with domain specific and customer specific configuration elements.
-	
-	NOT YET IMPLEMENTED:
-	*	and finally the file DomainWithCustomerCrawlerConfiguration.xml shows how
-		to setup a hierarchical structure of domain and customer
-	
-	You can take one of these examples and adjust it to your needs. Then edit  
-	applicationContext.xml, activate ComplexXmlConfigurationPersistence as the 
-	configuration manager and enter the name of the configuration file. 
-	
-	Every configuration file contains a section in which the domain and customer
-	structure is setup. Even if your scenario uses SimpleXmlConfigurationPersistence and
-	therefore has no possibility to make use of domain and/or customer, the information
-	needs to stay in the file, or you will get warnings in the crawler log.
-	
-	Every configuration file also has a very small section at the end, in which the file
-	type is specified. This type needs to correspond to the chosen configuration persistence
-	manager and you should therefore leave it as is. You must also make sure to copy and
-	edit the xml files in accordance with the chosen manager - otherwise the crawler will
-	bail out and you receive an error.
-	
+	Every configuration must contain a section in which the domain and customer structure
+	is setup. Every configuration file also has a very small section at the end, in which 
+	the file type is specified. This type needs to correspond to the chosen configuration 
+	persistence manager and you should therefore leave it as is. You must also make sure 
+	to copy and edit the xml files in accordance with the chosen manager - otherwise the 
+	crawler will bail out and you receive an error.
 	
 	Also worth noting is, that you can activate/deactivate certain crawler through this
 	configuration file, by setting the option CrawlerRun to false. In this case, the crawler 
@@ -62,10 +41,11 @@
 				</category>
 				
 				<constraint>
-					<ANY one of term, langauage, user, site or geo location>
+					<ANY one of term, langauage, user, blocked site (only for the web crawler) 
+						site or geo location>
 						<type>data type - e.g. String</type>
 						<value>what to track/restrict to</value>
-					</user>
+					</term|language|user|site|blockedsite|location>
 				</constraint>
 			</customer>
 		</configuration>
@@ -637,15 +617,39 @@
 					</site>
 					<site>
 						<type>String</type>
-						<value>http://www.wallstreet-online.de/forum/28-1-50/daytrader</value>
+						<value>http://www.wallstreet-online.de/diskussion/1198503-1-10/cortal-consors-trailing-stopp-loss</value>
 					</site>
 					<site>
 						<type>String</type>
-						<value>http://www.wallstreet-online.de/community/letzte-neueintraege.html</value>
+						<value>http://www.wallstreet-online.de/diskussion/1173537-1-10/cortal-consors-broker-jahres-2012</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/diskussion/1173527-1-10/cortalconsors-verkauf-aktie-geld-investieren</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/diskussion/1162156-1-10/cortalconsors-mit-spannenden-trading-innovationen</value>
 					</site>
 					<site>
 						<type>String</type>
 						<value>http://www.wallstreet-online.de/diskussion/1192569-1-10/depotuebertrag-lynx-cortalconsors</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/nachricht/7131739-dax-gold-commerzbank-handeln-kostenfrei</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/nachricht/7128724-roundup-grossbank-bnp-paribas-legt-ueberraschend-lehren-aerger-usa</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/nachricht/7110470-staerke-abwaertstrend-schoen-waer-s</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/nachricht/7069795-girokonto-test-2014-guenstig-foto</value>
 					</site>
 				</constraint>
 				<constraint>

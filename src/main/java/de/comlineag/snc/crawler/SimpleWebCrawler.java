@@ -525,11 +525,23 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					if (newURLs.isEmpty()) {
 						timer.stop();
 						long seconds = timer.elapsed(TimeUnit.SECONDS);
-						long minutes = timer.elapsed(TimeUnit.MINUTES);
-						long hours = timer.elapsed(TimeUnit.HOURS);
-						long days = timer.elapsed(TimeUnit.DAYS);
-						
-						logger.info(CRAWLER_NAME+" END - scanned {} pages in {} days {} hours {} minutes {} seconds and found {} matching ones\n", pageCount, days, hours, minutes, seconds, possibleRelevantPages);
+					    long calcSeconds = seconds;
+					    long calcMinutes = 0;
+					    long calcHours = 0;
+					    long calcDays = 0;
+					    if (calcSeconds > 60) {
+					    	calcMinutes = calcSeconds / 60;
+					    	calcSeconds = calcSeconds - (calcMinutes * 60);
+					    }
+					    if (calcMinutes > 60) {
+					    	calcHours = calcMinutes / 60;
+					    	calcMinutes = calcMinutes - (calcHours * 60);
+					    }
+					    if (calcHours > 24) {
+					    	calcDays = calcHours / 24;
+					    	calcHours = calcHours - (calcHours * 24);
+					    }
+						logger.info(CRAWLER_NAME+" END - scanned {} pages in {} days {} hours {} minutes {} seconds and found {} matching ones\n", pageCount, calcDays, calcHours, calcMinutes, calcSeconds, possibleRelevantPages);
 						break;
 					}
 					

@@ -279,11 +279,23 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				timer.stop();
 				
 				long seconds = timer.elapsed(TimeUnit.SECONDS);
-				long minutes = timer.elapsed(TimeUnit.MINUTES);
-				long hours = timer.elapsed(TimeUnit.HOURS);
-				long days = timer.elapsed(TimeUnit.DAYS);
-				
-				logger.info(CRAWLER_NAME+"-Crawler END - tracked {} messages in {} days {} hours {} minutes {} seconds\n", messageCount, days, hours, minutes, seconds);
+			    long calcSeconds = seconds;
+			    long calcMinutes = 0;
+			    long calcHours = 0;
+			    long calcDays = 0;
+			    if (calcSeconds > 60) {
+			    	calcMinutes = calcSeconds / 60;
+			    	calcSeconds = calcSeconds - (calcMinutes * 60);
+			    }
+			    if (calcMinutes > 60) {
+			    	calcHours = calcMinutes / 60;
+			    	calcMinutes = calcMinutes - (calcHours * 60);
+			    }
+			    if (calcHours > 24) {
+			    	calcDays = calcHours / 24;
+			    	calcHours = calcHours - (calcHours * 24);
+			    }
+				logger.info(CRAWLER_NAME+"-Crawler END - tracked {} messages in {} days {} hours {} minutes {} seconds\n", messageCount, calcDays, calcHours, calcMinutes, calcSeconds);
 			} catch (Exception e) {
 				logger.error("something went wrong ", e);
 				e.printStackTrace();

@@ -82,15 +82,16 @@ public class THEWebCrawler extends WebCrawler {
 	private final boolean rtcStayBelowGivenPath = rtc.getBooleanValue("WcStayBelowGivenPath", "crawler");
 	private final boolean rtcStopOnConfigurationFailure = rtc.getBooleanValue("StopOnConfigurationFailure", "crawler");
 	private final String constraintTermText = rtc.getStringValue("ConstraintTermText", "XmlLayout");
-	private final String constraintLangText = rtc.getStringValue("ConstraintLanguageText", "XmlLayout");
-	private final String constraintUserText = rtc.getStringValue("ConstraintUserText", "XmlLayout");
-	private final String constraintSiteText = rtc.getStringValue("ConstraintSiteText", "XmlLayout");
+	//private final String constraintLangText = rtc.getStringValue("ConstraintLanguageText", "XmlLayout");
+	//private final String constraintUserText = rtc.getStringValue("ConstraintUserText", "XmlLayout");
+	//private final String constraintSiteText = rtc.getStringValue("ConstraintSiteText", "XmlLayout");
 	//private final String constraintLocaText = rtc.getStringValue("ConstraintLocationText", "XmlLayout");
 	private final String constraintBSiteText = rtc.getStringValue("ConstraintBlockedSiteText", "XmlLayout");
 	private final String rtcDomainKey = rtc.getStringValue("DomainIdentifier", "XmlLayout");
 	private final String rtcCustomerKey = rtc.getStringValue("CustomerIdentifier", "XmlLayout");
 	
 	
+	private int trackedPages = 0;				// is returned on end of crawler run
 	private String userName = null;				// for authentication
 	private String password = null;				// for authentication
 	private String host = null;					// for authentication
@@ -111,6 +112,7 @@ public class THEWebCrawler extends WebCrawler {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onStart() {
+		trackedPages = 0;
 		// setup the crawler configuration settings as passed along via custom data from controller
 		//JSONParser parser = new JSONParser();
 		Object obj = myController.getCustomData();
@@ -150,7 +152,6 @@ public class THEWebCrawler extends WebCrawler {
 		
 			
 		// initiate the first given domain as use this to authenticate
-		//theCrawlDomains = (String[]) myController.getCustomData();
 		if (theCrawlDomains.length > 0) {
 			logger.trace("the first domain to crawl is " + theCrawlDomains[0].toString().toLowerCase());
 			// in case the use did not add the http to the first domain, we add it, so that the authentication works
@@ -185,21 +186,6 @@ public class THEWebCrawler extends WebCrawler {
 				logger.warn("Could not decrypt username and password - not authenticating to site");
 			}
 		}
-	}
-	
-	
-	/**
-     * The CrawlController instance that has created this crawler instance will
-     * call this function just before terminating this crawler thread. Classes
-     * that extend WebCrawler can override this function to pass their local
-     * data to their controller. The controller then puts these local data in a
-     * List that can then be used for processing the local data of crawlers (if
-     * needed).
-     */
-	@Override
-	public Object getMyLocalData() {
-		// TODO add some interesting facts about this crawler run in here, so we can get it from the controller
-        return myCrawlData;
 	}
 	
 	
@@ -279,6 +265,7 @@ public class THEWebCrawler extends WebCrawler {
 					
 					// invoke the persistence layer - should go to crawler
 					for (int ii = 0; ii < postings.size(); ii++) {
+						trackedPages++;
 						SimpleWebPosting postData = postings.get(ii);
 						
 						// first get the user-data out of the SimpleWebPosting
@@ -340,6 +327,19 @@ public class THEWebCrawler extends WebCrawler {
 		return false;
 	}
 	
+	/**
+     * The CrawlController instance that has created this crawler instance will
+     * call this function just before terminating this crawler thread. Classes
+     * that extend WebCrawler can override this function to pass their local
+     * data to their controller. The controller then puts these local data in a
+     * List that can then be used for processing the local data of crawlers (if
+     * needed).
+     */
+	@Override
+	public Object getMyLocalData() {
+		myCrawlData.add(Integer.toString(trackedPages));
+		return myCrawlData;
+	}
 	
 	// these are the getter and setter for the name value - used for JMX support, I think
 	public static String getName() {return name;}
