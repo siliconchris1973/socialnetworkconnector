@@ -3,9 +3,8 @@ package de.comlineag.snc.data;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.json.simple.JSONObject;
 
@@ -19,7 +18,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  * 
  * @author 		Christian Guenther
  * @category 	data type
- * @version 	0.1		- 10.07.2014
+ * @version 	0.2			- 22.10.2014
  * @status		in development
  * 
  * @description Describes a single Facebook posting with all relevant informations.
@@ -28,7 +27,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  * 
  * @param <JSonObject>
  * 			  "domain" String
- *            "id" Long
+ *            "id" String
  *            "sn_id" String
  *            "created_at" String
  *            "text" String
@@ -45,15 +44,16 @@ import de.comlineag.snc.helper.DateTimeServices;
  *            "mentions" List
  * 
  * @changelog	0.1 (Chris)		class copied from TwitterPostingData revision 0.9b
+ * 				0.2				changed id from long to String
  * 
- * TODO 1. create actual implementation
+ * TODO create implementation for facebook posting data
  * 
  */
 
 public final class FacebookPostingData extends PostData {
 
 	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
@@ -74,12 +74,12 @@ public final class FacebookPostingData extends PostData {
 		
 		try {
 			// posting ID 
-			setId((Long) jsonObject.get("id"));
+			setId((String) jsonObject.get("id"));
 			
 			
 			// User ID
 			JSONObject user = (JSONObject) jsonObject.get("user");
-			setUserId((Long) user.get("id"));
+			setUserId((String) user.get("id"));
 			
 			
 			// langauge
@@ -215,7 +215,6 @@ public final class FacebookPostingData extends PostData {
 			 * 	}
 			 * 
 			 */
-			// TODO implement proper handling of hashtags, symbols and mentions - this currently kills the parser
 			//setHashtags((List<?>)jsonObject.get("hashtags"));
 			//setSymbols((List<?>)jsonObject.get("symbols"));
 			//setMentions((List<?>)jsonObject.get("user_mentions"));
@@ -228,7 +227,7 @@ public final class FacebookPostingData extends PostData {
 	
 	
 	public void setMentions(List<?> listOfMentions) {
-		// TODO Implement proper algorithm to deal with user mentions
+		// TODO Implement algorithm to deal with user mentions
 		logger.trace("List of mentioned users received, creating something different from it");
 		Iterator<?> itr = listOfMentions.iterator();
 		while(itr.hasNext()){
@@ -237,7 +236,7 @@ public final class FacebookPostingData extends PostData {
 	}
 	
 	public void setSymbols(List<?> listOfSymbols) {
-		// TODO Implement proper algorithm to deal with symbols
+		// TODO Implement algorithm to deal with symbols
 		logger.trace("List of symbols received, creating something different from it");
 		Iterator<?> itr = listOfSymbols.iterator();
 		while(itr.hasNext()){
@@ -246,7 +245,7 @@ public final class FacebookPostingData extends PostData {
 	}
 	
 	public void setHashtags(List<?> listOfHashtags) {
-		// TODO Implement proper algorithm to deal with hashtags
+		// TODO Implement algorithm to deal with hashtags
 		logger.trace("List of Hashtags received, creating something different from it");
 		Iterator<?> itr = listOfHashtags.iterator();
 		while(itr.hasNext()){
@@ -261,7 +260,7 @@ public final class FacebookPostingData extends PostData {
 		// setting everything to 0 or null default value.
 		// so I can check on initialized or not initialized values for the
 		// posting
-		id = 0;
+		id = "0";
 		
 		domain = new CrawlerConfiguration<String>().getDomain();
 		customer = new CrawlerConfiguration<String>().getCustomer();

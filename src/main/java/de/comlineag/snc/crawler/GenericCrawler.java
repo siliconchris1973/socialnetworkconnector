@@ -15,9 +15,9 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 
@@ -44,10 +44,17 @@ public abstract class GenericCrawler implements Job {
 	private static String CRAWLER_NAME;
 	private long postsTracked;
 	
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	
+	// convenience variables to make the code easier to read and reduce number of calls to RuntimeConfiguration
+	private final String configurationsKey = rtc.getStringValue("RootIdentifier", "XmlLayout");
+	private final String configurationKey = rtc.getStringValue("SingleConfigurationIdentifier", "XmlLayout");
+	private final String scopeKey = rtc.getStringValue("ScopeIdentifier", "XmlLayout");
+	private final String socialNetworkKey = rtc.getStringValue("SocialNetworkConfiguration", "XmlLayout");
+	private final String socialNetworkNameKey = rtc.getStringValue("SocialNetworkName", "XmlLayout");
+	
+	
+	
 	
 	public GenericCrawler() {
 		super();
@@ -69,7 +76,7 @@ public abstract class GenericCrawler implements Job {
 	 * 						"supported":"YES"
 	 * 					}
 	 * 
-	 * XML Structure from SNC_Runtime_Configuration.xml
+	 * XML Structure from SocialNetworkDefinition.xml
 	 *					<configuration scope="socialNetworkDefinition">
 	 *						<network name="TW"><name>TWITTER</name></network>
 	 *						<network name="TWITTER">
@@ -81,8 +88,6 @@ public abstract class GenericCrawler implements Job {
 	 *						</network>
 	 *					</configuration>
 	 *
-	 * @TODO check functionality of method whtAmI
-	 *    				
 	 */
 	@SuppressWarnings("unchecked")
 	public JSONObject whatAmI() throws ParseException{
@@ -103,51 +108,51 @@ public abstract class GenericCrawler implements Job {
 			Node node = null; 
 			 
 			//String expressionStatic = "/configurations/configuration[@scope='socialNetworkDefinition']/network[@name='"+CRAWLER_NAME+"']/";
-			expression = "/"+rtc.getRootidentifier()
-						+"/"+rtc.getSingleconfigurationidentifier()
-						+"[@"+rtc.getScopeidentifier()+"='"+rtc.getSocialNetworkConfiguration()+"']"
+			expression = "/"+configurationsKey
+						+"/"+configurationKey
+						+"[@"+scopeKey+"='"+socialNetworkKey+"']"
 						+"/network"
-						+"[@"+rtc.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
+						+"[@"+socialNetworkNameKey + "='"+CRAWLER_NAME+"']"
 						+"/name";
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			obj.put((String)"networkName", (String)node.getTextContent());
 			
-			expression = "/"+rtc.getRootidentifier()
-						+"/"+rtc.getSingleconfigurationidentifier()
-						+"[@"+rtc.getScopeidentifier()+"='"+rtc.getSocialNetworkConfiguration()+"']"
+			expression = "/"+configurationsKey
+						+"/"+configurationKey
+						+"[@"+scopeKey+"='"+socialNetworkKey+"']"
 						+"/network"
-						+"[@"+rtc.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
+						+"[@"+socialNetworkNameKey + "='"+CRAWLER_NAME+"']"
 						+"/code";
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			obj.put((String)"networkCode", (String)node.getTextContent());
 			
-			expression = "/"+rtc.getRootidentifier()
-						+"/"+rtc.getSingleconfigurationidentifier()
-						+"[@"+rtc.getScopeidentifier()+"='"+rtc.getSocialNetworkConfiguration()+"']"
+			expression = "/"+configurationsKey
+						+"/"+configurationKey
+						+"[@"+scopeKey+"='"+socialNetworkKey+"']"
 						+"/network"
-						+"[@"+rtc.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
+						+"[@"+socialNetworkNameKey + "='"+CRAWLER_NAME+"']"
 						+"/description";
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			obj.put((String)"description", (String)node.getTextContent());
 			
-			expression = "/"+rtc.getRootidentifier()
-						+"/"+rtc.getSingleconfigurationidentifier()
-						+"[@"+rtc.getScopeidentifier()+"='"+rtc.getSocialNetworkConfiguration()+"']"
+			expression = "/"+configurationsKey
+						+"/"+configurationKey
+						+"[@"+scopeKey+"='"+socialNetworkKey+"']"
 						+"/network"
-						+"[@"+rtc.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
+						+"[@"+socialNetworkNameKey + "='"+CRAWLER_NAME+"']"
 						+"/domain";
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			obj.put((String)"domain", (String)node.getTextContent());
 			
-			expression = "/"+rtc.getRootidentifier()
-						+"/"+rtc.getSingleconfigurationidentifier()
-						+"[@"+rtc.getScopeidentifier()+"='"+rtc.getSocialNetworkConfiguration()+"']"
+			expression = "/"+configurationsKey
+						+"/"+configurationKey
+						+"[@"+scopeKey+"='"+socialNetworkKey+"']"
 						+"/network"
-						+"[@"+rtc.getSocialNetworkName() + "='"+CRAWLER_NAME+"']"
+						+"[@"+socialNetworkNameKey + "='"+CRAWLER_NAME+"']"
 						+"/supported";
 			
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);

@@ -2,16 +2,14 @@ package de.comlineag.snc.parser;
 
 import java.io.InputStream;
 import java.net.URL;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.json.simple.JSONObject;
 
@@ -53,28 +51,30 @@ import de.comlineag.snc.helper.UniqueIdServices;
  *				0.9a			moved helkper methods returnTokenPosition and trimStringAtPosition
  *								into GenericWebParser as it is also neede for other web parser
  * 
- * TODO 1 implement correct threaded parser to aid in multithreading
- * TODO 2 implement language detection (possibly with jroller http://www.jroller.com/melix/entry/jlangdetect_0_3_released_with)
+ * TODO implement correct threaded parser to aid in multithreading
+ * TODO implement language detection (possibly with jroller http://www.jroller.com/melix/entry/jlangdetect_0_3_released_with)
  * 
  */
 public final class SimpleWebParser extends GenericWebParser implements IWebParser {
 	// this holds a reference to the runtime cinfiguration
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	
+	
+	private final boolean rtcGetOnlyRelevantPages = rtc.getBooleanValue("WcGetOnlyRelevantPages", "crawler");
+	private final int rtcWordDistanceCutoffMargin = rtc.getIntValue("WcWordDistanceCutoffMargin", "crawler");
+	
 	
 	public SimpleWebParser() {}
 	// this constructor is used to call the parser in a multi threaded environment
-	public SimpleWebParser(String page, URL url, ArrayList<String> tTerms) {
-		parse(page, url, tTerms);
+	public SimpleWebParser(String page, URL url, ArrayList<String> tTerms, String sn_id, String curCustomer, String curDomain) {
+		parse(page, url, tTerms, sn_id, curCustomer, curDomain);
 	}
 	
 	
 	@Override
-	public List<SimpleWebPosting> parse(String page, URL url, List<String> tokens) {
+	public List<SimpleWebPosting> parse(String page, URL url, List<String> tokens, String sn_id, String curCustomer, String curDomain) {
 		String PARSER_NAME="SimpleWebParser";
 		Stopwatch timer = new Stopwatch().start();
 		
@@ -85,14 +85,14 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 		List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
 		
 		try {
-			parsedPageJson = extractContent(page, url, tokens);
+			parsedPageJson = extractContent(page, url, tokens, sn_id, curCustomer, curDomain);
 			SimpleWebPosting parsedPageSimpleWebPosting = new SimpleWebPosting(parsedPageJson);
 			
 			//logger.trace("PARSED PAGE AS JSON >>> " + parsedPageJson.toString());
 			
 			// now check if we really really have the searched word within the text and only if so,
 			// write the content to disk. We should probably put this before calling the persistence
-			if (findNeedleInHaystack(parsedPageJson.toString(), tokens)){
+			if (!rtcGetOnlyRelevantPages || findNeedleInHaystack(parsedPageJson.toString(), tokens)){
 				// add the parsed site to the message list for saving in the DB
 				postings.add(parsedPageSimpleWebPosting);
 			}
@@ -129,13 +129,20 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 	 * 						  page_id = a long value created from the url by substituting every character to a number
 	 * 						  user_id = 0 
 	 */
-	protected JSONObject extractContent(String page, URL url, List<String> tokens) {
-		logger.debug("parsing site " + url.toString() + " and removing clutter");
+	protected JSONObject extractContent(String page, URL url, List<String> tokens, String sn_id, String curCustomer, String curDomain) {
+		logger.trace("parsing site " + url.toString() + " and removing clutter");
 		String title = null;
 		String description = null;
 		String keywords = null;
 		String text = null;
 		String plainText = null;
+		String pageLang = "DE";
+		String user_name = "";
+		String screen_name = "";
+		String page_id = "";
+		String user_id = "";
+		String userLang = pageLang;
+		long postings_count = 0;
 		boolean truncated = Boolean.parseBoolean("false");
 		
 		// vars for the token extraction
@@ -180,8 +187,8 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 			for (int i=0;i<positions.size();i++) {
 				int position = positions.get(i);
 				segmentText += trimStringAtPosition(plainText, position, 
-													rtc.getWC_WORD_DISTANCE_CUTOFF_MARGIN(), 
-													rtc.getWC_WORD_DISTANCE_CUTOFF_MARGIN());
+													rtcWordDistanceCutoffMargin, 
+													rtcWordDistanceCutoffMargin);
 			}
 			//logger.trace("TruncatedText: >>> " + segmentText);
 			
@@ -194,14 +201,19 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 			} else {
 				truncated = Boolean.parseBoolean("false");
 			} 
-				
+			
+			user_name = url.getHost().toString();
+			screen_name = user_name;
+			page_id = UniqueIdServices.createMessageDigest(plainText);
+			user_id = UniqueIdServices.createMessageDigest(user_name);
 			
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: error during parsing of site content ", e );
 			e.printStackTrace();
 		}
 		
-		JSONObject pageJson = createPageJsonObject(title, description, plainText, text, url, truncated);
+		JSONObject pageJson = createPageJsonObject(sn_id, title, description, plainText, text, url, truncated, pageLang, page_id, user_id, user_name, screen_name, userLang, postings_count, curCustomer, curDomain);
+		
 		return pageJson;
 	}
 	
@@ -250,32 +262,43 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 	protected boolean parse(InputStream is) {logger.warn("method not impleented");return false;}
 	
 	
-
+/*
 	@SuppressWarnings("unchecked")
-	protected JSONObject createPageJsonObject(String title, String description, String page, String text, URL url, boolean truncated){
+	protected JSONObject createPageJsonObject(String sn_id, 
+												String title, 
+												String description, 
+												String page, 
+												String text, 
+												URL url, 
+												boolean truncated, 
+												String pageLang,
+												String curCustomer,
+												String curDomain) {
 		JSONObject pageJson = new JSONObject();
 		//truncated = Boolean.parseBoolean("false");
 		
 		// put some data in the json
-		pageJson.put("sn_id", "WC"); // TODO implement proper sn_id handling for websites
+		pageJson.put("sn_id", sn_id);
+		pageJson.put("Customer", curCustomer);
+		pageJson.put("Domain", curDomain);
 		pageJson.put("subject", title);
 		pageJson.put("teaser", description);
 		pageJson.put("raw_text", page);
 		pageJson.put("text", text);
 		pageJson.put("source", url.toString());
-		pageJson.put("page_id", UniqueIdServices.createId(url.toString()).toString()); // the url is parsed and converted into a long number (returned as a string)
-		pageJson.put("lang", "DE"); // TODO implement language recognition
+		pageJson.put("page_id", UniqueIdServices.createMD5(url.toString()).toString()); // the url is parsed and converted into a long number (returned as a string)
+		pageJson.put("lang", pageLang); // TODO implement language recognition
 		pageJson.put("truncated", truncated);
 		String s = Objects.toString(System.currentTimeMillis(), null);
 		pageJson.put("created_at", s);
 		pageJson.put("user_id", pageJson.get("page_id"));
 		
 		JSONObject userJson = new JSONObject();
-		userJson.put("sn_id", "WC"); // TODO implement proper sn_id handling for users from websites
+		userJson.put("sn_id", sn_id);
 		userJson.put("id", pageJson.get("page_id"));
 		userJson.put("name", url.getHost());
 		userJson.put("screen_name", url.getHost());
-		userJson.put("lang", "DE"); // TODO implement language recognition
+		userJson.put("lang", pageLang); // TODO implement language recognition
 		
 		
 		pageJson.put("user", userJson);
@@ -283,5 +306,6 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 		logger.trace("the json object:: " + pageJson.toJSONString());
 		return pageJson;
 	}
+	*/
 }
 

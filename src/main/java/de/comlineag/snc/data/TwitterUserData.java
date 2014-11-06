@@ -1,8 +1,7 @@
 package de.comlineag.snc.data;
 
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.json.simple.JSONObject;
 
@@ -13,7 +12,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  * @author 		Christian Guenther, Magnus Leinemann
  * @category 	data type
- * @version 	0.2a		- 10.07.2014
+ * @version 	0.2b			- 22.07.2014
  * @status		productive
  * 
  * @description Describes a single twitter user with all relevant informations.
@@ -24,7 +23,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 			  "domain" String
  * 			  "customer" String
  * 			  "object_status" String
- *            "id" Long
+ *            "id" String
  *            "sn_id" String
  *            "lang" String
  *            "name" String
@@ -39,15 +38,12 @@ import de.comlineag.snc.constants.SocialNetworks;
  * @changelog	0.1 (Magnus)	class created
  * 				0.2 (Chris)		added support for counters
  * 				0.2a 			moved variable initialization into method initialize
+ * 				0.2b			changed id from Long to String
  * 
  */
 
 public final class TwitterUserData extends UserData {
-
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	/**
 	 * Constructor, based on the JSONObject sent from Twitter the Data Object is prepared
@@ -61,7 +57,7 @@ public final class TwitterUserData extends UserData {
 		initialize();
 		
 		try {
-			setId((Long) jsonObject.get("id"));
+			setId((String) jsonObject.get("id"));
 			setUsername((String) jsonObject.get("name"));
 			setScreenName((String) jsonObject.get("screen_name"));
 			
@@ -90,7 +86,7 @@ public final class TwitterUserData extends UserData {
 		// setting everything to 0 or null default value.
 		// so I can check on initialized or not initialized values for the
 		// posting
-		id = 0;
+		id = "0";
 		//sn_id = SocialNetworks.TWITTER.getValue();
 		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "TWITTER");
 		username = null;

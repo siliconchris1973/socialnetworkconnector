@@ -1,8 +1,7 @@
 package de.comlineag.snc.persistence;
 
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -50,16 +49,12 @@ import org.w3c.dom.NodeList;
  * 				0.8				Added support for getRunState
  * 				0.8a			changed access to runtime configuration to non-static
  *  
- *  TODO 1. implement code for missing methods
  */
 public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManager<T>  {
 	// this holds a reference to the runtime cinfiguration
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	
 	// the path to the configuration file
@@ -74,6 +69,25 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 	private boolean customerIsActive = false;
 	private JSONObject crawlerConfigurationScope = new JSONObject();
 	
+	// convenience variables to make the code easier to read and reduce number of calls to RuntimeConfiguration
+	private final String configurationsKey = rtc.getStringValue("RootIdentifier", "XmlLayout");
+	private final String configurationKey = rtc.getStringValue("SingleConfigurationIdentifier", "XmlLayout");
+	private final String scopeKey = rtc.getStringValue("ScopeIdentifier", "XmlLayout");
+	private final String domainKey = rtc.getStringValue("DomainIdentifier", "XmlLayout");
+	//private final String domainNameKey = rtc.getStringValue("DomainNameIdentifier", "XmlLayout");
+	//private final String domainStructureKey = rtc.getStringValue("DomainStructureIdentifier", "XmlLayout");
+	//private final String allDomainsKey = rtc.getStringValue("DomainNameForAllValue", "XmlLayout");
+	private final String customerKey = rtc.getStringValue("CustomerIdentifier", "XmlLayout");
+	//private final String customerNameKey = rtc.getStringValue("CustomerNameIdentifier", "XmlLayout");
+	//private final String allCustomerKey = rtc.getStringValue("CustomerNameForAllValue", "XmlLayout");
+	//private final String constraintsKey = rtc.getStringValue("ConstraintIdentifier", "XmlLayout");
+	private final String scopeOnAllKey = rtc.getStringValue("ScopeOnAllvalue", "XmlLayout");
+	private final String singleConstraintKey = rtc.getStringValue("SingleConstraintIdentifier", "XmlLayout");
+	private final String valueKey = rtc.getStringValue("ValueIdentifier", "XmlLayout");
+	private final String configFileTypeKey = rtc.getStringValue("ConfigFileTypeIdentifier", "XmlLayout");
+	private final String crawlerRunKey = rtc.getStringValue("CrawlerRunIdentifier", "XmlLayout");
+
+
 	
 	@Override
 	public boolean getRunState(String socialNetwork) {
@@ -89,12 +103,12 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 			XPathFactory xPathfactory = XPathFactory.newInstance();
 			XPath xpath = xPathfactory.newXPath();
 			
-			expression = "//"+rtc.getRootidentifier()+"/"
-								+rtc.getSingleconfigurationidentifier()
-									+"[@"+rtc.getScopeidentifier()+"='"+rtc.getCrawlerRunIdentifier()+"']/"
-								+"crawler"
-									+"[@name='"+socialNetwork+"']";
-			
+			expression = "//"+configurationsKey+"/"
+							+configurationKey
+								+"[@"+scopeKey+"='"+crawlerRunKey+"']/"
+							+"crawler"
+								+"[@name='"+socialNetwork+"']";
+		
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {
 				logger.trace("CrawlerRun for network "+socialNetwork+" could not be found - returning true");
@@ -132,7 +146,7 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 			SN = (String) jsonObject.get("SN_ID");
 			
 			//if ((rtc.getCustomerIsActive() || rtc.getDomainIsActive()) && rtc.getWarnOnSimpleXmlConfig())
-			if (rtc.getWarnOnSimpleXmlConfig())
+			if (rtc.getBooleanValue("WarnOnSimpleXmlConfig", "runtime"))
 				logger.warn("no customer or domain specific configuration possible - consider using complex xml or db configuration manager\nyou can turn off this warning by setting WARN_ON_SIMPLE_XML_CONFIG to false in " + rtc.getRuntimeConfigFilePath());
 		} catch (ParseException e1) {
 			logger.error("ERROR :: could not parse configurationScope json " + e1.getLocalizedMessage());
@@ -140,7 +154,7 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 		
 		// first check, if the correct configuration file type was specified and if not, bail out the hard way
 		if (!isConfigFileCorrect()){
-			if (rtc.isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+			if (rtc.getBooleanValue("StopOnConfigurationFalue", "runtime"))
 				System.exit(SNCStatusCodes.ERROR.getErrorCode());
 		}
 		
@@ -162,14 +176,24 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 			XPath xpath = xPathfactory.newXPath();
 			
 			// first step is to get all general constraints 
-			String expression = "/"+rtc.getRootidentifier()+"/"+rtc.getSingleconfigurationidentifier()+"[@"+rtc.getScopeidentifier()+"='"+rtc.getScopeonallvalue()+"']/"+rtc.getSingleconstraintidentifier()+"/"+section+"/"+rtc.getValueidentifier();
+			String expression = "/"+configurationsKey+"/"
+									+configurationKey
+										+"[@"+scopeKey+"='"+scopeOnAllKey+"']/"
+									+singleConstraintKey+"/"
+									+section+"/"
+									+valueKey;
 			NodeList nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + ": \r");
 			for (int i = 0 ; i < nodeList.getLength() ; i++) 
 				ar.add((T) nodeList.item(i).getTextContent());
 			
 			// second step is to get all constraints for the specified social network 
-			expression = "/"+rtc.getRootidentifier()+"/"+rtc.getSingleconfigurationidentifier()+"[@"+rtc.getScopeidentifier()+"='"+SN+"']/"+rtc.getSingleconstraintidentifier()+"/"+section+"/"+rtc.getValueidentifier();
+			expression = "/"+configurationsKey+"/"
+							+configurationKey
+								+"[@"+scopeKey+"='"+SN+"']/"
+							+singleConstraintKey+"/"
+							+section+"/"
+							+valueKey;
 			nodeList = (NodeList) xpath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 			logger.trace("found " + nodeList.getLength() + " elements using expression " + expression + " ");
 			for (int i = 0 ; i < nodeList.getLength() ; i++)
@@ -178,12 +202,12 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 			logger.trace("    " + ar.toString());
 		} catch (IOException e) {
 			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious!");
-			if (rtc.isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+			if (rtc.getBooleanValue("StopOnConfigurationFalue", "runtime"))
 				System.exit(SNCStatusCodes.CRITICAL.getErrorCode());
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage() + ". This is serious!");
 			e.printStackTrace();
-			if (rtc.isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+			if (rtc.getBooleanValue("StopOnConfigurationFalue", "runtime"))
 				System.exit(SNCStatusCodes.CRITICAL.getErrorCode());
 		}
 
@@ -212,106 +236,16 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 	@SuppressWarnings("unchecked")
 	@Override
 	public JSONObject getCrawlerConfigurationScope() {
-		crawlerConfigurationScope.put((String) rtc.getDomainidentifier(), (String) "undefined");
+		crawlerConfigurationScope.put((String) domainKey, (String) "undefined");
 		setDomain((String) "undefined");
-		crawlerConfigurationScope.put((String) rtc.getCustomeridentifier(), (String) "undefined");
+		crawlerConfigurationScope.put((String) customerKey, (String) "undefined");
 		setCustomer((String) "undefined");
-			
-		/*
-		try {
-			File file = new File(getConfigDbHandler());
-			
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.parse(file);
-			
-			XPathFactory xPathfactory = XPathFactory.newInstance();
-			XPath xpath = xPathfactory.newXPath();
-			
-			String expression = null;
-			Node node = null; 
-			String basicStructure = "/"+rtc.getRootidentifier()+"/"+rtc.getSingleconfigurationidentifier()+"[@"+rtc.getScopeidentifier()+"='"+rtc.getDomainstructureidentifier()+"']/"+rtc.getDomainstructureidentifier();
-			
-			// first step is to get the domain
-			expression = basicStructure + "/"+rtc.getDomainidentifier()+"/"+rtc.getValueidentifier();
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.error("Did not receive any information using expression " + expression);
-			} else {
-				crawlerConfigurationScope.put((String) rtc.getDomainidentifier(), (String) node.getTextContent());
-				setDomain((String) node.getTextContent());
-			}
-			
-			// whether or not it is active
-			expression = basicStructure + rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/isActive/"+rtc.getValueidentifier();
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("did not receive a domain activation - setting to false");
-				setDomainIsActive(false);
-			} else {
-				if ("true".equals(node.getTextContent()))
-					setDomainIsActive(true);
-				else
-					setDomainIsActive(false);
-			}
-			// and the corresponding priority
-			expression = basicStructure + rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/priority/"+rtc.getValueidentifier();
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("did not receive a domain priority - setting to 0");
-				setDomainPriority((int) 0);
-			} else {
-				setDomainPriority(Integer.parseInt(node.getTextContent()));
-			}
-			crawlerConfigurationScope.put((String) "domainIsActive", (boolean) getDomainIsActive());
-			crawlerConfigurationScope.put((String) "domainPriority", (int) getDomainPriority());
-			logger.debug("the domain "+getDomain()+" is active " + getDomainIsActiveAsString() + "and has priority "+ getDomainPriority());
-			
-			
-			// second step is to get the customer
-			expression = basicStructure + rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/"+rtc.getCustomeridentifier()+"/"+rtc.getValueidentifier();
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.error("Did not receive any information using expression " + expression);
-			} else {
-				crawlerConfigurationScope.put((String) rtc.getCustomeridentifier(), (String) node.getTextContent());
-				setCustomer((String) node.getTextContent());
-			}
-			// whether or not it is active
-			expression = basicStructure + rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/"+rtc.getCustomeridentifier()+"[@"+rtc.getCustomernameidentifier()+"='"+getCustomer()+"']/isActive/"+rtc.getValueidentifier();
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("did not receive a customer activation - setting to false");
-				setCustomerIsActive(false);
-			} else {
-				if ("true".equals(node.getTextContent()))
-					setCustomerIsActive(true);
-				else
-					setCustomerIsActive(false);
-			}
-			// and the corresponding priority
-			expression = basicStructure + rtc.getDomainidentifier()+"[@"+rtc.getDomainnameidentifier()+"='"+getDomain()+"']/"+rtc.getCustomeridentifier()+"[@"+rtc.getCustomernameidentifier()+"='"+getCustomer()+"']/priority/"+rtc.getValueidentifier();
-			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
-			if (node == null) {
-				logger.warn("did not receive a customer priority - setting to 0");
-				setCustomerPriority((int) 0);
-			} else {
-				setCustomerPriority(Integer.parseInt(node.getTextContent()));
-			}
-			crawlerConfigurationScope.put((String) "customerIsActive", (boolean) getCustomerIsActive());
-			crawlerConfigurationScope.put((String) "customerPriority", (int) getCustomerPriority());
-			logger.debug("the customer "+getCustomer()+" is active " + getCustomerIsActiveAsString() + " and has priority " + getCustomerPriority());
-			
-		} catch (Exception e) {
-			logger.error("EXCEPTION :: could not get crawler configuration " + e.getLocalizedMessage());
-		}
-		*/
+		
 		return crawlerConfigurationScope;
 	}
 	
 	// getter and setter for the configuration path
 	public String getConfigDbHandler() {return rtc.returnQualifiedConfigPath(this.configDbHandler);}
-	//public String getConfigDbHandler() {return ResourcePathHolder.getResourcePath()+File.separator+this.configDbHandler;}
 	public void setConfigDbHandler(String configDb) {this.configDbHandler = configDb;}
 	
 	// getter and setter for above method data
@@ -382,10 +316,10 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 			
 			String expression = null;
 			Node node = null; 
-			expression = "/"+rtc.getRootidentifier()+"/"
-										+rtc.getSingleconfigurationidentifier()
-											+"[@"+rtc.getScopeidentifier()+"='"
-												+rtc.getConfigFileTypeIdentifier()+"']/type";
+			expression = "/"+configurationsKey+"/"
+							+configurationKey
+								+"[@"+scopeKey+"='"+configFileTypeKey+"']"
+							+ "/type";
 										
 			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
 			if (node == null) {

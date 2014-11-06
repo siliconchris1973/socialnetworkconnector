@@ -4,9 +4,8 @@ import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.json.simple.JSONObject;
 
@@ -32,11 +31,7 @@ import org.neo4j.graphdb.Traverser.Order;
  * 				inherit their constructor and the StringRequestEntity from Neo4JNodeObject
  */
 abstract class Neo4JNodeObject implements Node {
-	
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	// these are used to find a single node in the graph
 	private String locationUri;

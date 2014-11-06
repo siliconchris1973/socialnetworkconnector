@@ -1,8 +1,7 @@
 package de.comlineag.snc.data;
 
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.json.simple.JSONObject;
 
@@ -12,7 +11,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  * @author 		Christian Guenther
  * @category 	data type
- * @version 	0.1		- 10.07.2014
+ * @version 	0.1a		- 22.07.2014
  * @status		in development
  * 
  * @description Describes a single facebook user with all relevant informations.
@@ -33,13 +32,14 @@ import de.comlineag.snc.constants.SocialNetworks;
  *            "lang" String
  *            
  * @changelog	0.1 (Chris)		class copied from TwitterUserData revision 0.3
+ * 				0.1a			changed id from Long to String
  * 
  */
 
 public final class FacebookUserData extends UserData {
 
 	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
@@ -57,7 +57,7 @@ public final class FacebookUserData extends UserData {
 		initialize();
 		
 		try {
-			setId((Long) jsonObject.get("id"));
+			setId((String) jsonObject.get("id"));
 			setUsername((String) jsonObject.get("name"));
 			setScreenName((String) jsonObject.get("screen_name"));
 			
@@ -87,7 +87,7 @@ public final class FacebookUserData extends UserData {
 		// setting everything to 0 or null default value.
 		// so I can check on initialized or not initialized values for the
 		// posting
-		id = 0;
+		id = "0";
 		//sn_id = SocialNetworks.FACEBOOK.getValue();
 		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "FACEBOOK");
 		

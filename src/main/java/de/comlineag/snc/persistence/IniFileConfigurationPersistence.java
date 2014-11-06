@@ -3,9 +3,8 @@ package de.comlineag.snc.persistence;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SNCStatusCodes;
 
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.ini4j.Ini;
 import org.ini4j.InvalidIniFormatException;
@@ -41,23 +40,19 @@ import java.util.ArrayList;
  * 				0.8				Added support for getRunState
  * 				0.8a			changed access to runtime configuration to non-static
  *  
- *  TODO 1. implement code to insert/update a value and write a new config file
  */
 public class IniFileConfigurationPersistence<T> implements IConfigurationManager<T>  {
 	// this holds a reference to the runtime configuration
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	// the path to the configuration file
 	private String configDbHandler;
 	
 	@Override
 	public boolean getRunState(String socialNetwork) {
-		if (rtc.getWarnOnSimpleConfig())
+		if (rtc.getBooleanValue("WarnOnSimpleConfig", "runtime"))
 			logger.warn("no possibility to activate/deactivate certain crawler - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + rtc.getRuntimeConfigFilePath());
 		
 		return true;
@@ -75,7 +70,7 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 		} else {
 			logger.debug("reading constraints on " + category + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")+1));
 			//if ((rtc.getCustomerIsActive() || rtc.getDomainIsActive()) && rtc.getWarnOnSimpleConfig())
-			if (rtc.getWarnOnSimpleConfig())
+			if (rtc.getBooleanValue("WarnOnSimpleConfig", "runtime"))
 				logger.warn("no customer and network specific configuration and no type safety guranteed - consider using simple or complex xml or db configuration manager. \nyou can turn off this warning by setting WARN_ON_SIMPLE_CONFIG to false in " + rtc.getRuntimeConfigFilePath().substring(rtc.getRuntimeConfigFilePath().lastIndexOf("/")+1));
 			
 			return (ArrayList<T>)getDataFromIni(category);
@@ -93,11 +88,11 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 			ini = new Ini(new FileReader((String)getConfigDbHandler()));
 		} catch (InvalidIniFormatException e1) {
 			logger.error("EXCEPTION :: invalid ini format " + e1.getLocalizedMessage() + ". This is serious!");
-			if (rtc.isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+			if (rtc.getBooleanValue("StopOnConfigurationFalue", "runtime"))
 				System.exit(SNCStatusCodes.ERROR.getErrorCode());
 		} catch (IOException e2) {
 			logger.error("EXCEPTION :: error reading configuration file " + e2.getLocalizedMessage() + ". This is serious!");
-			if (rtc.isSTOP_SNC_ON_CONFIGURATION_FAILURE())
+			if (rtc.getBooleanValue("StopOnConfigurationFalue", "runtime"))
 				System.exit(SNCStatusCodes.CRITICAL.getErrorCode());
 		}
 		
@@ -112,17 +107,20 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 	
 	@Override
 	public String getConfigurationElement(String key, String path) {
+		// TODO implement code to retrieve a single element from the configuration file 
 		logger.warn("The method getConfigurationElement is currently not supported on configuration type ini-file");
 		return null;
 	}
 
 	@Override
 	public void setConfigurationElement(String key, String value, String path) {
+		// TODO implement code to insert/update a value in the configuration file 
 		logger.warn("The method setConfigurationElement is currently not supported on configuration type ini-file");
 	}
 	
 	@Override
 	public void writeNewConfiguration(String xml) {
+		// TODO implement code to write the configuration file back to disk 
 		logger.warn("The method writeNewConfiguration from XML is currently not supported on configuration type ini-file");
 	}
 	
@@ -150,8 +148,8 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 	@Override
 	public JSONObject getCrawlerConfigurationScope() {
 		JSONObject crawlerConfigurationScope = new JSONObject();
-		crawlerConfigurationScope.put((String) rtc.getDomainidentifier(), (String) "undefined");
-		crawlerConfigurationScope.put((String) rtc.getCustomeridentifier(), (String) "undefined");
+		crawlerConfigurationScope.put((String) rtc.getStringValue("DomainIdentifier", "XmlLayout"), (String) "undefined");
+		crawlerConfigurationScope.put((String) rtc.getStringValue("CustomerIdentifier", "XmlLayout"), (String) "undefined");
 		return crawlerConfigurationScope;
 	}
 }

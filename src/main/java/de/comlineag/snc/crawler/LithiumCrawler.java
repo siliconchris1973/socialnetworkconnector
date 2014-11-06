@@ -17,13 +17,9 @@ import org.quartz.JobExecutionException;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
 
-
-
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
 
@@ -75,8 +71,8 @@ import de.comlineag.snc.parser.LithiumParser;
  *				1.2				changed search against rest api url to use method parameter instead of for-loop 
  *				1.3				added support for runState configuration, to check if the crawler shall actually run
  *
- * TODO 1. find out and fix the following warning:
- * 			HttpMethodBase - Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
+ * TODO change data retrieval to use getResponseBodyAsStream - fixes warning: Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
+ * TODO make parser work when using threads instead of messages
  */
 @DisallowConcurrentExecution 
 public class LithiumCrawler extends GenericCrawler implements Job {
@@ -87,16 +83,28 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	private static String CRAWLER_NAME="LITHIUM";
 	private static String name="LithiumCrawler";
 	
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
 	private final ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
 	
 	// shall the system grab messages directly or through threads
 	String threadsOrMessages = "messages";
+	
+	
+
+	private final String constraintTermText = rtc.getStringValue("ConstraintTermText", "XmlLayout");
+	private final String constraintLangText = rtc.getStringValue("ConstraintLanguageText", "XmlLayout");
+	private final String constraintUserText = rtc.getStringValue("ConstraintUserText", "XmlLayout");
+	private final String constraintSiteText = rtc.getStringValue("ConstraintSiteText", "XmlLayout");
+	//private final String constraintLocaText = rtc.getStringValue("ConstraintLocationText", "XmlLayout");
+	private final String constraintBSiteText = rtc.getStringValue("ConstraintBlockedSiteText", "XmlLayout");
+
+	private final String rtcDomainKey = rtc.getStringValue("DomainIdentifier", "XmlLayout");
+	private final String rtcCustomerKey = rtc.getStringValue("CustomerIdentifier", "XmlLayout");
+	
+	private final boolean rtcPersistenceThreading = rtc.getBooleanValue("PersistenceThreadingEnabled", "runtime");
+	
 	
 	// this string is used to compose all the little debug messages from the different restriction possibilities
 	// on the posts, like terms, languages and the like. it is only used in debugging afterwards.
@@ -125,9 +133,9 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
 			
 			// set the customer we start the crawler for and log the startup message
-			String curDomain = (String) configurationScope.get(rtc.getDomainidentifier());
-			String curCustomer = (String) configurationScope.get(rtc.getCustomeridentifier());
-	
+			String curDomain = (String) configurationScope.get(rtcDomainKey);
+			String curCustomer = (String) configurationScope.get(rtcCustomerKey);
+			
 			if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
 				logger.info(CRAWLER_NAME+"-Crawler START");
 			} else {
@@ -176,10 +184,14 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			
 			// THESE VALUES ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND SITES (aka boards)
 			logger.debug("retrieving restrictions from configuration db");
-			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintTermText(), configurationScope); 
-			ArrayList<String> tUsers = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintUserText(), configurationScope);
-			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintLanguageText(), configurationScope); 
-			ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintSiteText(), configurationScope);
+			ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(constraintTermText, configurationScope);
+			ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(constraintLangText, configurationScope);
+			ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(constraintUserText, configurationScope);
+			ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(constraintSiteText, configurationScope);
+			//ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(constraintLocaText, configurationScope);
+			// blocked URLs
+			ArrayList<String> bURLs = new CrawlerConfiguration<String>().getConstraint(constraintBSiteText, configurationScope);
+			
 			
 			// simple log output
 			if (tTerms.size()>0)
@@ -205,7 +217,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 						logger.debug("MESSAGES chosen");
 						tSites.add(REST_API_URL+LithiumConstants.REST_MESSAGES_SEARCH_URI);
 					} else if ("threads".equals(threadsOrMessages)) {
-						// TODO make parser work when using threads instead of messages
 						logger.debug("THREADS chosen");
 						tSites.add(REST_API_URL+LithiumConstants.REST_THREADS_URI+"/recent");
 					}
@@ -223,7 +234,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 							logger.debug("MESSAGES chosen");
 							tSites.set(i, REST_API_URL + t + LithiumConstants.REST_MESSAGES_SEARCH_URI);
 						} else if ("threads".equals(threadsOrMessages)) {
-							// TODO make parser work when using threads instead of messages
 							logger.debug("THREADS chosen");
 							tSites.set(i, REST_API_URL + t + LithiumConstants.REST_THREADS_URI);
 						}
@@ -316,7 +326,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 								JSONObject messageResponse = SendObjectRequest(messageRef, REST_API_URL, LithiumConstants.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
 								if (messageResponse != null) {
 									// first save the message
-									if (rtc.isPERSISTENCE_THREADING_ENABLED()){
+									if (rtcPersistenceThreading){
 										// execute persistence layer in a new thread, so that it does NOT block the crawler
 										logger.trace("execute persistence layer in a new thread...");
 										final LithiumPosting litPost = new LithiumPosting(messageResponse);
@@ -367,7 +377,25 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			}
 			
 			timer.stop();
-			logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages in "+timer.elapsed(TimeUnit.SECONDS)+" seconds\n");
+			
+			long seconds = timer.elapsed(TimeUnit.SECONDS);
+		    long calcSeconds = seconds;
+		    long calcMinutes = 0;
+		    long calcHours = 0;
+		    long calcDays = 0;
+		    if (calcSeconds > 60) {
+		    	calcMinutes = calcSeconds / 60;
+		    	calcSeconds = calcSeconds - (calcMinutes * 60);
+		    }
+		    if (calcMinutes > 60) {
+		    	calcHours = calcMinutes / 60;
+		    	calcMinutes = calcMinutes - (calcHours * 60);
+		    }
+		    if (calcHours > 24) {
+		    	calcDays = calcHours / 24;
+		    	calcHours = calcHours - (calcHours * 24);
+		    }
+			logger.info(CRAWLER_NAME+"-Crawler END - tracked {} messages in {} days {} hours {} minutes {} seconds\n", messageCount, calcDays, calcHours, calcMinutes, calcSeconds);
 		}
 	}
 	

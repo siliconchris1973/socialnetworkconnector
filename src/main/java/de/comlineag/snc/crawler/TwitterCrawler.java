@@ -3,16 +3,16 @@ package de.comlineag.snc.crawler;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -41,7 +41,7 @@ import de.comlineag.snc.parser.TwitterParser;
  *
  * @author 		Christian Guenther
  * @category 	Job
- * @version		0.9e				- 16.10.2014
+ * @version		0.9g				- 06.11.2014
  * @status		productive	but with occasional error while inserting data
  *
  * @description this is the actual crawler of the twitter network. It is
@@ -51,7 +51,7 @@ import de.comlineag.snc.parser.TwitterParser;
  *
  * @limitation	Currently the class uses annotation @DisallowConcurrentExecution
  *              because we can't let the job run multiple times for the sake of 
- *              data consistency - this will be resolved in version 1.1 
+ *              data consistency 
  *
  * @changelog	0.1 (Chris)			first skeleton against rest-api
  * 				0.2	(Maic)			static version retrieves posts
@@ -67,9 +67,11 @@ import de.comlineag.snc.parser.TwitterParser;
  *				0.9c				changed method signature for crawler configuration to match JSON object
  *				0.9d				added support for runState configuration, to check if the crawler shall actually run
  *				0.9e				added time measure and new loop to track unlimited messages
+ *				0.9f				deactivated loop to track unlimited messages
+ *				0.9g				added possibility to reject tweets if the contain any of the blocked terms
  *
- * TODO 1. find out how to fix the following warning:
- * 			HttpMethodBase - Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
+ * TODO check if we can use getResponseBodyAsStrema to fix the following warning: Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
+ * TODO implement possibility have black-list of combinations not to track: e.g. Depot YES / Home Depot NO 
  */
 @DisallowConcurrentExecution 
 public class TwitterCrawler extends GenericCrawler implements Job {
@@ -80,10 +82,23 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	private static final String CRAWLER_NAME="TWITTER";
 	private static String name="TwitterCrawler";
 		
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	
+	
+	private final String constraintTermText = rtc.getStringValue("ConstraintTermText", "XmlLayout");
+	private final String constraintBlockedTermText = rtc.getStringValue("ConstraintBlockedTermText", "XmlLayout");
+	private final String constraintLangText = rtc.getStringValue("ConstraintLanguageText", "XmlLayout");
+	private final String constraintUserText = rtc.getStringValue("ConstraintUserText", "XmlLayout");
+	//private final String constraintSiteText = rtc.getStringValue("ConstraintSiteText", "XmlLayout");
+	private final String constraintLocaText = rtc.getStringValue("ConstraintLocationText", "XmlLayout");
+	//private final String constraintBSiteText = rtc.getStringValue("ConstraintBlockedSiteText", "XmlLayout");
+
+	private final String rtcDomainKey = rtc.getStringValue("DomainIdentifier", "XmlLayout");
+	private final String rtcCustomerKey = rtc.getStringValue("CustomerIdentifier", "XmlLayout");
+	
+	private final int rtcMaxTweetsPerRun = rtc.getIntValue("TwMaxTweetsPerCrawlerRun", "crawler");
+	private final boolean rtcWarnOnRejectedActions = rtc.getBooleanValue("WarnOnRejectedActions", "runtime");
+	
 	
 	// Set up your blocking queues: Be sure to size these properly based on
 	// expected TPS of your stream
@@ -129,9 +144,9 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				configurationScope.put((String) "SN_ID", (String) SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
 				
 				// set the customer we start the crawler for and log the startup message
-				String curDomain = (String) configurationScope.get(rtc.getDomainidentifier());
-				String curCustomer = (String) configurationScope.get(rtc.getCustomeridentifier());
-		
+				String curDomain = (String) configurationScope.get(rtcDomainKey);
+				String curCustomer = (String) configurationScope.get(rtcCustomerKey);
+				
 				if ("undefined".equals(curDomain) && "undefined".equals(curCustomer)) {
 					logger.info(CRAWLER_NAME+"-Crawler START");
 				} else {
@@ -156,26 +171,24 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 				
 				// THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
 				logger.debug("retrieving restrictions from configuration db");
-				ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintTermText(), configurationScope);
-				ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintLanguageText(), configurationScope);
-				ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(rtc.getConstraintUserText(), configurationScope);
-				ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(rtc.getConstraintLocationText(), configurationScope);
-				
+				ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(constraintTermText, configurationScope);
+				ArrayList<String> btTerms = new CrawlerConfiguration<String>().getConstraint(constraintBlockedTermText, configurationScope);
+				ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(constraintLangText, configurationScope);
+				ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(constraintUserText, configurationScope);
+				//ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(constraintSiteText, configurationScope);
+				ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(constraintLocaText, configurationScope);
 				// blocked URLs
-				//ArrayList<String> bURLs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintBlockedSiteText(), configurationScope);
+				//ArrayList<String> bURLs = new CrawlerConfiguration<String>().getConstraint(constraintBSiteText, configurationScope);
 				
 				
-				/*
-				ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintTermText(), configurationScope);
-				ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintLanguageText(), configurationScope);
-				ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(rtc.getConstraintUserText(), configurationScope);
-				ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(rtc.getConstraintLocationText(), configurationScope);
-				*/
 				
 				// log output AND setup of the filter end point
 				if (tTerms.size()>0) {
 					smallLogMessage += " specific terms ";
 					endpoint.trackTerms(tTerms);
+				}
+				if (tTerms.size()>0) {
+					smallLogMessage += " specific blocked terms ";
 				}
 				if (tUsers.size()>0) {
 					smallLogMessage += " specific users ";
@@ -215,8 +228,8 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 					}
 					
 					// check if there is a limit on the maximum number of tweets to track per crawler run
-	/*
-					if (rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN() == -1) {
+/*
+					if (rtcMaxTweetsPerRun == -1) {
 						// now track all relevant tweets as long as new tweets exist in the queue
 						logger.debug("tracking unlimited messages");
 						while (!msgQueue.isEmpty()){
@@ -237,54 +250,67 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 							// each tweet is now passed to the parser TwitterParser
 							post.process(msg);
 							
-							// TODO implement method to retrieve a web-page from the post
+							// TODO implement SimpleWebCrawler to retrieve a web-page referenced in a tweet by a hyperlink
 							
 							
 						}
 					} else {
-	*/
+*/
 						// now track all relevant tweets up to maximum number configured
-						logger.debug("tracking max "+rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN()+" messages");
+						logger.debug("tracking max "+rtcMaxTweetsPerRun+" messages");
 						
-						int msgRead = 0;
-						String msg = null;
-						while((msg = ReadMessage(connectionTimeOut)) != null && msgRead < rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN()){
-							msgRead++;
-							messageCount++;
-							setPostsTracked(messageCount);
-							logger.trace("message " + messageCount + " received");
-							logger.debug("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
+						for (int msgRead = 0; msgRead < rtcMaxTweetsPerRun; msgRead++) {
+							String msg = null;
+							try {
+								msg = msgQueue.take();
+							} catch (InterruptedException e) {
+								logger.error("ERROR :: Message loop interrupted " + e.getMessage());
+							} catch (Exception ee) {
+								logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
+							}
 							
-							// each tweet is now passed to the parser TwitterParser
-							post.process(msg);
+							// check that there is non of the blocked terms in the tweet. Only process
+							// tweet if it does NOT contain any of those terms
+							if (!containsWord(msg, btTerms)){
+								logger.trace("message " + messageCount + " received");
+								messageCount++;
+								setPostsTracked(messageCount);
+								
+								logger.debug("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
+								//logger.trace("   content: " + msg );
+		
+								// each tweet is now passed to the parser TwitterParser
+								post.process(msg);
+							} else {
+								if (rtcWarnOnRejectedActions)
+									logger.debug("message rejected because it cantains one of the blocked terms");
+							}
 						}
-						
-//						for (int msgRead = 0; msgRead < rtc.getTW_MAX_TWEETS_PER_CRAWLER_RUN(); msgRead++) {
-//							logger.trace("message " + messageCount + " received");
-//							messageCount++;
-//							setPostsTracked(messageCount);
-//							
-//							String msg = null;
-//							try {
-//								msg = msgQueue.take();
-//							} catch (InterruptedException e) {
-//								logger.error("ERROR :: Message loop interrupted " + e.getMessage());
-//							} catch (Exception ee) {
-//								logger.error("EXCEPTION :: Exception in message loop " + ee.getMessage());
-//							}
-//							logger.debug("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
-//							//logger.trace("   content: " + msg );
-//	
-//							// each tweet is now passed to the parser TwitterParser
-//							post.process(msg);
-//						}
-	//				}
+//					}
 				} catch (Exception e) {
 					logger.error("Error while processing messages", e);
 				}
 				client.stop();
 				timer.stop();
-				logger.info(CRAWLER_NAME+"-Crawler END - tracked "+messageCount+" messages in "+timer.elapsed(TimeUnit.SECONDS)+" seconds\n");
+				
+				long seconds = timer.elapsed(TimeUnit.SECONDS);
+			    long calcSeconds = seconds;
+			    long calcMinutes = 0;
+			    long calcHours = 0;
+			    long calcDays = 0;
+			    if (calcSeconds > 60) {
+			    	calcMinutes = calcSeconds / 60;
+			    	calcSeconds = calcSeconds - (calcMinutes * 60);
+			    }
+			    if (calcMinutes > 60) {
+			    	calcHours = calcMinutes / 60;
+			    	calcMinutes = calcMinutes - (calcHours * 60);
+			    }
+			    if (calcHours > 24) {
+			    	calcDays = calcHours / 24;
+			    	calcHours = calcHours - (calcHours * 24);
+			    }
+				logger.info(CRAWLER_NAME+"-Crawler END - tracked {} messages in {} days {} hours {} minutes {} seconds\n", messageCount, calcDays, calcHours, calcMinutes, calcSeconds);
 			} catch (Exception e) {
 				logger.error("something went wrong ", e);
 				e.printStackTrace();
@@ -293,11 +319,11 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	}
 	
 	
-	/**
+	/*
 	 * takes messages from the msgQueue  
 	 * @param connectionTimeOut
 	 * @return
-	 */
+	 
 	private String ReadMessage(int connectionTimeOut){
 		String msg = null;
 		try {
@@ -309,7 +335,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		}
 		return msg;
 	}
-	
+	*/
 	
 	
 	/**
@@ -339,6 +365,26 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	}
 	
 	/**
+	 * @description 	checks if any word of a given set of tokens is found in the given text
+	 * 					this check is done a second time in the parser, after all irrelevant content
+	 * 					like advertisement and the like has been stripped off the page.
+	 * @param 			text
+	 * @param 			tokens
+	 * @return 			true if any of the tokens was found, otherwise false
+	 */
+	private boolean containsWord(String text, List<String> tokens){
+		String patternString = "\\b(" + StringUtils.join(tokens, "|") + ")\\b";
+		Pattern pattern = Pattern.compile(patternString);
+		Matcher matcher = pattern.matcher(text);
+
+		while (matcher.find()) {
+		    return true;
+		}
+		
+		return false;
+	}
+	
+	/**
 	 * 
 	 * @param msg
 	 * @param bURLs
@@ -358,7 +404,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 			URL newURL = null;
 			try {
 				newURL = new URL(link);
-				SimpleWebCrawler pCrawl = new SimpleWebCrawler(newURL, bURLs, 1, 1, true, true, true, null, null, tTerms, curCustomer, curDomain);
+				SimpleWebCrawler pCrawl = new SimpleWebCrawler(newURL, bURLs, 1, 1, true, true, true, null, null, tTerms, curCustomer, curDomain, "TW");
 				
 			} catch (MalformedURLException e) {
 				//logger.error(String.format("Link %s could not be parsed as a URL.", link), e);

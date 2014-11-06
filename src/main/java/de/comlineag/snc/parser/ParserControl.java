@@ -15,7 +15,9 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -35,7 +37,7 @@ import de.comlineag.snc.parser.IWebParser;
  * @description ParserControl is the generic caller class for each web parser. Whenever a web page
  * 				is crawled it is handed over to ParserControl. PC queries each registered parser
  * 				listed in properties/webparser.xml below WEB-INF directory) to determine if it can 
- * 				parse the page. Tpo achieve this, every registered parser must provide the method
+ * 				parse the page. To achieve this, every registered parser must provide the method
  * 				canExecute() and return true (can be parsed) or false (can not be parsed) on calling.
  * 
  * 				To register a new web parser you have to create the class and enter it's details in 
@@ -43,16 +45,15 @@ import de.comlineag.snc.parser.IWebParser;
  * 				
  * 				PC is designed as a singleton class. It maintains a static reference to the lone 
  * 				singleton instance and returns that reference from the static getInstance() method. 
- * 				To achieve this we employ a technique known as lazy instantiation to create the 
- * 				singleton; as a result, the singleton instance is not created until the getInstance() 
- * 				method is called for the first time. This technique ensures that singleton instances 
- * 				are created only when needed.
+ * 				We employ a technique known as lazy instantiation to create the singleton in which 
+ * 				the singleton instance is not created until the getInstance() method is called for 
+ * 				the first time. This technique ensures that singleton instances are created only if needed. 
  * 				 
  * 				Upon first call, PC will get all available parser from the webparser.xml file and create 
  * 				an ordered list of them. Every subsequent call will loop through this list querying the 
  * 				parser whether it can parse the page and, upon receiving true from the parser, hand the 
  * 				page, the original url and the list of track terms over to it. The loop works as a first-
- * 				match-wins decision - th efirst parser to return true on a page, will get the page.
+ * 				match-wins decision - the first parser to return true on a page, will get the page.
  * 
  * @changelog	0.1 (Chris)		class created
  * 
@@ -62,10 +63,7 @@ public class ParserControl {
 	// this holds a reference to the runtime configuration
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
-	// we use simple org.apache.log4j.Logger for lgging
-	private static final Logger logger = Logger.getLogger("de.comlineag.snc.parser.ParserControl");
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private static final Logger logger = LoggerFactory.getLogger(ParserControl.class);
 		
 	// the list of operational web parser as taken from the properties file is stored within this structure
 	private List<IWebParser> webParser; 
@@ -100,6 +98,9 @@ public class ParserControl {
 	 * @param 		page 	- the web page as a String
 	 * @param 		url		- the url the page is coming from 
 	 * @param 		tTerms	- a list of track terms 
+	 * @param 		sn_id	- the two digit code identifying the page, or network
+	 * @param		curCustomer
+	 * @param		curDomain
 	 * @return 		List of simple web postings (a json structure with 1-n postings (or pages)
 	 * 
 	 * @throws SAXException 
@@ -108,7 +109,7 @@ public class ParserControl {
 	 * @throws IOException 
 	 * 
 	 */
-	public static List<SimpleWebPosting> submit(String page, URL url, ArrayList<String> tTerms) 
+	public static List<SimpleWebPosting> submit(String page, URL url, ArrayList<String> tTerms, String sn_id, String curCustomer, String curDomain) 
 			throws XPathExpressionException, ParserConfigurationException, SAXException, IOException{
 		pc = getInstance();
 		
@@ -118,7 +119,7 @@ public class ParserControl {
 		    logger.trace("querying if parser " + parser.getClass().getSimpleName().toString() + " can operate on site " + url.toString());
 		    if (parser.canExecute(page, url)) {
 		    	logger.debug("executing parser " + parser.getClass().getSimpleName().toString());
-		        return parser.parse(page, url, tTerms);
+		        return parser.parse(page, url, tTerms, sn_id, curCustomer, curDomain);
 		    }
 		}
 		

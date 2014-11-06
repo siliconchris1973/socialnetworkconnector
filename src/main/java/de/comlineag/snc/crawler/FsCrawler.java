@@ -8,7 +8,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.joda.time.LocalDateTime;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -30,7 +32,7 @@ import de.comlineag.snc.persistence.HANAPersistence;
  * 
  * @author 		Christian Guenther
  * @category 	Job
- * @version		0.2
+ * @version		0.2a				- 22.10.2014
  * @status		in development
  * 
  * @description a crawler that gets all files (with a specific name pattern) from a file system 
@@ -40,13 +42,11 @@ import de.comlineag.snc.persistence.HANAPersistence;
  * 
  * @changelog	0.1 (Chris)		class created
  * 				0.2				skeleton for parsing and passing over
+ * 				0.2a			changed id from Long to String
  */
 public class FsCrawler implements Job {
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
 	//private DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
@@ -136,7 +136,7 @@ public class FsCrawler implements Job {
 							// after creating a new PostData object from json content, store it in the persistence layer
 							logger.info("initializing HANA DB to save post");
 							
-							// TODO make this generic for every possible db manager
+							// TODO make savePost generic to deal with different persistence managers at runtime
 							hana.savePosts(pData);
 						} else if ("user".equals(entryType)) {
 							userObjectsCount++;
@@ -236,10 +236,10 @@ public class FsCrawler implements Job {
 		
 		if (jsonObject.get("id") == null) {
 			logger.trace("    user_id\t"+jsonObject.get("user_id").toString());
-			uData.setId(Long.parseLong(jsonObject.get("user_id").toString()));
+			uData.setId((String) jsonObject.get("user_id"));
 		} else {
 			logger.trace("    id\t"+jsonObject.get("id").toString());
-			uData.setId(Long.parseLong(jsonObject.get("id").toString()));
+			uData.setId((String) jsonObject.get("id"));
 		}
 		
 		if (jsonObject.get("userName") != null) {
@@ -354,10 +354,10 @@ public class FsCrawler implements Job {
 		
 		if (jsonObject.get("id") == null) {
 			logger.trace("    post_id \t" + Long.parseLong(jsonObject.get("post_id").toString()));
-			pData.setId(Long.parseLong(jsonObject.get("post_id").toString()));
+			pData.setId((String) jsonObject.get("post_id"));
 		} else {
 			logger.trace("    id \t" + jsonObject.get("id").toString());
-			pData.setId(Long.parseLong(jsonObject.get("id").toString()));
+			pData.setId((String) jsonObject.get("id"));
 		}
 		
 		if (jsonObject.get("postLang") != null) {
@@ -398,7 +398,6 @@ public class FsCrawler implements Job {
 			pData.setSubject((String) jsonObject.get("subject"));
 		}
 		
-		// TODO check what source is
 		if (jsonObject.get("source") != null){
 			logger.trace("    source\t" + jsonObject.get("source").toString());
 			pData.setClient((String) jsonObject.get("source"));
@@ -427,7 +426,7 @@ public class FsCrawler implements Job {
 			pData.setInReplyToUserScreenName((String) jsonObject.get("inReplyToScreenName"));
 		}
 		
-		// TODO check how to get geo location elements from json file
+		// TODO implement code to retrieve geo location elements from json file
 		if (jsonObject.get("coordinates") != null) {
 			logger.trace("    geoLongitude and geoLatitude");
 			pData.setGeoLongitude((String) jsonObject.get("geoLongitude"));

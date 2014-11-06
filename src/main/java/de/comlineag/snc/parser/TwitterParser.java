@@ -1,14 +1,13 @@
 package de.comlineag.snc.parser;
 
 import java.io.InputStream;
-import java.net.URL;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -44,10 +43,11 @@ public final class TwitterParser extends GenericParser {
 	// this holds a reference to the runtime cinfiguration
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	
+	
+	private final boolean rtcPersistenceThreading = rtc.getBooleanValue("PersistenceThreadingEnabled", "runtime");
+	
 	
 	public TwitterParser() {}
 
@@ -94,7 +94,7 @@ public final class TwitterParser extends GenericParser {
 		// need to add users first, because a tweet needs to be able to point to a posting user in the db
 		logger.trace("trying to save " + users.size() + " users");
 		for (int ii = 0; ii < users.size(); ii++) {
-			if (rtc.isPERSISTENCE_THREADING_ENABLED()){
+			if (rtcPersistenceThreading){
 				// execute persistence layer in a new thread, so that it does NOT block the crawler
 				logger.trace("execute persistence layer in a new thread...");
 				final TwitterUser userT = (TwitterUser) users.get(ii);
@@ -113,7 +113,7 @@ public final class TwitterParser extends GenericParser {
 		
 		logger.trace("trying to save " + postings.size() + " tweets");
 		for (int ii = 0; ii < postings.size(); ii++) {
-			if (rtc.isPERSISTENCE_THREADING_ENABLED()){
+			if (rtcPersistenceThreading){
 				// execute persistence layer in a new thread, so that it does NOT block the crawler
 				logger.trace("execute persistence layer in a new thread...");
 				final TwitterPosting postT = (TwitterPosting) postings.get(ii);
@@ -136,10 +136,9 @@ public final class TwitterParser extends GenericParser {
 		logger.debug(PARSER_NAME + " parser END - parsing took "+timer.elapsed(TimeUnit.SECONDS)+" seconds");
 		return true;
 	}
-
-	@Override
-	protected boolean parse(InputStream is) {
-		// THIS METHOD IS NOT USED
-		return false;
-	}
+	
+	
+	// THIS METHOD IS NOT USED
+	@Override 
+	protected boolean parse(InputStream is) {return false;}
 }

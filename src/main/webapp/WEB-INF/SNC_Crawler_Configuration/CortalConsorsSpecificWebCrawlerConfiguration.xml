@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+	This is the xml configuration file for the social network connector. 
+	
+	- CORTAL - CONSORS - CORTAL - CONSORS - CORTAL - CONSORS - CORTAL -
+	
+	The XML can be used to setup either customer or domain specific configurations or  
+	a combination of the two. For any combination (domain and customer) you can always 
+	also add a section with scope="ALL" resulting in this section being applied to 
+	all domains or all customers respectively.
+	
+	Every configuration file contains a section in which the domain and customer
+	structure is setup. Even if your scenario uses SimpleXmlConfigurationPersistence and
+	therefore has no possibility to make use of domain and/or customer, the information
+	needs to stay in the file, or you will get warnings in the crawler log.
+	
+	Every configuration file also has a very small section at the end, in which the file
+	type is specified. This type needs to correspond to the chosen configuration persistence
+	manager and you should therefore leave it as is. You must also make sure to copy and
+	edit the xml files in accordance with the chosen manager - otherwise the crawler will
+	bail out and you receive an error.
+	
+	
+	Also worth noting is, that you can activate/deactivate certain crawler through this
+	configuration file, by setting the option CrawlerRun to false. In this case, the crawler 
+	in question (be it Lithium, Twitter, Web or the like) will still be started by the job
+	control, given that it is activated in applicationContext.xml, but will do nothing.
+	
+	
+	the general structure of a configuration constraint is as follows
+	<configurations>
+		<configuration scope='CrawlerRun'>
+			<crawler name="WEBCRAWLER">true</crawler>
+		</configuration>
+		
+		<configuration scope=[customer / domain]>
+			<customer/domain scope=[ALL, name]
+				<name>
+					<type>String</type>
+					<value>ALL</value>
+				</name>
+				<category>
+					<type>String</type>
+					<value>customer/domain</value>
+				</category>
+				
+				<constraint>
+					<ANY one of term, language, user, site, dnsdomain, blockedsite or geo location>
+						<type>data type - e.g. String</type>
+						<value>what to track/restrict to</value>
+					</user>
+				</constraint>
+			</customer>
+		</configuration>
+	</configurations>
+-->
+<configurations>
+	<!-- activate/deactivate each crawler if you like. You can also
+		 delete this section, in which case all crawler activated in 
+		 applicationControl.xml will run. Consequently, if you omit 
+		 a crawler here, it will run, in case it is activated in 
+		 applicationContext.xml -->
+	<configuration scope="CrawlerRun">
+		<crawler name="WEBCRAWLER">true</crawler>
+	</configuration>
+	
+	<!-- 
+		START OF DOMAIN AND CUSTOMER CONFIG
+		you need to setup the domain and customer structure here,
+		before using it later in the configuration file 
+	-->
+	<configuration scope="domainStructure">
+		<domainStructure>
+			<domain name="Banking">
+				<name>Banking</name>
+				<type>String</type>
+				<value>Banking</value>
+				
+				<!-- set to false in case no domain/customer specific setup is needed -->
+				<isActive>
+					<type>boolean</type>
+					<value>true</value>
+				</isActive>
+				<priority>
+					<type>int</type>
+					<value>0</value>
+				</priority>
+				
+				<!-- customer entries within domain -->
+				<customer name="CortalConsors">
+					<name>Cortal Consors</name>
+					<type>String</type>
+					<value>CortalConsors</value>
+					<isActive>
+						<type>boolean</type>
+						<value>true</value>
+					</isActive>
+					<priority>
+						<type>int</type>
+						<value>0</value>
+					</priority>
+				</customer>
+			</domain>
+		</domainStructure>
+	</configuration>
+	
+	
+	<!-- this section can be used to setup crawler configurations for customer -->
+	<configuration scope="customer">
+		<!-- Cortal Consors -->
+		<customer name="CortalConsors">
+			<!-- CUSTOMER SETUP -->
+			<name>
+				<type>String</type>
+				<value>Cortal Consors</value>
+			</name>
+			<category>
+				<type>String</type>
+				<value>customer</value>
+			</category>
+			
+			<!-- START OF WEBCRAWLER CONFIG -->
+			<constraints scope="WO">
+				<constraint>
+					<dnsdomain>
+						<type>String</type>
+						<value>wallstreet-online.de</value>
+					</dnsdomain>
+					<dnsdomain>
+						<type>String</type>
+						<value>www.wallstreet-online.de</value>
+					</dnsdomain>
+				</constraint>
+				<constraint>
+					<site>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/forum/28-1-50/daytrader</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/community/letzte-neueintraege.html</value>
+					</site>
+					<site>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/diskussion/1192569-1-10/depotuebertrag-lynx-cortalconsors</value>
+					</site>
+					
+				</constraint>
+				<constraint>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/userzentrum/registrierung.html</value>
+					</blockedsite>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/userzentrum/passwort-vergessen.html</value>
+					</blockedsite>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/userzentrum/online.html</value>
+					</blockedsite>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/impressum</value>
+					</blockedsite>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/werbung</value>
+					</blockedsite>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/karriere/stellenangebote.html</value>
+					</blockedsite>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/disclaimer.html</value>
+					</blockedsite>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/sitemap</value>
+					</blockedsite>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/hilfe</value>
+					</blockedsite>
+					<blockedsite>
+						<type>String</type>
+						<value>http://www.wallstreet-online.de/widgets</value>
+					</blockedsite>
+				</constraint>
+				<constraint>
+					<term>
+						<type>String</type>
+						<value>Cortal Consors</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>CortalConsors</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Cortal</value>
+					</term>
+					<term>
+						<type>String</type>
+						<value>Consors</value>
+					</term>
+				</constraint>
+			</constraints>
+		</customer>
+		<!-- Cortal Consors -->
+	</configuration>
+	
+	
+	<!-- = = = DO NOT, I REPEAT DO NOT EDIT OR DELETE THIS ENTRY = = =
+	 
+		 I MEAN IT, UNDER NO CIRCUMSTANCES CHANGE ANYTHING BELOW THIS LINE
+		 IF YOU CHANGE THIS, THE SNC WILL BREAK, THE HANA WILL BREAK AND
+		 FINALLY THE INTERNET WILL STOP WORKING. AFTER THAT MADNESS -->
+	<configuration scope="configFileType">
+		<type>ComplexXmlConfigurationPersistence</type>
+	</configuration>
+</configurations>

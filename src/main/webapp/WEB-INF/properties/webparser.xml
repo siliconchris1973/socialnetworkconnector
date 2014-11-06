@@ -16,7 +16,8 @@
 <parser type="webparser">
 	<value>de.comlineag.snc.parser.WOPostingWebParser</value>
 	<value>de.comlineag.snc.parser.WONewsWebParser</value>
+	<value>de.comlineag.snc.parser.WOCommunityWebParser</value>
 	<value>de.comlineag.snc.parser.WOPageWebParser</value>
-	<!-- SIMPLEWEBPARSER MUST ALWAYS BE THE LAST PARSER IN THE LIST! -->
+	<!-- SIMPLE WEB PARSER MUST ALWAYS BE THE LAST PARSER IN THE LIST! -->
 	<value>de.comlineag.snc.parser.SimpleWebParser</value>
 </parser>

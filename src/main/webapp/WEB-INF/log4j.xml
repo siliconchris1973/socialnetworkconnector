@@ -29,25 +29,16 @@
 
 	<!-- standard logfile -->
 	<appender name="fileA" class="org.apache.log4j.FileAppender">
-		<param name="File" value="logs/comlineag-loggerSNC.log" />
+		<param name="File" value="logs/SNC-Runtime.log" />
 		<!-- <param name="Threshold" value="WARN"/> -->
 		<layout class="org.apache.log4j.PatternLayout">
 			<!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> -->
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n" />
 		</layout>
 	</appender>
-	<!-- Job logfile -->
-	<appender name="fileJ" class="org.apache.log4j.FileAppender">
-		<param name="File" value="logs/comlineag-loggerSNC_Job.log" />
-		<!-- <param name="Threshold" value="WARN"/> -->
-		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n" />
-			<!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> -->
-		</layout>
-	</appender>
-	<!-- http logfile -->
-	<appender name="fileH" class="org.apache.log4j.FileAppender">
-		<param name="File" value="logs/comlineag-loggerSNC_Http.log" />
+	<!-- Crawler logfile -->
+	<appender name="fileC" class="org.apache.log4j.FileAppender">
+		<param name="File" value="logs/SNC-Crawler.log" />
 		<!-- <param name="Threshold" value="WARN"/> -->
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n" />
@@ -56,7 +47,45 @@
 	</appender>
 	<!-- Parser logfile -->
 	<appender name="fileP" class="org.apache.log4j.FileAppender">
-		<param name="File" value="logs/comlineag-loggerSNC_Parser.log" />
+		<param name="File" value="logs/SNC-Parser.log" />
+		<!-- <param name="Threshold" value="WARN"/> -->
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n" />
+			<!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> -->
+		</layout>
+	</appender>
+	<!-- Data logfile -->
+	<appender name="fileD" class="org.apache.log4j.FileAppender">
+		<param name="File" value="logs/SNC-Data.log" />
+		<!-- <param name="Threshold" value="WARN"/> -->
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n" />
+			<!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> -->
+		</layout>
+	</appender>
+	<!-- Data logfile -->
+	<appender name="fileS" class="org.apache.log4j.FileAppender">
+		<param name="File" value="logs/SNC-Persistence.log" />
+		<!-- <param name="Threshold" value="WARN"/> -->
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n" />
+			<!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> -->
+		</layout>
+	</appender>
+	<!-- Handler logfile -->
+	<appender name="fileH" class="org.apache.log4j.FileAppender">
+		<param name="File" value="logs/SNC-Handler.log" />
+		<!-- <param name="Threshold" value="WARN"/> -->
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n" />
+			<!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> -->
+		</layout>
+	</appender>
+	
+	
+	<!-- Other logfile -->
+	<appender name="fileO" class="org.apache.log4j.FileAppender">
+		<param name="File" value="logs/Components.log" />
 		<!-- <param name="Threshold" value="WARN"/> -->
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n" />
@@ -67,39 +96,60 @@
 	
 	<!-- pushing every log entry in the same file and on the console -->
 	<logger name="de.comlineag.snc">
-		<level value="trace"></level>
+		<level value="info"></level>
 		<appender-ref ref="console" />
 		<appender-ref ref="fileA" />
 	</logger>
+	<logger name="de.comlineag.snc.parser">
+		<level value="debug"></level>
+		<appender-ref ref="fileP" />
+	</logger>
+	<logger name="de.comlineag.snc.crawler">
+		<level value="debug"></level>
+		<appender-ref ref="fileC" />
+	</logger>
+	<logger name="de.comlineag.snc.handler">
+		<level value="debug"></level>
+		<appender-ref ref="fileH" />
+	</logger>
+	<logger name="de.comlineag.snc.data">
+		<level value="debug"></level>
+		<appender-ref ref="fileD" />
+	</logger>
+	<logger name="de.comlineag.snc.persistence">
+		<level value="debug"></level>
+		<appender-ref ref="fileS" />
+	</logger>
+	
 	
 	<!-- log infos from jericho framework -->
 	<logger name="net.htmlparser.jericho">
 		<level value="warn"></level>
-		<appender-ref ref="fileP" />
+		<appender-ref ref="fileO" />
 	</logger>
 	<!-- log infos from spring framework -->
 	<logger name="org.springframework">
 		<level value="warn"></level>
-		<appender-ref ref="console" />
-		<appender-ref ref="fileJ" />
+		<appender-ref ref="fileO" />
+	</logger>
+	<!-- log infos from quartz job control -->
+	<logger name="org.quartz.impl">
+		<level value="warn"></level>
+		<appender-ref ref="fileO" />
 	</logger>
 	<!-- log infos from apache framework -->
 	<logger name="org.apache">
 		<level value="warn"></level>
-		<appender-ref ref="console" />
-		<appender-ref ref="fileH" />
+		<appender-ref ref="fileO" />
 	</logger>
 	<!-- log infos from apache framework -->
 	<logger name="httpclient.wire">
 		<level value="warn"></level>
-		<appender-ref ref="console" />
-		<appender-ref ref="fileH" />
+		<appender-ref ref="fileO" />
 	</logger>
-	
 	<!-- log infos from facebook4j -->
 	<logger name="facebook4j.internal.http">
 		<level value="warn"></level>
-		<appender-ref ref="console" />
-		<appender-ref ref="fileH" />
+		<appender-ref ref="fileO" />
 	</logger>
 </log4j:configuration>

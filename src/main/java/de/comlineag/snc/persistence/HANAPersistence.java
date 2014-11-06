@@ -7,9 +7,9 @@ import java.sql.Timestamp;
 import com.sun.jersey.api.client.ClientHandlerException;
 
 import org.joda.time.DateTimeZone;
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.odata4j.consumer.ODataConsumer;
 import org.odata4j.consumer.behaviors.BasicAuthenticationBehavior;
@@ -32,7 +32,7 @@ import de.comlineag.snc.persistence.JsonFilePersistence;
  *
  * @author 		Magnus Leinemann, Christian Guenther, Thomas Nowak
  * @category 	Persistence Manager
- * @version 	0.9l				- 15.10.2014
+ * @version 	0.9m				- 22.10.2014
  * @status		productive
  *
  * @description handles the connectivity to the SAP HANA Systems and saves and updates posts and users in the DB
@@ -60,30 +60,18 @@ import de.comlineag.snc.persistence.JsonFilePersistence;
  *									if an object shall be uploaded to persistence db or not
  *				0.9k				changed access to runtime configuration to non-static
  *				0.9l				changed access to HANA Data configuration to non-static
+ *				0.9m				changed id from Long to String
  * 
- * TODO 1. fix crawler bug, that causes the persistence to try to insert a post or user multiple times
- * 			This bug has something to do with the number of threads provided by the Quartz job control
- * 			In case 1 thread is provided, everything is fine, but if 2 threads are provided (as needed if two crawler
- * 			run - Twitter and Lithium) the Twitter crawler tries to insert some posts more then once - an attempt 
- * 			obviously doomed. We log the following error: 
- * 				could not create post (TW-488780024691322880): Expected status 201, found 400
- * 			and the hana db returns this message:
- * 				Service exception: unique constraint violated.
- * 
- * TODO 2. fix another error that occasionally occurs when trying to insert a dataset in the db. This second error 
- * 			states that there is a syntax error at line 0. - happens more often then error 1
- *  
- * TODO	3. establish proper error handling and find out how to get the HTTP error code during OData calls
- * TODO 4. enable geoLocation support for users
+ * TODO fix error while inserting/updating dataset with SQL
+ * TODO establish proper error handling to get the HTTP error code from OData calls
+ * TODO enable geoLocation support for users
  * 
  */
 public class HANAPersistence implements IPersistenceManager {
 	// this holds a reference to the runtime configuration
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
 	private final ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
@@ -187,7 +175,7 @@ public class HANAPersistence implements IPersistenceManager {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: could not connect to HANA system " + e.getLocalizedMessage());
 			
-			if (!rtc.isCREATE_POST_JSON_ON_ERROR()) {
+			if (!rtc.getBooleanValue("CreatePostJsonOnError", "runtime")) {
 				logger.debug("insert failed - storing object in backup directory for later processing");
 				postData.setObjectStatus("fail");
 				
@@ -196,14 +184,14 @@ public class HANAPersistence implements IPersistenceManager {
 				JsonFilePersistence failsave = new JsonFilePersistence(postData);
 			}
 			
-			if (rtc.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
+			if (rtc.getBooleanValue("StopOnPersistenceFailure", "runtime"))
 				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		} catch (Exception le) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: unforseen error condition processing post "+postData.getSnId()+"-"+postData.getId()+": " + le.getLocalizedMessage());
 			le.printStackTrace();
 			
-			if (rtc.isCREATE_POST_JSON_ON_ERROR()) {
+			if (rtc.getBooleanValue("CreatePostJsonOnError", "runtime")) {
 				logger.debug("insert failed - storing object in backup directory for later processing");
 				postData.setObjectStatus("fail");
 				
@@ -212,7 +200,7 @@ public class HANAPersistence implements IPersistenceManager {
 				JsonFilePersistence failsave = new JsonFilePersistence(postData);
 			}
 			
-			if (rtc.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
+			if (rtc.getBooleanValue("StopOnPersistenceFailure", "runtime"))
 				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		} 
 	}
@@ -256,7 +244,7 @@ public class HANAPersistence implements IPersistenceManager {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: could not connect to HANA system " + e.getLocalizedMessage());
 			
-			if (rtc.isCREATE_USER_JSON_ON_ERROR()) {
+			if (rtc.getBooleanValue("CreateUserJsonOnError", "runtime")) {
 				logger.debug("insert failed - storing object in backup directory for later processing");
 				userData.setObjectStatus("fail");
 				
@@ -265,14 +253,14 @@ public class HANAPersistence implements IPersistenceManager {
 				JsonFilePersistence failsave = new JsonFilePersistence(userData);
 			}
 			
-			if (rtc.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
+			if (rtc.getBooleanValue("StopOnPersistenceFailure", "runtime"))
 				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		} catch (Exception le) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
 			logger.error("EXCEPTION :: unforseen error condition processing user "+userData.getSnId()+"-"+userData.getId()+": " + le.getLocalizedMessage());
 			le.printStackTrace();
 			
-			if (rtc.isCREATE_USER_JSON_ON_ERROR()) {
+			if (rtc.getBooleanValue("CreateUserJsonOnError", "runtime")) {
 				logger.debug("insert failed - storing object in backup directory for later processing");
 				userData.setObjectStatus("fail");
 				
@@ -281,7 +269,7 @@ public class HANAPersistence implements IPersistenceManager {
 				JsonFilePersistence failsave = new JsonFilePersistence(userData);
 			}
 			
-			if (rtc.isSTOP_SNC_ON_PERSISTENCE_FAILURE())
+			if (rtc.getBooleanValue("StopOnPersistenceFailure", "runtime"))
 				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		}
 	}
@@ -301,7 +289,7 @@ public class HANAPersistence implements IPersistenceManager {
 	 * 
 	 * @return 		OData entity handler to the object on success (found) or null if not found or in case of ANY error
 	 */
-	private OEntity returnOEntityHandler(String SN, Long Id, String type) {
+	private OEntity returnOEntityHandler(String SN, String Id, String type) {
 		assert (!"user".equals(type) && !"post".equals(type)) : "ERROR :: type must be either \'user\' or \'post\'";
 		
 		/*
@@ -497,7 +485,7 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			stmt.close() ; conn.close() ;
 			
-			if (rtc.isCREATE_POST_JSON_ON_SUCCESS()) {
+			if (rtc.getBooleanValue("CreatePostJsonOnSuccess", "runtime")) {
 				postData.setObjectStatus("ok");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
@@ -510,7 +498,7 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: JDBC call failed, post ("+postData.getSnId()+"-"+postData.getId()+") not inserted " + le.getLocalizedMessage());
 			le.printStackTrace();
 			/*
-			if (rtc.isCREATE_POST_JSON_ON_ERROR()) {
+			if (rtc.getBooleanValue("CREATE_POST_JSON_ON_ERROR", "runtime")) {
 				postData.setObjectStatus("fail");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
@@ -562,8 +550,8 @@ public class HANAPersistence implements IPersistenceManager {
 			postService.createEntity("post")
 					.properties(OProperties.string("domain", postData.getDomain()))
 					.properties(OProperties.string("sn_id", postData.getSnId()))
-					.properties(OProperties.string("post_id", new String(new Long(postData.getId()).toString())))
-					.properties(OProperties.string("user_id", new String(new Long(postData.getUserId()).toString())))
+					.properties(OProperties.string("post_id", postData.getId()))
+					.properties(OProperties.string("user_id", postData.getUserId()))
 					.properties(OProperties.datetime("timestamp", postData.getTimestamp()))
 					.properties(OProperties.string("postLang", postData.getLang()))
 					
@@ -594,7 +582,7 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			logger.info("post ("+postData.getSnId()+"-"+postData.getId()+") created");
 			
-			if (rtc.isCREATE_POST_JSON_ON_SUCCESS()) {
+			if (rtc.getBooleanValue("CreatePostJsonOnSuccess", "runtime")) {
 				postData.setObjectStatus("ok");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
@@ -615,7 +603,7 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: could not create post ("+postData.getSnId()+"-"+postData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
 			
-			if (rtc.isCREATE_POST_JSON_ON_ERROR()) {
+			if (rtc.getBooleanValue("CreatePostJsonOnError", "runtime")) {
 				logger.debug("insert failed - storing object in backup directory for later processing");
 				postData.setObjectStatus("fail");
 				
@@ -674,7 +662,7 @@ public class HANAPersistence implements IPersistenceManager {
 			 
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			stmt.setString(1, userData.getSnId());
-			stmt.setLong(2, userData.getId());
+			stmt.setString(2, userData.getId());
 			stmt.setString(3, dataCryptoProvider.encryptValue(userData.getUsername()));
 			stmt.setString(4, dataCryptoProvider.encryptValue(userData.getScreenName()));
 			stmt.setString(5, userData.getLang());
@@ -692,7 +680,7 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			stmt.close() ; conn.close() ;
 			
-			if (rtc.isCREATE_USER_JSON_ON_SUCCESS()){
+			if (rtc.getBooleanValue("CreateUserJsonOnSuccess", "runtime")){
 				userData.setObjectStatus("ok");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
@@ -705,7 +693,7 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: JDBC call failed, user ("+userData.getSnId()+"-"+userData.getId()+") not inserted " + le.getLocalizedMessage());
 			le.printStackTrace();
 			/*
-			if (rtc.isCREATE_USER_JSON_ON_ERROR()){
+			if (rtc.getBooleanValue("CREATE_USER_JSON_ON_ERROR()){
 				userData.setObjectStatus("fail");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
@@ -751,7 +739,7 @@ public class HANAPersistence implements IPersistenceManager {
 		try {
 			userService.createEntity("user")
 					.properties(OProperties.string("sn_id", userData.getSnId()))
-					.properties(OProperties.string("user_id", new String(new Long(userData.getId()).toString())))
+					.properties(OProperties.string("user_id", userData.getId()))
 					.properties(OProperties.string("userName", dataCryptoProvider.encryptValue(userData.getUsername())))
 
 					.properties(OProperties.string("nickName", dataCryptoProvider.encryptValue(userData.getScreenName())))
@@ -768,7 +756,7 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			logger.info("user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") created");
 		
-			if (rtc.isCREATE_USER_JSON_ON_SUCCESS()){
+			if (rtc.getBooleanValue("CreateUserJsonOnSuccess", "runtime")){
 				userData.setObjectStatus("ok");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
@@ -788,7 +776,7 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("ERROR :: Could not create user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
 			
-			if (rtc.isCREATE_USER_JSON_ON_ERROR()){
+			if (rtc.getBooleanValue("CreateUserJsonOnError", "runtime")){
 				logger.debug("insert failed - storing object in backup directory for later processing");
 				userData.setObjectStatus("fail");
 				
@@ -896,7 +884,7 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			stmt.close() ; conn.close() ;
 			
-			if (rtc.isCREATE_POST_JSON_ON_SUCCESS()){
+			if (rtc.getBooleanValue("CreatePostJsonOnSuccess", "runtime")){
 				postData.setObjectStatus("ok");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
@@ -909,7 +897,7 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: JDBC call failed, post ("+postData.getSnId()+"-"+postData.getId()+") not inserted " + le.getLocalizedMessage());
 			le.printStackTrace();
 			/*
-			if (rtc.isCREATE_POST_JSON_ON_ERROR()){
+			if (rtc.getBooleanValue("CREATE_POST_JSON_ON_ERROR()){
 				postData.setObjectStatus("fail");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
@@ -967,7 +955,7 @@ public class HANAPersistence implements IPersistenceManager {
 					//.properties(OProperties.string("sn_id", postData.getSnId()))
 					//.properties(OProperties.string("post_id", new String(new Long(postData.getId()).toString())))
 					.properties(OProperties.string("domain", postData.getDomain()))
-					.properties(OProperties.string("user_id", new String(new Long(postData.getUserId()).toString())))
+					.properties(OProperties.string("user_id", postData.getUserId()))
 					.properties(OProperties.datetime("timestamp", postData.getTimestamp()))
 					.properties(OProperties.string("postLang", postData.getLang()))
 					
@@ -998,7 +986,7 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			logger.debug("post ("+postData.getSnId()+"-"+postData.getId()+") updated");
 			
-			if (rtc.isCREATE_POST_JSON_ON_SUCCESS()){
+			if (rtc.getBooleanValue("CreatePostJsonOnSuccess", "runtime")){
 				postData.setObjectStatus("ok");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
@@ -1019,7 +1007,7 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: could not update post ("+postData.getSnId()+"-"+postData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
 			
-			if (rtc.isCREATE_POST_JSON_ON_ERROR()){
+			if (rtc.getBooleanValue("CreatePostJsonOnError", "runtime")){
 				logger.debug("update failed - storing object in backup directory for later processing");
 				postData.setObjectStatus("fail");
 				
@@ -1091,7 +1079,7 @@ public class HANAPersistence implements IPersistenceManager {
 			stmt.setString(9, userData.getSnId());
 			//stmt.setString(10, userData.getGeoLocation()); // activate above and this geoLocation and increase numbers below by one
 			stmt.setString(10, userData.getSnId());
-			stmt.setLong(11, userData.getId());
+			stmt.setString(11, userData.getId());
 			
 			@SuppressWarnings("unused")
 			int rowCount = stmt.executeUpdate();
@@ -1100,7 +1088,7 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			stmt.close() ; conn.close() ;
 			
-			if (rtc.isCREATE_USER_JSON_ON_SUCCESS()){
+			if (rtc.getBooleanValue("CreateUserJsonOnSuccess", "runtime")){
 				userData.setObjectStatus("ok");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
@@ -1113,7 +1101,7 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.error("EXCEPTION :: JDBC call failed, user ("+userData.getSnId()+"-"+userData.getId()+") not inserted " + le.getLocalizedMessage());
 			le.printStackTrace();
 			/*
-			if (rtc.isCREATE_USER_JSON_ON_ERROR()){
+			if (rtc.getBooleanValue("CREATE_USER_JSON_ON_ERROR()){
 				userData.setObjectStatus("fail");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
@@ -1178,7 +1166,7 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			logger.debug("user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") updated");
 			
-			if (rtc.isCREATE_USER_JSON_ON_SUCCESS()){
+			if (rtc.getBooleanValue("CreateUserJsonOnSuccess", "runtime")){
 				userData.setObjectStatus("ok");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
@@ -1197,7 +1185,7 @@ public class HANAPersistence implements IPersistenceManager {
 		} catch (RuntimeException e) {
 			logger.error("ERROR :: Could not update user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
-			if (rtc.isCREATE_USER_JSON_ON_ERROR()){
+			if (rtc.getBooleanValue("CreateUserJsonOnError", "runtime")){
 				logger.debug("update failed - storing object in backup directory for later processing");
 				userData.setObjectStatus("fail");
 				
@@ -1222,6 +1210,7 @@ public class HANAPersistence implements IPersistenceManager {
 		if (postData.getText() != null && postData.getText().length()>HanaDataConstants.POSTING_TEXT_SIZE) {
 			logger.warn("truncating text of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.POSTING_TEXT_SIZE);
 			postData.setText(postData.getText().substring(0, HanaDataConstants.POSTING_TEXT_SIZE));
+			logger.debug("     truncated text now has " + postData.getText().length() + " characters");
 			postData.setTruncated(true);
 		}
 		if (postData.getRawText() != null && postData.getRawText().length()>HanaDataConstants.POSTING_TEXT_SIZE) {
@@ -1231,23 +1220,23 @@ public class HANAPersistence implements IPersistenceManager {
 			logger.debug("     truncated raw text now has " + postData.getRawText().length() + " characters");
 		}
 		if (postData.getTeaser() != null && postData.getTeaser().length()>HanaDataConstants.TEASER_TEXT_SIZE) {
-			logger.info("truncating teaser of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.TEASER_TEXT_SIZE);
+			logger.debug("truncating teaser of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.TEASER_TEXT_SIZE);
 			postData.setTeaser(postData.getTeaser().substring(0, HanaDataConstants.TEASER_TEXT_SIZE));
 		}
 		if (postData.getSubject() != null && postData.getSubject().length()>HanaDataConstants.SUBJECT_TEXT_SIZE) {
-			logger.info("truncating subject of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.SUBJECT_TEXT_SIZE);
+			logger.debug("truncating subject of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.SUBJECT_TEXT_SIZE);
 			postData.setSubject(postData.getSubject().substring(0, HanaDataConstants.SUBJECT_TEXT_SIZE));
 		}
 		if (postData.getLang() != null && postData.getLang().length()>HanaDataConstants.POSTLANG_TEXT_SIZE) {
-			logger.error("truncating language of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.POSTLANG_TEXT_SIZE + "! This is probably bad.");
+			logger.warn("truncating language of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.POSTLANG_TEXT_SIZE + "! This is probably bad.");
 			postData.setLang(postData.getLang().substring(0, HanaDataConstants.POSTLANG_TEXT_SIZE));
 		}
 		if (postData.getGeoLongitude() != null && postData.getGeoLongitude().length()>HanaDataConstants.LONGITUDE_TEXT_SIZE) {
-			logger.error("truncating geo longitude of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.LONGITUDE_TEXT_SIZE + "! This is probably bad.");
+			logger.warn("truncating geo longitude of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.LONGITUDE_TEXT_SIZE + "! This is probably bad.");
 			postData.setGeoLongitude(postData.getGeoLongitude().substring(0, HanaDataConstants.LONGITUDE_TEXT_SIZE));
 		}
 		if (postData.getGeoLatitude() != null && postData.getGeoLatitude().length()>HanaDataConstants.LATITUDE_TEXT_SIZE) {
-			logger.error("truncating geo latitude of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.LATITUDE_TEXT_SIZE + "! This is probably bad.");
+			logger.warn("truncating geo latitude of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.LATITUDE_TEXT_SIZE + "! This is probably bad.");
 			postData.setGeoLatitude(postData.getGeoLatitude().substring(0, HanaDataConstants.LATITUDE_TEXT_SIZE));
 		}
 		if (postData.getClient() != null && postData.getClient().length()>HanaDataConstants.CLIENT_TEXT_SIZE) {

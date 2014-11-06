@@ -3,9 +3,8 @@ package de.comlineag.snc.persistence;
 import java.io.File;
 import java.io.FileWriter;
 
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.json.simple.JSONObject;
 
@@ -41,22 +40,19 @@ public class JsonFilePersistence implements IPersistenceManager {
 	// this holds a reference to the runtime configuration
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 		
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
 	private final DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
 	
 	
 	// define where and the files shall be saved
-	private String savePoint = rtc.getSTORAGE_PATH()+System.getProperty("file.separator")+rtc.getJSON_BACKUP_STORAGE_PATH();
+	private String savePoint = rtc.getStringValue("StoragePath", "runtime")+System.getProperty("file.separator")+rtc.getStringValue("JsonBackupStoragePath", "runtime");
 	private String objectStatusPriorSaving; // was storing of the object prior saving to disk (e.g. n a db) successful (ok) or not (fail)
 	private String objectTypeToSave;		// can either be user or post
 	
 	public JsonFilePersistence() {
-		File d = new File(rtc.getSTORAGE_PATH());
+		File d = new File(rtc.getStringValue("StoragePath", "runtime"));
 		if (!d.isDirectory()) {
 			// create the json diretory
 			d.mkdir();
@@ -75,7 +71,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 	 */
 	public JsonFilePersistence(PostData postData) {
 		logger.trace("checking if storage directory "+savePoint+" exists");
-		File d = new File(rtc.getSTORAGE_PATH());
+		File d = new File(rtc.getStringValue("StoragePath", "runtime"));
 		if (!d.isDirectory()) {
 			// create the json diretory
 			d.mkdir();
@@ -95,7 +91,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 	 */
 	public JsonFilePersistence(UserData userData) {
 		logger.trace("checking if storage directory "+savePoint+" exists");
-		File d = new File(rtc.getSTORAGE_PATH());
+		File d = new File(rtc.getStringValue("StoragePath", "runtime"));
 		if (!d.isDirectory()) {
 			// create the json diretory
 			d.mkdir();
@@ -116,7 +112,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 	 */
 	public JsonFilePersistence(JSONObject json) {
 		logger.trace("checking if storage directory "+savePoint+" exists");
-		File d = new File(rtc.getSTORAGE_PATH());
+		File d = new File(rtc.getStringValue("StoragePath", "runtime"));
 		if (!d.isDirectory()) {
 			// create the json diretory
 			d.mkdir();
@@ -174,7 +170,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 				
 				JSONObject obj = new JSONObject();
 				obj.put("sn_id", userData.getSnId());
-				obj.put("user_id", new Long(userData.getId()).toString());
+				obj.put("user_id", userData.getId());
 				obj.put("userName", userData.getUsername());
 				obj.put("nickName", userData.getScreenName());
 				obj.put("userLang", userData.getLang());

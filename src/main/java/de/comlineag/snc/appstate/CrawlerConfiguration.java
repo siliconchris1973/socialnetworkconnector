@@ -32,7 +32,7 @@ import org.json.simple.JSONObject;
  *				0.5a			added parameter for customer
  *				0.5b			changed signature to use JSON Object instead of String
  * 
- * TODO 1. check if there is a better way for arbitrary data types AND type safety
+ * TODO check implementation to provide for arbitrary data types while preserving type safety
  */
 public class CrawlerConfiguration<T> extends GenericConfigurationManager {
 	

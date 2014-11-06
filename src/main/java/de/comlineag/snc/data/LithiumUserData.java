@@ -1,8 +1,7 @@
 package de.comlineag.snc.data;
 
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -14,7 +13,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  * @author 		Christian Guenther
  * @category 	data type
- * @version 	0.4
+ * @version 	0.4a
  * @status		productive
  * 
  * @description Describes a single lithium user with all relevant informations.
@@ -22,7 +21,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  *              user type save.
  * 
  * @param <JSonObject>
- *            "id" Long
+ *            "id" String
  *            "sn_id" String
  *            "name" String
  *            "screen_name" String
@@ -38,11 +37,12 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 				0.2 			added parsing of 2nd and 3rd level of json string
  * 				0.3 			bugfixing
  * 				0.4 			first productive version - without geo geoLocation
+ * 				0.4a			changed id from Long to String
  * 
- * TODO 1. implement geo geoLocation support for users
- * TODO 2. check if user profile can and shall be used
- * TODO 3. check if we need to support for the anonymous and deleted flag
- * TODO 4. add support for average_rating_value, average_posting_rating_value and average_posting_ratio
+ * TODO implement geo geoLocation support for users
+ * TODO check if user profile can and shall be used
+ * TODO check if we need to support for the anonymous and deleted flag
+ * TODO add support for average_rating_value, average_posting_rating_value and average_posting_ratio
  * 
  * JSON Structure:
  * 		1. Level			directly accessible through passed JSONObject
@@ -87,7 +87,7 @@ import de.comlineag.snc.constants.SocialNetworks;
 public final class LithiumUserData extends UserData {
 
 	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
@@ -119,7 +119,7 @@ public final class LithiumUserData extends UserData {
 			obj = parser.parse(jsonObject.get("id").toString());
 			JSONObject jsonObjId = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			setId((Long) jsonObjId.get("$"));
+			setId((String) jsonObjId.get("$"));
 			
 			// username / login and nickname, all the same at lithium
 			// Structure
@@ -166,7 +166,7 @@ public final class LithiumUserData extends UserData {
 	}
 	
 	private void initialize(){
-		id 						= 0;
+		id 						= "0";
 		//sn_id 					= SocialNetworks.LITHIUM.getValue();
 		sn_id 					= SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM");
 		username 				= null;

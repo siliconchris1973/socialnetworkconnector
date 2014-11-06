@@ -3,9 +3,8 @@ package de.comlineag.snc.persistence;
 import java.io.File;
 import java.io.FileWriter;
 
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.json.simple.JSONObject;
 
@@ -42,14 +41,11 @@ public class FailsavePersistence implements IPersistenceManager {
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	// define where and the files shall be saved
-	private String savePoint = rtc.getJSON_BACKUP_STORAGE_PATH();
+	private String savePoint = rtc.getStringValue("JsonBackupStoreagePath", "runtime");
 	private String objectStatusPriorSaving; // was storing of the object prior saving to disk (e.g. n a db) successful (ok) or not (fail)
 	private String objectTypeToSave;		// can either be user or post
 	
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 		
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
 	private DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();

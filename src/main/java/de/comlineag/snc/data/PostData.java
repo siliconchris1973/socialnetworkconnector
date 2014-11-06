@@ -10,7 +10,7 @@ import org.json.simple.JSONObject;
  * 
  * @author 		Magnus Leinemann, Christian Guenther
  * @category 	data class
- * @version 	0.4				- 10.10.2014
+ * @version 	0.5				- 22.10.2014
  * @status		productive
  * 
  * @description Data Class representing a Post from the OData Service
@@ -23,6 +23,7 @@ import org.json.simple.JSONObject;
  * 								for use with the FsCrawler, which creates a posData object 
  * 								from a stored json file and then invokes the persistence layer
  * 				0.4				added possibility to store an embedded UserData object within the PostData object
+ * 				0.5				changed post_id from long to String
  * 
  * TODO move GeneralDataDefinitions to RuntimeConfiguration and source it in from XML 
  */
@@ -49,14 +50,15 @@ public class PostData {
 	/*
 	 * the ID of the current Post in the Social Network
 	 * <Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"/>
+	 * TODO change this to string does not need to be long and creates only issues with the web parser
 	 */
-	protected long id; // ID from the social network
+	protected String id; // ID from the social network
 
 	/*
 	 * User ID of the posting user
 	 * <Property Name="user_id" Type="Edm.String" MaxLength="20"/>
 	 */
-	protected long userId;
+	protected String userId;
 
 	/*
 	 * post Text
@@ -249,8 +251,8 @@ public class PostData {
 	public String getCustomer() {return customer;}
 	public void setCustomer(String sub) {this.customer = sub;}
 	
-	public long getId() {return id;}
-	public void setId(long id) {this.id = id;}
+	public String getId() {return id;}
+	public void setId(String id) {this.id = id;}
 	
 	public String getSnId() {return sn_id;}
 	public void setSnId(String sn_id) {this.sn_id = sn_id;}
@@ -305,8 +307,8 @@ public class PostData {
 	public List<?> getMentions() {return symbols;}
 	public void setMentions(List<?> mentions) {this.mentions = mentions;}
 	
-	public long getUserId() {return userId;}
-	public void setUserId(long userId) {this.userId = userId;}
+	public String getUserId() {return userId;}
+	public void setUserId(String userId) {this.userId = userId;}
 
 	public String getLang() {return lang;}
 	public void setLang(String lang) {this.lang = lang;}

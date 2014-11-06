@@ -1,0 +1,774 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+	This is the xml configuration file for the social network connector.
+	
+	It is used to setup general options for the runtime behavior of the SNC.
+	Any basic runtime behaviour that is not configured in the applicationContext.xml
+	or web.xml is defined here.
+	
+	There are different sections for the different areas of the SNC. These are:
+		* runtime 	- basic runtime setup
+		* threading - definition of the threading model and options
+		* crawler	- basic configuration and fallback defaults for the different crawler
+		* data		- general data definitions
+		* xml-layout - definition of the xml layout used by the snc
+	
+	
+	THIS IS REVISION 1.0 OF THE CONFIGURATION FILE - 28.10.2014
+-->
+<configurations>
+	<!-- R U N T I M E   C O N F I G U R A T I O N
+		 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		 This section contains options to change/modify the general runtime behavior of the SNC
+	-->
+	<configuration scope="runtime">
+		<!-- for all given configuration files, note the following:
+			 You can either put an absolute path in here, or a relative one. If you enter a relative 
+			 path, this HAS to be below WEB-INF! This restriction is because the runtime configuration  
+ 			 class checks for an absolute path and if it does not find one (no / // or drive letter like 
+ 			 c: at the start), it assumes the file to be located in or below the WEB-INF directory -->
+ 		
+ 		<!-- location of the file containing the layout information of the configuration files -->
+ 		<option>
+			<name>XmlLayoutFilePath</name>
+			<type>String</type>
+			<value>SNC_Runtime_Configuration-1.0.xml</value>
+			<constant>XML_LAYOUT_FILE_PATH</constant>
+		</option>
+		
+		<!-- location of the file with the social network definitions -->
+		<option>
+			<name>SocialNetworkFilePath</name>
+			<type>String</type>
+			<value>SocialNetworkDefinitions.xml</value>
+			<constant>SOCIAL_NETWORK_FILE_PATH</constant>
+		</option>
+		
+		<!-- location of the file with the available parsers -->
+		<option>
+			<name>ParserListFilePath</name>
+			<type>String</type>
+			<value>/properties/webparser.xml</value>
+			<constant>PARSER_LIST_FILE_PATH</constant>
+		</option>
+		
+		<!-- location of the file with the configuration options for the hana database -->
+		<option>
+			<name>HanaConfigurationFilePath</name>
+			<type>String</type>
+			<value>SNC_HANA_Configuration.xml</value>
+			<constant>HANA_CONFIGURATION_FILE_PATH</constant>
+		</option>
+		
+		<!-- location of the file with the configuration options for the crawler - this
+			 is usually also in the runtime configuration file, section crawler. In case you move
+			 the section crawler from this file to someplace else, enter the filename here. -->
+		<option>
+			<name>CrawlerConfigurationFilePath</name>
+			<type>String</type>
+			<value>SNC_Runtime_Configuration-1.0.xml</value>
+			<constant>CRAWLER_CONFIGURATION_FILE_PATH</constant>
+		</option>
+		
+		<!-- location of the file with the configuration options for the data structure - this
+			 is usually also in the runtime configuration file, section DataDefinitions. In case 
+			 you move the section DataDefinitions from this file to someplace else, enter the 
+			 filename here. -->
+		<option>
+			<name>DataConfigurationFilePath</name>
+			<type>String</type>
+			<value>SNC_Runtime_Configuration-1.0.xml</value>
+			<constant>DATA_CONFIGURATION_FILE_PATH</constant>
+		</option>
+		
+		<!-- location of the file with the configuration options for the threading model - this
+			 is usually also in the runtime configuration file, section Threading. In case 
+			 you move the section Threading from this file to someplace else, enter the 
+			 filename here. -->
+		<option>
+			<name>ThreadingConfigurationFilePath</name>
+			<type>String</type>
+			<value>SNC_Runtime_Configuration-1.0.xml</value>
+			<constant>THREADING_CONFIGURATION_FILE_PATH</constant>
+		</option>
+		
+		
+		<!-- show warning in case the simple INI file configuration is used -->
+		<option>
+			<name>WarnOnSimpleConfigOption</name>
+			<type>boolean</type>
+			<value>true</value>
+			<constant>WARN_ON_SIMPLE_CONFIG_OPTION</constant>
+		</option>
+		<!-- show warning in case the simple XML file configuration is used -->
+		<option>
+			<name>WarnOnSimpleXmlConfigOption</name>
+			<type>boolean</type>
+			<value>true</value>
+			<constant>WARN_ON_SIMPLE_XML_CONFIG_OPTION</constant>
+		</option>
+		<!-- show a debug message in case some actions are omitted due to configuration settings -->
+		<option>
+			<name>WarnOnRejectedActions</name>
+			<type>boolean</type>
+			<value>true</value>
+			<constant>WARN_ON_REJECTED_ACTIONS</constant>
+		</option>
+		<!-- save a json file with the post data in case creating it in persistence fails -->
+		<option>
+			<name>CreatePostJsonOnError</name>
+			<type>boolean</type>
+			<value>true</value>
+			<constant>CREATE_POST_JSON_ON_ERROR</constant>
+		</option>
+		<!-- save a json file with the user data in case creating it in persistence fails -->
+		<option>
+			<name>CreateUserJsonOnError</name>
+			<type>boolean</type>
+			<value>true</value>
+			<constant>CREATE_USER_JSON_ON_ERROR</constant>
+		</option>
+		<!-- save a json file with the post data after creating it in persistence -->
+		<option>
+			<name>CreatePostJsonOnSuccess</name>
+			<type>boolean</type>
+			<value>false</value>
+			<constant>CREATE_POST_JSON_ON_SUCCESS</constant>
+		</option>
+		<!-- save a json file with the user data after creating it in persistence -->
+		<option>
+			<name>CreateUserJsonOnSuccess</name>
+			<type>boolean</type>
+			<value>false</value>
+			<constant>CREATE_USER_JSON_ON_SUCCESS</constant>
+		</option>
+		<!-- a storage directory under which the json files are stored in the below defined directories - must be in sync with the entry in applicationContext.xml -->
+		<option>
+			<name>StoragePath</name>
+			<type>String</type>
+			<value>storage</value>
+			<constant>STORAGE_PATH</constant>
+		</option>
+		<!-- the path to the directory under which to save the json-files - must be in sync with the entry in applicationContext.xml -->
+		<option>
+			<name>JsonBackupStoragePath</name>
+			<type>String</type>
+			<value>json</value>
+			<constant>JSON_BACKUP_STORAGE_PATH</constant>
+		</option>
+		<!-- the path to the directory under which to save processed json-files (files processed by FsCrawler) - must be in sync with the entry in applicationContext.xml -->
+		<option>
+			<name>ProcessedJsonBackupStoragePath</name>
+			<type>String</type>
+			<value>processedJson</value>
+			<constant>PROCESSED_JSON_BACKUP_STORAGE_PATH</constant>
+		</option>
+		<!-- the path to the directory under which to store invalid json-files - must be in sync with the entry in applicationContext.xml -->
+		<option>
+			<name>InvalidJsonBackupStoragePath</name>
+			<type>String</type>
+			<value>invalidJson</value>
+			<constant>INVALID_JSON_BACKUP_STORAGE_PATH</constant>
+		</option>
+		<!-- shall the crawler delete the failsave json files after processing or move the to above configured 2nd directory -->
+		<option>
+			<name>MoveOrDeleteProcessedJsonFiles</name>
+			<type>String</type>
+			<value>move</value>
+			<constant>MOVE_OR_DELETE_PROCESSED_JSON_FILES</constant>
+		</option>
+		
+		<!-- stop the SNC in case connecting to persistence fails and is thus unable to save posts and users?
+			 Consequently, setting this to true is only useful, in case you do not setup the FsCrawler (see
+			 applicationContext.xml) plus you do not save failed posts and users to disk - as configured with 
+			 above optioneters. -->
+		<option>
+			<name>StopOnPersistenceFailure</name>
+			<type>boolean</type>
+			<value>false</value>
+			<constant>STOP_ON_PERSISTENCE_FAILURE</constant>
+		</option>
+		
+		<!-- stop the SNC in case reading or writing to configuration fails?
+			 The purpose of this setting is mainly in debugging: In case the of the configuration files can
+			 not be found, the server goes down together with the SNC. This somewhat scks and thus I introduced
+			 this option. Can't really imagine a reason to set this to false in a production environment -->
+		<option>
+			<name>StopOnConfigurationFailure</name>
+			<type>boolean</type>
+			<value>false</value>
+			<constant>STOP_ON_CONFIGURATION_FAILURE</constant>
+		</option>
+	</configuration>
+	
+	
+	<!-- T H R E A D I N G   C O N F I G U R A T I O N
+		 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		 This section contains options to modify the threading model of the SNC - mainly it configures
+		 whether or not the three main parts of the SNC (crawler, parser and persistence) shall be called
+		 in individual threads and what size the thread-pool shall have
+		 
+		 You can put this section in it's own file, but you must keep the general XML structure. If you
+		 move the section, update the entry ThreadingConfigFilePath below to point to the new file.
+	-->
+	<configuration scope="threading">
+		<!-- CrawlerThreading - configures threading and size of the thread pool for the crawler. 
+			 if enabled, the executing searches against the endpoint (twitter api, or website etc)  
+			 is executed within a separate thread -->
+		<option>
+			<name>CrawlerThreadingEnabled</name>
+			<type>boolean</type>
+			<value>true</value>
+			<constant>CRAWLER_THREADING_ENABLED</constant>
+		</option>
+		<option>
+			<name>CrawlerThreadingPoolSize</name>
+			<type>int</type>
+			<value>5</value>
+			<constant>CRAWLER_THREADING_POOL_SIZE</constant>
+		</option>
+		
+		<!-- ParserThreading - configures threading and size of the thread pool for the parser 
+			 if enabled, the call to the parser from the crawler is executed within a separate thread -->
+		<option>
+		<name>ParserThreadingEnabled</name>
+			<type>boolean</type>
+			<value>false</value>
+			<constant>PARSER_THREADING_ENABLED</constant>
+		</option>
+		<option>
+			<name>ParserThreadingPoolSize</name>
+			<type>int</type>
+			<value>5</value>
+			<constant>PARSER_THREADING_POOL_SIZE</constant>
+		</option>
+		
+		<!-- PersistenceThreading - configures threading and size of the thread pool for the persistence layer 
+			 if enabled, the call to the persistence to save posts and users from the parser is executed within 
+			 a separate thread -->
+		<option>
+			<name>PersistenceThreadingEnabled</name>
+			<type>boolean</type>
+			<value>false</value>
+			<constant>PERSISTENCE_THREADING_ENABLED</constant>
+		</option>
+		<option>
+			<name>PersistenceThreadingPoolSize</name>
+			<type>int</type>
+			<value>5</value>
+			<constant>PERSISTENCE_THREADING_POOL_SIZE</constant>
+		</option>
+	</configuration>
+	
+	
+	<!-- C R A W L E R   C O N F I G U R A T I O N
+		 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		 This section contains basic settings for the crawler
+		 
+		 You can put this section in it's own file, but you must keep the general XML structure. If you
+		 move the section, update the entry CrawlerConfigFilePath to point to the new file.
+	-->
+	<configuration scope="crawler">
+		<!-- SIMPLE AND MULTI WEB CRAWLER SPECIFIC SETTINGS -->
+		<!-- searchLimit - how many pages to download at all.
+			 This Runtime configuration acts as a safety margin to not exceed a certain maximum 
+			 number of pages to download per run. It overrides the value of max_pages in the crawler 
+			 configuration. You can, however, also set this to -1 in which case there will be no limit 
+			 on the number of downloaded pages. Be careful though, as this may lead to a huge amount 
+			 of pages. As a last safeguard in case this value is set to -1, this will also implicitly 
+			 set the parameter of stayOnDomain (see below) to true. -->
+		<option>
+			<name>WcSearchLimit</name>
+			<type>int</type>
+			<value>10000</value>
+			<constant>WC_SEARCH_LIMIT</constant>
+		</option>
+		
+		<!-- max_depth - how many levels of cascaded links to follow.
+			 This Runtime configuration acts as a safety margin to not exceed a certain scanning depth. 
+			 You can, however, also set this to -1 in which case there will be no limit on how deep 
+			 links will be followed. Be advised though, as this may lead to quite a huge amount of pages. 
+			 As a last safeguard in case this value is set to -1, this will also implicitly set the 
+			 parameter of stayOnDomain (see below) to true. -->
+		<option>
+			<name>WcMaxDepth</name>
+			<type>int</type>
+			<value>10</value>
+			<constant>WC_MAX_DEPTH</constant>
+		</option>
+		
+		<!-- the maximum page size the simple web crawler shall fetch -->
+		<option>
+			<name>WcCrawlerMaxDownloadSize</name>
+			<type>int</type>
+			<value>2000000</value>
+			<constant>WC_CRAWLER_MAX_DOWNLOAD_SIZE</constant>
+		</option>
+		
+		<!-- content types to fetch - NOT YET IMPLEMENTED -->
+		<option>
+			<name>WcContentTypesToDownload</name>
+			<type>List</type>
+			<values>
+				<value>html</value>
+				<value>htm</value>
+			</values>
+			<constant>WC_CONTENT_TYPES_TO_DOWNLOAD</constant>
+		</option>
+		
+		<!-- time to wait between connection tries in milliseconds ONLY used by TheWebCrawler -->
+		<option>
+			<name>WcPolitenessDelay</name>
+			<type>int</type>
+			<value>1000</value>
+			<constant>WC_POLITENESS_DELAY</constant>
+		</option>
+		
+		<!-- whether or not the crawler is allowed to follow links off of the initial domain 
+			 If set to true, then the crawler is NOT allowed to fetch pages from a new domain.
+			 It is generally not recommended to set this to false (thus allowing to leave the 
+			 domain) AND have a high value in max_depth and max_pages, as this could lead to 
+			 a lot of pages being downloaded from any place on the net just by following some 
+			 nice linklist one has setup on his/her page  -->
+		<option>
+			<name>WcStayOnDomain</name>
+			<type>Boolean</type>
+			<value>true</value>
+			<constant>WC_STAY_ON_DOMAIN</constant>
+		</option>
+		
+		<!-- Shall the crawler only get pages below the initially given path
+			 You can think of this option like an even stricter stayOnDomain. Not only we can't 
+			 leave the initial given domain, but any link encountered must point to some page on 
+			 or below the initial given url. Consequently, if you set this to true, you do not need 
+			 to set stayOnDomain to true as the value of stayOnDomain is ignored.
+				 
+			 Note:	This option only works with the SimpleWebCrawler crawler. It has NO effect .
+			 		when using THEWebCrawler!
+			 -->
+		<option>
+			<name>WcStayBelowGivenPath</name>
+			<type>Boolean</type>
+			<value>false</value>
+			<constant>WC_STAY_BELOW_GIVEN_PATH</constant>
+		</option>
+		
+		<!-- Shall the parser only return page content which, after parsing and reduction still
+			 contains any of the track-terms. If set to false, you might get a lot of pages in
+			 the db, which do not, in the end, contain any of your keywords! -->
+		<option>
+			<name>WcGetOnlyRelevantPages</name>
+			<type>Boolean</type>
+			<value>true</value>
+			<constant>WC_GET_ONLY_RELEVANT_PAGES</constant>
+		</option>
+		
+		<!-- wordDistanceCutoffMargin - Distance from the searched word to cut off the text.
+			 How many words shall be between the found word (as searched by via the trackTerms 
+			 from CrawlerConfiguration) and the start and end of cut out text. This option applies
+			 to the distance before and after the found word. -->
+		<option>
+			<name>WcWordDistanceCutoffMargin</name>
+			<type>int</type>
+			<value>30</value>
+			<constant>WC_WORD_DISTANCE_CUTOFF_MARGIN</constant>
+		</option>
+		
+		<!-- the command (word) as returned by a website when declining the crawler's request to 
+			 fetch the content. YOU SHOULD PROBABLY NOT CHANGE THIS -->
+		<option>
+			<name>WcRobotDisallowText</name>
+			<type>String</type>
+			<value>Disallow</value>
+			<constant>WC_ROBOT_DISALLOW_TEXT</constant>
+		</option>
+		
+		<!-- defines the maximum number of tweets to track per crawler run
+			 if this is set to -1 then the crawler will track unlimited tweets -->
+		<option>
+			<name>TwMaxTweetsPerCrawlerRun</name>
+			<type>int</type>
+			<value>10000</value>
+			<constant>TW_MAX_TWEETS_PER_CRAWLER_RUN</constant>
+		</option>
+		
+		<!-- defines the number of milliseconds until timeout while connected to the
+			 twitter endpoint without receiving a new tweet -->
+		<option>
+			<name>TwConnectionTimeout</name>
+			<type>int</type>
+			<value>60000</value>
+			<constant>TW_CONNECTION_TIMEOUT</constant>
+		</option>
+	</configuration>
+	
+	
+	
+	<!-- DO NOT CHANGE ANYTHING BELOW THIS POINT, EXCEPT YOU ABSOLUTELY KNOW WHAT YOU ARE DOING -->
+	     
+	     
+	<!-- G E N E R A L   D A T A   D E F I N I T I O N S
+	     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	     In this section you can define how long certain fields are, for example how many  
+	     characters a teaser can have and if a teaser shall be saved with markup elements or not. 
+	     
+	     You can put this section in it's own file, but you must keep the general XML structure. If you
+		 move the section, update the entry DataConfigFilePath to point to the new file. -->
+	<configuration scope="DataDefinitions">
+		<!-- shall a teaser be saved with or without html markup elements -->
+		<option>
+			<name>TeaserWithMarkup</name>
+			<type>boolean</type>
+			<value>false</value>
+			<constant>TEASER_WITH_MARKUP</constant>
+		</option>
+		
+		<!-- how long shall a teaser be at max -->
+		<option>
+			<name>TeaserMaxLength</name>
+			<type>int</type>
+			<value>256</value>
+			<constant>TEASER_MAX_LENGTH</constant>
+		</option>
+		
+		<!-- what shall the minimal length of a teaser be? -->
+		<option>
+			<name>TeaserMinLength</name>
+			<type>int</type>
+			<value>20</value>
+			<constant>TEASER_MIN_LENGTH</constant>
+		</option>
+		
+		<!-- shall the subject of a post be saved with or without html markup elements -->
+		<option>
+			<name>SubjectWithMarkup</name>
+			<type>boolean</type>
+			<value>false</value>
+			<constant>SUBJECT_WITH_MARKUP</constant>
+		</option>
+		<option>
+			<name>SubjectMaxLength</name>
+			<type>int</type>
+			<value>100</value>
+			<constant>SUBJECT_MAX_LENGTH</constant>
+		</option>
+		<option>
+			<name>SubjectMinLength</name>
+			<type>int</type>
+			<value>7</value>
+			<constant>SUBJECT_MIN_LENGTH</constant>
+		</option>
+		
+		<!-- shall the posts be saved with or without html markup elements - this should usually 
+			 be kept false as the text-field of the database is normally only used for the semantic 
+			 analysis and therefore does not need any markups -->
+		<option>
+			<name>TextWithMarkup</name>
+			<type>boolean</type>
+			<value>false</value>
+			<constant>TEXT_WITH_MARKUP</constant>
+		</option>
+		
+		<!-- shall the raw text field contain text with html markup elements - this should usually 
+			 be kept true, as we use this column to save the original post or page -->
+		<option>
+			<name>RawTextWithMarkup</name>
+			<type>boolean</type>
+			<value>true</value>
+			<constant>RAW_TEXT_WITH_MARKUP</constant>
+		</option>
+	</configuration>
+	
+	
+	<!-- X M L   L A Y O U T   C O N F I G U R A T I O N
+	     the values in this section define how the crawler configuration xml files are structured.
+		 Changing any of these values is possible to reflect changes in the xml configuration layout
+		 but it is highly discouraged. -->
+	<configuration scope="XmlLayout">
+		<!-- identifies the parameter in crawler configuration that defines whether or not a specific crawler shall run -->
+		<option>
+			<name>CrawlerRunIdentifier</name>
+			<type>String</type>
+			<value>CrawlerRun</value>
+			<constant>CRAWLER_RUN_IDENTIFIER</constant>
+		</option>
+		
+		<!-- these values are for the constraints setup within crawler configuration. If, for example,
+			 you don't want the configuration of a crawler be named constraint anymore, but rather
+			 WhatYouShouldGet, then change the value of constraint to WhatYouShouldGet and adapt
+			 the crawler configuration XML file accordingly -->
+		<option>
+			<name>ConstraintIdentifier</name>
+			<type>String</type>
+			<value>constraints</value>
+			<constant>CONSTRAINT_IDENTIFIER</constant>
+		</option>
+		<option>
+			<name>SingleConstraintIdentifier</name>
+			<type>String</type>
+			<value>constraint</value>
+			<constant>SINGLE_CONSTRAINT_IDENTIFIER</constant>
+		</option>
+		<option>
+			<name>ScopeOnAllValue</name>
+			<type>String</type>
+			<value>ALL</value>
+			<constant>SCOPE_ON_ALL_VALUE</constant>
+		</option>
+		<option>
+			<name>CodeIdentifier</name>
+			<type>String</type>
+			<value>code</value>
+			<constant>CODE_IDENTIFIER</constant>
+		</option>
+		
+		<!-- this section contains the identifier for domain of interest and customer used within the
+			 crawler configuration XML file. -->
+		<option>
+			<name>CustomerIdentifier</name>
+			<type>String</type>
+			<value>customer</value>
+			<constant>CUSTOMER_IDENTIFIER</constant>
+		</option>
+		<option>
+			<name>CustomerNameIdentifier</name>
+			<type>String</type>
+			<value>name</value>
+			<constant>CUSTOMER_NAME_IDENTIFIER</constant>
+		</option>
+		<option>
+			<name>CustomerNameForAllValue</name>
+			<type>String</type>
+			<value>ALL</value>
+			<constant>CUSTOMER_NAME_FOR_ALL_VALUE</constant>
+		</option>
+		<option>
+			<name>DomainIdentifier</name>
+			<type>String</type>
+			<value>domain</value>
+			<constant>DOMAIN_IDENTIFIER</constant>
+		</option>
+		<option>
+			<name>DomainStructureIdentifier</name>
+			<type>String</type>
+			<value>domainStructure</value>
+			<constant>DOMAIN_STRUCTURE_IDENTIFIER</constant>
+		</option>
+		<option>
+			<name>DomainNameIdentifier</name>
+			<type>String</type>
+			<value>name</value>
+			<constant>DOMAIN_NAME_IDENTIFIER</constant>
+		</option>
+		<option>
+			<name>DomainNameForAllValue</name>
+			<type>String</type>
+			<value>ALL</value>
+			<constant>DOMAIN_NAME_FOR_ALL_VALUE</constant>
+		</option>
+		
+		<!-- these values define the naming of the single constraints definitions in crawler configuration -->
+		<option>
+			<name>ConstraintTermText</name>
+			<type>String</type>
+			<value>term</value>
+			<constant>CONSTRAINT_TERM_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintBlockedTermText</name>
+			<type>String</type>
+			<value>blockedterm</value>
+			<constant>CONSTRAINT_BLOCKED_TERM_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintUserText</name>
+			<type>String</type>
+			<value>user</value>
+			<constant>CONSTRAINT_USER_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintBlockedUserText</name>
+			<type>String</type>
+			<value>blockeduser</value>
+			<constant>CONSTRAINT_BLOCKED_USER_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintLanguageText</name>
+			<type>String</type>
+			<value>language</value>
+			<constant>CONSTRAINT_LANGUAGE_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintBlockedLanguageText</name>
+			<type>String</type>
+			<value>blockedlanguage</value>
+			<constant>CONSTRAINT_BLOCKED_LANGUAGE_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintDnsDomainText</name>
+			<type>String</type>
+			<value>dnsdomain</value>
+			<constant>CONSTRAINT_DNS_DOMAIN_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintBlockedDnsDomainText</name>
+			<type>String</type>
+			<value>blockeddnsdomain</value>
+			<constant>CONSTRAINT_BLOCKED_DNS_DOMAIN_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintSiteText</name>
+			<type>String</type>
+			<value>site</value>
+			<constant>CONSTRAINT_SITE_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintBlockedSiteText</name>
+			<type>String</type>
+			<value>blockedsite</value>
+			<constant>CONSTRAINT_BLOCKED_SITE_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintBoardText</name>
+			<type>String</type>
+			<value>board</value>
+			<constant>CONSTRAINT_BOARD_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintBlockedBoardText</name>
+			<type>String</type>
+			<value>blockedboard</value>
+			<constant>CONSTRAINT_BLOCKED_BOARD_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintBlogText</name>
+			<type>String</type>
+			<value>blog</value>
+			<constant>CONSTRAINT_BLOG_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintBlockedBlogText</name>
+			<type>String</type>
+			<value>blockedblog</value>
+			<constant>CONSTRAINT_BLOCKED_BLOG_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintLocationText</name>
+			<type>String</type>
+			<value>location</value>
+			<constant>CONSTRAINT_LOCATION_TEXT</constant>
+		</option>
+		<option>
+			<name>ConstraintBlockedLocationText</name>
+			<type>String</type>
+			<value>blockedlocation</value>
+			<constant>CONSTRAINT_BLOCKED_LOCATION_TEXT</constant>
+		</option>
+		
+		<!-- identifies the section containing socical network definitions in SocialNetworkDefinitions.xml-->
+		<option>
+			<name>SocialNetworkConfiguration</name>
+			<type>String</type>
+			<value>socialNetworkDefinition</value>
+			<constant>SOCIAL_NETWORK_CONFIGURATION</constant>
+		</option>
+		<!-- identifies a configuration for a social network -->
+		<option>
+			<name>SocialNetworkIdentifier</name>
+			<type>String</type>
+			<value>network</value>
+			<constant>SOCIAL_NETWORK_IDENTIFIER</constant>
+		</option>
+		<!-- identifies the name of a social network -->
+		<option>
+			<name>SocialNetworkNameIdentifier</name>
+			<type>String</type>
+			<value>name</value>
+			<constant>SOCIAL_NETWORK_NAME_IDENTIFIER</constant>
+		</option>
+		<!-- identifies the section within crawler configuration file that declares with which
+			 kind of configuration manager the file type is associated -->
+		<option>
+			<name>ConfigFileTypeIdentifier</name>
+			<type>String</type>
+			<value>configFileType</value>
+			<constant>CONFIG_FILE_TYPE_IDENTIFIER</constant>
+		</option>
+		
+		<!-- from these values the threading model can be constructed (see top of the file section Threading). 
+			 For example, if you want to change the name of the ParserThreading-section (although I really
+			 have no clue why you would want to do so) to FriedaThreading, then all you have to do is change
+			 the value in section PARSER_NAME from Parser to Frieda. -->
+		<option>
+			<name>ThreadingName</name>
+			<type>Sting</type>
+			<value>Threading</value>
+			<constant>THREADING_NAME</constant>
+		</option>
+		<option>
+			<name>ParserName</name>
+			<type>Sting</type>
+			<value>Parser</value>
+			<constant>PARSER_NAME</constant>
+		</option>
+		<option>
+			<name>CrawlerName</name>
+			<type>Sting</type>
+			<value>Crawler</value>
+			<constant>CRAWLER_NAME</constant>
+		</option>
+		<option>
+			<name>PersistenceName</name>
+			<type>Sting</type>
+			<value>Persistence</value>
+			<constant>PERSISTENCE_NAME</constant>
+		</option>
+		
+		
+		<!-- 
+			 for stability and startup reasons these last layout elements (root-, 
+			 singleConfiguration-, option-, name-, value- and scopeIdentifier) 
+			 						CAN NOT BE CHANGED! 
+			 
+			 If you do change these identifiers you will get a mismatch between the 
+			 initial setup of the SNC and subsequent searches by other parts of it.
+			 Confusing as it may sound, this will likely lead to exception and errors.
+		 -->
+		<option>
+			<name>RootIdentifier</name> 				<!-- not changeable -->
+			<type>String</type>
+			<value>configurations</value>
+			<constant>ROOT_IDENTIFIER</constant>
+		</option>
+		<option>
+			<name>SingleConfigurationIdentifier</name>	<!-- not changeable -->
+			<type>String</type>
+			<value>configuration</value>
+			<constant>SINGLE_CONFIGURATION_IDENTIFIER</constant>
+		</option>
+		<option>
+			<name>OptionIdentifier</name> 				<!-- not changeable -->
+			<type>String</type>
+			<value>option</value>
+			<constant>OPTION_IDENTIFIER</constant>
+		</option>
+		<option>
+			<name>NameIdentifier</name> 				<!-- not changeable -->
+			<type>String</type>
+			<value>name</value>
+			<constant>NAME_IDENTIFIER</constant>
+		</option>
+		<option>
+			<name>ValueIdentifier</name> 				<!-- not changeable -->
+			<type>String</type>
+			<value>value</value>
+			<constant>VALUE_IDENTIFIER</constant>
+		</option>
+		<option>
+			<name>ScopeIdentifier</name> 				<!-- not changeable -->
+			<type>String</type>
+			<value>scope</value>
+			<constant>SCOPE_IDENTIFIER</constant>
+		</option>
+	</configuration>
+</configurations>

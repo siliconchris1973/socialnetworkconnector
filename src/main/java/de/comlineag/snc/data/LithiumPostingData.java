@@ -1,8 +1,7 @@
 package de.comlineag.snc.data;
 
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -17,7 +16,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  * 
  * @author 		Christian Guenther
  * @category 	data type
- * @version 	0.6a		- 20.07.2014
+ * @version 	0.6b		- 22.10.2014
  * @status		productive
  * 
  * @description Describes a single Lithium posting with all relevant informations. 
@@ -33,7 +32,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  * @param <JSonObject>
  * 			Our internal column name	data type	element in json object
  *            "domain" 					String		domain
- *            "id" 						Long		id
+ *            "id" 						String		id
  *            "sn_id" 					String		fixed to LT
  *            "created_at" 				String		post_time
  *            "text" 					String		body
@@ -67,10 +66,11 @@ import de.comlineag.snc.helper.DateTimeServices;
  * 				0.5				set the truncated flag, if posts are truncated due to length violation on MAX_NVARCHAR_SIZE
  * 				0.6				changed field handling according to new constants from GeneralDataDefinitions
  * 				0.6a			added field domain
+ * 				0.6b			changed id from long to String
  * 
- * TODO 1. Add support for labels
- * TODO 3. find a new/better method to truncate html
- * TODO 4. check if we need to safe the thread from which the posting originated
+ * TODO Add support for labels
+ * TODO implement jericho to truncate html
+ * TODO check if we need to safe the thread from which the posting originated
  * 
  * 
  * JSON Structure:
@@ -166,10 +166,7 @@ import de.comlineag.snc.helper.DateTimeServices;
 
 public final class LithiumPostingData extends PostData {
 	
-	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	public LithiumPostingData(){}
 	
@@ -198,7 +195,7 @@ public final class LithiumPostingData extends PostData {
 			obj = parser.parse(jsonObject.get("id").toString());
 			JSONObject jsonObjId = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			setId((Long) jsonObjId.get("$"));
+			setId((String) jsonObjId.get("$"));
 			
 			
 			// the user
@@ -213,7 +210,7 @@ public final class LithiumPostingData extends PostData {
 			JSONObject jsonObjAuthor = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
 			String userHref = jsonObjAuthor.get("href").toString().substring(jsonObjAuthor.get("href").toString().lastIndexOf('/') + 1); 
-			setUserId((Long.parseLong(userHref.trim())));
+			setUserId(userHref.trim());
 			
 			
 			// number of kudos (favorites count)
@@ -359,7 +356,7 @@ public final class LithiumPostingData extends PostData {
 			*/
 			
 			// labels may contain some more valuable information, but we do not use them at the moment
-			// TODO : when implementing this, be aware of multiple occurrences for Label within Labels 
+			// when implementing this, be aware of multiple occurrences for Label within Labels 
 			// Structure:
 			//	{}labels
 			//		{}label
@@ -406,7 +403,7 @@ public final class LithiumPostingData extends PostData {
 		// setting everything to 0 or null default value.
 		// so I can check on initialized or not initialized values for the
 		// posting
-		id = 0;
+		id = "0";
 		
 		domain = new CrawlerConfiguration<String>().getDomain();
 		customer = new CrawlerConfiguration<String>().getCustomer();

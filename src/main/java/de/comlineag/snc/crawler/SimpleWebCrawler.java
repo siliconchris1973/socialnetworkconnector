@@ -21,7 +21,10 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.json.simple.JSONObject;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -49,12 +52,12 @@ import de.comlineag.snc.parser.ParserControl;
  * @description A minimal web crawler. It can either be started from job control or via a constructor from
  * 				any other crawler. On calling it takes (either from job control or as starting parameter) 
  * 				one initial url, a list of blocked urls, and some boolean vars (see below) plus the list of 
- * 				track terms and starts crawling the initial url. It then fetches the initial and all linked
- * 				sites up to max number of pages and max depth of links defined either in applicationContext, 
- * 				RuntimeConfiguration (section web crawler) or passed on to the constructor and checks if 
- * 				they are relevant (contain any of the search terms). If so it hands the page over to 
- * 				ParserControl which determines the correct parser and extracts the interesting part of the 
- * 				site. The parsed site is then given to the epersistence layer.
+ * 				track terms. It then starts crawling the initial url fetching all linked sites up to max 
+ * 				number of pages and max depth of links defined as well either in applicationContext, 
+ * 				RuntimeConfiguration (section web crawler) or passed on to the constructor. Each page is  
+ * 				checked against the track terms provided. If a track term is found the crawler hands the page 
+ * 				over to ParserControl which determines the correct parser and extracts the interesting part 
+ * 				of the site. The parsed site is then given to the persistence layer for storing.
  *
  *
  * @changelog	0.1 (Chris)		class created as copy from http://cs.nyu.edu/courses/fall02/G22.3033-008/WebCrawler.java
@@ -82,10 +85,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	private static final String CRAWLER_NAME="WEBCRAWLER";
 	private static String name="SimpleWebCrawler";
 	
-	// we use simple org.apache.log4j.Logger for logging
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	// instantiate a new fixed thread pool (size configured in SNC_Runtime_Configuration.xml) for parsing of the web page
 	//ExecutorService executor = Executors.newFixedThreadPool(rtc.getPARSER_THREADING_POOL_SIZE());
@@ -96,6 +96,26 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	// the list of postings (extracts from web pages crawled) is stored in here 
 	// and then handed over, one by one, to the persistence layer
 	List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
+	
+	
+	private final boolean rtcWarnOnRejectedActions = rtc.getBooleanValue("WarnOnRejectedActions", "crawler");
+	private final int rtcCrawlerMaxDownloadSize = rtc.getIntValue("WcCrawlerMaxDownloadSize", "crawler");
+	private final int rtcSearchLimit = rtc.getIntValue("WcSearchLimit", "crawler");
+	private final int rtcMaxDepth = rtc.getIntValue("WcMaxDepth", "crawler");
+	private final boolean rtcStayOnDomain = rtc.getBooleanValue("WcStayOnDomain", "crawler");
+	private final boolean rtcStayBelowGivenPath = rtc.getBooleanValue("WcStayBelowGivenPath", "crawler");
+	
+	private final String constraintTermText = rtc.getStringValue("ConstraintTermText", "XmlLayout");
+	private final String constraintLangText = rtc.getStringValue("ConstraintLanguageText", "XmlLayout");
+	private final String constraintUserText = rtc.getStringValue("ConstraintUserText", "XmlLayout");
+	private final String constraintSiteText = rtc.getStringValue("ConstraintSiteText", "XmlLayout");
+	//private final String constraintLocaText = rtc.getStringValue("ConstraintLocationText", "XmlLayout");
+	private final String constraintBSiteText = rtc.getStringValue("ConstraintBlockedSiteText", "XmlLayout");
+	
+	private final String rtcDomainKey = rtc.getStringValue("DomainIdentifier", "XmlLayout");
+	private final String rtcCustomerKey = rtc.getStringValue("CustomerIdentifier", "XmlLayout");
+	
+	private final String rtcRobotDisallowText = rtc.getStringValue("WcRobotDisallowText", "crawler");
 	
 	
 	public SimpleWebCrawler(){}
@@ -119,12 +139,14 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	 * @param curDomain				- curCustomer is the customer and curDomain the domain of interest (eg Banking)
 	 * 
 	 */
-	public SimpleWebCrawler(URL url, ArrayList<String> bURLs, int maxPages, int maxDepth, boolean stayOnDomain, boolean stayBelowGivenPath, boolean getOnlyRelevantPages, String user, String passwd, ArrayList<String> tTerms, String curCustomer, String curDomain){
+	@SuppressWarnings("unchecked")
+	public SimpleWebCrawler(URL url, ArrayList<String> bURLs, int maxPages, int maxDepth, boolean stayOnDomain, boolean stayBelowGivenPath, boolean getOnlyRelevantPages, String user, String passwd, ArrayList<String> tTerms, String curCustomer, String curDomain, String sn_id){
 		String smallLogMessage = "";
 		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
 		JSONObject configurationScope = crawlerConfig.getCrawlerConfigurationScope();
-		configurationScope.put("SN_ID", SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
+		//configurationScope.put("SN_ID", SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
+		configurationScope.put("SN_ID", sn_id);
 		
 		if (tTerms.size()>0) smallLogMessage += " specific terms ";
 		if (stayBelowGivenPath) {
@@ -132,8 +154,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			smallLogMessage += " below given path ";
 		}
 		if (stayOnDomain) smallLogMessage += " on initial domain ";
-		if (maxPages > rtc.getWC_SEARCH_LIMIT() || maxPages == 0) maxPages = rtc.getWC_SEARCH_LIMIT();
-		if (maxDepth > rtc.getWC_MAX_DEPTH() || maxDepth == 0) maxDepth = rtc.getWC_MAX_DEPTH();
+		if (maxPages > rtcSearchLimit || maxPages == 0) maxPages = rtcSearchLimit;
+		if (maxDepth > rtcMaxDepth || maxDepth == 0) maxDepth = rtcMaxDepth;
 		if (maxPages == -1) smallLogMessage += " on unlimited pages "; else smallLogMessage += " on max "+maxPages+" pages ";
 		if (maxDepth == -1) smallLogMessage += " unlimited depth "; else smallLogMessage += " max "+maxDepth+" levels deep ";
 		
@@ -154,7 +176,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		
 		
 		// now execute the crawler
-		doCrawl(url, bURLs, maxPages, maxDepth, stayOnDomain, stayBelowGivenPath, getOnlyRelevantPages, user, passwd, tTerms, curCustomer, curDomain);
+		doCrawl(url, bURLs, maxPages, maxDepth, stayOnDomain, stayBelowGivenPath, getOnlyRelevantPages, user, passwd, tTerms, curCustomer, curDomain, sn_id);
 		
 	}
 	
@@ -177,7 +199,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			boolean stayBelowGivenPath = false;
 			// whether or not the crawler shall only get pages containing any of the track terms
 			boolean getOnlyRelevantPages = false;
-			
+			String sn_id;
 			// authentication options
 			String user = null;
 			String passwd = null;
@@ -192,25 +214,30 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			if (crawlerConfig.getRunState(CRAWLER_NAME)) {
 				//JSONObject configurationScope = new CrawlerConfiguration<JSONObject>().getCrawlerConfigurationScope();
 				JSONObject configurationScope = crawlerConfig.getCrawlerConfigurationScope();
-				configurationScope.put("SN_ID", SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
+				if (arg0.getJobDetail().getJobDataMap().containsKey("SN_ID_CODE")){
+					configurationScope.put("SN_ID", (String) arg0.getJobDetail().getJobDataMap().get("SN_ID_CODE"));
+					sn_id=(String) arg0.getJobDetail().getJobDataMap().get("SN_ID_CODE");
+				} else {
+					configurationScope.put("SN_ID", SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME));
+					sn_id=SocialNetworks.getSocialNetworkConfigElement("code", CRAWLER_NAME);
+				}
 				
 				if (arg0.getJobDetail().getJobDataMap().containsKey("useAllCrawlerConstraints"))
-					configurationScope.put("INCLUDE_ALL", arg0.getJobDetail().getJobDataMap().containsKey("useAllCrawlerConstraints"));
+					configurationScope.put("INCLUDE_ALL", arg0.getJobDetail().getJobDataMap().get("useAllCrawlerConstraints"));
 				
 				// set the customer we start the crawler for and log the startup message
-				String curDomain = (String) configurationScope.get(rtc.getDomainidentifier());
-				String curCustomer = (String) configurationScope.get(rtc.getCustomeridentifier());
+				String curDomain = (String) configurationScope.get(rtcDomainKey);
+				String curCustomer = (String) configurationScope.get(rtcCustomerKey);
 								
 				// THESE CONSTRAINTS ARE USED TO RESTRICT RESULTS TO SPECIFIC TERMS, LANGUAGES, USERS AND LOCATIONS
 				logger.debug("retrieving restrictions from configuration db");
-				ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintTermText(), configurationScope);
-				ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintSiteText(), configurationScope);
-				ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintLanguageText(), configurationScope);
-				ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(rtc.getConstraintUserText(), configurationScope);
-				//ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(rtc.getConstraintLocationText(), configurationScope);
-				
+				ArrayList<String> tTerms = new CrawlerConfiguration<String>().getConstraint(constraintTermText, configurationScope);
+				ArrayList<String> tLangs = new CrawlerConfiguration<String>().getConstraint(constraintLangText, configurationScope);
+				ArrayList<Long> tUsers = new CrawlerConfiguration<Long>().getConstraint(constraintUserText, configurationScope);
+				ArrayList<String> tSites = new CrawlerConfiguration<String>().getConstraint(constraintSiteText, configurationScope);
+				//ArrayList<Location> tLocas = new CrawlerConfiguration<Location>().getConstraint(constraintLocaText, configurationScope);
 				// blocked URLs
-				ArrayList<String> bURLs = new CrawlerConfiguration<String>().getConstraint(rtc.getConstraintBlockedSiteText(), configurationScope);
+				ArrayList<String> bURLs = new CrawlerConfiguration<String>().getConstraint(constraintBSiteText, configurationScope);
 				
 				// log output
 				if (tTerms.size()>0) smallLogMessage += " specific terms ";
@@ -244,7 +271,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					stayBelowGivenPath = arg0.getJobDetail().getJobDataMap().getBooleanFromString("stayBelowGivenPath");
 				} else {
 					logger.trace("configuration setting stayBelowGivenPath not found in job control, getting from runtime configuration");
-					stayBelowGivenPath = rtc.isWC_STAY_BELOW_GIVEN_PATH();
+					stayBelowGivenPath = rtcStayBelowGivenPath;
 				}
 				if (stayBelowGivenPath) {
 					stayOnDomain = true;
@@ -256,7 +283,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 						stayOnDomain = arg0.getJobDetail().getJobDataMap().getBooleanFromString("stayOnDomain");
 					} else {
 						logger.trace("configuration setting stayOnDomain not found in job control, getting from runtime configuration");
-						stayOnDomain = rtc.isWC_STAY_ON_DOMAIN();
+						stayOnDomain = rtcStayOnDomain;
 					}
 					
 					if (stayOnDomain) smallLogMessage += " on initial domain ";
@@ -277,8 +304,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				// if maxPages or maxDepth (given by crawler configuration) is higher then maximum value in runtime configuration
 				// take the values from runtime configuration. otherwise stick with the values from crawler configuration otherwise,
 				// or if non values are given by crawler configuration, take the values from runtime configuration
-				if (maxPages > rtc.getWC_SEARCH_LIMIT() || maxPages == 0) maxPages = rtc.getWC_SEARCH_LIMIT();
-				if (maxDepth > rtc.getWC_MAX_DEPTH() || maxDepth == 0) maxDepth = rtc.getWC_MAX_DEPTH();
+				if (maxPages > rtcSearchLimit || maxPages == 0) maxPages = rtcSearchLimit;
+				if (maxDepth > rtcMaxDepth || maxDepth == 0) maxDepth = rtcMaxDepth;
 				if (maxPages == -1) smallLogMessage += " on unlimited pages "; else smallLogMessage += " on max "+maxPages+" pages ";
 				if (maxDepth == -1) smallLogMessage += " unlimited depth "; else smallLogMessage += " max "+maxDepth+" levels deep ";
 				
@@ -308,7 +335,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 								+ " / # " + tTerms.size() + " track terms"
 								+ " / curCustomer " + curCustomer
 								+ " / curDomain " + curDomain);
-				doCrawl(url, bURLs, maxPages, maxDepth, stayOnDomain, stayBelowGivenPath, getOnlyRelevantPages, user, passwd, tTerms, curCustomer, curDomain);
+				doCrawl(url, bURLs, maxPages, maxDepth, stayOnDomain, stayBelowGivenPath, getOnlyRelevantPages, user, passwd, tTerms, curCustomer, curDomain, sn_id);
 				
 			} // end of crawler deactivation
 
@@ -335,7 +362,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	 * @param curDomain				- curCustomer is the customer and curDomain the domain of interest (eg Banking)
 	 * 
 	 */
-	private void doCrawl(URL url, ArrayList<String> bURLs, int maxPages, int maxDepth, boolean stayOnDomain, boolean stayBelowGivenPath, boolean getOnlyRelevantPages, String user, String passwd, ArrayList<String> tTerms, String curCustomer, String curDomain){
+	private void doCrawl(URL url, ArrayList<String> bURLs, int maxPages, int maxDepth, boolean stayOnDomain, boolean stayBelowGivenPath, boolean getOnlyRelevantPages, String user, String passwd, ArrayList<String> tTerms, String curCustomer, String curDomain, String sn_id){
 		try {
 			Stopwatch timer = new Stopwatch().start();
 			
@@ -422,7 +449,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 						// proceed in any way
 						relPage = true;
 						possibleRelevantPages++;
-						logger.info("Url "+url+" is page #" + possibleRelevantPages + " tracked");
+						logger.info("Url "+url+" is page #" + possibleRelevantPages + " tracked ");
 					}
 					
 					
@@ -434,11 +461,13 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 						// track term. To achieve this, we use different parser and the right parser
 						// for each site is chosen by the ParserControl class. Therefore we do not
 						// simply call a specific parser here, but route this through parser control.
-						postings = ParserControl.submit(page, url, tTerms);
+						postings = ParserControl.submit(page, url, tTerms, sn_id, curCustomer, curDomain);
 						
 						// invoke the persistence layer - should go to crawler
 						for (int ii = 0; ii < postings.size(); ii++) {
 							realRelevantPages++;
+							logger.debug(realRelevantPages + " pages to store in persistence layer tracked");
+							
 							setPostsTracked(realRelevantPages);
 							
 							SimpleWebPosting post = postings.get(ii);
@@ -494,7 +523,25 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					if ((page.length()) != 0) getLinksFromPage(url, page, knownURLs, newURLs, blockedURLs, initialPath, stayOnDomain, stayBelowGivenPath);
 					
 					if (newURLs.isEmpty()) {
-						logger.info(CRAWLER_NAME+"-Crawler END - scanned " + pageCount + " pages in "+timer.elapsed(TimeUnit.SECONDS)+" seconds and found " + possibleRelevantPages + " matching ones\n");
+						timer.stop();
+						long seconds = timer.elapsed(TimeUnit.SECONDS);
+					    long calcSeconds = seconds;
+					    long calcMinutes = 0;
+					    long calcHours = 0;
+					    long calcDays = 0;
+					    if (calcSeconds > 60) {
+					    	calcMinutes = calcSeconds / 60;
+					    	calcSeconds = calcSeconds - (calcMinutes * 60);
+					    }
+					    if (calcMinutes > 60) {
+					    	calcHours = calcMinutes / 60;
+					    	calcMinutes = calcMinutes - (calcHours * 60);
+					    }
+					    if (calcHours > 24) {
+					    	calcDays = calcHours / 24;
+					    	calcHours = calcHours - (calcHours * 24);
+					    }
+						logger.info(CRAWLER_NAME+" END - scanned {} pages in {} days {} hours {} minutes {} seconds and found {} matching ones\n", pageCount, calcDays, calcHours, calcMinutes, calcSeconds, possibleRelevantPages);
 						break;
 					}
 					
@@ -526,7 +573,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			byte b[] = new byte[1000];
 			int numRead = urlStream.read(b);
 			String content = new String(b, 0, numRead);
-			while ( (numRead != -1) && (content.length() < rtc.getWC_CRAWLER_MAX_DOWNLOAD_SIZE()) ) {
+			while ( (numRead != -1) && (content.length() < rtcCrawlerMaxDownloadSize) ) {
 				numRead = urlStream.read(b);
 				if (numRead != -1) {
 					String newContent = new String(b, 0, numRead);
@@ -600,7 +647,6 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							boolean stayBelowGivenPath) {
 		Boolean proceed = false;
 		
-		// first of all, we check if the url in question is on the blocking-list
 		
 		// there are two possibilities to restrict the urls to add to the parsing list
 		// one is based on the path and the other is based on the domain.
@@ -629,7 +675,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							proceed = true;
 						} else {
 							proceed = false;
-							if (rtc.isWARN_ON_REJECTED_ACTIONS())
+							if (rtcWarnOnRejectedActions)
 								logger.debug("rejecting url " + url.getPath() + " because it not below initial path "+initialPath+" and stayBelowGivenPath is " + stayBelowGivenPath);
 						}
 					} else {
@@ -638,7 +684,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					}
 				} else {
 					proceed = false;
-					if (rtc.isWARN_ON_REJECTED_ACTIONS())
+					if (rtcWarnOnRejectedActions)
 						logger.debug("rejecting host " + url.getHost() + " because it is not on the initial domain "+oldURL.getHost()+" and stayOnDomain is " + stayOnDomain);
 				}
 			} else {
@@ -648,22 +694,24 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 					proceed = true;
 				} else {
 					proceed = false;
-					if (rtc.isWARN_ON_REJECTED_ACTIONS())
+					if (rtcWarnOnRejectedActions)
 						logger.debug("rejecting host " + url.getHost() + " because it is not on the initial domain "+oldURL.getHost()+" and stayonDomain is " + stayOnDomain);
 				}
 			}
 		}
 		
+		// the last check is, is the url in question on the blocking-list
 		if (blockedURLs.containsKey(url)) {
-			if (rtc.isWARN_ON_REJECTED_ACTIONS())
+			if (rtcWarnOnRejectedActions)
 				logger.debug("rejecting url " + url + " because it is in the list of blocked urls");
 			proceed = false;
 		}
 		
 		// only process urls that passed the tests above.
 		if (proceed){
-
-			if (!knownURLs.containsKey(url) || !blockedURLs.containsKey(url)) {
+			// and only if the url is not already in the list of known urls (the ones we already checked)
+			// and is not in the list of blocked urls we proceed and add the url
+			if (!knownURLs.containsKey(url) && !blockedURLs.containsKey(url)) {
 				/*
 				 * if you only want html pages, then set wcContentTypeToDownload in RuntimeConfiguration
 				String filename =  url.getFile();
@@ -734,8 +782,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 		String strURL = url.getFile();
 		int index = 0;
 
-		while ((index = strCommands.indexOf(rtc.getWC_ROBOT_DISALLOW_TEXT(), index)) != -1) {
-			index += rtc.getWC_ROBOT_DISALLOW_TEXT().length();
+		while ((index = strCommands.indexOf(rtcRobotDisallowText, index)) != -1) {
+			index += rtcRobotDisallowText.length();
 			String strPath = strCommands.substring(index);
 			StringTokenizer st = new StringTokenizer(strPath);
 

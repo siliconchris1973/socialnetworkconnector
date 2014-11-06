@@ -14,6 +14,18 @@ import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.StartTag;
 
+
+/**
+ *
+ * @author 		Christian Guenther
+ * @category 	data type
+ * @version 	0.1				- 22.10.2014
+ * @status		in development
+ *
+ * @description represents a summary of a given website
+ * 
+ * @changelog	0.1 (Chris)		class created
+ */
 public class WebPageSummarizer {
 
 	/**

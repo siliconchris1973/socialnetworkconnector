@@ -3,9 +3,8 @@ package de.comlineag.snc.data;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.geojson.GeoJsonObject;
 import org.geojson.LineString;
@@ -34,13 +33,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * 				0.3 			added new constructor for json-object 
  * 				0.4 			added constants for geoLocation object parser
  * 
- * TODO 1. check if is possible to use this: http://docs.geotools.org/latest/userguide/faq.html
- * TODO 2. check if this class is ok for other social networks
+ * TODO check if we shall make use of geotools (http://docs.geotools.org/latest/userguide/faq.html)
+ * TODO check if this class is usable for other social networks
  */
 public class LocationData {
 	
 	// we use simple org.apache.log4j.Logger for lgging
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	// in case you want a log-manager use this line and change the import above
 	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
