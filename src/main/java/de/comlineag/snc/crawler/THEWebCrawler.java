@@ -63,14 +63,15 @@ public class THEWebCrawler extends WebCrawler {
 	private final ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
 	
 	// it is VERY important to set the crawler name (all in upper case) here
-	// FIXME the CRAWLER_NAME must be WEBCRAWLER and SN_ID must be passed on from controller or taken dynamically 
 	private static final String CRAWLER_NAME="WEBCRAWLER";
 	private static String name="THEWebCrawler";
 	
 	
 	// negative list of files (targets of links) we don't retrieve because they are of no interest
-	private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|bmp|gif|jpe?g" + "|png|tiff?|mid|mp2|mp3|mp4"
-		      + "|wav|avi|mov|mpeg|ram|m4v|pdf" + "|rm|smil|wmv|swf|wma|zip|rar|gz))$");
+	private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|bmp|gif|jpe?g" 
+															+ "|png|tiff?|mid|mp2|mp3|mp4"
+															+ "|wav|avi|mov|mpeg|ram|m4v|pdf" 
+															+ "|rm|smil|wmv|swf|wma|zip|rar|gz))$");
 	
 	// the list of postings (extracted from web pages crawled) is stored in here 
 	// and then handed over, one by one, to the persistence layer
@@ -85,8 +86,8 @@ public class THEWebCrawler extends WebCrawler {
 	//private final String constraintLangText = rtc.getStringValue("ConstraintLanguageText", "XmlLayout");
 	//private final String constraintUserText = rtc.getStringValue("ConstraintUserText", "XmlLayout");
 	//private final String constraintSiteText = rtc.getStringValue("ConstraintSiteText", "XmlLayout");
-	//private final String constraintLocaText = rtc.getStringValue("ConstraintLocationText", "XmlLayout");
 	private final String constraintBSiteText = rtc.getStringValue("ConstraintBlockedSiteText", "XmlLayout");
+	//private final String constraintLocaText = rtc.getStringValue("ConstraintLocationText", "XmlLayout");
 	private final String rtcDomainKey = rtc.getStringValue("DomainIdentifier", "XmlLayout");
 	private final String rtcCustomerKey = rtc.getStringValue("CustomerIdentifier", "XmlLayout");
 	
@@ -103,7 +104,7 @@ public class THEWebCrawler extends WebCrawler {
 	private ArrayList<String> tTerms = null;	// the terms to look for
 	private ArrayList<String> bURLs = null;		// the list of blocked urls
 	private Map<URL, Integer> blockedURLs = new HashMap<URL, Integer>(); // list of blocked urls as a map
-	private List<String> myCrawlData;			// this liszt can be returned to the controller
+	private List<String> myCrawlData;			// this list can be returned to the controller
 	
 	// the array holds the given domains to crawl (or stay on) passed on by THEWebCrawlerController
 	private String[] theCrawlDomains;
@@ -193,19 +194,15 @@ public class THEWebCrawler extends WebCrawler {
 	@Override
 	public boolean shouldVisit(Page page, WebURL url) {
 		String href = url.getURL().toLowerCase();
-		
-		logger.trace("checking if url {} should be visited", href);
+		logger.debug("checking if url {} should be visited", href);
 		
 		if (FILTERS.matcher(href).matches()) {
-			if (rtcWarnOnRejectedActions)
-				logger.trace("rejecting url " + url.getPath() + " because it leads to a file on the black list");
+			logger.trace("rejecting url " + url.getPath() + " because it leads to a file on the black list");
 			return false;
 		}
 		
-		
 		if (blockedURLs.containsKey(url)) {
-			if (rtcWarnOnRejectedActions)
-				logger.trace("rejecting url " + url + " because it is in the list of blocked urls");
+			logger.trace("rejecting url " + url + " because it is in the list of blocked urls");
 			return false;
 		}
 		
@@ -273,7 +270,6 @@ public class THEWebCrawler extends WebCrawler {
 						logger.info("calling persistence layer to save the user ");
 						userData.save();
 						
-						
 						// and now pass the web page on to the persistence layer
 						logger.info("calling persistence layer to save the page ");
 						postData.save();
@@ -337,7 +333,13 @@ public class THEWebCrawler extends WebCrawler {
      */
 	@Override
 	public Object getMyLocalData() {
-		myCrawlData.add(Integer.toString(trackedPages));
+		try {
+			myCrawlData.add(Integer.toString(trackedPages));
+		} catch (java.lang.NullPointerException e) {
+			logger.warn("no data could be added to myCrawlData");
+			myCrawlData = null;
+		}
+		
 		return myCrawlData;
 	}
 	

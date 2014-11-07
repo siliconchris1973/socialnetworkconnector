@@ -22,7 +22,7 @@
 	
 	<groupId>de.comlineag.snc</groupId>
 	<artifactId>SocialNetworkConnector</artifactId>
-	<version>0.8.4-Beta</version>
+	<version>0.8.5-Beta</version>
 	
 	<name>Social Network Connector</name>
 	<url>https://clsbm.comlineag.de</url>
@@ -58,7 +58,8 @@
 		<spring.version>4.0.6.RELEASE</spring.version>
 		<apache.version>4.3.4</apache.version>
 		<hbc-twitter.version>2.2.0</hbc-twitter.version>
-		<neo4j.version>2.0.3</neo4j.version>
+		<neo4j.version>2.1.5</neo4j.version>
+		<spring-data-neo4j.version>3.2.1.RELEASE</spring-data-neo4j.version>
 		<quartz.version>2.2.1</quartz.version>
 	</properties>
 	
@@ -324,6 +325,11 @@
 					<groupId>org.neo4j</groupId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-neo4j</artifactId>
+			<version>${spring-data-neo4j.version}</version>
 		</dependency>
 		
 		<!-- activate to work with SAP HANA - external JDBC Driver -->

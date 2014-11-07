@@ -2,15 +2,18 @@ package de.comlineag.snc.parser;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 
 import com.google.common.base.Stopwatch;
@@ -88,10 +91,12 @@ public final class WOCommunityWebParser extends GenericWebParser implements IWeb
 		String title = null;
 		String description = null;
 		String keywords = null;
+		String created_at = null;
 		String text = null;
-		String plainText = "";
-		String segmentText = "";
-		String page_id, user_id, user_name, screen_name;
+		String plainText = null;
+		String segmentText = null;
+		String referer_page_id = null;
+		String master_page_id, page_id, user_id, user_name, screen_name;
 		long postings_count = 0;
 		int pageSize = page.length()/8/1024;
 		String page_lang = "DE"; // TODO implement proper language detection
@@ -117,7 +122,10 @@ public final class WOCommunityWebParser extends GenericWebParser implements IWeb
 			
 			
 			List<Element> siteElements = source.getAllElements("id", "main_content", false);
+			logger.debug("received {} site elements", siteElements.size());
 			for (int i=0;i<siteElements.size();i++) {
+				logger.trace("working on site element {} as {}...", i, siteElements.get(i).toString().substring(0, 20));
+				
 				// pass the site element on to a private method (below) that extracts the pure plain text content according to white and blacklist given
 				plainText = getGridFsPlainText(siteElements.get(i));
 								
@@ -139,21 +147,33 @@ public final class WOCommunityWebParser extends GenericWebParser implements IWeb
 														rtcWordDistanceCutoffMargin, 
 														rtcWordDistanceCutoffMargin);
 				}
-				logger.trace("TruncatedText: >>> " + segmentText);
 				
 				text = segmentText;
+				
+				logger.trace("Truncated text: >>> " + text);
+				
 				user_name = url.getHost().toString();
 				screen_name = user_name;
 				page_id = UniqueIdServices.createMessageDigest(text);
 				user_id = UniqueIdServices.createMessageDigest(user_name);
+				long s = System.currentTimeMillis();
+				// converting to 06.11.14 17:28:37
+				Date date = new Date(s);
+				DateFormat formatter = new SimpleDateFormat("dd.MM.YY HH:mm:ss");
+				created_at = formatter.format(date);
+				
+				logger.debug("no explicit post information on site, using {} as page_id", page_id);
+				logger.debug("no explicit user information on site, using {} as user_id and {} as name", user_id, user_name);
+				logger.debug("no explicit time information on site, using {} for created_at value", created_at);
 				
 				// add page to list if it contains the track terms or if we want all pages
 				if (!rtcGetOnlyRelevantPages || findNeedleInHaystack(text, tokens)){
-					logger.trace("adding extracted page content to posting list");
+					logger.debug("adding extracted page content-json to posting list");
 					
 					// add the parsed site to the message list for saving in the DB
 					//JSONObject pageJson = createPageJsonObject(sn_id, title, description, plainText, text, url, truncated, page_lang, curCustomer, curDomain);
-					JSONObject pageJson = createPageJsonObject(sn_id, title, description, plainText, text, url, truncated, page_lang, page_id, user_id, user_name, screen_name, user_lang, postings_count, curCustomer, curDomain);
+					JSONObject pageJson = createPageJsonObject(sn_id, title, description, plainText, text, created_at, url, truncated, page_lang, page_id, user_id, user_name, screen_name, user_lang, postings_count, curCustomer, curDomain);
+					logger.trace("created json is {}", pageJson.toString());
 					SimpleWebPosting parsedPageSimpleWebPosting = new SimpleWebPosting(pageJson);
 					postings.add(parsedPageSimpleWebPosting);
 				}

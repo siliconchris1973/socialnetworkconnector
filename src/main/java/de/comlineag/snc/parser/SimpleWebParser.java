@@ -2,15 +2,16 @@ package de.comlineag.snc.parser;
 
 import java.io.InputStream;
 import java.net.URL;
-
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 
 import com.google.common.base.Stopwatch;
@@ -88,7 +89,7 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 			parsedPageJson = extractContent(page, url, tokens, sn_id, curCustomer, curDomain);
 			SimpleWebPosting parsedPageSimpleWebPosting = new SimpleWebPosting(parsedPageJson);
 			
-			//logger.trace("PARSED PAGE AS JSON >>> " + parsedPageJson.toString());
+			logger.trace("PARSED PAGE AS JSON >>> " + parsedPageJson.toString());
 			
 			// now check if we really really have the searched word within the text and only if so,
 			// write the content to disk. We should probably put this before calling the persistence
@@ -134,13 +135,16 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 		String title = null;
 		String description = null;
 		String keywords = null;
+		String created_at = null;
 		String text = null;
 		String plainText = null;
 		String pageLang = "DE";
-		String user_name = "";
-		String screen_name = "";
-		String page_id = "";
-		String user_id = "";
+		String user_name = null;
+		String screen_name = null;
+		String page_id = null;
+		String master_page_id = null;
+		String referer_page_id = null;
+		String user_id = null;
 		String userLang = pageLang;
 		long postings_count = 0;
 		boolean truncated = Boolean.parseBoolean("false");
@@ -190,13 +194,15 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 													rtcWordDistanceCutoffMargin, 
 													rtcWordDistanceCutoffMargin);
 			}
-			//logger.trace("TruncatedText: >>> " + segmentText);
 			
 			// now put the reduced text in the original text variable, so that it gets added to the json below
 			text = segmentText;
+			
+			logger.trace("Truncated text: >>> " + text);
+			
 			// and also make sure that the truncated flag is set correctly
-			//logger.trace("plainText was " + plainText.length() + " and segmentText is " + segmentText.length());
-			if (plainText.length() > segmentText.length()) {
+			logger.trace("plainText was " + plainText.length() + " and extracted is " + text.length());
+			if (plainText.length() > text.length()) {
 				truncated = Boolean.parseBoolean("true");
 			} else {
 				truncated = Boolean.parseBoolean("false");
@@ -204,15 +210,23 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 			
 			user_name = url.getHost().toString();
 			screen_name = user_name;
-			page_id = UniqueIdServices.createMessageDigest(plainText);
+			page_id = UniqueIdServices.createMessageDigest(text);
 			user_id = UniqueIdServices.createMessageDigest(user_name);
-			
+			long s = System.currentTimeMillis();
+			// converting to 06.11.14 17:28:37
+			Date date = new Date(s);
+			DateFormat formatter = new SimpleDateFormat("dd.MM.YY HH:mm:ss");
+			created_at = formatter.format(date);
+						
+			logger.debug("no explicit post information on site, using {} as page_id", page_id);
+			logger.debug("no explicit user information on site, using {} as user_id and {} as name", user_id, user_name);
+			logger.debug("no explicit time information on site, using {} for created_at value", created_at);
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: error during parsing of site content ", e );
 			e.printStackTrace();
 		}
 		
-		JSONObject pageJson = createPageJsonObject(sn_id, title, description, plainText, text, url, truncated, pageLang, page_id, user_id, user_name, screen_name, userLang, postings_count, curCustomer, curDomain);
+		JSONObject pageJson = createPageJsonObject(sn_id, title, description, plainText, text, created_at, url, truncated, pageLang, page_id, user_id, user_name, screen_name, userLang, postings_count, curCustomer, curDomain);
 		
 		return pageJson;
 	}

@@ -100,8 +100,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	
 	private final boolean rtcWarnOnRejectedActions = rtc.getBooleanValue("WarnOnRejectedActions", "crawler");
 	private final int rtcCrawlerMaxDownloadSize = rtc.getIntValue("WcCrawlerMaxDownloadSize", "crawler");
-	private final int rtcSearchLimit = rtc.getIntValue("WcSearchLimit", "crawler");
-	private final int rtcMaxDepth = rtc.getIntValue("WcMaxDepth", "crawler");
+	private final int rtcMaxPagesLimit = rtc.getIntValue("WcMaxPagesLimit", "crawler");
+	private final int rtcMaxLinkDepth = rtc.getIntValue("WcMaxLinkDepth", "crawler");
 	private final boolean rtcStayOnDomain = rtc.getBooleanValue("WcStayOnDomain", "crawler");
 	private final boolean rtcStayBelowGivenPath = rtc.getBooleanValue("WcStayBelowGivenPath", "crawler");
 	
@@ -154,8 +154,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			smallLogMessage += " below given path ";
 		}
 		if (stayOnDomain) smallLogMessage += " on initial domain ";
-		if (maxPages > rtcSearchLimit || maxPages == 0) maxPages = rtcSearchLimit;
-		if (maxDepth > rtcMaxDepth || maxDepth == 0) maxDepth = rtcMaxDepth;
+		if (maxPages > rtcMaxPagesLimit || maxPages == 0) maxPages = rtcMaxPagesLimit;
+		if (maxDepth > rtcMaxLinkDepth || maxDepth == 0) maxDepth = rtcMaxLinkDepth;
 		if (maxPages == -1) smallLogMessage += " on unlimited pages "; else smallLogMessage += " on max "+maxPages+" pages ";
 		if (maxDepth == -1) smallLogMessage += " unlimited depth "; else smallLogMessage += " max "+maxDepth+" levels deep ";
 		
@@ -304,8 +304,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				// if maxPages or maxDepth (given by crawler configuration) is higher then maximum value in runtime configuration
 				// take the values from runtime configuration. otherwise stick with the values from crawler configuration otherwise,
 				// or if non values are given by crawler configuration, take the values from runtime configuration
-				if (maxPages > rtcSearchLimit || maxPages == 0) maxPages = rtcSearchLimit;
-				if (maxDepth > rtcMaxDepth || maxDepth == 0) maxDepth = rtcMaxDepth;
+				if (maxPages > rtcMaxPagesLimit || maxPages == 0) maxPages = rtcMaxPagesLimit;
+				if (maxDepth > rtcMaxLinkDepth || maxDepth == 0) maxDepth = rtcMaxLinkDepth;
 				if (maxPages == -1) smallLogMessage += " on unlimited pages "; else smallLogMessage += " on max "+maxPages+" pages ";
 				if (maxDepth == -1) smallLogMessage += " unlimited depth "; else smallLogMessage += " max "+maxDepth+" levels deep ";
 				

@@ -41,21 +41,29 @@ public class DateTimeServices {
 	
 			if (_snId.equalsIgnoreCase(SocialNetworks.getSocialNetworkConfigElement("code", "TWITTER"))) {
 				DateTimeServices.logger.debug("formatting date time for use with twitter");
+				// date time pattern by Magnus Leinemann
 				snPattern = "EEE MMM d H:m:s Z yyyy";
 				// the date time format for twitter must be set to US, otherwise english designators will not be translated correctly
 				snLocale = Locale.US;
 			} else if (_snId.equalsIgnoreCase(SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM"))) {
 				DateTimeServices.logger.debug("formatting date time for use with Lithium");
 				// 2014-01-08T12:21:42+00:00
-				// date time pattern provided by Thomas Nowak
+				// date time pattern by Thomas Nowak
 				snPattern = "yyyy-MM-dd'T'HH:mm:ssZZ";
 				snLocale = Locale.GERMANY;
 			} else if (_snId.equalsIgnoreCase(SocialNetworks.getSocialNetworkConfigElement("code", "WEBCRAWLER"))) {
 				DateTimeServices.logger.debug("formatting date time for use with the simple webcrawler");
 				// 2014-01-08T12:21:42+00:00
-				// date time pattern provided by Thomas Nowak
-				snPattern = "yyyy-MM-dd'T'HH:mm:ssZZ";
+				// date time pattern by Christian Guenther
+				//snPattern = "yyyy-MM-dd'T'HH:mm:ssSSS";
+				snPattern = "dd.MM.yy HH:mm:ss";
 				snLocale = Locale.US;
+			} else if (_snId.equalsIgnoreCase(SocialNetworks.getSocialNetworkConfigElement("code", "WALLSTREETONLINE"))) {
+				DateTimeServices.logger.debug("formatting date time for use with wallstreet-online.de");
+				// 02.09.14 16:24:25
+				// date time pattern by Christian Guenther
+				snPattern = "dd.MM.yy HH:mm:ss";
+				snLocale = Locale.GERMANY;
 			} else {
 				DateTimeServices.logger.warn("no specific conversion for system " + _snId);
 			}
@@ -67,7 +75,7 @@ public class DateTimeServices {
 			DateTime dateTime = formatter.parseDateTime(_timestamp);
 			return dateTime.toLocalDateTime();
 		} catch (Exception e) {
-			DateTimeServices.logger.error(e.getMessage());
+			DateTimeServices.logger.error("error converting provided timestamp, using current system time instead - {}",e.getMessage());
 			// default: current Timestamp in case any error occurs
 			DateTime dt = new DateTime();
 			return new LocalDateTime(dt);

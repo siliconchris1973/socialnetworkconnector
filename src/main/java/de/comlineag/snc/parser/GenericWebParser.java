@@ -146,6 +146,7 @@ public abstract class GenericWebParser extends GenericParser implements IWebPars
 												String description, 
 												String page, 
 												String text, 
+												String created_at,
 												URL url, 
 												boolean truncated, 
 												String lang, 
@@ -158,38 +159,25 @@ public abstract class GenericWebParser extends GenericParser implements IWebPars
 												String curCustomer,
 												String curDomain) {
 		JSONObject pageJson = new JSONObject();
-		truncated = Boolean.parseBoolean("false");
-		
+				
 		// put some data in the json
 		pageJson.put("sn_id", sn_id);
-		if ("0".equals(page_id) || page_id == null)
-			// the url is parsed and converted into a long number (returned as a string)
-			pageJson.put("page_id", UniqueIdServices.createMessageDigest(text)); 
-		else
-			pageJson.put("page_id", page_id);
-		
+		pageJson.put("page_id", page_id);
+		pageJson.put("user_id", user_id);
 		pageJson.put("Customer", curCustomer);
 		pageJson.put("Domain", curDomain);
 		pageJson.put("subject", title);
 		pageJson.put("teaser", description);
-		pageJson.put("raw_text", page);
-		pageJson.put("text", text);
 		pageJson.put("source", url.toString());
 		pageJson.put("lang", lang);
 		pageJson.put("truncated", truncated);
-		String s = Objects.toString(System.currentTimeMillis(), null);
-		pageJson.put("created_at", s);
+		pageJson.put("created_at", created_at);
+		pageJson.put("raw_text", page);
+		pageJson.put("text", text);
 		
 		JSONObject userJson = new JSONObject();
 		userJson.put("sn_id", sn_id);
-		if ("0".equals(user_id) || user_id == null)
-			// the hostname part of the url is parsed and converted into a long number (returned as a string)
-			userJson.put("id", UniqueIdServices.createMessageDigest(text)); 
-		else 
-			userJson.put("id", user_id);
-		
-		pageJson.put("user_id", userJson.get("id"));
-		
+		userJson.put("id", user_id);
 		userJson.put("name", user_name);
 		userJson.put("screen_name", screen_name);
 		userJson.put("lang", user_lang);

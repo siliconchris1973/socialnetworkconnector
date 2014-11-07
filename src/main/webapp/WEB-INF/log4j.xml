@@ -45,6 +45,15 @@
 			<!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> -->
 		</layout>
 	</appender>
+	<!-- Controller logfile -->
+	<appender name="fileT" class="org.apache.log4j.FileAppender">
+		<param name="File" value="logs/SNC-Controller.log" />
+		<!-- <param name="Threshold" value="WARN"/> -->
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n" />
+			<!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> -->
+		</layout>
+	</appender>
 	<!-- Parser logfile -->
 	<appender name="fileP" class="org.apache.log4j.FileAppender">
 		<param name="File" value="logs/SNC-Parser.log" />
@@ -101,23 +110,27 @@
 		<appender-ref ref="fileA" />
 	</logger>
 	<logger name="de.comlineag.snc.parser">
-		<level value="debug"></level>
+		<level value="trace"></level>
 		<appender-ref ref="fileP" />
 	</logger>
+	<logger name="de.comlineag.snc.controller">
+		<level value="trace"></level>
+		<appender-ref ref="fileT" />
+	</logger>
 	<logger name="de.comlineag.snc.crawler">
-		<level value="debug"></level>
+		<level value="trace"></level>
 		<appender-ref ref="fileC" />
 	</logger>
 	<logger name="de.comlineag.snc.handler">
-		<level value="debug"></level>
+		<level value="trace"></level>
 		<appender-ref ref="fileH" />
 	</logger>
 	<logger name="de.comlineag.snc.data">
-		<level value="debug"></level>
+		<level value="trace"></level>
 		<appender-ref ref="fileD" />
 	</logger>
 	<logger name="de.comlineag.snc.persistence">
-		<level value="debug"></level>
+		<level value="trace"></level>
 		<appender-ref ref="fileS" />
 	</logger>
 	

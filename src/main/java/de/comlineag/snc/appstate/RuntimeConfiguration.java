@@ -492,12 +492,12 @@ public final class RuntimeConfiguration {
 			XPath xpath = xPathfactory.newXPath();
 			
 			
-			// wcSearchLimit
-			setWC_SEARCH_LIMIT(getIntElement("crawler", "wcSearchLimit", xpath, doc, configFile));
+			// WcMaxPagesLimit
+			setWC_SEARCH_LIMIT(getIntElement("crawler", "WcMaxPagesLimit", xpath, doc, configFile));
 			debugMsg += "    WC_SEARCH_LIMIT is " + getWC_SEARCH_LIMIT();
 			
-			// wcMaxDepth
-			setWC_MAX_DEPTH(getIntElement("crawler", "wcMaxDepth", xpath, doc, configFile));
+			// WcMaxLinkDepth
+			setWC_MAX_DEPTH(getIntElement("crawler", "WcMaxLinkDepth", xpath, doc, configFile));
 			debugMsg += " / WC_MAX_DEPTH is " + getWC_MAX_DEPTH();
 			
 			// wcRobotDisallowText 

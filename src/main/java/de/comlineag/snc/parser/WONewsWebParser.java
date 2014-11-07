@@ -2,15 +2,18 @@ package de.comlineag.snc.parser;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 
 import com.google.common.base.Stopwatch;
@@ -23,6 +26,7 @@ import net.htmlparser.jericho.StartTag;
 import net.htmlparser.jericho.TextExtractor;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.handler.SimpleWebPosting;
+import de.comlineag.snc.helper.UniqueIdServices;
 
 /**
  * 
@@ -85,12 +89,15 @@ public final class WONewsWebParser extends GenericWebParser implements IWebParse
 		List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
 		
 		// a single page
-		String page_id = "0";
+		String master_page_id = null;
+		String referer_page_id = null;
+		String page_id = null;
 		String title = null;
 		String description = null;
 		String keywords = null;
+		String created_at = null;
 		String text = null;
-		String plainText = "";
+		String plainText = null;
 		int pageSize = page.length()/8/1024;
 		String page_lang = "DE"; // TODO implement proper language detection
 		boolean truncated = Boolean.parseBoolean("false");
@@ -113,24 +120,42 @@ public final class WONewsWebParser extends GenericWebParser implements IWebParse
 			title = getTitle(source);
 			description = getMetaValue(source, "Description");
 			keywords = getMetaValue(source, "keywords");
+			logger.trace("extracted description {} and keywords {}", description, keywords.toString());
 			
 			List<Element> siteElements = source.getAllElementsByClass("container");
+			logger.debug("received {} site elements", siteElements.size());
 			for (int i=0;i<siteElements.size();i++) {
 				List<Element> subElements = siteElements.get(i).getAllElements("id", "newsArticle", false);
+				logger.debug("received {} sub elements", subElements.size());
 				for (int ii=0;ii<subElements.size();ii++) {
+					logger.trace("working on sub element {} as {}...", i, subElements.get(ii).toString().substring(0, 20));
+					
 					plainText = getPlainText(subElements.get(ii));
-					//logger.trace("the plaintext >>> " + plainText);
 					text = plainText;
 					
+					logger.trace("Truncated text >>> " + text);
+					
+					page_id = UniqueIdServices.createMessageDigest(text);
 					user_name = url.toString();
 					screen_name = user_name;
+					user_id = UniqueIdServices.createMessageDigest(user_name);
+					long s = System.currentTimeMillis();
+					// converting to 06.11.14 17:28:37
+					Date date = new Date(s);
+					DateFormat formatter = new SimpleDateFormat("dd.MM.YY HH:mm:ss");
+					created_at = formatter.format(date);
+					
+					logger.debug("no explicit post information on site, using {} as page_id", page_id);
+					logger.debug("no explicit user information on site, using {} as user_id and {} as name", user_id, user_name);
+					logger.debug("no explicit time information on site, using {} for created_at value", created_at);
 					
 					// add page to list if it contains the track terms or if we want all pages
 					if (!rtcGetOnlyRelevantPages || findNeedleInHaystack(text, tokens)){
-						logger.trace("adding extracted page content to posting list");
+						logger.debug("adding extracted page content-json to posting list");
 						
 						// add the parsed site to the message list for saving in the DB
-						JSONObject pageJson = createPageJsonObject(sn_id, title, description, plainText, text, url, truncated, page_lang, page_id, user_id, user_name, screen_name, user_lang, postings_count, curCustomer, curDomain);
+						JSONObject pageJson = createPageJsonObject(sn_id, title, description, plainText, text, created_at, url, truncated, page_lang, page_id, user_id, user_name, screen_name, user_lang, postings_count, curCustomer, curDomain);
+						logger.trace("created json is {}", pageJson.toString());
 						SimpleWebPosting parsedPageSimpleWebPosting = new SimpleWebPosting(pageJson);
 						postings.add(parsedPageSimpleWebPosting);
 					}

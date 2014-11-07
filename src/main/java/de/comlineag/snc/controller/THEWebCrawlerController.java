@@ -20,7 +20,6 @@ import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crawler.THEWebCrawler;
-import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.webcrawler.crawler.CrawlConfig;
 import de.comlineag.snc.webcrawler.crawler.CrawlController;
 import de.comlineag.snc.webcrawler.fetcher.PageFetcher;
@@ -56,13 +55,13 @@ public class THEWebCrawlerController implements Job {
 	private static final String CRAWLER_NAME="WEBCRAWLER";
 	
 	private final int rtcPolitenessDelay = rtc.getIntValue("WcPolitenessDelay","crawler");
-	private final int rtcMaxPagesToFetch = rtc.getIntValue("WcSearchLimit","crawler");
-	private final int rtcMaxLinkDepth = rtc.getIntValue("WcMaxDepth","crawler");
+	private final int rtcMaxPagesLimit = rtc.getIntValue("WcMaxPagesLimit","crawler");
+	private final int rtcMaxLinkDepth = rtc.getIntValue("WcMaxLinkDepth","crawler");
 	private final int rtcCrawlerThreadingPoolSize = rtc.getIntValue("CrawlerThreadingPoolSize", "thrading");
 	
 	private final String constraintTermText = rtc.getStringValue("ConstraintTermText", "XmlLayout");
-	private final String constraintLangText = rtc.getStringValue("ConstraintLanguageText", "XmlLayout");
-	private final String constraintUserText = rtc.getStringValue("ConstraintUserText", "XmlLayout");
+	//private final String constraintLangText = rtc.getStringValue("ConstraintLanguageText", "XmlLayout");
+	//private final String constraintUserText = rtc.getStringValue("ConstraintUserText", "XmlLayout");
 	private final String constraintSiteText = rtc.getStringValue("ConstraintSiteText", "XmlLayout");
 	private final String constraintDnsDomainText = rtc.getStringValue("ConstraintDnsDomainText", "XmlLayout");
 	//private final String constraintLocaText = rtc.getStringValue("ConstraintLocationText", "XmlLayout");
@@ -131,7 +130,7 @@ public class THEWebCrawlerController implements Job {
 					CrawlConfig config1 = new CrawlConfig();
 					config1.setCrawlStorageFolder(crawlStorageFolder + File.separatorChar + "crawler1");
 					config1.setPolitenessDelay(rtcPolitenessDelay);
-					config1.setMaxPagesToFetch(rtcMaxPagesToFetch);
+					config1.setMaxPagesToFetch(rtcMaxPagesLimit);
 					config1.setMaxDepthOfCrawling(rtcMaxLinkDepth);
 					config1.setResumableCrawling(true);
 					PageFetcher pageFetcher1 = new PageFetcher(config1);
@@ -167,19 +166,25 @@ public class THEWebCrawlerController implements Job {
 					
 					
 					for (int i=0;i<tSites1.size();i++){
-						logger.trace("crawler1: adding site {} ax seed", tSites1.get(i));
+						logger.trace("crawler1: adding seed url {}", tSites1.get(i));
 						controller1.addSeed(tSites1.get(i));
 					}
 					// start the crawler and give it the number of threads	
 					controller1.startNonBlocking(THEWebCrawler.class, rtcCrawlerThreadingPoolSize);
 					controller1.waitUntilFinish();
-					List<Object> crawler1Data = controller1.getCrawlersLocalData();
-					logger.debug("we got {} data back", crawler1Data.size());
+					try {
+						List<Object> crawler1Data = controller1.getCrawlersLocalData();
+						logger.debug("we got {} elements back", crawler1Data.size());
+						for (int li=0; li<crawler1Data.size(); li++)
+							logger.trace("data >>> {}", crawler1Data.get(li).toString());
+					} catch (java.lang.NullPointerException e) {
+						logger.warn("no data received from crawler1 {} - this can be ignored", THEWebCrawler.class.getName());
+					}
 					
 					
 					
-					
-					/* two more crawlers which can run in parallel to the initial one 
+					/* 
+					 * two more crawlers which can run in parallel to the initial one 
 					 * could become handy in case we want to crawl multiple websites or
 					 * multiple domain of interests
 					CrawlConfig config2 = new CrawlConfig();
@@ -192,8 +197,8 @@ public class THEWebCrawlerController implements Job {
 					config2.setPolitenessDelay(rtcPolitenessDelay);
 					config3.setPolitenessDelay(rtcPolitenessDelay);
 					
-					config2.setMaxPagesToFetch(rtcMaxPagesToFetch);
-					config3.setMaxPagesToFetch(rtcMaxPagesToFetch);
+					config2.setMaxPagesToFetch(rtcMaxPagesLimit);
+					config3.setMaxPagesToFetch(rtcMaxPagesLimit);
 					
 					config2.setMaxDepthOfCrawling(rtcMaxLinkDepth);
 					config3.setMaxDepthOfCrawling(rtcMaxLinkDepth);
