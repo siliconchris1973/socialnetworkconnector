@@ -20,7 +20,7 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SNCStatusCodes;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
-import de.comlineag.snc.data.PostData;
+import de.comlineag.snc.data.PostingData;
 import de.comlineag.snc.data.UserData;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.DataCryptoHandler;
@@ -105,7 +105,7 @@ public class HANAPersistence implements IPersistenceManager {
 	/**
 	 * @description save a post from social network to the HANA DB
 	 * 
-	 * @param	PostData
+	 * @param	PostingData
 	 * 				<Property Name="domain" Type="Edm.String" Nullable="false" MaxLength="1024"/>
 	 * 				<Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"/>
 	 * 				<Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"/>
@@ -138,26 +138,26 @@ public class HANAPersistence implements IPersistenceManager {
 	 * @throws GenericCryptoException 
 	 * 
 	 */
-	public void savePosts(PostData postData) {
+	public void savePosts(PostingData postingData) {
 		logger.trace("savePosts called");
 		//logger.trace("    postData content " + postData.getAllContent());
 		
 		try {
 			// first check if the entry already exists
-			OEntity theData = returnOEntityHandler(postData.getSnId(), postData.getId(), "post");
+			OEntity theData = returnOEntityHandler(postingData.getSnId(), postingData.getId(), "post");
 			
 			// truncate all fields to maximum length allotted by HANA
-			setPostFieldLength(postData);
+			setPostFieldLength(postingData);
 			
 			// first check if the dataset is already in the database
 			if (theData == null) {
 				try{
 					// first try to save the data via jdbc, we do this by tryng to load the jdbc driver
 					Class.forName(this.dbDriver);
-					insertPostWithSQL(postData);
+					insertPostWithSQL(postingData);
 				} catch (java.lang.ClassNotFoundException le) {
 					// in case the jdbc library is not available, fall back to OData to save the post
-					insertPostWithOData(postData);
+					insertPostWithOData(postingData);
 				} 
 			// if record exists, update it...
 			} else {
@@ -165,10 +165,10 @@ public class HANAPersistence implements IPersistenceManager {
 				try{
 					// first try to update the data via jdbc
 					Class.forName(this.dbDriver);
-					updatePostWithSQL(postData);
+					updatePostWithSQL(postingData);
 				} catch (java.lang.ClassNotFoundException le) {
 					// in case the jdbc library is not available, fall back to OData to save the post
-					updatePostWithOData(postData, theData);
+					updatePostWithOData(postingData, theData);
 				} 
 			}
 		} catch (ClientHandlerException e) {
@@ -177,27 +177,27 @@ public class HANAPersistence implements IPersistenceManager {
 			
 			if (!rtc.getBooleanValue("CreatePostJsonOnError", "runtime")) {
 				logger.debug("insert failed - storing object in backup directory for later processing");
-				postData.setObjectStatus("fail");
+				postingData.setObjectStatus("fail");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
-				JsonFilePersistence failsave = new JsonFilePersistence(postData);
+				JsonFilePersistence failsave = new JsonFilePersistence(postingData);
 			}
 			
 			if (rtc.getBooleanValue("StopOnPersistenceFailure", "runtime"))
 				System.exit(SNCStatusCodes.FATAL.getErrorCode());
 		} catch (Exception le) {
 			// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
-			logger.error("EXCEPTION :: unforseen error condition processing post "+postData.getSnId()+"-"+postData.getId()+": " + le.getLocalizedMessage());
+			logger.error("EXCEPTION :: unforseen error condition processing post "+postingData.getSnId()+"-"+postingData.getId()+": " + le.getLocalizedMessage());
 			le.printStackTrace();
 			
 			if (rtc.getBooleanValue("CreatePostJsonOnError", "runtime")) {
 				logger.debug("insert failed - storing object in backup directory for later processing");
-				postData.setObjectStatus("fail");
+				postingData.setObjectStatus("fail");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
-				JsonFilePersistence failsave = new JsonFilePersistence(postData);
+				JsonFilePersistence failsave = new JsonFilePersistence(postingData);
 			}
 			
 			if (rtc.getBooleanValue("StopOnPersistenceFailure", "runtime"))
@@ -393,13 +393,13 @@ public class HANAPersistence implements IPersistenceManager {
 	/**
 	 * @description	insert the post with sql
 	 * 
-	 * @param 		PostData postData
+	 * @param 		PostingData postData
 	 */
-	private void insertPostWithSQL(PostData postData) {
-		logger.info("creating post "+postData.getSnId()+"-"+postData.getId());
+	private void insertPostWithSQL(PostingData postingData) {
+		logger.info("creating post "+postingData.getSnId()+"-"+postingData.getId());
 		
 		// static variant to set the truncated flag - which is not used anyway at the moment
-		int truncated = (postData.getTruncated()) ? 1 : 0;
+		int truncated = (postingData.getTruncated()) ? 1 : 0;
 		
 		try{
 			Class.forName(this.dbDriver);
@@ -453,49 +453,49 @@ public class HANAPersistence implements IPersistenceManager {
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			logger.trace("    SQL: "+sql);
 			
-			stmt.setString(1, postData.getDomain());
-			stmt.setString(2, postData.getSnId());
-			stmt.setLong(3, new Long(postData.getId()));
-			stmt.setLong(4,new Long(postData.getUserId()));
-			stmt.setTimestamp(5,new Timestamp((postData.getTimestamp().toDateTime(DateTimeZone.UTC)).getMillis() ));
-			stmt.setString(6, postData.getLang());
-			stmt.setString(7, dataCryptoProvider.encryptValue(postData.getText()));
-			stmt.setString(8, dataCryptoProvider.encryptValue(postData.getRawText()));
-			stmt.setString(9, dataCryptoProvider.encryptValue(postData.getTeaser()));
-			stmt.setString(10, dataCryptoProvider.encryptValue(postData.getSubject()));
-			stmt.setLong(11, postData.getViewCount());
-			stmt.setLong(12, postData.getFavoriteCount());
-			stmt.setString(13, postData.getClient());
+			stmt.setString(1, postingData.getDomain());
+			stmt.setString(2, postingData.getSnId());
+			stmt.setLong(3, new Long(postingData.getId()));
+			stmt.setLong(4,new Long(postingData.getUserId()));
+			stmt.setTimestamp(5,new Timestamp((postingData.getTimestamp().toDateTime(DateTimeZone.UTC)).getMillis() ));
+			stmt.setString(6, postingData.getLang());
+			stmt.setString(7, dataCryptoProvider.encryptValue(postingData.getText()));
+			stmt.setString(8, dataCryptoProvider.encryptValue(postingData.getRawText()));
+			stmt.setString(9, dataCryptoProvider.encryptValue(postingData.getTeaser()));
+			stmt.setString(10, dataCryptoProvider.encryptValue(postingData.getSubject()));
+			stmt.setLong(11, postingData.getViewCount());
+			stmt.setLong(12, postingData.getFavoriteCount());
+			stmt.setString(13, postingData.getClient());
 			stmt.setInt(14, truncated);
-			stmt.setLong(15, postData.getInReplyTo());
-			stmt.setLong(16, postData.getInReplyToUser());
-			stmt.setString(17, postData.getInReplyToUserScreenName());
-			stmt.setString(18, postData.getGeoLongitude());
-			stmt.setString(19, postData.getGeoLatitude());
-			stmt.setString(20, postData.getGeoPlaceId());
-			stmt.setString(21, postData.getGeoPlaceName());
-			stmt.setString(22, postData.getGeoPlaceCountry());
-			stmt.setString(23, postData.getGeoAroundLongitude());
-			stmt.setString(24, postData.getGeoAroundLatitude());
+			stmt.setLong(15, postingData.getInReplyTo());
+			stmt.setLong(16, postingData.getInReplyToUser());
+			stmt.setString(17, postingData.getInReplyToUserScreenName());
+			stmt.setString(18, postingData.getGeoLongitude());
+			stmt.setString(19, postingData.getGeoLatitude());
+			stmt.setString(20, postingData.getGeoPlaceId());
+			stmt.setString(21, postingData.getGeoPlaceName());
+			stmt.setString(22, postingData.getGeoPlaceCountry());
+			stmt.setString(23, postingData.getGeoAroundLongitude());
+			stmt.setString(24, postingData.getGeoAroundLatitude());
 			
 			@SuppressWarnings("unused")
 			int rowCount = stmt.executeUpdate();
 			
-			logger.info("post ("+postData.getSnId()+"-"+postData.getId()+") created");
+			logger.info("post ("+postingData.getSnId()+"-"+postingData.getId()+") created");
 			
 			stmt.close() ; conn.close() ;
 			
 			if (rtc.getBooleanValue("CreatePostJsonOnSuccess", "runtime")) {
-				postData.setObjectStatus("ok");
+				postingData.setObjectStatus("ok");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
-				JsonFilePersistence failsave = new JsonFilePersistence(postData);
+				JsonFilePersistence failsave = new JsonFilePersistence(postingData);
 			}
 		} catch (java.lang.ClassNotFoundException le) {
 			logger.warn("jdbc not available - this should normally not happen, as jdbc is checked before calling this method");
 		} catch (SQLException le){
-			logger.error("EXCEPTION :: JDBC call failed, post ("+postData.getSnId()+"-"+postData.getId()+") not inserted " + le.getLocalizedMessage());
+			logger.error("EXCEPTION :: JDBC call failed, post ("+postingData.getSnId()+"-"+postingData.getId()+") not inserted " + le.getLocalizedMessage());
 			le.printStackTrace();
 			/*
 			if (rtc.getBooleanValue("CREATE_POST_JSON_ON_ERROR", "runtime")) {
@@ -514,13 +514,13 @@ public class HANAPersistence implements IPersistenceManager {
 	/**
 	 * @description	insert the post with OData
 	 * 
-	 * @param 		PostData postData
+	 * @param 		PostingData postData
 	 */
-	private void insertPostWithOData(PostData postData){
-		logger.info("creating post "+postData.getSnId()+"-"+postData.getId());
+	private void insertPostWithOData(PostingData postingData){
+		logger.info("creating post "+postingData.getSnId()+"-"+postingData.getId());
 		
 		// static variant to set the truncated flag - which is not used anyway at the moment
-		int truncated = (postData.getTruncated()) ? 1 : 0;
+		int truncated = (postingData.getTruncated()) ? 1 : 0;
 		
 		// in case the connection is NOT opened already, attempt to create an OData Consumer
 		if (postService == null) {
@@ -548,46 +548,46 @@ public class HANAPersistence implements IPersistenceManager {
 		OEntity newPost = null;
 		try {
 			postService.createEntity("post")
-					.properties(OProperties.string("domain", postData.getDomain()))
-					.properties(OProperties.string("sn_id", postData.getSnId()))
-					.properties(OProperties.string("post_id", postData.getId()))
-					.properties(OProperties.string("user_id", postData.getUserId()))
-					.properties(OProperties.datetime("timestamp", postData.getTimestamp()))
-					.properties(OProperties.string("postLang", postData.getLang()))
+					.properties(OProperties.string("domain", postingData.getDomain()))
+					.properties(OProperties.string("sn_id", postingData.getSnId()))
+					.properties(OProperties.string("post_id", postingData.getId()))
+					.properties(OProperties.string("user_id", postingData.getUserId()))
+					.properties(OProperties.datetime("timestamp", postingData.getTimestamp()))
+					.properties(OProperties.string("postLang", postingData.getLang()))
 					
-					.properties(OProperties.string("text", dataCryptoProvider.encryptValue(postData.getText())))
-					.properties(OProperties.string("raw_text", dataCryptoProvider.encryptValue(postData.getRawText())))
-					.properties(OProperties.string("teaser", dataCryptoProvider.encryptValue(postData.getTeaser())))
-					.properties(OProperties.string("subject", dataCryptoProvider.encryptValue(postData.getSubject())))
+					.properties(OProperties.string("text", dataCryptoProvider.encryptValue(postingData.getText())))
+					.properties(OProperties.string("raw_text", dataCryptoProvider.encryptValue(postingData.getRawText())))
+					.properties(OProperties.string("teaser", dataCryptoProvider.encryptValue(postingData.getTeaser())))
+					.properties(OProperties.string("subject", dataCryptoProvider.encryptValue(postingData.getSubject())))
 					
-					.properties(OProperties.int64("viewcount", new Long(postData.getViewCount())))
-					.properties(OProperties.int64("favoritecount", new Long(postData.getFavoriteCount())))
+					.properties(OProperties.int64("viewcount", new Long(postingData.getViewCount())))
+					.properties(OProperties.int64("favoritecount", new Long(postingData.getFavoriteCount())))
 					
-					.properties(OProperties.string("client", postData.getClient()))
+					.properties(OProperties.string("client", postingData.getClient()))
 					.properties(OProperties.int32("truncated", new Integer(truncated)))
 
-					.properties(OProperties.int64("inReplyTo", postData.getInReplyTo()))
-					.properties(OProperties.int64("inReplyToUserID", postData.getInReplyToUser()))
-					.properties(OProperties.string("inReplyToScreenName", postData.getInReplyToUserScreenName()))
+					.properties(OProperties.int64("inReplyTo", postingData.getInReplyTo()))
+					.properties(OProperties.int64("inReplyToUserID", postingData.getInReplyToUser()))
+					.properties(OProperties.string("inReplyToScreenName", postingData.getInReplyToUserScreenName()))
 					
-					.properties(OProperties.string("geoLocation_longitude", postData.getGeoLongitude()))
-					.properties(OProperties.string("geoLocation_latitude", postData.getGeoLatitude()))
-					.properties(OProperties.string("placeID", postData.getGeoPlaceId()))
-					.properties(OProperties.string("plName",  postData.getGeoPlaceName()))
-					.properties(OProperties.string("plCountry", postData.getGeoPlaceCountry()))
-					.properties(OProperties.string("plAround_longitude", postData.getGeoAroundLongitude()))
-					.properties(OProperties.string("plAround_latitude", postData.getGeoAroundLatitude()))
+					.properties(OProperties.string("geoLocation_longitude", postingData.getGeoLongitude()))
+					.properties(OProperties.string("geoLocation_latitude", postingData.getGeoLatitude()))
+					.properties(OProperties.string("placeID", postingData.getGeoPlaceId()))
+					.properties(OProperties.string("plName",  postingData.getGeoPlaceName()))
+					.properties(OProperties.string("plCountry", postingData.getGeoPlaceCountry()))
+					.properties(OProperties.string("plAround_longitude", postingData.getGeoAroundLongitude()))
+					.properties(OProperties.string("plAround_latitude", postingData.getGeoAroundLatitude()))
 					
 					.execute();
 			
-			logger.info("post ("+postData.getSnId()+"-"+postData.getId()+") created");
+			logger.info("post ("+postingData.getSnId()+"-"+postingData.getId()+") created");
 			
 			if (rtc.getBooleanValue("CreatePostJsonOnSuccess", "runtime")) {
-				postData.setObjectStatus("ok");
+				postingData.setObjectStatus("ok");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
-				JsonFilePersistence failsave = new JsonFilePersistence(postData);
+				JsonFilePersistence failsave = new JsonFilePersistence(postingData);
 			}
 			
 		/*
@@ -600,16 +600,16 @@ public class HANAPersistence implements IPersistenceManager {
 		 * 			</error>
 		 */
 		} catch (RuntimeException e) {
-			logger.error("EXCEPTION :: could not create post ("+postData.getSnId()+"-"+postData.getId()+"): " + e.getLocalizedMessage());
+			logger.error("EXCEPTION :: could not create post ("+postingData.getSnId()+"-"+postingData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
 			
 			if (rtc.getBooleanValue("CreatePostJsonOnError", "runtime")) {
 				logger.debug("insert failed - storing object in backup directory for later processing");
-				postData.setObjectStatus("fail");
+				postingData.setObjectStatus("fail");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
-				JsonFilePersistence failsave = new JsonFilePersistence(postData);
+				JsonFilePersistence failsave = new JsonFilePersistence(postingData);
 			}
 		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
@@ -796,12 +796,12 @@ public class HANAPersistence implements IPersistenceManager {
 	/**
 	 * @description	update post with sql
 	 * 
-	 * @param 		postData
+	 * @param 		postingData
 	 */
-	private void updatePostWithSQL(PostData postData) {
-		logger.info("updating post "+postData.getSnId()+"-"+postData.getId());
+	private void updatePostWithSQL(PostingData postingData) {
+		logger.info("updating post "+postingData.getSnId()+"-"+postingData.getId());
 		// static variant to set the truncated flag - which is not used anyway at the moment
-		int truncated = (postData.getTruncated()) ? 1 : 0;
+		int truncated = (postingData.getTruncated()) ? 1 : 0;
 		
 		try{
 			Class.forName(this.dbDriver);
@@ -850,51 +850,51 @@ public class HANAPersistence implements IPersistenceManager {
 					+ "WHERE (\"sn_id\" = ? AND \"post_id\" = ?)";					
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			
-			stmt.setString(1, postData.getDomain());
-			stmt.setLong(2,new Long(postData.getUserId()));
-			stmt.setTimestamp(3,new Timestamp((postData.getTimestamp().toDateTime(DateTimeZone.UTC)).getMillis() ));
-			stmt.setString(4, postData.getLang());
-			stmt.setString(5, dataCryptoProvider.encryptValue(postData.getText()));
-			stmt.setString(6, dataCryptoProvider.encryptValue(postData.getRawText()));
-			stmt.setString(7, dataCryptoProvider.encryptValue(postData.getTeaser()));
-			stmt.setString(8, dataCryptoProvider.encryptValue(postData.getSubject()));
-			stmt.setLong(9, postData.getViewCount());
-			stmt.setLong(10, postData.getFavoriteCount());
-			stmt.setString(11, postData.getClient());
+			stmt.setString(1, postingData.getDomain());
+			stmt.setLong(2,new Long(postingData.getUserId()));
+			stmt.setTimestamp(3,new Timestamp((postingData.getTimestamp().toDateTime(DateTimeZone.UTC)).getMillis() ));
+			stmt.setString(4, postingData.getLang());
+			stmt.setString(5, dataCryptoProvider.encryptValue(postingData.getText()));
+			stmt.setString(6, dataCryptoProvider.encryptValue(postingData.getRawText()));
+			stmt.setString(7, dataCryptoProvider.encryptValue(postingData.getTeaser()));
+			stmt.setString(8, dataCryptoProvider.encryptValue(postingData.getSubject()));
+			stmt.setLong(9, postingData.getViewCount());
+			stmt.setLong(10, postingData.getFavoriteCount());
+			stmt.setString(11, postingData.getClient());
 			stmt.setInt(12, truncated);
-			stmt.setLong(13, postData.getInReplyTo());
-			stmt.setLong(14, postData.getInReplyToUser());
-			stmt.setString(15, postData.getInReplyToUserScreenName());
-			stmt.setString(16, postData.getGeoLongitude());
-			stmt.setString(17, postData.getGeoLatitude());
-			stmt.setString(18, postData.getGeoPlaceId());
-			stmt.setString(19, postData.getGeoPlaceName());
-			stmt.setString(20, postData.getGeoPlaceCountry());
-			stmt.setString(21, postData.getGeoAroundLongitude());
-			stmt.setString(22, postData.getGeoAroundLatitude());
-			stmt.setString(23, postData.getSnId());
-			stmt.setLong(24, new Long(postData.getId()));
+			stmt.setLong(13, postingData.getInReplyTo());
+			stmt.setLong(14, postingData.getInReplyToUser());
+			stmt.setString(15, postingData.getInReplyToUserScreenName());
+			stmt.setString(16, postingData.getGeoLongitude());
+			stmt.setString(17, postingData.getGeoLatitude());
+			stmt.setString(18, postingData.getGeoPlaceId());
+			stmt.setString(19, postingData.getGeoPlaceName());
+			stmt.setString(20, postingData.getGeoPlaceCountry());
+			stmt.setString(21, postingData.getGeoAroundLongitude());
+			stmt.setString(22, postingData.getGeoAroundLatitude());
+			stmt.setString(23, postingData.getSnId());
+			stmt.setLong(24, new Long(postingData.getId()));
 			
 			logger.trace("SQL: "+sql);
 			
 			@SuppressWarnings("unused")
 			int rowCount = stmt.executeUpdate();
 			
-			logger.debug("post ("+postData.getSnId()+"-"+postData.getId()+") updated");
+			logger.debug("post ("+postingData.getSnId()+"-"+postingData.getId()+") updated");
 			
 			stmt.close() ; conn.close() ;
 			
 			if (rtc.getBooleanValue("CreatePostJsonOnSuccess", "runtime")){
-				postData.setObjectStatus("ok");
+				postingData.setObjectStatus("ok");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
-				JsonFilePersistence failsave = new JsonFilePersistence(postData);
+				JsonFilePersistence failsave = new JsonFilePersistence(postingData);
 			}
 		} catch (java.lang.ClassNotFoundException le) {
 			logger.warn("jdbc not available - this should normally not happen, as jdbc is checked before calling this method");
 		} catch (SQLException le){
-			logger.error("EXCEPTION :: JDBC call failed, post ("+postData.getSnId()+"-"+postData.getId()+") not inserted " + le.getLocalizedMessage());
+			logger.error("EXCEPTION :: JDBC call failed, post ("+postingData.getSnId()+"-"+postingData.getId()+") not inserted " + le.getLocalizedMessage());
 			le.printStackTrace();
 			/*
 			if (rtc.getBooleanValue("CREATE_POST_JSON_ON_ERROR()){
@@ -913,11 +913,11 @@ public class HANAPersistence implements IPersistenceManager {
 	/**
 	 * @description	update post with OData
 	 * 
-	 * @param 		PostData postData
+	 * @param 		PostingData postData
 	 * @param		OEntity thePostEntity
 	 */
-	private void updatePostWithOData(PostData postData, OEntity thePostEntity){
-		logger.info("updating post "+postData.getSnId()+"-"+postData.getId());
+	private void updatePostWithOData(PostingData postingData, OEntity thePostEntity){
+		logger.info("updating post "+postingData.getSnId()+"-"+postingData.getId());
 
 		// this is just example code to show, how to interact with the CryptoProvider enum
 		//String desiredStrength = "low";
@@ -925,7 +925,7 @@ public class HANAPersistence implements IPersistenceManager {
 		//logger.trace("determined " + cryptoProviderToUse.getName() + " to be the best suited provider for desired strength " + desiredStrength);
 		
 		// static variant to set the truncated flag - which is not used anyway at the moment
-		int truncated = (postData.getTruncated()) ? 1 : 0;
+		int truncated = (postingData.getTruncated()) ? 1 : 0;
 		
 		// in case the connection is NOT opened already, attempt to create an OData Consumer
 		if (postService == null) {
@@ -954,44 +954,44 @@ public class HANAPersistence implements IPersistenceManager {
 			postService.updateEntity(thePostEntity) 
 					//.properties(OProperties.string("sn_id", postData.getSnId()))
 					//.properties(OProperties.string("post_id", new String(new Long(postData.getId()).toString())))
-					.properties(OProperties.string("domain", postData.getDomain()))
-					.properties(OProperties.string("user_id", postData.getUserId()))
-					.properties(OProperties.datetime("timestamp", postData.getTimestamp()))
-					.properties(OProperties.string("postLang", postData.getLang()))
+					.properties(OProperties.string("domain", postingData.getDomain()))
+					.properties(OProperties.string("user_id", postingData.getUserId()))
+					.properties(OProperties.datetime("timestamp", postingData.getTimestamp()))
+					.properties(OProperties.string("postLang", postingData.getLang()))
 					
-					.properties(OProperties.string("text", dataCryptoProvider.encryptValue(postData.getText())))
-					.properties(OProperties.string("raw_text", dataCryptoProvider.encryptValue(postData.getRawText())))
-					.properties(OProperties.string("teaser", dataCryptoProvider.encryptValue(postData.getTeaser())))
-					.properties(OProperties.string("subject", dataCryptoProvider.encryptValue(postData.getSubject())))
+					.properties(OProperties.string("text", dataCryptoProvider.encryptValue(postingData.getText())))
+					.properties(OProperties.string("raw_text", dataCryptoProvider.encryptValue(postingData.getRawText())))
+					.properties(OProperties.string("teaser", dataCryptoProvider.encryptValue(postingData.getTeaser())))
+					.properties(OProperties.string("subject", dataCryptoProvider.encryptValue(postingData.getSubject())))
 					
-					.properties(OProperties.int64("viewcount", new Long(postData.getViewCount())))
-					.properties(OProperties.int64("favoritecount", new Long(postData.getFavoriteCount())))
+					.properties(OProperties.int64("viewcount", new Long(postingData.getViewCount())))
+					.properties(OProperties.int64("favoritecount", new Long(postingData.getFavoriteCount())))
 					
-					.properties(OProperties.string("client", postData.getClient()))
+					.properties(OProperties.string("client", postingData.getClient()))
 					.properties(OProperties.int32("truncated", new Integer(truncated)))
 
-					.properties(OProperties.int64("inReplyTo", postData.getInReplyTo()))
-					.properties(OProperties.int64("inReplyToUserID", postData.getInReplyToUser()))
-					.properties(OProperties.string("inReplyToScreenName", postData.getInReplyToUserScreenName()))
+					.properties(OProperties.int64("inReplyTo", postingData.getInReplyTo()))
+					.properties(OProperties.int64("inReplyToUserID", postingData.getInReplyToUser()))
+					.properties(OProperties.string("inReplyToScreenName", postingData.getInReplyToUserScreenName()))
 					
-					.properties(OProperties.string("geoLocation_longitude", postData.getGeoLongitude()))
-					.properties(OProperties.string("geoLocation_latitude", postData.getGeoLatitude()))
-					.properties(OProperties.string("placeID", postData.getGeoPlaceId()))
-					.properties(OProperties.string("plName",  postData.getGeoPlaceName()))
-					.properties(OProperties.string("plCountry", postData.getGeoPlaceCountry()))
-					.properties(OProperties.string("plAround_longitude", postData.getGeoAroundLongitude()))
-					.properties(OProperties.string("plAround_latitude", postData.getGeoAroundLatitude()))
+					.properties(OProperties.string("geoLocation_longitude", postingData.getGeoLongitude()))
+					.properties(OProperties.string("geoLocation_latitude", postingData.getGeoLatitude()))
+					.properties(OProperties.string("placeID", postingData.getGeoPlaceId()))
+					.properties(OProperties.string("plName",  postingData.getGeoPlaceName()))
+					.properties(OProperties.string("plCountry", postingData.getGeoPlaceCountry()))
+					.properties(OProperties.string("plAround_longitude", postingData.getGeoAroundLongitude()))
+					.properties(OProperties.string("plAround_latitude", postingData.getGeoAroundLatitude()))
 					
 					.execute();
 			
-			logger.debug("post ("+postData.getSnId()+"-"+postData.getId()+") updated");
+			logger.debug("post ("+postingData.getSnId()+"-"+postingData.getId()+") updated");
 			
 			if (rtc.getBooleanValue("CreatePostJsonOnSuccess", "runtime")){
-				postData.setObjectStatus("ok");
+				postingData.setObjectStatus("ok");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
-				JsonFilePersistence failsave = new JsonFilePersistence(postData);
+				JsonFilePersistence failsave = new JsonFilePersistence(postingData);
 			}
 			
 		/*
@@ -1004,16 +1004,16 @@ public class HANAPersistence implements IPersistenceManager {
 		 * 			</error>
 		 */
 		} catch (RuntimeException e) {
-			logger.error("EXCEPTION :: could not update post ("+postData.getSnId()+"-"+postData.getId()+"): " + e.getLocalizedMessage());
+			logger.error("EXCEPTION :: could not update post ("+postingData.getSnId()+"-"+postingData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
 			
 			if (rtc.getBooleanValue("CreatePostJsonOnError", "runtime")){
 				logger.debug("update failed - storing object in backup directory for later processing");
-				postData.setObjectStatus("fail");
+				postingData.setObjectStatus("fail");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
 				@SuppressWarnings("unused")
-				JsonFilePersistence failsave = new JsonFilePersistence(postData);
+				JsonFilePersistence failsave = new JsonFilePersistence(postingData);
 			}
 		} catch (GenericCryptoException e) {
 			logger.error("EXCEPTION :: could not on-the-fly encrypt data with " + dataCryptoProvider.getCryptoProviderName() + ": " + e.getMessage(), e);
@@ -1203,57 +1203,57 @@ public class HANAPersistence implements IPersistenceManager {
 	 * 
 	 * @description	truncates fields of post data to the maximum length allowed by HANA DB
 	 * 
-	 * @param 		postData
+	 * @param 		postingData
 	 * 
 	 */
-	private void setPostFieldLength(PostData postData){
-		if (postData.getText() != null && postData.getText().length()>HanaDataConstants.POSTING_TEXT_SIZE) {
-			logger.warn("truncating text of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.POSTING_TEXT_SIZE);
-			postData.setText(postData.getText().substring(0, HanaDataConstants.POSTING_TEXT_SIZE));
-			logger.debug("     truncated text now has " + postData.getText().length() + " characters");
-			postData.setTruncated(true);
+	private void setPostFieldLength(PostingData postingData){
+		if (postingData.getText() != null && postingData.getText().length()>HanaDataConstants.POSTING_TEXT_SIZE) {
+			logger.warn("truncating text of " + postingData.getSnId()+"-"+postingData.getId() + " to " + HanaDataConstants.POSTING_TEXT_SIZE);
+			postingData.setText(postingData.getText().substring(0, HanaDataConstants.POSTING_TEXT_SIZE));
+			logger.debug("     truncated text now has " + postingData.getText().length() + " characters");
+			postingData.setTruncated(true);
 		}
-		if (postData.getRawText() != null && postData.getRawText().length()>HanaDataConstants.POSTING_TEXT_SIZE) {
-			logger.warn("truncating raw text of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.POSTING_TEXT_SIZE);
+		if (postingData.getRawText() != null && postingData.getRawText().length()>HanaDataConstants.POSTING_TEXT_SIZE) {
+			logger.warn("truncating raw text of " + postingData.getSnId()+"-"+postingData.getId() + " to " + HanaDataConstants.POSTING_TEXT_SIZE);
 			
-			postData.setRawText((String) StringServices.htmlTruncator(postData.getRawText().substring(0, (HanaDataConstants.POSTING_TEXT_SIZE-20)), (HanaDataConstants.POSTING_TEXT_SIZE-1)));
-			logger.debug("     truncated raw text now has " + postData.getRawText().length() + " characters");
+			postingData.setRawText((String) StringServices.htmlTruncator(postingData.getRawText().substring(0, (HanaDataConstants.POSTING_TEXT_SIZE-20)), (HanaDataConstants.POSTING_TEXT_SIZE-1)));
+			logger.debug("     truncated raw text now has " + postingData.getRawText().length() + " characters");
 		}
-		if (postData.getTeaser() != null && postData.getTeaser().length()>HanaDataConstants.TEASER_TEXT_SIZE) {
-			logger.debug("truncating teaser of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.TEASER_TEXT_SIZE);
-			postData.setTeaser(postData.getTeaser().substring(0, HanaDataConstants.TEASER_TEXT_SIZE));
+		if (postingData.getTeaser() != null && postingData.getTeaser().length()>HanaDataConstants.TEASER_TEXT_SIZE) {
+			logger.debug("truncating teaser of " + postingData.getSnId()+"-"+postingData.getId() + " to " + HanaDataConstants.TEASER_TEXT_SIZE);
+			postingData.setTeaser(postingData.getTeaser().substring(0, HanaDataConstants.TEASER_TEXT_SIZE));
 		}
-		if (postData.getSubject() != null && postData.getSubject().length()>HanaDataConstants.SUBJECT_TEXT_SIZE) {
-			logger.debug("truncating subject of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.SUBJECT_TEXT_SIZE);
-			postData.setSubject(postData.getSubject().substring(0, HanaDataConstants.SUBJECT_TEXT_SIZE));
+		if (postingData.getSubject() != null && postingData.getSubject().length()>HanaDataConstants.SUBJECT_TEXT_SIZE) {
+			logger.debug("truncating subject of " + postingData.getSnId()+"-"+postingData.getId() + " to " + HanaDataConstants.SUBJECT_TEXT_SIZE);
+			postingData.setSubject(postingData.getSubject().substring(0, HanaDataConstants.SUBJECT_TEXT_SIZE));
 		}
-		if (postData.getLang() != null && postData.getLang().length()>HanaDataConstants.POSTLANG_TEXT_SIZE) {
-			logger.warn("truncating language of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.POSTLANG_TEXT_SIZE + "! This is probably bad.");
-			postData.setLang(postData.getLang().substring(0, HanaDataConstants.POSTLANG_TEXT_SIZE));
+		if (postingData.getLang() != null && postingData.getLang().length()>HanaDataConstants.POSTLANG_TEXT_SIZE) {
+			logger.warn("truncating language of " + postingData.getSnId()+"-"+postingData.getId() + " to " + HanaDataConstants.POSTLANG_TEXT_SIZE + "! This is probably bad.");
+			postingData.setLang(postingData.getLang().substring(0, HanaDataConstants.POSTLANG_TEXT_SIZE));
 		}
-		if (postData.getGeoLongitude() != null && postData.getGeoLongitude().length()>HanaDataConstants.LONGITUDE_TEXT_SIZE) {
-			logger.warn("truncating geo longitude of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.LONGITUDE_TEXT_SIZE + "! This is probably bad.");
-			postData.setGeoLongitude(postData.getGeoLongitude().substring(0, HanaDataConstants.LONGITUDE_TEXT_SIZE));
+		if (postingData.getGeoLongitude() != null && postingData.getGeoLongitude().length()>HanaDataConstants.LONGITUDE_TEXT_SIZE) {
+			logger.warn("truncating geo longitude of " + postingData.getSnId()+"-"+postingData.getId() + " to " + HanaDataConstants.LONGITUDE_TEXT_SIZE + "! This is probably bad.");
+			postingData.setGeoLongitude(postingData.getGeoLongitude().substring(0, HanaDataConstants.LONGITUDE_TEXT_SIZE));
 		}
-		if (postData.getGeoLatitude() != null && postData.getGeoLatitude().length()>HanaDataConstants.LATITUDE_TEXT_SIZE) {
-			logger.warn("truncating geo latitude of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.LATITUDE_TEXT_SIZE + "! This is probably bad.");
-			postData.setGeoLatitude(postData.getGeoLatitude().substring(0, HanaDataConstants.LATITUDE_TEXT_SIZE));
+		if (postingData.getGeoLatitude() != null && postingData.getGeoLatitude().length()>HanaDataConstants.LATITUDE_TEXT_SIZE) {
+			logger.warn("truncating geo latitude of " + postingData.getSnId()+"-"+postingData.getId() + " to " + HanaDataConstants.LATITUDE_TEXT_SIZE + "! This is probably bad.");
+			postingData.setGeoLatitude(postingData.getGeoLatitude().substring(0, HanaDataConstants.LATITUDE_TEXT_SIZE));
 		}
-		if (postData.getClient() != null && postData.getClient().length()>HanaDataConstants.CLIENT_TEXT_SIZE) {
-			logger.warn("truncating client of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.CLIENT_TEXT_SIZE);
-			postData.setClient(postData.getClient().substring(0, HanaDataConstants.CLIENT_TEXT_SIZE));
+		if (postingData.getClient() != null && postingData.getClient().length()>HanaDataConstants.CLIENT_TEXT_SIZE) {
+			logger.warn("truncating client of " + postingData.getSnId()+"-"+postingData.getId() + " to " + HanaDataConstants.CLIENT_TEXT_SIZE);
+			postingData.setClient(postingData.getClient().substring(0, HanaDataConstants.CLIENT_TEXT_SIZE));
 		}
-		if (postData.getInReplyToUserScreenName() != null && postData.getInReplyToUserScreenName().length()>HanaDataConstants.INREPLYTOSCREENNAME_TEXT_SIZE) {
-			logger.warn("truncating in_reply_to_user_screenname of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.INREPLYTOSCREENNAME_TEXT_SIZE);
-			postData.setInReplyToUserScreenName(postData.getInReplyToUserScreenName().substring(0, HanaDataConstants.INREPLYTOSCREENNAME_TEXT_SIZE));
+		if (postingData.getInReplyToUserScreenName() != null && postingData.getInReplyToUserScreenName().length()>HanaDataConstants.INREPLYTOSCREENNAME_TEXT_SIZE) {
+			logger.warn("truncating in_reply_to_user_screenname of " + postingData.getSnId()+"-"+postingData.getId() + " to " + HanaDataConstants.INREPLYTOSCREENNAME_TEXT_SIZE);
+			postingData.setInReplyToUserScreenName(postingData.getInReplyToUserScreenName().substring(0, HanaDataConstants.INREPLYTOSCREENNAME_TEXT_SIZE));
 		}
-		if (postData.getGeoPlaceName() != null && postData.getGeoPlaceName().length()>HanaDataConstants.PLNAME_TEXT_SIZE) {
-			logger.warn("truncating geo place name of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.PLNAME_TEXT_SIZE);
-			postData.setGeoPlaceName(postData.getGeoPlaceName().substring(0, HanaDataConstants.PLNAME_TEXT_SIZE));
+		if (postingData.getGeoPlaceName() != null && postingData.getGeoPlaceName().length()>HanaDataConstants.PLNAME_TEXT_SIZE) {
+			logger.warn("truncating geo place name of " + postingData.getSnId()+"-"+postingData.getId() + " to " + HanaDataConstants.PLNAME_TEXT_SIZE);
+			postingData.setGeoPlaceName(postingData.getGeoPlaceName().substring(0, HanaDataConstants.PLNAME_TEXT_SIZE));
 		}
-		if (postData.getGeoPlaceCountry() != null && postData.getGeoPlaceCountry().length()>HanaDataConstants.PLCOUNTRY_TEXT_SIZE) {
-			logger.warn("truncating geo country of " + postData.getSnId()+"-"+postData.getId() + " to " + HanaDataConstants.PLCOUNTRY_TEXT_SIZE);
-			postData.setGeoPlaceCountry(postData.getGeoPlaceCountry().substring(0, HanaDataConstants.PLCOUNTRY_TEXT_SIZE));
+		if (postingData.getGeoPlaceCountry() != null && postingData.getGeoPlaceCountry().length()>HanaDataConstants.PLCOUNTRY_TEXT_SIZE) {
+			logger.warn("truncating geo country of " + postingData.getSnId()+"-"+postingData.getId() + " to " + HanaDataConstants.PLCOUNTRY_TEXT_SIZE);
+			postingData.setGeoPlaceCountry(postingData.getGeoPlaceCountry().substring(0, HanaDataConstants.PLCOUNTRY_TEXT_SIZE));
 		}
 	}
 	/**

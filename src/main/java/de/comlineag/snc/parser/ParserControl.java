@@ -24,7 +24,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
-import de.comlineag.snc.handler.SimpleWebPosting;
+import de.comlineag.snc.handler.WebPosting;
 import de.comlineag.snc.parser.IWebParser;
 
 /**
@@ -109,7 +109,7 @@ public class ParserControl {
 	 * @throws IOException 
 	 * 
 	 */
-	public static List<SimpleWebPosting> submit(String page, URL url, ArrayList<String> tTerms, String sn_id, String curCustomer, String curDomain) 
+	public static List<WebPosting> submit(String page, URL url, ArrayList<String> tTerms, String sn_id, String curCustomer, String curDomain) 
 			throws XPathExpressionException, ParserConfigurationException, SAXException, IOException{
 		pc = getInstance();
 		

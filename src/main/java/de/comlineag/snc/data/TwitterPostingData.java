@@ -65,7 +65,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  * @TODO 3. create code for mentions
  */
 
-public final class TwitterPostingData extends PostData {
+public final class TwitterPostingData extends PostingData {
 
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());

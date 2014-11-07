@@ -37,8 +37,8 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
-import de.comlineag.snc.handler.SimpleWebPosting;
-import de.comlineag.snc.handler.SimpleWebUser;
+import de.comlineag.snc.handler.WebPosting;
+import de.comlineag.snc.handler.WebUser;
 import de.comlineag.snc.parser.ParserControl;
 
 
@@ -95,7 +95,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	
 	// the list of postings (extracts from web pages crawled) is stored in here 
 	// and then handed over, one by one, to the persistence layer
-	List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
+	List<WebPosting> postings = new ArrayList<WebPosting>();
 	
 	
 	private final boolean rtcWarnOnRejectedActions = rtc.getBooleanValue("WarnOnRejectedActions", "crawler");
@@ -470,10 +470,10 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							
 							setPostsTracked(realRelevantPages);
 							
-							SimpleWebPosting post = postings.get(ii);
+							WebPosting post = postings.get(ii);
 							
-							// first get the user-data out of the SimpleWebPosting
-							SimpleWebUser userData = new SimpleWebUser(post.getUser()); 
+							// first get the user-data out of the WebPosting
+							WebUser userData = new WebUser(post.getUser()); 
 							logger.info("calling persistence layer to save the user " );
 							userData.save();
 							
@@ -490,7 +490,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							if (rtc.isPERSISTENCE_THREADING_ENABLED()){
 								// execute persistence layer in a new thread, so that it does NOT block the crawler
 								logger.debug("execute persistence layer in a new thread...");
-								final SimpleWebPosting postT = postings.get(ii);
+								final WebPosting postT = postings.get(ii);
 								//if (!persistenceExecutor.isShutdown()) {
 								//	persistenceExecutor.submit(new Thread(new Runnable() {
 								//			
@@ -511,7 +511,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 								
 							} else {
 								// otherwise just call it sequentially
-								SimpleWebPosting post = postings.get(ii);
+								WebPosting post = postings.get(ii);
 								post.save();
 							}
 						}

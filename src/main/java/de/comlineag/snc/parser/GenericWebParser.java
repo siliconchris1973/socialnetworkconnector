@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 
-import de.comlineag.snc.handler.SimpleWebPosting;
+import de.comlineag.snc.handler.WebPosting;
 import de.comlineag.snc.helper.UniqueIdServices;
 
 
@@ -38,7 +38,7 @@ public abstract class GenericWebParser extends GenericParser implements IWebPars
 	
 	public GenericWebParser() {}
 
-	public abstract List<SimpleWebPosting> parse(String page, URL url, List<String> tokens, String sn_id, String curCustomer, String curDomain);
+	public abstract List<WebPosting> parse(String page, URL url, List<String> tokens, String sn_id, String curCustomer, String curDomain);
 	
 	
 	/**

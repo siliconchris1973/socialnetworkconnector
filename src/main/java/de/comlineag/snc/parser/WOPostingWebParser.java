@@ -21,7 +21,7 @@ import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.StartTag;
 import net.htmlparser.jericho.TextExtractor;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
-import de.comlineag.snc.handler.SimpleWebPosting;
+import de.comlineag.snc.handler.WebPosting;
 
 /**
  * 
@@ -33,7 +33,7 @@ import de.comlineag.snc.handler.SimpleWebPosting;
  * @description WOPostingWebParser is the implementation of the generic web parser for 
  * 				wallstreet-online discussion web sites.
  * 				It tries to get the relevant content out of a given wo-discussion site and returns a 
- * 				list of SimpleWebPosting objects with extracted page content to the crawler
+ * 				list of WebPosting objects with extracted page content to the crawler
  * 
  * @changelog	0.1 (Chris)		created as extraction fromSimpleWebParser version 0.7
  * 				0.2				implemented canExecute method
@@ -75,14 +75,14 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 	}
 	
 	@Override
-	public List<SimpleWebPosting> parse(String page, URL url, List<String> tokens, String sn_id, String curCustomer, String curDomain) {
+	public List<WebPosting> parse(String page, URL url, List<String> tokens, String sn_id, String curCustomer, String curDomain) {
 		String PARSER_NAME="Wallstreet Online Discussion";
 		Stopwatch timer = new Stopwatch().start();
 		
 		// log the startup message
 		logger.debug(PARSER_NAME + " parser START for url " + url.toString());
 		
-		List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
+		List<WebPosting> postings = new ArrayList<WebPosting>();
 		
 		// a single page
 		String master_page_id = null;
@@ -152,7 +152,7 @@ public final class WOPostingWebParser extends GenericWebParser implements IWebPa
 					// add the parsed site to the message list for saving in the DB
 					JSONObject pageJson = createPageJsonObject(sn_id, title, description, plainText, text, created_at, url, truncated, page_lang, page_id, user_id, user_name, screen_name, user_lang, postings_count, curCustomer, curDomain);
 					logger.trace("created json is {}", pageJson.toString());
-					SimpleWebPosting parsedPageSimpleWebPosting = new SimpleWebPosting(pageJson);
+					WebPosting parsedPageSimpleWebPosting = new WebPosting(pageJson);
 					postings.add(parsedPageSimpleWebPosting);
 				}
 			}

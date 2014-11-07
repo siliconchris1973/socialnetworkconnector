@@ -15,7 +15,7 @@ import de.comlineag.snc.persistence.IPersistenceManager;
  * 				It gets the active persistence manager (as defined in applicationContext.xml)
  * 				and passes it along to the actual data handler - like post and user data.
  * 				The implementation inherits its type safety via the <T> parameter, 
- * 				which is substituted by [SocialNetwork]PostData and [SocialNetwork]UserData  
+ * 				which is substituted by [SocialNetwork]PostingData and [SocialNetwork]UserData  
  * 
  * @param <T>
  * 

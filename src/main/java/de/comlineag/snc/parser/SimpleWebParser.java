@@ -23,7 +23,7 @@ import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.StartTag;
 import net.htmlparser.jericho.TextExtractor;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
-import de.comlineag.snc.handler.SimpleWebPosting;
+import de.comlineag.snc.handler.WebPosting;
 import de.comlineag.snc.helper.UniqueIdServices;
 
 
@@ -75,7 +75,7 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 	
 	
 	@Override
-	public List<SimpleWebPosting> parse(String page, URL url, List<String> tokens, String sn_id, String curCustomer, String curDomain) {
+	public List<WebPosting> parse(String page, URL url, List<String> tokens, String sn_id, String curCustomer, String curDomain) {
 		String PARSER_NAME="SimpleWebParser";
 		Stopwatch timer = new Stopwatch().start();
 		
@@ -83,11 +83,11 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 		logger.debug(PARSER_NAME + " parser START for url " + url.toString());
 		
 		JSONObject parsedPageJson = null;
-		List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
+		List<WebPosting> postings = new ArrayList<WebPosting>();
 		
 		try {
 			parsedPageJson = extractContent(page, url, tokens, sn_id, curCustomer, curDomain);
-			SimpleWebPosting parsedPageSimpleWebPosting = new SimpleWebPosting(parsedPageJson);
+			WebPosting parsedPageSimpleWebPosting = new WebPosting(parsedPageJson);
 			
 			logger.trace("PARSED PAGE AS JSON >>> " + parsedPageJson.toString());
 			

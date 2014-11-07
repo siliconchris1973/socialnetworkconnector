@@ -49,7 +49,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  * 
  */
 
-public final class WebPostingData extends PostData {
+public final class WebPostingData extends PostingData {
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	//private final RuntimeConfiguration configuration = new RuntimeConfiguration();

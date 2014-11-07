@@ -25,8 +25,8 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SNCStatusCodes;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
-import de.comlineag.snc.handler.SimpleWebPosting;
-import de.comlineag.snc.handler.SimpleWebUser;
+import de.comlineag.snc.handler.WebPosting;
+import de.comlineag.snc.handler.WebUser;
 import de.comlineag.snc.parser.ParserControl;
 import de.comlineag.snc.webcrawler.crawler.Page;
 import de.comlineag.snc.webcrawler.crawler.WebCrawler;
@@ -75,7 +75,7 @@ public class THEWebCrawler extends WebCrawler {
 	
 	// the list of postings (extracted from web pages crawled) is stored in here 
 	// and then handed over, one by one, to the persistence layer
-	List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
+	List<WebPosting> postings = new ArrayList<WebPosting>();
 	
 	// global settings from SNC_Runtime_Configuration-1.0.xml
 	private final boolean rtcWarnOnRejectedActions = rtc.getBooleanValue("WarnOnRejectedActions", "crawler");
@@ -194,15 +194,21 @@ public class THEWebCrawler extends WebCrawler {
 	@Override
 	public boolean shouldVisit(Page page, WebURL url) {
 		String href = url.getURL().toLowerCase();
+		URL checkURL = null;
+		try {
+			checkURL = new URL(href);
+		} catch (MalformedURLException e) {
+			logger.warn("given url {} is not a valid url", href);
+		} 
 		logger.debug("checking if url {} should be visited", href);
 		
 		if (FILTERS.matcher(href).matches()) {
-			logger.trace("rejecting url " + url.getPath() + " because it leads to a file on the black list");
+			logger.trace("rejecting (blacklist): url {} leads to a file on the blocklist", url.getPath());
 			return false;
 		}
 		
-		if (blockedURLs.containsKey(url)) {
-			logger.trace("rejecting url " + url + " because it is in the list of blocked urls");
+		if (blockedURLs.containsKey(checkURL)) {
+			logger.trace("rejecting (blocked urls): url {} is in the list of blocked urls", checkURL.toString());
 			return false;
 		}
 		
@@ -227,7 +233,7 @@ public class THEWebCrawler extends WebCrawler {
 		}
 		
 		if (rtcWarnOnRejectedActions)
-			logger.trace("rejecting url " + url.getDomain() + " because it is not on the initial given domains");
+			logger.trace("rejecting (initial domain): url {} is not on the initial given domains", url.getDomain());
 		return false;
 	}
 	
@@ -263,10 +269,10 @@ public class THEWebCrawler extends WebCrawler {
 					// invoke the persistence layer - should go to crawler
 					for (int ii = 0; ii < postings.size(); ii++) {
 						trackedPages++;
-						SimpleWebPosting postData = postings.get(ii);
+						WebPosting postData = postings.get(ii);
 						
-						// first get the user-data out of the SimpleWebPosting
-						SimpleWebUser userData = new SimpleWebUser(postData.getUser()); 
+						// first get the user-data out of the WebPosting
+						WebUser userData = new WebUser(postData.getUser()); 
 						logger.info("calling persistence layer to save the user ");
 						userData.save();
 						

@@ -23,7 +23,7 @@ import com.google.common.base.Stopwatch;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
-import de.comlineag.snc.data.PostData;
+import de.comlineag.snc.data.PostingData;
 import de.comlineag.snc.data.UserData;
 //import de.comlineag.snc.handler.DataCryptoHandler;
 import de.comlineag.snc.persistence.HANAPersistence;
@@ -69,7 +69,7 @@ public class FsCrawler implements Job {
     int userObjectsCount = 0;
     String networkCode = null;
     String networkName = null;
-    PostData pData = new PostData();
+    PostingData pData = new PostingData();
     UserData uData = new UserData();
     HANAPersistence hana = new HANAPersistence();
     
@@ -129,11 +129,11 @@ public class FsCrawler implements Job {
 							postObjectsCount++;
 							logger.trace("   content of file : " + jsonObject.toString());
 							
-							// now create a new PostData object from the json content of the file
+							// now create a new PostingData object from the json content of the file
 							setPostDataFromJson(jsonObject);
 							logger.trace(entryType + " data type initialized");
 								
-							// after creating a new PostData object from json content, store it in the persistence layer
+							// after creating a new PostingData object from json content, store it in the persistence layer
 							logger.info("initializing HANA DB to save post");
 							
 							// TODO make savePost generic to deal with different persistence managers at runtime
@@ -289,13 +289,13 @@ public class FsCrawler implements Job {
 	}
 	
 	/**
-	 * @description		initializes the PostData object from a json object
+	 * @description		initializes the PostingData object from a json object
 	 * 
 	 * @param 			jsonObject
-	 * @return			PostData object
+	 * @return			PostingData object
 	 */
 	private void setPostDataFromJson(JSONObject jsonObject){
-		logger.debug("creating PostData Object from json file " + fileName);
+		logger.debug("creating PostingData Object from json file " + fileName);
 		/*
 		 * JSON Structure
 		 * {

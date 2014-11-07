@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.json.simple.JSONObject;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
-import de.comlineag.snc.data.PostData;
+import de.comlineag.snc.data.PostingData;
 import de.comlineag.snc.data.UserData;
 import de.comlineag.snc.handler.DataCryptoHandler;
 
@@ -67,9 +67,9 @@ public class JsonFilePersistence implements IPersistenceManager {
 	
 	/**
 	 * @description	constructor to save a post from social network to the file-system
-	 * @param		PostData
+	 * @param		PostingData
 	 */
-	public JsonFilePersistence(PostData postData) {
+	public JsonFilePersistence(PostingData postingData) {
 		logger.trace("checking if storage directory "+savePoint+" exists");
 		File d = new File(rtc.getStringValue("StoragePath", "runtime"));
 		if (!d.isDirectory()) {
@@ -82,7 +82,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 			// create the json diretory
 			f.mkdir();
 		}
-		savePosts(postData);
+		savePosts(postingData);
 	}
 	
 	/**
@@ -108,7 +108,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 	
 	/**
 	 * @description	constructor to save a post from social network to the file-system
-	 * @param		PostData
+	 * @param		PostingData
 	 */
 	public JsonFilePersistence(JSONObject json) {
 		logger.trace("checking if storage directory "+savePoint+" exists");
@@ -198,17 +198,17 @@ public class JsonFilePersistence implements IPersistenceManager {
 
 	/**
 	 * @description	save a post from social network to the file-system
-	 * @param		PostData
+	 * @param		PostingData
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public void savePosts(PostData postData) {
+	public void savePosts(PostingData postingData) {
 		objectTypeToSave = "post";
-		objectStatusPriorSaving = postData.getObjectStatus(); // ok or fail
+		objectStatusPriorSaving = postingData.getObjectStatus(); // ok or fail
 		if (objectStatusPriorSaving == null)
 			objectStatusPriorSaving = "ok";
 		
-		String fileName = objectTypeToSave+"_"+postData.getSnId()+"-"+postData.getId()+"_"+objectStatusPriorSaving+".json";
+		String fileName = objectTypeToSave+"_"+postingData.getSnId()+"-"+postingData.getId()+"_"+objectStatusPriorSaving+".json";
 		
 		File f1 = new File(savePoint+System.getProperty("file.separator")+fileName);
 		if (!f1.isFile() || f1.getTotalSpace()<1) {
@@ -218,43 +218,43 @@ public class JsonFilePersistence implements IPersistenceManager {
 				file = new FileWriter(savePoint+System.getProperty("file.separator")+fileName);
 				
 				JSONObject obj = new JSONObject();
-				obj.put("sn_id", postData.getSnId());
-				obj.put("post_id", postData.getId());
-				obj.put("user_id", postData.getUserId());
-				obj.put("timestamp", postData.getTimestamp().toString());
-				obj.put("postLang", postData.getLang());
+				obj.put("sn_id", postingData.getSnId());
+				obj.put("post_id", postingData.getId());
+				obj.put("user_id", postingData.getUserId());
+				obj.put("timestamp", postingData.getTimestamp().toString());
+				obj.put("postLang", postingData.getLang());
 				
-				obj.put("text", postData.getText());
-				obj.put("raw_text", postData.getRawText());
-				obj.put("teaser", postData.getTeaser());
-				obj.put("subject", postData.getSubject());
+				obj.put("text", postingData.getText());
+				obj.put("raw_text", postingData.getRawText());
+				obj.put("teaser", postingData.getTeaser());
+				obj.put("subject", postingData.getSubject());
 				
-				obj.put("viewcount", new Long(postData.getViewCount()).toString());
-				obj.put("favoritecount", new Long(postData.getFavoriteCount()).toString());
+				obj.put("viewcount", new Long(postingData.getViewCount()).toString());
+				obj.put("favoritecount", new Long(postingData.getFavoriteCount()).toString());
 				
-				obj.put("client", postData.getClient());
-				obj.put("truncated", new Boolean(postData.getTruncated()).toString());
+				obj.put("client", postingData.getClient());
+				obj.put("truncated", new Boolean(postingData.getTruncated()).toString());
 	
-				obj.put("inReplyTo", postData.getInReplyTo());
-				obj.put("inReplyToUserID", new Long(postData.getInReplyToUser()).toString());
-				obj.put("inReplyToScreenName", postData.getInReplyToUserScreenName());
+				obj.put("inReplyTo", postingData.getInReplyTo());
+				obj.put("inReplyToUserID", new Long(postingData.getInReplyToUser()).toString());
+				obj.put("inReplyToScreenName", postingData.getInReplyToUserScreenName());
 				
-				obj.put("geoLocation_longitude", postData.getGeoLongitude());
-				obj.put("geoLocation_latitude", postData.getGeoLatitude());
-				obj.put("placeID", postData.getGeoPlaceId());
-				obj.put("plName",  postData.getGeoPlaceName());
-				obj.put("plCountry", postData.getGeoPlaceCountry());
-				obj.put("plAround_longitude", postData.getGeoAroundLongitude());
-				obj.put("plAround_latitude", postData.getGeoAroundLatitude());
+				obj.put("geoLocation_longitude", postingData.getGeoLongitude());
+				obj.put("geoLocation_latitude", postingData.getGeoLatitude());
+				obj.put("placeID", postingData.getGeoPlaceId());
+				obj.put("plName",  postingData.getGeoPlaceName());
+				obj.put("plCountry", postingData.getGeoPlaceCountry());
+				obj.put("plAround_longitude", postingData.getGeoAroundLongitude());
+				obj.put("plAround_latitude", postingData.getGeoAroundLatitude());
 				
 				file.write(dataCryptoProvider.encryptValue(obj.toJSONString()));
-		        logger.info("Successfully copied JSON post object for "+postData.getSnId()+"-"+postData.getId()+" to file " + fileName);
+		        logger.info("Successfully copied JSON post object for "+postingData.getSnId()+"-"+postingData.getId()+" to file " + fileName);
 		        
 		        file.flush();
 				file.close();
 			} catch (Exception le) {
 				// catch any remaining exceptions and make sure the client (in case of twitter) is closed - done within TwitterCrawler
-				logger.error("EXCEPTION :: unforseen error condition processing post "+postData.getSnId()+"-"+postData.getId()+": " + le.getLocalizedMessage());
+				logger.error("EXCEPTION :: unforseen error condition processing post "+postingData.getSnId()+"-"+postingData.getId()+": " + le.getLocalizedMessage());
 				le.printStackTrace();
 			}
 		} else {
