@@ -13,14 +13,14 @@ import de.comlineag.snc.data.WebPostingData;
  * 
  * @description Implementation of the web parser posting manager - extends
  *              GenericDataManager This handler is used to save a new page or
- *              update an existing one. SimpleWebPosting is called after a
+ *              update an existing one. WebPosting is called after a
  *              page with all relevant information about it is decoded by
  *              SimpleWebParser.
  *              The WebUserData handling differs from, say, Twitter User handling
  *              in that the user-object is embedded within the page object.
  *              As a consequence, the parser and the crawler have to operate
  *              a bit different on the posting (aka page) and user-object. One
- * 				consequence is, that the SimpleWebPosting class introduces a
+ * 				consequence is, that the WebPosting class introduces a
  * 				new method getUser.
  * 
  * @param <WebPage>
@@ -30,11 +30,11 @@ import de.comlineag.snc.data.WebPostingData;
  * 
  */
 
-public class SimpleWebPosting extends GenericDataManager<WebPostingData> {
+public class WebPosting extends GenericDataManager<WebPostingData> {
 	
 	private WebPostingData data;
 	
-	public SimpleWebPosting(JSONObject jsonObject) {
+	public WebPosting(JSONObject jsonObject) {
 		data = new WebPostingData(jsonObject);
 	}
 

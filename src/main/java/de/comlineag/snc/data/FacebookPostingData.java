@@ -50,7 +50,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  * 
  */
 
-public final class FacebookPostingData extends PostData {
+public final class FacebookPostingData extends PostingData {
 
 	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());

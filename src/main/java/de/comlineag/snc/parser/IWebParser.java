@@ -3,7 +3,7 @@ package de.comlineag.snc.parser;
 import java.net.URL;
 import java.util.List;
 
-import de.comlineag.snc.handler.SimpleWebPosting;
+import de.comlineag.snc.handler.WebPosting;
 
 /**
  * @author 		Christian Guenther
@@ -36,6 +36,6 @@ import de.comlineag.snc.handler.SimpleWebPosting;
  */
 public interface IWebParser {
 	public abstract Object execute(String page, URL url);
-	public abstract List<SimpleWebPosting> parse(String page, URL url, List<String> tokens, String sn_id, String curCustomer, String curDomain);
+	public abstract List<WebPosting> parse(String page, URL url, List<String> tokens, String sn_id, String curCustomer, String curDomain);
 	public abstract boolean canExecute(String page, URL url);
 }

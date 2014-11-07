@@ -2,16 +2,18 @@ package de.comlineag.snc.parser;
 
 import java.io.InputStream;
 import java.net.URL;
-
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 
 import com.google.common.base.Stopwatch;
@@ -23,7 +25,7 @@ import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.StartTag;
 import net.htmlparser.jericho.TextExtractor;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
-import de.comlineag.snc.handler.SimpleWebPosting;
+import de.comlineag.snc.handler.WebPosting;
 import de.comlineag.snc.helper.UniqueIdServices;
 
 /**
@@ -36,7 +38,7 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * @description WOPageWebParser is the implementation of the generic web parser for 
  * 				wallstreet-online web sites.
  * 				It tries to get the relevant content out of a given wo-site and returns a 
- * 				list of SimpleWebPosting objects with extracted page content (usually one entry) 
+ * 				list of WebPosting objects with extracted page content (usually one entry) 
  * 				to the crawler
  * 
  * @changelog	0.1 (Chris)		created as extraction fromSimpleWebParser version 0.7
@@ -86,21 +88,23 @@ public final class WOPageWebParser extends GenericWebParser implements IWebParse
 	
 	// PARSING METHOD
 	@Override
-	public List<SimpleWebPosting> parse(String page, URL url, List<String> tokens, String sn_id, String curCustomer, String curDomain) {
+	public List<WebPosting> parse(String page, URL url, List<String> tokens, String sn_id, String curCustomer, String curDomain) {
 		String PARSER_NAME="Wallstreet Online Page";
 		Stopwatch timer = new Stopwatch().start();
 		
 		// log the startup message
 		logger.debug(PARSER_NAME + " parser START for url " + url.toString());
 		
-		List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
+		List<WebPosting> postings = new ArrayList<WebPosting>();
 		String title = null;
 		String description = null;
 		String keywords = null;
+		String created_at = null;
 		String text = null;
-		String plainText = "";
-		String segmentText = "";
-		String page_id, user_id, user_name, screen_name;
+		String plainText = null;
+		String segmentText = null;
+		String referer_page_id = null;
+		String master_page_id, page_id, user_id, user_name, screen_name;
 		long postings_count = 0;
 		int pageSize = page.length()/8/1024;
 		String page_lang = "DE"; // TODO implement proper language detection
@@ -124,10 +128,13 @@ public final class WOPageWebParser extends GenericWebParser implements IWebParse
 			
 			
 			List<Element> siteElements = source.getAllElements("id", "page", false);
+			logger.debug("received {} site elements", siteElements.size());
 			for (int i=0;i<siteElements.size();i++) {
 				// pass the site element on to a private method (below) that extracts the pure plain text content according to white and blacklist given
+				logger.trace("working on site element {} as {}...", i, siteElements.get(i).toString().substring(0, 20));
+				
 				plainText = getGridWsPlainText(siteElements.get(i));
-								
+				
 				/* uses a combination of returnTokenPosition and trimStringAtPosition
 				 *   - works! returns exactly one string if the words are near to each other
 				 *     and multiple concatinated strings in case the words are far apart
@@ -146,22 +153,33 @@ public final class WOPageWebParser extends GenericWebParser implements IWebParse
 														rtcWordDistanceCutoffMargin, 
 														rtcWordDistanceCutoffMargin);
 				}
-				logger.trace("TruncatedText: >>> " + segmentText);
-				
 				text = segmentText;
+				
+				logger.trace("TruncatedText: >>> " + text);
+				
+				page_id = UniqueIdServices.createMessageDigest(text);
 				user_name = url.getHost().toString();
 				screen_name = user_name;
-				page_id = UniqueIdServices.createMessageDigest(text);
 				user_id = UniqueIdServices.createMessageDigest(user_name);
+				long s = System.currentTimeMillis();
+				// converting to 06.11.14 17:28:37
+				Date date = new Date(s);
+				DateFormat formatter = new SimpleDateFormat("dd.MM.YY HH:mm:ss");
+				created_at = formatter.format(date);
+				
+				logger.debug("no explicit post information on site, using {} as page_id ", page_id);
+				logger.debug("no explicit user information on site, using {} as user_id and {} as name", user_id, user_name);
+				logger.debug("no explicit time information on site, using {} for created_at value", created_at);
 				
 				// add page to list if it contains the track terms or if we want all pages
 				if (!rtcGetOnlyRelevantPages || findNeedleInHaystack(text, tokens)){
-					logger.trace("adding extracted page content to posting list");
+					logger.debug("adding extracted page content-json to posting list");
 					
 					// add the parsed site to the message list for saving in the DB
 					//JSONObject pageJson = createPageJsonObject(sn_id, title, description, plainText, text, url, truncated, page_lang, curCustomer, curDomain);
-					JSONObject pageJson = createPageJsonObject(sn_id, title, description, plainText, text, url, truncated, page_lang, page_id, user_id, user_name, screen_name, user_lang, postings_count, curCustomer, curDomain);
-					SimpleWebPosting parsedPageSimpleWebPosting = new SimpleWebPosting(pageJson);
+					JSONObject pageJson = createPageJsonObject(sn_id, title, description, plainText, text, created_at, url, truncated, page_lang, page_id, user_id, user_name, screen_name, user_lang, postings_count, curCustomer, curDomain);
+					logger.trace("created json is {}", pageJson.toString());
+					WebPosting parsedPageSimpleWebPosting = new WebPosting(pageJson);
 					postings.add(parsedPageSimpleWebPosting);
 				}
 			} // end for loop over page id elements

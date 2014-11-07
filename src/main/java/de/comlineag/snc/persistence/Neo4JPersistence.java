@@ -20,7 +20,7 @@ import de.comlineag.snc.constants.HttpErrorMessages;
 import de.comlineag.snc.constants.HttpStatusCodes;
 import de.comlineag.snc.constants.Neo4JConstants;
 import de.comlineag.snc.constants.RelationshipTypes;
-import de.comlineag.snc.data.PostData;
+import de.comlineag.snc.data.PostingData;
 import de.comlineag.snc.data.UserData;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.neo4j.Relation;
@@ -94,13 +94,13 @@ public class Neo4JPersistence implements IPersistenceManager {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void savePosts(PostData postData) {
+	public void savePosts(PostingData postingData) {
 		// we only store posts in german and english at the moment
-		if (postData.getLang().equalsIgnoreCase("de") || postData.getLang().equalsIgnoreCase("en")) {
+		if (postingData.getLang().equalsIgnoreCase("de") || postingData.getLang().equalsIgnoreCase("en")) {
 			dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
 			nodePointUrl = dbServerUrl + this.location + Neo4JConstants.NODE_LOC;
 
-			logger.trace("savePosts for post-id " + postData.getId() + " called - working with " + nodePointUrl);
+			logger.trace("savePosts for post-id " + postingData.getId() + " called - working with " + nodePointUrl);
 			
 			//prepareConnection();
 			String output = null;
@@ -117,47 +117,47 @@ public class Neo4JPersistence implements IPersistenceManager {
 			
 			
 			// first step, save post itself
-			logger.debug("Creating node for post (ID " + postData.getId() + " / text (first 20 chars) " + postData.getText().substring(0, 20) + ") at " + nodePointUrl);
+			logger.debug("Creating node for post (ID " + postingData.getId() + " / text (first 20 chars) " + postingData.getText().substring(0, 20) + ") at " + nodePointUrl);
 			
 			// set json payload
 			JSONObject p = new JSONObject();
 			
 			//p.put("type", SocialNetworkEntryTypes.POSTING.toString());	// --> Fixed value Posting -- will be done with a label
-			p.put("sn_id", postData.getSnId());								// Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"		--> Fixed value TW
-			p.put("post_id", postData.getId());								// Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"
-			p.put("timestamp", "\"" + postData.getTimestamp() + "\""); 		// Property Name="timestamp" Type="Edm.DateTime"
-			p.put("postLang", postData.getLang());							// Property Name="postLang" Type="Edm.String" MaxLength="64"
-			p.put("text", postData.getText().toString());					// Property Name="text" Type="Edm.String" DefaultValue="" MaxLength="1024"
-			p.put("truncated", postData.getTruncated());					// Property Name="truncated" Type="Edm.Byte" DefaultValue="0"					--> true or false
-			p.put("client", postData.getClient()); 							// OBSOLETE Name="client" Type="Edm.String" MaxLength="2048"
+			p.put("sn_id", postingData.getSnId());								// Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"		--> Fixed value TW
+			p.put("post_id", postingData.getId());								// Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"
+			p.put("timestamp", "\"" + postingData.getTimestamp() + "\""); 		// Property Name="timestamp" Type="Edm.DateTime"
+			p.put("postLang", postingData.getLang());							// Property Name="postLang" Type="Edm.String" MaxLength="64"
+			p.put("text", postingData.getText().toString());					// Property Name="text" Type="Edm.String" DefaultValue="" MaxLength="1024"
+			p.put("truncated", postingData.getTruncated());					// Property Name="truncated" Type="Edm.Byte" DefaultValue="0"					--> true or false
+			p.put("client", postingData.getClient()); 							// OBSOLETE Name="client" Type="Edm.String" MaxLength="2048"
 			
 			// TODO check implementation of geo geoLocation
-			if (postData.getGeoLongitude() != null) 
-				p.put("geoLocation_longitude", postData.getGeoLongitude());	// Property Name="geoLocation_longitude" Type="Edm.String" MaxLength="40"
-			if (postData.getGeoLatitude() != null)
-				p.put("geoLocation_latitude", postData.getGeoLatitude());	// Property Name="geoLocation_latitude" Type="Edm.String" MaxLength="40"
-			if (postData.getGeoPlaceId() != null)
-				p.put("placeID", postData.getGeoPlaceId());					// Property Name="placeID" Type="Edm.String" MaxLength="16"
-			if (postData.getGeoPlaceName() != null)
-				p.put("plName", postData.getGeoPlaceName());				// Property Name="plName" Type="Edm.String" MaxLength="256"
-			if (postData.getGeoPlaceCountry() != null)
-				p.put("plCountry", postData.getGeoPlaceCountry());			// Property Name="plCountry" Type="Edm.String" MaxLength="128"
-			if (postData.getGeoAroundLatitude() != null)
-				p.put("plAround_latitude", postData.getGeoAroundLatitude());	// Property Name="geoLocation_latitude" Type="Edm.String" MaxLength="40"
-			if (postData.getGeoAroundLongitude() != null)
-				p.put("plAround_longitude", postData.getGeoAroundLongitude());	// Property Name="geoLocation_latitude" Type="Edm.String" MaxLength="40"
+			if (postingData.getGeoLongitude() != null) 
+				p.put("geoLocation_longitude", postingData.getGeoLongitude());	// Property Name="geoLocation_longitude" Type="Edm.String" MaxLength="40"
+			if (postingData.getGeoLatitude() != null)
+				p.put("geoLocation_latitude", postingData.getGeoLatitude());	// Property Name="geoLocation_latitude" Type="Edm.String" MaxLength="40"
+			if (postingData.getGeoPlaceId() != null)
+				p.put("placeID", postingData.getGeoPlaceId());					// Property Name="placeID" Type="Edm.String" MaxLength="16"
+			if (postingData.getGeoPlaceName() != null)
+				p.put("plName", postingData.getGeoPlaceName());				// Property Name="plName" Type="Edm.String" MaxLength="256"
+			if (postingData.getGeoPlaceCountry() != null)
+				p.put("plCountry", postingData.getGeoPlaceCountry());			// Property Name="plCountry" Type="Edm.String" MaxLength="128"
+			if (postingData.getGeoAroundLatitude() != null)
+				p.put("plAround_latitude", postingData.getGeoAroundLatitude());	// Property Name="geoLocation_latitude" Type="Edm.String" MaxLength="40"
+			if (postingData.getGeoAroundLongitude() != null)
+				p.put("plAround_longitude", postingData.getGeoAroundLongitude());	// Property Name="geoLocation_latitude" Type="Edm.String" MaxLength="40"
 			
 			
-			p.put("user_id", postData.getUserId()); 						// CONNECTION Name="user_id" Type="AUTHORED"
+			p.put("user_id", postingData.getUserId()); 						// CONNECTION Name="user_id" Type="AUTHORED"
 			// the following data is NOT stored directly but rathe as a relationship between nodes
-			p.put("inReplyTo", postData.getInReplyTo()); 					// CONNECTION Name="inReplyTo" Type="REPLIED_ON"
+			p.put("inReplyTo", postingData.getInReplyTo()); 					// CONNECTION Name="inReplyTo" Type="REPLIED_ON"
 			/*
 			if (postData.getInReplyTo() <= 0) {
 				// create a relationship between User   and Post           of type AUTHORED            with no additional data
 				createRelationship(fromNodeLocationUri, toNodeLocationUri, RelationshipTypes.IN_REPLY_TO_STATUS, null);
 			}
 			*/
-			p.put("inReplyToUserID", postData.getInReplyToUser()); 				// CONNECTION Name="inReplyToUserID" Type="REPLIED_TO"
+			p.put("inReplyToUserID", postingData.getInReplyToUser()); 				// CONNECTION Name="inReplyToUserID" Type="REPLIED_TO"
 			/*
 			 if (postData.getInReplyToUser() <= 0) {
 				// create a relationship between User   and Post           of type AUTHORED            with no additional data
@@ -179,7 +179,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 				if (!statusCode.isOk()){
 					logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
 				} else {
-					logger.info("SUCCESS :: node for post " + postData.getId() + " successfully created");
+					logger.info("SUCCESS :: node for post " + postingData.getId() + " successfully created");
 					
 					output = mPost.getResponseBodyAsString();
 					Header locationHeader =  mPost.getResponseHeader("geoLocation");
@@ -192,7 +192,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 					addLabelToNode(toNodeLocationUri, "User");
 				}
 			} catch(Exception e) {
-				logger.error("EXCEPTION :: failed to create node for post (ID " + postData.getId() + ") " + e.getMessage());
+				logger.error("EXCEPTION :: failed to create node for post (ID " + postingData.getId() + ") " + e.getMessage());
 			}
 		} // end if - check on languages
 	}
@@ -293,7 +293,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	 * @param relationshipType
 	 * 
 	 */
-	private void createRelationship(String fromNodeUri, String toNodeUri, RelationshipTypes relationshipType, String additionalData){ //, UserData userData, PostData postData){
+	private void createRelationship(String fromNodeUri, String toNodeUri, RelationshipTypes relationshipType, String additionalData){ //, UserData userData, PostingData postData){
 		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
 		
 		logger.debug("Creating relationship from node " + fromNodeUri + " to node " + toNodeUri + " with relationship type " + relationshipType);

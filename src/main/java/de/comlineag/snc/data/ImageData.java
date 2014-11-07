@@ -14,12 +14,12 @@ import java.net.URL;
 * 				the raw html content
 * 				the text (without html markup)
 * 				a list of links within the page
-* 				a list of images (provided by class Image)
+* 				a list of images (provided by class ImageData)
 *
 * @changelog	0.1 (Chris)		class created
 * 
 */
-public class Image implements Comparable<Image> {
+public class ImageData implements Comparable<ImageData> {
 	private final String src;
 	private final String width;
 	private final String height;
@@ -28,7 +28,7 @@ public class Image implements Comparable<Image> {
 	private final String imageName;
 	private final URL link;
 	
-	public Image(final String src, final String width, final String height, final String alt, final String imageName, URL link) {
+	public ImageData(final String src, final String width, final String height, final String alt, final String imageName, URL link) {
 		this.src = src;
 		if(src == null) {
 			throw new NullPointerException("src attribute must not be null");
@@ -83,7 +83,7 @@ public class Image implements Comparable<Image> {
     
     
     @Override
-    public int compareTo(Image o) {
+    public int compareTo(ImageData o) {
             if(o == this) {
                     return 0;
             }

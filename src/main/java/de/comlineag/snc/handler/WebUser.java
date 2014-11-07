@@ -13,7 +13,7 @@ import de.comlineag.snc.data.WebUserData;
  * 
  * @description Implementation of the web parser user manager - extends
  *              GenericDataManager This handler is used to save a new user or
- *              update an existing one. SimpleWebUser is called after a
+ *              update an existing one. WebUser is called after a
  *              page with all relevant information about it is decoded and
  *              the user data from within this page is extracted. In very 
  *              simple cases, where there is no real user, this data is 
@@ -29,11 +29,11 @@ import de.comlineag.snc.data.WebUserData;
  * 
  */
 
-public class SimpleWebUser extends GenericDataManager<WebUserData> {
+public class WebUser extends GenericDataManager<WebUserData> {
 	
 	private WebUserData data;
 	
-	public SimpleWebUser(JSONObject jsonObject) {
+	public WebUser(JSONObject jsonObject) {
 		data = new WebUserData(jsonObject);
 	}
 

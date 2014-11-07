@@ -16,32 +16,32 @@ import java.util.ArrayList;
 * 				the raw html content
 * 				the text (without html markup)
 * 				a list of links within the page
-* 				a list of images (provided by class Image)
+* 				a list of imageDatas (provided by class ImageData)
 *
 * @changelog	0.1 (Chris)		class created
 * 
 */
-public class HtmlContent implements Comparable<HtmlContent> {
+public class HtmlContentData implements Comparable<HtmlContentData> {
 	private final String src;
 	private final String title;
 	private final String text;
 	private final String rawText;
-	private final ArrayList<Image> images = new ArrayList<Image>();
+	private final ArrayList<ImageData> imageDatas = new ArrayList<ImageData>();
 	private final ArrayList<URL> links = new ArrayList<URL>();
 	
-	public HtmlContent(String src, String title, String text, String rawText, ArrayList<Image> imagesIn, ArrayList<URL> linksIn) {
+	public HtmlContentData(String src, String title, String text, String rawText, ArrayList<ImageData> imagesIn, ArrayList<URL> linksIn) {
 		this.src = src;
 		this.title = title;
 		this.text = text;
 		this.rawText = rawText;
 		
 		for (int i=0;i<imagesIn.size();i++)
-			this.images.add(imagesIn.get(i));
+			this.imageDatas.add(imagesIn.get(i));
 		for (int i=0;i<linksIn.size();i++)
 			this.links.add(linksIn.get(i));
     }
 	
-	public HtmlContent(String src, String title, String text, String rawText) {
+	public HtmlContentData(String src, String title, String text, String rawText) {
 		this.src = src;
 		this.title = title;
 		this.text = text;
@@ -54,7 +54,7 @@ public class HtmlContent implements Comparable<HtmlContent> {
 	public String getText() {return text; }
 	public String getTitle() {return title;}
 	public String getRawText() {return rawText;}
-	public ArrayList<Image> getImages() {return images;}
+	public ArrayList<ImageData> getImages() {return imageDatas;}
 	public ArrayList<URL> getLinks() {return links;}
 	
 	
@@ -62,7 +62,7 @@ public class HtmlContent implements Comparable<HtmlContent> {
 	 * compares one html content with another based on the src and title elements
 	 */
 	@Override
-	public int compareTo(HtmlContent o) {
+	public int compareTo(HtmlContentData o) {
 		if(o == this) {
 			return 0;
 		}
@@ -77,6 +77,6 @@ public class HtmlContent implements Comparable<HtmlContent> {
 	
 	@Override
 	public String toString() {
-		return "HtmlContent [title=" + title + ", text=" + text + ", image=" + "]";
+		return "HtmlContentData [title=" + title + ", text=" + text + ", image=" + "]";
 	}
 }

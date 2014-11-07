@@ -1,6 +1,6 @@
 package de.comlineag.snc.persistence;
 
-import de.comlineag.snc.data.PostData;
+import de.comlineag.snc.data.PostingData;
 import de.comlineag.snc.data.UserData;
 
 /**
@@ -31,9 +31,9 @@ public interface IPersistenceManager {
 	/**
 	 * implementation for saving the Post Data provided by social network in the DB
 	 * 
-	 * @param postData
+	 * @param postingData
 	 *            Object Post Data 
 	 * 
 	 */
-	public void savePosts(PostData postData);
+	public void savePosts(PostingData postingData);
 }

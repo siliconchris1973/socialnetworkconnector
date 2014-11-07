@@ -22,13 +22,13 @@ import org.json.simple.JSONObject;
  * 				0.3				added method to fill all values from a passed json string 
  * 								for use with the FsCrawler, which creates a posData object 
  * 								from a stored json file and then invokes the persistence layer
- * 				0.4				added possibility to store an embedded UserData object within the PostData object
+ * 				0.4				added possibility to store an embedded UserData object within the PostingData object
  * 				0.5				changed post_id from long to String
  * 
  * TODO move GeneralDataDefinitions to RuntimeConfiguration and source it in from XML 
  */
 
-public class PostData {
+public class PostingData {
 	/*
 	 * was the object initially saved correctly by the persistence manager or not 
 	 */

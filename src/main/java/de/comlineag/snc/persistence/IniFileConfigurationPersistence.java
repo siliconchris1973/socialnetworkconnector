@@ -61,10 +61,27 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 	@SuppressWarnings("unchecked")
 	@Override
 	public ArrayList<T> getConstraint(String category, JSONObject configurationScope) {
-		assert (!"term".equals(category) && !"site".equals(category) && !"language".equals(category)) : "ERROR :: can only use term, site and language";
+		assert (   !"term".equals(category) 	 && !"blockedterm".equals(category) 
+				&& !"site".equals(category) 	 && !"blockedsite".equals(category) 
+				&& !"language".equals(category)  && !"blockedlanguage".equals(category)
+				//&& !"location".equals(category)  && !"blockedlocation".equals(category)
+				&& !"user".equals(category) 	 && !"blockeduser".equals(category) 
+				&& !"dnsdomain".equals(category) && !"blockeddnsdomain".equals(category)
+				//&& !"board".equals(category) 	 && !"blockedboard".equals(category)
+				//&& !"blog".equals(category) 	 && !"blockedblog".equals(category)
+				)  : "ERROR :: can only accept term, site, user, language, location, or the equivalent blocked as category";
 		
-		if (!"term".equals(category) && !"site".equals(category) && !"language".equals(category)) {
-			logger.warn("received "+category+" as category, but can only process term, site and language");
+		if (	   !"term".equals(category) 	 && !"blockedterm".equals(category) 
+				&& !"site".equals(category) 	 && !"blockedsite".equals(category) 
+				&& !"language".equals(category)  && !"blockedlanguage".equals(category)
+				//&& !"location".equals(category)  && !"blockedlocation".equals(category)
+				&& !"user".equals(category) 	 && !"blockeduser".equals(category) 
+				&& !"dnsdomain".equals(category) && !"blockeddnsdomain".equals(category)
+				//&& !"board".equals(category) 	 && !"blockedboard".equals(category)
+				//&& !"blog".equals(category) 	 && !"blockedblog".equals(category)
+				) 
+		{
+			logger.warn("received "+category+" as category, but can only process term, site, user, language, or the equivalent blocked");
 			ArrayList<String> ar = new ArrayList<String>();
 			return (ArrayList<T>)ar;
 		} else {
@@ -77,11 +94,19 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 		}
 	}
 	
-	private ArrayList<String> getDataFromIni(String section) {
+	private ArrayList<String> getDataFromIni(String category) {
 		ArrayList<String> ar = new ArrayList<String>();
 		Ini ini = null;
 		
-		if (!"term".equals(section) && !"site".equals(section) && !"language".equals(section))
+		if (	   !"term".equals(category) 	 && !"blockedterm".equals(category) 
+				&& !"site".equals(category) 	 && !"blockedsite".equals(category) 
+				&& !"language".equals(category)  && !"blockedlanguage".equals(category)
+				//&& !"location".equals(category)  && !"blockedlocation".equals(category)
+				&& !"user".equals(category) 	 && !"blockeduser".equals(category) 
+				&& !"dnsdomain".equals(category) && !"blockeddnsdomain".equals(category)
+				//&& !"board".equals(category) 	 && !"blockedboard".equals(category)
+				//&& !"blog".equals(category) 	 && !"blockedblog".equals(category)
+				)
 			return ar;
 		
 		try {
@@ -97,9 +122,9 @@ public class IniFileConfigurationPersistence<T> implements IConfigurationManager
 		}
 		
 		// now add config elements one by one to array
-        for (String key : ini.get(section).keySet()) {
-        	ar.add(ini.get(section).fetch(key));
-        	logger.trace(ini.get(section).getName() + " = " + ini.get(section).fetch(key));
+        for (String key : ini.get(category).keySet()) {
+        	ar.add(ini.get(category).fetch(key));
+        	logger.trace(ini.get(category).getName() + " = " + ini.get(category).fetch(key));
         }
 		
 		return ar;

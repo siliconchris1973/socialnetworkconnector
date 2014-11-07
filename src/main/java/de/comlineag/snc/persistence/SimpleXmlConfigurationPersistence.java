@@ -134,10 +134,26 @@ public class SimpleXmlConfigurationPersistence<T> implements IConfigurationManag
 	// general invocation for every constraint
 	@Override
 	public ArrayList<T> getConstraint(String category, JSONObject configurationScope) {
-		assert (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category))  : "ERROR :: can only accept term, site, user, language or geoLocation as category";
+		assert (   !"term".equals(category) 	 && !"blockedterm".equals(category) 
+				&& !"site".equals(category) 	 && !"blockedsite".equals(category) 
+				&& !"language".equals(category)  && !"blockedlanguage".equals(category)
+				&& !"location".equals(category)  && !"blockedlocation".equals(category)
+				&& !"user".equals(category) 	 && !"blockeduser".equals(category) 
+				&& !"dnsdomain".equals(category) && !"blockeddnsdomain".equals(category)
+				&& !"board".equals(category) 	 && !"blockedboard".equals(category)
+				&& !"blog".equals(category) 	 && !"blockedblog".equals(category)
+				)  : "ERROR :: can only accept term, site, user, language, location, blog, board or the equivalent blocked as category";
 		
-		if (!"term".equals(category) && !"site".equals(category) && !"language".equals(category) && !"geoLocation".equals(category) && !"user".equals(category)) 
-			logger.warn("received "+category+" as category, but can only process term, site, user, language or geoLocation");
+		if (	   !"term".equals(category) 	 && !"blockedterm".equals(category) 
+				&& !"site".equals(category) 	 && !"blockedsite".equals(category) 
+				&& !"language".equals(category)  && !"blockedlanguage".equals(category)
+				&& !"location".equals(category)  && !"blockedlocation".equals(category)
+				&& !"user".equals(category) 	 && !"blockeduser".equals(category) 
+				&& !"dnsdomain".equals(category) && !"blockeddnsdomain".equals(category)
+				&& !"board".equals(category) 	 && !"blockedboard".equals(category)
+				&& !"blog".equals(category) 	 && !"blockedblog".equals(category)
+				) 
+			logger.warn("received "+category+" as category, but can only process term, site, user, language, location, blog, board or the equivalent blocked");
 		
 		// get configuration scope
 		try {

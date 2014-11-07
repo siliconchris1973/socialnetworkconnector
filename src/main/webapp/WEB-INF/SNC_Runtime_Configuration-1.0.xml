@@ -270,7 +270,7 @@
 	-->
 	<configuration scope="crawler">
 		<!-- SIMPLE AND MULTI WEB CRAWLER SPECIFIC SETTINGS -->
-		<!-- searchLimit - how many pages to download at all.
+		<!-- maxPageLimit - how many pages to download at all.
 			 This Runtime configuration acts as a safety margin to not exceed a certain maximum 
 			 number of pages to download per run. It overrides the value of max_pages in the crawler 
 			 configuration. You can, however, also set this to -1 in which case there will be no limit 
@@ -278,23 +278,23 @@
 			 of pages. As a last safeguard in case this value is set to -1, this will also implicitly 
 			 set the parameter of stayOnDomain (see below) to true. -->
 		<option>
-			<name>WcSearchLimit</name>
+			<name>WcMaxPagesLimit</name>
 			<type>int</type>
 			<value>10000</value>
-			<constant>WC_SEARCH_LIMIT</constant>
+			<constant>WC_MAX_PAGES_LIMIT</constant>
 		</option>
 		
-		<!-- max_depth - how many levels of cascaded links to follow.
+		<!-- maxLinkDepth - how many levels of cascaded links to follow.
 			 This Runtime configuration acts as a safety margin to not exceed a certain scanning depth. 
 			 You can, however, also set this to -1 in which case there will be no limit on how deep 
 			 links will be followed. Be advised though, as this may lead to quite a huge amount of pages. 
 			 As a last safeguard in case this value is set to -1, this will also implicitly set the 
 			 parameter of stayOnDomain (see below) to true. -->
 		<option>
-			<name>WcMaxDepth</name>
+			<name>WcMaxLinkDepth</name>
 			<type>int</type>
-			<value>10</value>
-			<constant>WC_MAX_DEPTH</constant>
+			<value>3</value>
+			<constant>WC_MAX_LINK_DEPTH</constant>
 		</option>
 		
 		<!-- the maximum page size the simple web crawler shall fetch -->

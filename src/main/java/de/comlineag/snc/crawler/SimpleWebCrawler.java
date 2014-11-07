@@ -37,8 +37,8 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
-import de.comlineag.snc.handler.SimpleWebPosting;
-import de.comlineag.snc.handler.SimpleWebUser;
+import de.comlineag.snc.handler.WebPosting;
+import de.comlineag.snc.handler.WebUser;
 import de.comlineag.snc.parser.ParserControl;
 
 
@@ -95,13 +95,13 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	
 	// the list of postings (extracts from web pages crawled) is stored in here 
 	// and then handed over, one by one, to the persistence layer
-	List<SimpleWebPosting> postings = new ArrayList<SimpleWebPosting>();
+	List<WebPosting> postings = new ArrayList<WebPosting>();
 	
 	
 	private final boolean rtcWarnOnRejectedActions = rtc.getBooleanValue("WarnOnRejectedActions", "crawler");
 	private final int rtcCrawlerMaxDownloadSize = rtc.getIntValue("WcCrawlerMaxDownloadSize", "crawler");
-	private final int rtcSearchLimit = rtc.getIntValue("WcSearchLimit", "crawler");
-	private final int rtcMaxDepth = rtc.getIntValue("WcMaxDepth", "crawler");
+	private final int rtcMaxPagesLimit = rtc.getIntValue("WcMaxPagesLimit", "crawler");
+	private final int rtcMaxLinkDepth = rtc.getIntValue("WcMaxLinkDepth", "crawler");
 	private final boolean rtcStayOnDomain = rtc.getBooleanValue("WcStayOnDomain", "crawler");
 	private final boolean rtcStayBelowGivenPath = rtc.getBooleanValue("WcStayBelowGivenPath", "crawler");
 	
@@ -154,8 +154,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 			smallLogMessage += " below given path ";
 		}
 		if (stayOnDomain) smallLogMessage += " on initial domain ";
-		if (maxPages > rtcSearchLimit || maxPages == 0) maxPages = rtcSearchLimit;
-		if (maxDepth > rtcMaxDepth || maxDepth == 0) maxDepth = rtcMaxDepth;
+		if (maxPages > rtcMaxPagesLimit || maxPages == 0) maxPages = rtcMaxPagesLimit;
+		if (maxDepth > rtcMaxLinkDepth || maxDepth == 0) maxDepth = rtcMaxLinkDepth;
 		if (maxPages == -1) smallLogMessage += " on unlimited pages "; else smallLogMessage += " on max "+maxPages+" pages ";
 		if (maxDepth == -1) smallLogMessage += " unlimited depth "; else smallLogMessage += " max "+maxDepth+" levels deep ";
 		
@@ -304,8 +304,8 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 				// if maxPages or maxDepth (given by crawler configuration) is higher then maximum value in runtime configuration
 				// take the values from runtime configuration. otherwise stick with the values from crawler configuration otherwise,
 				// or if non values are given by crawler configuration, take the values from runtime configuration
-				if (maxPages > rtcSearchLimit || maxPages == 0) maxPages = rtcSearchLimit;
-				if (maxDepth > rtcMaxDepth || maxDepth == 0) maxDepth = rtcMaxDepth;
+				if (maxPages > rtcMaxPagesLimit || maxPages == 0) maxPages = rtcMaxPagesLimit;
+				if (maxDepth > rtcMaxLinkDepth || maxDepth == 0) maxDepth = rtcMaxLinkDepth;
 				if (maxPages == -1) smallLogMessage += " on unlimited pages "; else smallLogMessage += " on max "+maxPages+" pages ";
 				if (maxDepth == -1) smallLogMessage += " unlimited depth "; else smallLogMessage += " max "+maxDepth+" levels deep ";
 				
@@ -470,10 +470,10 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							
 							setPostsTracked(realRelevantPages);
 							
-							SimpleWebPosting post = postings.get(ii);
+							WebPosting post = postings.get(ii);
 							
-							// first get the user-data out of the SimpleWebPosting
-							SimpleWebUser userData = new SimpleWebUser(post.getUser()); 
+							// first get the user-data out of the WebPosting
+							WebUser userData = new WebUser(post.getUser()); 
 							logger.info("calling persistence layer to save the user " );
 							userData.save();
 							
@@ -490,7 +490,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							if (rtc.isPERSISTENCE_THREADING_ENABLED()){
 								// execute persistence layer in a new thread, so that it does NOT block the crawler
 								logger.debug("execute persistence layer in a new thread...");
-								final SimpleWebPosting postT = postings.get(ii);
+								final WebPosting postT = postings.get(ii);
 								//if (!persistenceExecutor.isShutdown()) {
 								//	persistenceExecutor.submit(new Thread(new Runnable() {
 								//			
@@ -511,7 +511,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 								
 							} else {
 								// otherwise just call it sequentially
-								SimpleWebPosting post = postings.get(ii);
+								WebPosting post = postings.get(ii);
 								post.save();
 							}
 						}
