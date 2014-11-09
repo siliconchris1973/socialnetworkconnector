@@ -4,7 +4,7 @@
  * @description	all classes containing constants (like http error codes) or 
  * 				configuration db properties can be found here.
  * 				For instance all possible connection points between two nodes
- * 				in the graph db are provided by the enum RelationshipTypes
+ * 				in the graph db are provided by the enum GraphRelationshipTypes
  *
  */
 package de.comlineag.snc.constants;

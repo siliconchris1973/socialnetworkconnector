@@ -60,6 +60,14 @@
 			<constant>HANA_CONFIGURATION_FILE_PATH</constant>
 		</option>
 		
+		<!-- location of the file with the configuration options for the Neo4J Graph database -->
+		<option>
+			<name>Neo4JConfigurationFilePath</name>
+			<type>String</type>
+			<value>SNC_Neo4J_Configuration.xml</value>
+			<constant>NEO4J_CONFIGURATION_FILE_PATH</constant>
+		</option>
+		
 		<!-- location of the file with the configuration options for the crawler - this
 			 is usually also in the runtime configuration file, section crawler. In case you move
 			 the section crawler from this file to someplace else, enter the filename here. -->
@@ -520,6 +528,12 @@
 			<type>String</type>
 			<value>code</value>
 			<constant>CODE_IDENTIFIER</constant>
+		</option>
+		<option>
+			<name>ParamIdentifier</name>
+			<type>String</type>
+			<value>param</value>
+			<constant>PARAM_IDENTIFIER</constant>
 		</option>
 		
 		<!-- this section contains the identifier for domain of interest and customer used within the

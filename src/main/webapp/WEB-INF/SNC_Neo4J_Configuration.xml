@@ -1,0 +1,144 @@
+<!-- 
+	This is the xml configuration file for the social network connector
+	HANA persistence layer.
+	
+	It is used to configure basic layout and schema information about the
+	HANA database system. You NEED to adapt this file, in case you change
+	anything on the given layout of the database, but it is not recommended
+	to do so. 
+	
+	
+	What is of utmost importance is the layout of this file itself.
+	 
+	- - -		DO NOT CHANGE THE LAYOUT OF THIS FILE!	 	 - - -
+	- - -		 ALSO, DO NOT RENAME/MOVE THIS FILE!		 - - - 
+	
+	In contrast to all other configuration files, the layout of this file
+	is not adaptable. That is, the path to the elements is hard coded and
+	not configured via GeneralConfiguration.xml section XmlLayout! As a
+	consequence, if you change the layout of this file and hope to adapt 
+	those changes in GeneralConfiguration, your attempt will fail and the 
+	HANA persistence layer will cease to work.
+-->
+<configurations>
+	<configuration scope="DbLayout">
+		<!-- This is the store location within the neo4j server -->
+		<param name="PathToNodes">
+			<type>String</type>
+			<value>comline.saa.data.tables</value>
+			<constant>PATH_TO_NODES</constant>
+		</param>
+		<!-- this is the most important schema name -->
+		<param name="SchemaName">
+			<type>String</type>
+			<value>CL_SAA</value>
+			<constant>SCHEMA_NAME</constant>
+		</param>
+		<!-- the name of the database table with the posts -->
+		<param name="PostsLabel">
+			<type>String</type>
+			<value>posts</value>
+			<constant>POSTS_LABEL</constant>
+		</param>
+		<!-- the name of the database table with the users -->
+		<param name="UsersLabel">
+			<type>String</type>
+			<value>users</value>
+			<constant>USERS_LABEL</constant>
+		</param>
+	</configuration>
+	
+	<!-- THESE VALUES DEFINE MAXIMUM FILED SIZES -->
+	<configuration scope="fieldSizes">
+		<param name="POSTING_TEXT_SIZE"> 
+			<type>NVARCHAR</type> 
+			<length>5000</length>
+			<constant>POSTING_TEXT_SIZE</constant>
+		</param>
+		<param name="SUBJECT_TEXT_SIZE"> 
+			<type>NVARCHAR</type>
+			 <length>20</length>
+			 <constant>SUBJECT_TEXT_SIZE</constant>
+		</param>
+		<param name="TEASER_TEXT_SIZE"> 
+			<type>NVARCHAR</type> 
+			<length>256</length>
+			<constant>TEASER_TEXT_SIZE</constant>
+		</param>
+		<param name="POSTLANG_TEXT_SIZE"> 
+			<type>NVARCHAR</type> 
+			<length>64</length>
+			<constant>POSTLANG_TEXT_SIZE</constant>
+		</param>
+		<param name="LONGITUDE_TEXT_SIZE"> 
+			<type>NVARCHAR</type> 
+			<length>40</length>
+			<constant>LONGITUDE_TEXT_SIZE</constant>
+		</param>
+		<param name="LATITUDE_TEXT_SIZE">
+			<type>NVARCHAR</type>
+			<length>40</length>
+			<constant>LATITUDE_TEXT_SIZE</constant>
+		</param>
+		<param name="CLIENT_TEXT_SIZE">
+			<type>NVARCHAR</type> 
+			<length>2048</length>
+			<constant>CLIENT_TEXT_SIZE</constant>
+		</param>
+		<param name="INREPLYTO_TEXT_SIZE"> 
+			<type>NVARCHAR</type> 
+			<length>20</length>
+			<constant>INREPLYTO_TEXT_SIZE</constant>
+		</param>
+		<param name="INREPLYTOSCREENNAME_TEXT_SIZE"> 
+			<type>NVARCHAR</type> 
+			<length>128</length>
+			<constant>INREPLYTOSCREENNAME_TEXT_SIZE</constant>
+		</param>
+		<param name="PLACEID_TEXT_SIZE"> 
+			<type>NVARCHAR</type> 
+			<length>16</length>
+			<constant>PLACEID_TEXT_SIZE</constant>
+		</param>
+		<param name="PLNAME_TEXT_SIZE"> 
+			<type>NVARCHAR</type> 
+			<length>256</length>
+			<constant>PLNAME_TEXT_SIZE</constant>
+		</param>
+		<param name="PLCOUNTRY_TEXT_SIZE"> 
+			<type>NVARCHAR</type> 
+			<length>128</length>
+			<constant>PLCOUNTRY_TEXT_SIZE</constant>
+		</param>
+		<param name="SNID_TEXT_SIZE"> 
+			<type>NVARCHAR</type> 
+			<length>2</length>
+			<constant>SNID_TEXT_SIZE</constant>
+		</param>
+		<param name="USERID_TEXT_SIZE"> 
+			<type>NVARCHAR</type> 
+			<length>20</length>
+			<constant>USERID_TEXT_SIZE</constant>
+		</param>
+		<param name="USERNAME_TEXT_SIZE"> 
+			<type>NVARCHAR</type> 
+			<length>128</length>
+			<constant>USERNAME_TEXT_SIZE</constant>
+		</param>
+		<param name="USERNICKNAME_TEXT_SIZE"> 
+			<type>NVARCHAR</type> 
+			<length>128</length>
+			<constant>USERNICKNAME_TEXT_SIZE</constant>
+		</param>
+		<param name="USERLANG_TEXT_SIZE"> 
+			<type>NVARCHAR</type> 
+			<length>64</length>
+			<constant>USERLANG_TEXT_SIZE</constant>
+		</param>
+		<param name="USERLOCATION_TEXT_SIZE"> 
+			<type>NVARCHAR</type> 
+			<length>1024</length>
+			<constant>USERLOCATION_TEXT_SIZE</constant>
+		</param>
+	</configuration>
+</configurations>

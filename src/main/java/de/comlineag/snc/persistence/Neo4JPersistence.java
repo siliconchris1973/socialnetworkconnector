@@ -10,19 +10,19 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 
+import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.HttpErrorMessages;
 import de.comlineag.snc.constants.HttpStatusCodes;
 import de.comlineag.snc.constants.Neo4JConstants;
-import de.comlineag.snc.constants.RelationshipTypes;
+import de.comlineag.snc.constants.GraphRelationshipTypes;
 import de.comlineag.snc.data.PostingData;
 import de.comlineag.snc.data.UserData;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
+import de.comlineag.snc.handler.DataCryptoHandler;
 import de.comlineag.snc.neo4j.Relation;
 import de.comlineag.snc.neo4j.TraversalDefinition;
 import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
@@ -54,7 +54,17 @@ import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
  * TODO check implementation of geo geoLocation
  */
 public class Neo4JPersistence implements IPersistenceManager {
+	// this holds a reference to the runtime configuration
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	
+	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
+	private final ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
+	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
+	private final DataCryptoHandler dataCryptoProvider = new DataCryptoHandler();
+	// this is a reference to the Neo4J configuration settings
+	private final Neo4JConfiguration nco = Neo4JConfiguration.getInstance();
 	
 	// Servicelocation
 	private String host;
@@ -82,8 +92,6 @@ public class Neo4JPersistence implements IPersistenceManager {
 	private String fromNodeLocationUri;
 	private Long fromNodeId;
 	
-	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private ConfigurationCryptoHandler configurationEncryptionProvider = new ConfigurationCryptoHandler();
 		
 	public Neo4JPersistence() {
 		// initialize the necessary variables from applicationContext.xml for server connection
@@ -154,14 +162,14 @@ public class Neo4JPersistence implements IPersistenceManager {
 			/*
 			if (postData.getInReplyTo() <= 0) {
 				// create a relationship between User   and Post           of type AUTHORED            with no additional data
-				createRelationship(fromNodeLocationUri, toNodeLocationUri, RelationshipTypes.IN_REPLY_TO_STATUS, null);
+				createRelationship(fromNodeLocationUri, toNodeLocationUri, GraphRelationshipTypes.IN_REPLY_TO_STATUS, null);
 			}
 			*/
 			p.put("inReplyToUserID", postingData.getInReplyToUser()); 				// CONNECTION Name="inReplyToUserID" Type="REPLIED_TO"
 			/*
 			 if (postData.getInReplyToUser() <= 0) {
 				// create a relationship between User   and Post           of type AUTHORED            with no additional data
-				createRelationship(fromNodeLocationUri, toNodeLocationUri, RelationshipTypes.IN_REPLY_TO_USER, null);
+				createRelationship(fromNodeLocationUri, toNodeLocationUri, GraphRelationshipTypes.IN_REPLY_TO_USER, null);
 			}
 			*/
 			logger.trace("about to insert the following data in the graph: " + p.toString());
@@ -280,7 +288,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 		// now that we have a post and a user (either new or already stored) in the graph-db lets create the relationship
 		if (Neo4JConstants.AUTO_CREATE_EDGE) 
 			// create a relationship between User   and Post           of type AUTHORED            with no additional data
-			createRelationship(fromNodeLocationUri, toNodeLocationUri, RelationshipTypes.AUTHORED, null);
+			createRelationship(fromNodeLocationUri, toNodeLocationUri, GraphRelationshipTypes.AUTHORED, null);
 	}
 	
 	
@@ -293,7 +301,7 @@ public class Neo4JPersistence implements IPersistenceManager {
 	 * @param relationshipType
 	 * 
 	 */
-	private void createRelationship(String fromNodeUri, String toNodeUri, RelationshipTypes relationshipType, String additionalData){ //, UserData userData, PostingData postData){
+	private void createRelationship(String fromNodeUri, String toNodeUri, GraphRelationshipTypes relationshipType, String additionalData){ //, UserData userData, PostingData postData){
 		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
 		
 		logger.debug("Creating relationship from node " + fromNodeUri + " to node " + toNodeUri + " with relationship type " + relationshipType);

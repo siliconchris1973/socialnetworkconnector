@@ -7,8 +7,8 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
-import org.xml.sax.SAXException;
 
+import org.xml.sax.SAXException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +78,7 @@ public final class RuntimeConfiguration {
 	// any of these sections are moved out of the runtime configuration xml in other files.
 	private String 		runtimeConfigFilePath;	// this is the standard runtime configuration file (usually SNC_Runtime_Configuration.xml) 
 	private String 		hanaConfigFilePath;		// this is the hana data definition file (usually SNC_HANA_Configuration.xml)
+	private String 		neo4JConfigFilePath;	// this is the Neo4J data definition file (usually SNC_Neo4J_Configuration.xml)
 	private String 		socialNetworkFilePath;	// this is file containing all social network and web page definitions (usually SocialNetworkDefinition.xml)
 	private String 		webParserListFilePath; 	// this file contains all available web parser (usually properties/webparser.xml)
 	private String		crawlerConfigFilePath;	// this file contains definitions for the crawler (usually in SNC_Runtime_Configuration.xml)
@@ -103,6 +104,8 @@ public final class RuntimeConfiguration {
 			configFilePath=getDataConfigFilePath();
 		else if (configArea.equals("hana"))
 			configFilePath=getHanaConfigFilePath();
+		else if (configArea.equals("neo4j"))
+			configFilePath=getNeo4JConfigFilePath();
 		else if (configArea.equals("socialnetwork"))
 			configFilePath=getSocialNetworkFilePath();
 		else if (configArea.equals("webparserlist"))
@@ -233,6 +236,7 @@ public final class RuntimeConfiguration {
 		setDataConfigFilePath(		returnQualifiedConfigPath(	getStringValue("DataConfigurationFilePath", "runtime")));
 		setThreadingConfigFilePath(	returnQualifiedConfigPath(	getStringValue("ThreadingConfigurationFilePath", "runtime")));
 		setHanaConfigFilePath(		returnQualifiedConfigPath(	getStringValue("HanaConfigurationFilePath", "runtime")));
+		setHanaConfigFilePath(		returnQualifiedConfigPath(	getStringValue("Neo4JConfigurationFilePath", "runtime")));
 		setWebParserListFilePath(	returnQualifiedConfigPath(	getStringValue("ParserListFilePath", "runtime")));
 		setSocialNetworkFilePath(	returnQualifiedConfigPath(	getStringValue("SocialNetworkFilePath", "runtime")));
 	}
@@ -242,19 +246,25 @@ public final class RuntimeConfiguration {
 	// getter for the configuration file path
 	public String 	getRuntimeConfigFilePath()	{ return runtimeConfigFilePath; }
 	public String 	getHanaConfigFilePath() 	{ return hanaConfigFilePath; }
+	public String	getNeo4JConfigFilePath()	{ return neo4JConfigFilePath; }
 	public String 	getSocialNetworkFilePath()	{ return socialNetworkFilePath; }
 	public String 	getWebParserListFilePath()	{ return webParserListFilePath; }
 	public String 	getCrawlerConfigFilePath()	{ return crawlerConfigFilePath; }
 	public String 	getDataConfigFilePath()		{ return dataConfigFilePath; }
 	public String	getThreadingConfigFilePath(){ return threadingConfigFilePath; }
 	public String	getXmlLayoutFilePath()		{ return xmlLayoutFilePath; }
+	
+
 	// setter for the configuration file path
 	private void 	setRuntimeConfigFilePath(String runtimeConfigFile) 		{ runtimeConfigFilePath = runtimeConfigFile;}
 	private void 	setSocialNetworkFilePath(String socialNetworkFile) 		{ socialNetworkFilePath = socialNetworkFile;}
 	private void 	setWebParserListFilePath(String parserListFile) 		{ webParserListFilePath = parserListFile;}
 	private void	setHanaConfigFilePath(String hanaConfigFile) 			{ hanaConfigFilePath = hanaConfigFile;}
+	private void	setNeo4JConfigFilePath(String neo4JConfigFile) 			{ neo4JConfigFilePath = neo4JConfigFile;}
 	private void	setCrawlerConfigFilePath(String crawlerConfigFile)		{ crawlerConfigFilePath = crawlerConfigFile;}
 	private void	setDataConfigFilePath(String dataConfigFile)			{ dataConfigFilePath = dataConfigFile; }
 	private void 	setThreadingConfigFilePath(String threadingConfigFile)	{ threadingConfigFilePath = threadingConfigFile;}
 	private void 	setXmlLayoutFilePath(String xmlLayoutFile)				{ xmlLayoutFilePath = xmlLayoutFile;}
+
+	
 }

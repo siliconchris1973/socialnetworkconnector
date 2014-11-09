@@ -36,6 +36,7 @@
 			<domain>https://wissen.cortalconsors.de</domain>			<!-- change the url to the location of the lithium network in use by customer -->
 			<supported>YES</supported>
 			<crawlertype>native</crawlertype>
+			<localePattern>yyyy-MM-dd'T'HH:mm:ssZZ</localePattern>
 		</network>
 		
 		<!-- FINANZFORUM - currently undefined and not used -->
@@ -57,6 +58,8 @@
 			<description>Wallstreet Online - a financial oriented discussion and news forum</description>
 			<domain>https://www.wallstreet-online.de</domain>
 			<supported>YES</supported>
+			<locale>GERMANY></locale>
+			<localePattern>dd.MM.yy HH:mm:ss</localePattern>
 			<crawlertype>web</crawlertype>
 		</network>
 		
@@ -70,6 +73,8 @@
 			<description>Twitter</description>
 			<domain>twitter.com</domain>
 			<supported>YES</supported>
+			<localePattern>EEE MMM d H:m:s Z yyyy</localePattern>
+			<locale>US</locale>
 			<crawlertype>native</crawlertype>
 		</network>
 		
@@ -202,6 +207,8 @@
 			<description>any possible website</description>
 			<domain>https://www.everywhere.de</domain>
 			<supported>YES</supported>
+			<locale>US</locale>
+			<localePattern>dd.MM.yy HH:mm:ss</localePattern>
 			<crawlertype>web</crawlertype>
 		</network>
 		
