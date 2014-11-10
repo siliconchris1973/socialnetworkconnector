@@ -1,8 +1,9 @@
 package de.comlineag.snc.data;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
@@ -55,9 +56,11 @@ public final class TwitterUserData extends UserData {
 		
 		// set all values to zero
 		initialize();
+		String s;
 		
 		try {
-			setId((String) jsonObject.get("id"));
+			s = Objects.toString(jsonObject.get("id"), null);
+			setId((String) s);
 			setUsername((String) jsonObject.get("name"));
 			setScreenName((String) jsonObject.get("screen_name"));
 			

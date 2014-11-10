@@ -1,52 +1,128 @@
 <!-- 
 	This is the xml configuration file for the social network connector
-	HANA persistence layer.
+	Neo4J Graph persistence layer.
 	
-	It is used to configure basic layout and schema information about the
-	HANA database system. You NEED to adapt this file, in case you change
-	anything on the given layout of the database, but it is not recommended
-	to do so. 
+	<property name="protocol" value="http" /> 
+	<property name="host" value="localhost" /> 
+	<property name="port" value="7474" /> 
+	<property name="location" value="/db/data" /> 
+	<property name="db_path" value="/db/data" />
 	
+	private String host;
+	private String port;
+	private String protocol;
+	private String location;
 	
-	What is of utmost importance is the layout of this file itself.
-	 
-	- - -		DO NOT CHANGE THE LAYOUT OF THIS FILE!	 	 - - -
-	- - -		 ALSO, DO NOT RENAME/MOVE THIS FILE!		 - - - 
-	
-	In contrast to all other configuration files, the layout of this file
-	is not adaptable. That is, the path to the elements is hard coded and
-	not configured via GeneralConfiguration.xml section XmlLayout! As a
-	consequence, if you change the layout of this file and hope to adapt 
-	those changes in GeneralConfiguration, your attempt will fail and the 
-	HANA persistence layer will cease to work.
+	// file system path to the db
+	private String db_path;
+	// Credentials
+	private String db_user;
+	private String db_pass;
 -->
 <configurations>
-	<configuration scope="DbLayout">
-		<!-- This is the store location within the neo4j server -->
-		<param name="PathToNodes">
+	<configuration scope="connection">
+		<!-- protocol hostname and potr for the rest connection -->
+		<param name="DbConnectionProtocol">
 			<type>String</type>
-			<value>comline.saa.data.tables</value>
-			<constant>PATH_TO_NODES</constant>
+			<value>http</value>
+			<constant>DB_CONNECTION_PROTOCOL</constant>
 		</param>
-		<!-- this is the most important schema name -->
-		<param name="SchemaName">
+		<param name="DbConnectionHost">
 			<type>String</type>
-			<value>CL_SAA</value>
-			<constant>SCHEMA_NAME</constant>
+			<value>localhost</value>
+			<constant>DB_CONNECTION_HOST</constant>
 		</param>
-		<!-- the name of the database table with the posts -->
-		<param name="PostsLabel">
+		<param name="DbConnectionPort">
 			<type>String</type>
-			<value>posts</value>
-			<constant>POSTS_LABEL</constant>
+			<value>7474</value>
+			<constant>DB_CONNECTION_PORT</constant>
 		</param>
-		<!-- the name of the database table with the users -->
-		<param name="UsersLabel">
+		<!-- uri location of the rest api -->
+		<param name="DbConnectionLocation">
 			<type>String</type>
-			<value>users</value>
-			<constant>USERS_LABEL</constant>
+			<value>/db/data</value>
+			<constant>DB_CONNECTION_LOCATION</constant>
+		</param>
+		
+		<!-- Username and password to connect to neo4j -->
+		<param name="DbConnectionUser">
+			<type>String</type>
+			<value></value>
+			<constant>DB_CONNECTION_USER</constant>
+		</param>
+		<param name="DbConnectionPassword">
+			<type>String</type>
+			<value></value>
+			<constant>DB_CONNECTION_PASSWORDD</constant>
+		</param>
+		
+		<!-- uri endpoint for relationships -->
+		<param name="DbRelationshipEndpointLocation">
+			<type>String</type>
+			<value>/relationships</value>
+			<constant>DB_RELATIONSHIP_ENDPOINT_LOCATION</constant>
+		</param>
+		<!-- uri endpoint for cypher -->
+		<param name="DbCypherEndpointLocation">
+			<type>String</type>
+			<value>/cypher</value>
+			<constant>DB_CYPHER_ENDPOINT_LOCATION</constant>
+		</param>
+		<!-- uri endpoint for nodes -->
+		<param name="DbNodeEndpointLocation">
+			<type>String</type>
+			<value>/node</value>
+			<constant>DB_NODE_ENDPOINT_LOCATION</constant>
+		</param>
+		<!-- uri endpoint for properties -->
+		<param name="DbÜropertyEndpointLocation">
+			<type>String</type>
+			<value>/properties</value>
+			<constant>DB_PROPERTIES_ENDPOINT_LOCATION</constant>
+		</param>
+		<!-- uri endpoint for labels -->
+		<param name="DbLabelEndpointLocation">
+			<type>String</type>
+			<value>/labels</value>
+			<constant>DB_LABEL_ENDPOINT_LOCATION</constant>
+		</param>
+		 
+		 <param name="DbFsPath">
+			<type>String</type>
+			<value>/db/data</value>
+			<constant>DB_FS_PATH</constant>
 		</param>
 	</configuration>
+	
+	
+	<configuration scope="DbLayout">
+		<!-- the name of the database table with the posts -->
+		<param name="PostLabel">
+			<type>String</type>
+			<value>post</value>
+			<constant>POST_LABEL</constant>
+		</param>
+		<!-- the name of the database table with the users -->
+		<param name="UserLabel">
+			<type>String</type>
+			<value>user</value>
+			<constant>USER_LABEL</constant>
+		</param>
+		<!-- the name of the database table with the hashtags -->
+		<param name="HashtagLabel">
+			<type>String</type>
+			<value>hashtag</value>
+			<constant>HASHTAG_LABEL</constant>
+		</param>
+		<!-- the name of the database table with the keywords -->
+		<param name="KeywordLabel">
+			<type>String</type>
+			<value>keyword</value>
+			<constant>KEYWORD_LABEL</constant>
+		</param>
+	</configuration>
+	
+	
 	
 	<!-- THESE VALUES DEFINE MAXIMUM FILED SIZES -->
 	<configuration scope="fieldSizes">

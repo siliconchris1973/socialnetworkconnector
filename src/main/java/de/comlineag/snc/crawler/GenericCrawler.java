@@ -38,7 +38,7 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
  * 
  */
 public abstract class GenericCrawler implements Job {
-	// this holds a reference to the runtime cinfiguration
+	// this holds a reference to the runtime configuration
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	
 	private static String CRAWLER_NAME;
@@ -51,7 +51,7 @@ public abstract class GenericCrawler implements Job {
 	private final String configurationKey = rtc.getStringValue("SingleConfigurationIdentifier", "XmlLayout");
 	private final String scopeKey = rtc.getStringValue("ScopeIdentifier", "XmlLayout");
 	private final String socialNetworkKey = rtc.getStringValue("SocialNetworkConfiguration", "XmlLayout");
-	private final String socialNetworkNameKey = rtc.getStringValue("SocialNetworkName", "XmlLayout");
+	private final String socialNetworkNameKey = rtc.getStringValue("SocialNetworkNameIdentifier", "XmlLayout");
 	
 	
 	

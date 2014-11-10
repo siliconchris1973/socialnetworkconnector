@@ -12,6 +12,7 @@ import org.xml.sax.SAXException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.comlineag.snc.constants.SNCStatusCodes;
 import de.comlineag.snc.data.RuntimeOption;
 import de.comlineag.snc.handler.RuntimeOptionsParser;
 
@@ -76,15 +77,15 @@ public final class RuntimeConfiguration {
 	
 	// configuration file path variables - these variables are used internally by the RuntimeConfiguration class in case
 	// any of these sections are moved out of the runtime configuration xml in other files.
-	private String 		runtimeConfigFilePath;	// this is the standard runtime configuration file (usually SNC_Runtime_Configuration.xml) 
-	private String 		hanaConfigFilePath;		// this is the hana data definition file (usually SNC_HANA_Configuration.xml)
-	private String 		neo4JConfigFilePath;	// this is the Neo4J data definition file (usually SNC_Neo4J_Configuration.xml)
-	private String 		socialNetworkFilePath;	// this is file containing all social network and web page definitions (usually SocialNetworkDefinition.xml)
-	private String 		webParserListFilePath; 	// this file contains all available web parser (usually properties/webparser.xml)
-	private String		crawlerConfigFilePath;	// this file contains definitions for the crawler (usually in SNC_Runtime_Configuration.xml)
-	private String		dataConfigFilePath;		// this file contains global data definitions (usually in SNC_Runtime_Configuration.xml)
-	private String		threadingConfigFilePath;// this file contains the threading configuration (usually in SNC_Runtime_Configuration.xml)
-	private String		xmlLayoutFilePath;		// this file contains the XML Layout information for the configuration files (usually in SNC_Runtime_Configuration.xml)
+	private String 	runtimeConfigFilePath;	// this is the standard runtime configuration file (usually SNC_Runtime_Configuration.xml) 
+	private String 	hanaConfigFilePath;		// this is the hana data definition file (usually SNC_HANA_Configuration.xml)
+	private String 	neo4JConfigFilePath;	// this is the Neo4J data definition file (usually SNC_Neo4J_Configuration.xml)
+	private String 	socialNetworkFilePath;	// this is file containing all social network and web page definitions (usually SocialNetworkDefinition.xml)
+	private String 	webParserListFilePath; 	// this file contains all available web parser (usually properties/webparser.xml)
+	private String	crawlerConfigFilePath;	// this file contains definitions for the crawler (usually in SNC_Runtime_Configuration.xml)
+	private String	dataConfigFilePath;		// this file contains global data definitions (usually in SNC_Runtime_Configuration.xml)
+	private String	threadingConfigFilePath;// this file contains the threading configuration (usually in SNC_Runtime_Configuration.xml)
+	private String	xmlLayoutFilePath;		// this file contains the XML Layout information for the configuration files (usually in SNC_Runtime_Configuration.xml)
 	
 	/**
 	 * @description returns for a given configuration area the corresponding file path
@@ -126,9 +127,8 @@ public final class RuntimeConfiguration {
 		} catch (NullPointerException e){ 
         	logger.error("EXCEPTION :: element or file not found while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea));
         	e.printStackTrace();
-        	System.exit(-1);
 		} catch (IOException e){
-	        	logger.error("EXCEPTION :: IO Error while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea)+" the exception is -- " + e.getMessage());
+	        logger.error("EXCEPTION :: IO Error while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea)+" the exception is -- " + e.getMessage());
 		} catch (Exception e){
         	logger.error("EXCEPTION :: Somethig went wrong while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea)+" the exception is -- " + e.getMessage());
         }
@@ -153,9 +153,8 @@ public final class RuntimeConfiguration {
 		} catch (NullPointerException e){ 
         	logger.error("EXCEPTION :: element or file not found while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea));
         	e.printStackTrace();
-        	System.exit(-1);
 		} catch (IOException e){
-	        	logger.error("EXCEPTION :: IO Error while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea)+" the exception is -- " + e.getMessage());
+	        logger.error("EXCEPTION :: IO Error while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea)+" the exception is -- " + e.getMessage());
 		} catch (Exception e){
         	logger.error("EXCEPTION :: Somethig went wrong while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea)+" the exception is -- " + e.getMessage());
         }
@@ -183,9 +182,8 @@ public final class RuntimeConfiguration {
 		} catch (NullPointerException e){ 
         	logger.error("EXCEPTION :: element or file not found while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea));
         	e.printStackTrace();
-        	System.exit(-1);
 		} catch (IOException e){
-	        	logger.error("EXCEPTION :: IO Error while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea)+" the exception is -- " + e.getMessage());
+	        logger.error("EXCEPTION :: IO Error while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea)+" the exception is -- " + e.getMessage());
 		} catch (Exception e){
         	logger.error("EXCEPTION :: Somethig went wrong while checking for "+parameter+" in section "+configArea+" of file "+getConfigFilePath(configArea)+" the exception is -- " + e.getMessage());
         }
@@ -227,7 +225,7 @@ public final class RuntimeConfiguration {
 	
 	// the constructor is NOT to be executed externally, but only via getInstance()
 	private RuntimeConfiguration(){
-		logger.debug("initializing runtime configuration");
+		logger.debug("Initializing runtime configuration");
 		setRuntimeConfigFilePath(	returnQualifiedConfigPath(RTCF));
 		
 		//logger.debug("setting path to configuration files");
@@ -236,7 +234,7 @@ public final class RuntimeConfiguration {
 		setDataConfigFilePath(		returnQualifiedConfigPath(	getStringValue("DataConfigurationFilePath", "runtime")));
 		setThreadingConfigFilePath(	returnQualifiedConfigPath(	getStringValue("ThreadingConfigurationFilePath", "runtime")));
 		setHanaConfigFilePath(		returnQualifiedConfigPath(	getStringValue("HanaConfigurationFilePath", "runtime")));
-		setHanaConfigFilePath(		returnQualifiedConfigPath(	getStringValue("Neo4JConfigurationFilePath", "runtime")));
+		setNeo4JConfigFilePath(		returnQualifiedConfigPath(	getStringValue("Neo4JConfigurationFilePath", "runtime")));
 		setWebParserListFilePath(	returnQualifiedConfigPath(	getStringValue("ParserListFilePath", "runtime")));
 		setSocialNetworkFilePath(	returnQualifiedConfigPath(	getStringValue("SocialNetworkFilePath", "runtime")));
 	}

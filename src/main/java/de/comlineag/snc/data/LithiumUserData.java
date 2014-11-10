@@ -1,8 +1,9 @@
 package de.comlineag.snc.data;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -86,10 +87,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  */
 public final class LithiumUserData extends UserData {
 
-	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	public LithiumUserData() {}
 	
@@ -106,6 +104,7 @@ public final class LithiumUserData extends UserData {
 		
 		// alles auf Null und die SocialNetworkID schon mal parken
 		initialize();
+		String s; // helper var to cast from long to string
 		
 		try {
 			JSONParser parser = new JSONParser();
@@ -119,7 +118,8 @@ public final class LithiumUserData extends UserData {
 			obj = parser.parse(jsonObject.get("id").toString());
 			JSONObject jsonObjId = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			setId((String) jsonObjId.get("$"));
+			s = Objects.toString(jsonObjId.get("$"), null);
+			setId((String) s);
 			
 			// username / login and nickname, all the same at lithium
 			// Structure

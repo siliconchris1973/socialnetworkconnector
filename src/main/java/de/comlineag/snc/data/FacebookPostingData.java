@@ -2,10 +2,10 @@ package de.comlineag.snc.data;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
@@ -51,11 +51,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  */
 
 public final class FacebookPostingData extends PostingData {
-
-	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	/**
 	 * Constructor, based on the JSONObject sent from Facebook the Data Object is prepared
@@ -71,10 +67,12 @@ public final class FacebookPostingData extends PostingData {
 		
 		// set all values to zero
 		initialize();
+		String s;
 		
 		try {
 			// posting ID 
-			setId((String) jsonObject.get("id"));
+			s = Objects.toString(jsonObject.get("id"), null);
+			setId(s);
 			
 			
 			// User ID

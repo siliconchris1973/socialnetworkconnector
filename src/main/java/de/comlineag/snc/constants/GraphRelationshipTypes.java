@@ -18,12 +18,12 @@ import org.neo4j.graphdb.RelationshipType;
  * 				
  * 				ENUM Static				attribute		cypher as ascii art example
  * 				---------------------------------------------------------------------------
- * 				IN_REPLY_TO_STATUS		replied_on		(p:Post-ID) -[replied_on]-> (p:Post-ID)
- * 				IN_REPLY_TO_USER		replied_on		(p:Post-ID) -[replied_on]-> (u:User-ID) 
- * 				USER_MENTIONS			mentioned		(p:Post-ID) -[mentioned]-> (u:User-ID)
- * 				RETWEETED				reposted		(u:User-ID) -[reposted]-> (p:Post-ID)
- * 				FAVORITED				favorited		(u:User-ID) -[favorited]-> (p:Post-ID)
- * 				FOLLOWS					follows			(u:User-ID) -[follows]-> (u:User-ID)
+ * 				IN_REPLY_TO_STATUS		replied_on		(p:Post-ID) -[REPLIED_ON]-> (p:Post-ID)
+ * 				IN_REPLY_TO_USER		replied_on		(p:Post-ID) -[REPLIED_ON]-> (u:User-ID) 
+ * 				USER_MENTIONS			mentioned		(p:Post-ID) -[MENTIONED]-> (u:User-ID)
+ * 				RETWEETED				reposted		(u:User-ID) -[REPOSTED]-> (p:Post-ID)
+ * 				FAVORITED				favorited		(u:User-ID) -[FAVORITED]-> (p:Post-ID)
+ * 				FOLLOWS					follows			(u:User-ID) -[KNOWS]-> (u:User-ID)
  * 				AUTHORED				wrote			(u:User-ID) -[wrote]-> (p:Post-ID)
  * 				
  * @changelog	0.1 (Chris)		class created
@@ -31,21 +31,37 @@ import org.neo4j.graphdb.RelationshipType;
  * 
  */
 public enum GraphRelationshipTypes implements RelationshipType {
-	IN_REPLY_TO_STATUS	("replied_on"),
-	IN_REPLY_TO_POST	("replied_on"),
-	IN_REPLY_TO_USER	("replied_on"),
-	USER_MENTIONS		("mentioned"),
-	RETWEETED			("reposted"),
-	FAVORITED			("favorited"),
-	FOLLOWS				("follows"),
-	AUTHORED			("wrote"),
-	MENTIONED			("mentioned"),
-	TALKS_ABOUT			("talks_about"),
-	LINKS_TO			("linked"),
-	LINKED_FROM			("linked"),
-	IS_ABOUT			("is_about"),
-	CONTAINS			("contains"),
-	BELONGS_TO			("belongs_to");
+	REPLIED_ON, 
+	MENTIONED, 
+	REPOSTED, 
+	FAVORITED, 
+	RATED, 
+	KNOWS, 
+	WROTE, 
+	TALKS_ABOUT, 
+	REFERENCED, 
+	IS_ABOUT, 
+	CONTAINS, 
+	BELONGS_TO;
+	
+	/*	IN_REPLY_TO_STATUS	("REPLIED_ON"),
+	IN_REPLY_TO_POST	("REPLIED_ON"),
+	IN_REPLY_TO_USER	("REPLIED_ON"),
+	USER_MENTIONS		("MENTIONED"),
+	MENTIONED			("MENTIONED"),
+	RETWEETED			("REPOSTED"),
+	FAVORITED			("FAVORITED"),
+	RATED				("RATED"),
+	FOLLOWS				("KNOWS"),
+	IS_CONNECTED		("KNOWS"),
+	FRIEND				("KNOWS"),
+	AUTHORED			("WROTE"),
+	TALKS_ABOUT			("TALKS_ABOUT"),
+	LINKS_TO			("REFERENCED"),
+	LINKED_FROM			("REFERENCED"),
+	IS_ABOUT			("IS_ABOUT"),
+	CONTAINS			("CONTAINS"),
+	BELONGS_TO			("BELONGS_TO");
 	
 	
 	private final String value;
@@ -60,4 +76,5 @@ public enum GraphRelationshipTypes implements RelationshipType {
 	public String toString() {
 		return getValue();
 	}
+*/
 }

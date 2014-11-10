@@ -28,7 +28,8 @@
  			 class checks for an absolute path and if it does not find one (no / // or drive letter like 
  			 c: at the start), it assumes the file to be located in or below the WEB-INF directory -->
  		
- 		<!-- location of the file containing the layout information of the configuration files -->
+ 		<!-- XmlLayoutFilePath
+ 			 location of the file containing the layout information of the configuration files -->
  		<option>
 			<name>XmlLayoutFilePath</name>
 			<type>String</type>
@@ -36,7 +37,8 @@
 			<constant>XML_LAYOUT_FILE_PATH</constant>
 		</option>
 		
-		<!-- location of the file with the social network definitions -->
+		<!-- SocialNetworkFilePath
+			 location of the file with the social network definitions -->
 		<option>
 			<name>SocialNetworkFilePath</name>
 			<type>String</type>
@@ -44,7 +46,8 @@
 			<constant>SOCIAL_NETWORK_FILE_PATH</constant>
 		</option>
 		
-		<!-- location of the file with the available parsers -->
+		<!-- ParserListFilePath
+			 location of the file with the available parsers -->
 		<option>
 			<name>ParserListFilePath</name>
 			<type>String</type>
@@ -52,7 +55,8 @@
 			<constant>PARSER_LIST_FILE_PATH</constant>
 		</option>
 		
-		<!-- location of the file with the configuration options for the hana database -->
+		<!-- HanaConfigurationFilePath
+			 location of the file with the configuration options for the hana database -->
 		<option>
 			<name>HanaConfigurationFilePath</name>
 			<type>String</type>
@@ -60,7 +64,8 @@
 			<constant>HANA_CONFIGURATION_FILE_PATH</constant>
 		</option>
 		
-		<!-- location of the file with the configuration options for the Neo4J Graph database -->
+		<!-- Neo4JConfigurationFilePath
+			 location of the file with the configuration options for the Neo4J Graph database -->
 		<option>
 			<name>Neo4JConfigurationFilePath</name>
 			<type>String</type>
@@ -68,7 +73,8 @@
 			<constant>NEO4J_CONFIGURATION_FILE_PATH</constant>
 		</option>
 		
-		<!-- location of the file with the configuration options for the crawler - this
+		<!-- CrawlerConfigurationFilePath
+			 location of the file with the configuration options for the crawler - this
 			 is usually also in the runtime configuration file, section crawler. In case you move
 			 the section crawler from this file to someplace else, enter the filename here. -->
 		<option>
@@ -78,7 +84,8 @@
 			<constant>CRAWLER_CONFIGURATION_FILE_PATH</constant>
 		</option>
 		
-		<!-- location of the file with the configuration options for the data structure - this
+		<!-- DataConfigurationFilePath
+			 location of the file with the configuration options for the data structure - this
 			 is usually also in the runtime configuration file, section DataDefinitions. In case 
 			 you move the section DataDefinitions from this file to someplace else, enter the 
 			 filename here. -->
@@ -89,7 +96,8 @@
 			<constant>DATA_CONFIGURATION_FILE_PATH</constant>
 		</option>
 		
-		<!-- location of the file with the configuration options for the threading model - this
+		<!-- ThreadingConfigurationFilePath
+			 location of the file with the configuration options for the threading model - this
 			 is usually also in the runtime configuration file, section Threading. In case 
 			 you move the section Threading from this file to someplace else, enter the 
 			 filename here. -->
@@ -101,84 +109,112 @@
 		</option>
 		
 		
-		<!-- show warning in case the simple INI file configuration is used -->
+		<!-- WarnOnSimpleConfigOption
+			 show warning in case the simple INI file configuration is used -->
 		<option>
 			<name>WarnOnSimpleConfigOption</name>
 			<type>boolean</type>
 			<value>true</value>
 			<constant>WARN_ON_SIMPLE_CONFIG_OPTION</constant>
 		</option>
-		<!-- show warning in case the simple XML file configuration is used -->
+		
+		<!-- WarnOnSimpleXmlConfigOption
+			 show warning in case the simple XML file configuration is used -->
 		<option>
 			<name>WarnOnSimpleXmlConfigOption</name>
 			<type>boolean</type>
 			<value>true</value>
 			<constant>WARN_ON_SIMPLE_XML_CONFIG_OPTION</constant>
 		</option>
-		<!-- show a debug message in case some actions are omitted due to configuration settings -->
+		
+		<!-- WarnOnRejectedActions
+			 show a debug message in case some actions are omitted due to configuration settings -->
 		<option>
 			<name>WarnOnRejectedActions</name>
 			<type>boolean</type>
 			<value>true</value>
 			<constant>WARN_ON_REJECTED_ACTIONS</constant>
 		</option>
-		<!-- save a json file with the post data in case creating it in persistence fails -->
+		
+		<!-- CreatePostJsonOnError
+			 save a json file with the post data in case creating it in persistence fails -->
 		<option>
 			<name>CreatePostJsonOnError</name>
 			<type>boolean</type>
 			<value>true</value>
 			<constant>CREATE_POST_JSON_ON_ERROR</constant>
 		</option>
-		<!-- save a json file with the user data in case creating it in persistence fails -->
+		
+		<!-- CreateUserJsonOnError
+			 save a json file with the user data in case creating it in persistence fails -->
 		<option>
 			<name>CreateUserJsonOnError</name>
 			<type>boolean</type>
 			<value>true</value>
 			<constant>CREATE_USER_JSON_ON_ERROR</constant>
 		</option>
-		<!-- save a json file with the post data after creating it in persistence -->
+		
+		<!-- CreatePostJsonOnSuccess
+			 save a json file with the post data after creating it in persistence -->
 		<option>
 			<name>CreatePostJsonOnSuccess</name>
 			<type>boolean</type>
 			<value>false</value>
 			<constant>CREATE_POST_JSON_ON_SUCCESS</constant>
 		</option>
-		<!-- save a json file with the user data after creating it in persistence -->
+		
+		<!-- CreateUserJsonOnSuccess
+			 save a json file with the user data after creating it in persistence -->
 		<option>
 			<name>CreateUserJsonOnSuccess</name>
 			<type>boolean</type>
 			<value>false</value>
 			<constant>CREATE_USER_JSON_ON_SUCCESS</constant>
 		</option>
-		<!-- a storage directory under which the json files are stored in the below defined directories - must be in sync with the entry in applicationContext.xml -->
+		
+		<!-- StoragePath
+			 a storage directory under which the json files are stored in the below defined 
+			 directories - must be in sync with the entry in applicationContext.xml -->
 		<option>
 			<name>StoragePath</name>
 			<type>String</type>
 			<value>storage</value>
 			<constant>STORAGE_PATH</constant>
 		</option>
-		<!-- the path to the directory under which to save the json-files - must be in sync with the entry in applicationContext.xml -->
+		
+		<!-- JsonBackupStoragePath
+			 the path to the directory under which to save the json-files - must be in sync 
+			 with the entry in applicationContext.xml -->
 		<option>
 			<name>JsonBackupStoragePath</name>
 			<type>String</type>
 			<value>json</value>
 			<constant>JSON_BACKUP_STORAGE_PATH</constant>
 		</option>
-		<!-- the path to the directory under which to save processed json-files (files processed by FsCrawler) - must be in sync with the entry in applicationContext.xml -->
+		
+		<!-- ProcessedJsonBackupStoragePath
+			 the path to the directory under which to save processed json-files (files 
+			 processed by FsCrawler) - must be in sync with the entry in applicationContext.xml -->
 		<option>
 			<name>ProcessedJsonBackupStoragePath</name>
 			<type>String</type>
 			<value>processedJson</value>
 			<constant>PROCESSED_JSON_BACKUP_STORAGE_PATH</constant>
 		</option>
-		<!-- the path to the directory under which to store invalid json-files - must be in sync with the entry in applicationContext.xml -->
+		
+		<!-- InvalidJsonBackupStoragePath
+			 the path to the directory under which to store invalid json-files - must 
+			 be in sync with the entry in applicationContext.xml -->
 		<option>
 			<name>InvalidJsonBackupStoragePath</name>
 			<type>String</type>
 			<value>invalidJson</value>
 			<constant>INVALID_JSON_BACKUP_STORAGE_PATH</constant>
 		</option>
-		<!-- shall the crawler delete the failsave json files after processing or move the to above configured 2nd directory -->
+		
+		<!-- MoveOrDeleteProcessedJsonFiles
+			 shall the crawler delete the failsave json files after processing or move 
+			 the to above configured 2nd directory -->
 		<option>
 			<name>MoveOrDeleteProcessedJsonFiles</name>
 			<type>String</type>
@@ -186,10 +222,11 @@
 			<constant>MOVE_OR_DELETE_PROCESSED_JSON_FILES</constant>
 		</option>
 		
-		<!-- stop the SNC in case connecting to persistence fails and is thus unable to save posts and users?
-			 Consequently, setting this to true is only useful, in case you do not setup the FsCrawler (see
-			 applicationContext.xml) plus you do not save failed posts and users to disk - as configured with 
-			 above optioneters. -->
+		<!-- StopOnPersistenceFailure
+			 stop the SNC in case connecting to persistence fails and is thus unable to save 
+			 posts and users? Consequently, setting this to true is only useful, in case you 
+			 do not setup the FsCrawler (see applicationContext.xml) plus you do not save failed 
+			 posts and users to disk - as configured with above parameter. -->
 		<option>
 			<name>StopOnPersistenceFailure</name>
 			<type>boolean</type>
@@ -197,15 +234,30 @@
 			<constant>STOP_ON_PERSISTENCE_FAILURE</constant>
 		</option>
 		
-		<!-- stop the SNC in case reading or writing to configuration fails?
-			 The purpose of this setting is mainly in debugging: In case the of the configuration files can
-			 not be found, the server goes down together with the SNC. This somewhat scks and thus I introduced
+		<!-- StopOnConfigurationFailure
+			 stop the SNC in case reading or writing to configuration fails? The purpose of this 
+			 setting is mainly in debugging: In case the of the configuration files can not be found, 
+			 the server goes down together with the SNC. This somewhat scks and thus I introduced
 			 this option. Can't really imagine a reason to set this to false in a production environment -->
 		<option>
 			<name>StopOnConfigurationFailure</name>
 			<type>boolean</type>
-			<value>false</value>
+			<value>true</value>
 			<constant>STOP_ON_CONFIGURATION_FAILURE</constant>
+		</option>
+		
+		<!-- ActivateGraphDatabase
+			 activate a graph database, in addition to the standard persistence manager
+			 If set to true, the SNC will still honor the persistenceManager setting from 
+			 applicationContext.xml but will also create nodes and edges (relationships)
+			 of all tracked data within an additional graph database. The graph db to use
+			 is again defined in applicationContext.xml bean graphPersistenceManager - 
+			 currently we only support neo4j -->
+		<option>
+			<name>ActivateGraphDatabase</name>
+			<type>boolean</type>
+			<value>true</value>
+			<constant>ACTIVATE_GRAPH_DATABASE</constant>
 		</option>
 	</configuration>
 	
@@ -340,7 +392,7 @@
 			 nice linklist one has setup on his/her page  -->
 		<option>
 			<name>WcStayOnDomain</name>
-			<type>Boolean</type>
+			<type>boolean</type>
 			<value>true</value>
 			<constant>WC_STAY_ON_DOMAIN</constant>
 		</option>
@@ -356,7 +408,7 @@
 			 -->
 		<option>
 			<name>WcStayBelowGivenPath</name>
-			<type>Boolean</type>
+			<type>boolean</type>
 			<value>false</value>
 			<constant>WC_STAY_BELOW_GIVEN_PATH</constant>
 		</option>
@@ -366,7 +418,7 @@
 			 the db, which do not, in the end, contain any of your keywords! -->
 		<option>
 			<name>WcGetOnlyRelevantPages</name>
-			<type>Boolean</type>
+			<type>boolean</type>
 			<value>true</value>
 			<constant>WC_GET_ONLY_RELEVANT_PAGES</constant>
 		</option>
@@ -715,25 +767,25 @@
 			 the value in section PARSER_NAME from Parser to Frieda. -->
 		<option>
 			<name>ThreadingName</name>
-			<type>Sting</type>
+			<type>String</type>
 			<value>Threading</value>
 			<constant>THREADING_NAME</constant>
 		</option>
 		<option>
 			<name>ParserName</name>
-			<type>Sting</type>
+			<type>String</type>
 			<value>Parser</value>
 			<constant>PARSER_NAME</constant>
 		</option>
 		<option>
 			<name>CrawlerName</name>
-			<type>Sting</type>
+			<type>String</type>
 			<value>Crawler</value>
 			<constant>CRAWLER_NAME</constant>
 		</option>
 		<option>
 			<name>PersistenceName</name>
-			<type>Sting</type>
+			<type>String</type>
 			<value>Persistence</value>
 			<constant>PERSISTENCE_NAME</constant>
 		</option>

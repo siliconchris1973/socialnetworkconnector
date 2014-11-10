@@ -103,8 +103,11 @@ public class THEWebCrawlerController implements Job {
 				
 				// entry for the crawler configuration file
 				if (arg0.getJobDetail().getJobDataMap().containsKey("configDbHandler")) {
-					logger.debug("configDbHandöer for THEWebCrawler is " +(String) arg0.getJobDetail().getJobDataMap().get("configDbHandler") );
-					configurationScope.put("configDbHandler", (String) arg0.getJobDetail().getJobDataMap().get("configDbHandler"));
+					logger.debug("configDbHandler for THEWebCrawler is " +(String) arg0.getJobDetail().getJobDataMap().get("configDbHandler") );
+					if (!"___CRAWLER_CONFIGURATION___".equals((String) arg0.getJobDetail().getJobDataMap().get("configDbHandler"))) {
+						logger.debug("configuration file for the THEWeabCrawler set to {}", (String) arg0.getJobDetail().getJobDataMap().get("configDbHandler"));
+						configurationScope.put("configDbHandler", (String) arg0.getJobDetail().getJobDataMap().get("configDbHandler"));
+					}
 				}
 				
 				logger.debug("retrieving restrictions from configuration db");

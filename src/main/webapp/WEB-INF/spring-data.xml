@@ -21,10 +21,10 @@
 			http://www.springframework.org/schema/util 
 			http://www.springframework.org/schema/util/spring-util-3.1.xsd">
  
-	<context:property-placeholder properties-ref="deployProperties" />
+	<!-- <context:property-placeholder properties-ref="deployProperties" /> -->
  
 	<!-- Activate Spring Data Neo4j repository support -->
-	<neo4j:repositories base-package="org.krams"/>
+	<neo4j:repositories base-package="de.comlineag.snc"/>
  
   	<neo4j:config storeDirectory="target/temp.db"/>
   	

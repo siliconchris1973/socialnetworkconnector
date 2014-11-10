@@ -1,8 +1,9 @@
 package de.comlineag.snc.data;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -179,8 +180,9 @@ public final class LithiumPostingData extends PostingData {
 	public LithiumPostingData(JSONObject jsonObject) {
 		logger.debug("constructing new subset of data of post (LT-"  + jsonObject.get("id") + ") from lithium post-object");
 		
-		// alles auf Null und die SocialNetworkID schon mal parken
+		// set all data to initial values and also set the SN_ID to LITHIUM queivalent code
 		initialize();
+		String s; // helper var to cast from long to string
 		
 		try {
 			JSONParser parser = new JSONParser();
@@ -195,7 +197,8 @@ public final class LithiumPostingData extends PostingData {
 			obj = parser.parse(jsonObject.get("id").toString());
 			JSONObject jsonObjId = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			setId((String) jsonObjId.get("$"));
+			s = Objects.toString(jsonObjId.get("$"), null);
+			setId(s);
 			
 			
 			// the user

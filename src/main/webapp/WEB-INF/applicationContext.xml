@@ -68,7 +68,7 @@
 	<tx:annotation-driven />
 	
 	<!-- Import Neo4j datasource configuration -->
-	<import resource="spring-data.xml"/>
+	<!-- <import resource="spring-data.xml"/> -->
 	
 	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.appstate.ApplicationContextProvider"></bean>
 	<!-- this is used to get the path to the WEB-INF directory from within the application without
@@ -141,7 +141,7 @@
 			<props>
 				<!-- ThreadPool -->
 				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
-				<prop key="org.quartz.threadPool.threadCount">1</prop>
+				<prop key="org.quartz.threadPool.threadCount">3</prop>
 			</props>
 		</property>
 		<property name="triggers">
@@ -151,13 +151,13 @@
 					 Make sure to set the threadCount number above according to the number of activated 
 					 crawlers. The total number of threads must include the number of actual crawlers in
 					 this section plus the FsCrawler below - resulting in number of crawlers plus 1  -->
-				<!-- <ref bean="TwitterCrawlerTrigger" /> -->
+				<ref bean="TwitterCrawlerTrigger" />
 				<!-- <ref bean="FacebookCrawlerTrigger"/> -->
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="SimpleWebCrawlerTrigger"/> -->
 				<ref bean="THEWebCrawlerTrigger"/>
-				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
+				<ref bean="LithiumCrawlerTrigger" />
 				
 				
 				<!-- FILESYSTEM CRAWLER - SAFEGUARD
@@ -569,10 +569,9 @@
 	<!-- F I L E S Y S T E M    J S O N    P E R S I S T E N C E    (WORKS)  
 	     This one simply stores all posts and users as json files on disk. It is mainly 
 	     thought of as a development and not as a runtime persistence manager. It uses 
-	     the same path options as the FailSavePersistence (which is automatically started
-	     in case a more sophisticated persistence manager, such as a DB, fails to store or 
-	     update posts and users) and as such does not need any options. All options, like
-	     the path to the directory, is taken from SNC_Runtime_Configuration.xml.
+	     the same path options as the FailSavePersistence and as such does not need any 
+	     options. All options, like the path to the directory, is taken from 
+	     SNC_Runtime_Configuration-<VERSION>.xml.
 	     If you activate this storage manager, you should DEFINATELY turn off the FsCrawler 
 	     in the Job control section, otherwise your system will end up storing and restoring
 	     the same objects as json files with no end in sight -->
@@ -637,29 +636,6 @@
 	</bean>
 	-->
 	 
-	<!-- N E O 4 J    P E R S I S T E N C E    (WORKS in part) -->
-	<!-- 
-	<bean id="persistenceManager" class="de.comlineag.snc.persistence.Neo4JPersistence"> 
-		<property name="protocol" value="http" /> 
-		<property name="host" value="localhost" /> 
-		<property name="port" value="7474" /> 
-		<property name="location" value="/db/data" /> 
-		<property name="db_path" value="/db/data" /> 
-	</bean> 
-	-->
-	
-	<!-- N E O 4 J    E M B E D D E D    P E R S I S T E N C E    (TO BE IMPLEMENETED) -->
-	<!--
-	<bean id="persistenceManager" 
-		class="de.comlineag.snc.persistence.Neo4JEmbeddedPersistence"> 
-		<property name="protocol" value="t.b.d." /> 
-		<property name="host" value="localhost" /> 
-		<property name="port" value="7474" /> 
-		<property name="location" value="/db/data" /> 
-		<property name="db_path" value="/db/data" /> 
-	</bean> 
-	-->
-
 	<!-- M A P D B    P E R S I S T E N C E    (TO BE IMPLEMENTED) -->
 	<!-- 
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.MapDBPersistence"> 
@@ -669,6 +645,42 @@
 		<property name="location" value="/db/data" /> 
 		<property name="db_path" value="/db/data" /> 
 	</bean> 
+	-->
+	
+	
+	<!-- G R A P H    P E R S I S T E N C E    M A N A G E R 
+		 this defines the graph db system to use. The general usage of a graph db system
+		 is activated in the  SNC_Runtime_Configuration-<VERSION>.xml with the parameter 
+		 activateGraphDb. In here you merely choose which graph db system to use. As of 
+		 the moment only Neo4J is available and only in the flavour of a standalone server. -->
+	<!-- N E O 4 J    P E R S I S T E N C E    (WORKS in part) -->
+	<bean id="graphPersistenceManager" class="de.comlineag.snc.persistence.Neo4JPersistence"> 
+		<property name="configDb" value="SNC_Neo4J_Configuration.xml" />
+	</bean>
+	
+	<!-- N E O 4 J    E M B E D D E D    P E R S I S T E N C E    (TO BE IMPLEMENETED) -->
+	<!--
+	<bean id="graphPersistenceManager" 
+		class="de.comlineag.snc.persistence.Neo4JEmbeddedPersistence"> 
+		<property name="protocol" value="t.b.d." /> 
+		<property name="host" value="localhost" /> 
+		<property name="port" value="7474" /> 
+		<property name="location" value="/db/data" /> 
+		<property name="db_path" value="/db/data" /> 
+	</bean> 
+	-->
+	
+	<!-- H A N A    P E R S I S T E N C E    (DOES NOT WORK - NO GRAPH SUPPORT IN HANA YET) 
+		  -->
+	<!-- 
+	<bean id="graphPersistenceManager" class="de.comlineag.snc.persistence.HANAGraphPersistence">
+		<property name="host" value="192.168.131.30" />
+		<property name="port" value="8000" />
+		<property name="protocol" value="http" />
+		<property name="location" value="/graph/comline/saa/services" />
+		<property name="user" value="U0JNX0VYVA==" />
+		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
+	</bean>
 	-->
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 	     END OF PERSISTENCE SECTION - END OF PERSISTENCE SECTION - END OF PERSISTENCE  

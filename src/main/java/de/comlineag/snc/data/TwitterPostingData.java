@@ -2,10 +2,10 @@ package de.comlineag.snc.data;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
@@ -81,20 +81,24 @@ public final class TwitterPostingData extends PostingData {
 	public TwitterPostingData(JSONObject jsonObject) {
 		// set all values to zero
 		initialize();
+		String s; // helper var to cast from long to string
 		
 		try {
 			// posting ID - is either id or post_id
-			if (jsonObject.get("id")==null)
-				setId((String) jsonObject.get("post_id"));
-			else 
-				setId((String) jsonObject.get("id"));
+			if (jsonObject.get("id")==null) {
+				s = Objects.toString(jsonObject.get("post_id"), null);
+			} else {
+				s = Objects.toString(jsonObject.get("id"), null);
+			}
+			setId(s);
 			
 			// log the startup message
 			logger.debug("constructing new subset of data of tweet (TW-"  + id + ") from twitter post-object");
 			
 			// User ID
 			JSONObject user = (JSONObject) jsonObject.get("user");
-			setUserId((String) user.get("id"));
+			s = Objects.toString((String) user.get("id"), null);
+			setUserId(s);
 			
 			
 			// langauge

@@ -14,7 +14,14 @@ package de.comlineag.snc.constants;
  * 
  */
 public enum GraphNodeTypes {
-	DOMAIN		("domain"),
+	DOMAIN,
+	CUSTOMER,
+	USER,
+	POST,
+	KEYWORD,
+	HASHTAG,
+	SOCIAL_NETWORK;
+	/*	DOMAIN		("domain"),
 	CUSTOMER	("customer"),
 	USER		("user"),
 	POST		("post"),
@@ -36,4 +43,5 @@ public enum GraphNodeTypes {
 	public String toString() {
 		return getValue();
 	}
+*/
 }
