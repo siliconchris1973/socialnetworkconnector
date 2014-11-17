@@ -61,7 +61,7 @@ public class TLDList {
       logger.trace("finished");
     } catch (Exception e) {
       logger.error("Couldn't find " + TLD_NAMES_TXT_FILENAME, e);
-      System.exit(-1);
+      //System.exit(-1);
     }
   }
 

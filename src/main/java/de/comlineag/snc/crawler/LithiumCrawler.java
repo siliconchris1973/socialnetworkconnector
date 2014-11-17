@@ -501,7 +501,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	private void basicAuthentication(String user, String pwd){ 
 		Authenticator.setDefault( new Authenticator() {
 			@Override protected PasswordAuthentication getPasswordAuthentication() {
-				System.out.printf( "url=%s, host=%s, ip=%s, port=%s%n",
+				logger.debug("url={}, host={}, ip={}, port={}",
 	                       getRequestingURL(), getRequestingHost(),
 	                       getRequestingSite(), getRequestingPort() );
 				

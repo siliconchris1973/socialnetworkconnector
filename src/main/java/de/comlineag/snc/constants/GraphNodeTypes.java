@@ -1,5 +1,7 @@
 package de.comlineag.snc.constants;
 
+import org.neo4j.graphdb.Label;
+
 
 /**
  * 
@@ -13,28 +15,22 @@ package de.comlineag.snc.constants;
  * @changelog	0.1 (Chris)		class created
  * 
  */
-public enum GraphNodeTypes {
-	DOMAIN,
-	CUSTOMER,
-	USER,
-	POST,
-	KEYWORD,
-	HASHTAG,
-	SOCIAL_NETWORK;
-	/*	DOMAIN		("domain"),
-	CUSTOMER	("customer"),
-	USER		("user"),
-	POST		("post"),
-	SITE		("post"),
-	TWEET		("post"),
-	KEYWORD		("keyword"),
-	HASHTAG		("hashtag");
+public enum GraphNodeTypes implements Label{
+	DOMAIN			("DOMAIN"),
+	CUSTOMER		("CUSTOMER"),
+	USER			("USER"),
+	POST			("POST"),
+	SITE			("POST"),
+	TWEET			("POST"),
+	KEYWORD			("KEYWORD"),
+	HASHTAG			("HASHTAG"),
+	SOCIALNETWORK	("SOCIALNETWORK");
 	
 	
 	private final String value;
 	
-	private GraphNodeTypes(final String value) {
-		this.value = value;
+	private GraphNodeTypes(final String val) {
+		this.value = val;
 	}
 	
 	public String getValue() {
@@ -43,5 +39,4 @@ public enum GraphNodeTypes {
 	public String toString() {
 		return getValue();
 	}
-*/
 }

@@ -197,7 +197,7 @@
 					</term>
 					<term>
 						<type>String</type>
-						<value>Visa</value>
+						<value>Visacard</value>
 					</term>
 					<term>
 						<type>String</type>
@@ -210,14 +210,6 @@
 					<term>
 						<type>String</type>
 						<value>HBCI</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Geld</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Währung</value>
 					</term>
 					<term>
 						<type>String</type>
@@ -332,7 +324,7 @@
 					</term>
 					<term>
 						<type>String</type>
-						<value>Visa</value>
+						<value>Visacard</value>
 					</term>
 					<term>
 						<type>String</type>
@@ -345,10 +337,6 @@
 					<term>
 						<type>String</type>
 						<value>HBCI</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Geld</value>
 					</term>
 					<term>
 						<type>String</type>

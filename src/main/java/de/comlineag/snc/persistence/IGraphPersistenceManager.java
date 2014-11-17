@@ -5,7 +5,9 @@ import java.net.URL;
 
 import org.json.simple.JSONObject;
 
+import de.comlineag.snc.constants.GraphNodeTypes;
 import de.comlineag.snc.constants.GraphRelationshipTypes;
+
 
 /**
  * 
@@ -26,7 +28,7 @@ public interface IGraphPersistenceManager {
 	 * 
 	 * @param		JSONObject of the node
 	 */
-	public void saveNode(JSONObject nodeObject);
+	public void saveNode(JSONObject nodeObject, GraphNodeTypes label);
 	
 	/**
 	 * @description	find a node by a key value pair and return the url to it
@@ -45,5 +47,6 @@ public interface IGraphPersistenceManager {
 	 * @param		RelationshipTypes type of relationship
 	 * @param		addition data for the relationship (properties)
 	 */
-	public void createRelationship(URI sourceNode, URI targetNode, GraphRelationshipTypes relationshipType, String additionalData);
+	public URI createRelationship(URI sourceNode, URI targetNode, GraphRelationshipTypes relationshipType, String[] additionalData);
+
 }

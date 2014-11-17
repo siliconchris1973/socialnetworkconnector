@@ -66,11 +66,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  */
 
 public final class TwitterPostingData extends PostingData {
-
-	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	/**
 	 * Constructor, based on the JSONObject sent from Twitter the Data Object is prepared
@@ -97,7 +93,7 @@ public final class TwitterPostingData extends PostingData {
 			
 			// User ID
 			JSONObject user = (JSONObject) jsonObject.get("user");
-			s = Objects.toString((String) user.get("id"), null);
+			s = Objects.toString(user.get("id"), null);
 			setUserId(s);
 			
 			

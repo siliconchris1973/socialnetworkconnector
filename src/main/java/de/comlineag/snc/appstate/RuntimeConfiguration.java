@@ -118,7 +118,7 @@ public final class RuntimeConfiguration {
 	
 	// return a string element
 	public String getStringValue(String parameter, String configArea){
-		String temp =null;
+		String temp = null;
 		
 		try {
 			temp = getValueByName(parameter, getConfigFilePath(configArea));
@@ -173,7 +173,7 @@ public final class RuntimeConfiguration {
 	}
 	// return an int element
 	public int getIntValue(String parameter, String configArea){
-		String temp =null;
+		String temp = null;
 		
 		try {
 			temp = getValueByName(parameter, getConfigFilePath(configArea));

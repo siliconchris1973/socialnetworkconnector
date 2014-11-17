@@ -335,18 +335,4 @@ public class Facebook4JFbCrawler extends GenericCrawler implements Job {
 			searchResult = searchResult + searchMessage.toString();
 			return searchResult;
 		}
-
-		// This method is used to create JSON object from data string
-		/*
-		public static String stringToJson(String data) {
-			JsonConfig cfg = new JsonConfig();
-			try {
-				JSONObject jsonObject = JSONObject.fromObject(data, cfg);
-				System.out.println("JSON = " + jsonObject.toString());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return "JSON Created";
-		}
-		*/
 }

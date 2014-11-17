@@ -217,15 +217,27 @@
 			<version>0.5</version>
 		</dependency>
 		
-		<!-- to work with odata calls and catch the ClientException -->
+		<!-- to work with neo4j and hana (rest and odata) calls and catch the ClientException -->
 		<dependency>
 			<groupId>org.glassfish.jersey.core</groupId>
 			<artifactId>jersey-client</artifactId>
 			<version>2.11</version>
 			<scope>provided</scope>
 		</dependency>
-		
-		
+		<!--
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-json</artifactId>
+			<version>1.18.2</version>
+		</dependency>
+		 
+		<dependency>
+		    <groupId>com.sun.jersey</groupId>
+		    <artifactId>jersey-client</artifactId>
+		    <version>1.9</version>
+		</dependency>
+		-->
+				
 		<!-- DATA MANIPULATION -->
 		<!-- to work with json objects -->
 		<dependency>
@@ -239,6 +251,20 @@
 			<artifactId>geojson-jackson</artifactId>
 			<version>1.2</version>
 		</dependency>
+		
+		<!-- used by json serializer MapToJson and JsonToMap helper classes -->
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+			<version>1.9.13</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-lgpl</artifactId>
+			<version>1.9.13</version>
+		</dependency>
+
+		
 		
 		<!-- to strip all html elements from a text -->
 		<dependency>

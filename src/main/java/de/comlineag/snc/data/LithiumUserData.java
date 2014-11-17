@@ -119,7 +119,7 @@ public final class LithiumUserData extends UserData {
 			JSONObject jsonObjId = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
 			s = Objects.toString(jsonObjId.get("$"), null);
-			setId((String) s);
+			setId(s);
 			
 			// username / login and nickname, all the same at lithium
 			// Structure

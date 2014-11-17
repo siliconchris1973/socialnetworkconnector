@@ -33,8 +33,10 @@ import com.twitter.hbc.httpclient.auth.OAuth1;
 import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.ConfigurationConstants;
+import de.comlineag.snc.constants.GraphNodeTypes;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.TwitterConstants;
+import de.comlineag.snc.helper.UniqueIdServices;
 import de.comlineag.snc.parser.TwitterParser;
 
 /**
@@ -202,9 +204,22 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 					smallLogMessage += " specific Locations ";
 					endpoint.locations(tLocas);
 				}
-	
+				
 				logger.info("New "+CRAWLER_NAME+" crawler instantiated - restricted to track " + smallLogMessage);
 				
+				// FIXME make node creation in the graph db work
+				/* call the graph engine to store data in the external graph
+				if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+					for (int tti=0;tti<tTerms.size();tti++) {
+						JSONObject keywObj = new JSONObject();
+						keywObj.put("id", UniqueIdServices.createMessageDigest(tTerms.get(tti)));
+						keywObj.put("name", tTerms.get(tti));
+						keywObj.put("lang", "DE");
+						
+						logger.info("calling graph database for keyword {} ", tTerms.get(tti));
+						graphPersistenceManager.saveNode(keywObj, GraphNodeTypes.KEYWORD);
+					}
+				}*/
 				
 				
 				Authentication sn_Auth = new OAuth1((String) arg0.getJobDetail().getJobDataMap().get(ConfigurationConstants.AUTHENTICATION_CLIENT_ID_KEY),
@@ -272,7 +287,6 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 							// check that there is non of the blocked terms in the tweet. Only process
 							// tweet if it does NOT contain any of those terms
 							if (!containsWord(msg, btTerms)){
-								logger.trace("message " + messageCount + " received");
 								messageCount++;
 								setPostsTracked(messageCount);
 								

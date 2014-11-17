@@ -36,7 +36,7 @@ public class DateTimeServices {
 		// Datumsformatierung fuer den Formatter
 		String snPattern = "";
 		Locale snLocale = Locale.getDefault();
-		snPattern = SocialNetworks.getSocialNetworkConfigElement("localePattern", _snId);
+		snPattern = SocialNetworks.getSocialNetworkConfigElementByCode("localePattern", _snId);
 		DateTimeServices.logger.debug("formatting date time for use with {}", SocialNetworks.getSocialNetworkConfigElementByCode("name", _snId));
 		
 		try {
@@ -69,7 +69,7 @@ public class DateTimeServices {
 				//snPattern = SocialNetworks.getSocialNetworkConfigElement("localePattern", _snId);
 				snLocale = Locale.GERMANY;
 			} else {
-				DateTimeServices.logger.warn("no specific conversion for system " + _snId);
+				DateTimeServices.logger.warn("no specific conversion for system " + SocialNetworks.getSocialNetworkConfigElementByCode("name", _snId));
 			}
 			
 			// convert the datum

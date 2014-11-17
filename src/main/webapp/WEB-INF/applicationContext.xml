@@ -156,8 +156,8 @@
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="SimpleWebCrawlerTrigger"/> -->
-				<ref bean="THEWebCrawlerTrigger"/>
-				<ref bean="LithiumCrawlerTrigger" />
+				<!-- <ref bean="THEWebCrawlerTrigger"/>  -->
+				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
 				
 				
 				<!-- FILESYSTEM CRAWLER - SAFEGUARD
@@ -575,9 +575,9 @@
 	     If you activate this storage manager, you should DEFINATELY turn off the FsCrawler 
 	     in the Job control section, otherwise your system will end up storing and restoring
 	     the same objects as json files with no end in sight -->
-	<!-- 
+	<!-- -->
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.JsonFilePersistence" /> 
-	-->
+	
 	
 	<!-- H A N A    P E R S I S T E N C E    (WORKS) 
 		 The SAP HANA InMemory DB persistence can be used via JDBC or OData. As such,
@@ -593,7 +593,7 @@
 		 is activated, which stores all failed objects as json file on disk. The FsCrawler 
 		 is used to scan the storage directory for failed objects and then tries to 
 		 insert them in the HANA DB. -->
-	<!-- -->
+	<!-- 
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.HANAPersistence">
 		<property name="host" value="192.168.131.30" />
 		<property name="port" value="8000" />
@@ -606,7 +606,7 @@
 		<property name="user" value="U0JNX0VYVA==" />
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
 	</bean>
-	 
+	 -->
 	 
 	<!-- C O U C H D B    P E R S I S T E N C E    (in progress) -->
 	<!-- 
@@ -652,26 +652,14 @@
 		 this defines the graph db system to use. The general usage of a graph db system
 		 is activated in the  SNC_Runtime_Configuration-<VERSION>.xml with the parameter 
 		 activateGraphDb. In here you merely choose which graph db system to use. As of 
-		 the moment only Neo4J is available and only in the flavour of a standalone server. -->
-	<!-- N E O 4 J    P E R S I S T E N C E    (WORKS in part) -->
-	<bean id="graphPersistenceManager" class="de.comlineag.snc.persistence.Neo4JPersistence"> 
-		<property name="configDb" value="SNC_Neo4J_Configuration.xml" />
-	</bean>
+		 the moment only Neo4J is available. -->
+	<!-- N E O 4 J    P E R S I S T E N C E    (IN DEVELOPMENT) -->
+	<bean id="graphPersistenceManager" class="de.comlineag.snc.persistence.Neo4JPersistence"/>
 	
-	<!-- N E O 4 J    E M B E D D E D    P E R S I S T E N C E    (TO BE IMPLEMENETED) -->
-	<!--
-	<bean id="graphPersistenceManager" 
-		class="de.comlineag.snc.persistence.Neo4JEmbeddedPersistence"> 
-		<property name="protocol" value="t.b.d." /> 
-		<property name="host" value="localhost" /> 
-		<property name="port" value="7474" /> 
-		<property name="location" value="/db/data" /> 
-		<property name="db_path" value="/db/data" /> 
-	</bean> 
-	-->
+	<!-- N E O 4 J    E M B E D D E D    P E R S I S T E N C E    (IN DEVELOPMENT) -->
+	<!-- <bean id="graphPersistenceManager" class="de.comlineag.snc.persistence.Neo4JEmbeddedPersistence" /> --> 
 	
-	<!-- H A N A    P E R S I S T E N C E    (DOES NOT WORK - NO GRAPH SUPPORT IN HANA YET) 
-		  -->
+	<!-- H A N A    P E R S I S T E N C E    (DOES NOT WORK - NO GRAPH SUPPORT IN HANA YET)  -->
 	<!-- 
 	<bean id="graphPersistenceManager" class="de.comlineag.snc.persistence.HANAGraphPersistence">
 		<property name="host" value="192.168.131.30" />

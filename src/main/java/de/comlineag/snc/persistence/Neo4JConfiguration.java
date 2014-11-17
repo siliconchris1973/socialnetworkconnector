@@ -50,7 +50,7 @@ public final class Neo4JConfiguration {
 	private String host = "localhost";
 	private String port = "7474";
 	private String protocol = "http";
-	private String location = "/db/data";
+	private String data_location = "/db/data";
 	
 	// file system path to the db
 	private String db_path = "/db/data";
@@ -72,6 +72,8 @@ public final class Neo4JConfiguration {
 	private String CYPHERENDPOINT_LOC = "/cypher";
 	// extension of the URI to a node
 	private String NODE_LOC = "/node";
+	// transactional extension of the URI 
+	private String TRANSACTION_COMMIT_LOC = "/transaction/commit";
 	// extension of the URI for Properties
 	private String PROPERTY_LOC = "/properties";
 	// extension to the URI for the label of a node
@@ -116,7 +118,6 @@ public final class Neo4JConfiguration {
 	
 	private Neo4JConfiguration(){
 		logger.debug("Initilializing Neo4J configuration");
-		// first set the location of the HANA Configuration file from RuntimeConfiguration
 		setConfigFile(rtc.getNeo4JConfigFilePath());
 		logger.trace("configuration file is {}", getConfigFile());
 		try {
@@ -173,7 +174,7 @@ public final class Neo4JConfiguration {
 				if (isStopOnConfigurationError)
 					System.exit(SNCStatusCodes.ERROR.getErrorCode());
 			} else {
-				setLocation(node.getTextContent());
+				setDataLocation(node.getTextContent());
 			}
 			
 			// set the user
@@ -236,13 +237,13 @@ public final class Neo4JConfiguration {
 	public String getSocialNetworkLabel() {return SOCIAL_NETWORK_LABEL;}
 	public void setSocialNetworkLabel(String label) {SOCIAL_NETWORK_LABEL = label;}
 	
-	// connection and location
+	// connection and rest uri
 	public String getHost() {return host;}
 	public void setHost(String host) {this.host = host;}
 	public String getPort() {return port;}
 	public void setPort(String port) {this.port = port;}
-	public String getLocation() {return location;}
-	public void setLocation(String location) {this.location = location;}
+	public String getDataLocation() {return data_location;}
+	public void setDataLocation(String location) {this.data_location = location;}
 	public String getProtocol() {return protocol;}
 	public void setProtocol(String protocol) {this.protocol = protocol;}
 	public String getDbPath() {return db_path;}
@@ -254,8 +255,10 @@ public final class Neo4JConfiguration {
 	public String getRelationshipLoc() {return RELATIONSHIP_LOC;}
 	public String getCyptherEndpointLoc() {return CYPHERENDPOINT_LOC;}
 	public String getNodeLoc() {return NODE_LOC;}
+	public String getTransactionCommitLoc() {return TRANSACTION_COMMIT_LOC;}
 	public String getPropertyLoc() {return PROPERTY_LOC;}
 	public String getLabelLoc() {return LABEL_LOC;}
+	
 	
 	
 	// data sizes

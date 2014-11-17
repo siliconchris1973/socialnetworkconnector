@@ -97,8 +97,9 @@ public final class SocialNetworks {
 			//		<description>Twitter</description>
 			//		<domain>twitter.com</domain>
 			//		<supported>YES</supported>
+			//		<localePattern>[PATTERN]</localePattern>
 			//	</network>
-			// /configurations/configuration[@scope=socialNetworkDefinition]/network[@name='TWITTER']/code
+			// /configurations/configuration[@scope='socialNetworkDefinition']/network[@name='TWITTER']/code
 			expression = "/"+configurationsKey+"/" 
 							+configurationKey 
 								+"[@"+scopeKey+"='"+socNetConfKey+"']/" 
