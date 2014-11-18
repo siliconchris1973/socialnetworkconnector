@@ -124,6 +124,26 @@
 			<!-- CONSTRAINTS CONFIGURATION -->
 			<!-- constraints that apply to all network crawler -->
 			<constraints scope="ALL">
+				<!-- DO NOT TRACK POSTS WITH THESE KEYWORDS -->
+				<constraint>
+					<blockedterm>
+						<type>String</type>
+						<value>Home Depot</value>
+					</blockedterm>
+					<blockedterm>
+						<type>String</type>
+						<value>HomeDepot</value>
+					</blockedterm>
+					<blockedterm>
+						<type>String</type>
+						<value>Begleitservice</value>
+					</blockedterm>
+					<blockedterm>
+						<type>String</type>
+						<value>Escort</value>
+					</blockedterm>
+				</constraint>
+				
 				<!-- track only messages (aka posts) with specific keywords -->
 				<constraint>
 				<!-- 
@@ -237,18 +257,6 @@
 			<!-- START OF TWITTER CONFIG -->
 			<!-- specific configuration for TWITTER crawler -->
 			<constraints scope="TW">
-				<!-- DO NOT TRACK TWEETS WITH THESE KEYWORDS -->
-				<constraint>
-					<blockedterm>
-						<type>String</type>
-						<value>Home Depot</value>
-					</blockedterm>
-					<blockedterm>
-						<type>String</type>
-						<value>HomeDepot</value>
-					</blockedterm>
-				</constraint>
-				
 				<!-- 
 					track only messages (aka posts) with specific keywords
 					these constraints are added to the generic ones above 

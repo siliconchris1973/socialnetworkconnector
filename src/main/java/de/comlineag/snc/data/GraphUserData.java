@@ -19,6 +19,7 @@ import de.comlineag.snc.constants.GraphNodeTypes;
 public class GraphUserData {
 
 	protected final GraphNodeTypes gnt = GraphNodeTypes.USER;
+	protected String sn_id;							// the 2-digit code of the social network 
 	protected String id;							// the id of the user within the social network
 	protected String username;						// the actual user name, might be different from the screen name 
 	protected String screen_name;					// the username as shown on the network (sometimes named nick name)
@@ -37,19 +38,24 @@ public class GraphUserData {
 	protected JSONObject internalJson = new JSONObject();
 	
 	public GraphUserData(JSONObject obj){
+		setSnId(obj.get("sn_id").toString());
 		setId(obj.get("id").toString());
 		setUsername(obj.get("username").toString());
 		setScreenName(obj.get("screen_name").toString());
 		setLang(obj.get("lang").toString());
 		
-		setFollowersCount((Long) obj.get("followers_count"));
-		setFriendsCount((Long) obj.get("friends_count"));
-		setPostingsCount((Long) obj.get("postings_count"));
-		setFavoritesCount((Long) obj.get("favorites_count"));
-		setListsAndGroupsCount((Long) obj.get("lists_and_groups_count"));
+		if (obj.containsKey("followers_count"))
+			setFollowersCount((Long) obj.get("followers_count"));
+		if (obj.containsKey("friends_count"))
+			setFriendsCount((Long) obj.get("friends_count"));
+		if (obj.containsKey("postings_count"))
+			setPostingsCount((Long) obj.get("postings_count"));
+		if (obj.containsKey("favorites_count"))
+			setFavoritesCount((Long) obj.get("favorites_count"));
+		if (obj.containsKey("lists_and_groups_count"))
+			setListsAndGroupsCount((Long) obj.get("lists_and_groups_count"));
 		
 		internalJson = obj;
-		//internalJson.put("Label", gnt);
 	}
 	
 	
@@ -78,6 +84,29 @@ public class GraphUserData {
 		return internalJson.toJSONString();
 	}
 	
+	private String toMyJsonString(){
+		JSONObject obj = new JSONObject();
+		obj.put("sn_id", getSnId());
+		obj.put("id", getId());
+		obj.put("username", getUsername());
+		obj.put("screen_name", getScreenName());
+		obj.put("lang", getLang());
+		/*
+		obj.put("followers_count", getFollowersCount());
+		obj.put("friends_count", getFriendsCount());
+		obj.put("postings_count", getPostingsCount());
+		obj.put("favorites_count", getFavoritesCount());
+		obj.put("lists_and_groups_count", getListsAndGroupsCount());
+		
+		obj.put("average_rating", getAverageRatingValue());
+		obj.put("average_posting_rating", getAveragePostingRatingValue());
+		obj.put("average_posting_rating", getAveragePostingRating());
+		
+		obj.put("geoLocation", getGeoLocation());
+		*/
+		return obj.toJSONString();
+		
+	}
 	
 	
 	/**
@@ -85,11 +114,14 @@ public class GraphUserData {
 	 * @return		cypher string
 	 */
 	public String createCypher(){
-		return "\""+gnt.toString()+"\" "+toJsonString();
+		return "\""+gnt.toString()+"\" "+toMyJsonString();
 	}
 	
 	// getter and setter
 	public JSONObject getJson() {return this.internalJson;}
+	
+	public String getSnId() {return sn_id;}
+	public void setSnId(String snid) {this.sn_id = snid;}
 	
 	public String getId() {return id;}
 	public void setId(String id) {this.id = id;}

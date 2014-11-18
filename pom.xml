@@ -245,6 +245,7 @@
 			<artifactId>json-simple</artifactId>
 			<version>1.1.1</version>
 		</dependency>
+		
 		<!-- and the specialized version to work with geo json objects -->
 		<dependency>
 			<groupId>de.grundid.opendatalab</groupId>

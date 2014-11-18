@@ -2,15 +2,21 @@ package de.comlineag.snc.persistence;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 
@@ -25,6 +31,7 @@ import de.comlineag.snc.constants.HttpStatusCodes;
 import de.comlineag.snc.constants.GraphRelationshipTypes;
 import de.comlineag.snc.constants.LithiumConstants;
 import de.comlineag.snc.constants.LithiumStatusCode;
+import de.comlineag.snc.constants.Neo4JConstants;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.data.GraphCustomerData;
 import de.comlineag.snc.data.GraphDomainData;
@@ -32,6 +39,7 @@ import de.comlineag.snc.data.GraphKeywordData;
 import de.comlineag.snc.data.GraphPostingData;
 import de.comlineag.snc.data.GraphSocialNetworkData;
 import de.comlineag.snc.data.GraphUserData;
+import de.comlineag.snc.neo4j.OLD_Neo4JPersistence;
 import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
 
 
@@ -93,6 +101,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 	
 	private String dbServerUrl;
 	private String nodePointUrl;
+	private String transactionUrl;
 	// path to the configuration xml file
 	public String configDb;
 	
@@ -109,121 +118,166 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 	public void saveNode(JSONObject nodeObject, GraphNodeTypes label) {
 		logger.info("creating a {} node object to store in the graph", SocialNetworks.getSocialNetworkConfigElementByCode("name", nodeObject.get("sn_id").toString()));
 		logger.trace("    content: {}", nodeObject.toString());
+		String nodeLocation;
 		
 		//GraphNodeTypes label = GraphNodeTypes.POST;
 		
 		if ("POST".equalsIgnoreCase(label.getValue())){
 			logger.debug("lets create a post");
 			GraphPostingData gpd = new GraphPostingData(nodeObject);
-			createNodeObject(gpd.createCypher());
+			nodeLocation = createNodeObject(gpd.getJson(), label);
+			if (nodeLocation == null)
+				logger.error("node was NOT created :-(");
+			
+			
 		} else if ("USER".equalsIgnoreCase(label.getValue())){
 			logger.debug("lets create a user");
 			GraphUserData gud = new GraphUserData(nodeObject);
-			createNodeObject(gud.createCypher());
+			//createNodeObject(gud.createCypher());
+			createNodeObject(gud.getJson(), label);
 		} else if ("DOMAIN".equalsIgnoreCase(label.getValue())){
 			logger.debug("lets create a domain");
 			GraphDomainData gdd = new GraphDomainData(nodeObject);
-			createNodeObject(gdd.createCypher());
+			createNodeObject(gdd.getJson(), label);
 		} else if ("CUSTOMER".equalsIgnoreCase(label.getValue())){
 			logger.debug("lets create a customer");
 			GraphCustomerData gcd = new GraphCustomerData(nodeObject);
-			createNodeObject(gcd.createCypher());
+			createNodeObject(gcd.getJson(), label);
 		} else if ("KEYWORD".equalsIgnoreCase(label.getValue())){
 			logger.debug("lets create a keyword");
 			GraphKeywordData gkd = new GraphKeywordData(nodeObject);
-			createNodeObject(gkd.createCypher());
+			createNodeObject(gkd.getJson(), label);
 		} else if ("SOCIALNETWORK".equalsIgnoreCase(label.getValue())){
 			logger.debug("lets create a social network");
 			GraphSocialNetworkData gsd = new GraphSocialNetworkData(nodeObject);
-			createNodeObject(gsd.createCypher());
+			createNodeObject(gsd.getJson(), label);
 		} else {
 			logger.warn("warning can't create an object with label {} in the graph, beacause I do not know what it is is", label.getValue());
 		}
 	}
 	
 	
-	
+	private String createNodeObject(JSONObject nodeObject, GraphNodeTypes label){
+		//logger.debug("creating node non-transactional");
+		//return (createNodeObjectNonTransactional(nodeObject, label));
+		logger.debug("creating node transactional");
+		return (createNodeObjectTransactional(nodeObject, label));
+	}
 	
 	
 	/**
 	 * 
 	 * @description	creates a node in the graph 
-	 * @param 		cypherString
+	 * @param 		json object
+	 * @param		label
 	 * 
 	 */
-	private void createNodeObject(String cypherString){
+	private String createNodeObjectNonTransactional(JSONObject nodeObject, GraphNodeTypes label){
+		dbServerUrl = nco.getProtocol() + "://" + nco.getHost() + ":" + nco.getPort();
+		nodePointUrl = dbServerUrl + "/db/data" + nco.getNodeLoc();
+		String finalUrl = nodePointUrl;
+		String nodeLocation = null;
+		String labelString = "{ Label : " + label.toString() + " }";
+		
+		logger.trace("creating node with id {} working with {}", nodeObject.get("id"), finalUrl );
+		
+		//prepareConnection();
+		String output = null;
+		HttpClient client = new HttpClient();
+		PostMethod mPost = new PostMethod(finalUrl);
+		
+		// set header
+		Header mtHeader = new Header();
+		mtHeader.setName("content-type");
+		mtHeader.setValue("application/json");
+		mtHeader.setName("accept");
+		mtHeader.setValue("application/json");
+		mPost.addRequestHeader(mtHeader);
+		
+		logger.trace("about to insert the following data in the graph: " + nodeObject.toString());
+		
 		try{
-			dbServerUrl = nco.getProtocol() + "://" + nco.getHost() + ":" + nco.getPort();
-			nodePointUrl = dbServerUrl + "/db/data" + nco.getNodeLoc();
-			String transactionalUrl = dbServerUrl + "/db/data" + "/transaction";
-			String finalUrl = transactionalUrl;
+			StringRequestEntity requestEntity = new StringRequestEntity(nodeObject.toString(),
+                                                                        "application/json",
+                                                                        "UTF-8");
 			
-			//String payload = "{\"CREATE\": [ {\"s\":" +cypherString + "}]}";
-			String payload = "{\"statements\": [ {\"statement\": \"CREATE\" (p:" +cypherString + ") }]}";
+			mPost.setRequestEntity(requestEntity);
+			int status = client.executeMethod(mPost);
+			HttpStatusCodes statusCode = HttpStatusCodes.getHttpStatusCode(status);
+			output = mPost.getResponseBodyAsString();
+			Header locationHeader =  mPost.getResponseHeader("location");
+			nodeLocation = locationHeader.getValue();  
 			
-			logger.trace("sending cypher {} to endpoint {}", payload, finalUrl);
-			WebResource resource = Client.create().resource( finalUrl );
+			logger.trace("Output :: {}", output);
+			logger.trace("Location :: {}", nodeLocation);
 			
-			ClientResponse response = resource
-					.accept( MediaType.APPLICATION_JSON )
-	                .type( MediaType.APPLICATION_JSON )
-			        .entity( cypherString )
-			        .post( ClientResponse.class );
-			
-			String responseString = response.getEntity(String.class);
-			
-			logger.debug("POST to {} returned status code {}, returned data: {}",
-					finalUrl, response.getStatus(),
-			        responseString);
-			
-			// first check if the http code was ok
-			HttpStatusCodes httpStatusCodes = HttpStatusCodes.getHttpStatusCode(response.getStatus());
-			if (!httpStatusCodes.isOk()){
-				if (httpStatusCodes == HttpStatusCodes.FORBIDDEN){
-					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
-				} else {
-					logger.error("Error {} sending data to {}: {} ", response.getStatus(), finalUrl, HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
-				}
+			mPost.releaseConnection();
+			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
+			if (!statusCode.isOk()){
+				logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
 			} else {
-				// now do the check on json details within the returned JSON object
-				JSONParser reponseParser = new JSONParser();
-				Object responseObj = reponseParser.parse(responseString);
-				JSONObject jsonResponseObj = responseObj instanceof JSONObject ?(JSONObject) responseObj : null;
-				if(jsonResponseObj == null)
-					throw new ParseException(0, "returned json object is null");
-				JSONArray jsonCommitArray = (JSONArray)jsonResponseObj.get("commit");
-				JSONArray jsonErrorArray = (JSONArray)jsonResponseObj.get("errors");
-				JSONArray jsonResultArray = (JSONArray)jsonResponseObj.get("results");
-				logger.trace("returned commit json is {}", jsonCommitArray.toString());
-				logger.trace("returned error json is {}", jsonErrorArray.toString());
-				logger.trace("returned result json is {}", jsonResultArray.toString());
-				
-				JSONObject singleErrObject = new JSONObject();
-				JSONObject singleCommitObject = new JSONObject();
-				JSONObject singleResultObject = new JSONObject();
-				
-				
-				final URI location = response.getLocation();
-				logger.info("new node created at location {}", location);
-				
-				logger.debug("committing transaction at location {}", location);
-				resource = Client.create().resource( location +"/commit" );
-				response = resource
-						.accept( MediaType.APPLICATION_JSON )
-		                .type( MediaType.APPLICATION_JSON )
-				        .post( ClientResponse.class );
-				logger.debug("COMMIT returned status code {}, returned data: {}",
-						response.getStatus(),
-				        response.getEntity(String.class));
+				logger.info("SUCCESS :: node for post " + nodeObject.get("id") + " successfully created");
 			}
-			response.close();
-			
-			
 		} catch(Exception e) {
-			logger.error("EXCEPTION :: failed to create node with {} - {}",  cypherString, e.getMessage());
-			e.printStackTrace();
+			logger.error("EXCEPTION :: failed to create node (" + nodeObject.get("id") + ") " + e.getMessage());
+		}
+		return nodeLocation;
+	}
+	/**
+	 * @description add label to a node
+	 * 
+	 */
+	public void addLabelToNode(String nodeUri, GraphNodeTypes label){
+		String labelLocation = nco.getLabelLoc();
+		String output = null;
+		HttpClient client = new HttpClient();
+		PostMethod mPost = new PostMethod(nodeUri + labelLocation);
+
+		// set header
+		Header mtHeader = new Header();
+		mtHeader.setName("content-type");
+		mtHeader.setValue("application/json");
+		mtHeader.setName("accept");
+		mtHeader.setValue("application/json");
+		mPost.addRequestHeader(mtHeader);
+		
+		// this cryptic string is passed along as part of a StringRequestEntity 
+		String r = "{ Label : " + label.toString() + " }";
+		
+		logger.trace("About to use the following string to add the label " + label.toString() + " to the node " + nodeUri + Neo4JConstants.LABEL_LOC + ": " + r);
+				
+		StringRequestEntity requestEntity = null;
+		try {
+			requestEntity = new StringRequestEntity(r.toString(),
+													"application/json",
+													"UTF-8");
+		} catch (UnsupportedEncodingException e1) {
+			logger.error("EXCEPTION :: malformed StringRequestEntity " + e1.getMessage());
+			e1.printStackTrace();
+		}
+		
+		try {	
+			mPost.setRequestEntity(requestEntity);
+			int status = client.executeMethod(mPost);
+			HttpStatusCodes statusCode = HttpStatusCodes.getHttpStatusCode(status);
+			
+			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
+			if (!statusCode.isOk()){
+				logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
+			} else {
+				output = mPost.getResponseBodyAsString();
+				Header locationHeader =  mPost.getResponseHeader("geoLocation");
+				mPost.releaseConnection( );
+				
+				logger.info("SUCCESS :: added label " + label + " to the node " + nodeUri + labelLocation);
+				logger.trace("status = " + status + " / geoLocation = " + locationHeader.getValue() + " \n output = " + output);
+			}
+		} catch(Exception e) {
+			logger.error("EXCEPTION :: adding label to the node: " + e.getMessage());
 		}
 	}
+	
+	
 	
 	
 	@Override
@@ -327,328 +381,113 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
         catch ( IOException e ) { throw new RuntimeException( e ); }
     }
 	
-	private void checkDatabaseIsRunning(String dbServerUrl){
-		logger.debug("opening connection to server {}", dbServerUrl);
-		WebResource resource = Client.create().resource(dbServerUrl);
-		ClientResponse response = resource.get(ClientResponse.class);
-		logger.debug("GET on {}, status code {}",dbServerUrl, response.getStatus());
-		response.close();
-    }
+	
+	/** 
+     * checks if neo4j server is up and running, returns 200 if succeeded and 500 otherwise 
+     * 
+     */  
+	private int getNeo4jServerStatus(String SERVER_ROOT_URI) {  
+		int statusCode = 500;  
+		try {
+			HttpClient client = new HttpClient();  
+			GetMethod getMethod = new GetMethod(SERVER_ROOT_URI);  
+			statusCode = client.executeMethod(getMethod);  
+			getMethod.releaseConnection();  
+		} catch (Exception e) {  
+			logger.error("Exception in connecting to neo4j DB : " + e);  
+		}  
+		
+		return statusCode;  
+	}
 	
 	public String getConfigDb() {return configDb;}
 	public void setConfigDb(String configDb) {this.configDb = configDb;}
 	
+	
+	
 	// OLD METHODS
 	/**
-	 * @description create an edge between two nodes in the graph
-	 * 				with the given attribute (relationshipType) 
-	 *
-	 * @param fromNodeId
-	 * @param toNodeId
-	 * @param relationshipType
 	 * 
-	 
-	public void createRelationship(URI fromNodeUri, URI toNodeUri, GraphRelationshipTypes relationshipType, String additionalData){ 
-		dbServerUrl = nco.getProtocol() + "://" + nco.getHost() + ":" + nco.getPort();
-		nodePointUrl = dbServerUrl + nco.getNodeLoc();
-		
-		logger.debug("Creating relationship from node " + fromNodeUri + " to node " + toNodeUri + " with relationship type " + relationshipType);
-		
-		//prepareConnection();
-		String output = null;
-		HttpClient client = new HttpClient();
-		PostMethod mPost = new PostMethod(fromNodeUri + Neo4JConstants.RELATIONSHIP_LOC);
-
-		// set header
-		Header mtHeader = new Header();
-		mtHeader.setName("content-type");
-		mtHeader.setValue("application/json");
-		mtHeader.setName("accept");
-		mtHeader.setValue("application/json");
-		mPost.addRequestHeader(mtHeader);
-		
-		// this cryptic string is passed along as part of a StringRequestEntity 
-		String r = "{ "
-				+ "\"to\" : \"" + toNodeUri + "\", "
-				+ "\"type\" : \"" + relationshipType.toString() + "\" ";
-				// some extra data, if needed 
-				
-				if (additionalData != null)
-					r = r + "\"data\" : { \"since\" : \"" + additionalData + "\" }";
-				
-				r = r +" }";
-		
-		logger.trace("About to use the following string to create the relationship: " + r);
-				
-		StringRequestEntity requestEntity = null;
-		try {
-			requestEntity = new StringRequestEntity(r.toString(),
-													"application/json",
-													"UTF-8");
-		} catch (UnsupportedEncodingException e1) {
-			logger.error("EXCEPTION :: malformed StringRequestEntity " + e1.getMessage());
-			e1.printStackTrace();
-		}
-		
-		try {	
-			mPost.setRequestEntity(requestEntity);
-			int status = client.executeMethod(mPost);
-			HttpStatusCodes statusCode = HttpStatusCodes.getHttpStatusCode(status);
-			
-			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
-			if (!statusCode.isOk()){
-				logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
-			} else {
-				logger.info("SUCCESS :: connection between node " + fromNodeId + " and node " + toNodeId + " created");
-				
-				output = mPost.getResponseBodyAsString();
-				Header locationHeader =  mPost.getResponseHeader("location");
-				mPost.releaseConnection( );
-				
-				logger.trace("status = " + status + " / location = " + locationHeader.getValue() + " \n output = " + output);
-			}
-		} catch(Exception e) {
-			logger.error("EXCEPTION :: Creating connection of type " + relationshipType + " between node ( " + fromNodeUri + ") and node (" + toNodeUri + ")  " + e.getMessage());
-		}
-	}
-	*/
-	
-	
-	/**
-	 * @description add label to a node
+	 * @description	creates a node in the graph 
+	 * @param 		json object
+	 * @param		label
 	 * 
-	 
-	private void addLabelToNode(String nodeUri, String label){
-
-		String output = null;
-		HttpClient client = new HttpClient();
-		PostMethod mPost = new PostMethod(nodeUri + Neo4JConstants.LABEL_LOC);
-
-		// set header
-		Header mtHeader = new Header();
-		mtHeader.setName("content-type");
-		mtHeader.setValue("application/json");
-		mtHeader.setName("accept");
-		mtHeader.setValue("application/json");
-		mPost.addRequestHeader(mtHeader);
-		
-		// this cryptic string is passed along as part of a StringRequestEntity 
-		String r = "{ Label : " + label + " }";
-		
-		logger.trace("About to use the following string to add the label " + label + " to the node " + nodeUri + Neo4JConstants.LABEL_LOC + ": " + r);
-				
-		StringRequestEntity requestEntity = null;
-		try {
-			requestEntity = new StringRequestEntity(r.toString(),
-													"application/json",
-													"UTF-8");
-		} catch (UnsupportedEncodingException e1) {
-			logger.error("EXCEPTION :: malformed StringRequestEntity " + e1.getMessage());
-			e1.printStackTrace();
-		}
-		
-		try {	
-			mPost.setRequestEntity(requestEntity);
-			int status = client.executeMethod(mPost);
-			HttpStatusCodes statusCode = HttpStatusCodes.getHttpStatusCode(status);
+	 */
+	private String createNodeObjectTransactional(JSONObject nodeObject, GraphNodeTypes label){
+		String nodeLocation=null;
+		try{
+			dbServerUrl = nco.getProtocol() + "://" + nco.getHost() + ":" + nco.getPort();
+			transactionUrl = dbServerUrl + "/db/data" + "/transaction";
+			String finalUrl = transactionUrl;
 			
-			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
-			if (!statusCode.isOk()){
-				logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
+			String payload = "{\"statements\": [ {\"statement\": \"CREATE\" (p:"+ label.toString() +" "+ nodeObject.toString() + ") } ] }";
+			
+			logger.trace("sending cypher {} to endpoint {}", payload, finalUrl);
+			WebResource resource = Client.create().resource( finalUrl );
+			
+			ClientResponse response = resource
+					.accept( MediaType.APPLICATION_JSON )
+	                .type( MediaType.APPLICATION_JSON )
+			        .entity( payload )
+			        .post( ClientResponse.class );
+			
+			nodeLocation = response.getLocation().toString();
+			
+			String responseString = response.getEntity(String.class);
+			
+			logger.debug("POST to {} returned status code {}, returned data: {}",
+					finalUrl, response.getStatus(),
+			        responseString);
+			
+			// first check if the http code was ok
+			HttpStatusCodes httpStatusCodes = HttpStatusCodes.getHttpStatusCode(response.getStatus());
+			if (!httpStatusCodes.isOk()){
+				if (httpStatusCodes == HttpStatusCodes.FORBIDDEN){
+					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
+				} else {
+					logger.error("Error {} sending data to {}: {} ", response.getStatus(), finalUrl, HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
+				}
 			} else {
-				output = mPost.getResponseBodyAsString();
-				Header locationHeader =  mPost.getResponseHeader("geoLocation");
-				mPost.releaseConnection( );
+				// now do the check on json details within the returned JSON object
+				JSONParser reponseParser = new JSONParser();
+				Object responseObj = reponseParser.parse(responseString);
+				JSONObject jsonResponseObj = responseObj instanceof JSONObject ?(JSONObject) responseObj : null;
+				if(jsonResponseObj == null)
+					throw new ParseException(0, "returned json object is null");
 				
-				logger.info("SUCCESS :: added label " + label + " to the node " + nodeUri + Neo4JConstants.LABEL_LOC);
-				logger.trace("status = " + status + " / geoLocation = " + locationHeader.getValue() + " \n output = " + output);
+				// this is the location to commit the transaction if node creation was successfull
+				String commit = (String) jsonResponseObj.get("commit").toString();
+				// this contains an error object (actually an array) in case the creation was NOT successfull
+				String error = (String) jsonResponseObj.get("errors").toString();
+				// doknow what that is
+				String result = (String) jsonResponseObj.get("results").toString();
+				
+				final URI location = response.getLocation();
+				
+				if (error.isEmpty()) {
+					logger.info("new node created at location {}", location);
+					logger.trace("returned result json is {}", result.toString());
+					logger.debug("committing transaction at location {}", commit);
+					resource = Client.create().resource( commit );
+					response = resource
+							.accept( MediaType.APPLICATION_JSON )
+			                .type( MediaType.APPLICATION_JSON )
+					        .post( ClientResponse.class );
+					logger.debug("COMMIT returned status code {}, returned data: {}",
+							response.getStatus(),
+					        response.getEntity(String.class));
+				} else {
+					logger.error("ERROR :: {} - could not create node at location {}", error.substring(13), location);
+					logger.trace("returned error json is {}", error.toString());
+				}
 			}
-		} catch(Exception e) {
-			logger.error("EXCEPTION :: adding label to the node: " + e.getMessage());
-		}
-	}
-	*/
-	
-	/**
-     * @description Adds property to a node whose url is passed
-     * 
-     * @param 		nodeURI 		- URI of node to which the property is to be added
-     * @param 		propertyName 	- name of property which we want to add
-     * @param 		propertyValue 	- Value of above property
-    
-    public void addProperty(String nodeURI,
-                            String propertyName,
-                            String propertyValue){
-        String output = null;
-
-        try{
-            String nodePointUrl = nodeURI + Neo4JConstants.PROPERTY_LOC + propertyName;
-            HttpClient client = new HttpClient();
-            PutMethod mPut = new PutMethod(nodePointUrl);
-
-            //set headers
-            Header mtHeader = new Header();
-            mtHeader.setName("content-type");
-            mtHeader.setValue("application/json");
-            mtHeader.setName("accept");
-            mtHeader.setValue("application/json");
-            mPut.addRequestHeader(mtHeader);
-
-            // set json payload
-            String jsonString = "\"" + propertyValue + "\"";
-            StringRequestEntity requestEntity = new StringRequestEntity(jsonString,
-                                                                        "application/json",
-                                                                        "UTF-8");
-            mPut.setRequestEntity(requestEntity);
-            int status = client.executeMethod(mPut);
-            output = mPut.getResponseBodyAsString( );
-
-            mPut.releaseConnection( );
-            logger.trace("status = " + status + " / output = " + output);
+			response.close();
 			
-        }catch(Exception e){
-             logger.error("EXVCEPTION :: adding the property " + propertyName + " to the node: " + e);
-        }
-    }
-    */
-    
-    /*
-    @Override
-	public URL findNode(String key, String value, String label) {
-
-		String output = null;
-		HttpClient client = new HttpClient();
-		PostMethod mPost = new PostMethod(nodePointUrl); // + CYPHERENDPOINT_LOC);
-
-		// set header
-		Header mtHeader = new Header();
-		mtHeader.setName("content-type");
-		mtHeader.setValue("application/json");
-		mtHeader.setName("accept");
-		mtHeader.setValue("application/json");
-		mPost.addRequestHeader(mtHeader);
-		
-		// this cryptic string is passed along as part of a StringRequestEntity 
-		String r = "{ \"query\" : "
-				//+ "MATCH (n {" + field + " : " + id + ", type : \"" + type + "\" }) RETURN n"
-				+ "MATCH (n:"+label+" {" + key + " : " + value + "}) RETURN n"
-				//+ "\"params\" : {}"
-				+" }";
-		
-		logger.trace("About to use the following string to query for the node: " + r);
-				
-		StringRequestEntity requestEntity = null;
-		try {
-			requestEntity = new StringRequestEntity(r.toString(),
-													"application/json",
-													"UTF-8");
-		} catch (UnsupportedEncodingException e1) {
-			logger.error("EXCEPTION :: malformed StringRequestEntity " + e1.getMessage());
-			e1.printStackTrace();
-		}
-		
-		try {	
-			mPost.setRequestEntity(requestEntity);
-			int status = client.executeMethod(mPost);
-			HttpStatusCodes statusCode = HttpStatusCodes.getHttpStatusCode(status);
-			
-			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
-			if (!statusCode.isOk()){
-				logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
-			} else {
-				output = mPost.getResponseBodyAsString();
-				Header locationHeader =  mPost.getResponseHeader("location");
-				mPost.releaseConnection( );
-				
-				logger.debug("SUCCESS :: found the node at location " + locationHeader.getValue());
-				logger.trace("status = " + status + " / location = " + locationHeader.getValue() + " \n output = " + output);
-				
-				return new URL(locationHeader.getValue().toString());
-			}
 		} catch(Exception e) {
-			logger.error("EXCEPTION :: searching the graph for node " + e.getMessage());
+			logger.error("EXCEPTION :: failed to create node - {}", e.getMessage());
+			e.printStackTrace();
 		}
 		
-		return null;
+		return nodeLocation;
 	}
-	*/
-	
-	
-	/**
-     * @description Performs a traversal from a source node
-     * 
-     * @param 		nodeURI
-     * @param 		relationShip - relationship used for traversal
-     * @return		
-     
-    public String searchDatabase(String nodeURI, String relationShip){
-        String output = null;
-
-        try{
-            TraversalDefinition t = new TraversalDefinition();
-            t.setOrder( TraversalDefinition.DEPTH_FIRST );
-            t.setUniqueness( TraversalDefinition.NODE );
-            t.setMaxDepth( 10 );
-            t.setReturnFilter( TraversalDefinition.ALL );
-            t.setRelationships( new Relation( relationShip, Relation.OUT ) );
-            
-            logger.debug("Traversal is " + t.toString());
-            HttpClient client = new HttpClient();
-            PostMethod mPost = new PostMethod(nodeURI+"/traverse/node");
-
-
-            // set headers
-            Header mtHeader = new Header();
-            mtHeader.setName("content-type");
-            mtHeader.setValue("application/json");
-            mtHeader.setName("accept");
-            mtHeader.setValue("application/json");
-            mPost.addRequestHeader(mtHeader);
-
-            // set json payload
-            StringRequestEntity requestEntity = new StringRequestEntity(t.toJson(),
-                                                                        "application/json",
-                                                                        "UTF-8");
-            mPost.setRequestEntity(requestEntity);
-            int status = client.executeMethod(mPost);
-            output = mPost.getResponseBodyAsString( );
-            mPost.releaseConnection( );
-            logger.debug("status : " + status + " / output : " + output);
-        }catch(Exception e){
-             logger.error("Exception in creating node in neo4j : {}" + e);
-        }
-
-        return output;
-    }
-    */
-    
-	/**
-	 * @description returns the server status
-	 
-	public HttpStatusCodes getServerStatus(){
-		dbServerUrl = nco.getProtocol() + "://" + nco.getHost() + ":" + nco.getPort();
-		nodePointUrl = dbServerUrl + nco.getNodeLoc();
-		
-		// initialize the return value and whether this is acceptable or not.
-		HttpStatusCodes status = HttpStatusCodes.UNKNOWN;
-
-        try{
-	        HttpClient client = new HttpClient();
-	        GetMethod mGet =   new GetMethod(dbServerUrl);
-	        status = HttpStatusCodes.getHttpStatusCode(client.executeMethod(mGet));
-	        
-	        if (!status.isOk()){
-	        	logger.warn(HttpErrorMessages.getHttpErrorText(status.getErrorCode()));
-	        } else {
-	        	logger.debug("Return code " + status + " (" + status.getErrorCode() + ") everything should be fine");
-	        }
-	        
-	        mGet.releaseConnection();
-	    }catch(Exception e){
-	    	logger.error("EXCEPTION :: " + e.getLocalizedMessage());
-	    }
-        
-	    return status;
-	}
-*/
 }
