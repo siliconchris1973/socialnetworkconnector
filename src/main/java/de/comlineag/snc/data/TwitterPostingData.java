@@ -234,9 +234,14 @@ public final class TwitterPostingData extends PostingData {
 			 * 
 			 */
 			// TODO implement proper handling of hashtags, symbols and mentions - this currently kills the parser
-			//setHashtags((List<?>)jsonObject.get("hashtags"));
-			//setSymbols((List<?>)jsonObject.get("symbols"));
-			//setMentions((List<?>)jsonObject.get("user_mentions"));
+			if (jsonObject.containsKey("entities")){
+				JSONObject entityObject = new JSONObject((JSONObject) jsonObject.get("entities"));
+				logger.trace("the entity-object contains: {}", entityObject.toString());
+				
+				//setHashtags((List<?>)jsonObject.get("hashtags"));
+				//setSymbols((List<?>)jsonObject.get("symbols"));
+				//setMentions((List<?>)jsonObject.get("user_mentions"));
+			}
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: during parsing of json twitter post-object " + e.getLocalizedMessage());
 			e.printStackTrace();
@@ -244,7 +249,7 @@ public final class TwitterPostingData extends PostingData {
 	}
 	
 	
-	public void setMentions(List<?> listOfMentions) {
+	public void setMentions(List<String> listOfMentions) {
 		// TODO Implement proper algorithm to deal with user mentions
 		logger.trace("List of mentioned users received, creating something different from it");
 		Iterator<?> itr = listOfMentions.iterator();
@@ -253,7 +258,7 @@ public final class TwitterPostingData extends PostingData {
 		}
 	}
 	
-	public void setSymbols(List<?> listOfSymbols) {
+	public void setSymbols(List<String> listOfSymbols) {
 		// TODO Implement proper algorithm to deal with symbols
 		logger.trace("List of symbols received, creating something different from it");
 		Iterator<?> itr = listOfSymbols.iterator();
@@ -262,7 +267,7 @@ public final class TwitterPostingData extends PostingData {
 		}
 	}
 	
-	public void setHashtags(List<?> listOfHashtags) {
+	public void setHashtags(List<String> listOfHashtags) {
 		// TODO Implement proper algorithm to deal with hashtags
 		logger.trace("List of Hashtags received, creating something different from it");
 		Iterator<?> itr = listOfHashtags.iterator();
@@ -274,6 +279,7 @@ public final class TwitterPostingData extends PostingData {
 	/**
 	 * setup the Object with NULL
 	 */
+	@SuppressWarnings("unchecked")
 	private void initialize() {
 		// setting everything to 0 or null default value.
 		// so I can check on initialized or not initialized values for the
@@ -281,11 +287,34 @@ public final class TwitterPostingData extends PostingData {
 		id = "0";
 		
 		objectStatus = "new";
+		
+		// set the internal fields and embedded json objects for domain, customer and social network
+		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "TWITTER");
 		domain = new CrawlerConfiguration<String>().getDomain();
 		customer = new CrawlerConfiguration<String>().getCustomer();
 		
-		//sn_id = SocialNetworks.TWITTER.getValue();
-		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "TWITTER");
+		// create the embedded social network json
+		JSONObject tJson = new JSONObject();
+		tJson.put("sn_id", sn_id);
+		tJson.put("name", SocialNetworks.getSocialNetworkConfigElementByCode("name", sn_id).toString());
+		tJson.put("domain", SocialNetworks.getSocialNetworkConfigElementByCode("domain", sn_id).toString());
+		tJson.put("description", SocialNetworks.getSocialNetworkConfigElementByCode("description", sn_id).toString());
+		SocialNetworkData socData = new SocialNetworkData(tJson);
+		logger.trace("storing created social network object {} as embedded object", socData.toString());
+		setSocialNetworkData(socData);
+		
+		// create the embedded domain json
+		tJson = new JSONObject();
+		tJson.put("name", domain);
+		DomainData domData = new DomainData(tJson);
+		setDomainData(domData);
+		
+		// create the embedded customer json
+		tJson = new JSONObject();
+		tJson.put("name", customer);
+		CustomerData cusData = new CustomerData(tJson);
+		setCustomerData(cusData);
+		
 		
 		text = null;
 		raw_text = null;

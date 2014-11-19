@@ -11,35 +11,34 @@ import de.comlineag.snc.constants.GraphNodeTypes;
  * @version		0.1				- 11.11.2014
  * @status		productive
  * 
- * @description data type representing a customer in the graph
+ * @description data type representing a keyword in the graph
  * 
- * @changelog	0.1	(Chris)		class created as copy from GraphDomainData Version 0.1
+ * @changelog	0.1	(Chris)		class created as copy from GraphUserData Version 0.1
  * 
  */
-public class GraphCustomerData {
+public class KeywordData {
 
-	protected final GraphNodeTypes gnt = GraphNodeTypes.CUSTOMER;
+	protected final GraphNodeTypes gnt = GraphNodeTypes.KEYWORD;
 	protected String id;							// the id of the user within the social network
-	protected String name;						// the name of the customer itself
-	protected String lang;							// default language of the customer entry
+	protected String keyword;						// the value aka keyword itself
+	protected String lang;							// default language of the keyword
 	
 	protected JSONObject internalJson = new JSONObject();
 	
-	public GraphCustomerData(JSONObject obj){
+	public KeywordData(JSONObject obj){
 		setId(obj.get("id").toString());
-		setName(obj.get("name").toString());
+		setKeyword(obj.get("keyword").toString());
 		setLang(obj.get("lang").toString());
 		
 		internalJson = obj;
 		//internalJson.put("Label", gnt);
-		
 	}
 	
 	private String toJsonString(){
 		/*
 		JSONObject obj = new JSONObject();
 		obj.put("id", getId());
-		obj.put("name", getName());
+		obj.put("keyword", getKeyword());
 		obj.put("lang", getLang());
 		
 		return obj.toJSONString();
@@ -64,8 +63,8 @@ public class GraphCustomerData {
 	public String getId() {return id;}
 	public void setId(String id) {this.id = id;}
 	
-	public String getName() {return name;}
-	public void setName(String value) {this.name= value;}
+	public String getKeyword() {return keyword;}
+	public void setKeyword(String value) {this.keyword = value;}
 	
 	public String getLang() {return lang;}
 	public void setLang(String lang) {this.lang = lang;}

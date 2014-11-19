@@ -1,8 +1,11 @@
 package de.comlineag.snc.data;
 
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.comlineag.snc.constants.GraphNodeTypes;
+import de.comlineag.snc.helper.UniqueIdServices;
 
 /**
  * 
@@ -13,11 +16,12 @@ import de.comlineag.snc.constants.GraphNodeTypes;
  * 
  * @description data type representing a domain of interest in the graph
  * 
- * @changelog	0.1	(Chris)		class created as copy from GraphKeywordData Version 0.1
+ * @changelog	0.1	(Chris)		class created as copy from KeywordData Version 0.1
  * 
  */
-public class GraphDomainData {
-
+public class DomainData {
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	
 	protected final GraphNodeTypes gnt = GraphNodeTypes.DOMAIN;
 	protected String id;							// the id of the user within the social network
 	protected String name;						// the name of domain itself
@@ -25,37 +29,28 @@ public class GraphDomainData {
 	
 	protected JSONObject internalJson = new JSONObject();
 	
-	public GraphDomainData(JSONObject obj){
-		setId(obj.get("id").toString());
-		setName(obj.get("name").toString());
-		setLang(obj.get("lang").toString());
-		
-		internalJson = obj;
-		//internalJson.put("Label", gnt);
-	}
-	
-	private String toJsonString(){
-		/*
-		JSONObject obj = new JSONObject();
-		obj.put("id", getId());
-		obj.put("name", getName());
-		obj.put("lang", getLang());
-		
-		return obj.toJSONString();
-		*/
-		return internalJson.toJSONString();
-	}
-	
-	/**
-	 * @description	creates a string which can be passed to the neo4j cypher engine 
-	 * @return		cypher string
-	 */
-	public String createCypher(){
-		return "\""+gnt.toString()+"\" "+toJsonString();
+	public DomainData(JSONObject obj){
+		if(obj.containsKey("name")){
+			if (obj.containsKey("id"))
+				setId(obj.get("id").toString());
+			else
+				setId(UniqueIdServices.createMessageDigest(obj.get("name").toString()));
+				
+			setName(obj.get("name").toString());
+			if(obj.containsKey("lang"))
+				setLang(obj.get("lang").toString());
+			else 
+				setLang("DE");
+			
+			internalJson = obj;
+		} else {
+			logger.error("ERROR :: cannot create a domain of interest without a name");
+		}
 	}
 	
 	// getter and setter
 	public JSONObject getJson() {return this.internalJson;}
+	public String toJsonString(){return internalJson.toJSONString();}
 	
 	public GraphNodeTypes getGnt() {return this.gnt;}
 	

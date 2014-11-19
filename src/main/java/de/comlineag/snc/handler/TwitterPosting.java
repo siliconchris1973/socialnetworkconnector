@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.GraphNodeTypes;
+import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.data.TwitterPostingData;
 
 /**
@@ -38,22 +39,17 @@ public class TwitterPosting extends GenericDataManager<TwitterPostingData> {
 	
 	@SuppressWarnings("unchecked")
 	public TwitterPosting(JSONObject jsonObject) {
+		// first extract ONLY the twitter-posting from the bigger json object
 		data = new TwitterPostingData(jsonObject);
 		
 		// next call the graph engine and store data also in the external graph
 		if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
-			if (!jsonObject.containsKey("sn_id"))
-				jsonObject.put("sn_id", data.getSnId());
-			if (!jsonObject.containsKey("teaser"))
-				jsonObject.put("teaser", data.getTeaser());
-			if (!jsonObject.containsKey("subject"))
-				jsonObject.put("subject", data.getSubject());
-			if (!jsonObject.containsKey("domain"))
-				jsonObject.put("domain", data.getDomain());
-			if (!jsonObject.containsKey("customer"))
-				jsonObject.put("customer", data.getCustomer());
-			logger.info("calling graph database for {}-{} ", data.getSnId().toString(), jsonObject.get("id"));
-			graphPersistenceManager.saveNode(jsonObject, GraphNodeTypes.POST);
+			JSONObject bigJson=new JSONObject(data.getJson());
+			
+			logger.trace("this is the BIG dataset: {}", bigJson);
+			System.exit(-1);
+			logger.info("calling graph database for {}-{} ", bigJson.get("sn_id").toString(), bigJson.get("id").toString());
+			graphPersistenceManager.saveNode(jsonObject);
 		}
 	}
 

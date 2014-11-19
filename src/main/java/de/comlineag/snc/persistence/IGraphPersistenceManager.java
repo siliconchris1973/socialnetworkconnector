@@ -24,11 +24,45 @@ import de.comlineag.snc.constants.GraphRelationshipTypes;
 public interface IGraphPersistenceManager {
 
 	/**
-	 * @description	implementation for saving the a node in the graph
+	 * @description	implementation for saving the node(s) in the graph
 	 * 
-	 * @param		JSONObject of the node
+	 * @param		a complex JSONObject containing everything needed to create a node with
+	 * 				it's relationships:
+	 * 				The post, the user, the social network, the domain of interest and 
+	 * 				the customer and an array of keywords with which the post was tracked
+	 * 
+	 * Structure:
+	 * 		{
+	 * 			POST: {
+	 * 					id: "id", 
+	 * 					text: "text", 
+	 * 					teaser: "teaser", 
+	 * 					subject: "subject", 
+	 * 					lang: "lang"
+	 * 				  },
+	 * 			USER: {
+	 * 					id: "id",
+	 * 					name: "name",
+	 * 					screen_name: "screen_name"
+	 * 				  },
+	 * 			DOMAIN {
+	 * 						name: "name"
+	 * 				   },
+	 * 			CUSTOMER: {
+	 * 						name: "name"
+	 * 					  },
+	 * 			SOCIALNETWORK: {
+	 * 								sn_id: "sn_id",
+	 * 								name: "name",
+	 * 								domain: "www-domain",
+	 * 								description: "description"
+	 * 						   },
+	 * 			KEYWORD: {
+	 * 						name: "name"
+	 * 					 }
+	 * 		}
 	 */
-	public void saveNode(JSONObject nodeObject, GraphNodeTypes label);
+	public void saveNode(JSONObject nodeObject);
 	
 	/**
 	 * @description	find a node by a key value pair and return the url to it

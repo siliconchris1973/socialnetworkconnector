@@ -1,14 +1,12 @@
 package de.comlineag.snc.parser;
 
 import java.io.InputStream;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -16,6 +14,7 @@ import org.json.simple.parser.ParseException;
 import com.google.common.base.Stopwatch;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
+import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.handler.TwitterPosting;
 import de.comlineag.snc.handler.TwitterUser;
 

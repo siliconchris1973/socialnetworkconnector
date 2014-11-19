@@ -224,33 +224,6 @@ public final class FacebookPostingData extends PostingData {
 	}
 	
 	
-	public void setMentions(List<?> listOfMentions) {
-		// TODO Implement algorithm to deal with user mentions
-		logger.trace("List of mentioned users received, creating something different from it");
-		Iterator<?> itr = listOfMentions.iterator();
-		while(itr.hasNext()){
-			logger.trace("found user " + itr.next());
-		}
-	}
-	
-	public void setSymbols(List<?> listOfSymbols) {
-		// TODO Implement algorithm to deal with symbols
-		logger.trace("List of symbols received, creating something different from it");
-		Iterator<?> itr = listOfSymbols.iterator();
-		while(itr.hasNext()){
-			logger.trace("found symbol " + itr.next());
-		}
-	}
-	
-	public void setHashtags(List<?> listOfHashtags) {
-		// TODO Implement algorithm to deal with hashtags
-		logger.trace("List of Hashtags received, creating something different from it");
-		Iterator<?> itr = listOfHashtags.iterator();
-		while(itr.hasNext()){
-			logger.trace("found hashtag " + itr.next());
-		}
-	}
-	
 	/**
 	 * setup the Object with NULL
 	 */
@@ -262,8 +235,8 @@ public final class FacebookPostingData extends PostingData {
 		
 		domain = new CrawlerConfiguration<String>().getDomain();
 		customer = new CrawlerConfiguration<String>().getCustomer();
-		//sn_id = SocialNetworks.FACEBOOK.getValue();
 		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "FACEBOOK");
+		
 		
 		text = null;
 		raw_text = null;

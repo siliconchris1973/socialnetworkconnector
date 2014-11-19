@@ -21,11 +21,11 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.GraphNodeTypes;
 import de.comlineag.snc.constants.GraphRelationshipTypes;
 import de.comlineag.snc.constants.SocialNetworks;
-import de.comlineag.snc.data.GraphCustomerData;
-import de.comlineag.snc.data.GraphDomainData;
-import de.comlineag.snc.data.GraphKeywordData;
+import de.comlineag.snc.data.CustomerData;
+import de.comlineag.snc.data.DomainData;
+import de.comlineag.snc.data.KeywordData;
 import de.comlineag.snc.data.GraphPostingData;
-import de.comlineag.snc.data.GraphSocialNetworkData;
+import de.comlineag.snc.data.SocialNetworkData;
 import de.comlineag.snc.data.GraphUserData;
 import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
 
@@ -101,9 +101,9 @@ public class Neo4JEmbeddedPersistence implements IGraphPersistenceManager {
 
 
 	@Override
-	public void saveNode(JSONObject nodeObject, GraphNodeTypes label) {
+	public void saveNode(JSONObject nodeObject) {
 		logger.info("creating a {} node object to store in the graph", SocialNetworks.getSocialNetworkConfigElementByCode("name", nodeObject.get("sn_id").toString()));
-		//GraphNodeTypes label = GraphNodeTypes.POST;
+		GraphNodeTypes label = GraphNodeTypes.POST;
 		
 		if ("POST".equalsIgnoreCase(label.getValue())){
 			GraphPostingData gpd = new GraphPostingData(nodeObject);
@@ -112,16 +112,16 @@ public class Neo4JEmbeddedPersistence implements IGraphPersistenceManager {
 			GraphUserData gud = new GraphUserData(nodeObject);
 			createUserNodeObject(gud.getJson(), label);
 		} else if ("DOMAIN".equalsIgnoreCase(label.getValue())){
-			GraphDomainData gdd = new GraphDomainData(nodeObject);
+			DomainData gdd = new DomainData(nodeObject);
 			createOtherNodeObject(gdd.getJson(), label);
 		} else if ("CUSTOMER".equalsIgnoreCase(label.getValue())){
-			GraphCustomerData gcd = new GraphCustomerData(nodeObject);
+			CustomerData gcd = new CustomerData(nodeObject);
 			createOtherNodeObject(gcd.getJson(), label);
 		} else if ("KEYWORD".equalsIgnoreCase(label.getValue())){
-			GraphKeywordData gkd = new GraphKeywordData(nodeObject);
+			KeywordData gkd = new KeywordData(nodeObject);
 			createOtherNodeObject(gkd.getJson(), label);
 		} else if ("SOCIALNETWORK".equalsIgnoreCase(label.getValue())){
-			GraphSocialNetworkData gsd = new GraphSocialNetworkData(nodeObject);
+			SocialNetworkData gsd = new SocialNetworkData(nodeObject);
 			createOtherNodeObject(gsd.getJson(), label);
 		} else {
 			logger.warn("warning can't create an object with label {} in the graph, beacause I do not know what it is is", label.getValue());

@@ -137,22 +137,9 @@ public class GraphPostingData {
 	}
 	
 
-	private String toJsonString(){
-		return internalJson.toJSONString();
-	}
-	
-	
-	
-	/**
-	 * @description	creates a string which can be passed to the neo4j cypher engine to create a node
-	 * @return		cypher string
-	 */
-	public String createCypher(){
-		return gnt.toString()+" "+toJsonString();
-	}
-	
 	// getter and setter
 	public JSONObject getJson() {return this.internalJson;}
+	public String toJsonString(){return internalJson.toJSONString();}
 	
 	public GraphNodeTypes getGnt() {return this.gnt;}
 	

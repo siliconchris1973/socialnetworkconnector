@@ -1,11 +1,6 @@
 package de.comlineag.snc.handler;
 
 import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import de.comlineag.snc.appstate.RuntimeConfiguration;
-import de.comlineag.snc.constants.GraphNodeTypes;
 import de.comlineag.snc.data.FacebookPostingData;
 
 /**
@@ -68,33 +63,18 @@ public class FacebookPosting extends GenericDataManager<FacebookPostingData> {
 
 	private FacebookPostingData data;
 	// this holds a reference to the runtime configuration
-	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
-	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	//private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
+	//private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	/**
 	 * Baut aus dem JSON String ein FacebookPostingData Objekt
 	 * 
 	 * @param jsonObject
 	 */
-	@SuppressWarnings("unchecked")
 	public FacebookPosting(JSONObject jsonObject) {
 		data = new FacebookPostingData(jsonObject);
 		
-		// next call the graph engine and store data also in the external graph
-		if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
-			if (!jsonObject.containsKey("sn_id"))
-				jsonObject.put("sn_id", data.getSnId());
-			if (!jsonObject.containsKey("teaser"))
-				jsonObject.put("teaser", data.getTeaser());
-			if (!jsonObject.containsKey("subject"))
-				jsonObject.put("subject", data.getSubject());
-			if (!jsonObject.containsKey("domain"))
-				jsonObject.put("domain", data.getDomain());
-			if (!jsonObject.containsKey("customer"))
-				jsonObject.put("customer", data.getCustomer());
-			logger.info("calling graph database for {}-{} ", data.getSnId().toString(), jsonObject.get("id"));
-			graphPersistenceManager.saveNode(jsonObject, GraphNodeTypes.POST);
-		}
+		// TODO add graph db call
 	}
 
 	@Override
