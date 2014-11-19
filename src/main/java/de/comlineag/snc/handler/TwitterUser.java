@@ -8,7 +8,7 @@ import de.comlineag.snc.data.TwitterUserData;
  * 
  * @author 		Christian Guenther
  * @category 	Handler
- * @version		0.1		- 10.07.2014
+ * @version		0.2				- 19.11.2014
  * @status		productive
  * 
  * @description Implementation of the twitter user manager - extends
@@ -20,6 +20,7 @@ import de.comlineag.snc.data.TwitterUserData;
  * @param  <TwitterUserData>
  * 
  * @changelog	0.1 (Chris)		class created as copy from TwitterPosting
+ * 				0.2				added getJson() method
  * 
  */
 
@@ -34,5 +35,8 @@ public class TwitterUser extends GenericDataManager<TwitterUserData> {
 	public void save() {
 		persistenceManager.saveUsers(data);
 	}
-
+	
+	public JSONObject getJson(){
+		return(data.getJson());
+	}
 }

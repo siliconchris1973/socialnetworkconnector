@@ -8,7 +8,7 @@ import de.comlineag.snc.data.FacebookUserData;
  * 
  * @author 		Christian Guenther
  * @category 	Handler
- * @version		0.1 
+ * @version		0.2
  * @status		not implemented
  * 
  * @description Implementation of the facebook user manager - extends
@@ -32,6 +32,7 @@ import de.comlineag.snc.data.FacebookUserData;
  * @param none
  * 
  * @changelog	0.1 (CHris)		copy from TwitterUser
+ * 				0.2				added getJson() method
  * 
  * TODO implement code for facebook user handling
  */
@@ -63,5 +64,8 @@ public class FacebookUser extends GenericDataManager<FacebookUserData> {
 	public void save() {
 		persistenceManager.saveUsers(data);
 	}
-
+	
+	public JSONObject getJson(){
+		return(data.getJson());
+	}
 }

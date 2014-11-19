@@ -119,16 +119,31 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 		
 		// fill the json object for post, user, domain and customer plus social network and keyword(s)
 		postNodeObject = new JSONObject((JSONObject) nodeObject);
-		if (nodeObject.containsKey("USER"))
-			userNodeObject = new JSONObject((JSONObject) nodeObject.get("USER"));;
-		if (nodeObject.containsKey("DOMAIN"))
-			domainNodeObject = new JSONObject((JSONObject) nodeObject.get("DOMAIN"));;
-		if (nodeObject.containsKey("CUSTOMER"))
-			customerNodeObject = new JSONObject((JSONObject) nodeObject.get("CUSTOMER"));;
-		if (nodeObject.containsKey("SOCIALNETWORK"))
-			socialNetworkNodeObject = new JSONObject((JSONObject) nodeObject.get("SOCIALNETWORK"));;
-		if (nodeObject.containsKey("KEYWORD"))
-			keywordNodeObject = new JSONObject((JSONObject) nodeObject.get("KEYWORD"));;
+		if (nodeObject.containsKey("USER")) {
+			logger.debug("found a user-object");
+			userNodeObject = new JSONObject((JSONObject) nodeObject.get("USER"));
+			logger.trace("   >>> {}", userNodeObject.toString());
+		}
+		if (nodeObject.containsKey("DOMAIN")) {
+			logger.debug("found a domain-object");
+			domainNodeObject = new JSONObject((JSONObject) nodeObject.get("DOMAIN"));
+			logger.trace("   >>> {}", domainNodeObject.toString());
+		}
+		if (nodeObject.containsKey("CUSTOMER")) {
+			logger.debug("found a customer-object");
+			customerNodeObject = new JSONObject((JSONObject) nodeObject.get("CUSTOMER"));
+			logger.trace("   >>> {}", customerNodeObject.toString());
+		}
+		if (nodeObject.containsKey("SOCIALNETWORK")) {
+			logger.debug("found a social-network-object");
+			socialNetworkNodeObject = new JSONObject((JSONObject) nodeObject.get("SOCIALNETWORK"));
+			logger.trace("   >>> {}", socialNetworkNodeObject.toString());
+		}
+		if (nodeObject.containsKey("KEYWORD")) {
+			logger.debug("found a keyword-object");
+			keywordNodeObject = new JSONObject((JSONObject) nodeObject.get("KEYWORD"));
+			logger.trace("   >>> {}", keywordNodeObject.toString());
+		}
 		
 		
 		if (postNodeObject != null) {

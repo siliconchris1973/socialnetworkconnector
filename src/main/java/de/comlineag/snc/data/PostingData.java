@@ -17,9 +17,10 @@ import org.json.simple.JSONObject;
  * @description Data Class for one post object as tracked from a website or social network. 
  * 				All elements of the post are available as fields, plus there is a json-object
  * 				that also contains all fields as key: value store. 
- * 				Additionally the data class contains data objects for the domain of interest, 
- * 				the customer, the social network and the trackterms because of which the post 
- * 				was tracked. 
+ * 				Additionally the data class contains data objects for the user, the domain of 
+ * 				interest, the customer, the social network and the trackterms because of which  
+ * 				the post was tracked. 
+ * 				The user is available in two forms: 1st as a userData object AND as json-object.
  * 				Domain and customer is available as a field and as an internal json object.
  * 				The social network is available as a 2-digit field, containing the code of the 
  * 				network, and as an embedded json object with information filled from the
@@ -250,27 +251,54 @@ public class PostingData {
 		return p;
 	}
 	
-	public String toJsonString(){
-		return internalJson.toJSONString();
-	}
+	public String toJsonString(){return internalJson.toJSONString();}
 	
 	// getter and setter
 	public JSONObject getJson(){return internalJson;}
 	
+	// embedded user data
+	public UserData getUserData(){return userData;}
+	public void setUserData(UserData userData){this.userData = userData; internalJson.put("USER", userData.getJson());}
+	
+	// embedded domain data
+	public DomainData getDomainData(){return domainData;}
+	public void setDomainData(DomainData domainData){this.domainData = domainData; internalJson.put("DOMAIN", domainData.getJson());}
+	
+	// embedded customer data
+	public CustomerData getCustomerData(){return customerData;}
+	public void setCustomerData(CustomerData customerData){this.customerData = customerData; internalJson.put("CUSTOMER", customerData.getJson());}
+	
+	// embedded social network data
+	public SocialNetworkData getSocialNetworkData(){return socialNetworkData;}
+	public void setSocialNetworkData(SocialNetworkData socialNetworkData){
+		this.socialNetworkData = socialNetworkData; 
+		internalJson.put("SOCIALNETWORK", socialNetworkData.getJson());
+	}
+	
+	// track-terms aka keywords
+	public ArrayList<String> getTrackTerms() {return trackterms;}
+	public void setTrackTerms(List<String> trackterms) {
+		assert (socialNetworkData != null) : "ERROR :: cannot operate on empty input";
+		
+		for (int i=0;i<trackterms.size();i++)
+			this.trackterms.add(trackterms.get(i).toString());
+	}
+	
+	// the standard fields
 	public String getObjectStatus() {return objectStatus;}
 	public void setObjectStatus(String ostatus) {this.objectStatus = ostatus; internalJson.put("objectStatus", ostatus);}
-	
-	public String getDomain() {return domain;}
-	public void setDomain(String dom) {this.domain = dom; internalJson.put("domain", dom);}
-	
-	public String getCustomer() {return customer;}
-	public void setCustomer(String sub) {this.customer = sub; internalJson.put("customer", sub);}
 	
 	public String getId() {return id;}
 	public void setId(String id) {this.id = id; internalJson.put("id", id);}
 	
 	public String getSnId() {return sn_id;}
 	public void setSnId(String sn_id) {this.sn_id = sn_id; internalJson.put("sn_id", sn_id);}
+	
+	public String getDomain() {return domain;}
+	public void setDomain(String dom) {this.domain = dom; internalJson.put("domain", dom);}
+	
+	public String getCustomer() {return customer;}
+	public void setCustomer(String sub) {this.customer = sub; internalJson.put("customer", sub);}
 	
 	public String getText() {return text;}
 	public void setText(String text) {this.text = text; internalJson.put("text", text);}
@@ -371,32 +399,5 @@ public class PostingData {
 			this.mentions.add(mentions.get(i).toString());
 		}
 		internalJson.put("mentions", mentio);
-	}
-	
-	// embedded user data
-	public UserData getUserData(){return userData;}
-	public void setUserData(UserData userData){this.userData = userData; internalJson.put("USER", userData);}
-		
-	// embedded domain data
-	public DomainData getDomainData(){return domainData;}
-	public void setDomainData(DomainData domainData){this.domainData = domainData; internalJson.put("DOMAIN", domainData);}
-	
-	// embedded customer data
-	public CustomerData getCustomerData(){return customerData;}
-	public void setCustomerData(CustomerData customerData){this.customerData = customerData; internalJson.put("CUSTOMER", customerData);}
-	
-	// embedded social network data
-	public SocialNetworkData getSocialNetworkData(){return socialNetworkData;}
-	public void setSocialNetworkData(SocialNetworkData socialNetworkData){
-		this.socialNetworkData = socialNetworkData; 
-		internalJson.put("SOCIALNETWORK", socialNetworkData);
-	}
-	
-	public ArrayList<String> getTrackTerms() {return trackterms;}
-	public void setTrackTerms(List<String> trackterms) {
-		assert (socialNetworkData != null) : "ERROR :: cannot operate on empty input";
-		
-		for (int i=0;i<trackterms.size();i++)
-			this.trackterms.add(trackterms.get(i).toString());
 	}
 }

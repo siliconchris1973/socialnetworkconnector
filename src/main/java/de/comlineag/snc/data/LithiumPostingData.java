@@ -402,20 +402,43 @@ public final class LithiumPostingData extends PostingData {
 	/**
 	 * @description	setup a posting data with NULL-values
 	 */
+	@SuppressWarnings("unchecked")
 	private void initialize() {
+		// first setup the internal json objct
+		internalJson = new JSONObject();
+		
 		// setting everything to 0 or null default value.
-		// so I can check on initialized or not initialized values for the
-		// posting
 		id = "0";
+		setObjectStatus("new");
 		
-		domain = new CrawlerConfiguration<String>().getDomain();
-		customer = new CrawlerConfiguration<String>().getCustomer();
-		objectStatus = "new";
+		setSnId(SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM"));
+		setDomain(new CrawlerConfiguration<String>().getDomain());
+		setCustomer(new CrawlerConfiguration<String>().getCustomer());
 		
-		// set social network identifier
-		//sn_id = SocialNetworks.LITHIUM.getValue();
-		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM");
 
+		// create the embedded social network json
+		JSONObject tJson = new JSONObject();
+		tJson.put("sn_id", sn_id);
+		tJson.put("name", SocialNetworks.getSocialNetworkConfigElementByCode("name", sn_id).toString());
+		tJson.put("domain", SocialNetworks.getSocialNetworkConfigElementByCode("domain", sn_id).toString());
+		tJson.put("description", SocialNetworks.getSocialNetworkConfigElementByCode("description", sn_id).toString());
+		SocialNetworkData socData = new SocialNetworkData(tJson);
+		logger.trace("storing created social network object {} as embedded object", socData.toString());
+		setSocialNetworkData(socData);
+		
+		// create the embedded domain json
+		tJson = new JSONObject();
+		tJson.put("name", domain);
+		DomainData domData = new DomainData(tJson);
+		setDomainData(domData);
+		
+		// create the embedded customer json
+		tJson = new JSONObject();
+		tJson.put("name", customer);
+		CustomerData cusData = new CustomerData(tJson);
+		setCustomerData(cusData);
+		
+		
 		text = null;
 		raw_text = null;
 		subject = "";

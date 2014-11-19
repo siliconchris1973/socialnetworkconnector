@@ -88,8 +88,10 @@ public final class TwitterPostingData extends PostingData {
 			}
 			setId(s);
 			
+			
 			// log the startup message
 			logger.debug("constructing new subset of data of tweet (TW-"  + id + ") from twitter post-object");
+			
 			
 			// User ID
 			JSONObject user = (JSONObject) jsonObject.get("user");
@@ -286,13 +288,12 @@ public final class TwitterPostingData extends PostingData {
 		
 		// setting everything to 0 or null default value.
 		id = "0";
-		
-		objectStatus = "new";
+		setObjectStatus("new");
 		
 		// set the internal fields and embedded json objects for domain, customer and social network
-		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "TWITTER");
-		domain = new CrawlerConfiguration<String>().getDomain();
-		customer = new CrawlerConfiguration<String>().getCustomer();
+		setSnId(SocialNetworks.getSocialNetworkConfigElement("code", "TWITTER"));
+		setDomain(new CrawlerConfiguration<String>().getDomain());
+		setCustomer(new CrawlerConfiguration<String>().getCustomer());
 		
 		// create the embedded social network json
 		JSONObject tJson = new JSONObject();

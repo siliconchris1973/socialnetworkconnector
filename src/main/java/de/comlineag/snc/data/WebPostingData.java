@@ -2,7 +2,6 @@ package de.comlineag.snc.data;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
@@ -137,17 +136,42 @@ public final class WebPostingData extends PostingData {
 	/**
 	 * setup the Object with NULL
 	 */
+	@SuppressWarnings("unchecked")
 	private void initialize() {
+		// first setup the internal json objct
+		internalJson = new JSONObject();
+		
 		// setting everything to 0 or null default value.
-		// so I can check on initialized or not initialized values for the
-		// posting
 		id = "0";
+		setObjectStatus("new");
 		
-		objectStatus = "new";
-		domain = new CrawlerConfiguration<String>().getDomain();
-		customer = new CrawlerConfiguration<String>().getCustomer();
+		setSnId(SocialNetworks.getSocialNetworkConfigElement("code", "WEBCRAWLER"));
+		setDomain(new CrawlerConfiguration<String>().getDomain());
+		setCustomer(new CrawlerConfiguration<String>().getCustomer());
 		
-		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "WEBCRAWLER");
+
+		// create the embedded social network json
+		JSONObject tJson = new JSONObject();
+		tJson.put("sn_id", sn_id);
+		tJson.put("name", SocialNetworks.getSocialNetworkConfigElementByCode("name", sn_id).toString());
+		tJson.put("domain", SocialNetworks.getSocialNetworkConfigElementByCode("domain", sn_id).toString());
+		tJson.put("description", SocialNetworks.getSocialNetworkConfigElementByCode("description", sn_id).toString());
+		SocialNetworkData socData = new SocialNetworkData(tJson);
+		logger.trace("storing created social network object {} as embedded object", socData.toString());
+		setSocialNetworkData(socData);
+		
+		// create the embedded domain json
+		tJson = new JSONObject();
+		tJson.put("name", domain);
+		DomainData domData = new DomainData(tJson);
+		setDomainData(domData);
+		
+		// create the embedded customer json
+		tJson = new JSONObject();
+		tJson.put("name", customer);
+		CustomerData cusData = new CustomerData(tJson);
+		setCustomerData(cusData);
+		
 		
 		text = null;
 		raw_text = null;

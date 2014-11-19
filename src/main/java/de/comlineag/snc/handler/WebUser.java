@@ -8,7 +8,7 @@ import de.comlineag.snc.data.WebUserData;
  * 
  * @author 		Christian Guenther
  * @category 	Handler
- * @version		0.1				- 10.10.2014
+ * @version		0.2				- 19.11.2014
  * @status		productive
  * 
  * @description Implementation of the web parser user manager - extends
@@ -26,6 +26,7 @@ import de.comlineag.snc.data.WebUserData;
  * @param <WebUserData>
  * 
  * @changelog	0.1 (Chris)		class created
+ * 				0.2				added getJson() method
  * 
  */
 
@@ -40,5 +41,9 @@ public class WebUser extends GenericDataManager<WebUserData> {
 	@Override
 	public void save() {
 		persistenceManager.saveUsers(data);
+	}
+	
+	public JSONObject getJson(){
+		return(data.getJson());
 	}
 }

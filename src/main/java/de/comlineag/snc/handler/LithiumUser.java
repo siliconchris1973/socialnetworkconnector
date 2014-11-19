@@ -8,7 +8,7 @@ import de.comlineag.snc.data.LithiumUserData;
  * 
  * @author 		Christian Guenther
  * @category 	Handler
- * @version		0.1 
+ * @version		0.2				- 19.11.2014 
  * @status		productive
  * 
  * @description	Implementation of the Lithium user handler - extends
@@ -22,6 +22,7 @@ import de.comlineag.snc.data.LithiumUserData;
  * 					Data type 
  * 
  * @changelog	0.1 (Chris)		class created as copy from TwitterUser
+ * 				0.2				added getJson() method
  * 
  */
 
@@ -37,5 +38,9 @@ public class LithiumUser extends GenericDataManager<LithiumUserData> {
 	
 	public void save() {
 		persistenceManager.saveUsers(data);
+	}
+	
+	public JSONObject getJson(){
+		return(data.getJson());
 	}
 }

@@ -1,5 +1,7 @@
 package de.comlineag.snc.handler;
 
+import org.json.simple.JSONObject;
+
 import de.comlineag.snc.appstate.AppContext;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.persistence.IGraphPersistenceManager;
@@ -36,5 +38,6 @@ public abstract class GenericDataManager<T> {
 	}
 
 	public abstract void save();
-
+	
+	public abstract JSONObject getJson();
 }

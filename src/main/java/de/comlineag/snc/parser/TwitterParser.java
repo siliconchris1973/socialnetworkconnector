@@ -68,6 +68,11 @@ public final class TwitterParser extends GenericParser {
 			JSONObject jsonTweetResource = (JSONObject) parser.parse(strTweet);
 			TwitterPosting posting = new TwitterPosting(jsonTweetResource);
 			
+			// now users
+			JSONObject jsonUser = (JSONObject) jsonTweetResource.get("user");
+			TwitterUser user = new TwitterUser(jsonUser);
+			users.add(user);
+			
 			// add posting to list
 			postings.add(posting);
 			
@@ -79,10 +84,7 @@ public final class TwitterParser extends GenericParser {
 				postings.add(new TwitterPosting(jsonReTweeted));
 			}
 			
-			// now users
-			JSONObject jsonUser = (JSONObject) jsonTweetResource.get("user");
-			TwitterUser user = new TwitterUser(jsonUser);
-			users.add(user);
+			
 			
 		} catch (ParseException e) {
 			logger.error("EXCEPTION :: " + e.getMessage() + " " + e);
