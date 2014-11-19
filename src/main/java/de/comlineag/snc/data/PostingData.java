@@ -6,7 +6,6 @@ import java.util.List;
 import org.geojson.GeoJsonObject;
 import org.joda.time.LocalDateTime;
 import org.json.simple.JSONObject;
-import org.springframework.util.Assert;
 
 /**
  * 
@@ -47,6 +46,12 @@ import org.springframework.util.Assert;
  */
 @SuppressWarnings("unchecked")
 public class PostingData {
+	
+	public PostingData(){
+		if (internalJson == null)
+			internalJson = new JSONObject();
+	}
+	
 	/*
 	 * was the object initially saved correctly by the persistence manager or not 
 	 */
@@ -383,8 +388,6 @@ public class PostingData {
 	// embedded social network data
 	public SocialNetworkData getSocialNetworkData(){return socialNetworkData;}
 	public void setSocialNetworkData(SocialNetworkData socialNetworkData){
-		assert (socialNetworkData != null) : "ERROR :: cannot operate on empty input";
-		
 		this.socialNetworkData = socialNetworkData; 
 		internalJson.put("SOCIALNETWORK", socialNetworkData);
 	}

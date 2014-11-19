@@ -281,9 +281,10 @@ public final class TwitterPostingData extends PostingData {
 	 */
 	@SuppressWarnings("unchecked")
 	private void initialize() {
+		// first setup the internal json objct
+		internalJson = new JSONObject();
+		
 		// setting everything to 0 or null default value.
-		// so I can check on initialized or not initialized values for the
-		// posting
 		id = "0";
 		
 		objectStatus = "new";
