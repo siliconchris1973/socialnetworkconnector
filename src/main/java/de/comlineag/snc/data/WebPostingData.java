@@ -41,7 +41,11 @@ import de.comlineag.snc.helper.DateTimeServices;
  *            "subject" String
  *            "teaser" String
  *            "source" String
- *            "user" JsonObject
+ *            "USER" JSONObject
+ *            "DOMAIN" JSONObject
+ *            "CUSTOMER" JSONObject
+ *            "SOCIALNETWORK" JSONObject
+ *            "KEYWORDS" ArrayList
  * 
  * @changelog	0.1 (Chris)		class created
  * 				0.2				added json object for embedded user object
@@ -121,7 +125,7 @@ public final class WebPostingData extends PostingData {
 			setClient((String) jsonObject.get("source"));
 			
 			// User ID
-			JSONObject user = (JSONObject) jsonObject.get("user");
+			JSONObject user = (JSONObject) jsonObject.get("USER");
 			setUser((JSONObject) user);
 			setUserId((String) user.get("id"));
 			

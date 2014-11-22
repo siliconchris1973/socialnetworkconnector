@@ -315,7 +315,7 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 		userJson.put("lang", pageLang); // TODO implement language recognition
 		
 		
-		pageJson.put("user", userJson);
+		pageJson.put("USER", userJson);
 		
 		logger.trace("the json object:: " + pageJson.toJSONString());
 		return pageJson;

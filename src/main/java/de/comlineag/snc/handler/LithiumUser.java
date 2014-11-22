@@ -22,7 +22,7 @@ import de.comlineag.snc.data.LithiumUserData;
  * 					Data type 
  * 
  * @changelog	0.1 (Chris)		class created as copy from TwitterUser
- * 				0.2				added getJson() method
+ * 				0.2				added getJson() and getUserData() method
  * 
  */
 
@@ -42,5 +42,9 @@ public class LithiumUser extends GenericDataManager<LithiumUserData> {
 	
 	public JSONObject getJson(){
 		return(data.getJson());
+	}
+	
+	public LithiumUserData getUserData(){
+		return(data);
 	}
 }

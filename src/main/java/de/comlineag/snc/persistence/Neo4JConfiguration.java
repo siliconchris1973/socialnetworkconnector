@@ -58,13 +58,13 @@ public final class Neo4JConfiguration {
 	private String db_user = "";
 	private String db_pass = "";
 	
-	private String POST_LABEL = "post";
-	private String USER_LABEL = "user";
-	private String HASHTAG_LABEL = "hashtag";
-	private String KEYWORD_LABEL = "keyword";
-	private String DOMAIN_LABEL = "domain";
-	private String CUSTOMER_LABEL = "customer";
-	private String SOCIAL_NETWORK_LABEL = "keyword";
+	private String POST_LABEL = "POST";
+	private String USER_LABEL = "USER";
+	private String HASHTAG_LABEL = "HASHTAG";
+	private String KEYWORD_LABEL = "KEYWORD";
+	private String DOMAIN_LABEL = "DOMAIN";
+	private String CUSTOMER_LABEL = "KEYWORD";
+	private String SOCIAL_NETWORK_LABEL = "SOCIALNETWORK";
 	
 	// extension to the URI of a node to store relationships
 	private String RELATIONSHIP_LOC = "/relationships";

@@ -47,25 +47,29 @@ public class TwitterPosting extends GenericDataManager<TwitterPostingData> {
 	public TwitterPosting(JSONObject jsonObject) {
 		// first extract ONLY the twitter-posting from the bigger json object
 		data = new TwitterPostingData(jsonObject);
-		
-		// next call the graph engine and store data also in the external graph
-		if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
-			try {
-				JSONObject bigJson=new JSONObject(data.getJson());
-				logger.trace("this is the big json with all entities {}", bigJson.toJSONString());
-				
-				logger.info("calling graph database for {}-{} ", bigJson.get("sn_id").toString(), bigJson.get("id").toString());
-				graphPersistenceManager.saveNode(bigJson);
-			} catch (Exception e) {
-				logger.error("ERROR :: during call of graph-db layer {}", e.getLocalizedMessage());
-				e.printStackTrace();
-			}
-		}
 	}
 
 	@Override
 	public void save() {
-		persistenceManager.savePosts(data);
+		try {
+			persistenceManager.savePosts(data);
+		} catch (Exception e) {
+			logger.error("ERROR :: during call of persistence layer {}", e.getLocalizedMessage());
+			e.printStackTrace();
+		}
+	}
+	
+	public void saveInGraph(){
+		try {
+			JSONObject bigJson=new JSONObject(data.getJson());
+			logger.trace("this is the big json with all entities {}", bigJson.toJSONString());
+			
+			logger.info("calling graph database for {}-{} ", bigJson.get("sn_id").toString(), bigJson.get("id").toString());
+			graphPersistenceManager.saveNode(bigJson);
+		} catch (Exception e) {
+			logger.error("ERROR :: during call of graph-db layer {}", e.getLocalizedMessage());
+			e.printStackTrace();
+		}
 	}
 	
 	public JSONObject getJson(){

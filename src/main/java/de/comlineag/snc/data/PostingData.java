@@ -258,19 +258,32 @@ public class PostingData {
 	
 	// embedded user data
 	public UserData getUserData(){return userData;}
-	public void setUserData(UserData userData){this.userData = userData; internalJson.put("USER", userData.getJson());}
+	public void setUserData(UserData userData){
+		//System.out.println("adding user object "+userData.toString()+" as embedded object");
+		this.userData = userData;
+		internalJson.put("USER", userData.getJson());
+	}
 	
 	// embedded domain data
 	public DomainData getDomainData(){return domainData;}
-	public void setDomainData(DomainData domainData){this.domainData = domainData; internalJson.put("DOMAIN", domainData.getJson());}
+	public void setDomainData(DomainData domainData){
+		//System.out.println("adding domain object "+domainData.toString()+" as embedded object");
+		this.domainData = domainData; 
+		internalJson.put("DOMAIN", domainData.getJson());
+	}
 	
 	// embedded customer data
 	public CustomerData getCustomerData(){return customerData;}
-	public void setCustomerData(CustomerData customerData){this.customerData = customerData; internalJson.put("CUSTOMER", customerData.getJson());}
+	public void setCustomerData(CustomerData customerData){
+		//System.out.println("adding customer object "+customerData.toString()+" as embedded object");
+		this.customerData = customerData; 
+		internalJson.put("CUSTOMER", customerData.getJson());
+	}
 	
 	// embedded social network data
 	public SocialNetworkData getSocialNetworkData(){return socialNetworkData;}
 	public void setSocialNetworkData(SocialNetworkData socialNetworkData){
+		//System.out.println("adding socnet object "+socialNetworkData.toString()+" as embedded object");
 		this.socialNetworkData = socialNetworkData; 
 		internalJson.put("SOCIALNETWORK", socialNetworkData.getJson());
 	}

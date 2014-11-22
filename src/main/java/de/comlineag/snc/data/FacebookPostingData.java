@@ -74,7 +74,7 @@ public final class FacebookPostingData extends PostingData {
 			
 			
 			// User ID
-			JSONObject user = (JSONObject) jsonObject.get("user");
+			JSONObject user = (JSONObject) jsonObject.get("USER");
 			setUserId((String) user.get("id"));
 			
 			

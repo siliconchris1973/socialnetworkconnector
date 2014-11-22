@@ -32,26 +32,13 @@ import de.comlineag.snc.data.FacebookUserData;
  * @param none
  * 
  * @changelog	0.1 (CHris)		copy from TwitterUser
- * 				0.2				added getJson() method
+ * 				0.2				added getJson() and getUserData() method
  * 
  * TODO implement code for facebook user handling
  */
 
 public class FacebookUser extends GenericDataManager<FacebookUserData> {
-
-	/*
-	 * 
-	 * Die nachfolgenden Elemente des Users sollen weiter verarbeitet und
-	 * gespeichert werden
-	 * 
-	 * key="cl_userID" value="id" key="cl_userName" value="name"
-	 * key="cl_userScreenName" value="screen_name" key="cl_userLocation"
-	 * value="geoLocation" key="cl_userFollower" value="followers_count"
-	 * key="cl_userFriends" value="friends_count" key="cl_userPostingsCount"
-	 * value="statuses_count" key="cl_userFavoritesCount"
-	 * value="favourites_count" key="cl_userListsAndGroupsCount"
-	 * value="listed_count" key="cl_userLang" value="lang"
-	 */
+	
 	private FacebookUserData data;
 
 	//private final Logger logger = Logger.getLogger(getClass().getName());
@@ -67,5 +54,9 @@ public class FacebookUser extends GenericDataManager<FacebookUserData> {
 	
 	public JSONObject getJson(){
 		return(data.getJson());
+	}
+	
+	public FacebookUserData getUserData(){
+		return(data);
 	}
 }

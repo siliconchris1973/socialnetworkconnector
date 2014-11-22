@@ -24,6 +24,9 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * @description GenericWebParser is the abstract base class for web site parsing. It is derived from
  * 				generic parser and defines one new, abstract method parse with parameters for the
  * 				content, the url and the searched terms.
+ * 				
+ * 				The web parser creates a web-page data object and an embedded user object within
+ * 				the web page object.
  * 
  * @changelog	0.1 (Chris)		first version
  * 				0.2				added method to return list of indices for the needle in the haystack
@@ -182,7 +185,7 @@ public abstract class GenericWebParser extends GenericParser implements IWebPars
 		userJson.put("screen_name", screen_name);
 		userJson.put("lang", user_lang);
 		
-		pageJson.put("user", userJson);
+		pageJson.put("USER", userJson);
 		
 		return pageJson;
 	}

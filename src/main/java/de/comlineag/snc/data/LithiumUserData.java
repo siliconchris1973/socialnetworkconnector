@@ -166,9 +166,18 @@ public final class LithiumUserData extends UserData {
 	}
 	
 	private void initialize(){
-		id 						= "0";
-		//sn_id 					= SocialNetworks.LITHIUM.getValue();
-		sn_id 					= SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM");
+		// first setup the internal json objct
+		internalJson = new JSONObject();
+		
+		// setting everything to 0 or null default value.
+		id = "0";
+		setObjectStatus("new");
+		
+		// set the internal fields and embedded json objects for domain, customer and social network
+		setSnId(SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM"));
+		setDomain(new CrawlerConfiguration<String>().getDomain());
+		setCustomer(new CrawlerConfiguration<String>().getCustomer());
+		
 		username 				= null;
 		screen_name 			= null;
 		geoLocation 			= "";
@@ -178,8 +187,5 @@ public final class LithiumUserData extends UserData {
 		favorites_count 		= 0;
 		lists_and_groups_count	= 0;
 		lang 					= "de";
-		objectStatus = "new";
-		domain = new CrawlerConfiguration<String>().getDomain();
-		customer = new CrawlerConfiguration<String>().getCustomer();
 	}
 }

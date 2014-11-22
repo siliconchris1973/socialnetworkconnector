@@ -15,6 +15,7 @@ import com.google.common.base.Stopwatch;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
+
 import de.comlineag.snc.handler.TwitterPosting;
 import de.comlineag.snc.handler.TwitterUser;
 
@@ -39,12 +40,9 @@ import de.comlineag.snc.handler.TwitterUser;
  * 
  */
 public final class TwitterParser extends GenericParser {
-	// this holds a reference to the runtime cinfiguration
+	// this holds a reference to the runtime configuration
 	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
-	
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
-	
-	
 	private final boolean rtcPersistenceThreading = rtc.getBooleanValue("PersistenceThreadingEnabled", "runtime");
 	
 	
@@ -72,6 +70,14 @@ public final class TwitterParser extends GenericParser {
 			JSONObject jsonUser = (JSONObject) jsonTweetResource.get("user");
 			TwitterUser user = new TwitterUser(jsonUser);
 			users.add(user);
+			
+			// now we add the extracted user-data object back in the posting data object
+			// so that later, in the call to the graph persistence manager, we can get 
+			// post and user-objects from one combined json structure
+			// FIXME this is the wrong location to add the object, when the application reaches this line, the data was already added to the graph 
+			logger.trace("about to add the user object to the post object \n    {}", user.getJson());
+			posting.addEmbeddedUserData(user.getUserData());
+			
 			
 			// add posting to list
 			postings.add(posting);
@@ -123,12 +129,29 @@ public final class TwitterParser extends GenericParser {
 					@Override
 					public void run() {
 							postT.save();
+							
+							// next call the graph engine and store data also in the external graph
+							// please note that we do not need to do this for the user as well, as 
+							// the graph persistence layer uses the embedded user object within the
+							// post object
+							if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+								postT.saveInGraph();
+							}
 					}
 				}).start();
-			} else {
 				// otherwise just call it sequentially
+			} else {
+
 				TwitterPosting post = (TwitterPosting) postings.get(ii);
 				post.save();
+				
+				// next call the graph engine and store data also in the external graph
+				// please note that we do not need to do this for the user as well, as 
+				// the graph persistence layer uses the embedded user object within the
+				// post object
+				if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+					post.saveInGraph();
+				}
 			}
 		}
 		

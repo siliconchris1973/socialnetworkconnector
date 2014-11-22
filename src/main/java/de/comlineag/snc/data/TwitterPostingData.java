@@ -44,6 +44,11 @@ import de.comlineag.snc.helper.DateTimeServices;
  *            "hashtags" List
  *            "symbols" List
  *            "mentions" List
+ *            "KEYWORDS" ArrayList
+ *            "DOMAIN" JSONObject
+ *            "CUSTOMER" JSONObject
+ *            "SOCIALNETWORK" JSONObject
+ *            "USER" UserData
  * 
  * @changelog	0.1 (Chris)		class created
  * 				0.2 (Magnus)	added all simple fields
@@ -309,13 +314,15 @@ public final class TwitterPostingData extends PostingData {
 		tJson = new JSONObject();
 		tJson.put("name", domain);
 		DomainData domData = new DomainData(tJson);
+		logger.trace("storing created domain object {} as embedded object", domData.toString());
 		setDomainData(domData);
 		
 		// create the embedded customer json
 		tJson = new JSONObject();
 		tJson.put("name", customer);
-		CustomerData cusData = new CustomerData(tJson);
-		setCustomerData(cusData);
+		CustomerData subData = new CustomerData(tJson);
+		logger.trace("storing created customer object {} as embedded object", subData.toString());
+		setCustomerData(subData);
 		
 		
 		text = null;

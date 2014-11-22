@@ -20,7 +20,7 @@ import de.comlineag.snc.data.TwitterUserData;
  * @param  <TwitterUserData>
  * 
  * @changelog	0.1 (Chris)		class created as copy from TwitterPosting
- * 				0.2				added getJson() method
+ * 				0.2				added getJson() and getUserData() method
  * 
  */
 
@@ -38,5 +38,9 @@ public class TwitterUser extends GenericDataManager<TwitterUserData> {
 	
 	public JSONObject getJson(){
 		return(data.getJson());
+	}
+	
+	public TwitterUserData getUserData(){
+		return(data);
 	}
 }

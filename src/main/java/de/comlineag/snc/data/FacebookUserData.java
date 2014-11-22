@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.json.simple.JSONObject;
 
+import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
 
 /**
@@ -82,12 +83,17 @@ public final class FacebookUserData extends UserData {
 	}
 
 	private void initialize() {
+		// first setup the internal json objct
+		internalJson = new JSONObject();
+		
 		// setting everything to 0 or null default value.
-		// so I can check on initialized or not initialized values for the
-		// posting
 		id = "0";
-		//sn_id = SocialNetworks.FACEBOOK.getValue();
-		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "FACEBOOK");
+		setObjectStatus("new");
+		
+		// set the internal fields and embedded json objects for domain, customer and social network
+		setSnId(SocialNetworks.getSocialNetworkConfigElement("code", "FACEBOOK"));
+		setDomain(new CrawlerConfiguration<String>().getDomain());
+		setCustomer(new CrawlerConfiguration<String>().getCustomer());
 		
 		username = null;
 		screen_name = null;
