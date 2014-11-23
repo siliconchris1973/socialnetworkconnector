@@ -73,16 +73,16 @@ public class GraphPostingData {
 		
 		setLang(obj.get("lang").toString());
 		internalJson.put("lang", getLang());
-		/*
+		
 		setTruncated((boolean) obj.get("truncated"));
 		internalJson.put("truncated", getTruncated());
 		
-		setTimestamp((LocalDateTime) obj.get(timestamp));
-		internalJson.put("timestamp", getTimestamp());
+		//setTimestamp((LocalDateTime) obj.get(timestamp));
+		//internalJson.put("timestamp", getTimestamp());
 		
 		setText(obj.get("text").toString());
 		internalJson.put("text", getText());
-		*/
+		
 		
 		/*
 		if (obj.containsKey("view_count")){

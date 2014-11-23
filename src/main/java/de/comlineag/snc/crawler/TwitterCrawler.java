@@ -190,7 +190,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 					endpoint.trackTerms(tTerms);
 				}
 				if (tTerms.size()>0) {
-					smallLogMessage += " specific blocked terms ";
+					smallLogMessage += " reject blocked terms ";
 				}
 				if (tUsers.size()>0) {
 					smallLogMessage += " specific users ";

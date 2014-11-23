@@ -222,12 +222,6 @@ public class Neo4JEmbeddedPersistence implements IGraphPersistenceManager {
 	
 	
 	@Override
-	public URL findNode(String key, String value, String label) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public URI createRelationship(URI startNode, URI endNode,
 			GraphRelationshipTypes relationshipType, String[] jsonAttributes) {
 		try {

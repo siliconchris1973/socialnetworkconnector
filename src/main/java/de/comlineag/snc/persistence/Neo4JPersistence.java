@@ -2,7 +2,6 @@ package de.comlineag.snc.persistence;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -136,6 +135,12 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 		JSONObject socialNetworkNodeObject = null;
 		JSONObject keywordNodeObject = null;
 		
+		String sn_id = null;
+		String id = null;
+		String name = null;
+		String jsonPayload;
+		
+		
 		// fill the json object for post, user, domain and customer plus social network and keyword(s)
 		postNodeObject = new JSONObject((JSONObject) nodeObject);
 		if (nodeObject.containsKey("USER")) {
@@ -166,49 +171,198 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 		
 		// start the transaction
 		URI transactLoc = startTransaction();
-		// create the nodes and relationships
 		
+		// POST
 		if (postNodeObject != null) {
-			logger.debug("creating the post");
-			GraphPostingData gpd = new GraphPostingData(postNodeObject);
-			postNodeLocation = createNodeObject(gpd.getJson(), GraphNodeTypes.POST, transactLoc);
-			if (postNodeLocation == null)
-				logger.error("node was NOT created :-(");
+			logger.debug("checking if the post exist");
+			
+			// before we construct and call the create method, we check if the requested object does not already exist 
+			if (postNodeObject.containsKey("sn_id"))
+				sn_id = (String) nodeObject.get("sn_id");
+			if (postNodeObject.containsKey("id"))
+				id = (String) nodeObject.get("id");
+			
+			if (sn_id != null && id != null) {
+				jsonPayload = "{\"sn_id\" : \""+sn_id+"\", \"id\" : \""+id+"\"}";
+				postNodeLocation = findNode(jsonPayload, GraphNodeTypes.POST, transactLoc);
+				
+				if (postNodeLocation == null) {
+					logger.debug("creating the node");
+					GraphPostingData gpd = new GraphPostingData(postNodeObject);
+					postNodeLocation = createNodeObject(gpd.getJson(), GraphNodeTypes.POST, transactLoc);
+				} 
+				
+				// after the node is created - we KNOW that the location is null
+				if (postNodeLocation == null) {
+					logger.warn("no node location returned");
+				
+					postNodeLocation = findNode(jsonPayload, GraphNodeTypes.POST, transactLoc);
+				}
+				logger.debug("post node created at location {}", postNodeLocation);
+			}
+			sn_id = null;
+			id = null;
+			name = null;
 		}
+		
+		// USER
 		if (userNodeObject != null) {
-			logger.debug("creating the user");
-			GraphUserData gud = new GraphUserData(userNodeObject);
-			userNodeLocation = createNodeObject(gud.getJson(), GraphNodeTypes.USER, transactLoc);
-			if (userNodeLocation == null)
-				logger.error("node was NOT created :-(");
+			logger.debug("checking if the user exist");
+			
+			// before we construct and call the create method, we check if the requested object does not already exist 
+			if (userNodeObject.containsKey("sn_id"))
+				sn_id = (String) nodeObject.get("sn_id");
+			if (userNodeObject.containsKey("id"))
+				id = (String) nodeObject.get("id");
+			
+			if (sn_id != null && id != null) {
+				jsonPayload = "{\"sn_id\" : \""+sn_id+"\", \"id\" : \""+id+"\"}";
+				userNodeLocation = findNode(jsonPayload, GraphNodeTypes.USER, transactLoc);
+				
+				if (userNodeLocation == null) {
+					logger.debug("creating the user");
+					GraphUserData gud = new GraphUserData(userNodeObject);
+					userNodeLocation = createNodeObject(gud.getJson(), GraphNodeTypes.USER, transactLoc);
+				}
+				
+				// after the node is created - we KNOW that the location is null
+				if (userNodeLocation == null) {
+					logger.warn("no node location returned");
+				
+					userNodeLocation = findNode(jsonPayload, GraphNodeTypes.USER, transactLoc);
+				}
+				logger.debug("user node created at location {}", userNodeLocation);
+			}
+			sn_id = null;
+			id = null;
+			name = null;
 		}
+		
+		// DOMAIN
 		if (domainNodeObject != null) {
-			logger.debug("creating the domain");
-			DomainData gdd = new DomainData(domainNodeObject);
-			domainNodeLocation = createNodeObject(gdd.getJson(), GraphNodeTypes.DOMAIN, transactLoc);
-			if (domainNodeLocation == null)
-				logger.error("node was NOT created :-(");
+			logger.debug("checking if the domain of interest exist");
+			
+			// before we construct and call the create method, we check if the requested object does not already exist 
+			if (domainNodeObject.containsKey("name"))
+				name = (String) domainNodeObject.get("name");
+			
+			if (name != null) {
+				jsonPayload = "{\"name\" : \""+name+"\"}";
+				domainNodeLocation = findNode(jsonPayload, GraphNodeTypes.DOMAIN, transactLoc);
+				
+				if (domainNodeLocation == null) {
+					logger.debug("creating the domain {}", name);
+					DomainData gdd = new DomainData(domainNodeObject);
+					domainNodeLocation = createNodeObject(gdd.getJson(), GraphNodeTypes.DOMAIN, transactLoc);
+				}
+				
+				//  after the node is created - we KNOW that the location is null
+				if (domainNodeLocation == null) {
+					logger.warn("no node location returned");
+				
+					domainNodeLocation = findNode(jsonPayload, GraphNodeTypes.DOMAIN, transactLoc);
+				}
+				logger.debug("node for domain {} is at location {}", name, domainNodeLocation);
+			}
+			sn_id = null;
+			id = null;
+			name = null;
 		}
+		
+		
+		// CUSTOMER
 		if (customerNodeObject != null) {
-			logger.debug("creating the customer");
-			CustomerData gcd = new CustomerData(customerNodeObject);
-			customerNodeLocation = createNodeObject(gcd.getJson(), GraphNodeTypes.CUSTOMER, transactLoc);
-			if (customerNodeLocation == null)
-				logger.error("node was NOT created :-(");
+			logger.debug("checking if the customer exist");
+			
+			// before we construct and call the create method, we check if the requested object does not already exist 
+			if (customerNodeObject.containsKey("name"))
+				name = (String) customerNodeObject.get("name");
+			
+			if (name != null) {
+				jsonPayload = "{\"name\" : \""+name+"\"}";
+				customerNodeLocation = findNode(jsonPayload, GraphNodeTypes.CUSTOMER, transactLoc);
+				
+				if (customerNodeLocation == null) {
+					logger.debug("creating the customer {}", name);
+					CustomerData gcd = new CustomerData(customerNodeObject);
+					customerNodeLocation = createNodeObject(gcd.getJson(), GraphNodeTypes.CUSTOMER, transactLoc);
+				}
+				
+				//  after the node is created - we KNOW that the location is null
+				if (customerNodeLocation == null) {
+					logger.warn("no node location returned");
+				
+					customerNodeLocation = findNode(jsonPayload, GraphNodeTypes.CUSTOMER, transactLoc);
+				}
+				logger.debug("node for customer {} is at location {}", name, customerNodeLocation);
+			}
+			sn_id = null;
+			id = null;
+			name = null;
 		}
+		
+		
+		// SOCIAL NETWORK
 		if (socialNetworkNodeObject != null) {
-			logger.debug("creating the social network");
-			SocialNetworkData gsd = new SocialNetworkData(socialNetworkNodeObject);
-			socialNetworkNodeLocation = createNodeObject(gsd.getJson(), GraphNodeTypes.SOCIALNETWORK, transactLoc);
-			if (socialNetworkNodeLocation == null)
-				logger.error("node was NOT created :-(");
+			logger.debug("checking if the social network exist");
+			
+			// before we construct and call the create method, we check if the requested object does not already exist 
+			if (socialNetworkNodeObject.containsKey("name"))
+				name = (String) socialNetworkNodeObject.get("name");
+			
+			if (name != null) {
+				jsonPayload = "{\"name\" : \""+name+"\"}";
+				socialNetworkNodeLocation = findNode(jsonPayload, GraphNodeTypes.SOCIALNETWORK, transactLoc);
+				
+				if (socialNetworkNodeLocation == null) {
+					logger.debug("creating the social network {}", name);
+					SocialNetworkData gsd = new SocialNetworkData(socialNetworkNodeObject);
+					socialNetworkNodeLocation = createNodeObject(gsd.getJson(), GraphNodeTypes.SOCIALNETWORK, transactLoc);
+				}
+				
+				//  after the node is created - we KNOW that the location is null
+				if (socialNetworkNodeLocation == null) {
+					logger.warn("no node location returned");
+				
+					socialNetworkNodeLocation = findNode(jsonPayload, GraphNodeTypes.SOCIALNETWORK, transactLoc);
+				}
+				logger.debug("node for social network {} is at location {}", name, socialNetworkNodeLocation);
+			}
+			sn_id = null;
+			id = null;
+			name = null;
 		}
+		
+		
+		// KEYWORD
 		if (keywordNodeObject != null) {
-			logger.debug("creating the keyword");
-			KeywordData gkd = new KeywordData(keywordNodeObject);
-			keywordNodeLocation = createNodeObject(gkd.getJson(), GraphNodeTypes.KEYWORD, transactLoc);
-			if (keywordNodeLocation == null)
-				logger.error("node was NOT created :-(");
+			logger.debug("checking if the keyword exist");
+			
+			// before we construct and call the create method, we check if the requested object does not already exist 
+			if (keywordNodeObject.containsKey("keyword"))
+				name = (String) keywordNodeObject.get("keyword");
+			
+			if (name != null) {
+				jsonPayload = "{\"keyword\" : \""+name+"\"}";
+				keywordNodeLocation = findNode(jsonPayload, GraphNodeTypes.KEYWORD, transactLoc);
+				
+				if (keywordNodeLocation == null) {
+					logger.debug("creating the keyword {}", name);
+					KeywordData gkd = new KeywordData(keywordNodeObject);
+					keywordNodeLocation = createNodeObject(gkd.getJson(), GraphNodeTypes.KEYWORD, transactLoc);
+				}
+				
+				//  after the node is created - we KNOW that the location is null
+				if (keywordNodeLocation == null) {
+					logger.warn("no node location returned");
+				
+					keywordNodeLocation = findNode(jsonPayload, GraphNodeTypes.KEYWORD, transactLoc);
+				}
+				logger.debug("node for keyword {} is at location {}", name, keywordNodeLocation);
+			}
+			sn_id = null;
+			id = null;
+			name = null;
 		}
 		
 		
@@ -264,8 +418,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 	 * 
 	 */
 	private URI createNodeObject(JSONObject nodeObject, GraphNodeTypes label, URI transactLoc){
-		
-		/* the cpyher statement is part of a larger one that is executed by the 
+		/* the cypher statement is part of a larger one that is executed by the 
 		 * next method. It finally becomes this at execution time:
 		 * {
 		 * 	"statements": [ { 
@@ -291,6 +444,30 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 		
 	}
 	
+	private URI findNode(String jsonPayload, GraphNodeTypes label, URI transactLoc){
+		/* the cypher statement is part of a larger one that is executed by the 
+		 * next method. It finally becomes this at execution time:
+		 * {
+		 * 	"statements": [ { 
+		 * 		"statement": 
+		 * 			"MATCH (p:POST {properties}) RETURN p", 
+		 * 				"parameters": {
+		 * 					"properties": {
+		 * 						"sn_id":"TW",
+		 * 						"id":"1234567890"
+		 * 					}
+		 * 				} 
+		 * 		} ] 
+		 * } 
+		 * 
+		 */
+		String cypherStatement = "\"MATCH (p:"+ label.toString() +" {properties}) RETURN p\", "
+				+ "\"parameters\": {"
+				+ "\"properties\":" + jsonPayload 
+				+ "} ";
+		return (getNodeLocationTransactional(cypherStatement, transactLoc));
+		
+	}
 	
 
 	/**
@@ -303,7 +480,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 	 * 
 	 */
 	private URI sendTransactionalCypherStatement(String cypherStatement, URI transactLoc){
-		URI nodeLocation = null;
+		//URI nodeLocation = null;
 		try{
 			URI finalUrl = transactLoc;
 			
@@ -376,21 +553,14 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				if(jsonResponseObj == null)
 					throw new ParseException(0, "returned json object is null");
 				
-				// this is the location to commit the transaction if node creation was successful
-				//String commit = (String) jsonResponseObj.get("commit").toString();
-				// this contains an error object (actually an array) in case the creation was NOT successful
 				String error = (String) jsonResponseObj.get("errors").toString();
-				
-				//logger.trace("the commit url for this transaction is {}", commit.toString());
-				logger.trace("returned error json is {}", error.toString());
 				
 				// if the error array has only the [] brackets, it's ok
 				if (error.length() == 2) {
-					//logger.info("new node created at location {}", location);
-					logger.debug("cypher statement executed successfully at location {}", nodeLocation);
-					return transactLoc;
+					logger.debug("cypher statement executed successfully at location {}", finalUrl);
+					return finalUrl;
 				} else {
-					logger.error("ERROR :: {} - could not execute cypher statement at location {}", error, nodeLocation);
+					logger.error("ERROR :: {} - could not execute cypher statement at location {}", error, finalUrl);
 					return null;
 				}
 			}
@@ -401,112 +571,9 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 			e.printStackTrace();
 		}
 		return null;
-	}/*
-	private URI createNodeObjectTransactional(JSONObject nodeObject, GraphNodeTypes label){
-		URI nodeLocation=null;
-		
-		try{
-			dbServerUrl = nco.getProtocol() + "://" + nco.getHost() + ":" + nco.getPort();
-			transactionUrl = dbServerUrl + "/db/data" + "/transaction";
-			String finalUrl = transactionUrl;
-			
-			String payload = "{\"statements\": "
-								+ "[ "
-									+ "{\"statement\": "
-										+ "\"CREATE (p:"+ label.toString() +" {properties}) \", "
-											+ "\"parameters\": {"
-													+ "\"properties\":" + nodeObject.toString() 
-											+ "} "
-									+ "} "
-								+ "] "
-							+ "}";
-				    
-			logger.trace("sending cypher {} to endpoint {}", payload, finalUrl);
-			WebResource resource = Client.create().resource( finalUrl );
-			
-			ClientResponse response = resource
-					.accept( MediaType.APPLICATION_JSON )
-	                .type( MediaType.APPLICATION_JSON )
-			        .entity( payload )
-			        .post( ClientResponse.class );
-			
-			nodeLocation = response.getLocation();
-			logger.debug("opened transaction is at location {}", nodeLocation);
-			
-			String responseEntity = response.getEntity(String.class);
-			int responseStatus = response.getStatus();
-			
-			logger.trace("POST to {} returned status code {}, returned data: {}",
-					finalUrl, responseStatus,
-			        responseEntity);
-			
-			// first check if the http code was ok
-			HttpStatusCodes httpStatusCodes = HttpStatusCodes.getHttpStatusCode(responseStatus);
-			if (!httpStatusCodes.isOk()){
-				if (httpStatusCodes == HttpStatusCodes.FORBIDDEN){
-					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
-				} else {
-					logger.error("Error {} sending data to {}: {} ", response.getStatus(), finalUrl, HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
-				}
-			} else {
-				// now do the check on json details within the returned JSON object
-				JSONParser reponseParser = new JSONParser();
-				Object responseObj = reponseParser.parse(responseEntity);
-				JSONObject jsonResponseObj = responseObj instanceof JSONObject ?(JSONObject) responseObj : null;
-				if(jsonResponseObj == null)
-					throw new ParseException(0, "returned json object is null");
-				
-				// this is the location to commit the transaction if node creation was successful
-				String commit = (String) jsonResponseObj.get("commit").toString();
-				// this contains an error object (actually an array) in case the creation was NOT successful
-				String error = (String) jsonResponseObj.get("errors").toString();
-				
-				logger.trace("the commit url for this transaction is {}", commit.toString());
-				logger.trace("returned error json is {}", error.toString());
-				
-				final URI location = response.getLocation();
-				
-				// if the error array has only the [] brackets, it's ok
-				if (error.length() == 2) {
-					//logger.info("new node created at location {}", location);
-					logger.debug("committing transaction at location {}", commit);
-					resource = Client.create().resource( commit );
-					response = resource
-							.accept( MediaType.APPLICATION_JSON )
-			                .type( MediaType.APPLICATION_JSON )
-					        .post( ClientResponse.class );
-					
-					int response2Status = response.getStatus();
-					String response2Entity = response.getEntity(String.class);
-					
-					logger.trace("COMMIT returned status code {}, returned data: {}",
-							response2Status,
-							response2Entity);
-					
-					// now do the check on json details within the returned JSON object
-					JSONParser reponse2Parser = new JSONParser();
-					Object response2Obj = reponse2Parser.parse(response2Entity);
-					JSONObject jsonResponse2Obj = response2Obj instanceof JSONObject ?(JSONObject) response2Obj : null;
-					if(jsonResponse2Obj == null)
-						throw new ParseException(0, "returned json object is null");
-					
-					// contains the created node information 
-					String result = (String) jsonResponse2Obj.get("results").toString();
-					logger.trace("returned result json is {}", result.toString());
-					
-				} else {
-					logger.error("ERROR :: {} - could not create node at location {}", error, location);
-				}
-			}
-			response.close();
-			
-		} catch(Exception e) {
-			logger.error("EXCEPTION :: failed to create node - {}", e.getMessage());
-			e.printStackTrace();
-		}
-		
-		return nodeLocation;
-	}*/
+	}
+	
+	
 	
 	
 	/**
@@ -576,14 +643,71 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
     }
 	
 	
-	/**
-	 * @description find a node and return the url to it
-	 */
-	@Override
-	public URL findNode(String key, String value, String label) {
-		// TODO Auto-generated method stub
-		return null;
+	public URI getNodeLocationTransactional(String cypherStatement, URI endpointLoc){
+		URI nodeLocation = null;
+		try {
+			//+ "MATCH (n {" + field + " : " + id + ", type : \"" + type + "\" }) RETURN n"
+			String payload = "{\"statements\": "
+					+ "[ "
+						+ "{\"statement\": "
+							+ cypherStatement
+						+ "} "
+					+ "] "
+				+ "}";
+			
+			
+			logger.trace("sending cypher {} to endpoint {}", payload, endpointLoc);
+			WebResource resource = Client.create().resource( endpointLoc );
+			
+			ClientResponse response = resource
+					.accept( MediaType.APPLICATION_JSON )
+	                .type( MediaType.APPLICATION_JSON )
+			        .entity( payload )
+			        //.get(ClientResponse.class);
+			        .post( ClientResponse.class );
+			
+			String responseEntity = response.getEntity(String.class).toString();
+			int responseStatus = response.getStatus();
+			logger.trace("GET to {} returned status code {}, returned data: {}",
+					endpointLoc, responseStatus,
+			        responseEntity);
+			
+			// first check if the http code was ok
+			HttpStatusCodes httpStatusCodes = HttpStatusCodes.getHttpStatusCode(responseStatus);
+			if (!httpStatusCodes.isOk()){
+				if (httpStatusCodes == HttpStatusCodes.FORBIDDEN){
+					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
+				} else {
+					logger.error("Error {} sending data to {}: {} ", response.getStatus(), endpointLoc, HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
+				}
+			} else {
+				// now do the check on json details within the returned JSON object
+				JSONParser reponseParser = new JSONParser();
+				Object responseObj = reponseParser.parse(responseEntity);
+				JSONObject jsonResponseObj = responseObj instanceof JSONObject ?(JSONObject) responseObj : null;
+				if(jsonResponseObj == null)
+					throw new ParseException(0, "returned json object is null");
+				
+				String error = (String) jsonResponseObj.get("errors").toString();
+				
+				// if the error array has only the [] brackets, it's ok
+				if (error.length() == 2) {
+					logger.debug("cypher statement executed successfully at location {}", endpointLoc);
+					nodeLocation = response.getLocation();
+				} else {
+					logger.error("ERROR :: {} - could not execute cypher statement at location {}", error, endpointLoc);
+					nodeLocation = null;
+				}
+				
+				logger.trace("query for node returned {}", nodeLocation.toString());
+			}
+		} catch (Exception e) {
+			logger.error("EXCEPTION :: failed to execute query - {}", e.getMessage());
+			e.printStackTrace();
+		}
+		return nodeLocation;
 	}
+	
 	
 	
 	/**

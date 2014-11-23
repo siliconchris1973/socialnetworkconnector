@@ -66,15 +66,6 @@ public interface IGraphPersistenceManager {
 	public void saveNode(JSONObject nodeObject);
 	
 	/**
-	 * @description	find a node by a key value pair and return the url to it
-	 * 
-	 * @param 		String key		- search for key
-	 * @param		String value	- with this vlaue
-	 * @param		String label	- in nodes with label
-	 */
-	public URL findNode(String key, String value, String label);
-	
-	/**
 	 * @description	create a relationship between two nodes (given as URI) of a type defined in GraphRelationshipTypes 
 	 * 
 	 * @param 		URI source node
