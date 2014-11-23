@@ -20,7 +20,7 @@ import de.comlineag.snc.constants.GraphNodeTypes;
  * @changelog	0.1 (Chris)		class created as copy from PostingData Version 0.5
  */
 
-public class GraphPostingData {
+public class GraphPostingData implements ISncDataObject{
 	
 	protected final GraphNodeTypes gnt = GraphNodeTypes.POST;
 	protected String id; // ID from the social network

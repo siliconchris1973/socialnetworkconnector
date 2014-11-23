@@ -21,7 +21,7 @@ import org.json.simple.JSONObject;
  * 
  */
 @SuppressWarnings("unchecked")
-public class UserData {
+public class UserData implements ISncDataObject{
 
 	protected String id;							// the id of the user within the social network
 	protected String domain;						// in which domain context was the user tracked

@@ -183,7 +183,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				id = (String) nodeObject.get("id");
 			
 			if (sn_id != null && id != null) {
-				jsonPayload = "{\"sn_id\" : \""+sn_id+"\", \"id\" : \""+id+"\"}";
+				jsonPayload = "{\"sn_id\": \""+sn_id+"\", \"id\": \""+id+"\"}";
 				postNodeLocation = findNode(jsonPayload, GraphNodeTypes.POST, transactLoc);
 				
 				if (postNodeLocation == null) {
@@ -216,7 +216,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				id = (String) nodeObject.get("id");
 			
 			if (sn_id != null && id != null) {
-				jsonPayload = "{\"sn_id\" : \""+sn_id+"\", \"id\" : \""+id+"\"}";
+				jsonPayload = "{\"sn_id\": \""+sn_id+"\", \"id\": \""+id+"\"}";
 				userNodeLocation = findNode(jsonPayload, GraphNodeTypes.USER, transactLoc);
 				
 				if (userNodeLocation == null) {
@@ -247,7 +247,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				name = (String) domainNodeObject.get("name");
 			
 			if (name != null) {
-				jsonPayload = "{\"name\" : \""+name+"\"}";
+				jsonPayload = "{\"name\": \""+name+"\"}";
 				domainNodeLocation = findNode(jsonPayload, GraphNodeTypes.DOMAIN, transactLoc);
 				
 				if (domainNodeLocation == null) {
@@ -279,7 +279,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				name = (String) customerNodeObject.get("name");
 			
 			if (name != null) {
-				jsonPayload = "{\"name\" : \""+name+"\"}";
+				jsonPayload = "{\"name\": \""+name+"\"}";
 				customerNodeLocation = findNode(jsonPayload, GraphNodeTypes.CUSTOMER, transactLoc);
 				
 				if (customerNodeLocation == null) {
@@ -307,11 +307,11 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 			logger.debug("checking if the social network exist");
 			
 			// before we construct and call the create method, we check if the requested object does not already exist 
-			if (socialNetworkNodeObject.containsKey("name"))
-				name = (String) socialNetworkNodeObject.get("name");
+			if (socialNetworkNodeObject.containsKey("sn_id"))
+				name = (String) socialNetworkNodeObject.get("sn_id");
 			
 			if (name != null) {
-				jsonPayload = "{\"name\" : \""+name+"\"}";
+				jsonPayload = "{\"sn_id\": \""+name+"\"}";
 				socialNetworkNodeLocation = findNode(jsonPayload, GraphNodeTypes.SOCIALNETWORK, transactLoc);
 				
 				if (socialNetworkNodeLocation == null) {
@@ -343,7 +343,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				name = (String) keywordNodeObject.get("keyword");
 			
 			if (name != null) {
-				jsonPayload = "{\"keyword\" : \""+name+"\"}";
+				jsonPayload = "{\"keyword\": \""+name+"\"}";
 				keywordNodeLocation = findNode(jsonPayload, GraphNodeTypes.KEYWORD, transactLoc);
 				
 				if (keywordNodeLocation == null) {
@@ -461,10 +461,13 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 		 * } 
 		 * 
 		 */
+		/*
 		String cypherStatement = "\"MATCH (p:"+ label.toString() +" {properties}) RETURN p\", "
 				+ "\"parameters\": {"
 				+ "\"properties\":" + jsonPayload 
 				+ "} ";
+		*/
+		String cypherStatement = "\"MATCH (p: "+ label.toString() + " " +jsonPayload+" ) RETURN p\"";
 		return (getNodeLocationTransactional(cypherStatement, transactLoc));
 		
 	}

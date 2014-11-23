@@ -70,7 +70,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  * @TODO 3. create code for mentions
  */
 
-public final class TwitterPostingData extends PostingData {
+public final class TwitterPostingData extends PostingData implements ISncDataObject{
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	/**

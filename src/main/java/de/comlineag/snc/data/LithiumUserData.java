@@ -85,7 +85,7 @@ import de.comlineag.snc.constants.SocialNetworks;
 			$ : false
  *
  */
-public final class LithiumUserData extends UserData {
+public final class LithiumUserData extends UserData implements ISncDataObject{
 
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	

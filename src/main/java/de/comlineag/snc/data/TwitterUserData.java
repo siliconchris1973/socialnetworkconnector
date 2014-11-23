@@ -43,7 +43,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  */
 
-public final class TwitterUserData extends UserData {
+public final class TwitterUserData extends UserData implements ISncDataObject{
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	/**

@@ -46,7 +46,7 @@ import org.json.simple.JSONObject;
  * TODO move GeneralDataDefinitions to RuntimeConfiguration and source it in from XML 
  */
 @SuppressWarnings("unchecked")
-public class PostingData {
+public class PostingData implements ISncDataObject{
 	
 	public PostingData(){
 		if (internalJson == null)

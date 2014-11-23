@@ -16,7 +16,7 @@ import de.comlineag.snc.constants.GraphNodeTypes;
  * @changelog	0.1	(Chris)		class created as copy from UserData Version 0.4c
  * 
  */
-public class GraphUserData {
+public class GraphUserData implements ISncDataObject{
 
 	protected final GraphNodeTypes gnt = GraphNodeTypes.USER;
 	protected String sn_id;							// the 2-digit code of the social network 

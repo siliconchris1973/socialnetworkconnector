@@ -19,7 +19,7 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * @changelog	0.1	(Chris)		class created as copy from DomainData Version 0.1
  * 
  */
-public final class CustomerData {
+public final class CustomerData implements ISncDataObject{
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	protected final GraphNodeTypes gnt = GraphNodeTypes.CUSTOMER;

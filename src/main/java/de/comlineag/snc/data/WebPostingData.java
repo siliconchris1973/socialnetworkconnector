@@ -52,7 +52,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  * 
  */
 
-public final class WebPostingData extends PostingData {
+public final class WebPostingData extends PostingData implements ISncDataObject{
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	JSONObject user = new JSONObject();

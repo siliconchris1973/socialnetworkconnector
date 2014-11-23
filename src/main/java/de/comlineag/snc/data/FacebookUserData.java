@@ -38,7 +38,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  */
 
-public final class FacebookUserData extends UserData {
+public final class FacebookUserData extends UserData implements ISncDataObject{
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	/**

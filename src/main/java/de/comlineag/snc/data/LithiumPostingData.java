@@ -165,7 +165,7 @@ import de.comlineag.snc.helper.DateTimeServices;
 			type : "date_time"
  */
 
-public final class LithiumPostingData extends PostingData {
+public final class LithiumPostingData extends PostingData implements ISncDataObject{
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	

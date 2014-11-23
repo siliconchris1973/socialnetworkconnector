@@ -39,7 +39,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  */
 
-public final class WebUserData extends UserData {
+public final class WebUserData extends UserData implements ISncDataObject{
 
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	

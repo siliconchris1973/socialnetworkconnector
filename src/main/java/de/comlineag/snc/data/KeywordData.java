@@ -16,7 +16,7 @@ import de.comlineag.snc.constants.GraphNodeTypes;
  * @changelog	0.1	(Chris)		class created as copy from GraphUserData Version 0.1
  * 
  */
-public class KeywordData {
+public class KeywordData implements ISncDataObject{
 
 	protected final GraphNodeTypes gnt = GraphNodeTypes.KEYWORD;
 	protected String id;							// the id of the user within the social network

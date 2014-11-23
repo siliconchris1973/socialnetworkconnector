@@ -48,7 +48,7 @@ import de.comlineag.snc.helper.DateTimeServices;
  * 
  */
 
-public final class FacebookPostingData extends PostingData {
+public final class FacebookPostingData extends PostingData implements ISncDataObject{
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	/**
