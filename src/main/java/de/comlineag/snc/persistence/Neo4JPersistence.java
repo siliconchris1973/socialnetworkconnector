@@ -183,7 +183,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				id = (String) nodeObject.get("id");
 			
 			if (sn_id != null && id != null) {
-				jsonPayload = "{\"sn_id\": \""+sn_id+"\", \"id\": \""+id+"\"}";
+				jsonPayload = "{sn_id: \""+sn_id+"\", id: \""+id+"\"}";
 				postNodeLocation = findNode(jsonPayload, GraphNodeTypes.POST, transactLoc);
 				
 				if (postNodeLocation == null) {
@@ -216,7 +216,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				id = (String) nodeObject.get("id");
 			
 			if (sn_id != null && id != null) {
-				jsonPayload = "{\"sn_id\": \""+sn_id+"\", \"id\": \""+id+"\"}";
+				jsonPayload = "{sn_id: \""+sn_id+"\", id: \""+id+"\"}";
 				userNodeLocation = findNode(jsonPayload, GraphNodeTypes.USER, transactLoc);
 				
 				if (userNodeLocation == null) {
@@ -247,7 +247,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				name = (String) domainNodeObject.get("name");
 			
 			if (name != null) {
-				jsonPayload = "{\"name\": \""+name+"\"}";
+				jsonPayload = "{name: \""+name+"\"}";
 				domainNodeLocation = findNode(jsonPayload, GraphNodeTypes.DOMAIN, transactLoc);
 				
 				if (domainNodeLocation == null) {
@@ -279,7 +279,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				name = (String) customerNodeObject.get("name");
 			
 			if (name != null) {
-				jsonPayload = "{\"name\": \""+name+"\"}";
+				jsonPayload = "{name: \""+name+"\"}";
 				customerNodeLocation = findNode(jsonPayload, GraphNodeTypes.CUSTOMER, transactLoc);
 				
 				if (customerNodeLocation == null) {
@@ -311,7 +311,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				name = (String) socialNetworkNodeObject.get("sn_id");
 			
 			if (name != null) {
-				jsonPayload = "{\"sn_id\": \""+name+"\"}";
+				jsonPayload = "{sn_id: \""+name+"\"}";
 				socialNetworkNodeLocation = findNode(jsonPayload, GraphNodeTypes.SOCIALNETWORK, transactLoc);
 				
 				if (socialNetworkNodeLocation == null) {
@@ -343,7 +343,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				name = (String) keywordNodeObject.get("keyword");
 			
 			if (name != null) {
-				jsonPayload = "{\"keyword\": \""+name+"\"}";
+				jsonPayload = "{keyword: \""+name+"\"}";
 				keywordNodeLocation = findNode(jsonPayload, GraphNodeTypes.KEYWORD, transactLoc);
 				
 				if (keywordNodeLocation == null) {
@@ -450,11 +450,9 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 		 * {
 		 * 	"statements": [ { 
 		 * 		"statement": 
-		 * 			"MATCH (p:POST {properties}) RETURN p", 
+		 * 			"MATCH (p:POST {sn_id: {parameters}}) RETURN p", 
 		 * 				"parameters": {
-		 * 					"properties": {
-		 * 						"sn_id":"TW",
-		 * 						"id":"1234567890"
+		 * 					"sn_id":"TW"
 		 * 					}
 		 * 				} 
 		 * 		} ] 
@@ -462,12 +460,13 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 		 * 
 		 */
 		/*
-		String cypherStatement = "\"MATCH (p:"+ label.toString() +" {properties}) RETURN p\", "
-				+ "\"parameters\": {"
-				+ "\"properties\":" + jsonPayload 
-				+ "} ";
+		String qPart = "sn_id";
+		String cypherStatement = "\"MATCH (p:"+ label.toString() +" {"+qPart+": {parameters}}) RETURN p\", "
+				+ "\"parameters\": " + jsonPayload ;
 		*/
-		String cypherStatement = "\"MATCH (p: "+ label.toString() + " " +jsonPayload+" ) RETURN p\"";
+		
+		String cypherStatement = "\"MATCH (p:"+ label.toString() + " " +jsonPayload+" ) RETURN p\"";
+		
 		return (getNodeLocationTransactional(cypherStatement, transactLoc));
 		
 	}
@@ -883,6 +882,23 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 		}
 	}
 	
+	
+	/**
+	 * @description receives a geoLocation URL and returns the ID
+	 * 				the geoLocation URL MUST be of the form <protocol>://<servername>:<port>/<path>/<id>
+	 * 				IMPORTTANT: the node-id must be the last part of the URL, otherwise an exception is thrown 
+	 * @param toNodeLocationUri
+	 * @return toNodeId
+	 */
+	private long getNodeIdFromLocation(String nodeLocationUri) {
+		assert nodeLocationUri != null : "ERROR :: toNodeLocationUri must not be null";
+		
+		String nodeIdAsString = "";
+		int pos = (nodeLocationUri.toString().lastIndexOf('/') + 1);
+		
+		nodeIdAsString = nodeLocationUri.toString().substring(pos);
+		return Long.parseLong(nodeIdAsString);
+	}
 	
 	private static String toJsonNameValuePairCollection( String name, String value ){
         return String.format( "{ \"%s\" : \"%s\" }", name, value );
