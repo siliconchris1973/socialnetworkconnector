@@ -267,7 +267,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	private ArrayList<T> getDataFromXml(String section, String SN) {
 		
 		ArrayList<T> ar = new ArrayList<T>();
-		logger.debug("reading " + section + "-constraints for customer "+customer+" in domain "+domain+" for network " + SocialNetworks.getSocialNetworkConfigElement("name", SN) + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")+1));
+		logger.trace("reading " + section + "-constraints for customer "+customer+" in domain "+domain+" for network " + SocialNetworks.getSocialNetworkConfigElement("name", SN) + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")+1));
 		
 		try {
 			File file = new File(getConfigDbHandler());

@@ -193,18 +193,21 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				postNodeLocation = findNode(jsonPayload, GraphNodeTypes.POST, transactLoc);
 				
 				if (postNodeLocation == null) {
-					logger.debug("creating the node");
+					logger.debug("creating the post {}-{}", sn_id, id);
 					GraphPostingData gpd = new GraphPostingData(postNodeObject);
 					postNodeLocation = createNodeObject(gpd.getJson(), GraphNodeTypes.POST, transactLoc);
 				} 
 				
-				// after the node is created - we KNOW that the location is null
+				// after the node is created - check if the location is returned and if not, find the node
 				if (postNodeLocation == null) {
-					logger.warn("no node location returned");
-				
 					postNodeLocation = findNode(jsonPayload, GraphNodeTypes.POST, transactLoc);
 				}
-				logger.debug("post node created at location {}", postNodeLocation);
+				
+				if (postNodeLocation == null) {
+					logger.warn("could not create node for post {}-{} ", sn_id, id);
+				} else {
+					logger.info("node for post {}-{} created at location {}", sn_id, id, postNodeLocation);
+				}
 			}
 		}
 		
@@ -227,18 +230,21 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				userNodeLocation = findNode(jsonPayload, GraphNodeTypes.USER, transactLoc);
 				
 				if (userNodeLocation == null) {
-					logger.debug("creating the user");
+					logger.debug("creating the user {}-{}", sn_id, id);
 					GraphUserData gud = new GraphUserData(userNodeObject);
 					userNodeLocation = createNodeObject(gud.getJson(), GraphNodeTypes.USER, transactLoc);
 				}
 				
-				// after the node is created - we KNOW that the location is null
+				// after the node is created - check if the location is returned and if not, find the node
 				if (userNodeLocation == null) {
-					logger.warn("no node location returned");
-				
 					userNodeLocation = findNode(jsonPayload, GraphNodeTypes.USER, transactLoc);
 				}
-				logger.debug("user node created at location {}", userNodeLocation);
+				
+				if (userNodeLocation == null) {
+					logger.warn("could not create node for user {}-{} ", sn_id, id);
+				} else {
+					logger.info("node for user {}-{} created at location {}", sn_id, id, userNodeLocation);
+				}
 			}
 		}
 		
@@ -264,13 +270,15 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 					domainNodeLocation = createNodeObject(gdd.getJson(), GraphNodeTypes.DOMAIN, transactLoc);
 				}
 				
-				//  after the node is created - we KNOW that the location is null
+				//  after the node is created - check if the location is returned and if not, find the node
 				if (domainNodeLocation == null) {
-					logger.warn("no node location returned");
-				
 					domainNodeLocation = findNode(jsonPayload, GraphNodeTypes.DOMAIN, transactLoc);
 				}
-				logger.debug("node for domain {} is at location {}", name, domainNodeLocation);
+				if (domainNodeLocation == null) {
+					logger.warn("could not create node for domain {} ", name);
+				} else {
+					logger.info("node for domain {} created at location {}", name, domainNodeLocation);
+				}
 			}
 		}
 		
@@ -297,13 +305,15 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 					customerNodeLocation = createNodeObject(gcd.getJson(), GraphNodeTypes.CUSTOMER, transactLoc);
 				}
 				
-				//  after the node is created - we KNOW that the location is null
+				//  after the node is created - check if the location is returned and if not, find the node
 				if (customerNodeLocation == null) {
-					logger.warn("no node location returned");
-				
 					customerNodeLocation = findNode(jsonPayload, GraphNodeTypes.CUSTOMER, transactLoc);
 				}
-				logger.debug("node for customer {} is at location {}", name, customerNodeLocation);
+				if (customerNodeLocation == null) {
+					logger.warn("could not create node for customer {} ", name);
+				} else {
+					logger.info("node for customer {} created at location {}", name, customerNodeLocation);
+				}
 			}
 		}
 		
@@ -330,13 +340,15 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 					socialNetworkNodeLocation = createNodeObject(gsd.getJson(), GraphNodeTypes.SOCIALNETWORK, transactLoc);
 				}
 				
-				//  after the node is created - we KNOW that the location is null
+				//  after the node is created - check if the location is returned and if not, find the node
 				if (socialNetworkNodeLocation == null) {
-					logger.warn("no node location returned");
-				
 					socialNetworkNodeLocation = findNode(jsonPayload, GraphNodeTypes.SOCIALNETWORK, transactLoc);
 				}
-				logger.debug("node for social network {} is at location {}", name, socialNetworkNodeLocation);
+				if (socialNetworkNodeLocation == null) {
+					logger.warn("could not create node for social network {} ", name);
+				} else {
+					logger.info("node for social network {} created at location {}", name, socialNetworkNodeLocation);
+				}
 			}
 		}
 		
@@ -363,51 +375,43 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 					keywordNodeLocation = createNodeObject(gkd.getJson(), GraphNodeTypes.KEYWORD, transactLoc);
 				}
 				
-				//  after the node is created - we KNOW that the location is null
+				//  after the node is created - check if the location is returned and if not, find the node
 				if (keywordNodeLocation == null) {
-					logger.warn("no node location returned");
-				
 					keywordNodeLocation = findNode(jsonPayload, GraphNodeTypes.KEYWORD, transactLoc);
 				}
-				logger.debug("node for keyword {} is at location {}", name, keywordNodeLocation);
+				if (keywordNodeLocation == null) {
+					logger.warn("could not create node for keyword {} ", name);
+				} else {
+					logger.info("node for keyword {} created at location {}", name, keywordNodeLocation);
+				}
 			}
 		}
 		
 		
+		logger.debug(	
+					"=========>\n"
+					+ "post:          {} -> \n"
+					+ "user:          {} -> \n"
+					+ "domain:        {} -> \n"
+					+ "customer:      {} -> \n"
+					+ "socialnetwork: {} -> \n"
+				    + "<=========" 
+				   ,getNodeIdFromLocation(postNodeLocation.toString()), postNodeLocation
+				   ,getNodeIdFromLocation(userNodeLocation.toString()), userNodeLocation
+				   ,getNodeIdFromLocation(domainNodeLocation.toString()), domainNodeLocation
+				   ,getNodeIdFromLocation(customerNodeLocation.toString()), customerNodeLocation
+				   ,getNodeIdFromLocation(socialNetworkNodeLocation.toString()), socialNetworkNodeLocation
+				   );
+		/*
 		// after all nodes have been created or, in case they were already there, their respective links
 		// are retrieved, we create the relationship(s) between the nodes
 		String[] jsonAttributes = null;
-		try {
-			createRelationship(userNodeLocation, postNodeLocation, GraphRelationshipTypes.WROTE, jsonAttributes);
-		} catch (Exception e) {
-			logger.error("Could not create relationship of type {} between node {} and node {}", 
-					GraphRelationshipTypes.WROTE, userNodeLocation, postNodeLocation);
-		}
-		try {
-			createRelationship(postNodeLocation, socialNetworkNodeLocation, GraphRelationshipTypes.BELONGS_TO, jsonAttributes);
-		} catch (Exception e) {
-			logger.error("Could not create relationship of type {} between node {} and node {}", 
-					GraphRelationshipTypes.BELONGS_TO, postNodeLocation, socialNetworkNodeLocation);
-		}
-		try {
-			createRelationship(postNodeLocation, domainNodeLocation, GraphRelationshipTypes.BELONGS_TO, jsonAttributes);
-		} catch (Exception e) {
-			logger.error("Could not create relationship of type {} between node {} and node {}", 
-					GraphRelationshipTypes.BELONGS_TO, postNodeLocation, domainNodeLocation);
-		}
-		try {
-			createRelationship(postNodeLocation, customerNodeLocation, GraphRelationshipTypes.BELONGS_TO, jsonAttributes);
-		} catch (Exception e) {
-			logger.error("Could not create relationship of type {} between node {} and node {}", 
-					GraphRelationshipTypes.BELONGS_TO, postNodeLocation, customerNodeLocation);
-		}
-		try {
-			createRelationship(customerNodeLocation, domainNodeLocation, GraphRelationshipTypes.BELONGS_TO, jsonAttributes);
-		} catch (Exception e) {
-			logger.error("Could not create relationship of type {} between node {} and node {}", 
-					GraphRelationshipTypes.BELONGS_TO, customerNodeLocation, domainNodeLocation);
-		}
-		
+		createRelationship(userNodeLocation, postNodeLocation, GraphRelationshipTypes.WROTE, jsonAttributes);
+		createRelationship(postNodeLocation, socialNetworkNodeLocation, GraphRelationshipTypes.BELONGS_TO, jsonAttributes);
+		createRelationship(postNodeLocation, domainNodeLocation, GraphRelationshipTypes.BELONGS_TO, jsonAttributes);
+		createRelationship(postNodeLocation, customerNodeLocation, GraphRelationshipTypes.BELONGS_TO, jsonAttributes);
+		createRelationship(customerNodeLocation, domainNodeLocation, GraphRelationshipTypes.BELONGS_TO, jsonAttributes);
+		*/
 		// commit the transaction
 		commitTransaction(transactLoc);
 	}
@@ -426,8 +430,10 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 	 * 
 	 */
 	private URI createNodeObject(JSONObject nodeObject, GraphNodeTypes label, URI transactLoc){
-		/* the cypher statement is part of a larger one that is executed by the 
-		 * next method. It finally becomes this at execution time:
+		/* the cypher statement is part of a larger one that is executed via method 
+		 *    sendTransactionalCypherStatement(). 
+		 * Ultimately, the statement looks like this:
+		 * 
 		 * {
 		 * 	"statements": [ { 
 		 * 		"statement": 
@@ -453,8 +459,10 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 	}
 	
 	private URI findNode(String jsonPayload, GraphNodeTypes label, URI transactLoc){
-		/* the cypher statement is part of a larger one that is executed by the 
-		 * next method. It finally becomes this at execution time:
+		/* the cypher statement is part of a larger one that is executed via method 
+		 *    sendTransactionalCypherStatement(). 
+		 * Ultimately, the statement looks like this:
+		 * 
 		 * {
 		 * 	"statements": [ { 
 		 * 		"statement": 
@@ -463,16 +471,11 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 		 * 					"sn_id":"TW"
 		 * 					}
 		 * 				} 
+		 * 				, "resultDataContents":["REST"]
 		 * 		} ] 
 		 * } 
 		 * 
 		 */
-		/*
-		String qPart = "sn_id";
-		String cypherStatement = "\"MATCH (p:"+ label.toString() +" {"+qPart+": {parameters}}) RETURN p\", "
-				+ "\"parameters\": " + jsonPayload ;
-		*/
-		
 		String cypherStatement = "\"MATCH (p:"+ label.toString() + " " +jsonPayload+" ) RETURN p\"";
 		
 		return (getNodeLocationTransactional(cypherStatement, transactLoc));
@@ -490,7 +493,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 	 * 
 	 */
 	private URI sendTransactionalCypherStatement(String cypherStatement, URI transactLoc){
-		//URI nodeLocation = null;
+		URI nodeLocation = null;
 		try{
 			URI finalUrl = transactLoc;
 			
@@ -502,14 +505,14 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 											+ "\"parameters\": {"
 													+ "\"properties\":" + nodeObject.toString() 
 											+ "} "
+											+ ", \"resultDataContents\":[\"REST\"]"
 									+ "} "
 								+ "] "
 							+ "}";
 			*/
 			/* until it finally becomes this at execution time:
-			 * {
-			 * 	"statements": [ { 
-			 * 		"statement": 
+			 * {"statements": [ 
+			 * 		{ "statement": 
 			 * 			"CREATE (p:SOCIALNETWORK {properties}) ", 
 			 * 				"parameters": {
 			 * 					"properties": {
@@ -518,20 +521,22 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 			 * 						"domain":"twitter.com",
 			 * 						"sn_id":"TW"
 			 * 					}
-			 * 				} 
-			 * 		} ] 
-			 * } 
+			 * 				}
+			 * 				, "resultDataContents":["REST"] 
+			 * 		} 
+			 *  ] } 
 			 * 
 			 */
 			String payload = "{\"statements\": "
 								+ "[ "
 									+ "{\"statement\": "
 										+ cypherStatement
+										+ ", \"resultDataContents\":[\"REST\"]"
 									+ "} "
 								+ "] "
 							+ "}";
 				    
-			logger.trace("sending cypher {} to endpoint {}", payload, finalUrl);
+			logger.trace("sending {} cypher {} to endpoint {}", payload.substring(32, 38), payload, finalUrl);
 			WebResource resource = Client.create().resource( finalUrl );
 			
 			ClientResponse response = resource
@@ -600,39 +605,34 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				if(jsonResponseObj == null)
 					throw new ParseException(0, "returned json object is null");
 				
-				//String error = (String) jsonResponseObj.get("errors").toString();
-				
-				// first results
-				JSONArray resultsArray = (JSONArray) jsonResponseObj.get("results");
-				JSONArray errorArray = (JSONArray) jsonResponseObj.get("errors");
-				String error = (String) errorArray.toString();
-				
-				// get the data array from results array
-				JSONObject t = (JSONObject) resultsArray.get(0);// .get("data")[0];
-				JSONArray dataArray = (JSONArray) t.get("data");
-				
-				// get the rest array from data array
-				t = (JSONObject) dataArray.get(0);
-				JSONArray restArray = (JSONArray) t.get("rest");
-				
-				// create the simple json objects each from first element in array, because we only have that
-				JSONObject data = (JSONObject) dataArray.get(0);
-				JSONObject rest = (JSONObject) restArray.get(0);
-				
-				logger.trace("\n>>>>>>>>>");
-				logger.trace("results: {}", resultsArray.toString());
-				logger.trace("data: {}", data.toString());
-				logger.trace("rest: {}", rest.toString());
-				logger.trace(">>>>>>>>>\n");
+				//logger.trace("returned response object is {}", jsonResponseObj.toString());
+				try {
+					nodeLocation = new URI((String)((JSONObject)((JSONArray)((JSONObject)((JSONArray)((JSONObject)((JSONArray)jsonResponseObj.get("results")).get(0)).get("data")).get(0)).get("rest")).get(0)).get("self"));
+				} catch (Exception e) {
+					logger.warn("{} statement did not return a self object, returning null -- error was {}", payload.substring(32, 38), e.getMessage());
+					nodeLocation = null;
+				}
+				/*
+				JSONArray errors = (JSONArray)jsonResponseObj.get("errors");
+				logger.trace("errors is {}", errors.toString());
+				if (errors.size() > 0) {
+					JSONObject error = (JSONObject) errors.get(0);
+					logger.debug("error-object: {}", error.toString());
+				}
 				
 				// if the error array has only the [] brackets, it's ok
-				if (error.length() == 2) {
-					logger.debug("cypher statement executed successfully at location {}", finalUrl);
-					return finalUrl;
+				if (errors.size() <= 2 && self != null) {
+					logger.debug("{} cypher statement executed successfully at location {}, returning {}", payload.substring(32, 38), finalUrl, self);
+					nodeLocation = new URI(self);
 				} else {
-					logger.error("ERROR :: {} - could not execute cypher statement at location {}", error, finalUrl);
-					return null;
+					if (errors.size() > 2) {
+						logger.error("ERROR :: {} - could not execute {} cypher statement at location {}", errors, payload.substring(32, 38), finalUrl);
+					} else {
+						logger.debug("{} returned no error, but also no node found, returning null", payload.substring(32, 38));
+						nodeLocation = null;
+					}
 				}
+				*/
 			}
 			response.close();
 			
@@ -640,7 +640,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 			logger.error("EXCEPTION :: failed to create node - {}", e.getMessage());
 			e.printStackTrace();
 		}
-		return null;
+		return nodeLocation;
 	}
 	
 	
@@ -660,26 +660,37 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 	 */
 	@Override
 	public URI createRelationship(URI sourceNode, URI targetNode,
-			GraphRelationshipTypes relationshipType, String[] jsonAttributes) 
-					throws URISyntaxException {
+			GraphRelationshipTypes relationshipType, String[] jsonAttributes) {
+		URI location = null;
 		
-        URI fromUri = new URI( sourceNode.toString() + "/relationships" );
-        String relationshipJson = generateJsonRelationship( targetNode,
-                relationshipType, jsonAttributes );
-
-        WebResource resource = Client.create()
-                .resource( fromUri );
-        // POST JSON to the relationships URI
-        ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
-                .type( MediaType.APPLICATION_JSON )
-                .entity( relationshipJson )
-                .post( ClientResponse.class );
-
-        final URI location = response.getLocation();
-        logger.info("POST to {}, status code [{}], location header [{}]",
-                fromUri, response.getStatus(), location.toString() ) ;
-
-        response.close();
+		logger.info("creating relationship [{}] --{}--> [{}]", 
+										getNodeIdFromLocation(sourceNode.toString()), 
+										relationshipType, 
+										getNodeIdFromLocation(targetNode.toString()));
+		
+		try {
+	        URI fromUri = new URI( sourceNode.toString() + "/relationships" );
+	        String relationshipJson = generateJsonRelationship( targetNode,
+	                											relationshipType, 
+	                											jsonAttributes );
+	        logger.trace("creating relationship using statement {}", relationshipJson);
+	        
+	        WebResource resource = Client.create()
+	                .resource( fromUri );
+	        // POST JSON to the relationships URI
+	        ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
+	                .type( MediaType.APPLICATION_JSON )
+	                .entity( relationshipJson )
+	                .post( ClientResponse.class );
+	
+	        location = response.getLocation();
+	        logger.debug("POST to {}, status code [{}], location header [{}]",
+	                fromUri, response.getStatus(), location.toString() ) ;
+	
+	        response.close();
+		} catch (Exception e) {
+			logger.error("could not create relationship ");
+		}
         return location;
     }
 	/**
@@ -715,6 +726,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 	
 	public URI getNodeLocationTransactional(String cypherStatement, URI endpointLoc){
 		URI nodeLocation = null;
+		String self = null;
 		try {
 			//+ "MATCH (n {" + field + " : " + id + ", type : \"" + type + "\" }) RETURN n"
 			String payload = "{\"statements\": "
@@ -727,7 +739,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				+ "}";
 			
 			
-			logger.trace("sending cypher {} to endpoint {}", payload, endpointLoc);
+			logger.trace("sending {} cypher {} to endpoint {}", payload.substring(32, 38), payload, endpointLoc);
 			WebResource resource = Client.create().resource( endpointLoc );
 			
 			ClientResponse response = resource
@@ -759,24 +771,37 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				if(jsonResponseObj == null)
 					throw new ParseException(0, "returned json object is null");
 				
-				String result = (String) jsonResponseObj.get("results").toString();
-				logger.trace("result is {} ", result);
+				logger.trace("returned response {}", jsonResponseObj.toString());
 				
-				String error = (String) jsonResponseObj.get("errors").toString();
-				
-				// the url to a node is contained within the extensions in the key self 
-				// "self" : "http://localhost:7474/db/data/node/357",
-				
-				// if the error array has only the [] brackets, it's ok
-				if (error.length() == 2) {
-					logger.debug("cypher statement executed successfully at location {}", endpointLoc);
-					//nodeLocation = response.getLocation();
-				} else {
-					logger.error("ERROR :: {} - could not execute cypher statement at location {}", error, endpointLoc);
+				try {
+					nodeLocation = new URI((String)((JSONObject)((JSONArray)((JSONObject)((JSONArray)((JSONObject)((JSONArray)jsonResponseObj.get("results")).get(0)).get("data")).get(0)).get("rest")).get(0)).get("self"));
+				} catch (Exception e) {
+					logger.warn("{} statement did not return a self object, returning null -- error was {}", payload.substring(32, 38), e.getMessage());
 					nodeLocation = null;
 				}
 				
-				//logger.trace("query for node returned {}", nodeLocation.toString());
+				/*
+				JSONArray errors = (JSONArray)jsonResponseObj.get("errors");
+				logger.trace("errors is {}", errors.toString());
+				if (errors.size() > 0) {
+					JSONObject error = (JSONObject) errors.get(0);
+					logger.debug("error-object: {}", error.toString());
+				}
+				
+				
+				// if the error array has only the [] brackets, it's ok
+				if (errors.size() <= 2 && self != null) {
+					logger.debug("{} cypher statement executed successfully at location {}, returning {}", payload.substring(32, 38), endpointLoc, self);
+					nodeLocation = new URI(self);
+				} else {
+					if (errors.size() > 2) {
+						logger.error("ERROR :: {} - could not execute {} cypher statement at location {}", errors, payload.substring(32, 38), endpointLoc);
+					} else {
+						logger.debug("{} returned no error, but also no node found, returning null", payload.substring(32, 38));
+						nodeLocation = null;
+					}
+				}
+				*/
 			}
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: failed to execute query - {}", e.getMessage());
@@ -966,13 +991,20 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 	 * @return toNodeId
 	 */
 	private long getNodeIdFromLocation(String nodeLocationUri) {
-		assert nodeLocationUri != null : "ERROR :: toNodeLocationUri must not be null";
-		
-		String nodeIdAsString = "";
-		int pos = (nodeLocationUri.toString().lastIndexOf('/') + 1);
-		
-		nodeIdAsString = nodeLocationUri.toString().substring(pos);
-		return Long.parseLong(nodeIdAsString);
+		//assert nodeLocationUri != null : "ERROR :: nodeLocationUri must not be null";
+		if (nodeLocationUri != null && nodeLocationUri.length() > 1){
+			try { 
+				String nodeIdAsString = "";
+				int pos = (nodeLocationUri.toString().lastIndexOf('/') + 1);
+				
+				nodeIdAsString = nodeLocationUri.toString().substring(pos);
+				return Long.parseLong(nodeIdAsString);
+			} catch (Exception e) {
+				return 0;
+			}
+		} else {
+			return 0;
+		}
 	}
 	
 	private static String toJsonNameValuePairCollection( String name, String value ){
