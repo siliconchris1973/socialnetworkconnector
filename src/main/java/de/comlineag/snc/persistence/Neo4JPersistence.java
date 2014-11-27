@@ -3,6 +3,7 @@ package de.comlineag.snc.persistence;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -14,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+
 
 
 
@@ -174,7 +176,9 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 		
 		// POST
 		if (postNodeObject != null) {
-			logger.debug("checking if the post exist");
+			sn_id = null;
+			id = null;
+			name = null;
 			
 			// before we construct and call the create method, we check if the requested object does not already exist 
 			if (postNodeObject.containsKey("sn_id"))
@@ -183,7 +187,9 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				id = (String) nodeObject.get("id");
 			
 			if (sn_id != null && id != null) {
-				jsonPayload = "{sn_id: \""+sn_id+"\", id: \""+id+"\"}";
+				logger.debug("checking if the post {}-{} exist", sn_id, id);
+				
+				jsonPayload = "{sn_id: '"+sn_id+"', id: '"+id+"'}";
 				postNodeLocation = findNode(jsonPayload, GraphNodeTypes.POST, transactLoc);
 				
 				if (postNodeLocation == null) {
@@ -200,14 +206,13 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				}
 				logger.debug("post node created at location {}", postNodeLocation);
 			}
-			sn_id = null;
-			id = null;
-			name = null;
 		}
 		
 		// USER
 		if (userNodeObject != null) {
-			logger.debug("checking if the user exist");
+			sn_id = null;
+			id = null;
+			name = null;
 			
 			// before we construct and call the create method, we check if the requested object does not already exist 
 			if (userNodeObject.containsKey("sn_id"))
@@ -216,7 +221,9 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				id = (String) nodeObject.get("id");
 			
 			if (sn_id != null && id != null) {
-				jsonPayload = "{sn_id: \""+sn_id+"\", id: \""+id+"\"}";
+				logger.debug("checking if the user {}-{} exist", sn_id, id);
+				
+				jsonPayload = "{sn_id: '"+sn_id+"', id: '"+id+"'}";
 				userNodeLocation = findNode(jsonPayload, GraphNodeTypes.USER, transactLoc);
 				
 				if (userNodeLocation == null) {
@@ -233,21 +240,22 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				}
 				logger.debug("user node created at location {}", userNodeLocation);
 			}
-			sn_id = null;
-			id = null;
-			name = null;
 		}
 		
 		// DOMAIN
 		if (domainNodeObject != null) {
-			logger.debug("checking if the domain of interest exist");
+			sn_id = null;
+			id = null;
+			name = null;
 			
 			// before we construct and call the create method, we check if the requested object does not already exist 
 			if (domainNodeObject.containsKey("name"))
 				name = (String) domainNodeObject.get("name");
 			
 			if (name != null) {
-				jsonPayload = "{name: \""+name+"\"}";
+				logger.debug("checking if the domain of interest {} exist", name);
+				
+				jsonPayload = "{name: '"+name+"'}";
 				domainNodeLocation = findNode(jsonPayload, GraphNodeTypes.DOMAIN, transactLoc);
 				
 				if (domainNodeLocation == null) {
@@ -264,22 +272,23 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				}
 				logger.debug("node for domain {} is at location {}", name, domainNodeLocation);
 			}
-			sn_id = null;
-			id = null;
-			name = null;
 		}
 		
 		
 		// CUSTOMER
 		if (customerNodeObject != null) {
-			logger.debug("checking if the customer exist");
+			sn_id = null;
+			id = null;
+			name = null;
 			
 			// before we construct and call the create method, we check if the requested object does not already exist 
 			if (customerNodeObject.containsKey("name"))
 				name = (String) customerNodeObject.get("name");
 			
 			if (name != null) {
-				jsonPayload = "{name: \""+name+"\"}";
+				logger.debug("checking if the customer {} exist", name);
+			
+				jsonPayload = "{name: '"+name+"'}";
 				customerNodeLocation = findNode(jsonPayload, GraphNodeTypes.CUSTOMER, transactLoc);
 				
 				if (customerNodeLocation == null) {
@@ -296,22 +305,23 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				}
 				logger.debug("node for customer {} is at location {}", name, customerNodeLocation);
 			}
-			sn_id = null;
-			id = null;
-			name = null;
 		}
 		
 		
 		// SOCIAL NETWORK
 		if (socialNetworkNodeObject != null) {
-			logger.debug("checking if the social network exist");
+			sn_id = null;
+			id = null;
+			name = null;
 			
 			// before we construct and call the create method, we check if the requested object does not already exist 
 			if (socialNetworkNodeObject.containsKey("sn_id"))
 				name = (String) socialNetworkNodeObject.get("sn_id");
 			
 			if (name != null) {
-				jsonPayload = "{sn_id: \""+name+"\"}";
+				logger.debug("checking if the social network {} exist", name);
+				
+				jsonPayload = "{sn_id: '"+name+"'}";
 				socialNetworkNodeLocation = findNode(jsonPayload, GraphNodeTypes.SOCIALNETWORK, transactLoc);
 				
 				if (socialNetworkNodeLocation == null) {
@@ -328,22 +338,23 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				}
 				logger.debug("node for social network {} is at location {}", name, socialNetworkNodeLocation);
 			}
-			sn_id = null;
-			id = null;
-			name = null;
 		}
 		
 		
 		// KEYWORD
 		if (keywordNodeObject != null) {
-			logger.debug("checking if the keyword exist");
+			sn_id = null;
+			id = null;
+			name = null;
 			
 			// before we construct and call the create method, we check if the requested object does not already exist 
 			if (keywordNodeObject.containsKey("keyword"))
 				name = (String) keywordNodeObject.get("keyword");
 			
 			if (name != null) {
-				jsonPayload = "{keyword: \""+name+"\"}";
+				logger.debug("checking if the keyword {} exist", name);
+				
+				jsonPayload = "{keyword: '"+name+"'}";
 				keywordNodeLocation = findNode(jsonPayload, GraphNodeTypes.KEYWORD, transactLoc);
 				
 				if (keywordNodeLocation == null) {
@@ -360,9 +371,6 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				}
 				logger.debug("node for keyword {} is at location {}", name, keywordNodeLocation);
 			}
-			sn_id = null;
-			id = null;
-			name = null;
 		}
 		
 		
@@ -548,6 +556,43 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 					logger.error("Error {} sending data to {}: {} ", response.getStatus(), finalUrl, HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
 				}
 			} else {
+				/*
+				 * Structure of the JSON response
+				 	{
+					  "commit" : "http://localhost:7474/db/data/transaction/1/commit",
+					  "results" : [ {
+					    "columns" : [ "n" ],
+					    "data" : [ {
+					      "rest" : [ {
+					        "labels" : "http://localhost:7474/db/data/node/12/labels",
+					        "outgoing_relationships" : "http://localhost:7474/db/data/node/12/relationships/out",
+					        "all_typed_relationships" : "http://localhost:7474/db/data/node/12/relationships/all/{-list|&|types}",
+					        "traverse" : "http://localhost:7474/db/data/node/12/traverse/{returnType}",
+	--> location of node	"self" : "http://localhost:7474/db/data/node/12",
+					        "property" : "http://localhost:7474/db/data/node/12/properties/{key}",
+					        "outgoing_typed_relationships" : "http://localhost:7474/db/data/node/12/relationships/out/{-list|&|types}",
+					        "properties" : "http://localhost:7474/db/data/node/12/properties",
+					        "incoming_relationships" : "http://localhost:7474/db/data/node/12/relationships/in",
+					        "create_relationship" : "http://localhost:7474/db/data/node/12/relationships",
+					        "paged_traverse" : "http://localhost:7474/db/data/node/12/paged/traverse/{returnType}{?pageSize,leaseTime}",
+					        "all_relationships" : "http://localhost:7474/db/data/node/12/relationships/all",
+					        "incoming_typed_relationships" : "http://localhost:7474/db/data/node/12/relationships/in/{-list|&|types}",
+					        "metadata" : {
+	--> id of the node        "id" : 12,
+					          "labels" : [ ]
+					        },
+					        "data" : {
+					        }
+					      } ]
+					    } ]
+					  } ],
+					  "transaction" : {
+					    "expires" : "Tue, 30 Sep 2014 06:16:54 +0000"
+					  },
+					  "errors" : [ ]
+					}
+				 */
+				
 				// now do the check on json details within the returned JSON object
 				JSONParser reponseParser = new JSONParser();
 				Object responseObj = reponseParser.parse(responseEntity);
@@ -555,7 +600,30 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				if(jsonResponseObj == null)
 					throw new ParseException(0, "returned json object is null");
 				
-				String error = (String) jsonResponseObj.get("errors").toString();
+				//String error = (String) jsonResponseObj.get("errors").toString();
+				
+				// first results
+				JSONArray resultsArray = (JSONArray) jsonResponseObj.get("results");
+				JSONArray errorArray = (JSONArray) jsonResponseObj.get("errors");
+				String error = (String) errorArray.toString();
+				
+				// get the data array from results array
+				JSONObject t = (JSONObject) resultsArray.get(0);// .get("data")[0];
+				JSONArray dataArray = (JSONArray) t.get("data");
+				
+				// get the rest array from data array
+				t = (JSONObject) dataArray.get(0);
+				JSONArray restArray = (JSONArray) t.get("rest");
+				
+				// create the simple json objects each from first element in array, because we only have that
+				JSONObject data = (JSONObject) dataArray.get(0);
+				JSONObject rest = (JSONObject) restArray.get(0);
+				
+				logger.trace("\n>>>>>>>>>");
+				logger.trace("results: {}", resultsArray.toString());
+				logger.trace("data: {}", data.toString());
+				logger.trace("rest: {}", rest.toString());
+				logger.trace(">>>>>>>>>\n");
 				
 				// if the error array has only the [] brackets, it's ok
 				if (error.length() == 2) {
@@ -653,6 +721,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 					+ "[ "
 						+ "{\"statement\": "
 							+ cypherStatement
+							+ ", \"resultDataContents\":[\"REST\"]"
 						+ "} "
 					+ "] "
 				+ "}";
@@ -665,8 +734,8 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 					.accept( MediaType.APPLICATION_JSON )
 	                .type( MediaType.APPLICATION_JSON )
 			        .entity( payload )
-			        //.get(ClientResponse.class);
-			        .post( ClientResponse.class );
+			        .get(ClientResponse.class);
+			        //.post( ClientResponse.class );
 			
 			String responseEntity = response.getEntity(String.class).toString();
 			int responseStatus = response.getStatus();
@@ -690,18 +759,24 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				if(jsonResponseObj == null)
 					throw new ParseException(0, "returned json object is null");
 				
+				String result = (String) jsonResponseObj.get("results").toString();
+				logger.trace("result is {} ", result);
+				
 				String error = (String) jsonResponseObj.get("errors").toString();
+				
+				// the url to a node is contained within the extensions in the key self 
+				// "self" : "http://localhost:7474/db/data/node/357",
 				
 				// if the error array has only the [] brackets, it's ok
 				if (error.length() == 2) {
 					logger.debug("cypher statement executed successfully at location {}", endpointLoc);
-					nodeLocation = response.getLocation();
+					//nodeLocation = response.getLocation();
 				} else {
 					logger.error("ERROR :: {} - could not execute cypher statement at location {}", error, endpointLoc);
 					nodeLocation = null;
 				}
 				
-				logger.trace("query for node returned {}", nodeLocation.toString());
+				//logger.trace("query for node returned {}", nodeLocation.toString());
 			}
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: failed to execute query - {}", e.getMessage());
