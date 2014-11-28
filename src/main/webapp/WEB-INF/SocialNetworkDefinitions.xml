@@ -203,7 +203,7 @@
 		<network name="WC"><name>WEBCRAWLER</name></network>
 		<network name="WEBCRAWLER">
 			<code>WC</code>
-			<name>Simple Web Crawler</name>
+			<name>Web Crawler</name>
 			<description>any possible website</description>
 			<domain>https://www.everywhere.de</domain>
 			<supported>YES</supported>

@@ -222,7 +222,7 @@ public class Neo4JEmbeddedPersistence implements IGraphPersistenceManager {
 	
 	
 	@Override
-	public URI createRelationship(URI startNode, URI endNode,
+	public URI createRelationship(GraphNodeTypes sourceType, URI startNode, GraphNodeTypes targetType, URI endNode,
 			GraphRelationshipTypes relationshipType, String[] jsonAttributes) {
 		try {
 			

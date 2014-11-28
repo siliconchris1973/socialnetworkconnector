@@ -66,14 +66,18 @@ public interface IGraphPersistenceManager {
 	public void saveNode(JSONObject nodeObject);
 	
 	/**
-	 * @description	create a relationship between two nodes (given as URI) of a type defined in GraphRelationshipTypes 
 	 * 
+	 * @description	create a relationship of given type from GraphRelationshipTypes 
+	 * 				between two nodes (given as URI and described as GraphNodeTypes)  
+	 * 
+	 * @param 		GraphNodeType source node type
 	 * @param 		URI source node
+	 * @param 		GraphNodeType target node type
 	 * @param 		URI target node
 	 * @param		RelationshipTypes type of relationship
 	 * @param		addition data for the relationship (properties)
-	 * @throws		URISyntaxException 
+	 * 
 	 */
-	public URI createRelationship(URI sourceNode, URI targetNode, GraphRelationshipTypes relationshipType, String[] jsonAttributes) throws URISyntaxException;
+	public URI createRelationship(GraphNodeTypes sourceType, URI sourceNode, GraphNodeTypes targetType, URI targetNode, GraphRelationshipTypes relationshipType, String[] jsonAttributes);
 
 }

@@ -14,7 +14,6 @@ import org.json.simple.parser.ParseException;
 import com.google.common.base.Stopwatch;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
-import de.comlineag.snc.constants.SocialNetworks;
 
 import de.comlineag.snc.handler.TwitterPosting;
 import de.comlineag.snc.handler.TwitterUser;

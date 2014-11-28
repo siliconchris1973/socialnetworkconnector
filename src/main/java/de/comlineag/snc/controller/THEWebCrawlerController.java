@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.json.simple.JSONObject;
+
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -54,6 +55,7 @@ public class THEWebCrawlerController implements Job {
 	// it is VERY important to set the crawler name (all in upper case) here
 	private static final String CRAWLER_NAME="WEBCRAWLER";
 	
+	private final boolean rtcClearFinishedPagesOnStartup = rtc.getBooleanValue("WcClearFinishedPagesOnStartup", "crawler");
 	private final int rtcPolitenessDelay = rtc.getIntValue("WcPolitenessDelay","crawler");
 	private final int rtcMaxPagesLimit = rtc.getIntValue("WcMaxPagesLimit","crawler");
 	private final int rtcMaxLinkDepth = rtc.getIntValue("WcMaxLinkDepth","crawler");
@@ -79,6 +81,10 @@ public class THEWebCrawlerController implements Job {
 		
 		// crawlStorageFolder is a folder where intermediate crawl data is stored.
 		String crawlStorageFolder = rtc.getStringValue("StoragePath", "runtime");
+		// in case WcClearFinishedPagesOnStartup from SNC_Runtime_Configuration-1.0.xml is set to true
+		// clear the directory containing the list of already scanned pages
+		if (rtcClearFinishedPagesOnStartup)
+			clearStorageDirectory(new File(crawlStorageFolder + File.separatorChar + "crawler1" + File.separatorChar + "frontier"));
 		
 		@SuppressWarnings("rawtypes")
 		CrawlerConfiguration<?> crawlerConfig = new CrawlerConfiguration();
@@ -280,5 +286,22 @@ public class THEWebCrawlerController implements Job {
 					logger.error("error during execution of crawling process " + e.getMessage());
 				}
 		} // end o check, whether or not the crawler shall actually run
+	}
+	
+	/**
+	 * clears the directory with the list of already crawled pages
+	 */
+	private void clearStorageDirectory(File folder) {
+		// delete content of directory
+		File[] files = folder.listFiles();
+	    if(files!=null) { //some JVMs return null for empty dirs
+	        for(File f: files) {
+	            if(!f.isDirectory()) {
+	            	logger.trace("deleting {}", f.toString());
+	                f.delete();
+	            }
+	        }
+	    }
+	    folder.delete();
 	}
 }

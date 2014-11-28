@@ -70,7 +70,9 @@
 	<!-- Import Neo4j datasource configuration -->
 	<!-- <import resource="spring-data.xml"/> -->
 	
+	<!-- sets the overall application context -->
 	<bean id="contextApplicationContextProvider" class="de.comlineag.snc.appstate.ApplicationContextProvider"></bean>
+	
 	<!-- this is used to get the path to the WEB-INF directory from within the application without
 		 an explicit implementation of the servlet context in each class that requires access to the directory.
 		 Mainly it is implemented by a class ResourcePathHolder (instantiated by spring via this bean) that
@@ -156,8 +158,8 @@
 				<!-- <ref bean="GoogleCrawlerTrigger"/> -->
 				<!-- <ref bean="LinkedinCrawlerTrigger"/> -->
 				<!-- <ref bean="SimpleWebCrawlerTrigger"/> -->
-				<!-- <ref bean="THEWebCrawlerTrigger"/>  -->
-				<!-- <ref bean="LithiumCrawlerTrigger" /> -->
+				<ref bean="THEWebCrawlerTrigger"/>
+				<ref bean="LithiumCrawlerTrigger" />
 				
 				
 				<!-- FILESYSTEM CRAWLER - SAFEGUARD
@@ -401,6 +403,7 @@
 			<map>
 				<!-- THIS MUST BE SET ACCORDING TO AN EXISTING CODE FOR A SOCIAL NETWORK ENTRY IN SocialNetworkDefinitions.xml -->
 				<entry key="SN_ID_CODE" value="WO" />
+				<!-- TODO move authentication parameter to the crawler configuration -->
 				<!-- if the website requires authentication, set username and password here -->
 				<entry key="user" value="Y29taW5lMjAxNA==" />		<!-- comine2014 -->
 				<entry key="passwd" value="TUd1LTZ0Yy1BUjUtdTdS" /> <!-- MGu-6tc-AR5-u7R -->

@@ -39,83 +39,63 @@ public class GraphUserData implements ISncDataObject{
 	
 	public GraphUserData(JSONObject obj){
 		setSnId(obj.get("sn_id").toString());
+		internalJson.put("sn_id", getSnId());
+		
 		setId(obj.get("id").toString());
+		internalJson.put("id", getId());
+		
 		setUsername(obj.get("username").toString());
+		internalJson.put("username", getUsername());
+		
 		setScreenName(obj.get("screen_name").toString());
+		internalJson.put("screen_name", getScreenName());
+		
 		setLang(obj.get("lang").toString());
+		internalJson.put("lang", getLang());
 		
-		if (obj.containsKey("followers_count"))
+		if (obj.containsKey("geoLocation")) {
+			setGeoLocation((String) obj.get("geoLocation"));
+			internalJson.put("geoLocation", getGeoLocation());
+		}
+		if (obj.containsKey("followers_count")) {
 			setFollowersCount((Long) obj.get("followers_count"));
-		if (obj.containsKey("friends_count"))
+			internalJson.put("followers_count", getFollowersCount());
+		}
+		if (obj.containsKey("friends_count")) {
 			setFriendsCount((Long) obj.get("friends_count"));
-		if (obj.containsKey("postings_count"))
+			internalJson.put("friends_count", getFriendsCount());
+		}
+		if (obj.containsKey("postings_count")) {
 			setPostingsCount((Long) obj.get("postings_count"));
-		if (obj.containsKey("favorites_count"))
+			internalJson.put("postings_count", getPostingsCount());
+		}
+		if (obj.containsKey("favorites_count")) {
 			setFavoritesCount((Long) obj.get("favorites_count"));
-		if (obj.containsKey("lists_and_groups_count"))
+			internalJson.put("favorites_count", getFavoritesCount());
+		}
+		if (obj.containsKey("lists_and_groups_count")) {
 			setListsAndGroupsCount((Long) obj.get("lists_and_groups_count"));
-		
-		internalJson = obj;
+			internalJson.put("lists_and_groups_count", getListsAndGroupsCount());
+		}
+		if (obj.containsKey("average_rating_value")) {
+			setAverageRatingValue((float) obj.get("average_rating_value"));
+			internalJson.put("average_rating_value", getAverageRatingValue());
+		}
+		if (obj.containsKey("average_posting_rating_value")) {
+			setAveragePostingRatingValue((float) obj.get("average_posting_rating_value"));
+			internalJson.put("average_posting_rating_value", getAveragePostingRatingValue());
+		}
+		if (obj.containsKey("average_posting_ratio")) {
+			setAveragePostingRatio((float) obj.get("average_posting_ratio"));
+			internalJson.put("average_posting_ratio", getAveragePostingRatio());
+		}
 	}
 	
 	
 	private String toJsonString(){
-		/*
-		JSONObject obj = new JSONObject();
-		obj.put("id", getId());
-		obj.put("username", getUsername());
-		obj.put("screen_name", getScreenName());
-		obj.put("lang", getLang());
-		
-		obj.put("followers_count", getFollowersCount());
-		obj.put("friends_count", getFriendsCount());
-		obj.put("postings_count", getPostingsCount());
-		obj.put("favorites_count", getFavoritesCount());
-		obj.put("lists_and_groups_count", getListsAndGroupsCount());
-		
-		obj.put("average_rating", getAverageRatingValue());
-		obj.put("average_posting_rating", getAveragePostingRatingValue());
-		obj.put("average_posting_rating", getAveragePostingRating());
-		
-		obj.put("geoLocation", getGeoLocation());
-		
-		return obj.toJSONString();
-		*/
 		return internalJson.toJSONString();
 	}
 	
-	private String toMyJsonString(){
-		JSONObject obj = new JSONObject();
-		obj.put("sn_id", getSnId());
-		obj.put("id", getId());
-		obj.put("username", getUsername());
-		obj.put("screen_name", getScreenName());
-		obj.put("lang", getLang());
-		/*
-		obj.put("followers_count", getFollowersCount());
-		obj.put("friends_count", getFriendsCount());
-		obj.put("postings_count", getPostingsCount());
-		obj.put("favorites_count", getFavoritesCount());
-		obj.put("lists_and_groups_count", getListsAndGroupsCount());
-		
-		obj.put("average_rating", getAverageRatingValue());
-		obj.put("average_posting_rating", getAveragePostingRatingValue());
-		obj.put("average_posting_rating", getAveragePostingRating());
-		
-		obj.put("geoLocation", getGeoLocation());
-		*/
-		return obj.toJSONString();
-		
-	}
-	
-	
-	/**
-	 * @description	creates a string which can be passed to the neo4j cypher engine 
-	 * @return		cypher string
-	 */
-	public String createCypher(){
-		return "\""+gnt.toString()+"\" "+toMyJsonString();
-	}
 	
 	// getter and setter
 	public JSONObject getJson() {return this.internalJson;}
@@ -133,10 +113,10 @@ public class GraphUserData implements ISncDataObject{
 	public void setScreenName(String screenName) {this.screen_name = screenName;}
 	
 	public String getLang() {return lang;}
-	public void setLang(String lang) {this.lang = lang;}
+	public void setLang(String lang) {this.lang = lang; }
 	
 	public String getGeoLocation() {return geoLocation;}
-	public void setGeoLocation(String geoLocation) {this.geoLocation = geoLocation;}
+	public void setGeoLocation(String geoLocation) {this.geoLocation = geoLocation; }
 	
 	public long getFollowersCount() {return followers_count;}
 	public void setFollowersCount(long followersCount) {this.followers_count = followersCount;}
@@ -148,13 +128,13 @@ public class GraphUserData implements ISncDataObject{
 	public void setPostingsCount(long postingsCount) {this.postings_count = postingsCount;}
 	
 	public float getAverageRatingValue() {return average_rating_value;}
-	public void setAverageRatingValue(float average_rating_value) {this.average_rating_value = average_rating_value;}
+	public void setAverageRatingValue(float averageRatingValue) {this.average_rating_value = averageRatingValue;}
 	
 	public float getAveragePostingRatingValue() {return average_posting_rating_value;}
-	public void setAveragePostingRatingValue(float average_posting_rating_value) {this.average_posting_rating_value = average_posting_rating_value;}
+	public void setAveragePostingRatingValue(float averagePostingRatingValue) {this.average_posting_rating_value = averagePostingRatingValue;}
 	
-	public float getAveragePostingRating() {return average_posting_ratio;}
-	public void setAveragePostingRating(float average_posting_ratio) {this.average_posting_ratio = average_posting_ratio;}
+	public float getAveragePostingRatio() {return average_posting_ratio;}
+	public void setAveragePostingRatio(float averagePostingRatio) {this.average_posting_ratio = averagePostingRatio;}
 	
 	public long getListsAndGroupsCount() {return lists_and_groups_count;}
 	public void setListsAndGroupsCount(long listsAndGroupsCount) {this.lists_and_groups_count = listsAndGroupsCount;}

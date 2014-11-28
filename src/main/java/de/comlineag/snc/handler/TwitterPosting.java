@@ -4,7 +4,6 @@ import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.data.TwitterPostingData;
 import de.comlineag.snc.data.TwitterUserData;
 
@@ -29,6 +28,29 @@ import de.comlineag.snc.data.TwitterUserData;
  *              the user, domain, customer, social network and keyword, to be passed 
  *              along in one json structure.
  *              
+ *              The data type facebook posting consists of these elements
+ *	            	sn_id					String
+ *					id						String 
+ *					created_at				String
+ *					source					String
+ *            		lang					String 
+ *					text					String
+ *					raw_text				String
+ *					subject					String
+ *					teaser					String
+ *					source					String
+ *            		truncated				Boolean 
+ *            		in_reply_to_status_id	Long
+ *            		in_reply_to_user_id		Long 
+ *            		in_reply_to_screen_name	String
+ *            		geoLocation				List 
+ *            		user_mentions			List
+ *            		USER					embedded UserData object
+ *            		DOMAIN					embedded domain of interest object
+ *            		CUSTOMER				embedded customer object
+ *            		SOCIALNETWORK			embedded social network object
+ *            		KEYWORD					embedded object with list of keywords
+ *            
  * @param <TwitterPosting>
  * 
  * @changelog	0.1 (Magnus)		class created
@@ -38,14 +60,11 @@ import de.comlineag.snc.data.TwitterUserData;
  */
 
 public class TwitterPosting extends GenericDataManager<TwitterPostingData> {
-	// this holds a reference to the runtime configuration
-	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	private TwitterPostingData data;
 	
 	public TwitterPosting(JSONObject jsonObject) {
-		// first extract ONLY the twitter-posting from the bigger json object
 		data = new TwitterPostingData(jsonObject);
 	}
 
@@ -72,11 +91,6 @@ public class TwitterPosting extends GenericDataManager<TwitterPostingData> {
 		}
 	}
 	
-	public JSONObject getJson(){
-		return(data.getJson());
-	}
-	
-	public void addEmbeddedUserData(TwitterUserData userData){
-		data.setUserData(userData);
-	}
+	public JSONObject getJson(){return(data.getJson());}
+	public void addEmbeddedUserData(TwitterUserData userData){ data.setUserData(userData);}
 }

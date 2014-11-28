@@ -620,6 +620,7 @@
 					</dnsdomain>
 				</constraint>
 				<constraint>
+					<!-- these work as seeds to the webcrawler -->
 					<site>
 						<type>String</type>
 						<value>http://www.wallstreet-online.de</value>

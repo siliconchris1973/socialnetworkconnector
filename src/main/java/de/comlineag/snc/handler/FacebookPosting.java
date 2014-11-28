@@ -1,6 +1,8 @@
 package de.comlineag.snc.handler;
 
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.comlineag.snc.data.FacebookPostingData;
 import de.comlineag.snc.data.FacebookUserData;
@@ -8,9 +10,9 @@ import de.comlineag.snc.data.FacebookUserData;
 /**
  * 
  * @author 		Christian Guenther
- * @category 	Parser
- * @version		0.2
- * @status		not implemented
+ * @category 	Handler
+ * @version		0.3				- 28.11.2014
+ * @status		productive
  * 
  * @description Implementation of the facebook posting manager - extends
  *              GenericDataManager This handler is used to save a new post or
@@ -27,58 +29,68 @@ import de.comlineag.snc.data.FacebookUserData;
  *              along in one json structure.
  * 
  * 				The data type facebook posting consists of these elements
- *	            	id						Long 
- *					created_at				String 
- *					text					String 
+ *	            	sn_id					String
+ *					id						String 
+ *					created_at				String
+ *					source					String
+ *            		lang					String 
+ *					text					String
+ *					raw_text				String
+ *					subject					String
+ *					teaser					String
  *					source					String
  *            		truncated				Boolean 
  *            		in_reply_to_status_id	Long
  *            		in_reply_to_user_id		Long 
  *            		in_reply_to_screen_name	String
- *            		coordinates				List 
  *            		geoLocation				List 
- *            		lang					String 
- *            		hashtags				List
- *            		symbols					List
  *            		user_mentions			List
  *            		USER					embedded UserData object
+ *            		DOMAIN					embedded domain of interest object
+ *            		CUSTOMER				embedded customer object
+ *            		SOCIALNETWORK			embedded social network object
+ *            		KEYWORD					embedded object with list of keywords
  * 
  * @param <FacebookPosting>
  * 
  * @changelog	0.1 (Chris)		copy from TwitterPosting
  * 				0.2				added getJson() and addEmbeddedUserData method
+ * 				0.3				added call to graph database
  * 
- * TODO implement real code
  */
 
 public class FacebookPosting extends GenericDataManager<FacebookPostingData> {
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	private FacebookPostingData data;
-	// this holds a reference to the runtime configuration
-	//private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
-	//private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
-	/**
-	 * Baut aus dem JSON String ein FacebookPostingData Objekt
-	 * 
-	 * @param jsonObject
-	 */
 	public FacebookPosting(JSONObject jsonObject) {
 		data = new FacebookPostingData(jsonObject);
-		
-		// TODO add graph db call
 	}
 
 	@Override
 	public void save() {
-		persistenceManager.savePosts(data);
+		try {
+			persistenceManager.savePosts(data);
+		} catch (Exception e) {
+			logger.error("ERROR :: during call of persistence layer {}", e.getLocalizedMessage());
+			e.printStackTrace();
+		}
 	}
 	
-	public JSONObject getJson(){
-		return(data.getJson());
+	public void saveInGraph(){
+		try {
+			JSONObject bigJson=new JSONObject(data.getJson());
+			logger.trace("this is the big json with all entities {}", bigJson.toJSONString());
+			
+			logger.info("calling graph database for {}-{} ", bigJson.get("sn_id").toString(), bigJson.get("id").toString());
+			graphPersistenceManager.saveNode(bigJson);
+		} catch (Exception e) {
+			logger.error("ERROR :: during call of graph-db layer {}", e.getLocalizedMessage());
+			e.printStackTrace();
+		}
 	}
 	
-	public void addEmbeddedUserData(FacebookUserData userData){
-		data.setUserData(userData);
-	}
+	public JSONObject getJson(){return(data.getJson());}
+	public void addEmbeddedUserData(FacebookUserData userData){data.setUserData(userData);}
 }

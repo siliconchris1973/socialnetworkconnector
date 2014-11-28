@@ -1,5 +1,6 @@
 package de.comlineag.snc.crawler;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -90,7 +91,6 @@ public class THEWebCrawler extends WebCrawler {
 	//private final String constraintLocaText = rtc.getStringValue("ConstraintLocationText", "XmlLayout");
 	private final String rtcDomainKey = rtc.getStringValue("DomainIdentifier", "XmlLayout");
 	private final String rtcCustomerKey = rtc.getStringValue("CustomerIdentifier", "XmlLayout");
-	
 	
 	private int trackedPages = 0;				// is returned on end of crawler run
 	private String userName = null;				// for authentication

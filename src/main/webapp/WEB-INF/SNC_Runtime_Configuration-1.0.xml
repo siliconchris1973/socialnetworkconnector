@@ -329,7 +329,22 @@
 		 move the section, update the entry CrawlerConfigFilePath to point to the new file.
 	-->
 	<configuration scope="crawler">
-		<!-- SIMPLE AND MULTI WEB CRAWLER SPECIFIC SETTINGS -->
+		<!-- WEB CRAWLER SETTINGS - WEB CRAWLER SETTINGS - WEB CRAWLER SETTINGS -->
+		
+		<!-- WcClearFinishedPagesOnStartup - shall the list of finished pages be wiped before start.
+			 If set to true, the directory containing the list of already crawled pages is wiped
+			 before the crawler starts. In effect the crawler will start it's crawl with all given
+			 seed pages and will possibly crawl already fetched pages again. 
+			 Consequently, if set to false, the crawler will only crawl those pages, that where not 
+			 finished when called last time. At the moment it is advisable to leave ths to true.
+			 This setting only affects THEWebCrawler and not the SimpleWebCrawler -->
+		<option>
+			<name>WcClearFinishedPagesOnStartup</name>
+			<type>boolean</type>
+			<value>true</value>
+			<constant>WC_CLEAR_FINISHED_PAGES_ON_STARTUP</constant>
+		</option>
+		
 		<!-- maxPageLimit - how many pages to download at all.
 			 This Runtime configuration acts as a safety margin to not exceed a certain maximum 
 			 number of pages to download per run. It overrides the value of max_pages in the crawler 
@@ -443,6 +458,8 @@
 			<constant>WC_ROBOT_DISALLOW_TEXT</constant>
 		</option>
 		
+		
+		<!-- TWITTER SPECIFIC SETTINGS - TWITTER SPECIFIC SETTINGS - TWITTER SPECIFIC SETTINGS -->
 		<!-- defines the maximum number of tweets to track per crawler run
 			 if this is set to -1 then the crawler will track unlimited tweets -->
 		<option>
