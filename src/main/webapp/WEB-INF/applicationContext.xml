@@ -577,9 +577,9 @@
 	     In that case you activate this persistence manager, set activateGraphDb in 
 	     SNC_Runtime_Configuration-<version>.xml to true choose your preferred graph db 
 	     engine below. -->
-	<!-- -->
+	<!-- 
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.NullPersistence" /> 
-	
+	-->
 	
 	<!-- F I L E S Y S T E M    J S O N    P E R S I S T E N C E    (WORKS)  
 	     This one simply stores all posts and users as json files on disk. It is mainly 
@@ -590,9 +590,9 @@
 	     If you activate this storage manager, you should DEFINATELY turn off the FsCrawler 
 	     in the Job control section, otherwise your system will end up storing and restoring
 	     the same objects as json files with no end in sight -->
-	<!-- 
+	<!-- -->
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.JsonFilePersistence" /> 
-	-->
+	
 	
 	<!-- H A N A    P E R S I S T E N C E    (WORKS) 
 		 The SAP HANA InMemory DB persistence can be used via JDBC or OData. As such,

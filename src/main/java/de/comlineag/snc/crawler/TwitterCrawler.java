@@ -68,7 +68,7 @@ import de.comlineag.snc.parser.TwitterParser;
  *				0.9d				added support for runState configuration, to check if the crawler shall actually run
  *				0.9e				added time measure and new loop to track unlimited messages
  *				0.9f				deactivated loop to track unlimited messages
- *				0.9g				added possibility to reject tweets if the contain any of the blocked terms
+ *				0.9g				added possibility to reject tweets if they contain any of the blocked terms
  *
  * TODO check if we can use getResponseBodyAsStrema to fix the following warning: Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.
  * TODO implement possibility have black-list of combinations not to track: e.g. Depot YES / Home Depot NO 

@@ -481,6 +481,14 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							// and now pass the web page on to the persistence layer
 							logger.info("calling persistence layer to save the page " + url.toString());
 							post.save();
+							
+							// next call the graph engine and store data also in the external graph
+							// please note that we do not need to do this for the user as well, as 
+							// the graph persistence layer uses the embedded user object within the
+							// post object
+							if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+								post.saveInGraph();
+							}
 						}
 						/* 
 						// TODO find out how to use executor Service for multi threaded persistence call
@@ -506,6 +514,14 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 									@Override
 									public void run() {
 											postT.save();
+											
+											// next call the graph engine and store data also in the external graph
+											// please note that we do not need to do this for the user as well, as 
+											// the graph persistence layer uses the embedded user object within the
+											// post object
+											if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+												postT.saveInGraph();
+											}
 									}
 								}).start();
 								
@@ -513,6 +529,14 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 								// otherwise just call it sequentially
 								WebPosting post = postings.get(ii);
 								post.save();
+								
+								// next call the graph engine and store data also in the external graph
+								// please note that we do not need to do this for the user as well, as 
+								// the graph persistence layer uses the embedded user object within the
+								// post object
+								if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+									post.saveInGraph();
+								}
 							}
 						}
 						 */

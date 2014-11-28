@@ -335,11 +335,27 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 											@Override
 											public void run() {
 												litPost.save();
+												
+												// next call the graph engine and store data also in the external graph
+												// please note that we do not need to do this for the user as well, as 
+												// the graph persistence layer uses the embedded user object within the
+												// post object
+												if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+													litPost.saveInGraph();
+												}
 											}
 										}).start();
 									} else {
 										// otherwise just call it sequentially
 										new LithiumPosting(messageResponse).save();
+										
+										// next call the graph engine and store data also in the external graph
+										// please note that we do not need to do this for the user as well, as 
+										// the graph persistence layer uses the embedded user object within the
+										// post object
+										if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+											new LithiumPosting(messageResponse).saveInGraph();
+										}
 									}
 									
 									

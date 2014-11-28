@@ -279,6 +279,14 @@ public class THEWebCrawler extends WebCrawler {
 						// and now pass the web page on to the persistence layer
 						logger.info("calling persistence layer to save the page ");
 						postData.save();
+						
+						// next call the graph engine and store data also in the external graph
+						// please note that we do not need to do this for the user as well, as 
+						// the graph persistence layer uses the embedded user object within the
+						// post object
+						if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+							postData.saveInGraph();
+						}
 					}
 				}
 			}
