@@ -143,7 +143,7 @@
 			<props>
 				<!-- ThreadPool -->
 				<prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
-				<prop key="org.quartz.threadPool.threadCount">3</prop>
+				<prop key="org.quartz.threadPool.threadCount">10</prop>
 			</props>
 		</property>
 		<property name="triggers">

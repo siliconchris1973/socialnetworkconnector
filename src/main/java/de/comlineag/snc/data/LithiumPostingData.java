@@ -411,11 +411,11 @@ public final class LithiumPostingData extends PostingData implements ISncDataObj
 		id = "0";
 		setObjectStatus("new");
 		
+		// set the internal fields and embedded json objects for domain, customer and social network
 		setSnId(SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM"));
 		setDomain(new CrawlerConfiguration<String>().getDomain());
 		setCustomer(new CrawlerConfiguration<String>().getCustomer());
 		
-
 		// create the embedded social network json
 		JSONObject tJson = new JSONObject();
 		tJson.put("sn_id", sn_id);
@@ -430,13 +430,15 @@ public final class LithiumPostingData extends PostingData implements ISncDataObj
 		tJson = new JSONObject();
 		tJson.put("name", domain);
 		DomainData domData = new DomainData(tJson);
+		logger.trace("storing created domain object {} as embedded object", domData.toString());
 		setDomainData(domData);
 		
 		// create the embedded customer json
 		tJson = new JSONObject();
 		tJson.put("name", customer);
-		CustomerData cusData = new CustomerData(tJson);
-		setCustomerData(cusData);
+		CustomerData subData = new CustomerData(tJson);
+		logger.trace("storing created customer object {} as embedded object", subData.toString());
+		setCustomerData(subData);
 		
 		
 		text = null;

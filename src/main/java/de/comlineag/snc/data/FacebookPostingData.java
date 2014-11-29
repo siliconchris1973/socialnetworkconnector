@@ -234,10 +234,10 @@ public final class FacebookPostingData extends PostingData implements ISncDataOb
 		id = "0";
 		setObjectStatus("new");
 		
+		// set the internal fields and embedded json objects for domain, customer and social network
 		setSnId(SocialNetworks.getSocialNetworkConfigElement("code", "FACEBOOK"));
 		setDomain(new CrawlerConfiguration<String>().getDomain());
 		setCustomer(new CrawlerConfiguration<String>().getCustomer());
-		
 		
 		// create the embedded social network json
 		JSONObject tJson = new JSONObject();
@@ -253,13 +253,15 @@ public final class FacebookPostingData extends PostingData implements ISncDataOb
 		tJson = new JSONObject();
 		tJson.put("name", domain);
 		DomainData domData = new DomainData(tJson);
+		logger.trace("storing created domain object {} as embedded object", domData.toString());
 		setDomainData(domData);
 		
 		// create the embedded customer json
 		tJson = new JSONObject();
 		tJson.put("name", customer);
-		CustomerData cusData = new CustomerData(tJson);
-		setCustomerData(cusData);
+		CustomerData subData = new CustomerData(tJson);
+		logger.trace("storing created customer object {} as embedded object", subData.toString());
+		setCustomerData(subData);
 		
 		
 		text = null;

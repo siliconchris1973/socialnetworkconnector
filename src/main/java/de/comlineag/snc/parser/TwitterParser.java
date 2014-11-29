@@ -73,7 +73,6 @@ public final class TwitterParser extends GenericParser {
 			// now we add the extracted user-data object back in the posting data object
 			// so that later, in the call to the graph persistence manager, we can get 
 			// post and user-objects from one combined json structure
-			// FIXME this is the wrong location to add the object, when the application reaches this line, the data was already added to the graph 
 			logger.trace("about to add the user object to the post object \n    {}", user.getJson());
 			posting.addEmbeddedUserData(user.getUserData());
 			

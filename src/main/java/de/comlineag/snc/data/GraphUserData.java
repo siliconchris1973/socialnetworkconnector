@@ -38,56 +38,62 @@ public class GraphUserData implements ISncDataObject{
 	protected JSONObject internalJson = new JSONObject();
 	
 	public GraphUserData(JSONObject obj){
-		setSnId(obj.get("sn_id").toString());
-		internalJson.put("sn_id", getSnId());
-		
-		setId(obj.get("id").toString());
-		internalJson.put("id", getId());
-		
-		setUsername(obj.get("username").toString());
-		internalJson.put("username", getUsername());
-		
-		setScreenName(obj.get("screen_name").toString());
-		internalJson.put("screen_name", getScreenName());
-		
-		setLang(obj.get("lang").toString());
-		internalJson.put("lang", getLang());
-		
-		if (obj.containsKey("geoLocation")) {
-			setGeoLocation((String) obj.get("geoLocation"));
-			internalJson.put("geoLocation", getGeoLocation());
-		}
-		if (obj.containsKey("followers_count")) {
-			setFollowersCount((Long) obj.get("followers_count"));
-			internalJson.put("followers_count", getFollowersCount());
-		}
-		if (obj.containsKey("friends_count")) {
-			setFriendsCount((Long) obj.get("friends_count"));
-			internalJson.put("friends_count", getFriendsCount());
-		}
-		if (obj.containsKey("postings_count")) {
-			setPostingsCount((Long) obj.get("postings_count"));
-			internalJson.put("postings_count", getPostingsCount());
-		}
-		if (obj.containsKey("favorites_count")) {
-			setFavoritesCount((Long) obj.get("favorites_count"));
-			internalJson.put("favorites_count", getFavoritesCount());
-		}
-		if (obj.containsKey("lists_and_groups_count")) {
-			setListsAndGroupsCount((Long) obj.get("lists_and_groups_count"));
-			internalJson.put("lists_and_groups_count", getListsAndGroupsCount());
-		}
-		if (obj.containsKey("average_rating_value")) {
-			setAverageRatingValue((float) obj.get("average_rating_value"));
-			internalJson.put("average_rating_value", getAverageRatingValue());
-		}
-		if (obj.containsKey("average_posting_rating_value")) {
-			setAveragePostingRatingValue((float) obj.get("average_posting_rating_value"));
-			internalJson.put("average_posting_rating_value", getAveragePostingRatingValue());
-		}
-		if (obj.containsKey("average_posting_ratio")) {
-			setAveragePostingRatio((float) obj.get("average_posting_ratio"));
-			internalJson.put("average_posting_ratio", getAveragePostingRatio());
+		try {
+			setSnId(obj.get("sn_id").toString());
+			internalJson.put("sn_id", getSnId());
+			
+			setId(obj.get("id").toString());
+			internalJson.put("id", getId());
+			
+			setUsername(obj.get("username").toString());
+			internalJson.put("username", getUsername());
+			
+			if (obj.containsKey("screen_name")) {
+				setScreenName(obj.get("screen_name").toString());
+				internalJson.put("screen_name", getScreenName());
+			}
+			if (obj.containsKey("lang")) {
+				setLang(obj.get("lang").toString());
+				internalJson.put("lang", getLang());
+			}
+			if (obj.containsKey("geoLocation")) {
+				setGeoLocation((String) obj.get("geoLocation"));
+				internalJson.put("geoLocation", getGeoLocation());
+			}
+			if (obj.containsKey("followers_count")) {
+				setFollowersCount((Long) obj.get("followers_count"));
+				internalJson.put("followers_count", getFollowersCount());
+			}
+			if (obj.containsKey("friends_count")) {
+				setFriendsCount((Long) obj.get("friends_count"));
+				internalJson.put("friends_count", getFriendsCount());
+			}
+			if (obj.containsKey("postings_count")) {
+				setPostingsCount((Long) obj.get("postings_count"));
+				internalJson.put("postings_count", getPostingsCount());
+			}
+			if (obj.containsKey("favorites_count")) {
+				setFavoritesCount((Long) obj.get("favorites_count"));
+				internalJson.put("favorites_count", getFavoritesCount());
+			}
+			if (obj.containsKey("lists_and_groups_count")) {
+				setListsAndGroupsCount((Long) obj.get("lists_and_groups_count"));
+				internalJson.put("lists_and_groups_count", getListsAndGroupsCount());
+			}
+			if (obj.containsKey("average_rating_value")) {
+				setAverageRatingValue((float) obj.get("average_rating_value"));
+				internalJson.put("average_rating_value", getAverageRatingValue());
+			}
+			if (obj.containsKey("average_posting_rating_value")) {
+				setAveragePostingRatingValue((float) obj.get("average_posting_rating_value"));
+				internalJson.put("average_posting_rating_value", getAveragePostingRatingValue());
+			}
+			if (obj.containsKey("average_posting_ratio")) {
+				setAveragePostingRatio((float) obj.get("average_posting_ratio"));
+				internalJson.put("average_posting_ratio", getAveragePostingRatio());
+			}
+		} catch (Exception e){
+			System.out.println("something went wrong during GraphUserData initializing" + e.getLocalizedMessage());
 		}
 	}
 	

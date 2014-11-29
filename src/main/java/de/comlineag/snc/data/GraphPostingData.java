@@ -65,24 +65,31 @@ public class GraphPostingData implements ISncDataObject{
 		setSnId(obj.get("sn_id").toString());
 		internalJson.put("sn_id", getSnId());
 		
-		setTeaser(obj.get("teaser").toString());
-		internalJson.put("teaser", getTeaser());
+		if (obj.containsKey("teaser")){
+			setTeaser(obj.get("teaser").toString());
+			internalJson.put("teaser", getTeaser());
+		}
+		if (obj.containsKey("subject")){
+			setSubject(obj.get("subject").toString());
+			internalJson.put("subject", getSubject());
+		}
 		
-		setSubject(obj.get("subject").toString());
-		internalJson.put("subject", getSubject());
+		if (obj.containsKey("lang")){
+			setLang(obj.get("lang").toString());
+			internalJson.put("lang", getLang());
+		}
 		
-		setLang(obj.get("lang").toString());
-		internalJson.put("lang", getLang());
-		
-		setTruncated((boolean) obj.get("truncated"));
-		internalJson.put("truncated", getTruncated());
-		
+		if (obj.containsKey("truncated")){
+			setTruncated((boolean) obj.get("truncated"));
+			internalJson.put("truncated", getTruncated());
+		}
 		//setTimestamp((LocalDateTime) obj.get(timestamp));
 		//internalJson.put("timestamp", getTimestamp());
 		
-		setText(obj.get("text").toString());
-		internalJson.put("text", getText());
-		
+		if (obj.containsKey("text")){
+			setText(obj.get("text").toString());
+			internalJson.put("text", getText());
+		}
 		
 		/*
 		if (obj.containsKey("view_count")){

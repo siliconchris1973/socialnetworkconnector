@@ -276,6 +276,12 @@ public class THEWebCrawler extends WebCrawler {
 						logger.info("calling persistence layer to save the user ");
 						userData.save();
 						
+						// now we add the extracted user-data object back in the posting data object
+						// so that later, in the call to the graph persistence manager, we can get 
+						// post and user-objects from one combined json structure
+						logger.trace("about to add the user object to the post object \n    {}", userData.getJson());
+						postData.addEmbeddedUserData(userData.getUserData());
+						
 						// and now pass the web page on to the persistence layer
 						logger.info("calling persistence layer to save the page ");
 						postData.save();

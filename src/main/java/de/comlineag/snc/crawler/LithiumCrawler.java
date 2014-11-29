@@ -323,44 +323,14 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 								
 								logger.info("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
 								
+													
 								JSONObject messageResponse = SendObjectRequest(messageRef, REST_API_URL, LithiumConstants.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
 								if (messageResponse != null) {
-									// first save the message
-									if (rtcPersistenceThreading){
-										// execute persistence layer in a new thread, so that it does NOT block the crawler
-										logger.trace("execute persistence layer in a new thread...");
-										final LithiumPosting litPost = new LithiumPosting(messageResponse);
-										new Thread(new Runnable() {
-											
-											@Override
-											public void run() {
-												litPost.save();
-												
-												// next call the graph engine and store data also in the external graph
-												// please note that we do not need to do this for the user as well, as 
-												// the graph persistence layer uses the embedded user object within the
-												// post object
-												if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
-													litPost.saveInGraph();
-												}
-											}
-										}).start();
-									} else {
-										// otherwise just call it sequentially
-										new LithiumPosting(messageResponse).save();
-										
-										// next call the graph engine and store data also in the external graph
-										// please note that we do not need to do this for the user as well, as 
-										// the graph persistence layer uses the embedded user object within the
-										// post object
-										if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
-											new LithiumPosting(messageResponse).saveInGraph();
-										}
-									}
+									// create a lithium posting object from the message response from Lithium
+									LithiumPosting litPost = new LithiumPosting(messageResponse);
 									
-									
-									// now get the user from REST url and save it also
 									try {
+										// retrieve the user from REST url and save it
 										JSONParser parser = new JSONParser();
 										Object obj = parser.parse(messageResponse.toString());
 										JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
@@ -371,10 +341,49 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 										String userRef = (String) ((JSONObject)authorObj).get(LithiumConstants.JSON_AUTHOR_REFERENCE);
 										JSONObject userResponse = SendObjectRequest(userRef, REST_API_URL, LithiumConstants.JSON_USER_OBJECT_IDENTIFIER);
 										
-										new LithiumUser(userResponse).save();
+										LithiumUser litUser = new LithiumUser(userResponse);
+										litUser.save();
 										
+										
+										// now add the extracted user-data object back in the posting data object
+										// so that later, in the call to the graph persistence manager, we can get 
+										// post and user-objects from one combined json structure
+										logger.trace("about to add the user object to the post object \n    {}", litUser.getJson());
+										litPost.addEmbeddedUserData(litUser.getUserData());
+										
+										// next save the message
+										if (rtcPersistenceThreading){
+											final LithiumPosting litTPost = new LithiumPosting(messageResponse);
+											// execute persistence layer in a new thread, so that it does NOT block the crawler
+											logger.trace("execute persistence layer in a new thread...");
+											new Thread(new Runnable() {
+												@Override
+												public void run() {
+													litTPost.save();
+													
+													// next call the graph engine and store data also in the external graph
+													// please note that we do not need to do this for the user as well, as 
+													// the graph persistence layer uses the embedded user object within the
+													// post object
+													if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+														litTPost.saveInGraph();
+													}
+												}
+											}).start();
+										} else {
+											// otherwise just call it sequentially
+											litPost.save();
+											
+											// next call the graph engine and store data also in the external graph
+											// please note that we do not need to do this for the user as well, as 
+											// the graph persistence layer uses the embedded user object within the
+											// post object
+											if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+												litPost.saveInGraph();
+											}
+										}
 									} catch (ParseException e) {
-										logger.error("EXCEPTION :: could not retrieve user from message object " + e.getLocalizedMessage());
+										logger.error("EXCEPTION :: error " + e.getLocalizedMessage());
 										e.printStackTrace();
 									} // try catch
 								} // if message response is != null

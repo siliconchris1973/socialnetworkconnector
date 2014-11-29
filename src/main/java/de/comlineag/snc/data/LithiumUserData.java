@@ -186,6 +186,6 @@ public final class LithiumUserData extends UserData implements ISncDataObject{
 		postings_count 			= 0;
 		favorites_count 		= 0;
 		lists_and_groups_count	= 0;
-		lang 					= "de";
+		lang 					= "DE";
 	}
 }
