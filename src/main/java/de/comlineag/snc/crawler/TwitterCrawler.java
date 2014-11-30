@@ -278,6 +278,11 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		
 								// each tweet is now passed to the parser TwitterParser
 								post.process(msg);
+								
+								//
+								// TODO move save-blog from TwitterParser to this place 
+								// 
+								
 							} else {
 								if (rtcWarnOnRejectedActions)
 									logger.debug("message rejected because it cantains one of the blocked terms");
