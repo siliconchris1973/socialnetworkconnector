@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -35,6 +36,10 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.ConfigurationConstants;
 import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.constants.TwitterConstants;
+import de.comlineag.snc.handler.TwitterPosting;
+import de.comlineag.snc.handler.TwitterUser;
+import de.comlineag.snc.handler.WebPosting;
+import de.comlineag.snc.handler.WebUser;
 import de.comlineag.snc.parser.TwitterParser;
 
 /**
@@ -98,6 +103,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	
 	private final int rtcMaxTweetsPerRun = rtc.getIntValue("TwMaxTweetsPerCrawlerRun", "crawler");
 	private final boolean rtcWarnOnRejectedActions = rtc.getBooleanValue("WarnOnRejectedActions", "runtime");
+	private final boolean rtcPersistenceThreading = rtc.getBooleanValue("PersistenceThreadingEnabled", "runtime");
 	
 	
 	// Set up your blocking queues: Be sure to size these properly based on
@@ -131,6 +137,7 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		
 		int messageCount = 0;
 		int connectionTimeOut = 1000;
+		JSONArray messageArray = new JSONArray();
 		
 		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 		
@@ -276,8 +283,83 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 								logger.debug("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
 								//logger.trace("   content: " + msg );
 		
-								// each tweet is now passed to the parser TwitterParser
-								post.process(msg);
+								
+								boolean useArray = true;
+								if (useArray) {
+									ArrayList<TwitterPosting> postings = new ArrayList<TwitterPosting>();
+									// the tweets are now passed to the parser TwitterParser
+									// and decoded in a special way, embedding the user-object
+									postings = post.parseMessages(msg);
+									
+									logger.trace("trying to save " + postings.size() + " tweets");
+									for (int ii = 0; ii < postings.size(); ii++) {
+										
+										if (rtcPersistenceThreading){
+											// execute persistence layer in a new thread, so that it does NOT block the crawler
+											logger.trace("execute persistence layer in a new thread...");
+											final TwitterPosting postDataT = postings.get(ii);
+											final TwitterUser userDataT = new TwitterUser(postDataT.getUserAsJson());
+											
+											new Thread(new Runnable() {
+												
+												@Override
+												public void run() {
+													/* now we add the extracted user-data object back in the posting data object
+													// so that later, in the call to the graph persistence manager, we can get 
+													// post and user-objects from one combined json structure
+													logger.trace("about to add the user object to the post object \n    {}", userDataT.getJson());
+													postDataT.setUserObject(userDataT.getUserData());
+													*/
+													
+													logger.info("calling persistence layer to save the user ");
+													userDataT.save();
+													
+													// and now pass the web page on to the persistence layer
+													logger.info("calling persistence layer to save the page ");
+													postDataT.save();
+													
+													// next call the graph engine and store data also in the external graph
+													// please note that we do not need to do this for the user as well, as 
+													// the graph persistence layer uses the embedded user object within the
+													// post object
+													if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+														postDataT.saveInGraph();
+													}
+												}
+											}).start();
+											// otherwise just call it sequentially
+										} else {
+											TwitterPosting postData = postings.get(ii);
+											
+											// first get the user-data out of the WebPosting
+											TwitterUser userData = new TwitterUser(postData.getUserAsJson()); 
+											logger.info("calling persistence layer to save the user ");
+											userData.save();
+											
+											// now we add the extracted user-data object back in the posting data object
+											// so that later, in the call to the graph persistence manager, we can get 
+											// post and user-objects from one combined json structure
+											logger.trace("about to add the user object to the post object \n    {}", userData.getJson());
+											postData.setUserObject(userData.getUserData());
+											
+											// and now pass the web page on to the persistence layer
+											logger.info("calling persistence layer to save the page ");
+											postData.save();
+											
+											// next call the graph engine and store data also in the external graph
+											// please note that we do not need to do this for the user as well, as 
+											// the graph persistence layer uses the embedded user object within the
+											// post object
+											if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+												postData.saveInGraph();
+											}
+										}
+									}
+								} else {
+									// each tweet is now passed to the parser TwitterParser
+									post.process(msg);
+								}
+								
 								
 								//
 								// TODO move save-blog from TwitterParser to this place 

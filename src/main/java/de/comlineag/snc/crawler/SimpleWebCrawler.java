@@ -473,7 +473,7 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 							WebPosting post = postings.get(ii);
 							
 							// first get the user-data out of the WebPosting
-							WebUser userData = new WebUser(post.getUser()); 
+							WebUser userData = new WebUser(post.getUserAsJson()); 
 							logger.info("calling persistence layer to save the user " );
 							userData.save();
 							

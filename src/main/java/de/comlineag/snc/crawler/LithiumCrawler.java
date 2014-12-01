@@ -349,7 +349,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 										// so that later, in the call to the graph persistence manager, we can get 
 										// post and user-objects from one combined json structure
 										logger.trace("about to add the user object to the post object \n    {}", litUser.getJson());
-										litPost.addEmbeddedUserData(litUser.getUserData());
+										litPost.setUserObject(litUser.getUserData());
 										
 										// next save the message
 										if (rtcPersistenceThreading){

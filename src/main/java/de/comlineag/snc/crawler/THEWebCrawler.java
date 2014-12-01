@@ -26,6 +26,8 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SNCStatusCodes;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
+import de.comlineag.snc.handler.TwitterPosting;
+import de.comlineag.snc.handler.TwitterUser;
 import de.comlineag.snc.handler.WebPosting;
 import de.comlineag.snc.handler.WebUser;
 import de.comlineag.snc.parser.ParserControl;
@@ -91,6 +93,9 @@ public class THEWebCrawler extends WebCrawler {
 	//private final String constraintLocaText = rtc.getStringValue("ConstraintLocationText", "XmlLayout");
 	private final String rtcDomainKey = rtc.getStringValue("DomainIdentifier", "XmlLayout");
 	private final String rtcCustomerKey = rtc.getStringValue("CustomerIdentifier", "XmlLayout");
+	
+	private final boolean rtcPersistenceThreading = rtc.getBooleanValue("PersistenceThreadingEnabled", "runtime");
+	
 	
 	private int trackedPages = 0;				// is returned on end of crawler run
 	private String userName = null;				// for authentication
@@ -269,29 +274,67 @@ public class THEWebCrawler extends WebCrawler {
 					// invoke the persistence layer - should go to crawler
 					for (int ii = 0; ii < postings.size(); ii++) {
 						trackedPages++;
-						WebPosting postData = postings.get(ii);
-						
-						// first get the user-data out of the WebPosting
-						WebUser userData = new WebUser(postData.getUser()); 
-						logger.info("calling persistence layer to save the user ");
-						userData.save();
-						
-						// now we add the extracted user-data object back in the posting data object
-						// so that later, in the call to the graph persistence manager, we can get 
-						// post and user-objects from one combined json structure
-						logger.trace("about to add the user object to the post object \n    {}", userData.getJson());
-						postData.addEmbeddedUserData(userData.getUserData());
-						
-						// and now pass the web page on to the persistence layer
-						logger.info("calling persistence layer to save the page ");
-						postData.save();
-						
-						// next call the graph engine and store data also in the external graph
-						// please note that we do not need to do this for the user as well, as 
-						// the graph persistence layer uses the embedded user object within the
-						// post object
-						if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
-							postData.saveInGraph();
+						if (rtcPersistenceThreading){
+							// execute persistence layer in a new thread, so that it does NOT block the crawler
+							logger.trace("execute persistence layer in a new thread...");
+							final WebPosting postDataT = postings.get(ii);
+							final WebUser userDataT = new WebUser(postDataT.getUserAsJson());
+							
+							new Thread(new Runnable() {
+								
+								@Override
+								public void run() {
+									/* now we add the extracted user-data object back in the posting data object
+									// so that later, in the call to the graph persistence manager, we can get 
+									// post and user-objects from one combined json structure
+									logger.trace("about to add the user object to the post object \n    {}", userDataT.getJson());
+									postDataT.setUserObject(userDataT.getUserData());
+									*/
+									
+									logger.info("calling persistence layer to save the user ");
+									userDataT.save();
+									
+									// and now pass the web page on to the persistence layer
+									logger.info("calling persistence layer to save the page ");
+									postDataT.save();
+									
+									// next call the graph engine and store data also in the external graph
+									// please note that we do not need to do this for the user as well, as 
+									// the graph persistence layer uses the embedded user object within the
+									// post object
+									if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+										postDataT.saveInGraph();
+									}
+								}
+							}).start();
+							// otherwise just call it sequentially
+						} else {
+							WebPosting postData = postings.get(ii);
+							
+							// first get the user-data out of the WebPosting
+							WebUser userData = new WebUser(postData.getUserAsJson()); 
+							
+							/* now we add the extracted user-data object back in the posting data object
+							// so that later, in the call to the graph persistence manager, we can get 
+							// post and user-objects from one combined json structure
+							logger.trace("about to add the user object to the post object \n    {}", userData.getJson());
+							postData.setUserObject(userData.getUserData());
+							*/
+							
+							logger.info("calling persistence layer to save the user ");
+							userData.save();
+							
+							// and now pass the web page on to the persistence layer
+							logger.info("calling persistence layer to save the page ");
+							postData.save();
+							
+							// next call the graph engine and store data also in the external graph
+							// please note that we do not need to do this for the user as well, as 
+							// the graph persistence layer uses the embedded user object within the
+							// post object
+							if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+								postData.saveInGraph();
+							}
 						}
 					}
 				}

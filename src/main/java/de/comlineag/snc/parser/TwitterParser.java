@@ -77,7 +77,7 @@ public final class TwitterParser extends GenericParser {
 			// so that later, in the call to the graph persistence manager, we can get 
 			// post and user-objects from one combined json structure
 			logger.trace("about to add the user object to the post object \n    {}", user.getJson());
-			posting.addEmbeddedUserData(user.getUserData());
+			posting.setUserObject(user.getUserData());
 			
 			
 			// add posting to list
@@ -201,7 +201,7 @@ public final class TwitterParser extends GenericParser {
 			// so that later, in the call to the graph persistence manager, we can get 
 			// post and user-objects from one combined json structure
 			logger.trace("about to add the user object to the post object \n    {}", user.getJson());
-			posting.addEmbeddedUserData(user.getUserData());
+			posting.setUserObject(user.getUserData());
 			
 			
 			// add posting to list
@@ -221,7 +221,7 @@ public final class TwitterParser extends GenericParser {
 				JSONObject jsonReTUser = (JSONObject) jsonReTweeted.get("user");
 				TwitterUser reTuser = new TwitterUser(jsonReTUser);
 				logger.trace("about to add the user object to the post object \n    {}", reTuser.getJson());
-				reTposting.addEmbeddedUserData(reTuser.getUserData());
+				reTposting.setUserObject(reTuser.getUserData());
 				
 				postings.add(new TwitterPosting(jsonReTweeted));
 			}
