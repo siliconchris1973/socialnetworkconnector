@@ -4,6 +4,10 @@ import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.comlineag.snc.data.CustomerData;
+import de.comlineag.snc.data.DomainData;
+import de.comlineag.snc.data.SocialNetworkData;
+import de.comlineag.snc.data.TwitterUserData;
 import de.comlineag.snc.data.WebUserData;
 import de.comlineag.snc.data.WebPostingData;
 
@@ -94,7 +98,18 @@ public class WebPosting extends GenericDataManager<WebPostingData> {
 	}
 	
 	// introduced getUser method to get the embedded user object from the page object
-	public JSONObject getUser(){return(data.getUser());}
 	public JSONObject getJson(){return(data.getJson());}
-	public void addEmbeddedUserData(WebUserData userData){data.setUserData(userData);}
+	public JSONObject getUserAsJson(){return(data.getUserData().getJson());}
+	
+	public void setUserObject(WebUserData userData){ data.setUserData(userData);}
+	public WebUserData getUserObject(){return((WebUserData) data.getUserData());}
+	
+	public void setDomainObject(DomainData domData){ data.setDomainObject(domData);}
+	public DomainData getDomainObject(){return((DomainData) data.getDomainObject());}
+	
+	public void setCustomerObject(CustomerData subData){ data.setCustomerObject(subData);}
+	public CustomerData getCustomerObject(){return((CustomerData) data.getCustomerObject());}
+	
+	public void setSocialNetworkObject(SocialNetworkData socData){ data.setSocialNetworkObject(socData);}
+	public SocialNetworkData getSocialNetworkObject(){return((SocialNetworkData) data.getSocialNetworkObject());}
 }

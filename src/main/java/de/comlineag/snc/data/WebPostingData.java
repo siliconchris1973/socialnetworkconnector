@@ -1,5 +1,7 @@
 package de.comlineag.snc.data;
 
+import java.util.ArrayList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.json.simple.JSONObject;
@@ -55,7 +57,14 @@ import de.comlineag.snc.helper.DateTimeServices;
 public final class WebPostingData extends PostingData implements ISncDataObject{
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
-	JSONObject user = new JSONObject();
+	UserData user = new UserData();
+	DomainData domain = new DomainData();
+	CustomerData customer = new CustomerData();
+	SocialNetworkData socialNetwork = new SocialNetworkData();
+	
+	ArrayList<String> keywords = new ArrayList<String>();
+	
+	public WebPostingData(){}
 	
 	/**
 	 * Constructor, based on the JSONObject sent from Web Crawler the Data Object is prepared
@@ -125,9 +134,9 @@ public final class WebPostingData extends PostingData implements ISncDataObject{
 			setClient((String) jsonObject.get("source"));
 			
 			// User ID
-			JSONObject user = (JSONObject) jsonObject.get("USER");
-			setUser((JSONObject) user);
-			setUserId((String) user.get("id"));
+			JSONObject tempUsr = (JSONObject) jsonObject.get("USER");
+			user = new UserData(tempUsr);
+			setUserId((String) user.getId());
 			
 			logger.trace("the page object " + jsonObject.toString());
 			logger.trace("the user object " + user.toString());
@@ -215,7 +224,16 @@ public final class WebPostingData extends PostingData implements ISncDataObject{
 		mentions = null;
 	}
 	
-	// new methods to get and set the user object within the page object
-	public void setUser(JSONObject userJson){this.user = userJson;}
-	public JSONObject getUser(){return user;}
+	// new methods to get and set the user, domain, customer and social network object within the page object
+	public void setUserObject(UserData userJson){this.user = userJson;}
+	public UserData getUserObject(){return user;}
+	
+	public void setDomainObject(DomainData domJson){this.domain = domJson;}
+	public DomainData getDomainObject(){return domain;}
+	
+	public void setCustomerObject(CustomerData subJson){this.customer = subJson;}
+	public CustomerData getCustomerObject(){return customer;}
+	
+	public void setSocialNetworkObject(SocialNetworkData socJson){this.socialNetwork = socJson;}
+	public SocialNetworkData getSocialNetworkObject(){return socialNetwork;}
 }

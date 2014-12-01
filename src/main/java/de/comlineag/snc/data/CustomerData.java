@@ -30,6 +30,8 @@ public final class CustomerData implements ISncDataObject{
 	
 	protected JSONObject internalJson = new JSONObject();
 	
+	public CustomerData(){}
+	
 	public CustomerData(JSONObject obj){
 		if(obj.containsKey("name")){
 			if (obj.containsKey("id"))

@@ -29,6 +29,8 @@ public class DomainData implements ISncDataObject{
 	
 	protected JSONObject internalJson = new JSONObject();
 	
+	public DomainData(){}
+	
 	public DomainData(JSONObject obj){
 		if(obj.containsKey("name")){
 			if (obj.containsKey("id"))

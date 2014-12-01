@@ -258,6 +258,7 @@ public class PostingData implements ISncDataObject{
 	
 	// embedded user data
 	public UserData getUserData(){return userData;}
+	public String getUserDataAsJsonString(){return userData.toJsonString();}
 	public void setUserData(UserData userData){
 		//System.out.println("adding user object "+userData.toString()+" as embedded object");
 		this.userData = userData;
@@ -266,6 +267,7 @@ public class PostingData implements ISncDataObject{
 	
 	// embedded domain data
 	public DomainData getDomainData(){return domainData;}
+	public String getDomainDataAsJsonString(){return domainData.toJsonString();}
 	public void setDomainData(DomainData domainData){
 		//System.out.println("adding domain object "+domainData.toString()+" as embedded object");
 		this.domainData = domainData; 
@@ -274,6 +276,7 @@ public class PostingData implements ISncDataObject{
 	
 	// embedded customer data
 	public CustomerData getCustomerData(){return customerData;}
+	public String getCustomerDataAsJsonString(){return customerData.toJsonString();}
 	public void setCustomerData(CustomerData customerData){
 		//System.out.println("adding customer object "+customerData.toString()+" as embedded object");
 		this.customerData = customerData; 
@@ -282,6 +285,7 @@ public class PostingData implements ISncDataObject{
 	
 	// embedded social network data
 	public SocialNetworkData getSocialNetworkData(){return socialNetworkData;}
+	public String getSocialNetworkDataAsJsonString(){return socialNetworkData.toJsonString();}
 	public void setSocialNetworkData(SocialNetworkData socialNetworkData){
 		//System.out.println("adding socnet object "+socialNetworkData.toString()+" as embedded object");
 		this.socialNetworkData = socialNetworkData; 

@@ -43,6 +43,46 @@ public class UserData implements ISncDataObject{
 	
 	protected JSONObject internalJson;				// an internal json object containing all values
 	
+	public UserData(){}
+	
+	public UserData(JSONObject userData){
+		if (userData.containsKey("id"))
+			setId(userData.get("id").toString());
+		if (userData.containsKey("sn_id"))
+			setSnId(userData.get("sn_id").toString());
+		if (userData.containsKey("domain"))
+			setDomain(userData.get("domain").toString());
+		if (userData.containsKey("customer"))
+			setCustomer(userData.get("customer").toString());
+		if (userData.containsKey("username"))
+			setUsername(userData.get("username").toString());
+		if (userData.containsKey("screen_name"))
+			setScreenName(userData.get("screen_name").toString());
+		if (userData.containsKey("lang"))
+			setLang(userData.get("lang").toString());
+		if (userData.containsKey("geoLocation"))
+			setGeoLocation(userData.get("geoLocation").toString());
+		if (userData.containsKey("objectStatus"))
+			setObjectStatus(userData.get("ObjectStatus").toString());
+		
+		if (userData.containsKey("followers_count"))
+			setFollowersCount((Long)userData.get("followers_count"));
+		if (userData.containsKey("friends_count"))
+			setFriendsCount((Long)userData.get("friends_count"));
+		if (userData.containsKey("postings_count"))
+			setPostingsCount((Long)userData.get("postings_count"));
+		if (userData.containsKey("favorites_count"))
+			setFavoritesCount((Long)userData.get("favorites_count"));
+		if (userData.containsKey("lists_and_groups_count"))
+			setListsAndGroupsCount((Long)userData.get("lists_and_groups_count"));
+		
+		if (userData.containsKey("average_rating_value"))
+			setAverageRatingValue((Float)userData.get("average_rating_value"));
+		if (userData.containsKey("average_posting_rating_value"))
+			setAveragePostingRatingValue((Float)userData.get("average_posting_rating_value"));
+		if (userData.containsKey("average_posting_ratio"))
+			setAveragePostingRatio((Float)userData.get("average_posting_ratio"));
+	}
 	
 	public String getAllContent(){
 		String u = ""
@@ -62,14 +102,12 @@ public class UserData implements ISncDataObject{
 				+ "lists and groups count : " + getListsAndGroupsCount() + " / "
 				+ "average rating : " + getAverageRatingValue() + " / "
 				+ "average posting rating : " + getAveragePostingRatingValue() + " / "
-				+ "average posting rating : " + getAveragePostingRating();
+				+ "average posting rating : " + getAveragePostingRatio();
 		
 		return u;
 	}
 	
-	public String toJsonString(){
-		return internalJson.toJSONString();
-	}
+	public String toJsonString(){return internalJson.toJSONString();}
 	
 	// getter and setter
 	public JSONObject getJson(){return internalJson;}
@@ -113,8 +151,8 @@ public class UserData implements ISncDataObject{
 	public float getAveragePostingRatingValue() {return average_posting_rating_value;}
 	public void setAveragePostingRatingValue(float average_posting_rating_value) {this.average_posting_rating_value = average_posting_rating_value; internalJson.put("average_posting_rating_value", average_posting_rating_value);}
 	
-	public float getAveragePostingRating() {return average_posting_ratio;}
-	public void setAveragePostingRating(float average_posting_ratio) {this.average_posting_ratio = average_posting_ratio; internalJson.put("average_posting_ratio", average_posting_ratio);}
+	public float getAveragePostingRatio() {return average_posting_ratio;}
+	public void setAveragePostingRatio(float average_posting_ratio) {this.average_posting_ratio = average_posting_ratio; internalJson.put("average_posting_ratio", average_posting_ratio);}
 	
 	public long getListsAndGroupsCount() {return lists_and_groups_count;}
 	public void setListsAndGroupsCount(long listsAndGroupsCount) {this.lists_and_groups_count = listsAndGroupsCount; internalJson.put("lists_and_groups_count", listsAndGroupsCount);}

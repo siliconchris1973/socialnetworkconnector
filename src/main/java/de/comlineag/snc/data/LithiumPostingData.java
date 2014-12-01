@@ -1,5 +1,6 @@
 package de.comlineag.snc.data;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -166,8 +167,14 @@ import de.comlineag.snc.helper.DateTimeServices;
  */
 
 public final class LithiumPostingData extends PostingData implements ISncDataObject{
-	
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	
+	UserData user = new UserData();
+	DomainData domain = new DomainData();
+	CustomerData customer = new CustomerData();
+	SocialNetworkData socialNetwork = new SocialNetworkData();
+	
+	ArrayList<String> keywords = new ArrayList<String>();
 	
 	public LithiumPostingData(){}
 	
@@ -472,4 +479,17 @@ public final class LithiumPostingData extends PostingData implements ISncDataObj
 		symbols = null;
 		mentions = null;
 	}
+	
+	// new methods to get and set the user, domain, customer and social network object within the page object
+	public void setUserObject(UserData userJson){this.user = userJson;}
+	public UserData getUserObject(){return user;}
+	
+	public void setDomainObject(DomainData domJson){this.domain = domJson;}
+	public DomainData getDomainObject(){return domain;}
+	
+	public void setCustomerObject(CustomerData subJson){this.customer = subJson;}
+	public CustomerData getCustomerObject(){return customer;}
+	
+	public void setSocialNetworkObject(SocialNetworkData socJson){this.socialNetwork = socJson;}
+	public SocialNetworkData getSocialNetworkObject(){return socialNetwork;}
 }

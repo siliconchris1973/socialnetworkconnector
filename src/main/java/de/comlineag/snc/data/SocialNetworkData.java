@@ -31,6 +31,8 @@ public class SocialNetworkData implements ISncDataObject{
 	
 	protected JSONObject internalJson = new JSONObject();
 	
+	public SocialNetworkData(){}
+	
 	public SocialNetworkData(JSONObject obj){
 		logger.trace("constructing social network data with {}", obj.toString());
 		if(obj.containsKey("name") || obj.containsKey("sn_id")){

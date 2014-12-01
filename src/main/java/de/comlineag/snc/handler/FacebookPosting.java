@@ -4,8 +4,11 @@ import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.comlineag.snc.data.CustomerData;
+import de.comlineag.snc.data.DomainData;
 import de.comlineag.snc.data.FacebookPostingData;
 import de.comlineag.snc.data.FacebookUserData;
+import de.comlineag.snc.data.SocialNetworkData;
 
 /**
  * 
@@ -92,5 +95,17 @@ public class FacebookPosting extends GenericDataManager<FacebookPostingData> {
 	}
 	
 	public JSONObject getJson(){return(data.getJson());}
-	public void addEmbeddedUserData(FacebookUserData userData){data.setUserData(userData);}
+	public JSONObject getUserAsJson(){return(data.getUserData().getJson());}
+	
+	public void setUserObject(FacebookUserData userData){ data.setUserData(userData);}
+	public FacebookUserData getUserObject(){return((FacebookUserData) data.getUserData());}
+	
+	public void setDomainObject(DomainData domData){ data.setDomainObject(domData);}
+	public DomainData getDomainObject(){return((DomainData) data.getDomainObject());}
+	
+	public void setCustomerObject(CustomerData subData){ data.setCustomerObject(subData);}
+	public CustomerData getCustomerObject(){return((CustomerData) data.getCustomerObject());}
+	
+	public void setSocialNetworkObject(SocialNetworkData socData){ data.setSocialNetworkObject(socData);}
+	public SocialNetworkData getSocialNetworkObject(){return((SocialNetworkData) data.getSocialNetworkObject());}
 }

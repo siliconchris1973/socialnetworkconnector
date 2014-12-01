@@ -4,6 +4,9 @@ import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.comlineag.snc.data.CustomerData;
+import de.comlineag.snc.data.DomainData;
+import de.comlineag.snc.data.SocialNetworkData;
 import de.comlineag.snc.data.TwitterPostingData;
 import de.comlineag.snc.data.TwitterUserData;
 
@@ -11,7 +14,7 @@ import de.comlineag.snc.data.TwitterUserData;
  * 
  * @author 		Magnus Leinemann, Christian Günther
  * @category 	Handler
- * @version		0.3					- 19.11.2014
+ * @version		0.4					- 01.12.2014
  * @status		productive
  * 
  * @description Implementation of the twitter posting manager - extends
@@ -56,6 +59,7 @@ import de.comlineag.snc.data.TwitterUserData;
  * @changelog	0.1 (Magnus)		class created
  * 				0.2	(Chris)			added call to graph database
  * 				0.3					added getJson() and addEmbeddedUserData() method
+ * 				0.4					added getEmbeddedUserData() method
  * 
  */
 
@@ -92,5 +96,17 @@ public class TwitterPosting extends GenericDataManager<TwitterPostingData> {
 	}
 	
 	public JSONObject getJson(){return(data.getJson());}
-	public void addEmbeddedUserData(TwitterUserData userData){ data.setUserData(userData);}
+	public JSONObject getUserAsJson(){return(data.getUserData().getJson());}
+	
+	public void setUserObject(TwitterUserData userData){ data.setUserData(userData);}
+	public TwitterUserData getUserObject(){return((TwitterUserData) data.getUserData());}
+	
+	public void setDomainObject(DomainData domData){ data.setDomainObject(domData);}
+	public DomainData getDomainObject(){return((DomainData) data.getDomainObject());}
+	
+	public void setCustomerObject(CustomerData subData){ data.setCustomerObject(subData);}
+	public CustomerData getCustomerObject(){return((CustomerData) data.getCustomerObject());}
+	
+	public void setSocialNetworkObject(SocialNetworkData socData){ data.setSocialNetworkObject(socData);}
+	public SocialNetworkData getSocialNetworkObject(){return((SocialNetworkData) data.getSocialNetworkObject());}
 }
