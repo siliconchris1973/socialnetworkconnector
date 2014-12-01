@@ -60,9 +60,9 @@
 		 applicationContext.xml -->
 	<configuration scope="CrawlerRun">
 		<crawler name="TWITTER">true</crawler>
-		<crawler name="LITHIUM">true</crawler>
+		<crawler name="LITHIUM">false</crawler>
 		<crawler name="FACEBOOK">false</crawler>
-		<crawler name="WEBCRAWLER">true</crawler>
+		<crawler name="WEBCRAWLER">false</crawler>
 	</configuration>
 	
 	<!-- 

@@ -57,10 +57,10 @@ import de.comlineag.snc.helper.DateTimeServices;
 public final class WebPostingData extends PostingData implements ISncDataObject{
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
-	UserData user = new UserData();
-	DomainData domain = new DomainData();
-	CustomerData customer = new CustomerData();
-	SocialNetworkData socialNetwork = new SocialNetworkData();
+	UserData userObject = new UserData();
+	DomainData domainObject = new DomainData();
+	CustomerData customerObject = new CustomerData();
+	SocialNetworkData socialNetworkObject = new SocialNetworkData();
 	
 	ArrayList<String> keywords = new ArrayList<String>();
 	
@@ -135,11 +135,11 @@ public final class WebPostingData extends PostingData implements ISncDataObject{
 			
 			// User ID
 			JSONObject tempUsr = (JSONObject) jsonObject.get("USER");
-			user = new UserData(tempUsr);
-			setUserId((String) user.getId());
+			userObject = new UserData(tempUsr);
+			setUserId((String) userObject.getId());
 			
 			logger.trace("the page object " + jsonObject.toString());
-			logger.trace("the user object " + user.toString());
+			logger.trace("the user object " + userObject.toString());
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: during parsing of json web page-object " + e.getLocalizedMessage());
 			e.printStackTrace();
@@ -169,23 +169,23 @@ public final class WebPostingData extends PostingData implements ISncDataObject{
 		tJson.put("name", SocialNetworks.getSocialNetworkConfigElementByCode("name", sn_id).toString());
 		tJson.put("domain", SocialNetworks.getSocialNetworkConfigElementByCode("domain", sn_id).toString());
 		tJson.put("description", SocialNetworks.getSocialNetworkConfigElementByCode("description", sn_id).toString());
-		SocialNetworkData socData = new SocialNetworkData(tJson);
-		logger.trace("storing created social network object {} as embedded object", socData.toString());
-		setSocialNetworkData(socData);
+		SocialNetworkData socData = new SocialNetworkData(tJson.toJSONString());
+		logger.trace("storing created social network object {} as embedded object {}", socData.getName(), socData.toJsonString());
+		setSocialNetworkData(socData.getJson());
 		
 		// create the embedded domain json
 		tJson = new JSONObject();
 		tJson.put("name", domain);
-		DomainData domData = new DomainData(tJson);
-		logger.trace("storing created domain object {} as embedded object", domData.toString());
-		setDomainData(domData);
+		DomainData domData = new DomainData(tJson.toJSONString());
+		logger.trace("storing created domain object {} as embedded object {}", domData.getName(), domData.toJsonString());
+		setDomainData(domData.getJson());
 		
 		// create the embedded customer json
 		tJson = new JSONObject();
 		tJson.put("name", customer);
-		CustomerData subData = new CustomerData(tJson);
-		logger.trace("storing created customer object {} as embedded object", subData.toString());
-		setCustomerData(subData);
+		CustomerData subData = new CustomerData(tJson.toJSONString());
+		logger.trace("storing created customer object {} as embedded object {}", subData.getName(), subData.toJsonString());
+		setCustomerData(subData.getJson());
 		
 		
 		text = null;
@@ -200,8 +200,6 @@ public final class WebPostingData extends PostingData implements ISncDataObject{
 		favoritecount=0;
 		
 		userId="0";
-		
-		user=null;
 		
 		posted_from_client = null;
 		truncated = true;
@@ -225,15 +223,15 @@ public final class WebPostingData extends PostingData implements ISncDataObject{
 	}
 	
 	// new methods to get and set the user, domain, customer and social network object within the page object
-	public void setUserObject(UserData userJson){this.user = userJson;}
-	public UserData getUserObject(){return user;}
+	public void setUserObject(UserData userJson){this.userObject = userJson;}
+	public UserData getUserObject(){return userObject;}
 	
-	public void setDomainObject(DomainData domJson){this.domain = domJson;}
-	public DomainData getDomainObject(){return domain;}
+	public void setDomainObject(DomainData domJson){this.domainObject = domJson;}
+	public DomainData getDomainObject(){return domainObject;}
 	
-	public void setCustomerObject(CustomerData subJson){this.customer = subJson;}
-	public CustomerData getCustomerObject(){return customer;}
+	public void setCustomerObject(CustomerData subJson){this.customerObject = subJson;}
+	public CustomerData getCustomerObject(){return customerObject;}
 	
-	public void setSocialNetworkObject(SocialNetworkData socJson){this.socialNetwork = socJson;}
-	public SocialNetworkData getSocialNetworkObject(){return socialNetwork;}
+	public void setSocialNetworkObject(SocialNetworkData socJson){this.socialNetworkObject = socJson;}
+	public SocialNetworkData getSocialNetworkObject(){return socialNetworkObject;}
 }

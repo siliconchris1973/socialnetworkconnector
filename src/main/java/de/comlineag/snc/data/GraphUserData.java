@@ -39,15 +39,18 @@ public class GraphUserData implements ISncDataObject{
 	
 	public GraphUserData(JSONObject obj){
 		try {
-			setSnId(obj.get("sn_id").toString());
-			internalJson.put("sn_id", getSnId());
-			
-			setId(obj.get("id").toString());
-			internalJson.put("id", getId());
-			
-			setUsername(obj.get("username").toString());
-			internalJson.put("username", getUsername());
-			
+			if (obj.containsKey("sn_id")) {
+				setSnId(obj.get("sn_id").toString());
+				internalJson.put("sn_id", getSnId());
+			}
+			if (obj.containsKey("id")) {
+				setId(obj.get("id").toString());
+				internalJson.put("id", getId());
+			}
+			if (obj.containsKey("username")) {
+				setUsername(obj.get("username").toString());
+				internalJson.put("username", getUsername());
+			}
 			if (obj.containsKey("screen_name")) {
 				setScreenName(obj.get("screen_name").toString());
 				internalJson.put("screen_name", getScreenName());
@@ -93,7 +96,8 @@ public class GraphUserData implements ISncDataObject{
 				internalJson.put("average_posting_ratio", getAveragePostingRatio());
 			}
 		} catch (Exception e){
-			System.out.println("something went wrong during GraphUserData initializing" + e.getLocalizedMessage());
+			System.out.println("something went wrong during GraphUserData initializing " + e.getLocalizedMessage());
+			e.printStackTrace();
 		}
 	}
 	

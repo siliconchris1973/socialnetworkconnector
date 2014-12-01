@@ -1,6 +1,8 @@
 package de.comlineag.snc.data;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +35,30 @@ public class SocialNetworkData implements ISncDataObject{
 	
 	public SocialNetworkData(){}
 	
-	public SocialNetworkData(JSONObject obj){
-		logger.trace("constructing social network data with {}", obj.toString());
+	public SocialNetworkData(String jsonString){
+		try {
+		// now do the check on json error details within  the returned JSON object
+		JSONParser objParser = new JSONParser();
+		Object obj = objParser.parse(jsonString);
+		JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+		
+		createFromJson(jsonObj);
+		
+		} catch (ParseException e) {
+			logger.error("ERROR :: parsing given json string {}", e.getLocalizedMessage());
+			e.printStackTrace();
+		}
+	}
+	
+	public SocialNetworkData(JSONObject jsonObj){
+		createFromJson(jsonObj);
+	}
+	
+	
+	private void createFromJson(JSONObject obj){
 		if(obj.containsKey("name") || obj.containsKey("sn_id")){
+			logger.debug("creating new customer object ({}) from JSON", obj.get("name").toString());
+			
 			if (obj.containsKey("id"))
 				setId(obj.get("id").toString());
 			else
@@ -54,7 +77,6 @@ public class SocialNetworkData implements ISncDataObject{
 			logger.error("ERROR :: cannot create a social network without a name");
 		}
 	}
-	
 	
 	// getter and setter
 	public JSONObject getJson() {return this.internalJson;}

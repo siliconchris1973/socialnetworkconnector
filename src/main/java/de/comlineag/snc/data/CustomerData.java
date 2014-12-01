@@ -1,6 +1,8 @@
 package de.comlineag.snc.data;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +34,29 @@ public final class CustomerData implements ISncDataObject{
 	
 	public CustomerData(){}
 	
-	public CustomerData(JSONObject obj){
+	public CustomerData(String jsonString){
+		try {
+		// now do the check on json error details within  the returned JSON object
+		JSONParser objParser = new JSONParser();
+		Object obj = objParser.parse(jsonString);
+		JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
+		
+		createFromJson(jsonObj);
+		
+		} catch (ParseException e) {
+			logger.error("ERROR :: parsing given json string {}", e.getLocalizedMessage());
+			e.printStackTrace();
+		}
+	}
+	
+	public CustomerData(JSONObject jsonObj){
+		createFromJson(jsonObj);
+	}
+	
+	private void createFromJson(JSONObject obj){
 		if(obj.containsKey("name")){
+			logger.debug("creating new customer object ({}) from JSON", obj.get("name").toString());
+			
 			if (obj.containsKey("id"))
 				setId(obj.get("id").toString());
 			else
@@ -53,7 +76,6 @@ public final class CustomerData implements ISncDataObject{
 		} else {
 			logger.error("ERROR :: cannot create a customer without a name");
 		}
-		
 	}
 	
 	// getter and setter

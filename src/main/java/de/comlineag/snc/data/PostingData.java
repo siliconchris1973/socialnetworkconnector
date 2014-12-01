@@ -11,7 +11,7 @@ import org.json.simple.JSONObject;
  * 
  * @author 		Magnus Leinemann, Christian Guenther
  * @category 	data class
- * @version 	0.6				- 18.11.2014
+ * @version 	0.7				- 01.12.2014
  * @status		productive
  * 
  * @description Data Class for one post object as tracked from a website or social network. 
@@ -42,6 +42,7 @@ import org.json.simple.JSONObject;
  * 								embedded json for the domain of interest, the customer and the social 
  * 								network. Also added an arraylist of strings with the keywords because 
  * 								of which the post was tracked
+ * 				0.7				added methods to deal with embedded objects as JSONObjects
  * 
  * TODO move GeneralDataDefinitions to RuntimeConfiguration and source it in from XML 
  */
@@ -258,39 +259,57 @@ public class PostingData implements ISncDataObject{
 	
 	// embedded user data
 	public UserData getUserData(){return userData;}
+	public JSONObject getUserDataAsJson(){return userData.getJson();}
 	public String getUserDataAsJsonString(){return userData.toJsonString();}
-	public void setUserData(UserData userData){
+	public void setUserData(UserData usrData){
 		//System.out.println("adding user object "+userData.toString()+" as embedded object");
-		this.userData = userData;
+		this.userData = usrData;
+		internalJson.put("USER", userData.getJson());
+	}
+	public void setUserData(JSONObject usrData){
+		this.userData = new UserData(usrData);
 		internalJson.put("USER", userData.getJson());
 	}
 	
 	// embedded domain data
 	public DomainData getDomainData(){return domainData;}
+	public JSONObject getDomainDataAsJson(){return domainData.getJson();}
 	public String getDomainDataAsJsonString(){return domainData.toJsonString();}
-	public void setDomainData(DomainData domainData){
-		//System.out.println("adding domain object "+domainData.toString()+" as embedded object");
-		this.domainData = domainData; 
+	public void setDomainData(DomainData domData){
+		this.domainData = domData; 
+		internalJson.put("DOMAIN", domainData.getJson());
+	}
+	public void setDomainData(JSONObject domData){
+		this.domainData = new DomainData(domData);
 		internalJson.put("DOMAIN", domainData.getJson());
 	}
 	
 	// embedded customer data
 	public CustomerData getCustomerData(){return customerData;}
+	public JSONObject getCustomerDataAsJson(){return customerData.getJson();}
 	public String getCustomerDataAsJsonString(){return customerData.toJsonString();}
-	public void setCustomerData(CustomerData customerData){
-		//System.out.println("adding customer object "+customerData.toString()+" as embedded object");
-		this.customerData = customerData; 
+	public void setCustomerData(CustomerData subData){
+		this.customerData = subData; 
+		internalJson.put("CUSTOMER", customerData.getJson());
+	}
+	public void setCustomerData(JSONObject subData){
+		this.customerData = new CustomerData(subData);
 		internalJson.put("CUSTOMER", customerData.getJson());
 	}
 	
 	// embedded social network data
 	public SocialNetworkData getSocialNetworkData(){return socialNetworkData;}
+	public JSONObject getSocialNetworkDataAsJson(){return socialNetworkData.getJson();}
 	public String getSocialNetworkDataAsJsonString(){return socialNetworkData.toJsonString();}
-	public void setSocialNetworkData(SocialNetworkData socialNetworkData){
-		//System.out.println("adding socnet object "+socialNetworkData.toString()+" as embedded object");
-		this.socialNetworkData = socialNetworkData; 
+	public void setSocialNetworkData(SocialNetworkData socData){
+		this.socialNetworkData = socData; 
 		internalJson.put("SOCIALNETWORK", socialNetworkData.getJson());
 	}
+	public void setSocialNetworkData(JSONObject socData){
+		this.socialNetworkData = new SocialNetworkData(socData);
+		internalJson.put("SOCIALNETWORK", socialNetworkData.getJson());
+	}
+	
 	
 	// track-terms aka keywords
 	public ArrayList<String> getTrackTerms() {return trackterms;}

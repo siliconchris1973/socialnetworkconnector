@@ -59,88 +59,95 @@ public class GraphPostingData implements ISncDataObject{
 	
 	@SuppressWarnings("unchecked")
 	public GraphPostingData(JSONObject obj){
-		setId(obj.get("id").toString());
-		internalJson.put("id", getId());
-		
-		setSnId(obj.get("sn_id").toString());
-		internalJson.put("sn_id", getSnId());
-		
-		if (obj.containsKey("teaser")){
-			setTeaser(obj.get("teaser").toString());
-			internalJson.put("teaser", getTeaser());
-		}
-		if (obj.containsKey("subject")){
-			setSubject(obj.get("subject").toString());
-			internalJson.put("subject", getSubject());
-		}
-		
-		if (obj.containsKey("lang")){
-			setLang(obj.get("lang").toString());
-			internalJson.put("lang", getLang());
-		}
-		
-		if (obj.containsKey("truncated")){
-			setTruncated((boolean) obj.get("truncated"));
-			internalJson.put("truncated", getTruncated());
-		}
-		//setTimestamp((LocalDateTime) obj.get(timestamp));
-		//internalJson.put("timestamp", getTimestamp());
-		
-		if (obj.containsKey("text")){
-			setText(obj.get("text").toString());
-			internalJson.put("text", getText());
-		}
-		
-		/*
-		if (obj.containsKey("view_count")){
-			setViewCount((Long) obj.get("view_count"));
-			internalJson.put("view_count", getViewCount());
-		}
-		if (obj.containsKey("favorite_count")){
-			setFavoriteCount((Long) obj.get("favorite_count"));
-			internalJson.put("favorite_count", getFavoriteCount());
-		}
-		if (obj.containsKey("longitude")){
-			setGeoLongitude(obj.get("longitude").toString());
-			internalJson.put("longitude", getGeoLongitude());
-		}
-		if (obj.containsKey("latitude")){
-			setGeoLatitude(obj.get("latitude").toString());
-			internalJson.put("latitude", getGeoLatitude());
-		}
-		if (obj.containsKey("around_longitude")){
-			setGeoAroundLongitude(obj.get("around_longitude").toString());
-			internalJson.put("around_longitude", getGeoAroundLongitude());
-		}
-		if (obj.containsKey("around_latitude")){
-			setGeoAroundLatitude(obj.get("around_latitude").toString());
-			internalJson.put("around_latitude", getGeoAroundLatitude());
-		}
-		if (obj.containsKey("place_id")){
-			setGeoPlaceId(obj.get("place_id").toString());
-			internalJson.put("place_id", getGeoPlaceId());
-		}
-		if (obj.containsKey("place_name")){
-			setGeoPlaceName(obj.get("place_name").toString());
-			internalJson.put("place_name", getGeoPlaceName());
-		}
-		if (obj.containsKey("place_country")){
-			setGeoPlaceCountry(obj.get("place_country").toString());
-			internalJson.put("place_country", getGeoPlaceCountry());
-		}
-		if (obj.containsKey("referencedObjectId")){
-			setReferenceObjectId(obj.get("referenceObjectId").toString());
-			internalJson.put("referenceObjectId", getReferenceObjectId());
-		}
-		if (obj.containsKey("tTerms")){
-			String[] tTerms = (String[]) obj.get("tTerms");
+		try {
+			if (obj.containsKey("id")){
+				setId(obj.get("id").toString());
+				internalJson.put("id", getId());
+			}
+			if (obj.containsKey("sn_id")){
+				setSnId(obj.get("sn_id").toString());
+				internalJson.put("sn_id", getSnId());
+			}
+			if (obj.containsKey("teaser")){
+				setTeaser(obj.get("teaser").toString());
+				internalJson.put("teaser", getTeaser());
+			}
+			if (obj.containsKey("subject")){
+				setSubject(obj.get("subject").toString());
+				internalJson.put("subject", getSubject());
+			}
 			
-			for (int i=0;i<tTerms.length;i++)
-				putTrackTerms(tTerms[i]);
+			if (obj.containsKey("lang")){
+				setLang(obj.get("lang").toString());
+				internalJson.put("lang", getLang());
+			}
 			
-			internalJson.put("tTerms", getTrackTerms());
+			if (obj.containsKey("truncated")){
+				setTruncated((boolean) obj.get("truncated"));
+				internalJson.put("truncated", getTruncated());
+			}
+			//setTimestamp((LocalDateTime) obj.get(timestamp));
+			//internalJson.put("timestamp", getTimestamp());
+			
+			if (obj.containsKey("text")){
+				setText(obj.get("text").toString());
+				internalJson.put("text", getText());
+			}
+			
+			/*
+			if (obj.containsKey("view_count")){
+				setViewCount((Long) obj.get("view_count"));
+				internalJson.put("view_count", getViewCount());
+			}
+			if (obj.containsKey("favorite_count")){
+				setFavoriteCount((Long) obj.get("favorite_count"));
+				internalJson.put("favorite_count", getFavoriteCount());
+			}
+			if (obj.containsKey("longitude")){
+				setGeoLongitude(obj.get("longitude").toString());
+				internalJson.put("longitude", getGeoLongitude());
+			}
+			if (obj.containsKey("latitude")){
+				setGeoLatitude(obj.get("latitude").toString());
+				internalJson.put("latitude", getGeoLatitude());
+			}
+			if (obj.containsKey("around_longitude")){
+				setGeoAroundLongitude(obj.get("around_longitude").toString());
+				internalJson.put("around_longitude", getGeoAroundLongitude());
+			}
+			if (obj.containsKey("around_latitude")){
+				setGeoAroundLatitude(obj.get("around_latitude").toString());
+				internalJson.put("around_latitude", getGeoAroundLatitude());
+			}
+			if (obj.containsKey("place_id")){
+				setGeoPlaceId(obj.get("place_id").toString());
+				internalJson.put("place_id", getGeoPlaceId());
+			}
+			if (obj.containsKey("place_name")){
+				setGeoPlaceName(obj.get("place_name").toString());
+				internalJson.put("place_name", getGeoPlaceName());
+			}
+			if (obj.containsKey("place_country")){
+				setGeoPlaceCountry(obj.get("place_country").toString());
+				internalJson.put("place_country", getGeoPlaceCountry());
+			}
+			if (obj.containsKey("referencedObjectId")){
+				setReferenceObjectId(obj.get("referenceObjectId").toString());
+				internalJson.put("referenceObjectId", getReferenceObjectId());
+			}
+			if (obj.containsKey("tTerms")){
+				String[] tTerms = (String[]) obj.get("tTerms");
+				
+				for (int i=0;i<tTerms.length;i++)
+					putTrackTerms(tTerms[i]);
+				
+				internalJson.put("tTerms", getTrackTerms());
+			}
+			*/
+		} catch (Exception e){
+			System.out.println("something went wrong during GraphPostingData initializing " + e.getLocalizedMessage());
+			e.printStackTrace();
 		}
-		*/
 	}
 	
 

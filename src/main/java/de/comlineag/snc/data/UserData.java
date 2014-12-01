@@ -43,7 +43,10 @@ public class UserData implements ISncDataObject{
 	
 	protected JSONObject internalJson;				// an internal json object containing all values
 	
-	public UserData(){}
+	public UserData(){
+		if (internalJson == null)
+			internalJson = new JSONObject();
+	}
 	
 	public UserData(JSONObject userData){
 		if (userData.containsKey("id"))
