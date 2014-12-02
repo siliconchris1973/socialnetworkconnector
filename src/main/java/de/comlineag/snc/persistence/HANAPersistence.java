@@ -663,7 +663,7 @@ public class HANAPersistence implements IPersistenceManager {
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			stmt.setString(1, userData.getSnId());
 			stmt.setString(2, userData.getId());
-			stmt.setString(3, dataCryptoProvider.encryptValue(userData.getUsername()));
+			stmt.setString(3, dataCryptoProvider.encryptValue(userData.getUserName()));
 			stmt.setString(4, dataCryptoProvider.encryptValue(userData.getScreenName()));
 			stmt.setString(5, userData.getLang());
 			stmt.setLong(6, userData.getFollowersCount());
@@ -740,7 +740,7 @@ public class HANAPersistence implements IPersistenceManager {
 			userService.createEntity("user")
 					.properties(OProperties.string("sn_id", userData.getSnId()))
 					.properties(OProperties.string("user_id", userData.getId()))
-					.properties(OProperties.string("userName", dataCryptoProvider.encryptValue(userData.getUsername())))
+					.properties(OProperties.string("userName", dataCryptoProvider.encryptValue(userData.getUserName())))
 
 					.properties(OProperties.string("nickName", dataCryptoProvider.encryptValue(userData.getScreenName())))
 					.properties(OProperties.string("userLang", userData.getLang()))
@@ -754,7 +754,7 @@ public class HANAPersistence implements IPersistenceManager {
 
 					.execute();
 			
-			logger.info("user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") created");
+			logger.info("user " + userData.getUserName() + " ("+userData.getSnId()+"-"+userData.getId()+") created");
 		
 			if (rtc.getBooleanValue("CreateUserJsonOnSuccess", "runtime")){
 				userData.setObjectStatus("ok");
@@ -773,7 +773,7 @@ public class HANAPersistence implements IPersistenceManager {
 		 * 			</error>
 		 */
 		} catch (RuntimeException e) {
-			logger.error("ERROR :: Could not create user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
+			logger.error("ERROR :: Could not create user " + userData.getUserName() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
 			
 			if (rtc.getBooleanValue("CreateUserJsonOnError", "runtime")){
@@ -1068,7 +1068,7 @@ public class HANAPersistence implements IPersistenceManager {
             		+ "WHERE (\"sn_id\" = ? AND \"user_id\" = ?)";
 			 
 			PreparedStatement stmt = conn.prepareStatement(sql);
-			stmt.setString(1, dataCryptoProvider.encryptValue(userData.getUsername()));
+			stmt.setString(1, dataCryptoProvider.encryptValue(userData.getUserName()));
 			stmt.setString(2, dataCryptoProvider.encryptValue(userData.getScreenName()));
 			stmt.setString(3, userData.getLang());
 			stmt.setLong(4, userData.getFollowersCount());
@@ -1150,7 +1150,7 @@ public class HANAPersistence implements IPersistenceManager {
 		
 		try {
 			userService.updateEntity(theUserEntity)
-					.properties(OProperties.string("userName", dataCryptoProvider.encryptValue(userData.getUsername())))
+					.properties(OProperties.string("userName", dataCryptoProvider.encryptValue(userData.getUserName())))
 
 					.properties(OProperties.string("nickName", dataCryptoProvider.encryptValue(userData.getScreenName())))
 					.properties(OProperties.string("userLang", userData.getLang()))
@@ -1164,7 +1164,7 @@ public class HANAPersistence implements IPersistenceManager {
 					
 					.execute();
 			
-			logger.debug("user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+") updated");
+			logger.debug("user " + userData.getUserName() + " ("+userData.getSnId()+"-"+userData.getId()+") updated");
 			
 			if (rtc.getBooleanValue("CreateUserJsonOnSuccess", "runtime")){
 				userData.setObjectStatus("ok");
@@ -1183,7 +1183,7 @@ public class HANAPersistence implements IPersistenceManager {
 		 * 			</error>
 		 */
 		} catch (RuntimeException e) {
-			logger.error("ERROR :: Could not update user " + userData.getUsername() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
+			logger.error("ERROR :: Could not update user " + userData.getUserName() + " ("+userData.getSnId()+"-"+userData.getId()+"): " + e.getLocalizedMessage());
 			e.printStackTrace();
 			if (rtc.getBooleanValue("CreateUserJsonOnError", "runtime")){
 				logger.debug("update failed - storing object in backup directory for later processing");
@@ -1264,9 +1264,9 @@ public class HANAPersistence implements IPersistenceManager {
 	 * 
 	 */
 	private void setUserFieldLength(UserData userData){
-		if (userData.getUsername() != null && userData.getUsername().length()>HanaDataConstants.USERNAME_TEXT_SIZE) {
+		if (userData.getUserName() != null && userData.getUserName().length()>HanaDataConstants.USERNAME_TEXT_SIZE) {
 			logger.warn("truncating user name of " + userData.getSnId()+"-"+userData.getId() + " to " + HanaDataConstants.USERNAME_TEXT_SIZE);
-			userData.setUsername(userData.getUsername().substring(0, HanaDataConstants.USERNAME_TEXT_SIZE));
+			userData.setUserName(userData.getUserName().substring(0, HanaDataConstants.USERNAME_TEXT_SIZE));
 		}
 		if (userData.getScreenName() != null && userData.getScreenName().length()>HanaDataConstants.USERNICKNAME_TEXT_SIZE) {
 			logger.warn("truncating user nick name of " + userData.getSnId()+"-"+userData.getId() + " to " + HanaDataConstants.USERNICKNAME_TEXT_SIZE);

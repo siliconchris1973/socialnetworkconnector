@@ -72,21 +72,55 @@ public final class WebPostingData extends PostingData implements ISncDataObject{
 	 * @param jsonObject
 	 *            one single page or news article
 	 */
+	@SuppressWarnings("unchecked")
 	public WebPostingData(JSONObject jsonObject) {
 		try {
 			// set all values to zero
 			initialize();
 			
 			// page ID
-			setId((String) jsonObject.get("page_id"));
+			if (!jsonObject.containsKey("id") && !jsonObject.containsKey("page_id")){
+				// create the id from the page url
+			} else {
+				if (jsonObject.containsKey("id"))
+					setId((String) jsonObject.get("id"));
+				
+				if (jsonObject.containsKey("page_id"))
+					setId((String) jsonObject.get("page_id"));
+			}
+			
 			// SN_ID
 			setSnId((String) jsonObject.get("sn_id"));
-			
 			setDomain((String) jsonObject.get("Domain"));
 			setCustomer((String) jsonObject.get("Customer"));
 			
 			// log the startup message
 			logger.debug("constructing new data-subset from page ("+getSnId()+"-"  + getId() + ")");
+			
+			
+			// create the embedded social network json
+			JSONObject tJson = new JSONObject();
+			tJson.put("sn_id", sn_id);
+			tJson.put("name", SocialNetworks.getSocialNetworkConfigElementByCode("name", sn_id).toString());
+			tJson.put("domain", SocialNetworks.getSocialNetworkConfigElementByCode("domain", sn_id).toString());
+			tJson.put("description", SocialNetworks.getSocialNetworkConfigElementByCode("description", sn_id).toString());
+			SocialNetworkData socData = new SocialNetworkData(tJson.toJSONString());
+			logger.trace("storing created social network object {} as embedded object {}", socData.getName(), socData.toJsonString());
+			setSocialNetworkData(socData.getJson());
+			
+			// create the embedded domain json
+			tJson = new JSONObject();
+			tJson.put("name", domain);
+			DomainData domData = new DomainData(tJson.toJSONString());
+			logger.trace("storing created domain object {} as embedded object {}", domData.getName(), domData.toJsonString());
+			setDomainData(domData.getJson());
+			
+			// create the embedded customer json
+			tJson = new JSONObject();
+			tJson.put("name", customer);
+			CustomerData subData = new CustomerData(tJson.toJSONString());
+			logger.trace("storing created customer object {} as embedded object {}", subData.getName(), subData.toJsonString());
+			setCustomerData(subData.getJson());
 			
 			
 			
@@ -134,10 +168,21 @@ public final class WebPostingData extends PostingData implements ISncDataObject{
 			setClient((String) jsonObject.get("source"));
 			
 			// User ID
-			JSONObject tempUsr = (JSONObject) jsonObject.get("USER");
-			userObject = new UserData(tempUsr);
-			setUserId((String) userObject.getId());
-			
+			if (jsonObject.containsKey("USER")){
+				JSONObject tempUsr = (JSONObject) jsonObject.get("USER");
+				userObject = new UserData(tempUsr);
+				setUserId((String) userObject.getId());
+				logger.debug("found embedded user object {}", getUserId());
+				logger.trace("    {}", userObject.toString());
+				
+			} else if (jsonObject.containsKey("user")){
+				JSONObject tempUsr = (JSONObject) jsonObject.get("user");
+				userObject = new UserData(tempUsr);
+				setUserId((String) userObject.getId());
+				logger.debug("found embedded user object {}", getUserId());
+				logger.trace("    {}", userObject.toString());
+				
+			}
 			logger.trace("the page object " + jsonObject.toString());
 			logger.trace("the user object " + userObject.toString());
 		} catch (Exception e) {
@@ -159,10 +204,11 @@ public final class WebPostingData extends PostingData implements ISncDataObject{
 		setObjectStatus("new");
 		
 		// set the internal fields and embedded json objects for domain, customer and social network
-		setSnId(SocialNetworks.getSocialNetworkConfigElement("code", "WEBCRAWLER"));
-		setDomain(new CrawlerConfiguration<String>().getDomain());
-		setCustomer(new CrawlerConfiguration<String>().getCustomer());
+		//setSnId(SocialNetworks.getSocialNetworkConfigElement("code", "WEBCRAWLER"));
+		//setDomain(new CrawlerConfiguration<String>().getDomain());
+		//setCustomer(new CrawlerConfiguration<String>().getCustomer());
 		
+		/*
 		// create the embedded social network json
 		JSONObject tJson = new JSONObject();
 		tJson.put("sn_id", sn_id);
@@ -171,7 +217,6 @@ public final class WebPostingData extends PostingData implements ISncDataObject{
 		tJson.put("description", SocialNetworks.getSocialNetworkConfigElementByCode("description", sn_id).toString());
 		SocialNetworkData socData = new SocialNetworkData(tJson.toJSONString());
 		logger.trace("storing created social network object {} as embedded object {}", socData.getName(), socData.toJsonString());
-		setSocialNetworkData(socData.getJson());
 		
 		// create the embedded domain json
 		tJson = new JSONObject();
@@ -186,7 +231,7 @@ public final class WebPostingData extends PostingData implements ISncDataObject{
 		CustomerData subData = new CustomerData(tJson.toJSONString());
 		logger.trace("storing created customer object {} as embedded object {}", subData.getName(), subData.toJsonString());
 		setCustomerData(subData.getJson());
-		
+		*/
 		
 		text = null;
 		raw_text = null;

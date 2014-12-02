@@ -18,7 +18,7 @@ import de.comlineag.snc.handler.DataCryptoHandler;
  * @author 		Christian Guenther
  * @category 	Persistence Manager
  * @version 	0.2a			- 25.07.2014
- * @objectStatusPriorSaving		productive
+ * @status		productive
  *
  * @description persistence manager to simply save JSON files on disk 
  * 				it can either be used stand alone, if activated as persistence manager in
@@ -171,7 +171,7 @@ public class JsonFilePersistence implements IPersistenceManager {
 				JSONObject obj = new JSONObject();
 				obj.put("sn_id", userData.getSnId());
 				obj.put("user_id", userData.getId());
-				obj.put("userName", userData.getUsername());
+				obj.put("userName", userData.getUserName());
 				obj.put("nickName", userData.getScreenName());
 				obj.put("userLang", userData.getLang());
 				obj.put("geoLocation", userData.getGeoLocation().toString());

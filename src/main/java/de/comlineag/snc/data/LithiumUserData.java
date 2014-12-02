@@ -121,7 +121,7 @@ public final class LithiumUserData extends UserData implements ISncDataObject{
 			s = Objects.toString(jsonObjId.get("$"), null);
 			setId(s);
 			
-			// username / login and nickname, all the same at lithium
+			// user_name / login and nickname, all the same at lithium
 			// Structure
 			//	{}login
 			//		type : "string"
@@ -129,7 +129,7 @@ public final class LithiumUserData extends UserData implements ISncDataObject{
 			obj = parser.parse(jsonObject.get("login").toString());
 			JSONObject jsonObjLogin = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			setUsername((String) jsonObjLogin.get("$"));
+			setUserName((String) jsonObjLogin.get("$"));
 			setScreenName((String) jsonObjLogin.get("$"));
 			
 			// we are using the geoLocation field for the user profile icon
@@ -178,7 +178,7 @@ public final class LithiumUserData extends UserData implements ISncDataObject{
 		setDomain(new CrawlerConfiguration<String>().getDomain());
 		setCustomer(new CrawlerConfiguration<String>().getCustomer());
 		
-		username 				= null;
+		user_name 				= null;
 		screen_name 			= null;
 		geoLocation 			= "";
 		followers_count 		= 0;

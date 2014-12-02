@@ -22,7 +22,7 @@ public class GraphUserData implements ISncDataObject{
 	protected String sn_id;							// the 2-digit code of the social network 
 	protected String id;							// the id of the user within the social network
 	protected String username;						// the actual user name, might be different from the screen name 
-	protected String screen_name;					// the username as shown on the network (sometimes named nick name)
+	protected String screen_name;					// the user_name as shown on the network (sometimes named nick name)
 	protected String lang;							// default language of the user
 	
 	protected long followers_count;					// how many people is the user following
@@ -47,9 +47,9 @@ public class GraphUserData implements ISncDataObject{
 				setId(obj.get("id").toString());
 				internalJson.put("id", getId());
 			}
-			if (obj.containsKey("username")) {
-				setUsername(obj.get("username").toString());
-				internalJson.put("username", getUsername());
+			if (obj.containsKey("user_name")) {
+				setUsername(obj.get("user_name").toString());
+				internalJson.put("user_name", getUsername());
 			}
 			if (obj.containsKey("screen_name")) {
 				setScreenName(obj.get("screen_name").toString());

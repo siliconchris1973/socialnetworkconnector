@@ -27,8 +27,8 @@ public class UserData implements ISncDataObject{
 	protected String domain;						// in which domain context was the user tracked
 	protected String customer;						// in which customer context was the user tracked
 	protected String sn_id;							// the social network id from enum SocialNetworks
-	protected String username;						// the actual user name, might be different from the screen name 
-	protected String screen_name;					// the username as shown on the network (sometimes named nick name)
+	protected String user_name;						// the actual user name, might be different from the screen name 
+	protected String screen_name;					// the user_name as shown on the network (sometimes named nick name)
 	protected String geoLocation;					// a simple geo location representation (like a town, or country name)
 	protected long followers_count;					// how many people is the user following
 	protected long friends_count;					// how many friends does the user have
@@ -57,8 +57,8 @@ public class UserData implements ISncDataObject{
 			setDomain(userData.get("domain").toString());
 		if (userData.containsKey("customer"))
 			setCustomer(userData.get("customer").toString());
-		if (userData.containsKey("username"))
-			setUsername(userData.get("username").toString());
+		if (userData.containsKey("user_name"))
+			setUserName(userData.get("user_name").toString());
 		if (userData.containsKey("screen_name"))
 			setScreenName(userData.get("screen_name").toString());
 		if (userData.containsKey("lang"))
@@ -66,7 +66,7 @@ public class UserData implements ISncDataObject{
 		if (userData.containsKey("geoLocation"))
 			setGeoLocation(userData.get("geoLocation").toString());
 		if (userData.containsKey("objectStatus"))
-			setObjectStatus(userData.get("ObjectStatus").toString());
+			setObjectStatus(userData.get("objectStatus").toString());
 		
 		if (userData.containsKey("followers_count"))
 			setFollowersCount((Long)userData.get("followers_count"));
@@ -94,7 +94,7 @@ public class UserData implements ISncDataObject{
 				+ "id : " + getId() + " / "
 				+ "domain : " + getDomain() + " / "
 				+ "customer : " + getCustomer() + " / "
-				+ "username : " + getUsername() + " / "
+				+ "user_name : " + getUserName() + " / "
 				+ "lang : " + getLang() + " / "
 				+ "screen name : " + getScreenName() + " / "
 				+ "geoLocation : " + getGeoLocation() + " / "
@@ -130,8 +130,8 @@ public class UserData implements ISncDataObject{
 	public String getSnId() {return sn_id;}
 	public void setSnId(String sn_id) {this.sn_id = sn_id; internalJson.put("sn_id", sn_id);}
 	
-	public String getUsername() {return username;}
-	public void setUsername(String username) {this.username = username; internalJson.put("username", username);}
+	public String getUserName() {return user_name;}
+	public void setUserName(String username) {this.user_name = username; internalJson.put("user_name", username);}
 	
 	public String getScreenName() {return screen_name;}
 	public void setScreenName(String screenName) {this.screen_name = screenName; internalJson.put("screen_name", screen_name);}

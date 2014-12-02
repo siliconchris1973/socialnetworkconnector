@@ -57,7 +57,10 @@ public final class WebUserData extends UserData implements ISncDataObject{
 				
 				setSnId((String) jsonObject.get("sn_id"));
 				setId((String) jsonObject.get("id"));
-				setUsername((String) jsonObject.get("name"));
+				if (jsonObject.containsKey("user_name"))
+					setUserName((String) jsonObject.get("user_name"));
+				if (jsonObject.containsKey("name"))
+					setUserName((String) jsonObject.get("name"));
 				setScreenName((String) jsonObject.get("screen_name"));
 				
 				setLang((String) jsonObject.get("lang"));
@@ -94,7 +97,7 @@ public final class WebUserData extends UserData implements ISncDataObject{
 			setDomain(new CrawlerConfiguration<String>().getDomain());
 			setCustomer(new CrawlerConfiguration<String>().getCustomer());
 			
-			username = null;
+			user_name = null;
 			screen_name = null;
 			lang = null;
 			geoLocation = "";
