@@ -57,7 +57,7 @@ public class DomainData implements ISncDataObject{
 	
 	private void createFromJson(JSONObject obj){
 		if(obj.containsKey("name")){
-			logger.debug("creating new customer object ({}) from JSON", obj.get("name").toString());
+			logger.debug("creating new domain object ({}) from JSON", obj.get("name").toString());
 			
 			if (obj.containsKey("id"))
 				setId(obj.get("id").toString());

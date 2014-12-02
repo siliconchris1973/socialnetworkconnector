@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SNCStatusCodes;
+import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
 import de.comlineag.snc.handler.TwitterPosting;
@@ -127,7 +128,7 @@ public class THEWebCrawler extends WebCrawler {
 			
 			JSONObject configurationScope = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			logger.debug("the given json object is " + configurationScope.toJSONString().length() + " characters long and the parsed object has " + configurationScope.size() + " key/value mappings of type " + configurationScope.keySet().toString());
+			logger.trace("the given json object is " + configurationScope.toJSONString().length() + " characters long and the parsed object has " + configurationScope.size() + " key/value mappings of type " + configurationScope.keySet().toString());
 			
 			sn_id = (String) configurationScope.get("SN_ID");
 			// retrieve the track terms and the blocked urls
@@ -140,6 +141,7 @@ public class THEWebCrawler extends WebCrawler {
 			theCrawlDomains = (String[]) configurationScope.get("theCrawlDomains");
 			userName = (String) configurationScope.get("userName");
 			password = (String) configurationScope.get("password");
+			logger.debug("starting THEWebCrawler crawler with sn_id {} for site {}", sn_id, SocialNetworks.getSocialNetworkConfigElementByCode("domain", sn_id));
 		} catch (Exception e){
 			logger.error("error while retrieving custom data from controller - {}", e);
 		}

@@ -57,7 +57,7 @@ public class SocialNetworkData implements ISncDataObject{
 	
 	private void createFromJson(JSONObject obj){
 		if(obj.containsKey("name") || obj.containsKey("sn_id")){
-			logger.debug("creating new customer object ({}) from JSON", obj.get("name").toString());
+			logger.debug("creating new social network object ({}) from JSON", obj.get("name").toString());
 			
 			if (obj.containsKey("id"))
 				setId(obj.get("id").toString());

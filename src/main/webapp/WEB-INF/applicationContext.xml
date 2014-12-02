@@ -418,7 +418,8 @@
 		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
 		<property name="jobDetail" ref="THEWebCrawlerDetail" />
 		<property name="startDelay" value="3000" />
-		<property name="repeatInterval" value="86400000" /> <!-- 24 Stunden -->
+		<!-- <property name="repeatInterval" value="86400000" />  --><!-- 24 Stunden -->
+		<property name="repeatInterval" value="60000" /> 
 	</bean>
 	
 	

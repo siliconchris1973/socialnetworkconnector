@@ -9,7 +9,7 @@ import org.json.simple.JSONObject;
 
 /**
  * 
- * @author 		Magnus Leinemann, Christian Guenther
+ * @author 		Christian Guenther
  * @category 	data class
  * @version 	0.7				- 01.12.2014
  * @status		productive
@@ -20,7 +20,7 @@ import org.json.simple.JSONObject;
  * 				Additionally the data class contains data objects for the user, the domain of 
  * 				interest, the customer, the social network and the trackterms because of which  
  * 				the post was tracked. 
- * 				The user is available in two forms: 1st as a userData object AND as json-object.
+ * 				The user is available in two forms: 1st as a userData object AND 2nd as json-object.
  * 				Domain and customer is available as a field and as an internal json object.
  * 				The social network is available as a 2-digit field, containing the code of the 
  * 				network, and as an embedded json object with information filled from the
@@ -33,7 +33,7 @@ import org.json.simple.JSONObject;
  * 								- the markups are stripped for the normal text field
  * 				0.2a			added domain and customer
  * 				0.3				added method to fill all values from a passed json string 
- * 								for use with the FsCrawler, which creates a posData object 
+ * 								for use with the FsCrawler, which creates a postData object 
  * 								from a stored json file and then invokes the persistence layer
  * 				0.4				added possibility to store an embedded UserData object within the 
  * 								PostingData object
@@ -57,7 +57,7 @@ public class PostingData implements ISncDataObject{
 	/*
 	 * was the object initially saved correctly by the persistence manager or not 
 	 */
-	protected String objectStatus;	// can be ok or fail
+	protected String objectStatus;	// can be new, ok or fail
 	
 	/*
 	 * holds all fields of the data set as a json object 
@@ -72,22 +72,22 @@ public class PostingData implements ISncDataObject{
 	/*
 	 * DomainData domainData - an embedded domain object within the page/post object
 	 */
-	protected DomainData domainData;
+	protected DomainData domainData = new DomainData();
 	
 	/*
 	 * CustomerData customerData - an embedded customer object within the page/post object
 	 */
-	protected CustomerData customerData;
+	protected CustomerData customerData = new CustomerData();
 	
 	/*
 	 * SocialNetworkData socialNetworkData - an embedded social network object within the page/post object
 	 */
-	protected SocialNetworkData socialNetworkData;
+	protected SocialNetworkData socialNetworkData = new SocialNetworkData();
 	
 	/*
 	 * UserData userData - an embedded user object within the page/post object
 	 */
-	protected UserData userData;
+	protected UserData userData = new UserData();
 	
 	/*
 	 * domain (stored as json within the db) e.g. banking

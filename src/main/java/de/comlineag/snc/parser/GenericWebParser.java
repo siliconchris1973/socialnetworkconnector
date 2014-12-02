@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.comlineag.snc.handler.WebPosting;
 import de.comlineag.snc.helper.UniqueIdServices;
@@ -38,6 +40,7 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * 
  */
 public abstract class GenericWebParser extends GenericParser implements IWebParser {
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	public GenericWebParser() {}
 
@@ -175,7 +178,7 @@ public abstract class GenericWebParser extends GenericParser implements IWebPars
 		pageJson.put("lang", lang);
 		pageJson.put("truncated", truncated);
 		pageJson.put("created_at", created_at);
-		pageJson.put("raw_text", page);
+		//pageJson.put("raw_text", page);
 		pageJson.put("text", text);
 		
 		JSONObject userJson = new JSONObject();
@@ -186,6 +189,7 @@ public abstract class GenericWebParser extends GenericParser implements IWebPars
 		userJson.put("lang", user_lang);
 		
 		pageJson.put("USER", userJson);
+		logger.trace("*** generated pageJson: {}", pageJson.toString());
 		
 		return pageJson;
 	}

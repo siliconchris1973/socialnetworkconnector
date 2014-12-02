@@ -57,7 +57,7 @@ public final class FacebookUserData extends UserData implements ISncDataObject{
 		try {
 			s = Objects.toString(jsonObject.get("id"), null);
 			setId(s);
-			setUsername((String) jsonObject.get("name"));
+			setUserName((String) jsonObject.get("name"));
 			setScreenName((String) jsonObject.get("screen_name"));
 			
 			setLang((String) jsonObject.get("lang"));
@@ -95,7 +95,7 @@ public final class FacebookUserData extends UserData implements ISncDataObject{
 		setDomain(new CrawlerConfiguration<String>().getDomain());
 		setCustomer(new CrawlerConfiguration<String>().getCustomer());
 		
-		username = null;
+		user_name = null;
 		screen_name = null;
 		lang = null;
 		geoLocation = null;

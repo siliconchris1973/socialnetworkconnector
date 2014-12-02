@@ -60,90 +60,79 @@ public class GraphPostingData implements ISncDataObject{
 	@SuppressWarnings("unchecked")
 	public GraphPostingData(JSONObject obj){
 		try {
-			if (obj.containsKey("id")){
-				setId(obj.get("id").toString());
-				internalJson.put("id", getId());
-			}
 			if (obj.containsKey("sn_id")){
 				setSnId(obj.get("sn_id").toString());
-				internalJson.put("sn_id", getSnId());
+			}
+			if (obj.containsKey("id")){
+				setId(obj.get("id").toString());
+			} else if (obj.containsKey("page_id")){
+				setId(obj.get("page_id").toString());
+			} else if (obj.containsKey("post_id")){
+				setId(obj.get("post_id").toString());
+			}
+			if (obj.containsKey("lang")){
+				setLang(obj.get("lang").toString());
+			}
+			if (obj.containsKey("truncated")){
+				setTruncated((boolean) obj.get("truncated"));
+			}
+			if (obj.containsKey("timestamp")){
+				setTimestamp((LocalDateTime) obj.get(timestamp));
 			}
 			if (obj.containsKey("teaser")){
 				setTeaser(obj.get("teaser").toString());
-				internalJson.put("teaser", getTeaser());
 			}
 			if (obj.containsKey("subject")){
 				setSubject(obj.get("subject").toString());
-				internalJson.put("subject", getSubject());
 			}
-			
-			if (obj.containsKey("lang")){
-				setLang(obj.get("lang").toString());
-				internalJson.put("lang", getLang());
-			}
-			
-			if (obj.containsKey("truncated")){
-				setTruncated((boolean) obj.get("truncated"));
-				internalJson.put("truncated", getTruncated());
-			}
-			//setTimestamp((LocalDateTime) obj.get(timestamp));
-			//internalJson.put("timestamp", getTimestamp());
-			
 			if (obj.containsKey("text")){
 				setText(obj.get("text").toString());
-				internalJson.put("text", getText());
 			}
 			
 			/*
 			if (obj.containsKey("view_count")){
 				setViewCount((Long) obj.get("view_count"));
-				internalJson.put("view_count", getViewCount());
 			}
 			if (obj.containsKey("favorite_count")){
 				setFavoriteCount((Long) obj.get("favorite_count"));
-				internalJson.put("favorite_count", getFavoriteCount());
 			}
+			
 			if (obj.containsKey("longitude")){
 				setGeoLongitude(obj.get("longitude").toString());
-				internalJson.put("longitude", getGeoLongitude());
 			}
 			if (obj.containsKey("latitude")){
 				setGeoLatitude(obj.get("latitude").toString());
-				internalJson.put("latitude", getGeoLatitude());
 			}
 			if (obj.containsKey("around_longitude")){
 				setGeoAroundLongitude(obj.get("around_longitude").toString());
-				internalJson.put("around_longitude", getGeoAroundLongitude());
 			}
 			if (obj.containsKey("around_latitude")){
 				setGeoAroundLatitude(obj.get("around_latitude").toString());
-				internalJson.put("around_latitude", getGeoAroundLatitude());
 			}
 			if (obj.containsKey("place_id")){
 				setGeoPlaceId(obj.get("place_id").toString());
-				internalJson.put("place_id", getGeoPlaceId());
 			}
 			if (obj.containsKey("place_name")){
 				setGeoPlaceName(obj.get("place_name").toString());
-				internalJson.put("place_name", getGeoPlaceName());
 			}
 			if (obj.containsKey("place_country")){
 				setGeoPlaceCountry(obj.get("place_country").toString());
-				internalJson.put("place_country", getGeoPlaceCountry());
 			}
+			*/
+			
 			if (obj.containsKey("referencedObjectId")){
 				setReferenceObjectId(obj.get("referenceObjectId").toString());
-				internalJson.put("referenceObjectId", getReferenceObjectId());
 			}
-			if (obj.containsKey("tTerms")){
+			
+			if (obj.containsKey("keywords")){
 				String[] tTerms = (String[]) obj.get("tTerms");
 				
 				for (int i=0;i<tTerms.length;i++)
 					putTrackTerms(tTerms[i]);
 				
-				internalJson.put("tTerms", getTrackTerms());
+				internalJson.put("keywords", getTrackTerms());
 			}
-			*/
+			
 		} catch (Exception e){
 			System.out.println("something went wrong during GraphPostingData initializing " + e.getLocalizedMessage());
 			e.printStackTrace();
@@ -158,59 +147,59 @@ public class GraphPostingData implements ISncDataObject{
 	public GraphNodeTypes getGnt() {return this.gnt;}
 	
 	public String getId() {return id;}
-	private void setId(String id) {this.id = id;}
+	private void setId(String pid) {this.id = pid;internalJson.put("id", pid);}
 	
 	public String getSnId() {return sn_id;}
-	private void setSnId(String sn_id) {this.sn_id = sn_id;}
+	private void setSnId(String snId) {this.sn_id = snId;internalJson.put("sn_id", snId);}
 	
 	public String getText() {return text;}
-	private void setText(String text) {this.text = text;}
+	private void setText(String txt) {this.text = txt;internalJson.put("text", txt);}
 	
 	public String getSubject() {return subject;}
-	private void setSubject(String subject) {this.subject = subject;}
+	private void setSubject(String subj) {this.subject = subj;internalJson.put("subject", subj);}
 	
 	public String getTeaser() {return teaser;}
-	private void setTeaser(String teaser) {this.teaser = teaser;}
+	private void setTeaser(String teas) {this.teaser = teas;internalJson.put("teaser", teas);}
 
 	public long getViewCount() {return viewcount;}
-	private void setViewCount(long viewcount) {this.viewcount = viewcount;}
+	private void setViewCount(long viewcnt) {this.viewcount = viewcnt;internalJson.put("view_count", viewcnt);}
 	
 	public long getFavoriteCount() {return favoritecount;}
-	private void setFavoriteCount(long favoritecount) {this.favoritecount = favoritecount;}
+	private void setFavoriteCount(long favoritecnt) {this.favoritecount = favoritecnt;internalJson.put("favorite_count", favoritecnt);}
 	
 	public String getTime() {return time;}
-	private void setTime(String postTime) {this.time = postTime;}
+	private void setTime(String postTime) {this.time = postTime;internalJson.put("time", postTime);}
 	public LocalDateTime getTimestamp() {return timestamp;}
-	private void setTimestamp(LocalDateTime timestamp) {this.timestamp = timestamp;}
+	private void setTimestamp(LocalDateTime postTime) {this.timestamp = postTime;internalJson.put("timestamp", postTime);}
 	
 	public boolean getTruncated() {return truncated;}
-	private void setTruncated(boolean isTruncated) {this.truncated = isTruncated;}
+	private void setTruncated(boolean isTruncated) {this.truncated = isTruncated;internalJson.put("truncated", isTruncated);}
 	
 	public GeoJsonObject getPlace() {return place;}
-	private void setPlace(GeoJsonObject place) {this.place = place;}
-
+	private void setPlace(GeoJsonObject plce) {this.place = plce;internalJson.put("place", plce);}
+	
 	public String getLang() {return lang;}
-	private void setLang(String lang) {this.lang = lang;}
+	private void setLang(String lng) {this.lang = lng;internalJson.put("lang", lng);}
 	
 	public String getReferenceObjectId(){ return referenceObjectId; }
-	private void setReferenceObjectId(String referenceOId) { this.referenceObjectId = referenceOId;}
+	private void setReferenceObjectId(String referenceOId) { this.referenceObjectId = referenceOId;internalJson.put("referenceObjectId", referenceOId);}
 	
 	public ArrayList<String> getTrackTerms() {return trackTerms;}
 	private void putTrackTerms(String t) {this.trackTerms.add(t);}
 
 	// GEO data
 	public String getGeoLongitude() {return geoLongitude;}
-	private void setGeoLongitude(String geoLongitude) {this.geoLongitude = geoLongitude;}
+	private void setGeoLongitude(String geoLong) {this.geoLongitude = geoLong;internalJson.put("longitude", geoLong);}
 	public String getGeoLatitude() {return geoLatitude;}
-	private void setGeoLatitude(String geoLatitude) {this.geoLatitude = geoLatitude;}
+	private void setGeoLatitude(String geoLati) {this.geoLatitude = geoLati;internalJson.put("latitude", geoLati);}
 	public String getGeoPlaceId() {return geoPlaceId;}
-	private void setGeoPlaceId(String geoPlaceId) {this.geoPlaceId = geoPlaceId;}
+	private void setGeoPlaceId(String geoPlaceId) {this.geoPlaceId = geoPlaceId;internalJson.put("place_id", geoPlaceId);}
 	public String getGeoPlaceName() {return geoPlaceName;}
-	private void setGeoPlaceName(String geoPlaceName) {this.geoPlaceName = geoPlaceName;}
+	private void setGeoPlaceName(String geoPlaceName) {this.geoPlaceName = geoPlaceName;internalJson.put("place_name", geoPlaceName);}
 	public String getGeoPlaceCountry() {return geoPlaceCountry;}
-	private void setGeoPlaceCountry(String geoPlaceCountry) {this.geoPlaceCountry = geoPlaceCountry;}
+	private void setGeoPlaceCountry(String geoPlaceCountry) {this.geoPlaceCountry = geoPlaceCountry;internalJson.put("place_country", geoPlaceCountry);}
 	public String getGeoAroundLongitude() {return geoAroundLongitude;}
-	private void setGeoAroundLongitude(String geoAroundLongitude) {this.geoAroundLongitude = geoAroundLongitude;}
+	private void setGeoAroundLongitude(String geoAroundLongi) {this.geoAroundLongitude = geoAroundLongi; internalJson.put("around_longitude", geoAroundLongi);}
 	public String getGeoAroundLatitude() {return geoAroundLatitude;}
-	private void setGeoAroundLatitude(String geoAroundLatitude) {this.geoAroundLatitude = geoAroundLatitude;}
+	private void setGeoAroundLatitude(String geoAroundLati) {this.geoAroundLatitude = geoAroundLati;internalJson.put("around_latitude", geoAroundLati);}
 }
