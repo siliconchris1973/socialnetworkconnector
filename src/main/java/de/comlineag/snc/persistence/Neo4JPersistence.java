@@ -2,6 +2,7 @@ package de.comlineag.snc.persistence;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -15,11 +16,6 @@ import javax.ws.rs.core.MediaType;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-
-
-
-
-
 
 //import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.GraphNodeTypes;
@@ -81,9 +77,30 @@ import de.comlineag.snc.neo4j.TraversalDefinition;
  *  9. if necessary, create relationship from post to user
  *  	post -MENTIONEND-> user
  *  10.create relationship from post to social network
- *  	post -POSTED_ID-> network
+ *  	post -BELONGS_TO-> network
  *  11.create relationship from post to keyword
  *  	post -CONTAINS-> keyword
+ * 
+ * 
+ * The graph schema looks like this:
+ * 
+ *                            +---------------------------------+
+ *                            |                                 |
+ * 							  | +-[BELONGS_TO]->(SOCIALNETWORK) |
+ * 							  | |                               |
+ * 		(KEYWORD)<-[CONTAINS]-(POST)<-[WROTE]-(USER)<-+         |
+ * 			|					|                     |         |
+ *		[BELONGS_TO]		[MENTIONS]----------------+         |
+ * 			|	                                                |
+ *          +->(DOMAIN)<-[BELONGS_TO]-(CUSTOMER)<-[TRACKED_FOR]-+
+ * 
+ * 	a USER writes a POST
+ *  the POST is from a SOCIALNETWORK
+ * 	the POST possibly mentions 1-n USER
+ * 	the POST contains 1-n KEYWORD
+ *  the POST is tracked for a CUSTOMER
+ * 	the KEYWORD belongs to 1-n DOMAIN
+ * 	a CUsTOMER belongs to a DOMAIN
  * 
  */
 public class Neo4JPersistence implements IGraphPersistenceManager {
@@ -106,413 +123,6 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 	}
 	
 	
-	@Override
-	/**
-	 * 
-	 * @description	this is the public save method for the graph persistence
-	 * 				it takes a node object in json format creates the embedded
-	 * 				objects in the graph.
-	 * 				The method is quite strict as to how the json should look like:
-	 * 				the outermost json structure must be a post with all needed elements
-	 * 				Within the json object embedded jsons are expected for domain,
-	 * 				customer, social network and a user. Each embedded json must have 
-	 * 				it's name all in uppercase.
-	 * 
-	 *  @param		json object with post and embedded domain, customer, social network and user
-	 *  
-	 */
-	public void saveNode(JSONObject nodeObject) {
-		logger.info("About to create {} node object(s) in the graph", SocialNetworks.getSocialNetworkConfigElementByCode("name", nodeObject.get("sn_id").toString()));
-		logger.trace("   >>> {}", nodeObject.toString());
-		URI postNodeLocation = null;
-		URI userNodeLocation = null;
-		URI domainNodeLocation = null;
-		URI customerNodeLocation = null;
-		URI socialNetworkNodeLocation = null;
-		URI keywordNodeLocation = null;
-		
-		JSONObject postNodeObject = null;
-		JSONObject userNodeObject = null; 
-		JSONObject domainNodeObject = null;
-		JSONObject customerNodeObject = null;
-		JSONObject socialNetworkNodeObject = null;
-		JSONObject keywordNodeObject = null;
-		
-		String postSnId = null;
-		String postId = null;
-		String userSnId = null;
-		String userId = null;
-		String domainName = null;
-		String customerName = null;
-		String socNetName = null;
-		String sn_id = null;
-		String id = null;
-		String name = null;
-		
-		String jsonPayload;
-		
-		
-		// fill the json object for post, user, domain and customer plus social network and keyword(s)
-		postNodeObject = new JSONObject((JSONObject) nodeObject);
-		if (postNodeObject.containsKey("sn_id"))
-			postSnId = postNodeObject.get("sn_id").toString();
-		if (postNodeObject.containsKey("id"))
-			postId = postNodeObject.get("id").toString();
-		logger.debug("post-object {}-{}", postSnId, postId);
-		logger.trace("   >>> {}", postNodeObject.toString());
-		
-		if (nodeObject.containsKey("USER")) {
-			userNodeObject = new JSONObject((JSONObject) nodeObject.get("USER"));
-			if (userNodeObject.containsKey("sn_id"))
-				userSnId = userNodeObject.get("sn_id").toString();
-			if (userNodeObject.containsKey("id"))
-				userId = userNodeObject.get("id").toString();
-			logger.debug("user-object {}-{}", userSnId, userId);
-			logger.trace("   >>> {}", userNodeObject.toString());
-		}
-		if (nodeObject.containsKey("DOMAIN")) {
-			domainNodeObject = new JSONObject((JSONObject) nodeObject.get("DOMAIN"));
-			if (domainNodeObject.containsKey("name"))
-				domainName = domainNodeObject.get("name").toString();  
-			logger.debug("domain-object {}", domainName);
-			logger.trace("   >>> {}", domainNodeObject.toString());
-		}
-		if (nodeObject.containsKey("CUSTOMER")) {
-			customerNodeObject = new JSONObject((JSONObject) nodeObject.get("CUSTOMER"));
-			if (customerNodeObject.containsKey("name"))
-				customerName = customerNodeObject.get("name").toString();  
-			logger.debug("customer-object {}", customerName);
-			logger.trace("   >>> {}", customerNodeObject.toString());
-		}
-		if (nodeObject.containsKey("SOCIALNETWORK")) {
-			socialNetworkNodeObject = new JSONObject((JSONObject) nodeObject.get("SOCIALNETWORK"));
-			if (socialNetworkNodeObject.containsKey("name"))
-				socNetName = socialNetworkNodeObject.get("name").toString();  
-			logger.debug("socialNetwork-object {}", socNetName);
-			logger.trace("   >>> {}", socialNetworkNodeObject.toString());
-		}
-		if (nodeObject.containsKey("KEYWORD")) {
-			keywordNodeObject = new JSONObject((JSONObject) nodeObject.get("KEYWORD"));
-			logger.debug("keyword-object with {} entries", keywordNodeObject.size());
-			logger.trace("   >>> {}", keywordNodeObject.toString());
-		}
-		
-		// start the transaction
-		URI transactLoc = startTransaction();
-		
-		// POST
-		if (postNodeObject != null) {
-			sn_id = postSnId;
-			id = postId;
-			name = null;
-			
-			// before we construct and call the create method, we check if the requested object does not already exist 
-			if (sn_id != null && id != null) {
-				logger.debug("checking if the post {}-{} exist", sn_id, id);
-				
-				jsonPayload = "{sn_id: '"+sn_id+"', id: '"+id+"'}";
-				postNodeLocation = findNode(jsonPayload, GraphNodeTypes.POST, transactLoc);
-				
-				if (postNodeLocation == null) {
-					logger.debug("creating the post {}-{}", sn_id, id);
-					GraphPostingData gpd = new GraphPostingData(postNodeObject);
-					logger.trace("   POST : >>> {}", gpd.getJson().toString());
-					postNodeLocation = createNodeObject(gpd.getJson(), GraphNodeTypes.POST, transactLoc);
-				} 
-				
-				// after the node is created - check if the location is returned and if not, find the node
-				if (postNodeLocation == null) {
-					postNodeLocation = findNode(jsonPayload, GraphNodeTypes.POST, transactLoc);
-				}
-				
-				if (postNodeLocation == null) {
-					logger.warn("could not locate node for post {}-{} ", sn_id, id);
-				} else {
-					logger.info("POST node {}-{} is at location {}", sn_id, id, postNodeLocation);
-				}
-			}
-		}
-		
-		// USER
-		if (userNodeObject != null) {
-			sn_id = userSnId;
-			id = userId;
-			name = null;
-			
-			// before we construct and call the create method, we check if the requested object does not already exist 
-			if (sn_id != null && id != null) {
-				logger.debug("checking if the user {}-{} exist", sn_id, id);
-				
-				jsonPayload = "{sn_id: '"+sn_id+"', id: '"+id+"'}";
-				userNodeLocation = findNode(jsonPayload, GraphNodeTypes.USER, transactLoc);
-				
-				if (userNodeLocation == null) {
-					logger.debug("creating the user {}-{}", sn_id, id);
-					GraphUserData gud = new GraphUserData(userNodeObject);
-					logger.trace("   USER : >>> {}", gud.getJson().toString());
-					userNodeLocation = createNodeObject(gud.getJson(), GraphNodeTypes.USER, transactLoc);
-				}
-				
-				// after the node is created - check if the location is returned and if not, find the node
-				if (userNodeLocation == null) {
-					userNodeLocation = findNode(jsonPayload, GraphNodeTypes.USER, transactLoc);
-				}
-				
-				if (userNodeLocation == null) {
-					logger.warn("could not locate node for user {}-{} ", sn_id, id);
-				} else {
-					logger.info("USER node {}-{} is at location {}", sn_id, id, userNodeLocation);
-				}
-			}
-		}
-		
-		// DOMAIN
-		if (domainNodeObject != null) {
-			sn_id = null;
-			id = null;
-			name = domainName;
-			
-			// before we construct and call the create method, we check if the requested object does not already exist 
-			if (name != null) {
-				logger.debug("checking if the domain of interest {} exist", name);
-				
-				jsonPayload = "{name: '"+name+"'}";
-				domainNodeLocation = findNode(jsonPayload, GraphNodeTypes.DOMAIN, transactLoc);
-				
-				if (domainNodeLocation == null) {
-					logger.debug("creating the domain {}", name);
-					DomainData gdd = new DomainData(domainNodeObject);
-					logger.trace("   DOMAIN : >>> {}", gdd.getJson().toString());
-					domainNodeLocation = createNodeObject(gdd.getJson(), GraphNodeTypes.DOMAIN, transactLoc);
-				}
-				
-				//  after the node is created - check if the location is returned and if not, find the node
-				if (domainNodeLocation == null) {
-					domainNodeLocation = findNode(jsonPayload, GraphNodeTypes.DOMAIN, transactLoc);
-				}
-				if (domainNodeLocation == null) {
-					logger.warn("could not locate node for domain {} ", name);
-				} else {
-					logger.info("DOMAIN node {} is at location {}", name, domainNodeLocation);
-				}
-			}
-		}
-		
-		
-		// CUSTOMER
-		if (customerNodeObject != null) {
-			sn_id = null;
-			id = null;
-			name = customerName;
-			
-			// before we construct and call the create method, we check if the requested object does not already exist 
-			if (name != null) {
-				logger.debug("checking if the customer {} exist", name);
-			
-				jsonPayload = "{name: '"+name+"'}";
-				customerNodeLocation = findNode(jsonPayload, GraphNodeTypes.CUSTOMER, transactLoc);
-				
-				if (customerNodeLocation == null) {
-					logger.debug("creating the customer {}", name);
-					CustomerData gcd = new CustomerData(customerNodeObject);
-					logger.trace("   CUSTOMER : >>> {}", gcd.getJson().toString());
-					customerNodeLocation = createNodeObject(gcd.getJson(), GraphNodeTypes.CUSTOMER, transactLoc);
-				}
-				
-				//  after the node is created - check if the location is returned and if not, find the node
-				if (customerNodeLocation == null) {
-					customerNodeLocation = findNode(jsonPayload, GraphNodeTypes.CUSTOMER, transactLoc);
-				}
-				if (customerNodeLocation == null) {
-					logger.warn("could not locate node for customer {} ", name);
-				} else {
-					logger.info("CUSTOMER node {} is at location {}", name, customerNodeLocation);
-				}
-			}
-		}
-		
-		
-		// SOCIAL NETWORK
-		if (socialNetworkNodeObject != null) {
-			sn_id = null;
-			id = null;
-			name = socNetName;
-			
-			// before we construct and call the create method, we check if the requested object does not already exist 
-			if (name != null) {
-				logger.debug("checking if the social network {} exist", name);
-				
-				jsonPayload = "{name: '"+name+"'}";
-				socialNetworkNodeLocation = findNode(jsonPayload, GraphNodeTypes.SOCIALNETWORK, transactLoc);
-				
-				if (socialNetworkNodeLocation == null) {
-					logger.debug("creating the social network {}", name);
-					SocialNetworkData gsd = new SocialNetworkData(socialNetworkNodeObject);
-					logger.trace("   SOCIALNETWORK : >>> {}", gsd.getJson().toString());
-					socialNetworkNodeLocation = createNodeObject(gsd.getJson(), GraphNodeTypes.SOCIALNETWORK, transactLoc);
-				}
-				
-				//  after the node is created - check if the location is returned and if not, find the node
-				if (socialNetworkNodeLocation == null) {
-					socialNetworkNodeLocation = findNode(jsonPayload, GraphNodeTypes.SOCIALNETWORK, transactLoc);
-				}
-				if (socialNetworkNodeLocation == null) {
-					logger.warn("could not locate node for social network {} ", name);
-				} else {
-					logger.info("SOCIALNETWORK node {} is at location {}", name, socialNetworkNodeLocation);
-				}
-			}
-		}
-		
-		
-		// KEYWORD
-		if (keywordNodeObject != null) {
-			sn_id = null;
-			id = null;
-			name = null;
-			
-			// before we construct and call the create method, we check if the requested object does not already exist 
-			if (keywordNodeObject.containsKey("keyword"))
-				name = (String) keywordNodeObject.get("keyword");
-			
-			if (name != null) {
-				logger.debug("checking if the keyword {} exist", name);
-				
-				jsonPayload = "{keyword: '"+name+"'}";
-				keywordNodeLocation = findNode(jsonPayload, GraphNodeTypes.KEYWORD, transactLoc);
-				
-				if (keywordNodeLocation == null) {
-					logger.debug("creating the keyword {}", name);
-					KeywordData gkd = new KeywordData(keywordNodeObject);
-					logger.trace("   KEYWORD : >>> {}", gkd.getJson().toString());
-					keywordNodeLocation = createNodeObject(gkd.getJson(), GraphNodeTypes.KEYWORD, transactLoc);
-				}
-				
-				//  after the node is created - check if the location is returned and if not, find the node
-				if (keywordNodeLocation == null) {
-					keywordNodeLocation = findNode(jsonPayload, GraphNodeTypes.KEYWORD, transactLoc);
-				}
-				if (keywordNodeLocation == null) {
-					logger.warn("could not create node for keyword {} ", name);
-				} else {
-					logger.info("node for keyword {} created at location {}", name, keywordNodeLocation);
-				}
-			}
-		}
-		
-
-		
-		
-		logger.debug("=========>");
-		logger.debug("post          {}\t-> {}: {}-{}", getNodeIdFromLocation(postNodeLocation), postNodeLocation, postSnId, postId);
-		logger.debug("user          {}\t-> {}: {}-{}", getNodeIdFromLocation(userNodeLocation), userNodeLocation, userSnId, userId);
-		logger.debug("domain        {}\t-> {}: {}", getNodeIdFromLocation(domainNodeLocation), domainNodeLocation, domainName);
-		logger.debug("customer      {}\t-> {}: {}", getNodeIdFromLocation(customerNodeLocation), customerNodeLocation, customerName);
-		logger.debug("socialnetwork {}\t-> {}: {}", getNodeIdFromLocation(socialNetworkNodeLocation), socialNetworkNodeLocation, socNetName);
-		logger.debug("<========="); 
-				   
-		//
-		// create relationships
-		//           sourceJsonMatch                       targetJsonMatch
-		// MATCH  (a:USER {sn_id: "TW", id: "123456"}), (b:POST {sn_id: "TW", id: "654321"})
-		//               relType
-		// MERGE  (a)-[r:WROTE]->(b)
-		URI relLoc = null;
-		
-		GraphNodeTypes sourceLabel = null;
-		String sourceSnId = "";
-		String sourceId = "";
-		String sourceJsonMatch = "";
-		
-		GraphNodeTypes targetLabel = null;
-		String targetSnId = "";
-		String targetId = "";
-		String targetJsonMatch = "";
-		
-		GraphRelationshipTypes relType = null;
-		
-		
-		// rel: USER-[WROTE]->POST
-		logger.debug("create relationship: USER-[WROTE]->POST");
-		sourceLabel = GraphNodeTypes.USER;
-		sourceSnId = userSnId;
-		sourceId = userId;
-		targetLabel = GraphNodeTypes.POST;
-		targetSnId = postSnId;
-		targetId = postId;
-		relType = GraphRelationshipTypes.WROTE;
-		
-		// execute MATCH & MERGE
-		sourceJsonMatch = sourceLabel+" {sn_id: '"+sourceSnId+"', id: '"+sourceId+"'}";
-		targetJsonMatch = targetLabel+" {sn_id: '"+targetSnId+"', id: '"+targetId+"'}";
-		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
-		
-		
-		// rel: POST-[BELONGS_TO]->SOCIALNETWORK
-		logger.debug("create relationship: POST-[BELONGS_TO]->SOCIALNETWORK");
-		sourceLabel = GraphNodeTypes.POST;
-		sourceSnId = postSnId;
-		sourceId = postId;
-		targetLabel = GraphNodeTypes.SOCIALNETWORK;
-		targetSnId = socNetName;
-		relType = GraphRelationshipTypes.BELONGS_TO;
-		
-		// execute MATCH & MERGE
-		sourceJsonMatch = sourceLabel+" {sn_id: '"+sourceSnId+"', id: '"+sourceId+"'}";
-		targetJsonMatch = targetLabel+" {name: '"+targetSnId+"'}";
-		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
-		
-		
-		// rel: POST-[BELONGS_TO]->DOMAIN
-		logger.debug("create relationship: POST-[BELONGS_TO]->DOMAIN");
-		sourceLabel = GraphNodeTypes.POST;
-		sourceSnId = postSnId;
-		sourceId = postId;
-		targetLabel = GraphNodeTypes.DOMAIN;
-		targetSnId = domainName;
-		relType = GraphRelationshipTypes.BELONGS_TO;
-		
-		// execute MATCH & MERGE
-		sourceJsonMatch = sourceLabel+" {sn_id: '"+sourceSnId+"', id: '"+sourceId+"'}";
-		targetJsonMatch = targetLabel+" {name: '"+targetSnId+"'}";
-		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
-		
-		
-		// rel: POST-[BELONGS_TO]->CUSTOMER
-		logger.debug("create relationship: POST-[BELONGS_TO]->CUSTOMER");
-		sourceLabel = GraphNodeTypes.POST;
-		sourceSnId = postSnId;
-		sourceId = postId;
-		targetLabel = GraphNodeTypes.CUSTOMER;
-		targetSnId = customerName;
-		relType = GraphRelationshipTypes.BELONGS_TO;
-		
-		// execute MATCH & MERGE
-		sourceJsonMatch = sourceLabel+" {sn_id: '"+sourceSnId+"', id: '"+sourceId+"'}";
-		targetJsonMatch = targetLabel+" {name: '"+targetSnId+"'}";
-		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
-		
-		
-		// rel: CUSTOMER-[BELONGS_TO]->DOMAIN
-		logger.debug("create relationship: CUSTOMER-[BELONGS_TO]->DOMAIN");
-		sourceLabel = GraphNodeTypes.CUSTOMER;
-		sourceSnId = postSnId;
-		targetLabel = GraphNodeTypes.DOMAIN;
-		targetSnId = customerName;
-		relType = GraphRelationshipTypes.BELONGS_TO;
-		
-		// execute MATCH & MERGE
-		sourceJsonMatch = sourceLabel+" {name: '"+sourceSnId+"'}";
-		targetJsonMatch = targetLabel+" {name: '"+targetSnId+"'}";
-		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
-				
-		
-		// commit the transaction
-		commitTransaction(transactLoc);
-		
-	}
-	
-	
 	/**
 	 * 
 	 * @description wraps the json object and the label in a cypher statement to
@@ -525,7 +135,7 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 	 * @return		URI to created object in the graph
 	 * 
 	 */
-	private URI createNodeObject(JSONObject nodeObject, GraphNodeTypes label, URI transactLoc){
+	public URI saveNode(JSONObject nodeObject, GraphNodeTypes label, URI transactLoc) {
 		/* the cypher statement is part of a larger one that is executed via method 
 		 *    sendTransactionalCypherStatement(). 
 		 * Ultimately, the statement looks like this:
@@ -551,9 +161,463 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				+ "\"properties\":" + nodeObject.toString() 
 				+ "} ";
 		return (sendTransactionalCypherStatement(cypherStatement, transactLoc));
-		
 	}
 	
+	
+
+	/**
+	 * 
+	 * @description	this is the public save method for the graph persistence
+	 * 				it takes a node object in json format and creates the embedded
+	 * 				objects in the graph.
+	 * 				The method is quite strict as to how the json should look like:
+	 * 				the outermost json structure must be a post with all needed elements
+	 * 				Within the json object embedded jsons are expected for domain,
+	 * 				customer, social network and a user. Each embedded json must have 
+	 * 				it's name all in uppercase.
+	 * 
+	 *  @param		json object with post and embedded domain, customer, social network and user
+	 *  
+	 */
+	public void createNodeObject(JSONObject nodeObject){
+		logger.info("About to create {} node object(s) in the graph", SocialNetworks.getSocialNetworkConfigElementByCode("name", nodeObject.get("sn_id").toString()));
+		//logger.trace("   >>> {}", nodeObject.toString());
+		URI postNodeLocation = null;
+		URI userNodeLocation = null;
+		URI domainNodeLocation = null;
+		URI customerNodeLocation = null;
+		URI socialNetworkNodeLocation = null;
+		URI keywordNodeLocation = null;
+		
+		JSONObject postNodeObject = null;
+		JSONObject userNodeObject = null; 
+		JSONObject domainNodeObject = null;
+		JSONObject customerNodeObject = null;
+		JSONObject socialNetworkNodeObject = null;
+		ArrayList<String> keywords = null;
+		
+		String postSnId = null;
+		String postId = null;
+		String userSnId = null;
+		String userId = null;
+		String domainName = null;
+		String customerName = null;
+		String socNetName = null;
+		String sn_id = null;
+		String id = null;
+		String name = null;
+		
+		String jsonPayload;
+		
+		
+		
+		// fill the json object for post, user, domain and customer plus social network and keyword(s)
+		postNodeObject = new JSONObject((JSONObject) nodeObject);
+		if (postNodeObject.containsKey("sn_id"))
+			postSnId = postNodeObject.get("sn_id").toString();
+		if (postNodeObject.containsKey("id"))
+			postId = postNodeObject.get("id").toString();
+		logger.debug("POST object {}-{} found", postSnId, postId);
+		logger.trace("   >>> {}", postNodeObject.toString());
+		
+		if (nodeObject.containsKey("USER")) {
+			userNodeObject = new JSONObject((JSONObject) nodeObject.get("USER"));
+			if (userNodeObject.containsKey("sn_id"))
+				userSnId = userNodeObject.get("sn_id").toString();
+			if (userNodeObject.containsKey("id"))
+				userId = userNodeObject.get("id").toString();
+			else if (userNodeObject.containsKey("user_id"))
+				userId = userNodeObject.get("user_id").toString();
+			
+			logger.debug("USER object {}-{} found", userSnId, userId);
+			logger.trace("   >>> {}", userNodeObject.toString());
+		}
+		if (nodeObject.containsKey("DOMAIN")) {
+			domainNodeObject = new JSONObject((JSONObject) nodeObject.get("DOMAIN"));
+			if (domainNodeObject.containsKey("name"))
+				domainName = domainNodeObject.get("name").toString();  
+			logger.debug("DOMAIN object {} found", domainName);
+			logger.trace("   >>> {}", domainNodeObject.toString());
+		}
+		if (nodeObject.containsKey("CUSTOMER")) {
+			customerNodeObject = new JSONObject((JSONObject) nodeObject.get("CUSTOMER"));
+			if (customerNodeObject.containsKey("name"))
+				customerName = customerNodeObject.get("name").toString();  
+			logger.debug("CUSTOMER object {} found", customerName);
+			logger.trace("   >>> {}", customerNodeObject.toString());
+		}
+		if (nodeObject.containsKey("SOCIALNETWORK")) {
+			socialNetworkNodeObject = new JSONObject((JSONObject) nodeObject.get("SOCIALNETWORK"));
+			if (socialNetworkNodeObject.containsKey("name"))
+				socNetName = socialNetworkNodeObject.get("name").toString();  
+			logger.debug("SOCIALNETWORK object {} found", socNetName);
+			logger.trace("   >>> {}", socialNetworkNodeObject.toString());
+		}
+		if (nodeObject.containsKey("KEYWORD")) {
+			keywords = ((ArrayList<String>) nodeObject.get("KEYWORD"));
+			logger.debug("KEYWORD object found");
+			logger.trace("   >>> {}", keywords.toString());
+		}
+		
+		// start the transaction
+		URI transactLoc = startTransaction();
+		
+		// POST
+		if (postNodeObject != null) {
+			sn_id = postSnId;
+			id = postId;
+			name = null;
+			
+			// before we construct and call the create method, we check if the requested object does not already exist 
+			if (sn_id != null && id != null) {
+				logger.debug("working on post-object {}-{}", sn_id, id);
+				jsonPayload = "{sn_id: '"+sn_id+"', id: '"+id+"'}";
+				
+				/* new way
+				GraphPostingData node = new GraphPostingData(postNodeObject);
+				GraphNodeTypes label = GraphNodeTypes.POST;
+				String matchPayload = jsonPayload;
+				String createPayload = node.getJson().toString();
+				
+				postNodeLocation = matchAndCreateNodeTransactional(label, matchPayload, createPayload, transactLoc);
+				*/
+				
+				// old way
+				postNodeLocation = findNode(jsonPayload, GraphNodeTypes.POST, transactLoc);
+				
+				if (postNodeLocation == null) {
+					logger.debug("creating the post {}-{}", sn_id, id);
+					GraphPostingData gpd = new GraphPostingData(postNodeObject);
+					//logger.trace("   POST : >>> {}", gpd.getJson().toString());
+					postNodeLocation = saveNode(gpd.getJson(), GraphNodeTypes.POST, transactLoc);
+				} 
+				
+				
+				// after the node is created - check if the location is returned and if not, find the node
+				if (postNodeLocation == null) {
+					postNodeLocation = findNode(jsonPayload, GraphNodeTypes.POST, transactLoc);
+				}
+				if (postNodeLocation == null) {
+					logger.warn("could not locate node for post {}-{} ", sn_id, id);
+				} else {
+					logger.info("POST node {}-{} is at location {}", sn_id, id, postNodeLocation);
+				}
+				
+			}
+		}
+		
+		// USER
+		if (userNodeObject != null) {
+			sn_id = userSnId;
+			id = userId;
+			name = null;
+			
+			// before we construct and call the create method, we check if the requested object does not already exist 
+			if (sn_id != null && id != null) {
+				logger.debug("working on user-object {}-{}", sn_id, id);
+				jsonPayload = "{sn_id: '"+sn_id+"', id: '"+id+"'}";
+								
+				// OLD way
+				userNodeLocation = findNode(jsonPayload, GraphNodeTypes.USER, transactLoc);
+				
+				if (userNodeLocation == null) {
+					logger.debug("creating the user {}-{}", sn_id, id);
+					GraphUserData gud = new GraphUserData(userNodeObject);
+					//logger.trace("   USER : >>> {}", gud.getJson().toString());
+					userNodeLocation = saveNode(gud.getJson(), GraphNodeTypes.USER, transactLoc);
+				}
+				
+				// after the node is created - check if the location is returned and if not, find the node
+				if (userNodeLocation == null) {
+					userNodeLocation = findNode(jsonPayload, GraphNodeTypes.USER, transactLoc);
+				}
+				
+				if (userNodeLocation == null) {
+					logger.warn("could not locate node for user {}-{} ", sn_id, id);
+				} else {
+					logger.info("USER node {}-{} is at location {}", sn_id, id, userNodeLocation);
+				}
+			}
+		}
+		
+		// DOMAIN
+		if (domainNodeObject != null) {
+			sn_id = null;
+			id = null;
+			name = domainName;
+			
+			// before we construct and call the create method, we check if the requested object does not already exist 
+			if (name != null) {
+				logger.debug("working on domain-object {}", name);
+				jsonPayload = "{name: '"+name+"'}";
+				
+				// OLD way
+				domainNodeLocation = findNode(jsonPayload, GraphNodeTypes.DOMAIN, transactLoc);
+				
+				if (domainNodeLocation == null) {
+					logger.debug("creating the domain {}", name);
+					DomainData gdd = new DomainData(domainNodeObject);
+					//logger.trace("   DOMAIN : >>> {}", gdd.getJson().toString());
+					domainNodeLocation = saveNode(gdd.getJson(), GraphNodeTypes.DOMAIN, transactLoc);
+				}
+				
+				//  after the node is created - check if the location is returned and if not, find the node
+				if (domainNodeLocation == null) {
+					domainNodeLocation = findNode(jsonPayload, GraphNodeTypes.DOMAIN, transactLoc);
+				}
+				if (domainNodeLocation == null) {
+					logger.warn("could not locate node for domain {} ", name);
+				} else {
+					logger.info("DOMAIN node {} is at location {}", name, domainNodeLocation);
+				}
+			}
+		}
+		
+		
+		// CUSTOMER
+		if (customerNodeObject != null) {
+			sn_id = null;
+			id = null;
+			name = customerName;
+			
+			// before we construct and call the create method, we check if the requested object does not already exist 
+			if (name != null) {
+				logger.debug("working on customer-object {}", name);
+				jsonPayload = "{name: '"+name+"'}";
+				
+				// OLD way
+				customerNodeLocation = findNode(jsonPayload, GraphNodeTypes.CUSTOMER, transactLoc);
+				
+				if (customerNodeLocation == null) {
+					logger.debug("creating the customer {}", name);
+					CustomerData gcd = new CustomerData(customerNodeObject);
+					//logger.trace("   CUSTOMER : >>> {}", gcd.getJson().toString());
+					customerNodeLocation = saveNode(gcd.getJson(), GraphNodeTypes.CUSTOMER, transactLoc);
+				}
+				
+				//  after the node is created - check if the location is returned and if not, find the node
+				if (customerNodeLocation == null) {
+					customerNodeLocation = findNode(jsonPayload, GraphNodeTypes.CUSTOMER, transactLoc);
+				}
+				if (customerNodeLocation == null) {
+					logger.warn("could not locate node for customer {} ", name);
+				} else {
+					logger.info("CUSTOMER node {} is at location {}", name, customerNodeLocation);
+				}
+			}
+		}
+		
+		
+		// SOCIAL NETWORK
+		if (socialNetworkNodeObject != null) {
+			sn_id = null;
+			id = null;
+			name = socNetName;
+			
+			// before we construct and call the create method, we check if the requested object does not already exist 
+			if (name != null) {
+				logger.debug("working on social network-object {}", name);
+				jsonPayload = "{name: '"+name+"'}";
+								
+				// OLD way
+				socialNetworkNodeLocation = findNode(jsonPayload, GraphNodeTypes.SOCIALNETWORK, transactLoc);
+				
+				if (socialNetworkNodeLocation == null) {
+					logger.debug("creating the social network {}", name);
+					SocialNetworkData gsd = new SocialNetworkData(socialNetworkNodeObject);
+					//logger.trace("   SOCIALNETWORK : >>> {}", gsd.getJson().toString());
+					socialNetworkNodeLocation = saveNode(gsd.getJson(), GraphNodeTypes.SOCIALNETWORK, transactLoc);
+				}
+				
+				//  after the node is created - check if the location is returned and if not, find the node
+				if (socialNetworkNodeLocation == null) {
+					socialNetworkNodeLocation = findNode(jsonPayload, GraphNodeTypes.SOCIALNETWORK, transactLoc);
+				}
+				if (socialNetworkNodeLocation == null) {
+					logger.warn("could not locate node for social network {} ", name);
+				} else {
+					logger.info("SOCIALNETWORK node {} is at location {}", name, socialNetworkNodeLocation);
+				}
+			}
+		}
+		
+		// KEYWORD
+		for (String keyword : keywords) {
+			logger.debug("working on keyword-object {}", keyword);
+			jsonPayload = "{keyword: '"+keyword+"'}";
+			
+			keywordNodeLocation = findNode(jsonPayload, GraphNodeTypes.KEYWORD, transactLoc);
+			
+			if (keywordNodeLocation == null) {
+				KeywordData gkd = new KeywordData(keyword);
+				keywordNodeLocation = saveNode(gkd.getJson(), GraphNodeTypes.KEYWORD, transactLoc);
+			}
+			
+			//  after the node is created - check if the location is returned and if not, find the node
+			if (keywordNodeLocation == null) {
+				keywordNodeLocation = findNode(jsonPayload, GraphNodeTypes.KEYWORD, transactLoc);
+			}
+			if (keywordNodeLocation == null) {
+				logger.warn("could not create node for keyword {} ", keyword);
+			} else {
+				logger.info("node for keyword {} created at location {}", keyword, keywordNodeLocation);
+			}
+		}
+		
+		
+		logger.debug("=========>");
+		logger.debug("post          {}\t-> {}: \t{}-{}", getNodeIdFromLocation(postNodeLocation), postNodeLocation, postSnId, postId);
+		logger.debug("user          {}\t-> {}: \t{}-{}", getNodeIdFromLocation(userNodeLocation), userNodeLocation, userSnId, userId);
+		logger.debug("domain        {}\t-> {}: \t{}", getNodeIdFromLocation(domainNodeLocation), domainNodeLocation, domainName);
+		logger.debug("customer      {}\t-> {}: \t{}", getNodeIdFromLocation(customerNodeLocation), customerNodeLocation, customerName);
+		logger.debug("socialnetwork {}\t-> {}: \t{}", getNodeIdFromLocation(socialNetworkNodeLocation), socialNetworkNodeLocation, socNetName);
+		logger.debug("<========="); 
+		
+		// start a new transaction for the relationships
+		//transactLoc = startTransaction();
+		
+		/*
+		 * The graph schema looks like this:
+		 *                            +---------------------------------+
+		 *                            |                                 |
+		 * 							  | +-[BELONGS_TO]->(SOCIALNETWORK) |
+		 * 							  | |                               |
+		 * 		(KEYWORD)<-[CONTAINS]-(POST)<-[WROTE]-(USER)<-+         |
+		 * 			|					|                     |         |
+		 *		[BELONGS_TO]		[MENTIONS]----------------+         |
+		 * 			|	                                                |
+		 *          +->(DOMAIN)<-[BELONGS_TO]-(CUSTOMER)<-[TRACKED_FOR]-+
+		 * 
+		 * 	a USER writes a POST
+		 *  the POST is from a SOCIALNETWORK
+		 * 	the POST possibly mentions 1-n USER
+		 * 	the POST contains 1-n KEYWORD
+		 * 	the KEYWORD belongs to 1-n DOMAIN
+		 * 	a CUsTOMER belongs to a DOMAIN
+		 * 
+		 */
+		//
+		// create relationships
+		//           sourceJsonMatch                       targetJsonMatch
+		// MATCH  (a:USER {sn_id: "TW", id: "123456"}), (b:POST {sn_id: "TW", id: "654321"})
+		//               relType
+		// MERGE  (a)-[r:WROTE]->(b)
+		URI relLoc = null;
+		
+		GraphNodeTypes sourceLabel = null;
+		String sourceSnId = "";
+		String sourceId = "";
+		String sourceJsonMatch = "";
+		
+		GraphNodeTypes targetLabel = null;
+		String targetSnId = "";
+		String targetId = "";
+		String targetJsonMatch = "";
+		
+		GraphRelationshipTypes relType = null;
+		
+		
+		// rel: USER-[WROTE]->POST
+		logger.debug("create relationship: (USER:"+userSnId+"-"+userId+")-[WROTE]->(POST:"+postSnId+"-"+postId+")");
+		sourceLabel = GraphNodeTypes.USER;
+		sourceSnId = userSnId;
+		sourceId = userId;
+		targetLabel = GraphNodeTypes.POST;
+		targetSnId = postSnId;
+		targetId = postId;
+		relType = GraphRelationshipTypes.WROTE;
+		
+		// execute MATCH & MERGE
+		sourceJsonMatch = sourceLabel+" {sn_id: '"+sourceSnId+"', id: '"+sourceId+"'}";
+		targetJsonMatch = targetLabel+" {sn_id: '"+targetSnId+"', id: '"+targetId+"'}";
+		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
+		
+		
+		// rel: POST-[BELONGS_TO]->SOCIALNETWORK
+		logger.debug("create relationship: (POST:"+postSnId+"-"+postId+")-[BELONGS_TO]->(SOCIALNETWORK:"+socNetName+")");
+		sourceLabel = GraphNodeTypes.POST;
+		sourceSnId = postSnId;
+		sourceId = postId;
+		targetLabel = GraphNodeTypes.SOCIALNETWORK;
+		targetSnId = socNetName;
+		relType = GraphRelationshipTypes.BELONGS_TO;
+		
+		// execute MATCH & MERGE
+		sourceJsonMatch = sourceLabel+" {sn_id: '"+sourceSnId+"', id: '"+sourceId+"'}";
+		targetJsonMatch = targetLabel+" {name: '"+targetSnId+"'}";
+		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
+		
+		
+		// rel: CUSTOMER-[BELONGS_TO]->DOMAIN
+		logger.debug("create relationship: (CUSTOMER:"+customerName+")-[BELONGS_TO]->(DOMAIN:"+domainName+")");
+		sourceLabel = GraphNodeTypes.CUSTOMER;
+		sourceSnId = customerName;
+		targetLabel = GraphNodeTypes.DOMAIN;
+		targetSnId = domainName;
+		relType = GraphRelationshipTypes.BELONGS_TO;
+		
+		// execute MATCH & MERGE
+		sourceJsonMatch = sourceLabel+" {name: '"+sourceSnId+"'}";
+		targetJsonMatch = targetLabel+" {name: '"+targetSnId+"'}";
+		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
+		
+		
+		// rel: POST-[TRACKED_FOR]->CUSTOMER
+		logger.debug("create relationship: (POST:"+postSnId+"-"+postId+")-[TRACKED_FOR]->(CUSTOMER:"+customerName+")");
+		sourceLabel = GraphNodeTypes.POST;
+		targetLabel = GraphNodeTypes.CUSTOMER;
+		relType = GraphRelationshipTypes.TRACKED_FOR;
+		
+		// execute MATCH & MERGE
+		sourceJsonMatch = sourceLabel+" {sn_id: '"+postSnId+"', id: '"+postId+"'}";
+		targetJsonMatch = targetLabel+" {name: '"+customerName+"'}";
+		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
+		
+		
+		// KEYWORD
+		// rel: POST-[CONTAINS]->KEYWORD
+		//		KEYWORD-[BELONGS_TO]->DOMAIN
+		for (String keyword : keywords) {
+			logger.debug("create relationship: (KEYWORD:"+keyword+")-[BELONGS_TO]->(DOMAIN:"+domainName+")");
+			
+			sourceLabel = GraphNodeTypes.KEYWORD;
+			targetLabel = GraphNodeTypes.DOMAIN;
+			relType = GraphRelationshipTypes.BELONGS_TO;
+			
+			// execute MATCH & MERGE
+			sourceJsonMatch = sourceLabel+" {meyword: '"+keyword+"'}";
+			targetJsonMatch = targetLabel+" {name: '"+domainName+"'}";
+			relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
+			
+			logger.debug("create relationship: (POST:"+postSnId+"-"+postId+")-[CONTAINS]->(KEYWORD:"+keyword+")");
+			sourceLabel = GraphNodeTypes.POST;
+			targetLabel = GraphNodeTypes.KEYWORD;
+			relType = GraphRelationshipTypes.CONTAINS;
+			
+			// execute MATCH & MERGE
+			sourceJsonMatch = sourceLabel+" {sn_id: '"+postSnId+"', id: '"+postId+"'}";
+			targetJsonMatch = targetLabel+" {keyword: '"+keyword+"'}";
+			relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
+		}
+		
+		// commit the transaction
+		commitTransaction(transactLoc);
+	}
+	
+	
+	
+	private URI matchAndCreateNodeTransactional(GraphNodeTypes label, String matchPayload, String createPayload, URI transactLoc){
+		String matchCypherStatement = "\"MATCH (p:"+ label.toString() + " " +matchPayload+" ) ";
+		
+		String createCypherStatement = " CREATE (n:"+ label.toString() +" {properties}) RETURN n\", "
+		//String createCypherStatement = " CREATE (p {properties}) RETURN p\", "
+				+ "\"parameters\": {"
+				+ "\"properties\":" + createPayload
+				+ "} ";
+		String cypherStatement = matchCypherStatement + createCypherStatement;
+		return (sendTransactionalCypherStatement(cypherStatement, transactLoc));
+		
+	}
 	private URI findNode(String jsonPayload, GraphNodeTypes label, URI transactLoc){
 		/* the cypher statement is part of a larger one that is executed via method 
 		 *    sendTransactionalCypherStatement(). 
@@ -577,7 +641,29 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 		return (getNodeLocationTransactional(cypherStatement, transactLoc));
 		
 	}
-	
+	private JSONObject getNodeObject(String jsonPayload, GraphNodeTypes label, URI transactLoc){
+		/* the cypher statement is part of a larger one that is executed via method 
+		 *    sendTransactionalCypherStatement(). 
+		 * Ultimately, the statement looks like this:
+		 * 
+		 * {
+		 * 	"statements": [ { 
+		 * 		"statement": 
+		 * 			"MATCH (p:POST {sn_id: {parameters}}) RETURN p", 
+		 * 				"parameters": {
+		 * 					"sn_id":"TW"
+		 * 					}
+		 * 				} 
+		 * 				, "resultDataContents":["REST"]
+		 * 		} ] 
+		 * } 
+		 * 
+		 */
+		String cypherStatement = "\"MATCH (p:"+ label.toString() + " " +jsonPayload+" ) RETURN p\"";
+		
+		return (getNodeObjectTransactional(cypherStatement, transactLoc));
+		
+	}
 
 	/**
 	 * 
@@ -632,7 +718,8 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 								+ "] "
 							+ "}";
 				    
-			logger.trace("sending {} cypher {} to endpoint {}", payload.substring(32, 38), payload, finalUrl);
+			logger.debug("sending {} cypher {} ", payload.substring(32, 38), payload);
+			logger.trace("    endpoint {}", finalUrl);
 			WebResource resource = Client.create().resource( finalUrl );
 			
 			ClientResponse response = resource
@@ -701,13 +788,80 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				if(jsonResponseObj == null)
 					throw new ParseException(0, "returned json object is null");
 				
-				//logger.trace("returned response object is {}", jsonResponseObj.toString());
+				//	CREATE statement for nodes
+				//	{
+				//		"commit":"http://localhost:7474/db/data/transaction/16/commit",
+				//		"results":[
+				//			{
+				//				"columns":[],
+				//				"data":[]			<-- contains a rest and a nested self object with the location
+				//			}
+				//		],
+				//		"transaction":
+				//			{
+				//				"expires":"Wed, 03 Dec 2014 16:20:03 +0000"
+				//			},
+				//		"errors":[]
+				//	}
+/*
 				try {
-					nodeLocation = new URI((String)((JSONObject)((JSONArray)((JSONObject)((JSONArray)((JSONObject)((JSONArray)jsonResponseObj.get("results")).get(0)).get("data")).get(0)).get("rest")).get(0)).get("self"));
+					// try for CREATE node
+					nodeLocation = new URI(
+											(String)(
+													(JSONObject)(
+															(JSONArray)(
+																	(JSONObject)(
+																			(JSONArray)(
+																					(JSONObject)(
+																							(JSONArray)jsonResponseObj.get("results")
+																					).get(0)
+																			).get("data")
+																	).get(0)
+															).get("rest")
+													).get(0)
+											).get("self")
+										);
+					logger.trace("nodeLocation is {}", nodeLocation);
 				} catch (Exception e) {
-					logger.warn("{} statement did not return a self object, returning null -- error was {}", payload.substring(32, 38), e.getMessage());
-					nodeLocation = null;
+					e.printStackTrace();
+					try {
+						// try for MATCH and CREATE relationship
+						//								{
+						//										"errors":[],
+						//										"results":[
+						//													{
+						//														"data":[],
+						//														"columns":["p"]		<-- contains the location
+						//													}
+						//										],
+						//										"transaction":{
+						//											"expires":"Wed, 03 Dec 2014 16:20:03 +0000"
+						//										},
+						//										"commit":"http:\/\/localhost:7474\/db\/data\/transaction\/16\/commit"
+						//								}
+						nodeLocation = new URI(
+												(String)(
+														(JSONObject)(
+																(JSONArray)(
+																		(JSONObject)(
+																				(JSONArray)(
+																						(JSONObject)(
+																								(JSONArray)jsonResponseObj.values() //.get("results")
+																						).get(0)
+																				).get("p")
+																		).get(0)
+																).get("columns")
+														).get(0)
+												).get("results")
+											);
+						logger.trace("nodeLocation is {}", nodeLocation);
+					} catch (Exception e1) {
+						e1.printStackTrace();
+						logger.warn("{} statement did not return a self object, returning null -- error was {}", payload.substring(32, 38), e1.getMessage());
+						nodeLocation = null;
+					}
 				}
+*/
 				/*
 				JSONArray errors = (JSONArray)jsonResponseObj.get("errors");
 				logger.trace("errors is {}", errors.toString());
@@ -800,7 +954,8 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 				+ "}";
 			
 			
-			logger.trace("sending {} cypher {} to endpoint {}", payload.substring(32, 38), payload, endpointLoc);
+			logger.debug("sending {} cypher {} ", payload.substring(32, 38), payload);
+			logger.trace("    endpoint {}", endpointLoc);
 			WebResource resource = Client.create().resource( endpointLoc );
 			
 			ClientResponse response = resource
@@ -869,6 +1024,72 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 			e.printStackTrace();
 		}
 		return nodeLocation;
+	}
+	
+	
+	
+	/**
+	 * 
+	 * @param cypherStatement
+	 * @param endpointLoc
+	 * @return
+	 */
+	public JSONObject getNodeObjectTransactional(String cypherStatement, URI endpointLoc){
+		JSONObject node = new JSONObject();
+		try {
+			//+ "MATCH (n {" + field + " : " + id + ", type : \"" + type + "\" }) RETURN n"
+			String payload = "{\"statements\": "
+					+ "[ "
+						+ "{\"statement\": "
+							+ cypherStatement
+							+ ", \"resultDataContents\":[\"REST\"]"
+						+ "} "
+					+ "] "
+				+ "}";
+			
+			
+			logger.debug("sending {} cypher {} ", payload.substring(32, 38), payload);
+			logger.trace("    endpoint {}", endpointLoc);
+			WebResource resource = Client.create().resource( endpointLoc );
+			
+			ClientResponse response = resource
+					.accept( MediaType.APPLICATION_JSON )
+	                .type( MediaType.APPLICATION_JSON )
+			        .entity( payload )
+			        .get(ClientResponse.class);
+			        //.post( ClientResponse.class );
+			
+			String responseEntity = response.getEntity(String.class).toString();
+			int responseStatus = response.getStatus();
+			logger.trace("GET to {} returned status code {}, returned data: {}",
+					endpointLoc, responseStatus,
+			        responseEntity);
+			
+			// first check if the http code was ok
+			HttpStatusCodes httpStatusCodes = HttpStatusCodes.getHttpStatusCode(responseStatus);
+			if (!httpStatusCodes.isOk()){
+				if (httpStatusCodes == HttpStatusCodes.FORBIDDEN){
+					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
+				} else {
+					logger.error("Error {} sending data to {}: {} ", response.getStatus(), endpointLoc, HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
+				}
+			} else {
+				// now do the check on json details within the returned JSON object
+				JSONParser reponseParser = new JSONParser();
+				Object responseObj = reponseParser.parse(responseEntity);
+				JSONObject jsonResponseObj = responseObj instanceof JSONObject ?(JSONObject) responseObj : null;
+				if(jsonResponseObj == null)
+					throw new ParseException(0, "returned json object is null");
+				
+				logger.trace("returned response {}", jsonResponseObj.toString());
+				
+				node = jsonResponseObj;
+			}
+		} catch (Exception e) {
+			logger.error("EXCEPTION :: failed to execute query - {}", e.getMessage());
+			e.printStackTrace();
+		}
+		return node;
 	}
 	
 	
@@ -1015,16 +1236,11 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 	}
 	
 	
-	
-	
-	
-	
 	// get/set the config file
 	public String getConfigDb() {return configDb;}
 	public void setConfigDb(String configDb) {this.configDb = configDb;}
 
-
-	@Override
+	
 	public URI createRelationship(GraphNodeTypes sourceType, URI sourceNode,
 			GraphNodeTypes targetType, URI targetNode,
 			GraphRelationshipTypes relationshipType, String[] jsonAttributes) {
@@ -1066,7 +1282,8 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 			logger.trace("    using statement {}", cypherStatement);
 			
 			// direct call
-			logger.trace("sending CREATE RELATIONSHIP cypher as {} to endpoint {}", cypherStatement, finalUrl);
+			logger.debug("sending {} cypher {} ", payload.substring(32, 38), payload);
+			logger.trace("    endpoint {}", finalUrl);
 			WebResource resource = Client.create().resource( finalUrl );
 			
 			ClientResponse response = resource
@@ -1274,4 +1491,35 @@ if (customerNodeLocation != null && domainNodeLocation != null) {
 	if (relLoc != null)
 		createRelationship(GraphNodeTypes.CUSTOMER, customerNodeLocation, GraphNodeTypes.DOMAIN, domainNodeLocation, GraphRelationshipTypes.BELONGS_TO, jsonAttributes);
 }
+
+ 		//rel: POST-[BELONGS_TO]->DOMAIN
+		logger.debug("create relationship: POST-[BELONGS_TO]->DOMAIN");
+		sourceLabel = GraphNodeTypes.POST;
+		sourceSnId = postSnId;
+		sourceId = postId;
+		targetLabel = GraphNodeTypes.DOMAIN;
+		targetSnId = domainName;
+		relType = GraphRelationshipTypes.BELONGS_TO;
+		
+		// execute MATCH & MERGE
+		sourceJsonMatch = sourceLabel+" {sn_id: '"+sourceSnId+"', id: '"+sourceId+"'}";
+		targetJsonMatch = targetLabel+" {name: '"+targetSnId+"'}";
+		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
+		
+		
+		
+		// rel: POST-[BELONGS_TO]->CUSTOMER
+		logger.debug("create relationship: POST-[BELONGS_TO]->CUSTOMER");
+		sourceLabel = GraphNodeTypes.POST;
+		sourceSnId = postSnId;
+		sourceId = postId;
+		targetLabel = GraphNodeTypes.CUSTOMER;
+		targetSnId = customerName;
+		relType = GraphRelationshipTypes.BELONGS_TO;
+		
+		// execute MATCH & MERGE
+		sourceJsonMatch = sourceLabel+" {sn_id: '"+sourceSnId+"', id: '"+sourceId+"'}";
+		targetJsonMatch = targetLabel+" {name: '"+targetSnId+"'}";
+		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
+		
 */

@@ -5,6 +5,8 @@ import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -17,7 +19,7 @@ import org.quartz.JobExecutionException;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
-
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -329,6 +331,17 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 									// create a lithium posting object from the message response from Lithium
 									LithiumPosting litPost = new LithiumPosting(messageResponse);
 									
+									// TODO check if this is the right spot to add the track terms to the posting
+									ArrayList<String> keywords = new ArrayList<String>();
+									for (String keyword : tTerms){
+										if (containsWord(litPost.getJson().get("text").toString(), keyword)) {
+											logger.trace("adding trackterm {} to list of tracked keywords", keyword);
+											keywords.add(keyword);
+										}
+									}
+									// now we should have an array list of the found trackterms in the post
+									litPost.setTrackTerms(keywords);
+									
 									try {
 										// retrieve the user from REST url and save it
 										JSONParser parser = new JSONParser();
@@ -344,7 +357,6 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 										LithiumUser litUser = new LithiumUser(userResponse);
 										litUser.save();
 										
-										
 										// now add the extracted user-data object back in the posting data object
 										// so that later, in the call to the graph persistence manager, we can get 
 										// post and user-objects from one combined json structure
@@ -354,6 +366,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 										// next save the message
 										if (rtcPersistenceThreading){
 											final LithiumPosting litTPost = new LithiumPosting(messageResponse);
+											
 											// execute persistence layer in a new thread, so that it does NOT block the crawler
 											logger.trace("execute persistence layer in a new thread...");
 											new Thread(new Runnable() {
@@ -534,6 +547,28 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			}
 		});
 	}
+	
+	
+	/**
+	 * @description 	checks if the given token is found in the given text
+	 * 					this check is done a second time in the parser, after all irrelevant content
+	 * 					like advertisement and the like has been stripped off the page.
+	 * @param 			text
+	 * @param 			token
+	 * @return 			true if any of the tokens was found, otherwise false
+	 */
+	private boolean containsWord(String text, String token){
+		String patternString = "\\b(" + StringUtils.join(token, "|") + ")\\b";
+		Pattern pattern = Pattern.compile(patternString);
+		Matcher matcher = pattern.matcher(text);
+
+		while (matcher.find()) {
+		    return true;
+		}
+		
+		return false;
+	}
+	
 	
 	// these are the getter and setter for the name value - used for JMX support, I think
 	public static String getName() {return name;}

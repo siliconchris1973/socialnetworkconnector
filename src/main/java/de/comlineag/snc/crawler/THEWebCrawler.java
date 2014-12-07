@@ -274,30 +274,50 @@ public class THEWebCrawler extends WebCrawler {
 					postings = ParserControl.submit(html, realUrl, tTerms, sn_id, curCustomer, curDomain);
 					
 					// invoke the persistence layer - should go to crawler
-					for (int ii = 0; ii < postings.size(); ii++) {
+					for (WebPosting postData : postings) {
+					//for (int ii = 0; ii < postings.size(); ii++) {
+						String userName = "undefined";
+						String pageUrl = "undefined";
+
+						if (postData.getUserAsJson().containsKey("username"))
+							userName = postData.getUserAsJson().get("username").toString();
+						if (postData.getJson().containsKey("source"))
+							pageUrl = postData.getJson().get("source").toString();
+
 						trackedPages++;
+
+						logger.debug("{} pages to store in persistence layer tracked", trackedPages);
+						
+						//WebPosting postData = postings.get(ii);
+						WebUser userData = new WebUser(postData.getUserAsJson()); 
+
+						// TODO check if this is the right spot to add the track terms to the posting
+						ArrayList<String> keywords = new ArrayList<String>();
+						for (String keyword : tTerms){
+							if (containsWord(text, keyword)) {
+								logger.trace("adding trackterm {} to list of tracked keywords", keyword);
+								keywords.add(keyword);
+							}
+						}
+						// now we should have an array list of the found trackterms in the post
+						postData.setTrackTerms(keywords);
+						
 						if (rtcPersistenceThreading){
 							// execute persistence layer in a new thread, so that it does NOT block the crawler
 							logger.trace("execute persistence layer in a new thread...");
-							final WebPosting postDataT = postings.get(ii);
-							final WebUser userDataT = new WebUser(postDataT.getUserAsJson());
+							final WebPosting postDataT = postData;
+							final WebUser userDataT = userData;
+							final String userNameT = userName;
+							final String pageUrlT = pageUrl;
 							
 							new Thread(new Runnable() {
-								
 								@Override
 								public void run() {
-									/* now we add the extracted user-data object back in the posting data object
-									// so that later, in the call to the graph persistence manager, we can get 
-									// post and user-objects from one combined json structure
-									logger.trace("about to add the user object to the post object \n    {}", userDataT.getJson());
-									postDataT.setUserObject(userDataT.getUserData());
-									*/
-									
-									logger.info("calling persistence layer to save the user ");
+									logger.info("calling persistence layer to save the user {}", userNameT);
 									userDataT.save();
 									
 									// and now pass the web page on to the persistence layer
-									logger.info("calling persistence layer to save the page ");
+									logger.info("calling persistence layer to save the page {}", pageUrlT);
 									postDataT.save();
 									
 									// next call the graph engine and store data also in the external graph
@@ -311,23 +331,11 @@ public class THEWebCrawler extends WebCrawler {
 							}).start();
 							// otherwise just call it sequentially
 						} else {
-							WebPosting postData = postings.get(ii);
-							
-							// first get the user-data out of the WebPosting
-							WebUser userData = new WebUser(postData.getUserAsJson()); 
-							
-							/* now we add the extracted user-data object back in the posting data object
-							// so that later, in the call to the graph persistence manager, we can get 
-							// post and user-objects from one combined json structure
-							logger.trace("about to add the user object to the post object \n    {}", userData.getJson());
-							postData.setUserObject(userData.getUserData());
-							*/
-							
-							logger.info("calling persistence layer to save the user ");
+							logger.info("calling persistence layer to save the user {}", userName);
 							userData.save();
 							
 							// and now pass the web page on to the persistence layer
-							logger.info("calling persistence layer to save the page ");
+							logger.info("calling persistence layer to save the page {}", pageUrl);
 							postData.save();
 							
 							// next call the graph engine and store data also in the external graph
@@ -406,6 +414,27 @@ public class THEWebCrawler extends WebCrawler {
 		}
 		
 		return myCrawlData;
+	}
+	
+	
+	/**
+	 * @description 	checks if the given token is found in the given text
+	 * 					this check is done a second time in the parser, after all irrelevant content
+	 * 					like advertisement and the like has been stripped off the page.
+	 * @param 			text
+	 * @param 			token
+	 * @return 			true if any of the tokens was found, otherwise false
+	 */
+	private boolean containsWord(String text, String token){
+		String patternString = "\\b(" + StringUtils.join(token, "|") + ")\\b";
+		Pattern pattern = Pattern.compile(patternString);
+		Matcher matcher = pattern.matcher(text);
+
+		while (matcher.find()) {
+		    return true;
+		}
+		
+		return false;
 	}
 	
 	// these are the getter and setter for the name value - used for JMX support, I think

@@ -1,0 +1,41 @@
+DEBUG Neo4JPersistence - create relationship: USER-[WROTE]->POST
+TRACE Neo4JPersistence - query if relationship MATCH (a: USER: {sn_id: "TW", id: "1289565265"})-[r:WROTE]->(b: POST: {sn_id: "TW", id: "539756182227779586"}) exists and if not, create it
+TRACE Neo4JPersistence - sending ATCH ( cypher 
+
+
+	{"statements": 
+		[ 
+			{"statement": 
+				MATCH (a: USER: {sn_id: "TW", id: "1289565265"}), (b: POST: {sn_id: "TW", id: "539756182227779586"}), 
+				MERGE (a)-[r:WROTE]->(b), 
+				"resultDataContents":["REST"]
+			} 
+		] 
+	} 
+
+
+	{"statements": 
+		[ 
+			{"statement": 
+				"MATCH (p:SOCIALNETWORK {name: 'Twitter'} ) RETURN p", 
+				"resultDataContents":["REST"]
+			} 
+		] 
+	} 
+
+
+
+	{"statements": 
+		[ 
+			{"statement": 
+				"MATCH (a:USER: {sn_id: 'TW', id: '354675571'}), (b:POST: {sn_id: 'TW', id: '539764441630662656'}) MERGE (a)-[r:WROTE]->(b)", 
+				"resultDataContents":["REST"]
+			} 
+		] 
+	}
+	 to endpoint http://localhost:7474/db/data/transaction/14
+
+
+to endpoint http://localhost:7474/db/data/transaction/9
+TRACE Neo4JPersistence - POST to http://localhost:7474/db/data/transaction/9 returned status code 200, returned data: {"commit":"http://localhost:7474/db/data/transaction/9/commit","results":[],"transaction":{"expires":"Tue, 02 Dec 2014 12:22:18 +0000"},"errors":[{"code":"Neo.ClientError.Request.InvalidFormat","message":"Unable to deserialize request: Unexpected character ('M' (code 77)): expected a valid value (number, String, array, object, 'true', 'false' or 'null')\n at [Source: org.eclipse.jetty.server.HttpConnection$Input@98cfaad{HttpChannelOverHttp@69d78c1{r=9,a=DISPATCHED,uri=/db/data/transaction/9},HttpConnection@4c62ca4b{FILLING},g=HttpGenerator{s=START},p=HttpParser{s=END,193 of 193}}; line: 1, column: 33]"}]}
+WARN  Neo4JPersistence - ATCH ( statement did not return a self object, returning null -- error was Index: 0, Size: 0

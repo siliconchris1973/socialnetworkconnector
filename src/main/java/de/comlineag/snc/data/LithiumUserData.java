@@ -158,7 +158,8 @@ public final class LithiumUserData extends UserData implements ISncDataObject{
 				}
 			}
 			
-			setLang((String) jsonObject.get("lang"));
+			if (jsonObject.containsKey("lang"))
+				setLang((String) jsonObject.get("lang"));
 			
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: during parsing of json Lithium user-object " + e.getLocalizedMessage());

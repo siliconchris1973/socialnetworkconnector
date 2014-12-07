@@ -59,8 +59,8 @@
 		 a crawler here, it will run, in case it is activated in 
 		 applicationContext.xml -->
 	<configuration scope="CrawlerRun">
-		<crawler name="TWITTER">false</crawler>
-		<crawler name="LITHIUM">false</crawler>
+		<crawler name="TWITTER">true</crawler>
+		<crawler name="LITHIUM">true</crawler>
 		<crawler name="FACEBOOK">false</crawler>
 		<crawler name="WEBCRAWLER">true</crawler>
 	</configuration>
@@ -141,6 +141,14 @@
 					<blockedterm>
 						<type>String</type>
 						<value>Escort</value>
+					</blockedterm>
+					<blockedterm>
+						<type>String</type>
+						<value>Pokémon</value>
+					</blockedterm>
+					<blockedterm>
+						<type>String</type>
+						<value>Trading Card Game</value>
 					</blockedterm>
 				</constraint>
 				
@@ -402,6 +410,12 @@
 						<value>fr</value>
 					</language>
 					-->
+				</constraint>
+				<constraint>
+					<blockeduser>
+						<type>String</type>
+						<value>Kreditkarte4you</value>
+					</blockeduser>
 				</constraint>
 			</constraints>
 			<!-- END OF TWITTER CONSTRAINTS -->

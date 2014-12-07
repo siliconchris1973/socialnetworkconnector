@@ -281,90 +281,78 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 								setPostsTracked(messageCount);
 								
 								logger.debug("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
-								//logger.trace("   content: " + msg );
-		
 								
-								boolean useArray = true;
-								if (useArray) {
-									ArrayList<TwitterPosting> postings = new ArrayList<TwitterPosting>();
-									// the tweets are now passed to the parser TwitterParser
-									// and decoded in a special way, embedding the user-object
-									postings = post.parseMessages(msg);
+								ArrayList<TwitterPosting> postings = new ArrayList<TwitterPosting>();
+								// the tweets are now passed to the parser TwitterParser
+								// and decoded in a special way, embedding the user-object
+								postings = post.parseMessages(msg);
+								
+								logger.trace("trying to save " + postings.size() + " tweets");
+								//for (int ii = 0; ii < postings.size(); ii++) {
+									//TwitterPosting postData = postings.get(ii);
+								for (TwitterPosting postData : postings) {
+									TwitterUser userData = new TwitterUser(postData.getUserAsJson()); 
 									
-									logger.trace("trying to save " + postings.size() + " tweets");
-									for (int ii = 0; ii < postings.size(); ii++) {
-										
-										if (rtcPersistenceThreading){
-											// execute persistence layer in a new thread, so that it does NOT block the crawler
-											logger.trace("execute persistence layer in a new thread...");
-											final TwitterPosting postDataT = postings.get(ii);
-											final TwitterUser userDataT = new TwitterUser(postDataT.getUserAsJson());
-											
-											new Thread(new Runnable() {
-												
-												@Override
-												public void run() {
-													/* now we add the extracted user-data object back in the posting data object
-													// so that later, in the call to the graph persistence manager, we can get 
-													// post and user-objects from one combined json structure
-													logger.trace("about to add the user object to the post object \n    {}", userDataT.getJson());
-													postDataT.setUserObject(userDataT.getUserData());
-													*/
-													
-													logger.info("calling persistence layer to save the user ");
-													userDataT.save();
-													
-													// and now pass the web page on to the persistence layer
-													logger.info("calling persistence layer to save the page ");
-													postDataT.save();
-													
-													// next call the graph engine and store data also in the external graph
-													// please note that we do not need to do this for the user as well, as 
-													// the graph persistence layer uses the embedded user object within the
-													// post object
-													if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
-														postDataT.saveInGraph();
-													}
-												}
-											}).start();
-											// otherwise just call it sequentially
-										} else {
-											TwitterPosting postData = postings.get(ii);
-											
-											// first get the user-data out of the WebPosting
-											TwitterUser userData = new TwitterUser(postData.getUserAsJson()); 
-											logger.info("calling persistence layer to save the user ");
-											userData.save();
-											
-											// now we add the extracted user-data object back in the posting data object
-											// so that later, in the call to the graph persistence manager, we can get 
-											// post and user-objects from one combined json structure
-											logger.trace("about to add the user object to the post object \n    {}", userData.getJson());
-											postData.setUserObject(userData.getUserData());
-											
-											// and now pass the web page on to the persistence layer
-											logger.info("calling persistence layer to save the page ");
-											postData.save();
-											
-											// next call the graph engine and store data also in the external graph
-											// please note that we do not need to do this for the user as well, as 
-											// the graph persistence layer uses the embedded user object within the
-											// post object
-											if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
-												postData.saveInGraph();
-											}
+									// TODO check if this is the right spot to add the track terms to the posting
+									ArrayList<String> keywords = new ArrayList<String>();
+									for (String keyword : tTerms){
+										if (containsWord(msg, keyword)) {
+											logger.trace("adding trackterm {} to list of tracked keywords", keyword);
+											keywords.add(keyword);
 										}
 									}
-								} else {
-									// each tweet is now passed to the parser TwitterParser
-									post.process(msg);
+									// now we should have an array list of the found trackterms in the post
+									postData.setTrackTerms(keywords);
+									
+									if (rtcPersistenceThreading){
+										// execute persistence layer in a new thread, so that it does NOT block the crawler
+										logger.trace("execute persistence layer in a new thread...");
+										final TwitterUser userDataT = userData;
+										final TwitterPosting postDataT = postData;
+										
+										new Thread(new Runnable() {
+											@Override
+											public void run() {
+												logger.info("calling persistence layer to save the user ");
+												userDataT.save();
+												
+												// and now pass the web page on to the persistence layer
+												logger.info("calling persistence layer to save the page ");
+												postDataT.save();
+												
+												// next call the graph engine and store data also in the external graph
+												// please note that we do not need to do this for the user as well, as 
+												// the graph persistence layer uses the embedded user object within the
+												// post object
+												if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+													postDataT.saveInGraph();
+												}
+											}
+										}).start();
+										// otherwise just call it sequentially
+									} else {
+										logger.info("calling persistence layer to save the user ");
+										userData.save();
+										
+										/* now we add the extracted user-data object back in the posting data object
+										// so that later, in the call to the graph persistence manager, we can get 
+										// post and user-objects from one combined json structure
+										logger.trace("about to add the user object to the post object \n    {}", userData.getJson());
+										postData.setUserObject(userData.getUserData());
+										*/
+										// and now pass the web page on to the persistence layer
+										logger.info("calling persistence layer to save the page ");
+										postData.save();
+										
+										// next call the graph engine and store data also in the external graph
+										// please note that we do not need to do this for the user as well, as 
+										// the graph persistence layer uses the embedded user object within the
+										// post object
+										if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+											postData.saveInGraph();
+										}
+									}
 								}
-								
-								
-								//
-								// TODO move save-blog from TwitterParser to this place 
-								// 
-								
 							} else {
 								if (rtcWarnOnRejectedActions)
 									logger.debug("message rejected because it cantains one of the blocked terms");
@@ -402,24 +390,6 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 		} 
 	}
 	
-	
-	/*
-	 * takes messages from the msgQueue  
-	 * @param connectionTimeOut
-	 * @return
-	 
-	private String ReadMessage(int connectionTimeOut){
-		String msg = null;
-		try {
-			msg = msgQueue.poll(connectionTimeOut, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			logger.error("ERROR :: Message polling interrupted " + e.getMessage());
-		} catch (Exception ee) {
-			logger.error("EXCEPTION :: Exception while polling message " + ee.getMessage());
-		}
-		return msg;
-	}
-	*/
 	
 	
 	/**
@@ -463,6 +433,27 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 
 		while (matcher.find()) {
 		    return true;
+		}
+		
+		return false;
+	}
+	
+	
+	/**
+	 * @description 	checks if the given token is found in the given text
+	 * 					this check is done a second time in the parser, after all irrelevant content
+	 * 					like advertisement and the like has been stripped off the page.
+	 * @param 			text
+	 * @param 			token
+	 * @return 			true if any of the tokens was found, otherwise false
+	 */
+	private boolean containsWord(String text, String token){
+		String patternString = "\\b(" + token + ")\\b";
+		Pattern pattern = Pattern.compile(patternString);
+		Matcher matcher = pattern.matcher(text);
+
+		while (matcher.find()) {
+			return true;
 		}
 		
 		return false;

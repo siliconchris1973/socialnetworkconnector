@@ -55,10 +55,12 @@ public class GraphUserData implements ISncDataObject{
 				setScreenName(obj.get("screen_name").toString());
 				internalJson.put("screen_name", getScreenName());
 			}
+			/* FIXME check what is wrong with lang - throws a NullPointerException
 			if (obj.containsKey("lang")) {
 				setLang(obj.get("lang").toString());
 				internalJson.put("lang", getLang());
 			}
+			*/
 			if (obj.containsKey("geoLocation")) {
 				setGeoLocation((String) obj.get("geoLocation"));
 				internalJson.put("geoLocation", getGeoLocation());

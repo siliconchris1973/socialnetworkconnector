@@ -76,9 +76,11 @@ public class GraphPostingData implements ISncDataObject{
 			if (obj.containsKey("truncated")){
 				setTruncated((boolean) obj.get("truncated"));
 			}
+			/* FIXME check what is wrong with timestamps - kills the graph db persistence layer
 			if (obj.containsKey("timestamp")){
 				setTimestamp((LocalDateTime) obj.get(timestamp));
 			}
+			*/
 			if (obj.containsKey("teaser")){
 				setTeaser(obj.get("teaser").toString());
 			}

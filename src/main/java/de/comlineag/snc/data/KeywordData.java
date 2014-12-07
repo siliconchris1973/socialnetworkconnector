@@ -34,6 +34,11 @@ public class KeywordData implements ISncDataObject{
 		} catch (Exception e){}
 	}
 	
+	public KeywordData(String keyw){
+		setKeyword(keyw);
+		internalJson.put("keyword", keyw);
+	}
+	
 	private String toJsonString(){
 		return internalJson.toJSONString();
 	}

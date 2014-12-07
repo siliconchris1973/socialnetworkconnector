@@ -67,7 +67,7 @@ public class PostingData implements ISncDataObject{
 	/*
 	 * all track terms for which the post was tracked 
 	 */
-	protected ArrayList<String> trackterms;
+	protected ArrayList<String> trackterms = new ArrayList<String>();
 	
 	/*
 	 * DomainData domainData - an embedded domain object within the page/post object
@@ -314,10 +314,12 @@ public class PostingData implements ISncDataObject{
 	// track-terms aka keywords
 	public ArrayList<String> getTrackTerms() {return trackterms;}
 	public void setTrackTerms(List<String> trackterms) {
-		assert (socialNetworkData != null) : "ERROR :: cannot operate on empty input";
+		assert (trackterms != null) : "ERROR :: cannot operate on empty input";
 		
 		for (int i=0;i<trackterms.size();i++)
 			this.trackterms.add(trackterms.get(i).toString());
+		internalJson.put("KEYWORD", trackterms);
+		
 	}
 	
 	// the standard fields

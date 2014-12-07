@@ -1,5 +1,7 @@
 package de.comlineag.snc.handler;
 
+import java.util.ArrayList;
+
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +90,7 @@ public class TwitterPosting extends GenericDataManager<TwitterPostingData> {
 			logger.trace("this is the big json with all entities {}", bigJson.toJSONString());
 			
 			logger.info("calling graph database for {}-{} ", bigJson.get("sn_id").toString(), bigJson.get("id").toString());
-			graphPersistenceManager.saveNode(bigJson);
+			graphPersistenceManager.createNodeObject(bigJson);
 		} catch (Exception e) {
 			logger.error("ERROR :: during call of graph-db layer {}", e.getLocalizedMessage());
 			e.printStackTrace();
@@ -109,4 +111,7 @@ public class TwitterPosting extends GenericDataManager<TwitterPostingData> {
 	
 	public void setSocialNetworkObject(SocialNetworkData socData){ data.setSocialNetworkObject(socData);}
 	public SocialNetworkData getSocialNetworkObject(){return((SocialNetworkData) data.getSocialNetworkObject());}
+	
+	public void setTrackTerms(ArrayList<String> tTerms){ data.setTrackTerms(tTerms);}
+	public ArrayList<String> getTrackTerms(){return((ArrayList<String>) data.getTrackTerms());}
 }

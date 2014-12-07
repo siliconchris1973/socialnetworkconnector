@@ -99,8 +99,7 @@ public class Neo4JEmbeddedPersistence implements IGraphPersistenceManager {
 		return DB_PATH;
 	}
 
-
-	@Override
+	
 	public void saveNode(JSONObject nodeObject) {
 		logger.info("creating a {} node object to store in the graph", SocialNetworks.getSocialNetworkConfigElementByCode("name", nodeObject.get("sn_id").toString()));
 		GraphNodeTypes label = GraphNodeTypes.POST;
@@ -220,21 +219,6 @@ public class Neo4JEmbeddedPersistence implements IGraphPersistenceManager {
 	}
 	
 	
-	
-	@Override
-	public URI createRelationship(GraphNodeTypes sourceType, URI startNode, GraphNodeTypes targetType, URI endNode,
-			GraphRelationshipTypes relationshipType, String[] jsonAttributes) {
-		try {
-			
-			
-		} catch (Exception e) {
-			logger.error("could not create relationship between {} and {} - {}", startNode, endNode, e.getLocalizedMessage());
-		}
-		return null;
-	}
-	
-	
-
 	/**
 	 * @description deletes all graph-db files on file system, thus essentially wiping out the entire DB
 	 */
@@ -326,5 +310,10 @@ public class Neo4JEmbeddedPersistence implements IGraphPersistenceManager {
             
             tx.success();
         }
+	}
+	@Override
+	public void createNodeObject(JSONObject nodeObject) {
+		// TODO Auto-generated method stub
+		
 	}
 }
