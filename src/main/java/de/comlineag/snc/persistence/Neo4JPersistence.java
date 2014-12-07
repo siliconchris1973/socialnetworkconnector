@@ -534,13 +534,13 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 		
 		
 		// rel: POST-[BELONGS_TO]->SOCIALNETWORK
-		logger.debug("create relationship: (POST:"+postSnId+"-"+postId+")-[BELONGS_TO]->(SOCIALNETWORK:"+socNetName+")");
+		logger.debug("create relationship: (POST:"+postSnId+"-"+postId+")-[FETCHED_FROM]->(SOCIALNETWORK:"+socNetName+")");
 		sourceLabel = GraphNodeTypes.POST;
 		sourceSnId = postSnId;
 		sourceId = postId;
 		targetLabel = GraphNodeTypes.SOCIALNETWORK;
 		targetSnId = socNetName;
-		relType = GraphRelationshipTypes.BELONGS_TO;
+		relType = GraphRelationshipTypes.FETCHED_FROM;
 		
 		// execute MATCH & MERGE
 		sourceJsonMatch = sourceLabel+" {sn_id: '"+sourceSnId+"', id: '"+sourceId+"'}";
@@ -578,11 +578,11 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 		// rel: POST-[CONTAINS]->KEYWORD
 		//		KEYWORD-[BELONGS_TO]->DOMAIN
 		for (String keyword : keywords) {
-			logger.debug("create relationship: (KEYWORD:"+keyword+")-[BELONGS_TO]->(DOMAIN:"+domainName+")");
+			logger.debug("create relationship: (KEYWORD:"+keyword+")-[RELEVANT_FOR]->(DOMAIN:"+domainName+")");
 			
 			sourceLabel = GraphNodeTypes.KEYWORD;
 			targetLabel = GraphNodeTypes.DOMAIN;
-			relType = GraphRelationshipTypes.BELONGS_TO;
+			relType = GraphRelationshipTypes.RELEVANT_FOR;
 			
 			// execute MATCH & MERGE
 			sourceJsonMatch = sourceLabel+" {meyword: '"+keyword+"'}";

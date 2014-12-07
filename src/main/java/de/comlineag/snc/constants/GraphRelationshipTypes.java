@@ -45,5 +45,7 @@ public enum GraphRelationshipTypes implements RelationshipType {
 	IS_ABOUT, 
 	CONTAINS, 
 	BELONGS_TO,
-	TRACKED_FOR;
+	TRACKED_FOR,
+	FETCHED_FROM,
+	RELEVANT_FOR;
 }
