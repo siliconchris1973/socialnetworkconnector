@@ -478,22 +478,22 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 		
 		/*
 		 * The graph schema looks like this:
-		 *                            +---------------------------------+
-		 *                            |                                 |
-		 * 							  | +-[BELONGS_TO]->(SOCIALNETWORK) |
-		 * 							  | |                               |
-		 * 		(KEYWORD)<-[CONTAINS]-(POST)<-[WROTE]-(USER)<-+         |
-		 * 			|					|                     |         |
-		 *		[BELONGS_TO]		[MENTIONS]----------------+         |
-		 * 			|	                                                |
-		 *          +->(DOMAIN)<-[BELONGS_TO]-(CUSTOMER)<-[TRACKED_FOR]-+
+		 *                           
+		 *                                                             
+		 * 							   +-[FETCHED_FROM]->(SOCIALNETWORK) 
+		 * 							   |                               
+		 * 		(KEYWORD)<-[CONTAINS]-(POST)<-[WROTE]-(USER)<-+         
+		 * 			|					|                     |         
+		 *		[RELEVANT_FOR]		[MENTIONS]----------------+         
+		 * 			|	                                                
+		 *          +->(DOMAIN)<-[BELONGS_TO]-(CUSTOMER)
 		 * 
-		 * 	a USER writes a POST
-		 *  the POST is from a SOCIALNETWORK
+		 * 	a USER wrote a POST
+		 *  the POST is fetched from a SOCIALNETWORK
 		 * 	the POST possibly mentions 1-n USER
 		 * 	the POST contains 1-n KEYWORD
-		 * 	the KEYWORD belongs to 1-n DOMAIN
-		 * 	a CUsTOMER belongs to a DOMAIN
+		 * 	the KEYWORD is relevant for 1-n DOMAIN
+		 * 	a CUSTOMER belongs to a DOMAIN
 		 * 
 		 */
 		//
@@ -505,13 +505,9 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 		URI relLoc = null;
 		
 		GraphNodeTypes sourceLabel = null;
-		String sourceSnId = "";
-		String sourceId = "";
 		String sourceJsonMatch = "";
 		
 		GraphNodeTypes targetLabel = null;
-		String targetSnId = "";
-		String targetId = "";
 		String targetJsonMatch = "";
 		
 		GraphRelationshipTypes relType = null;
@@ -520,79 +516,58 @@ public class Neo4JPersistence implements IGraphPersistenceManager {
 		// rel: USER-[WROTE]->POST
 		logger.debug("create relationship: (USER:"+userSnId+"-"+userId+")-[WROTE]->(POST:"+postSnId+"-"+postId+")");
 		sourceLabel = GraphNodeTypes.USER;
-		sourceSnId = userSnId;
-		sourceId = userId;
-		targetLabel = GraphNodeTypes.POST;
-		targetSnId = postSnId;
-		targetId = postId;
 		relType = GraphRelationshipTypes.WROTE;
+		targetLabel = GraphNodeTypes.POST;
 		
 		// execute MATCH & MERGE
-		sourceJsonMatch = sourceLabel+" {sn_id: '"+sourceSnId+"', id: '"+sourceId+"'}";
-		targetJsonMatch = targetLabel+" {sn_id: '"+targetSnId+"', id: '"+targetId+"'}";
+		sourceJsonMatch = sourceLabel+" {sn_id: '"+userSnId+"', id: '"+userId+"'}";
+		targetJsonMatch = targetLabel+" {sn_id: '"+postSnId+"', id: '"+postId+"'}";
 		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
 		
 		
-		// rel: POST-[BELONGS_TO]->SOCIALNETWORK
+		// rel: POST-[FETCHED_FROM]->SOCIALNETWORK
 		logger.debug("create relationship: (POST:"+postSnId+"-"+postId+")-[FETCHED_FROM]->(SOCIALNETWORK:"+socNetName+")");
 		sourceLabel = GraphNodeTypes.POST;
-		sourceSnId = postSnId;
-		sourceId = postId;
-		targetLabel = GraphNodeTypes.SOCIALNETWORK;
-		targetSnId = socNetName;
 		relType = GraphRelationshipTypes.FETCHED_FROM;
+		targetLabel = GraphNodeTypes.SOCIALNETWORK;
 		
 		// execute MATCH & MERGE
-		sourceJsonMatch = sourceLabel+" {sn_id: '"+sourceSnId+"', id: '"+sourceId+"'}";
-		targetJsonMatch = targetLabel+" {name: '"+targetSnId+"'}";
+		sourceJsonMatch = sourceLabel+" {sn_id: '"+postSnId+"', id: '"+postId+"'}";
+		targetJsonMatch = targetLabel+" {name: '"+socNetName+"'}";
 		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
 		
 		
 		// rel: CUSTOMER-[BELONGS_TO]->DOMAIN
 		logger.debug("create relationship: (CUSTOMER:"+customerName+")-[BELONGS_TO]->(DOMAIN:"+domainName+")");
 		sourceLabel = GraphNodeTypes.CUSTOMER;
-		sourceSnId = customerName;
-		targetLabel = GraphNodeTypes.DOMAIN;
-		targetSnId = domainName;
 		relType = GraphRelationshipTypes.BELONGS_TO;
+		targetLabel = GraphNodeTypes.DOMAIN;
 		
 		// execute MATCH & MERGE
-		sourceJsonMatch = sourceLabel+" {name: '"+sourceSnId+"'}";
-		targetJsonMatch = targetLabel+" {name: '"+targetSnId+"'}";
-		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
-		
-		
-		// rel: POST-[TRACKED_FOR]->CUSTOMER
-		logger.debug("create relationship: (POST:"+postSnId+"-"+postId+")-[TRACKED_FOR]->(CUSTOMER:"+customerName+")");
-		sourceLabel = GraphNodeTypes.POST;
-		targetLabel = GraphNodeTypes.CUSTOMER;
-		relType = GraphRelationshipTypes.TRACKED_FOR;
-		
-		// execute MATCH & MERGE
-		sourceJsonMatch = sourceLabel+" {sn_id: '"+postSnId+"', id: '"+postId+"'}";
-		targetJsonMatch = targetLabel+" {name: '"+customerName+"'}";
+		sourceJsonMatch = sourceLabel+" {name: '"+customerName+"'}";
+		targetJsonMatch = targetLabel+" {name: '"+domainName+"'}";
 		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
 		
 		
 		// KEYWORD
-		// rel: POST-[CONTAINS]->KEYWORD
-		//		KEYWORD-[BELONGS_TO]->DOMAIN
+		// rel: KEYWORD-[RELEVANT_FOR]->DOMAIN
+		//		POST-[CONTAINS]->KEYWORD
 		for (String keyword : keywords) {
 			logger.debug("create relationship: (KEYWORD:"+keyword+")-[RELEVANT_FOR]->(DOMAIN:"+domainName+")");
 			
 			sourceLabel = GraphNodeTypes.KEYWORD;
-			targetLabel = GraphNodeTypes.DOMAIN;
 			relType = GraphRelationshipTypes.RELEVANT_FOR;
+			targetLabel = GraphNodeTypes.DOMAIN;
 			
 			// execute MATCH & MERGE
-			sourceJsonMatch = sourceLabel+" {meyword: '"+keyword+"'}";
+			sourceJsonMatch = sourceLabel+" {keyword: '"+keyword+"'}";
 			targetJsonMatch = targetLabel+" {name: '"+domainName+"'}";
 			relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
 			
 			logger.debug("create relationship: (POST:"+postSnId+"-"+postId+")-[CONTAINS]->(KEYWORD:"+keyword+")");
 			sourceLabel = GraphNodeTypes.POST;
-			targetLabel = GraphNodeTypes.KEYWORD;
 			relType = GraphRelationshipTypes.CONTAINS;
+			targetLabel = GraphNodeTypes.KEYWORD;
 			
 			// execute MATCH & MERGE
 			sourceJsonMatch = sourceLabel+" {sn_id: '"+postSnId+"', id: '"+postId+"'}";
