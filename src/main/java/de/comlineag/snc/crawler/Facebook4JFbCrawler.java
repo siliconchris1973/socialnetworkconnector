@@ -2,13 +2,13 @@ package de.comlineag.snc.crawler;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -319,20 +319,37 @@ public class Facebook4JFbCrawler extends GenericCrawler implements Job {
 		return searchResult;
 	}
 
-		// static This method is used to get Facebook feeds based on the search string set
-		// above
-		private String getFacebookFeed(Facebook Facebook, String searchPost)
-				throws FacebookException {
-			String searchResult = "";
-			StringBuffer searchMessage = new StringBuffer();
-			ResponseList<Post> results = Facebook.getFeed(searchPost);
-			for (Post post : results) {
-				logger.trace("---> feed: " + post.getMessage());
-				searchMessage.append(post.getFrom().getName() + ", ");
-				searchMessage.append(post.getMessage() + ", ");
-				searchMessage.append(post.getCreatedTime() + "\n");
-			}
-			searchResult = searchResult + searchMessage.toString();
-			return searchResult;
+	// static This method is used to get Facebook feeds based on the search string set
+	// above
+	private String getFacebookFeed(Facebook Facebook, String searchPost)
+			throws FacebookException {
+		String searchResult = "";
+		StringBuffer searchMessage = new StringBuffer();
+		ResponseList<Post> results = Facebook.getFeed(searchPost);
+		for (Post post : results) {
+			logger.trace("---> feed: " + post.getMessage());
+			searchMessage.append(post.getFrom().getName() + ", ");
+			searchMessage.append(post.getMessage() + ", ");
+			searchMessage.append(post.getCreatedTime() + "\n");
 		}
+		searchResult = searchResult + searchMessage.toString();
+		return searchResult;
+	}
+	
+	
+	/**
+	 * @description 	seeks to find the needle (only one at a time) in the haystack
+	 * @param 			haystack
+	 * @param 			needle
+	 * @return 			true if the needle was found in the haystack, otherwise false
+	 */
+	private boolean findTheNeedle(String haystack, String needle){
+		String patternString = ".*"+needle+".*";
+		Pattern pattern = Pattern.compile(patternString);
+		Matcher matcher = pattern.matcher(haystack);
+
+		while (matcher.find())
+		    return true;
+		return false;
+	}
 }

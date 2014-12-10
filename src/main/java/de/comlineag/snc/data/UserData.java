@@ -49,8 +49,13 @@ public class UserData implements ISncDataObject{
 	}
 	
 	public UserData(JSONObject userData){
+		if (internalJson == null)
+			internalJson = new JSONObject();
+		
 		if (userData.containsKey("id"))
 			setId(userData.get("id").toString());
+		else if (userData.containsKey("user_id"))
+			setId(userData.get("user_id").toString());
 		if (userData.containsKey("sn_id"))
 			setSnId(userData.get("sn_id").toString());
 		if (userData.containsKey("domain"))
@@ -59,6 +64,8 @@ public class UserData implements ISncDataObject{
 			setCustomer(userData.get("customer").toString());
 		if (userData.containsKey("user_name"))
 			setUserName(userData.get("user_name").toString());
+		else if (userData.containsKey("username"))
+			setUserName(userData.get("username").toString());
 		if (userData.containsKey("screen_name"))
 			setScreenName(userData.get("screen_name").toString());
 		if (userData.containsKey("lang"))
@@ -125,19 +132,19 @@ public class UserData implements ISncDataObject{
 	public void setObjectStatus(String ostatus) {this.objectStatus = ostatus; internalJson.put("objectStatus", ostatus);}
 	
 	public String getId() {return id;}
-	public void setId(String id) {this.id = id; internalJson.put("id", id);}
+	public void setId(String uId) {this.id = uId; internalJson.put("id", uId);}
 	
 	public String getSnId() {return sn_id;}
-	public void setSnId(String sn_id) {this.sn_id = sn_id; internalJson.put("sn_id", sn_id);}
+	public void setSnId(String snId) {this.sn_id = snId; internalJson.put("sn_id", snId);}
 	
 	public String getUserName() {return user_name;}
-	public void setUserName(String username) {this.user_name = username; internalJson.put("user_name", username);}
+	public void setUserName(String userName) {this.user_name = userName; internalJson.put("user_name", userName);}
 	
 	public String getScreenName() {return screen_name;}
 	public void setScreenName(String screenName) {this.screen_name = screenName; internalJson.put("screen_name", screen_name);}
 	
 	public String getGeoLocation() {return geoLocation;}
-	public void setGeoLocation(String geoLocation) {this.geoLocation = geoLocation; internalJson.put("geoLocation", geoLocation);}
+	public void setGeoLocation(String geoLoc) {this.geoLocation = geoLoc; internalJson.put("geoLocation", geoLoc);}
 	
 	public long getFollowersCount() {return followers_count;}
 	public void setFollowersCount(long followersCount) {this.followers_count = followersCount; internalJson.put("followers_count", followersCount);}
@@ -149,13 +156,13 @@ public class UserData implements ISncDataObject{
 	public void setPostingsCount(long postingsCount) {this.postings_count = postingsCount; internalJson.put("postings_count", postingsCount);}
 	
 	public float getAverageRatingValue() {return average_rating_value;}
-	public void setAverageRatingValue(float average_rating_value) {this.average_rating_value = average_rating_value; internalJson.put("average_rating_value", average_rating_value);}
+	public void setAverageRatingValue(float avgRatingValue) {this.average_rating_value = avgRatingValue; internalJson.put("average_rating_value", avgRatingValue);}
 	
 	public float getAveragePostingRatingValue() {return average_posting_rating_value;}
-	public void setAveragePostingRatingValue(float average_posting_rating_value) {this.average_posting_rating_value = average_posting_rating_value; internalJson.put("average_posting_rating_value", average_posting_rating_value);}
+	public void setAveragePostingRatingValue(float avgPostingRatingValue) {this.average_posting_rating_value = avgPostingRatingValue; internalJson.put("average_posting_rating_value", avgPostingRatingValue);}
 	
 	public float getAveragePostingRatio() {return average_posting_ratio;}
-	public void setAveragePostingRatio(float average_posting_ratio) {this.average_posting_ratio = average_posting_ratio; internalJson.put("average_posting_ratio", average_posting_ratio);}
+	public void setAveragePostingRatio(float avgPostingRatio) {this.average_posting_ratio = avgPostingRatio; internalJson.put("average_posting_ratio", avgPostingRatio);}
 	
 	public long getListsAndGroupsCount() {return lists_and_groups_count;}
 	public void setListsAndGroupsCount(long listsAndGroupsCount) {this.lists_and_groups_count = listsAndGroupsCount; internalJson.put("lists_and_groups_count", listsAndGroupsCount);}
@@ -164,5 +171,5 @@ public class UserData implements ISncDataObject{
 	public void setFavoritesCount(long favoritesCount) {this.favorites_count = favoritesCount; internalJson.put("favorites_count", favoritesCount);}
 	
 	public String getLang() {return lang;}
-	public void setLang(String lang) {this.lang = lang; internalJson.put("lang", lang);}
+	public void setLang(String lng) {this.lang = lng; internalJson.put("lang", lng);}
 }

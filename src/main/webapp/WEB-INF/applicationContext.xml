@@ -572,15 +572,14 @@
 	<!-- N U L L    P E R S I S T E N C E    A K A    D I S C A R D    D A T A    (WORKS)  
 	     This "persistence manager" sends all data into the void. Nothing is checked,
 	     nothing is saved. It is therefore of limited use, from a persistence point of
-	     view, but on the other hand the fastest available persistence manager.
+	     view. On the other hand it is also the fastest available persistence manager.
 	     In case, you want to use a graph database as the only persistence layer, you
 	     activate the NullPersistence Manager here and choose your preferred graph db 
-	     engine below. 
-	     You also have to set activateGraphDb in SNC_Runtime_Configuration-<version>.xml 
-	     section runtime to true. -->
-	<!-- 
+	     engine below. In this case you also have to set activateGraphDb to true in 
+	     SNC_Runtime_Configuration-<version>.xml section runtime. -->
+	<!-- -->
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.NullPersistence" /> 
-	-->
+	
 	
 	<!-- F I L E S Y S T E M    J S O N    P E R S I S T E N C E    (WORKS)  
 	     This one simply stores all posts and users as json files on disk. It is mainly 
@@ -609,7 +608,7 @@
 		 is activated, which stores all failed objects as json file on disk. The FsCrawler 
 		 is used to scan the storage directory for failed objects and then tries to 
 		 insert them in the HANA DB. -->
-	<!--  -->
+	<!--  
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.HANAPersistence">
 		<property name="host" value="192.168.131.30" />
 		<property name="port" value="8000" />
@@ -622,7 +621,7 @@
 		<property name="user" value="U0JNX0VYVA==" />
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
 	</bean>
-	
+	-->
 	 
 	<!-- C O U C H D B    P E R S I S T E N C E    (in progress) -->
 	<!-- 

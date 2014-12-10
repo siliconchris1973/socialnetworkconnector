@@ -82,7 +82,7 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 		// log the startup message
 		logger.debug(PARSER_NAME + " parser START for url " + url.toString());
 		
-		JSONObject parsedPageJson = null;
+		JSONObject parsedPageJson = new JSONObject();
 		List<WebPosting> postings = new ArrayList<WebPosting>();
 		
 		try {
@@ -180,16 +180,13 @@ public final class SimpleWebParser extends GenericWebParser implements IWebParse
 			 *   - works! returns exactly one string if the words are near to each other
 			 *     and multiple concatinated strings in case the words are far apart
 			 */      
-			for (int i=0; i < tokens.size(); i++) {
-				String token = tokens.get(i);
-				logger.trace("working on token " + token);
-				
+			for (String token : tokens) {
+				//logger.trace("working on token " + token);
 				positions = returnTokenPosition(plainText, token, positions, lowBorderMark, highBorderMark);
 			}
 			
 			String segmentText = "";
-			for (int i=0;i<positions.size();i++) {
-				int position = positions.get(i);
+			for (int position : positions) {
 				segmentText += trimStringAtPosition(plainText, position, 
 													rtcWordDistanceCutoffMargin, 
 													rtcWordDistanceCutoffMargin);

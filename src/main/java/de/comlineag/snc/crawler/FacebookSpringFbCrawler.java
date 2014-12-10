@@ -2,12 +2,13 @@ package de.comlineag.snc.crawler;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -197,5 +198,22 @@ public class FacebookSpringFbCrawler extends GenericCrawler implements Job {
 		    }
 			logger.info(CRAWLER_NAME+"-Crawler END - tracked {} messages in {} days {} hours {} minutes {} seconds\n", messageCount, calcDays, calcHours, calcMinutes, calcSeconds);
 		}
+	}
+	
+	
+	/**
+	 * @description 	seeks to find the needle (only one at a time) in the haystack
+	 * @param 			haystack
+	 * @param 			needle
+	 * @return 			true if the needle was found in the haystack, otherwise false
+	 */
+	private boolean findTheNeedle(String haystack, String needle){
+		String patternString = ".*"+needle+".*";
+		Pattern pattern = Pattern.compile(patternString);
+		Matcher matcher = pattern.matcher(haystack);
+
+		while (matcher.find())
+		    return true;
+		return false;
 	}
 }
