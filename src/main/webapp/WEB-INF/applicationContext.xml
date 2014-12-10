@@ -578,9 +578,9 @@
 	     engine below. 
 	     You also have to set activateGraphDb in SNC_Runtime_Configuration-<version>.xml 
 	     section runtime to true. -->
-	<!-- -->
+	<!-- 
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.NullPersistence" /> 
-	
+	-->
 	
 	<!-- F I L E S Y S T E M    J S O N    P E R S I S T E N C E    (WORKS)  
 	     This one simply stores all posts and users as json files on disk. It is mainly 
@@ -609,7 +609,7 @@
 		 is activated, which stores all failed objects as json file on disk. The FsCrawler 
 		 is used to scan the storage directory for failed objects and then tries to 
 		 insert them in the HANA DB. -->
-	<!-- 
+	<!--  -->
 	<bean id="persistenceManager" class="de.comlineag.snc.persistence.HANAPersistence">
 		<property name="host" value="192.168.131.30" />
 		<property name="port" value="8000" />
@@ -622,7 +622,7 @@
 		<property name="user" value="U0JNX0VYVA==" />
 		<property name="pass" value="TW9uIzRwb3Mhc29DSUFM" />
 	</bean>
-	 -->
+	
 	 
 	<!-- C O U C H D B    P E R S I S T E N C E    (in progress) -->
 	<!-- 

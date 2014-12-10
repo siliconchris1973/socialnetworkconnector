@@ -1,5 +1,6 @@
 package de.comlineag.snc.data;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,6 +69,12 @@ public class PostingData implements ISncDataObject{
 	 * all track terms for which the post was tracked 
 	 */
 	protected ArrayList<String> trackterms = new ArrayList<String>();
+	
+	/*
+	 * 
+	 */
+	ArrayList<String> mentionedUsers = new ArrayList<String>();
+			
 	
 	/*
 	 * DomainData domainData - an embedded domain object within the page/post object
@@ -313,12 +320,23 @@ public class PostingData implements ISncDataObject{
 	
 	// track-terms aka keywords
 	public ArrayList<String> getTrackTerms() {return trackterms;}
-	public void setTrackTerms(List<String> trackterms) {
-		assert (trackterms != null) : "ERROR :: cannot operate on empty input";
+	public void setTrackTerms(ArrayList<String> tTerms) {
+		assert (tTerms != null) : "ERROR :: cannot operate on empty input";
 		
-		for (int i=0;i<trackterms.size();i++)
-			this.trackterms.add(trackterms.get(i).toString());
+		for (String tTerm : tTerms)
+			this.trackterms.add(tTerm);
 		internalJson.put("KEYWORD", trackterms);
+		
+	}
+	
+	// track-terms aka keywords
+	public ArrayList<String> getMentionedUsers() {return mentionedUsers;}
+	public void setMentionedUsers(ArrayList<String> mUsers) {
+		assert (mUsers != null) : "ERROR :: cannot operate on empty input";
+		
+		for (String mUser : mUsers)
+			this.mentionedUsers.add(mUser);
+		internalJson.put("MENTIONS", mentionedUsers);
 		
 	}
 	

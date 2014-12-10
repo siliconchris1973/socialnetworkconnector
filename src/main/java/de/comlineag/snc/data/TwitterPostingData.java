@@ -1,9 +1,13 @@
 package de.comlineag.snc.data;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,6 +97,9 @@ public final class TwitterPostingData extends PostingData implements ISncDataObj
 		// set all values to zero
 		initialize();
 		String s; // helper var to cast from long to string
+		
+		
+		ArrayList<String> mentionedUsers = new ArrayList<String>(getUserMentions(jsonObject.get("text").toString()));
 		
 		try {
 			// posting ID - is either id or post_id
@@ -263,6 +270,36 @@ public final class TwitterPostingData extends PostingData implements ISncDataObj
 			logger.error("EXCEPTION :: during parsing of json twitter post-object " + e.getLocalizedMessage());
 			e.printStackTrace();
 		}
+	}
+	
+
+	private ArrayList<String> getUserMentions(String tweet){
+		// Search for Users
+		String patternStr = "(?:\\s|\\A)[@]+([A-Za-z0-9-_]+)";
+		Pattern pattern = Pattern.compile(patternStr);
+		Matcher matcher = pattern.matcher(tweet);
+		ArrayList<String> resultArray = new ArrayList<String>();
+		String result = "";
+		String rawName ="";
+		
+		try {
+			while (matcher.find()) {
+				logger.trace("found mentioned user");
+				result = matcher.group();
+				result = result.replace(" ", "");
+				logger.trace("found mentioned user {}", result);
+				
+				rawName = result.replace("@", "");
+				String userURI="http://twitter.com/"+rawName;
+				resultArray.add(userURI);
+			}
+		} catch (Exception e) {
+			logger.error("ERROR :: could not parse tweet for user mentions {}", rawName);
+			e.printStackTrace();
+		}
+		
+		logger.trace("returning array of {} number of users mentioned in tweet", resultArray.size());
+		return resultArray;
 	}
 	
 	
