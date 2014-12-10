@@ -1,11 +1,10 @@
 package de.comlineag.snc.data;
 
-import java.util.Iterator;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
@@ -50,12 +49,16 @@ import de.comlineag.snc.helper.DateTimeServices;
  * 
  */
 
-public final class FacebookPostingData extends PostingData {
-
-	// we use simple org.apache.log4j.Logger for lgging
+public final class FacebookPostingData extends PostingData implements ISncDataObject{
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	
+	UserData userObject = new UserData();
+	DomainData domainObject = new DomainData();
+	CustomerData customerObject = new CustomerData();
+	SocialNetworkData socialNetworkObject = new SocialNetworkData();
+	
+	ArrayList<String> keywords = new ArrayList<String>();
+	
 	
 	/**
 	 * Constructor, based on the JSONObject sent from Facebook the Data Object is prepared
@@ -71,14 +74,16 @@ public final class FacebookPostingData extends PostingData {
 		
 		// set all values to zero
 		initialize();
+		String s;
 		
 		try {
 			// posting ID 
-			setId((String) jsonObject.get("id"));
+			s = Objects.toString(jsonObject.get("id"), null);
+			setId(s);
 			
 			
 			// User ID
-			JSONObject user = (JSONObject) jsonObject.get("user");
+			JSONObject user = (JSONObject) jsonObject.get("USER");
 			setUserId((String) user.get("id"));
 			
 			
@@ -226,46 +231,47 @@ public final class FacebookPostingData extends PostingData {
 	}
 	
 	
-	public void setMentions(List<?> listOfMentions) {
-		// TODO Implement algorithm to deal with user mentions
-		logger.trace("List of mentioned users received, creating something different from it");
-		Iterator<?> itr = listOfMentions.iterator();
-		while(itr.hasNext()){
-			logger.trace("found user " + itr.next());
-		}
-	}
-	
-	public void setSymbols(List<?> listOfSymbols) {
-		// TODO Implement algorithm to deal with symbols
-		logger.trace("List of symbols received, creating something different from it");
-		Iterator<?> itr = listOfSymbols.iterator();
-		while(itr.hasNext()){
-			logger.trace("found symbol " + itr.next());
-		}
-	}
-	
-	public void setHashtags(List<?> listOfHashtags) {
-		// TODO Implement algorithm to deal with hashtags
-		logger.trace("List of Hashtags received, creating something different from it");
-		Iterator<?> itr = listOfHashtags.iterator();
-		while(itr.hasNext()){
-			logger.trace("found hashtag " + itr.next());
-		}
-	}
-	
 	/**
 	 * setup the Object with NULL
 	 */
+	@SuppressWarnings("unchecked")
 	private void initialize() {
-		// setting everything to 0 or null default value.
-		// so I can check on initialized or not initialized values for the
-		// posting
-		id = "0";
+		// first setup the internal json objct
+		internalJson = new JSONObject();
 		
-		domain = new CrawlerConfiguration<String>().getDomain();
-		customer = new CrawlerConfiguration<String>().getCustomer();
-		//sn_id = SocialNetworks.FACEBOOK.getValue();
-		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "FACEBOOK");
+		// setting everything to 0 or null default value.
+		id = "0";
+		setObjectStatus("new");
+		
+		// set the internal fields and embedded json objects for domain, customer and social network
+		setSnId(SocialNetworks.getSocialNetworkConfigElement("code", "FACEBOOK"));
+		setDomain(new CrawlerConfiguration<String>().getDomain());
+		setCustomer(new CrawlerConfiguration<String>().getCustomer());
+		
+		// create the embedded social network json
+		JSONObject tJson = new JSONObject();
+		tJson.put("sn_id", sn_id);
+		tJson.put("name", SocialNetworks.getSocialNetworkConfigElementByCode("name", sn_id).toString());
+		tJson.put("domain", SocialNetworks.getSocialNetworkConfigElementByCode("domain", sn_id).toString());
+		tJson.put("description", SocialNetworks.getSocialNetworkConfigElementByCode("description", sn_id).toString());
+		SocialNetworkData socData = new SocialNetworkData(tJson.toJSONString());
+		logger.trace("storing created social network object {} as embedded object {}", socData.getName(), socData.toJsonString());
+		setSocialNetworkData(socData.getJson());
+		
+		// create the embedded domain json
+		tJson = new JSONObject();
+		tJson.put("name", domain);
+		DomainData domData = new DomainData(tJson.toJSONString());
+		logger.trace("storing created domain object {} as embedded object {}", domData.getName(), domData.toJsonString());
+		setDomainData(domData.getJson());
+		
+		// create the embedded customer json
+		tJson = new JSONObject();
+		tJson.put("name", customer);
+		CustomerData subData = new CustomerData(tJson.toJSONString());
+		logger.trace("storing created customer object {} as embedded object {}", subData.getName(), subData.toJsonString());
+		setCustomerData(subData.getJson());
+		
 		
 		text = null;
 		raw_text = null;
@@ -295,4 +301,17 @@ public final class FacebookPostingData extends PostingData {
 		symbols = null;
 		mentions = null;
 	}
+	
+	// new methods to get and set the user, domain, customer and social network object within the page object
+	public void setUserObject(UserData userJson){this.userObject = userJson;}
+	public UserData getUserObject(){return userObject;}
+	
+	public void setDomainObject(DomainData domJson){this.domainObject = domJson;}
+	public DomainData getDomainObject(){return domainObject;}
+	
+	public void setCustomerObject(CustomerData subJson){this.customerObject = subJson;}
+	public CustomerData getCustomerObject(){return customerObject;}
+	
+	public void setSocialNetworkObject(SocialNetworkData socJson){this.socialNetworkObject = socJson;}
+	public SocialNetworkData getSocialNetworkObject(){return socialNetworkObject;}
 }

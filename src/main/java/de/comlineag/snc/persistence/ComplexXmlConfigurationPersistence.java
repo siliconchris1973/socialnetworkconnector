@@ -85,6 +85,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	private final String configFileTypeKey = rtc.getStringValue("ConfigFileTypeIdentifier", "XmlLayout");
 	private final String crawlerRunKey = rtc.getStringValue("CrawlerRunIdentifier", "XmlLayout");
 	
+	private final boolean rtcStopOnConfigurationFailure = rtc.getBooleanValue("StopOnConfigurationFailure", "runtime");
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -202,8 +203,13 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 			crawlerConfigurationScope.put((String) "customerPriority", (int) getCustomerPriority());
 			logger.debug("the customer "+getCustomer()+" is active " + getCustomerIsActiveAsString() + " and has priority " + getCustomerPriority());
 			
+		} catch (java.io.FileNotFoundException e) {
+			logger.error("ERROR :: file "+getConfigDbHandler()+" not found.");
+			e.printStackTrace();
+			if (rtcStopOnConfigurationFailure)
+				System.exit(SNCStatusCodes.CRITICAL.getErrorCode());
 		} catch (Exception e) {
-			logger.error("EXCEPTION :: could not get crawler configuration " + e.getLocalizedMessage());
+			logger.error("ERROR :: could not get crawler configuration " + e.getLocalizedMessage());
 		}
 		return crawlerConfigurationScope;
 	}
@@ -240,6 +246,11 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 				if ("false".equals(node.getTextContent()))
 					return false;
 			}
+		} catch (java.io.FileNotFoundException e) {
+			logger.error("ERROR :: file "+getConfigDbHandler()+" not found.");
+			e.printStackTrace();
+			if (rtcStopOnConfigurationFailure)
+				System.exit(SNCStatusCodes.CRITICAL.getErrorCode());
 		} catch (Exception e) {
 			logger.warn("WARNING :: could not parse configuration file "+getConfigDbHandler()+" using expression "+expression+" - returning true.");
 			e.printStackTrace();
@@ -256,7 +267,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 	private ArrayList<T> getDataFromXml(String section, String SN) {
 		
 		ArrayList<T> ar = new ArrayList<T>();
-		logger.debug("reading " + section + "-constraints for customer "+customer+" in domain "+domain+" for network " + SocialNetworks.getSocialNetworkConfigElement("name", SN) + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")+1));
+		logger.trace("reading " + section + "-constraints for customer "+customer+" in domain "+domain+" for network " + SocialNetworks.getSocialNetworkConfigElement("name", SN) + " from configuration file " + getConfigDbHandler().substring(getConfigDbHandler().lastIndexOf("/")+1));
 		
 		try {
 			File file = new File(getConfigDbHandler());
@@ -455,7 +466,7 @@ public class ComplexXmlConfigurationPersistence<T> implements IConfigurationMana
 		}
 		
 		// in case a specific configuration file was given within the configurationScope object, set it here
-		if (!"___CRAWLER_CONFIGURATION___".equals(CONF_FILE)) {
+		if ("___CRAWLER_CONFIGURATION___".equals(CONF_FILE)) {
 			logger.debug("configuration file from configDbHandler overriden with " + CONF_FILE);
 			setConfigDbHandler(CONF_FILE);
 		}

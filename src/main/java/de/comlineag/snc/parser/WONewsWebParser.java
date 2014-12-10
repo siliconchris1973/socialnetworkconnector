@@ -154,8 +154,25 @@ public final class WONewsWebParser extends GenericWebParser implements IWebParse
 						logger.debug("adding extracted page content-json to posting list");
 						
 						// add the parsed site to the message list for saving in the DB
-						JSONObject pageJson = createPageJsonObject(sn_id, title, description, plainText, text, created_at, url, truncated, page_lang, page_id, user_id, user_name, screen_name, user_lang, postings_count, curCustomer, curDomain);
-						logger.trace("created json is {}", pageJson.toString());
+						JSONObject pageJson = createPageJsonObject(sn_id, 
+																	title, 
+																	description, 
+																	plainText, 
+																	text, 
+																	created_at, 
+																	url, 
+																	truncated, 
+																	page_lang, 
+																	page_id, 
+																	user_id, 
+																	user_name, 
+																	screen_name, 
+																	user_lang, 
+																	postings_count, 
+																	curCustomer, 
+																	curDomain);
+						
+						//logger.trace("created json is {}", pageJson.toString());
 						WebPosting parsedPageSimpleWebPosting = new WebPosting(pageJson);
 						postings.add(parsedPageSimpleWebPosting);
 					}

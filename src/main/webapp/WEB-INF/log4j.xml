@@ -105,28 +105,28 @@
 	
 	<!-- pushing every log entry in the same file and on the console -->
 	<logger name="de.comlineag.snc">
-		<level value="trace"></level>
+		<level value="debug"></level>
 		<appender-ref ref="console" />
 		<appender-ref ref="fileA" />
 	</logger>
 	<logger name="de.comlineag.snc.parser">
-		<level value="trace"></level>
+		<level value="debug"></level>
 		<appender-ref ref="fileP" />
 	</logger>
 	<logger name="de.comlineag.snc.controller">
-		<level value="trace"></level>
+		<level value="info"></level>
 		<appender-ref ref="fileT" />
 	</logger>
 	<logger name="de.comlineag.snc.crawler">
-		<level value="trace"></level>
+		<level value="debug"></level>
 		<appender-ref ref="fileC" />
 	</logger>
 	<logger name="de.comlineag.snc.handler">
-		<level value="trace"></level>
+		<level value="info"></level>
 		<appender-ref ref="fileH" />
 	</logger>
 	<logger name="de.comlineag.snc.data">
-		<level value="trace"></level>
+		<level value="info"></level>
 		<appender-ref ref="fileD" />
 	</logger>
 	<logger name="de.comlineag.snc.persistence">

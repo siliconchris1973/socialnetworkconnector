@@ -11,7 +11,6 @@ import javax.xml.xpath.XPathFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -47,12 +46,7 @@ import de.comlineag.snc.appstate.RuntimeConfiguration;
 public final class SocialNetworks {
 	// this holds a reference to the runtime configuration
 	private static final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
-	
-	// we use simple org.apache.log4j.Logger for logging
-	private static Logger logger = LoggerFactory.getLogger(SocialNetworks.class);
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
-	
+	private static final Logger logger = LoggerFactory.getLogger(SocialNetworks.class);
 	
 	private static final String configurationsKey = rtc.getStringValue("RootIdentifier", "XmlLayout");
 	private static final String configurationKey = rtc.getStringValue("SingleConfigurationIdentifier", "XmlLayout");
@@ -60,13 +54,14 @@ public final class SocialNetworks {
 	private static final String socNetConfKey = rtc.getStringValue("SocialNetworkConfiguration", "XmlLayout");
 	private static final String socNetKey = rtc.getStringValue("SocialNetworkIdentifier", "XmlLayout");
 	private static final String socNetNameKey = rtc.getStringValue("SocialNetworkNameIdentifier", "XmlLayout");
+	private static final String nameKey = rtc.getStringValue("NameIdentifier", "XmlLayout");
 	
 	// make the constructor private so that it can only be called from inside the class itself, thus preventing 
 	// the initialization from someplace (more important unmanaged place) else
 	private SocialNetworks() {}
 	
 	/**
-	 * @description	retrieves a configuration element for a given social network
+	 * @description	retrieves a configuration element for a given social network referenced by it's name
 	 * 
 	 * @param 		key   	xml-element to retrieve 
 	 * 						can be  code, name, description, domain or supported
@@ -79,7 +74,7 @@ public final class SocialNetworks {
 	 * 		 during startup of the snc via a call from RuntimeConfiguration class  
 	 */
 	public static String getSocialNetworkConfigElement(String key, String snname){
-		assert ("code".equals(key) && "name".equals(key) && "description".equals(key) && "domain".equals(key) && "supported".equals(key)) : "ERROR :: can only accept code, name, description, domain or supported as key";
+		assert ("localePattern".equals(key) && "locale".equals(key) && "code".equals(key) && "name".equals(key) && "description".equals(key) && "domain".equals(key) && "supported".equals(key)) : "ERROR :: can only accept code, name, description, domain, locale and localePattern or supported as key";
 		
 		try {
 			File file = new File(getConfigFile());
@@ -102,8 +97,9 @@ public final class SocialNetworks {
 			//		<description>Twitter</description>
 			//		<domain>twitter.com</domain>
 			//		<supported>YES</supported>
+			//		<localePattern>[PATTERN]</localePattern>
 			//	</network>
-			// /configurations/configuration[@scope=socialNetworkDefinition]/network[@name='TWITTER']/code
+			// /configurations/configuration[@scope='socialNetworkDefinition']/network[@name='TWITTER']/code
 			expression = "/"+configurationsKey+"/" 
 							+configurationKey 
 								+"[@"+scopeKey+"='"+socNetConfKey+"']/" 
@@ -117,6 +113,64 @@ public final class SocialNetworks {
 				return null;
 			} else {
 				return node.getTextContent();
+			}
+			
+		} catch (IOException e) {
+			logger.error("EXCEPTION :: error reading configuration file " + e.getLocalizedMessage() + ". This is serious!");
+			if (rtc.getBooleanValue("STOP_SNC_ON_CONFIGURATION_FAILURE", "runtime"))
+				System.exit(SNCStatusCodes.CRITICAL.getErrorCode());
+		} catch (Exception e) {
+			logger.error("EXCEPTION :: unforseen error " + e.getLocalizedMessage() + ". This is serious!");
+			e.printStackTrace();
+			if (rtc.getBooleanValue("STOP_SNC_ON_CONFIGURATION_FAILURE", "runtime"))
+				System.exit(SNCStatusCodes.CRITICAL.getErrorCode());
+		}
+		return null;
+	}
+	
+	/**
+	 * @description	retrieves a configuration element for a given social network reference by it's id
+	 * 				internally this method retrievs the name of the social network via it's id and then
+	 * 				calls getSocialNetworkConfigElement(key, snname)
+	 * 
+	 * @param 		key   	xml-element to retrieve 
+	 * 						can be  code, name, description, domain or supported
+	 * 				snname	name of the social network in uppper case
+	 * @return		element (e.g. spoken name of the social network) or null in case of error
+	 * 
+	 */
+	public static String getSocialNetworkConfigElementByCode(String key, String _snId) {
+		try {
+			File file = new File(getConfigFile());
+			
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(file);
+			
+			XPathFactory xPathfactory = XPathFactory.newInstance();
+			XPath xpath = xPathfactory.newXPath();
+			
+			String expression = null;
+			Node node = null;
+			
+			// get an element from the xml file
+			// structure of xml
+			// 	<network name="AL">
+			//		<name>ALL</name>
+			//  </network>
+			expression = "/"+configurationsKey+"/" 
+							+configurationKey 
+								+"[@"+scopeKey+"='"+socNetConfKey+"']/" 
+							+socNetKey 
+								+"[@"+socNetNameKey+"='"+_snId+"']/"
+							+nameKey;
+			
+			node = (Node) xpath.compile(expression).evaluate(doc, XPathConstants.NODE);
+			if (node == null) {
+				logger.error("Did not receive any node information on "+key+" for social network "+_snId+" from " + rtc.getSocialNetworkFilePath() + " using expression " + expression);
+				return null;
+			} else {
+				return getSocialNetworkConfigElement(key, node.getTextContent());
 			}
 			
 		} catch (IOException e) {

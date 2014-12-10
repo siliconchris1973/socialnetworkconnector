@@ -124,6 +124,34 @@
 			<!-- CONSTRAINTS CONFIGURATION -->
 			<!-- constraints that apply to all network crawler -->
 			<constraints scope="ALL">
+				<!-- DO NOT TRACK POSTS WITH THESE KEYWORDS -->
+				<constraint>
+					<blockedterm>
+						<type>String</type>
+						<value>Home Depot</value>
+					</blockedterm>
+					<blockedterm>
+						<type>String</type>
+						<value>HomeDepot</value>
+					</blockedterm>
+					<blockedterm>
+						<type>String</type>
+						<value>Begleitservice</value>
+					</blockedterm>
+					<blockedterm>
+						<type>String</type>
+						<value>Escort</value>
+					</blockedterm>
+					<blockedterm>
+						<type>String</type>
+						<value>Pokémon</value>
+					</blockedterm>
+					<blockedterm>
+						<type>String</type>
+						<value>Trading Card Game</value>
+					</blockedterm>
+				</constraint>
+				
 				<!-- track only messages (aka posts) with specific keywords -->
 				<constraint>
 				<!-- 
@@ -197,7 +225,7 @@
 					</term>
 					<term>
 						<type>String</type>
-						<value>Visa</value>
+						<value>Visacard</value>
 					</term>
 					<term>
 						<type>String</type>
@@ -210,14 +238,6 @@
 					<term>
 						<type>String</type>
 						<value>HBCI</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Geld</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Währung</value>
 					</term>
 					<term>
 						<type>String</type>
@@ -245,18 +265,6 @@
 			<!-- START OF TWITTER CONFIG -->
 			<!-- specific configuration for TWITTER crawler -->
 			<constraints scope="TW">
-				<!-- DO NOT TRACK TWEETS WITH THESE KEYWORDS -->
-				<constraint>
-					<blockedterm>
-						<type>String</type>
-						<value>Home Depot</value>
-					</blockedterm>
-					<blockedterm>
-						<type>String</type>
-						<value>HomeDepot</value>
-					</blockedterm>
-				</constraint>
-				
 				<!-- 
 					track only messages (aka posts) with specific keywords
 					these constraints are added to the generic ones above 
@@ -332,7 +340,7 @@
 					</term>
 					<term>
 						<type>String</type>
-						<value>Visa</value>
+						<value>Visacard</value>
 					</term>
 					<term>
 						<type>String</type>
@@ -345,10 +353,6 @@
 					<term>
 						<type>String</type>
 						<value>HBCI</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Geld</value>
 					</term>
 					<term>
 						<type>String</type>
@@ -406,6 +410,12 @@
 						<value>fr</value>
 					</language>
 					-->
+				</constraint>
+				<constraint>
+					<blockeduser>
+						<type>String</type>
+						<value>Kreditkarte4you</value>
+					</blockeduser>
 				</constraint>
 			</constraints>
 			<!-- END OF TWITTER CONSTRAINTS -->
@@ -624,6 +634,7 @@
 					</dnsdomain>
 				</constraint>
 				<constraint>
+					<!-- these work as seeds to the webcrawler -->
 					<site>
 						<type>String</type>
 						<value>http://www.wallstreet-online.de</value>

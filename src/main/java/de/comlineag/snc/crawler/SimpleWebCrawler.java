@@ -21,10 +21,8 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -93,13 +91,10 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	// this provides for different encryption provider, the actual one is set in applicationContext.xml
 	private final ConfigurationCryptoHandler configurationCryptoProvider = new ConfigurationCryptoHandler();
 	
-	// the list of postings (extracts from web pages crawled) is stored in here 
-	// and then handed over, one by one, to the persistence layer
-	List<WebPosting> postings = new ArrayList<WebPosting>();
-	
-	
 	private final boolean rtcWarnOnRejectedActions = rtc.getBooleanValue("WarnOnRejectedActions", "crawler");
 	private final int rtcCrawlerMaxDownloadSize = rtc.getIntValue("WcCrawlerMaxDownloadSize", "crawler");
+	private final boolean rtcPersistenceThreading = rtc.getBooleanValue("PersistenceThreadingEnabled", "runtime");
+	
 	private final int rtcMaxPagesLimit = rtc.getIntValue("WcMaxPagesLimit", "crawler");
 	private final int rtcMaxLinkDepth = rtc.getIntValue("WcMaxLinkDepth", "crawler");
 	private final boolean rtcStayOnDomain = rtc.getBooleanValue("WcStayOnDomain", "crawler");
@@ -116,6 +111,10 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	private final String rtcCustomerKey = rtc.getStringValue("CustomerIdentifier", "XmlLayout");
 	
 	private final String rtcRobotDisallowText = rtc.getStringValue("WcRobotDisallowText", "crawler");
+	
+	// the list of postings (extracts from web pages crawled) is stored in here 
+	// and then handed over, one by one, to the persistence layer
+	List<WebPosting> postings = new ArrayList<WebPosting>();
 	
 	
 	public SimpleWebCrawler(){}
@@ -464,33 +463,44 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 						postings = ParserControl.submit(page, url, tTerms, sn_id, curCustomer, curDomain);
 						
 						// invoke the persistence layer - should go to crawler
-						for (int ii = 0; ii < postings.size(); ii++) {
+						for (WebPosting postData : postings) {
+						//for (int ii = 0; ii < postings.size(); ii++) {
+							String userName = "undefined";
+							String pageUrl = "undefined";
+							
+							if (postData.getUserAsJson().containsKey("username"))
+								userName = postData.getUserAsJson().get("username").toString();
+							if (postData.getJson().containsKey("source"))
+								pageUrl = postData.getJson().get("source").toString();
+							
 							realRelevantPages++;
-							logger.debug(realRelevantPages + " pages to store in persistence layer tracked");
+							
+							logger.debug("{} pages to store in persistence layer tracked", realRelevantPages );
 							
 							setPostsTracked(realRelevantPages);
 							
-							WebPosting post = postings.get(ii);
-							
 							// first get the user-data out of the WebPosting
-							WebUser userData = new WebUser(post.getUser()); 
-							logger.info("calling persistence layer to save the user " );
-							userData.save();
+							WebUser userData = new WebUser(postData.getUserAsJson()); 
 							
-							
-							// and now pass the web page on to the persistence layer
-							logger.info("calling persistence layer to save the page " + url.toString());
-							post.save();
-						}
-						/* 
-						// TODO find out how to use executor Service for multi threaded persistence call
-						// invoke the persistence layer
-						for (int ii = 0; ii < postings.size(); ii++) {
-							logger.info("calling persistence layer to save the post from site " + url.toString());
-							if (rtc.isPERSISTENCE_THREADING_ENABLED()){
+							// TODO check if this is the right spot to add the track terms to the posting
+							ArrayList<String> keywords = new ArrayList<String>();
+							for (String keyword : tTerms){
+								if (containsWord(page, keyword)) {
+									logger.trace("adding trackterm {} to list of tracked keywords", keyword);
+									keywords.add(keyword);
+								}
+							}
+							// now we should have an array list of the found trackterms in the post
+							postData.setTrackTerms(keywords);
+									
+							if (rtcPersistenceThreading){
 								// execute persistence layer in a new thread, so that it does NOT block the crawler
 								logger.debug("execute persistence layer in a new thread...");
-								final WebPosting postT = postings.get(ii);
+								final WebPosting postDataT = postData;
+								final WebUser userDataT = userData;
+								final String userNameT = userName;
+								final String pageUrlT = pageUrl;
+								
 								//if (!persistenceExecutor.isShutdown()) {
 								//	persistenceExecutor.submit(new Thread(new Runnable() {
 								//			
@@ -505,17 +515,37 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 									
 									@Override
 									public void run() {
-											postT.save();
+										logger.info("calling persistence layer to save the user {}", userNameT);
+										userDataT.save();	
+										logger.info("calling persistence layer to save the page {}", pageUrlT);
+										postDataT.save();
+										
+										// next call the graph engine and store data also in the external graph
+										// please note that we do not need to do this for the user as well, as 
+										// the graph persistence layer uses the embedded user object within the
+										// post object
+										if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+											postDataT.saveInGraph();
+										}
 									}
 								}).start();
-								
 							} else {
-								// otherwise just call it sequentially
-								WebPosting post = postings.get(ii);
-								post.save();
+								logger.info("calling persistence layer to save the user {}", userName);
+								userData.save();
+								
+								// and now pass the web page on to the persistence layer
+								logger.info("calling persistence layer to save the page {}", pageUrl);
+								postData.save();
+								
+								// next call the graph engine and store data also in the external graph
+								// please note that we do not need to do this for the user as well, as 
+								// the graph persistence layer uses the embedded user object within the
+								// post object
+								if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+									postData.saveInGraph();
+								}
 							}
 						}
-						 */
 					}// end of get only relevant pages
 					
 					
@@ -829,6 +859,26 @@ public class SimpleWebCrawler extends GenericCrawler implements Job {
 	 */
 	private boolean containsWord(String text, List<String> tokens){
 		String patternString = "\\b(" + StringUtils.join(tokens, "|") + ")\\b";
+		Pattern pattern = Pattern.compile(patternString);
+		Matcher matcher = pattern.matcher(text);
+
+		while (matcher.find()) {
+		    return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * @description 	checks if the given token is found in the given text
+	 * 					this check is done a second time in the parser, after all irrelevant content
+	 * 					like advertisement and the like has been stripped off the page.
+	 * @param 			text
+	 * @param 			token
+	 * @return 			true if any of the tokens was found, otherwise false
+	 */
+	private boolean containsWord(String text, String token){
+		String patternString = "\\b(" + StringUtils.join(token, "|") + ")\\b";
 		Pattern pattern = Pattern.compile(patternString);
 		Matcher matcher = pattern.matcher(text);
 

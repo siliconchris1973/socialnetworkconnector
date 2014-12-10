@@ -64,7 +64,7 @@ public final class LithiumParser extends GenericParser {
 	 * @return 		Array
 	 * 					of json objects
 	 */
-	public  JSONArray parseMessages(String jsonString) {
+	public JSONArray parseMessages(String jsonString) {
 		String PARSER_NAME="Lithium";
 		Stopwatch timer = new Stopwatch().start();
 		

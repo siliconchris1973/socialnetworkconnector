@@ -20,14 +20,15 @@ import org.json.simple.JSONObject;
  * 				0.4c			changed user_id from Long to String
  * 
  */
-public class UserData {
+@SuppressWarnings("unchecked")
+public class UserData implements ISncDataObject{
 
 	protected String id;							// the id of the user within the social network
 	protected String domain;						// in which domain context was the user tracked
 	protected String customer;						// in which customer context was the user tracked
 	protected String sn_id;							// the social network id from enum SocialNetworks
-	protected String username;						// the actual user name, might be different from the screen name 
-	protected String screen_name;					// the username as shown on the network (sometimes named nick name)
+	protected String user_name;						// the actual user name, might be different from the screen name 
+	protected String screen_name;					// the user_name as shown on the network (sometimes named nick name)
 	protected String geoLocation;					// a simple geo location representation (like a town, or country name)
 	protected long followers_count;					// how many people is the user following
 	protected long friends_count;					// how many friends does the user have
@@ -40,6 +41,51 @@ public class UserData {
 	protected String lang;							// default language of the user
 	protected String objectStatus;					// can be new, old, ok or fail
 	
+	protected JSONObject internalJson;				// an internal json object containing all values
+	
+	public UserData(){
+		if (internalJson == null)
+			internalJson = new JSONObject();
+	}
+	
+	public UserData(JSONObject userData){
+		if (userData.containsKey("id"))
+			setId(userData.get("id").toString());
+		if (userData.containsKey("sn_id"))
+			setSnId(userData.get("sn_id").toString());
+		if (userData.containsKey("domain"))
+			setDomain(userData.get("domain").toString());
+		if (userData.containsKey("customer"))
+			setCustomer(userData.get("customer").toString());
+		if (userData.containsKey("user_name"))
+			setUserName(userData.get("user_name").toString());
+		if (userData.containsKey("screen_name"))
+			setScreenName(userData.get("screen_name").toString());
+		if (userData.containsKey("lang"))
+			setLang(userData.get("lang").toString());
+		if (userData.containsKey("geoLocation"))
+			setGeoLocation(userData.get("geoLocation").toString());
+		if (userData.containsKey("objectStatus"))
+			setObjectStatus(userData.get("objectStatus").toString());
+		
+		if (userData.containsKey("followers_count"))
+			setFollowersCount((Long)userData.get("followers_count"));
+		if (userData.containsKey("friends_count"))
+			setFriendsCount((Long)userData.get("friends_count"));
+		if (userData.containsKey("postings_count"))
+			setPostingsCount((Long)userData.get("postings_count"));
+		if (userData.containsKey("favorites_count"))
+			setFavoritesCount((Long)userData.get("favorites_count"));
+		if (userData.containsKey("lists_and_groups_count"))
+			setListsAndGroupsCount((Long)userData.get("lists_and_groups_count"));
+		
+		if (userData.containsKey("average_rating_value"))
+			setAverageRatingValue((Float)userData.get("average_rating_value"));
+		if (userData.containsKey("average_posting_rating_value"))
+			setAveragePostingRatingValue((Float)userData.get("average_posting_rating_value"));
+		if (userData.containsKey("average_posting_ratio"))
+			setAveragePostingRatio((Float)userData.get("average_posting_ratio"));
+	}
 	
 	public String getAllContent(){
 		String u = ""
@@ -48,7 +94,7 @@ public class UserData {
 				+ "id : " + getId() + " / "
 				+ "domain : " + getDomain() + " / "
 				+ "customer : " + getCustomer() + " / "
-				+ "username : " + getUsername() + " / "
+				+ "user_name : " + getUserName() + " / "
 				+ "lang : " + getLang() + " / "
 				+ "screen name : " + getScreenName() + " / "
 				+ "geoLocation : " + getGeoLocation() + " / "
@@ -59,84 +105,64 @@ public class UserData {
 				+ "lists and groups count : " + getListsAndGroupsCount() + " / "
 				+ "average rating : " + getAverageRatingValue() + " / "
 				+ "average posting rating : " + getAveragePostingRatingValue() + " / "
-				+ "average posting rating : " + getAveragePostingRating();
+				+ "average posting rating : " + getAveragePostingRatio();
 		
 		return u;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public String toJsonString(){
-		JSONObject obj = new JSONObject();
-		obj.put("objectStatus", getObjectStatus());
-		obj.put("sn_id", getSnId());
-		obj.put("id", getId());
-		obj.put("domain", getDomain());
-		obj.put("customer", getCustomer());
-		obj.put("username", getUsername());
-		obj.put("lang", getLang());
-		obj.put("screen name", getScreenName());
-		obj.put("geoLocation", getGeoLocation());
-		obj.put("followers count", getFollowersCount());
-		obj.put("friends count", getFriendsCount());
-		obj.put("postings count", getPostingsCount());
-		obj.put("favorites count", getFavoritesCount());
-		obj.put("lists and groups count", getListsAndGroupsCount());
-		obj.put("average rating", getAverageRatingValue());
-		obj.put("average posting rating", getAveragePostingRatingValue());
-		obj.put("average posting rating", getAveragePostingRating());
-		
-		return obj.toJSONString();
-	}
+	public String toJsonString(){return internalJson.toJSONString();}
 	
 	// getter and setter
+	public JSONObject getJson(){return internalJson;}
+	
 	public String getDomain() {return domain;}
-	public void setDomain(String dom) {this.domain = dom;}
+	public void setDomain(String dom) {this.domain = dom; internalJson.put("domain", dom);}
 	
 	public String getCustomer() {return customer;}
-	public void setCustomer(String sub) {this.customer = sub;}
+	public void setCustomer(String sub) {this.customer = sub; internalJson.put("customer", sub);}
 	
 	public String getObjectStatus() {return objectStatus;}
-	public void setObjectStatus(String ostatus) {this.objectStatus = ostatus;}
+	public void setObjectStatus(String ostatus) {this.objectStatus = ostatus; internalJson.put("objectStatus", ostatus);}
 	
 	public String getId() {return id;}
-	public void setId(String id) {this.id = id;}
+	public void setId(String id) {this.id = id; internalJson.put("id", id);}
 	
 	public String getSnId() {return sn_id;}
-	public void setSnId(String sn_id) {this.sn_id = sn_id;}
+	public void setSnId(String sn_id) {this.sn_id = sn_id; internalJson.put("sn_id", sn_id);}
 	
-	public String getUsername() {return username;}
-	public void setUsername(String username) {this.username = username;}
+	public String getUserName() {return user_name;}
+	public void setUserName(String username) {this.user_name = username; internalJson.put("user_name", username);}
 	
 	public String getScreenName() {return screen_name;}
-	public void setScreenName(String screenName) {this.screen_name = screenName;}
+	public void setScreenName(String screenName) {this.screen_name = screenName; internalJson.put("screen_name", screen_name);}
 	
 	public String getGeoLocation() {return geoLocation;}
-	public void setGeoLocation(String geoLocation) {this.geoLocation = geoLocation;}
+	public void setGeoLocation(String geoLocation) {this.geoLocation = geoLocation; internalJson.put("geoLocation", geoLocation);}
 	
 	public long getFollowersCount() {return followers_count;}
-	public void setFollowersCount(long followersCount) {this.followers_count = followersCount;}
+	public void setFollowersCount(long followersCount) {this.followers_count = followersCount; internalJson.put("followers_count", followersCount);}
 	
 	public long getFriendsCount() {return friends_count;}
-	public void setFriendsCount(long friendsCount) {this.friends_count = friendsCount;}
+	public void setFriendsCount(long friendsCount) {this.friends_count = friendsCount; internalJson.put("friends_count", friendsCount);}
 	
 	public long getPostingsCount() {return postings_count;}
-	public void setPostingsCount(long postingsCount) {this.postings_count = postingsCount;}
+	public void setPostingsCount(long postingsCount) {this.postings_count = postingsCount; internalJson.put("postings_count", postingsCount);}
 	
 	public float getAverageRatingValue() {return average_rating_value;}
-	public void setAverageRatingValue(float average_rating_value) {this.average_rating_value = average_rating_value;}
+	public void setAverageRatingValue(float average_rating_value) {this.average_rating_value = average_rating_value; internalJson.put("average_rating_value", average_rating_value);}
 	
 	public float getAveragePostingRatingValue() {return average_posting_rating_value;}
-	public void setAveragePostingRatingValue(float average_posting_rating_value) {this.average_posting_rating_value = average_posting_rating_value;}
+	public void setAveragePostingRatingValue(float average_posting_rating_value) {this.average_posting_rating_value = average_posting_rating_value; internalJson.put("average_posting_rating_value", average_posting_rating_value);}
 	
-	public float getAveragePostingRating() {return average_posting_ratio;}
-	public void setAveragePostingRating(float average_posting_ratio) {this.average_posting_ratio = average_posting_ratio;}
+	public float getAveragePostingRatio() {return average_posting_ratio;}
+	public void setAveragePostingRatio(float average_posting_ratio) {this.average_posting_ratio = average_posting_ratio; internalJson.put("average_posting_ratio", average_posting_ratio);}
 	
 	public long getListsAndGroupsCount() {return lists_and_groups_count;}
-	public void setListsAndGroupsCount(long listsAndGroupsCount) {this.lists_and_groups_count = listsAndGroupsCount;}
+	public void setListsAndGroupsCount(long listsAndGroupsCount) {this.lists_and_groups_count = listsAndGroupsCount; internalJson.put("lists_and_groups_count", listsAndGroupsCount);}
 	
 	public long getFavoritesCount() {return favorites_count;}
-	public void setFavoritesCount(long favoritesCount) {this.favorites_count = favoritesCount;}
+	public void setFavoritesCount(long favoritesCount) {this.favorites_count = favoritesCount; internalJson.put("favorites_count", favoritesCount);}
 	
 	public String getLang() {return lang;}
-	public void setLang(String lang) {this.lang = lang;}
+	public void setLang(String lang) {this.lang = lang; internalJson.put("lang", lang);}
 }

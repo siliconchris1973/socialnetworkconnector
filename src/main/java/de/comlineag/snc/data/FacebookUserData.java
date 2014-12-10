@@ -1,10 +1,12 @@
 package de.comlineag.snc.data;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 
+import de.comlineag.snc.appstate.CrawlerConfiguration;
 import de.comlineag.snc.constants.SocialNetworks;
 
 /**
@@ -36,12 +38,8 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  */
 
-public final class FacebookUserData extends UserData {
-
-	// we use simple org.apache.log4j.Logger for lgging
+public final class FacebookUserData extends UserData implements ISncDataObject{
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	/**
 	 * Constructor, based on the JSONObject sent from Facebook the Data Object is prepared
@@ -55,10 +53,11 @@ public final class FacebookUserData extends UserData {
 		
 		// set all values to zero
 		initialize();
-		
+		String s; 
 		try {
-			setId((String) jsonObject.get("id"));
-			setUsername((String) jsonObject.get("name"));
+			s = Objects.toString(jsonObject.get("id"), null);
+			setId(s);
+			setUserName((String) jsonObject.get("name"));
 			setScreenName((String) jsonObject.get("screen_name"));
 			
 			setLang((String) jsonObject.get("lang"));
@@ -84,14 +83,19 @@ public final class FacebookUserData extends UserData {
 	}
 
 	private void initialize() {
-		// setting everything to 0 or null default value.
-		// so I can check on initialized or not initialized values for the
-		// posting
-		id = "0";
-		//sn_id = SocialNetworks.FACEBOOK.getValue();
-		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "FACEBOOK");
+		// first setup the internal json objct
+		internalJson = new JSONObject();
 		
-		username = null;
+		// setting everything to 0 or null default value.
+		id = "0";
+		setObjectStatus("new");
+		
+		// set the internal fields and embedded json objects for domain, customer and social network
+		setSnId(SocialNetworks.getSocialNetworkConfigElement("code", "FACEBOOK"));
+		setDomain(new CrawlerConfiguration<String>().getDomain());
+		setCustomer(new CrawlerConfiguration<String>().getCustomer());
+		
+		user_name = null;
 		screen_name = null;
 		lang = null;
 		geoLocation = null;

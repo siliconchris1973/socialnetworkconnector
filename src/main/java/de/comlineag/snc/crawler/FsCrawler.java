@@ -244,7 +244,7 @@ public class FsCrawler implements Job {
 		
 		if (jsonObject.get("userName") != null) {
 			logger.trace("    userName\t"+jsonObject.get("userName").toString());
-			uData.setUsername((String) jsonObject.get("userName"));
+			uData.setUserName((String) jsonObject.get("userName"));
 		}
 		
 		if (jsonObject.get("nickName") != null) {

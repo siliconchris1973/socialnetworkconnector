@@ -1,5 +1,6 @@
 package de.comlineag.snc.crawler;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -23,8 +24,11 @@ import org.slf4j.LoggerFactory;
 
 import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.constants.SNCStatusCodes;
+import de.comlineag.snc.constants.SocialNetworks;
 import de.comlineag.snc.crypto.GenericCryptoException;
 import de.comlineag.snc.handler.ConfigurationCryptoHandler;
+import de.comlineag.snc.handler.TwitterPosting;
+import de.comlineag.snc.handler.TwitterUser;
 import de.comlineag.snc.handler.WebPosting;
 import de.comlineag.snc.handler.WebUser;
 import de.comlineag.snc.parser.ParserControl;
@@ -91,6 +95,8 @@ public class THEWebCrawler extends WebCrawler {
 	private final String rtcDomainKey = rtc.getStringValue("DomainIdentifier", "XmlLayout");
 	private final String rtcCustomerKey = rtc.getStringValue("CustomerIdentifier", "XmlLayout");
 	
+	private final boolean rtcPersistenceThreading = rtc.getBooleanValue("PersistenceThreadingEnabled", "runtime");
+	
 	
 	private int trackedPages = 0;				// is returned on end of crawler run
 	private String userName = null;				// for authentication
@@ -122,7 +128,7 @@ public class THEWebCrawler extends WebCrawler {
 			
 			JSONObject configurationScope = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			logger.debug("the given json object is " + configurationScope.toJSONString().length() + " characters long and the parsed object has " + configurationScope.size() + " key/value mappings of type " + configurationScope.keySet().toString());
+			logger.trace("the given json object is " + configurationScope.toJSONString().length() + " characters long and the parsed object has " + configurationScope.size() + " key/value mappings of type " + configurationScope.keySet().toString());
 			
 			sn_id = (String) configurationScope.get("SN_ID");
 			// retrieve the track terms and the blocked urls
@@ -135,6 +141,7 @@ public class THEWebCrawler extends WebCrawler {
 			theCrawlDomains = (String[]) configurationScope.get("theCrawlDomains");
 			userName = (String) configurationScope.get("userName");
 			password = (String) configurationScope.get("password");
+			logger.debug("starting THEWebCrawler crawler with sn_id {} for site {}", sn_id, SocialNetworks.getSocialNetworkConfigElementByCode("domain", sn_id));
 		} catch (Exception e){
 			logger.error("error while retrieving custom data from controller - {}", e);
 		}
@@ -267,18 +274,78 @@ public class THEWebCrawler extends WebCrawler {
 					postings = ParserControl.submit(html, realUrl, tTerms, sn_id, curCustomer, curDomain);
 					
 					// invoke the persistence layer - should go to crawler
-					for (int ii = 0; ii < postings.size(); ii++) {
+					for (WebPosting postData : postings) {
+					//for (int ii = 0; ii < postings.size(); ii++) {
+						String userName = "undefined";
+						String pageUrl = "undefined";
+
+						if (postData.getUserAsJson().containsKey("username"))
+							userName = postData.getUserAsJson().get("username").toString();
+						if (postData.getJson().containsKey("source"))
+							pageUrl = postData.getJson().get("source").toString();
+
 						trackedPages++;
-						WebPosting postData = postings.get(ii);
+
+						logger.debug("{} pages to store in persistence layer tracked", trackedPages);
 						
-						// first get the user-data out of the WebPosting
-						WebUser userData = new WebUser(postData.getUser()); 
-						logger.info("calling persistence layer to save the user ");
-						userData.save();
+						//WebPosting postData = postings.get(ii);
+						WebUser userData = new WebUser(postData.getUserAsJson()); 
+
+						// TODO check if this is the right spot to add the track terms to the posting
+						ArrayList<String> keywords = new ArrayList<String>();
+						for (String keyword : tTerms){
+							if (containsWord(text, keyword)) {
+								logger.trace("adding trackterm {} to list of tracked keywords", keyword);
+								keywords.add(keyword);
+							}
+						}
+						// now we should have an array list of the found trackterms in the post
+						postData.setTrackTerms(keywords);
 						
-						// and now pass the web page on to the persistence layer
-						logger.info("calling persistence layer to save the page ");
-						postData.save();
+						if (rtcPersistenceThreading){
+							// execute persistence layer in a new thread, so that it does NOT block the crawler
+							logger.trace("execute persistence layer in a new thread...");
+							final WebPosting postDataT = postData;
+							final WebUser userDataT = userData;
+							final String userNameT = userName;
+							final String pageUrlT = pageUrl;
+							
+							new Thread(new Runnable() {
+								@Override
+								public void run() {
+									logger.info("calling persistence layer to save the user {}", userNameT);
+									userDataT.save();
+									
+									// and now pass the web page on to the persistence layer
+									logger.info("calling persistence layer to save the page {}", pageUrlT);
+									postDataT.save();
+									
+									// next call the graph engine and store data also in the external graph
+									// please note that we do not need to do this for the user as well, as 
+									// the graph persistence layer uses the embedded user object within the
+									// post object
+									if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+										postDataT.saveInGraph();
+									}
+								}
+							}).start();
+							// otherwise just call it sequentially
+						} else {
+							logger.info("calling persistence layer to save the user {}", userName);
+							userData.save();
+							
+							// and now pass the web page on to the persistence layer
+							logger.info("calling persistence layer to save the page {}", pageUrl);
+							postData.save();
+							
+							// next call the graph engine and store data also in the external graph
+							// please note that we do not need to do this for the user as well, as 
+							// the graph persistence layer uses the embedded user object within the
+							// post object
+							if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+								postData.saveInGraph();
+							}
+						}
 					}
 				}
 			}
@@ -347,6 +414,27 @@ public class THEWebCrawler extends WebCrawler {
 		}
 		
 		return myCrawlData;
+	}
+	
+	
+	/**
+	 * @description 	checks if the given token is found in the given text
+	 * 					this check is done a second time in the parser, after all irrelevant content
+	 * 					like advertisement and the like has been stripped off the page.
+	 * @param 			text
+	 * @param 			token
+	 * @return 			true if any of the tokens was found, otherwise false
+	 */
+	private boolean containsWord(String text, String token){
+		String patternString = "\\b(" + StringUtils.join(token, "|") + ")\\b";
+		Pattern pattern = Pattern.compile(patternString);
+		Matcher matcher = pattern.matcher(text);
+
+		while (matcher.find()) {
+		    return true;
+		}
+		
+		return false;
 	}
 	
 	// these are the getter and setter for the name value - used for JMX support, I think

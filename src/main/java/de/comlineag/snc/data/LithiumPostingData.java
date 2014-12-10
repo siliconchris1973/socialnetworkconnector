@@ -1,8 +1,10 @@
 package de.comlineag.snc.data;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -164,9 +166,15 @@ import de.comlineag.snc.helper.DateTimeServices;
 			type : "date_time"
  */
 
-public final class LithiumPostingData extends PostingData {
-	
+public final class LithiumPostingData extends PostingData implements ISncDataObject{
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	
+	UserData userObject = new UserData();
+	DomainData domainObject = new DomainData();
+	CustomerData customerObject = new CustomerData();
+	SocialNetworkData socialNetworkObject = new SocialNetworkData();
+	
+	ArrayList<String> keywords = new ArrayList<String>();
 	
 	public LithiumPostingData(){}
 	
@@ -179,8 +187,9 @@ public final class LithiumPostingData extends PostingData {
 	public LithiumPostingData(JSONObject jsonObject) {
 		logger.debug("constructing new subset of data of post (LT-"  + jsonObject.get("id") + ") from lithium post-object");
 		
-		// alles auf Null und die SocialNetworkID schon mal parken
+		// set all data to initial values and also set the SN_ID to LITHIUM queivalent code
 		initialize();
+		String s; // helper var to cast from long to string
 		
 		try {
 			JSONParser parser = new JSONParser();
@@ -195,7 +204,8 @@ public final class LithiumPostingData extends PostingData {
 			obj = parser.parse(jsonObject.get("id").toString());
 			JSONObject jsonObjId = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			setId((String) jsonObjId.get("$"));
+			s = Objects.toString(jsonObjId.get("$"), null);
+			setId(s);
 			
 			
 			// the user
@@ -399,20 +409,45 @@ public final class LithiumPostingData extends PostingData {
 	/**
 	 * @description	setup a posting data with NULL-values
 	 */
+	@SuppressWarnings("unchecked")
 	private void initialize() {
+		// first setup the internal json objct
+		internalJson = new JSONObject();
+		
 		// setting everything to 0 or null default value.
-		// so I can check on initialized or not initialized values for the
-		// posting
 		id = "0";
+		setObjectStatus("new");
 		
-		domain = new CrawlerConfiguration<String>().getDomain();
-		customer = new CrawlerConfiguration<String>().getCustomer();
-		objectStatus = "new";
+		// set the internal fields and embedded json objects for domain, customer and social network
+		setSnId(SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM"));
+		setDomain(new CrawlerConfiguration<String>().getDomain());
+		setCustomer(new CrawlerConfiguration<String>().getCustomer());
 		
-		// set social network identifier
-		//sn_id = SocialNetworks.LITHIUM.getValue();
-		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM");
-
+		// create the embedded social network json
+		JSONObject tJson = new JSONObject();
+		tJson.put("sn_id", sn_id);
+		tJson.put("name", SocialNetworks.getSocialNetworkConfigElementByCode("name", sn_id).toString());
+		tJson.put("domain", SocialNetworks.getSocialNetworkConfigElementByCode("domain", sn_id).toString());
+		tJson.put("description", SocialNetworks.getSocialNetworkConfigElementByCode("description", sn_id).toString());
+		SocialNetworkData socData = new SocialNetworkData(tJson.toJSONString());
+		logger.trace("storing created social network object {} as embedded object {}", socData.getName(), socData.toJsonString());
+		setSocialNetworkData(socData.getJson());
+		
+		// create the embedded domain json
+		tJson = new JSONObject();
+		tJson.put("name", domain);
+		DomainData domData = new DomainData(tJson.toJSONString());
+		logger.trace("storing created domain object {} as embedded object {}", domData.getName(), domData.toJsonString());
+		setDomainData(domData.getJson());
+		
+		// create the embedded customer json
+		tJson = new JSONObject();
+		tJson.put("name", customer);
+		CustomerData subData = new CustomerData(tJson.toJSONString());
+		logger.trace("storing created customer object {} as embedded object {}", subData.getName(), subData.toJsonString());
+		setCustomerData(subData.getJson());
+		
+		
 		text = null;
 		raw_text = null;
 		subject = "";
@@ -444,4 +479,17 @@ public final class LithiumPostingData extends PostingData {
 		symbols = null;
 		mentions = null;
 	}
+	
+	// new methods to get and set the user, domain, customer and social network object within the page object
+	public void setUserObject(UserData userJson){this.userObject = userJson;}
+	public UserData getUserObject(){return userObject;}
+	
+	public void setDomainObject(DomainData domJson){this.domainObject = domJson;}
+	public DomainData getDomainObject(){return domainObject;}
+	
+	public void setCustomerObject(CustomerData subJson){this.customerObject = subJson;}
+	public CustomerData getCustomerObject(){return customerObject;}
+	
+	public void setSocialNetworkObject(SocialNetworkData socJson){this.socialNetworkObject = socJson;}
+	public SocialNetworkData getSocialNetworkObject(){return socialNetworkObject;}
 }

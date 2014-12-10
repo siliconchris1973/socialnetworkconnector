@@ -5,6 +5,8 @@ import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -17,7 +19,7 @@ import org.quartz.JobExecutionException;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
-
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -323,28 +325,25 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 								
 								logger.info("SocialNetworkPost #"+messageCount+" tracked from " + CRAWLER_NAME);
 								
+													
 								JSONObject messageResponse = SendObjectRequest(messageRef, REST_API_URL, LithiumConstants.JSON_SINGLE_MESSAGE_OBJECT_IDENTIFIER);
 								if (messageResponse != null) {
-									// first save the message
-									if (rtcPersistenceThreading){
-										// execute persistence layer in a new thread, so that it does NOT block the crawler
-										logger.trace("execute persistence layer in a new thread...");
-										final LithiumPosting litPost = new LithiumPosting(messageResponse);
-										new Thread(new Runnable() {
-											
-											@Override
-											public void run() {
-												litPost.save();
-											}
-										}).start();
-									} else {
-										// otherwise just call it sequentially
-										new LithiumPosting(messageResponse).save();
+									// create a lithium posting object from the message response from Lithium
+									LithiumPosting litPost = new LithiumPosting(messageResponse);
+									
+									// TODO check if this is the right spot to add the track terms to the posting
+									ArrayList<String> keywords = new ArrayList<String>();
+									for (String keyword : tTerms){
+										if (containsWord(litPost.getJson().get("text").toString(), keyword)) {
+											logger.trace("adding trackterm {} to list of tracked keywords", keyword);
+											keywords.add(keyword);
+										}
 									}
+									// now we should have an array list of the found trackterms in the post
+									litPost.setTrackTerms(keywords);
 									
-									
-									// now get the user from REST url and save it also
 									try {
+										// retrieve the user from REST url and save it
 										JSONParser parser = new JSONParser();
 										Object obj = parser.parse(messageResponse.toString());
 										JSONObject jsonObj = obj instanceof JSONObject ?(JSONObject) obj : null;
@@ -355,10 +354,49 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 										String userRef = (String) ((JSONObject)authorObj).get(LithiumConstants.JSON_AUTHOR_REFERENCE);
 										JSONObject userResponse = SendObjectRequest(userRef, REST_API_URL, LithiumConstants.JSON_USER_OBJECT_IDENTIFIER);
 										
-										new LithiumUser(userResponse).save();
+										LithiumUser litUser = new LithiumUser(userResponse);
+										litUser.save();
 										
+										// now add the extracted user-data object back in the posting data object
+										// so that later, in the call to the graph persistence manager, we can get 
+										// post and user-objects from one combined json structure
+										logger.trace("about to add the user object to the post object \n    {}", litUser.getJson());
+										litPost.setUserObject(litUser.getUserData());
+										
+										// next save the message
+										if (rtcPersistenceThreading){
+											final LithiumPosting litTPost = new LithiumPosting(messageResponse);
+											
+											// execute persistence layer in a new thread, so that it does NOT block the crawler
+											logger.trace("execute persistence layer in a new thread...");
+											new Thread(new Runnable() {
+												@Override
+												public void run() {
+													litTPost.save();
+													
+													// next call the graph engine and store data also in the external graph
+													// please note that we do not need to do this for the user as well, as 
+													// the graph persistence layer uses the embedded user object within the
+													// post object
+													if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+														litTPost.saveInGraph();
+													}
+												}
+											}).start();
+										} else {
+											// otherwise just call it sequentially
+											litPost.save();
+											
+											// next call the graph engine and store data also in the external graph
+											// please note that we do not need to do this for the user as well, as 
+											// the graph persistence layer uses the embedded user object within the
+											// post object
+											if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+												litPost.saveInGraph();
+											}
+										}
 									} catch (ParseException e) {
-										logger.error("EXCEPTION :: could not retrieve user from message object " + e.getLocalizedMessage());
+										logger.error("EXCEPTION :: error " + e.getLocalizedMessage());
 										e.printStackTrace();
 									} // try catch
 								} // if message response is != null
@@ -501,7 +539,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	private void basicAuthentication(String user, String pwd){ 
 		Authenticator.setDefault( new Authenticator() {
 			@Override protected PasswordAuthentication getPasswordAuthentication() {
-				System.out.printf( "url=%s, host=%s, ip=%s, port=%s%n",
+				logger.debug("url={}, host={}, ip={}, port={}",
 	                       getRequestingURL(), getRequestingHost(),
 	                       getRequestingSite(), getRequestingPort() );
 				
@@ -509,6 +547,28 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 			}
 		});
 	}
+	
+	
+	/**
+	 * @description 	checks if the given token is found in the given text
+	 * 					this check is done a second time in the parser, after all irrelevant content
+	 * 					like advertisement and the like has been stripped off the page.
+	 * @param 			text
+	 * @param 			token
+	 * @return 			true if any of the tokens was found, otherwise false
+	 */
+	private boolean containsWord(String text, String token){
+		String patternString = "\\b(" + StringUtils.join(token, "|") + ")\\b";
+		Pattern pattern = Pattern.compile(patternString);
+		Matcher matcher = pattern.matcher(text);
+
+		while (matcher.find()) {
+		    return true;
+		}
+		
+		return false;
+	}
+	
 	
 	// these are the getter and setter for the name value - used for JMX support, I think
 	public static String getName() {return name;}

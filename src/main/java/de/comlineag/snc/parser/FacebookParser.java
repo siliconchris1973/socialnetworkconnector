@@ -7,13 +7,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.google.common.base.Stopwatch;
 
+import de.comlineag.snc.appstate.RuntimeConfiguration;
 import de.comlineag.snc.handler.FacebookPosting;
 import de.comlineag.snc.handler.FacebookUser;
 
@@ -33,6 +33,8 @@ import de.comlineag.snc.handler.FacebookUser;
  * TODO implement facebook data parser
  */
 public final class FacebookParser extends GenericParser {
+	// this holds a reference to the runtime configuration
+	private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	public FacebookParser() {}
@@ -74,6 +76,14 @@ public final class FacebookParser extends GenericParser {
 		for (int ii = 0; ii < postings.size(); ii++) {
 			FacebookPosting post = (FacebookPosting) postings.get(ii);
 			post.save();
+			
+			// next call the graph engine and store data also in the external graph
+			// please note that we do not need to do this for the user as well, as 
+			// the graph persistence layer uses the embedded user object within the
+			// post object
+			if (rtc.getBooleanValue("ActivateGraphDatabase", "runtime")) {
+				post.saveInGraph();
+			}
 		}
 		
 		for (int ii = 0; ii < users.size(); ii++) {

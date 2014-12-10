@@ -2,7 +2,6 @@ package de.comlineag.snc.data;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
@@ -40,7 +39,7 @@ import de.comlineag.snc.constants.SocialNetworks;
  * 
  */
 
-public final class WebUserData extends UserData {
+public final class WebUserData extends UserData implements ISncDataObject{
 
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
@@ -58,7 +57,10 @@ public final class WebUserData extends UserData {
 				
 				setSnId((String) jsonObject.get("sn_id"));
 				setId((String) jsonObject.get("id"));
-				setUsername((String) jsonObject.get("name"));
+				if (jsonObject.containsKey("user_name"))
+					setUserName((String) jsonObject.get("user_name"));
+				if (jsonObject.containsKey("name"))
+					setUserName((String) jsonObject.get("name"));
 				setScreenName((String) jsonObject.get("screen_name"));
 				
 				setLang((String) jsonObject.get("lang"));
@@ -83,13 +85,19 @@ public final class WebUserData extends UserData {
 		}
 
 		private void initialize() {
+			// first setup the internal json objct
+			internalJson = new JSONObject();
+			
 			// setting everything to 0 or null default value.
-			// so I can check on initialized or not initialized values for the
-			// posting
 			id = "0";
-			//sn_id = SocialNetworks.TWITTER.getValue();
-			sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "WEBCRAWLER");
-			username = null;
+			setObjectStatus("new");
+			
+			// set the internal fields and embedded json objects for domain, customer and social network
+			setSnId(SocialNetworks.getSocialNetworkConfigElement("code", "WEBCRAWLER"));
+			setDomain(new CrawlerConfiguration<String>().getDomain());
+			setCustomer(new CrawlerConfiguration<String>().getCustomer());
+			
+			user_name = null;
 			screen_name = null;
 			lang = null;
 			geoLocation = "";
@@ -98,9 +106,5 @@ public final class WebUserData extends UserData {
 			postings_count = 0;
 			favorites_count = 0;
 			lists_and_groups_count = 0;
-			
-			domain = new CrawlerConfiguration<String>().getDomain();
-			customer = new CrawlerConfiguration<String>().getCustomer();
-			objectStatus = "new";
 		}
 }

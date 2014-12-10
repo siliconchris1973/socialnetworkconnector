@@ -1,38 +1,43 @@
 package de.comlineag.snc.persistence;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.json.simple.JSONObject;
+import javax.ws.rs.core.MediaType;
 
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+
+//import de.comlineag.snc.appstate.RuntimeConfiguration;
+import de.comlineag.snc.constants.GraphNodeTypes;
 import de.comlineag.snc.constants.HttpErrorMessages;
 import de.comlineag.snc.constants.HttpStatusCodes;
-import de.comlineag.snc.constants.Neo4JConstants;
-import de.comlineag.snc.constants.RelationshipTypes;
-import de.comlineag.snc.data.PostingData;
-import de.comlineag.snc.data.UserData;
-import de.comlineag.snc.handler.ConfigurationCryptoHandler;
+import de.comlineag.snc.constants.GraphRelationshipTypes;
+import de.comlineag.snc.constants.SocialNetworks;
+import de.comlineag.snc.data.CustomerData;
+import de.comlineag.snc.data.DomainData;
+import de.comlineag.snc.data.KeywordData;
+import de.comlineag.snc.data.GraphPostingData;
+import de.comlineag.snc.data.SocialNetworkData;
+import de.comlineag.snc.data.GraphUserData;
 import de.comlineag.snc.neo4j.Relation;
 import de.comlineag.snc.neo4j.TraversalDefinition;
-import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
 
 
 /**
  *
  * @author 		Christian Guenther
  * @category 	Connector Class
- * @version 	0.7c
+ * @version 	0.8
  * @status		in development
  *
  * @description handles the connectivity to the Neo4J Graph Database and saves posts, 
@@ -41,320 +46,1145 @@ import static org.neo4j.kernel.impl.util.FileUtils.deleteRecursively;
  * @changelog	0.1 (Chris)		initial version as copy from HANAPersistence
  * 				0.2 			insert of post
  * 				0.3				insert of user
- * 				0.4				query for geoLocation
+ * 				0.4				query for location
  * 				0.5				create relationship between nodes
  * 				0.6 			bugfixing and wrap up
  * 				0.7 			skeleton for graph traversal
  * 				0.7a			removed Base64Encryption (now in its own class)
  * 				0.7b			added support for different encryption provider, the actual one is set in applicationContext.xml
  * 				0.7c			changed id from Long to String 
+ * 				0.8				rewrote class from scratch
  * 
- * TODO implement code to check if a node already exists prior inserting one
- * TODO implement code for graph traversal
- * TODO check implementation of geo geoLocation
+ * 
+ * the workflow is as follows:
+ * 	1. if necessary, create social network
+ * 		store reference to social network
+ *  2. if necessary, create domain of interest
+ *  	store reference to domain
+ *  3.if necessary, create customer
+ *  	store reference to customer
+ *  4. check if the post is already in the graph, if not create it
+ *  	store reference to post
+ *  5. check if the user is already in the graph, if not create it
+ *  	store reference to user
+ *  6 if necessary, create keywords
+ *  	store reference to keywords
+ *  
+ *  7. if necessary, create relationship from customer to domain
+ *  	customer -BELONGS_TO-> domain
+ *  8. create relationship from user to post
+ *  	user -WROTE-> post
+ *  9. if necessary, create relationship from post to user
+ *  	post -MENTIONEND-> user
+ *  10.create relationship from post to social network
+ *  	post -BELONGS_TO-> network
+ *  11.create relationship from post to keyword
+ *  	post -CONTAINS-> keyword
+ * 
+ * 
+ * The graph schema looks like this:
+ * 
+ *                            +---------------------------------+
+ *                            |                                 |
+ * 							  | +-[BELONGS_TO]->(SOCIALNETWORK) |
+ * 							  | |                               |
+ * 		(KEYWORD)<-[CONTAINS]-(POST)<-[WROTE]-(USER)<-+         |
+ * 			|					|                     |         |
+ *		[BELONGS_TO]		[MENTIONS]----------------+         |
+ * 			|	                                                |
+ *          +->(DOMAIN)<-[BELONGS_TO]-(CUSTOMER)<-[TRACKED_FOR]-+
+ * 
+ * 	a USER writes a POST
+ *  the POST is from a SOCIALNETWORK
+ * 	the POST possibly mentions 1-n USER
+ * 	the POST contains 1-n KEYWORD
+ *  the POST is tracked for a CUSTOMER
+ * 	the KEYWORD belongs to 1-n DOMAIN
+ * 	a CUsTOMER belongs to a DOMAIN
+ * 
  */
-public class Neo4JPersistence implements IPersistenceManager {
+public class Neo4JPersistence implements IGraphPersistenceManager {
+	// this holds a reference to the runtime configuration
+	//private final RuntimeConfiguration rtc = RuntimeConfiguration.getInstance();
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
-	
-	// Servicelocation
-	private String host;
-	private String port;
-	private String protocol;
-	private String location;
+	// this is a reference to the Neo4J configuration settings
+	private final Neo4JConfiguration nco = Neo4JConfiguration.getInstance();
 	
 	private String dbServerUrl;
-	private String nodePointUrl;
+	private String transactionUrl;
+	// path to the configuration xml file
+	public String configDb;
 	
-	// file system path to the db
-	private String db_path = null;
 	
-	private String serviceUserEndpoint;
-	private String servicePostEndpoint;
-	// Credentials
-	private String user;
-	private String pass;
-
-	// contains ID and position of a node within the graph - used as the target of a relationship (edge between nodes)
-	private String toNodeLocationUri;
-	private Long toNodeId;
-
-	// contains ID and position of a node within the graph - used as the origin of a relationship (edge between nodes)
-	private String fromNodeLocationUri;
-	private Long fromNodeId;
 	
-	// this provides for different encryption provider, the actual one is set in applicationContext.xml 
-	private ConfigurationCryptoHandler configurationEncryptionProvider = new ConfigurationCryptoHandler();
-		
 	public Neo4JPersistence() {
 		// initialize the necessary variables from applicationContext.xml for server connection
-		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
-		nodePointUrl = dbServerUrl + this.location + "/node";
-	}
-	
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	public void savePosts(PostingData postingData) {
-		// we only store posts in german and english at the moment
-		if (postingData.getLang().equalsIgnoreCase("de") || postingData.getLang().equalsIgnoreCase("en")) {
-			dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
-			nodePointUrl = dbServerUrl + this.location + Neo4JConstants.NODE_LOC;
-
-			logger.trace("savePosts for post-id " + postingData.getId() + " called - working with " + nodePointUrl);
-			
-			//prepareConnection();
-			String output = null;
-			HttpClient client = new HttpClient();
-			PostMethod mPost = new PostMethod(nodePointUrl);
-			
-			// set header
-			Header mtHeader = new Header();
-			mtHeader.setName("content-type");
-			mtHeader.setValue("application/json");
-			mtHeader.setName("accept");
-			mtHeader.setValue("application/json");
-			mPost.addRequestHeader(mtHeader);
-			
-			
-			// first step, save post itself
-			logger.debug("Creating node for post (ID " + postingData.getId() + " / text (first 20 chars) " + postingData.getText().substring(0, 20) + ") at " + nodePointUrl);
-			
-			// set json payload
-			JSONObject p = new JSONObject();
-			
-			//p.put("type", SocialNetworkEntryTypes.POSTING.toString());	// --> Fixed value Posting -- will be done with a label
-			p.put("sn_id", postingData.getSnId());								// Property Name="sn_id" Type="Edm.String" Nullable="false" MaxLength="2"		--> Fixed value TW
-			p.put("post_id", postingData.getId());								// Property Name="post_id" Type="Edm.String" Nullable="false" MaxLength="20"
-			p.put("timestamp", "\"" + postingData.getTimestamp() + "\""); 		// Property Name="timestamp" Type="Edm.DateTime"
-			p.put("postLang", postingData.getLang());							// Property Name="postLang" Type="Edm.String" MaxLength="64"
-			p.put("text", postingData.getText().toString());					// Property Name="text" Type="Edm.String" DefaultValue="" MaxLength="1024"
-			p.put("truncated", postingData.getTruncated());					// Property Name="truncated" Type="Edm.Byte" DefaultValue="0"					--> true or false
-			p.put("client", postingData.getClient()); 							// OBSOLETE Name="client" Type="Edm.String" MaxLength="2048"
-			
-			// TODO check implementation of geo geoLocation
-			if (postingData.getGeoLongitude() != null) 
-				p.put("geoLocation_longitude", postingData.getGeoLongitude());	// Property Name="geoLocation_longitude" Type="Edm.String" MaxLength="40"
-			if (postingData.getGeoLatitude() != null)
-				p.put("geoLocation_latitude", postingData.getGeoLatitude());	// Property Name="geoLocation_latitude" Type="Edm.String" MaxLength="40"
-			if (postingData.getGeoPlaceId() != null)
-				p.put("placeID", postingData.getGeoPlaceId());					// Property Name="placeID" Type="Edm.String" MaxLength="16"
-			if (postingData.getGeoPlaceName() != null)
-				p.put("plName", postingData.getGeoPlaceName());				// Property Name="plName" Type="Edm.String" MaxLength="256"
-			if (postingData.getGeoPlaceCountry() != null)
-				p.put("plCountry", postingData.getGeoPlaceCountry());			// Property Name="plCountry" Type="Edm.String" MaxLength="128"
-			if (postingData.getGeoAroundLatitude() != null)
-				p.put("plAround_latitude", postingData.getGeoAroundLatitude());	// Property Name="geoLocation_latitude" Type="Edm.String" MaxLength="40"
-			if (postingData.getGeoAroundLongitude() != null)
-				p.put("plAround_longitude", postingData.getGeoAroundLongitude());	// Property Name="geoLocation_latitude" Type="Edm.String" MaxLength="40"
-			
-			
-			p.put("user_id", postingData.getUserId()); 						// CONNECTION Name="user_id" Type="AUTHORED"
-			// the following data is NOT stored directly but rathe as a relationship between nodes
-			p.put("inReplyTo", postingData.getInReplyTo()); 					// CONNECTION Name="inReplyTo" Type="REPLIED_ON"
-			/*
-			if (postData.getInReplyTo() <= 0) {
-				// create a relationship between User   and Post           of type AUTHORED            with no additional data
-				createRelationship(fromNodeLocationUri, toNodeLocationUri, RelationshipTypes.IN_REPLY_TO_STATUS, null);
-			}
-			*/
-			p.put("inReplyToUserID", postingData.getInReplyToUser()); 				// CONNECTION Name="inReplyToUserID" Type="REPLIED_TO"
-			/*
-			 if (postData.getInReplyToUser() <= 0) {
-				// create a relationship between User   and Post           of type AUTHORED            with no additional data
-				createRelationship(fromNodeLocationUri, toNodeLocationUri, RelationshipTypes.IN_REPLY_TO_USER, null);
-			}
-			*/
-			logger.trace("about to insert the following data in the graph: " + p.toString());
-			
-			try{
-				StringRequestEntity requestEntity = new StringRequestEntity(p.toString(),
-	                                                                        "application/json",
-	                                                                        "UTF-8");
-				
-				mPost.setRequestEntity(requestEntity);
-				int status = client.executeMethod(mPost);
-				HttpStatusCodes statusCode = HttpStatusCodes.getHttpStatusCode(status);
-				
-				// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
-				if (!statusCode.isOk()){
-					logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
-				} else {
-					logger.info("SUCCESS :: node for post " + postingData.getId() + " successfully created");
-					
-					output = mPost.getResponseBodyAsString();
-					Header locationHeader =  mPost.getResponseHeader("geoLocation");
-					
-					toNodeLocationUri = locationHeader.getValue();
-					toNodeId = getNodeIdFromLocation(toNodeLocationUri);
-					logger.trace("locationHeader = " + locationHeader + " \n output = " + output);
-
-					mPost.releaseConnection();
-					addLabelToNode(toNodeLocationUri, "User");
-				}
-			} catch(Exception e) {
-				logger.error("EXCEPTION :: failed to create node for post (ID " + postingData.getId() + ") " + e.getMessage());
-			}
-		} // end if - check on languages
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void saveUsers(UserData userData) {
-		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
-		nodePointUrl = dbServerUrl + this.location + Neo4JConstants.NODE_LOC;
-
-		logger.trace("saveUsers called for user-id " + userData.getId() + " - working with " + nodePointUrl);
-		
-		// check if the user already exists and if so, DO NOT add him/her a second time, but only create a relationship
-		fromNodeLocationUri = findNodeByIdAndLabel("user_id", userData.getId(), "User");
-		logger.trace("the search for the user returned " + fromNodeLocationUri);
-		fromNodeLocationUri = nodePointUrl + "1";
-		fromNodeId = getNodeIdFromLocation(fromNodeLocationUri);
-		
-		if (fromNodeLocationUri == null) { 
-			// user does NOT exist, create it
-			//prepareConnection();
-			String output = null;
-			HttpClient client = new HttpClient();
-			PostMethod mPost = new PostMethod(nodePointUrl);
-	
-			// set headers
-			Header mtHeader = new Header();
-			mtHeader.setName("content-type");
-			mtHeader.setValue("application/json");
-			mtHeader.setName("accept");
-			mtHeader.setValue("application/json");
-			mPost.addRequestHeader(mtHeader);
-					
-			logger.debug("Creating node for user (ID " + userData.getId() + " / screenname " + userData.getScreenName() + ") at " + nodePointUrl);
-			
-			// set json payload 
-			JSONObject u = new JSONObject();
-			
-			//u.put("type", SocialNetworkEntryTypes.USER.toString());			// -- will be done with a label  
-			u.put("sn_id", userData.getSnId());									// {name = "sn_id"; sqlType = NVARCHAR; nullable = false; length = 2;},
-			u.put("user_id", userData.getId());									// {name = "user_id"; sqlType = NVARCHAR; nullable = false; length = 20;},
-			u.put("userName", userData.getUsername());							// {name = "userName"; sqlType = NVARCHAR; nullable = true; length = 128;},
-			u.put("nickName", userData.getScreenName());						// {name = "nickName"; sqlType = NVARCHAR; nullable = true; length = 128;},
-			u.put("userLang", userData.getLang());								// {name = "userLang"; sqlType = NVARCHAR; nullable = true; length = 64;},
-			u.put("geoLocation", userData.getGeoLocation());							// {name = "geoLocation"; sqlType = NVARCHAR; nullable = true; length = 1024;},
-			u.put("follower", userData.getFollowersCount());					// {name = "follower"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
-			u.put("friends", userData.getFriendsCount());						// {name = "friends"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
-			u.put("postingsCount", userData.getPostingsCount());				// {name = "postingsCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
-			u.put("favoritesCount", userData.getFavoritesCount());				// {name = "favoritesCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";},
-			u.put("listsAndGroupsCount", userData.getListsAndGroupsCount());	// {name = "listsAndGroupsCount"; sqlType = INTEGER; nullable = false; defaultValue ="0";}
-			
-			logger.trace("about to insert the following data in the graph: " + u.toString());
-			
-			try {
-				StringRequestEntity requestEntity = new StringRequestEntity(u.toString(),
-	                    													"application/json",
-	                    													"UTF-8");
-	
-				mPost.setRequestEntity(requestEntity);
-				int status = client.executeMethod(mPost);
-				HttpStatusCodes statusCode = HttpStatusCodes.getHttpStatusCode(status);
-				
-				// in case everything is fine, neo4j should return 200. any other case needs to be investigated
-				if (!statusCode.isOk()){
-					logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
-				} else {
-					logger.info("SUCCESS :: node for user " + userData.getScreenName() + " successfully created");
-					
-					output = mPost.getResponseBodyAsString( );
-					Header locationHeader = mPost.getResponseHeader("geoLocation");
-					
-					fromNodeLocationUri = locationHeader.getValue();
-					fromNodeId = getNodeIdFromLocation(fromNodeLocationUri);
-					logger.trace("locationHeader = " + locationHeader + " \n output = " + output);
-					
-					mPost.releaseConnection();
-					
-					addLabelToNode(fromNodeLocationUri, "User");
-				}
-			} catch (Exception e) {
-				logger.error("EXCEPTION :: failed to create node for user (ID " + userData.getId() + " / name " + userData.getScreenName() + ") " + e.getMessage());
-			}
-		}
-		
-		// now that we have a post and a user (either new or already stored) in the graph-db lets create the relationship
-		if (Neo4JConstants.AUTO_CREATE_EDGE) 
-			// create a relationship between User   and Post           of type AUTHORED            with no additional data
-			createRelationship(fromNodeLocationUri, toNodeLocationUri, RelationshipTypes.AUTHORED, null);
+		dbServerUrl = nco.getProtocol() + "://" + nco.getHost() + ":" + nco.getPort();
 	}
 	
 	
 	/**
-	 * @description create an edge between two nodes in the graph
-	 * 				with the given attribute (relationshipType) 
-	 *
-	 * @param fromNodeId
-	 * @param toNodeId
-	 * @param relationshipType
+	 * 
+	 * @description wraps the json object and the label in a cypher statement to
+	 * 				create a node. The statement is then passed on to the method 
+	 * 				sendTransactionalCypherStatement(String statement, uri location)
+	 * @param 		nodeObject
+	 * @param 		label
+	 * @param 		transactLoc
+	 * 
+	 * @return		URI to created object in the graph
 	 * 
 	 */
-	private void createRelationship(String fromNodeUri, String toNodeUri, RelationshipTypes relationshipType, String additionalData){ //, UserData userData, PostingData postData){
-		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
-		
-		logger.debug("Creating relationship from node " + fromNodeUri + " to node " + toNodeUri + " with relationship type " + relationshipType);
-		
-		//prepareConnection();
-		String output = null;
-		HttpClient client = new HttpClient();
-		PostMethod mPost = new PostMethod(fromNodeUri + Neo4JConstants.RELATIONSHIP_LOC);
+	public URI saveNode(JSONObject nodeObject, GraphNodeTypes label, URI transactLoc) {
+		/* the cypher statement is part of a larger one that is executed via method 
+		 *    sendTransactionalCypherStatement(). 
+		 * Ultimately, the statement looks like this:
+		 * 
+		 * {
+		 * 	"statements": [ { 
+		 * 		"statement": 
+		 * 			"CREATE (p:SOCIALNETWORK {properties}) ", 
+		 * 				"parameters": {
+		 * 					"properties": {
+		 * 						"description":"Twitter",
+		 * 						"name":"Twitter",
+		 * 						"domain":"twitter.com",
+		 * 						"sn_id":"TW"
+		 * 					}
+		 * 				} 
+		 * 		} ] 
+		 * } 
+		 * 
+		 */
+		String cypherStatement = "\"CREATE (p:"+ label.toString() +" {properties}) \", "
+				+ "\"parameters\": {"
+				+ "\"properties\":" + nodeObject.toString() 
+				+ "} ";
+		return (sendTransactionalCypherStatement(cypherStatement, transactLoc));
+	}
+	
+	
 
-		// set header
-		Header mtHeader = new Header();
-		mtHeader.setName("content-type");
-		mtHeader.setValue("application/json");
-		mtHeader.setName("accept");
-		mtHeader.setValue("application/json");
-		mPost.addRequestHeader(mtHeader);
+	/**
+	 * 
+	 * @description	this is the public save method for the graph persistence
+	 * 				it takes a node object in json format and creates the embedded
+	 * 				objects in the graph.
+	 * 				The method is quite strict as to how the json should look like:
+	 * 				the outermost json structure must be a post with all needed elements
+	 * 				Within the json object embedded jsons are expected for domain,
+	 * 				customer, social network and a user. Each embedded json must have 
+	 * 				it's name all in uppercase.
+	 * 
+	 *  @param		json object with post and embedded domain, customer, social network and user
+	 *  
+	 */
+	public void createNodeObject(JSONObject nodeObject){
+		logger.info("About to create {} node object(s) in the graph", SocialNetworks.getSocialNetworkConfigElementByCode("name", nodeObject.get("sn_id").toString()));
+		//logger.trace("   >>> {}", nodeObject.toString());
+		URI postNodeLocation = null;
+		URI userNodeLocation = null;
+		URI domainNodeLocation = null;
+		URI customerNodeLocation = null;
+		URI socialNetworkNodeLocation = null;
+		URI keywordNodeLocation = null;
 		
-		// this cryptic string is passed along as part of a StringRequestEntity 
-		String r = "{ "
-				+ "\"to\" : \"" + toNodeUri + "\", "
-				+ "\"type\" : \"" + relationshipType.toString() + "\" ";
-				// some extra data, if needed 
-				
-				if (additionalData != null)
-					r = r + "\"data\" : { \"since\" : \"" + additionalData + "\" }";
-				
-				r = r +" }";
+		JSONObject postNodeObject = null;
+		JSONObject userNodeObject = null; 
+		JSONObject domainNodeObject = null;
+		JSONObject customerNodeObject = null;
+		JSONObject socialNetworkNodeObject = null;
+		ArrayList<String> keywords = null;
 		
-		logger.trace("About to use the following string to create the relationship: " + r);
-				
-		StringRequestEntity requestEntity = null;
-		try {
-			requestEntity = new StringRequestEntity(r.toString(),
-													"application/json",
-													"UTF-8");
-		} catch (UnsupportedEncodingException e1) {
-			logger.error("EXCEPTION :: malformed StringRequestEntity " + e1.getMessage());
-			e1.printStackTrace();
+		String postSnId = null;
+		String postId = null;
+		String userSnId = null;
+		String userId = null;
+		String domainName = null;
+		String customerName = null;
+		String socNetName = null;
+		String sn_id = null;
+		String id = null;
+		String name = null;
+		
+		String jsonPayload;
+		
+		
+		
+		// fill the json object for post, user, domain and customer plus social network and keyword(s)
+		postNodeObject = new JSONObject((JSONObject) nodeObject);
+		if (postNodeObject.containsKey("sn_id"))
+			postSnId = postNodeObject.get("sn_id").toString();
+		if (postNodeObject.containsKey("id"))
+			postId = postNodeObject.get("id").toString();
+		logger.debug("POST object {}-{} found", postSnId, postId);
+		logger.trace("   >>> {}", postNodeObject.toString());
+		
+		if (nodeObject.containsKey("USER")) {
+			userNodeObject = new JSONObject((JSONObject) nodeObject.get("USER"));
+			if (userNodeObject.containsKey("sn_id"))
+				userSnId = userNodeObject.get("sn_id").toString();
+			if (userNodeObject.containsKey("id"))
+				userId = userNodeObject.get("id").toString();
+			else if (userNodeObject.containsKey("user_id"))
+				userId = userNodeObject.get("user_id").toString();
+			
+			logger.debug("USER object {}-{} found", userSnId, userId);
+			logger.trace("   >>> {}", userNodeObject.toString());
+		}
+		if (nodeObject.containsKey("DOMAIN")) {
+			domainNodeObject = new JSONObject((JSONObject) nodeObject.get("DOMAIN"));
+			if (domainNodeObject.containsKey("name"))
+				domainName = domainNodeObject.get("name").toString();  
+			logger.debug("DOMAIN object {} found", domainName);
+			logger.trace("   >>> {}", domainNodeObject.toString());
+		}
+		if (nodeObject.containsKey("CUSTOMER")) {
+			customerNodeObject = new JSONObject((JSONObject) nodeObject.get("CUSTOMER"));
+			if (customerNodeObject.containsKey("name"))
+				customerName = customerNodeObject.get("name").toString();  
+			logger.debug("CUSTOMER object {} found", customerName);
+			logger.trace("   >>> {}", customerNodeObject.toString());
+		}
+		if (nodeObject.containsKey("SOCIALNETWORK")) {
+			socialNetworkNodeObject = new JSONObject((JSONObject) nodeObject.get("SOCIALNETWORK"));
+			if (socialNetworkNodeObject.containsKey("name"))
+				socNetName = socialNetworkNodeObject.get("name").toString();  
+			logger.debug("SOCIALNETWORK object {} found", socNetName);
+			logger.trace("   >>> {}", socialNetworkNodeObject.toString());
+		}
+		if (nodeObject.containsKey("KEYWORD")) {
+			keywords = ((ArrayList<String>) nodeObject.get("KEYWORD"));
+			logger.debug("KEYWORD object found");
+			logger.trace("   >>> {}", keywords.toString());
 		}
 		
-		try {	
-			mPost.setRequestEntity(requestEntity);
-			int status = client.executeMethod(mPost);
-			HttpStatusCodes statusCode = HttpStatusCodes.getHttpStatusCode(status);
+		// start the transaction
+		URI transactLoc = startTransaction();
+		
+		// POST
+		if (postNodeObject != null) {
+			sn_id = postSnId;
+			id = postId;
+			name = null;
 			
-			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
-			if (!statusCode.isOk()){
-				logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
-			} else {
-				logger.info("SUCCESS :: connection between node " + fromNodeId + " and node " + toNodeId + " created");
+			// before we construct and call the create method, we check if the requested object does not already exist 
+			if (sn_id != null && id != null) {
+				logger.debug("working on post-object {}-{}", sn_id, id);
+				jsonPayload = "{sn_id: '"+sn_id+"', id: '"+id+"'}";
 				
-				output = mPost.getResponseBodyAsString();
-				Header locationHeader =  mPost.getResponseHeader("geoLocation");
-				mPost.releaseConnection( );
+				/* new way
+				GraphPostingData node = new GraphPostingData(postNodeObject);
+				GraphNodeTypes label = GraphNodeTypes.POST;
+				String matchPayload = jsonPayload;
+				String createPayload = node.getJson().toString();
 				
-				logger.trace("status = " + status + " / geoLocation = " + locationHeader.getValue() + " \n output = " + output);
+				postNodeLocation = matchAndCreateNodeTransactional(label, matchPayload, createPayload, transactLoc);
+				*/
+				
+				// old way
+				postNodeLocation = findNode(jsonPayload, GraphNodeTypes.POST, transactLoc);
+				
+				if (postNodeLocation == null) {
+					logger.debug("creating the post {}-{}", sn_id, id);
+					GraphPostingData gpd = new GraphPostingData(postNodeObject);
+					//logger.trace("   POST : >>> {}", gpd.getJson().toString());
+					postNodeLocation = saveNode(gpd.getJson(), GraphNodeTypes.POST, transactLoc);
+				} 
+				
+				
+				// after the node is created - check if the location is returned and if not, find the node
+				if (postNodeLocation == null) {
+					postNodeLocation = findNode(jsonPayload, GraphNodeTypes.POST, transactLoc);
+				}
+				if (postNodeLocation == null) {
+					logger.warn("could not locate node for post {}-{} ", sn_id, id);
+				} else {
+					logger.info("POST node {}-{} is at location {}", sn_id, id, postNodeLocation);
+				}
+				
 			}
+		}
+		
+		// USER
+		if (userNodeObject != null) {
+			sn_id = userSnId;
+			id = userId;
+			name = null;
+			
+			// before we construct and call the create method, we check if the requested object does not already exist 
+			if (sn_id != null && id != null) {
+				logger.debug("working on user-object {}-{}", sn_id, id);
+				jsonPayload = "{sn_id: '"+sn_id+"', id: '"+id+"'}";
+								
+				// OLD way
+				userNodeLocation = findNode(jsonPayload, GraphNodeTypes.USER, transactLoc);
+				
+				if (userNodeLocation == null) {
+					logger.debug("creating the user {}-{}", sn_id, id);
+					GraphUserData gud = new GraphUserData(userNodeObject);
+					//logger.trace("   USER : >>> {}", gud.getJson().toString());
+					userNodeLocation = saveNode(gud.getJson(), GraphNodeTypes.USER, transactLoc);
+				}
+				
+				// after the node is created - check if the location is returned and if not, find the node
+				if (userNodeLocation == null) {
+					userNodeLocation = findNode(jsonPayload, GraphNodeTypes.USER, transactLoc);
+				}
+				
+				if (userNodeLocation == null) {
+					logger.warn("could not locate node for user {}-{} ", sn_id, id);
+				} else {
+					logger.info("USER node {}-{} is at location {}", sn_id, id, userNodeLocation);
+				}
+			}
+		}
+		
+		// DOMAIN
+		if (domainNodeObject != null) {
+			sn_id = null;
+			id = null;
+			name = domainName;
+			
+			// before we construct and call the create method, we check if the requested object does not already exist 
+			if (name != null) {
+				logger.debug("working on domain-object {}", name);
+				jsonPayload = "{name: '"+name+"'}";
+				
+				// OLD way
+				domainNodeLocation = findNode(jsonPayload, GraphNodeTypes.DOMAIN, transactLoc);
+				
+				if (domainNodeLocation == null) {
+					logger.debug("creating the domain {}", name);
+					DomainData gdd = new DomainData(domainNodeObject);
+					//logger.trace("   DOMAIN : >>> {}", gdd.getJson().toString());
+					domainNodeLocation = saveNode(gdd.getJson(), GraphNodeTypes.DOMAIN, transactLoc);
+				}
+				
+				//  after the node is created - check if the location is returned and if not, find the node
+				if (domainNodeLocation == null) {
+					domainNodeLocation = findNode(jsonPayload, GraphNodeTypes.DOMAIN, transactLoc);
+				}
+				if (domainNodeLocation == null) {
+					logger.warn("could not locate node for domain {} ", name);
+				} else {
+					logger.info("DOMAIN node {} is at location {}", name, domainNodeLocation);
+				}
+			}
+		}
+		
+		
+		// CUSTOMER
+		if (customerNodeObject != null) {
+			sn_id = null;
+			id = null;
+			name = customerName;
+			
+			// before we construct and call the create method, we check if the requested object does not already exist 
+			if (name != null) {
+				logger.debug("working on customer-object {}", name);
+				jsonPayload = "{name: '"+name+"'}";
+				
+				// OLD way
+				customerNodeLocation = findNode(jsonPayload, GraphNodeTypes.CUSTOMER, transactLoc);
+				
+				if (customerNodeLocation == null) {
+					logger.debug("creating the customer {}", name);
+					CustomerData gcd = new CustomerData(customerNodeObject);
+					//logger.trace("   CUSTOMER : >>> {}", gcd.getJson().toString());
+					customerNodeLocation = saveNode(gcd.getJson(), GraphNodeTypes.CUSTOMER, transactLoc);
+				}
+				
+				//  after the node is created - check if the location is returned and if not, find the node
+				if (customerNodeLocation == null) {
+					customerNodeLocation = findNode(jsonPayload, GraphNodeTypes.CUSTOMER, transactLoc);
+				}
+				if (customerNodeLocation == null) {
+					logger.warn("could not locate node for customer {} ", name);
+				} else {
+					logger.info("CUSTOMER node {} is at location {}", name, customerNodeLocation);
+				}
+			}
+		}
+		
+		
+		// SOCIAL NETWORK
+		if (socialNetworkNodeObject != null) {
+			sn_id = null;
+			id = null;
+			name = socNetName;
+			
+			// before we construct and call the create method, we check if the requested object does not already exist 
+			if (name != null) {
+				logger.debug("working on social network-object {}", name);
+				jsonPayload = "{name: '"+name+"'}";
+								
+				// OLD way
+				socialNetworkNodeLocation = findNode(jsonPayload, GraphNodeTypes.SOCIALNETWORK, transactLoc);
+				
+				if (socialNetworkNodeLocation == null) {
+					logger.debug("creating the social network {}", name);
+					SocialNetworkData gsd = new SocialNetworkData(socialNetworkNodeObject);
+					//logger.trace("   SOCIALNETWORK : >>> {}", gsd.getJson().toString());
+					socialNetworkNodeLocation = saveNode(gsd.getJson(), GraphNodeTypes.SOCIALNETWORK, transactLoc);
+				}
+				
+				//  after the node is created - check if the location is returned and if not, find the node
+				if (socialNetworkNodeLocation == null) {
+					socialNetworkNodeLocation = findNode(jsonPayload, GraphNodeTypes.SOCIALNETWORK, transactLoc);
+				}
+				if (socialNetworkNodeLocation == null) {
+					logger.warn("could not locate node for social network {} ", name);
+				} else {
+					logger.info("SOCIALNETWORK node {} is at location {}", name, socialNetworkNodeLocation);
+				}
+			}
+		}
+		
+		// KEYWORD
+		for (String keyword : keywords) {
+			logger.debug("working on keyword-object {}", keyword);
+			jsonPayload = "{keyword: '"+keyword+"'}";
+			
+			keywordNodeLocation = findNode(jsonPayload, GraphNodeTypes.KEYWORD, transactLoc);
+			
+			if (keywordNodeLocation == null) {
+				KeywordData gkd = new KeywordData(keyword);
+				keywordNodeLocation = saveNode(gkd.getJson(), GraphNodeTypes.KEYWORD, transactLoc);
+			}
+			
+			//  after the node is created - check if the location is returned and if not, find the node
+			if (keywordNodeLocation == null) {
+				keywordNodeLocation = findNode(jsonPayload, GraphNodeTypes.KEYWORD, transactLoc);
+			}
+			if (keywordNodeLocation == null) {
+				logger.warn("could not create node for keyword {} ", keyword);
+			} else {
+				logger.info("node for keyword {} created at location {}", keyword, keywordNodeLocation);
+			}
+		}
+		
+		
+		logger.debug("=========>");
+		logger.debug("post          {}\t-> {}: \t{}-{}", getNodeIdFromLocation(postNodeLocation), postNodeLocation, postSnId, postId);
+		logger.debug("user          {}\t-> {}: \t{}-{}", getNodeIdFromLocation(userNodeLocation), userNodeLocation, userSnId, userId);
+		logger.debug("domain        {}\t-> {}: \t{}", getNodeIdFromLocation(domainNodeLocation), domainNodeLocation, domainName);
+		logger.debug("customer      {}\t-> {}: \t{}", getNodeIdFromLocation(customerNodeLocation), customerNodeLocation, customerName);
+		logger.debug("socialnetwork {}\t-> {}: \t{}", getNodeIdFromLocation(socialNetworkNodeLocation), socialNetworkNodeLocation, socNetName);
+		logger.debug("<========="); 
+		
+		// start a new transaction for the relationships
+		//transactLoc = startTransaction();
+		
+		/*
+		 * The graph schema looks like this:
+		 *                           
+		 *                                                             
+		 * 							   +-[FETCHED_FROM]->(SOCIALNETWORK) 
+		 * 							   |                               
+		 * 		(KEYWORD)<-[CONTAINS]-(POST)<-[WROTE]-(USER)<-+         
+		 * 			|					|                     |         
+		 *		[RELEVANT_FOR]		[MENTIONS]----------------+         
+		 * 			|	                                                
+		 *          +->(DOMAIN)<-[BELONGS_TO]-(CUSTOMER)
+		 * 
+		 * 	a USER wrote a POST
+		 *  the POST is fetched from a SOCIALNETWORK
+		 * 	the POST possibly mentions 1-n USER
+		 * 	the POST contains 1-n KEYWORD
+		 * 	the KEYWORD is relevant for 1-n DOMAIN
+		 * 	a CUSTOMER belongs to a DOMAIN
+		 * 
+		 */
+		//
+		// create relationships
+		//           sourceJsonMatch                       targetJsonMatch
+		// MATCH  (a:USER {sn_id: "TW", id: "123456"}), (b:POST {sn_id: "TW", id: "654321"})
+		//               relType
+		// MERGE  (a)-[r:WROTE]->(b)
+		URI relLoc = null;
+		
+		GraphNodeTypes sourceLabel = null;
+		String sourceJsonMatch = "";
+		
+		GraphNodeTypes targetLabel = null;
+		String targetJsonMatch = "";
+		
+		GraphRelationshipTypes relType = null;
+		
+		
+		// rel: USER-[WROTE]->POST
+		logger.debug("create relationship: (USER:"+userSnId+"-"+userId+")-[WROTE]->(POST:"+postSnId+"-"+postId+")");
+		sourceLabel = GraphNodeTypes.USER;
+		relType = GraphRelationshipTypes.WROTE;
+		targetLabel = GraphNodeTypes.POST;
+		
+		// execute MATCH & MERGE
+		sourceJsonMatch = sourceLabel+" {sn_id: '"+userSnId+"', id: '"+userId+"'}";
+		targetJsonMatch = targetLabel+" {sn_id: '"+postSnId+"', id: '"+postId+"'}";
+		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
+		
+		
+		// rel: POST-[FETCHED_FROM]->SOCIALNETWORK
+		logger.debug("create relationship: (POST:"+postSnId+"-"+postId+")-[FETCHED_FROM]->(SOCIALNETWORK:"+socNetName+")");
+		sourceLabel = GraphNodeTypes.POST;
+		relType = GraphRelationshipTypes.FETCHED_FROM;
+		targetLabel = GraphNodeTypes.SOCIALNETWORK;
+		
+		// execute MATCH & MERGE
+		sourceJsonMatch = sourceLabel+" {sn_id: '"+postSnId+"', id: '"+postId+"'}";
+		targetJsonMatch = targetLabel+" {name: '"+socNetName+"'}";
+		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
+		
+		
+		// rel: CUSTOMER-[BELONGS_TO]->DOMAIN
+		logger.debug("create relationship: (CUSTOMER:"+customerName+")-[BELONGS_TO]->(DOMAIN:"+domainName+")");
+		sourceLabel = GraphNodeTypes.CUSTOMER;
+		relType = GraphRelationshipTypes.BELONGS_TO;
+		targetLabel = GraphNodeTypes.DOMAIN;
+		
+		// execute MATCH & MERGE
+		sourceJsonMatch = sourceLabel+" {name: '"+customerName+"'}";
+		targetJsonMatch = targetLabel+" {name: '"+domainName+"'}";
+		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
+		
+		
+		// KEYWORD
+		// rel: KEYWORD-[RELEVANT_FOR]->DOMAIN
+		//		POST-[CONTAINS]->KEYWORD
+		for (String keyword : keywords) {
+			logger.debug("create relationship: (KEYWORD:"+keyword+")-[RELEVANT_FOR]->(DOMAIN:"+domainName+")");
+			
+			sourceLabel = GraphNodeTypes.KEYWORD;
+			relType = GraphRelationshipTypes.RELEVANT_FOR;
+			targetLabel = GraphNodeTypes.DOMAIN;
+			
+			// execute MATCH & MERGE
+			sourceJsonMatch = sourceLabel+" {keyword: '"+keyword+"'}";
+			targetJsonMatch = targetLabel+" {name: '"+domainName+"'}";
+			relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
+			
+			logger.debug("create relationship: (POST:"+postSnId+"-"+postId+")-[CONTAINS]->(KEYWORD:"+keyword+")");
+			sourceLabel = GraphNodeTypes.POST;
+			relType = GraphRelationshipTypes.CONTAINS;
+			targetLabel = GraphNodeTypes.KEYWORD;
+			
+			// execute MATCH & MERGE
+			sourceJsonMatch = sourceLabel+" {sn_id: '"+postSnId+"', id: '"+postId+"'}";
+			targetJsonMatch = targetLabel+" {keyword: '"+keyword+"'}";
+			relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
+		}
+		
+		// commit the transaction
+		commitTransaction(transactLoc);
+	}
+	
+	
+	
+	private URI matchAndCreateNodeTransactional(GraphNodeTypes label, String matchPayload, String createPayload, URI transactLoc){
+		String matchCypherStatement = "\"MATCH (p:"+ label.toString() + " " +matchPayload+" ) ";
+		
+		String createCypherStatement = " CREATE (n:"+ label.toString() +" {properties}) RETURN n\", "
+		//String createCypherStatement = " CREATE (p {properties}) RETURN p\", "
+				+ "\"parameters\": {"
+				+ "\"properties\":" + createPayload
+				+ "} ";
+		String cypherStatement = matchCypherStatement + createCypherStatement;
+		return (sendTransactionalCypherStatement(cypherStatement, transactLoc));
+		
+	}
+	private URI findNode(String jsonPayload, GraphNodeTypes label, URI transactLoc){
+		/* the cypher statement is part of a larger one that is executed via method 
+		 *    sendTransactionalCypherStatement(). 
+		 * Ultimately, the statement looks like this:
+		 * 
+		 * {
+		 * 	"statements": [ { 
+		 * 		"statement": 
+		 * 			"MATCH (p:POST {sn_id: {parameters}}) RETURN p", 
+		 * 				"parameters": {
+		 * 					"sn_id":"TW"
+		 * 					}
+		 * 				} 
+		 * 				, "resultDataContents":["REST"]
+		 * 		} ] 
+		 * } 
+		 * 
+		 */
+		String cypherStatement = "\"MATCH (p:"+ label.toString() + " " +jsonPayload+" ) RETURN p\"";
+		
+		return (getNodeLocationTransactional(cypherStatement, transactLoc));
+		
+	}
+	private JSONObject getNodeObject(String jsonPayload, GraphNodeTypes label, URI transactLoc){
+		/* the cypher statement is part of a larger one that is executed via method 
+		 *    sendTransactionalCypherStatement(). 
+		 * Ultimately, the statement looks like this:
+		 * 
+		 * {
+		 * 	"statements": [ { 
+		 * 		"statement": 
+		 * 			"MATCH (p:POST {sn_id: {parameters}}) RETURN p", 
+		 * 				"parameters": {
+		 * 					"sn_id":"TW"
+		 * 					}
+		 * 				} 
+		 * 				, "resultDataContents":["REST"]
+		 * 		} ] 
+		 * } 
+		 * 
+		 */
+		String cypherStatement = "\"MATCH (p:"+ label.toString() + " " +jsonPayload+" ) RETURN p\"";
+		
+		return (getNodeObjectTransactional(cypherStatement, transactLoc));
+		
+	}
+
+	/**
+	 * 
+	 * @description	executes a cypher statement in the given transaction 
+	 * @param 		cypher statement
+	 * @param		URI to an open transaction
+	 * 
+	 * @returns		URI to object in graph
+	 * 
+	 */
+	private URI sendTransactionalCypherStatement(String cypherStatement, URI transactLoc){
+		URI nodeLocation = null;
+		try{
+			URI finalUrl = transactLoc;
+			
+			/* the statement is expanded to this
+			 String payload = "{\"statements\": "
+								+ "[ "
+									+ "{\"statement\": "
+										+ "\"CREATE (p:"+ label.toString() +" {properties}) \", "
+											+ "\"parameters\": {"
+													+ "\"properties\":" + nodeObject.toString() 
+											+ "} "
+											+ ", \"resultDataContents\":[\"REST\"]"
+									+ "} "
+								+ "] "
+							+ "}";
+			*/
+			/* until it finally becomes this at execution time:
+			 * {"statements": [ 
+			 * 		{ "statement": 
+			 * 			"CREATE (p:SOCIALNETWORK {properties}) ", 
+			 * 				"parameters": {
+			 * 					"properties": {
+			 * 						"description":"Twitter",
+			 * 						"name":"Twitter",
+			 * 						"domain":"twitter.com",
+			 * 						"sn_id":"TW"
+			 * 					}
+			 * 				}
+			 * 				, "resultDataContents":["REST"] 
+			 * 		} 
+			 *  ] } 
+			 * 
+			 */
+			String payload = "{\"statements\": "
+								+ "[ "
+									+ "{\"statement\": "
+										+ cypherStatement
+										+ ", \"resultDataContents\":[\"REST\"]"
+									+ "} "
+								+ "] "
+							+ "}";
+				    
+			logger.debug("sending {} cypher {} ", payload.substring(32, 38), payload);
+			logger.trace("    endpoint {}", finalUrl);
+			WebResource resource = Client.create().resource( finalUrl );
+			
+			ClientResponse response = resource
+					.accept( MediaType.APPLICATION_JSON )
+	                .type( MediaType.APPLICATION_JSON )
+			        .entity( payload )
+			        .post( ClientResponse.class );
+			
+			String responseEntity = response.getEntity(String.class).toString();
+			int responseStatus = response.getStatus();
+			
+			logger.trace("POST to {} returned status code {}, returned data: {}",
+					finalUrl, responseStatus,
+			        responseEntity);
+			
+			// first check if the http code was ok
+			HttpStatusCodes httpStatusCodes = HttpStatusCodes.getHttpStatusCode(responseStatus);
+			if (!httpStatusCodes.isOk()){
+				if (httpStatusCodes == HttpStatusCodes.FORBIDDEN){
+					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
+				} else {
+					logger.error("Error {} sending data to {}: {} ", response.getStatus(), finalUrl, HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
+				}
+			} else {
+				/*
+				 * Structure of the JSON response
+				 	{
+					  "commit" : "http://localhost:7474/db/data/transaction/1/commit",
+					  "results" : [ {
+					    "columns" : [ "n" ],
+					    "data" : [ {
+					      "rest" : [ {
+					        "labels" : "http://localhost:7474/db/data/node/12/labels",
+					        "outgoing_relationships" : "http://localhost:7474/db/data/node/12/relationships/out",
+					        "all_typed_relationships" : "http://localhost:7474/db/data/node/12/relationships/all/{-list|&|types}",
+					        "traverse" : "http://localhost:7474/db/data/node/12/traverse/{returnType}",
+	--> location of node	"self" : "http://localhost:7474/db/data/node/12",
+					        "property" : "http://localhost:7474/db/data/node/12/properties/{key}",
+					        "outgoing_typed_relationships" : "http://localhost:7474/db/data/node/12/relationships/out/{-list|&|types}",
+					        "properties" : "http://localhost:7474/db/data/node/12/properties",
+					        "incoming_relationships" : "http://localhost:7474/db/data/node/12/relationships/in",
+					        "create_relationship" : "http://localhost:7474/db/data/node/12/relationships",
+					        "paged_traverse" : "http://localhost:7474/db/data/node/12/paged/traverse/{returnType}{?pageSize,leaseTime}",
+					        "all_relationships" : "http://localhost:7474/db/data/node/12/relationships/all",
+					        "incoming_typed_relationships" : "http://localhost:7474/db/data/node/12/relationships/in/{-list|&|types}",
+					        "metadata" : {
+	--> id of the node        "id" : 12,
+					          "labels" : [ ]
+					        },
+					        "data" : {
+					        }
+					      } ]
+					    } ]
+					  } ],
+					  "transaction" : {
+					    "expires" : "Tue, 30 Sep 2014 06:16:54 +0000"
+					  },
+					  "errors" : [ ]
+					}
+				 */
+				
+				// now do the check on json details within the returned JSON object
+				JSONParser reponseParser = new JSONParser();
+				Object responseObj = reponseParser.parse(responseEntity);
+				JSONObject jsonResponseObj = responseObj instanceof JSONObject ?(JSONObject) responseObj : null;
+				if(jsonResponseObj == null)
+					throw new ParseException(0, "returned json object is null");
+				
+				//	CREATE statement for nodes
+				//	{
+				//		"commit":"http://localhost:7474/db/data/transaction/16/commit",
+				//		"results":[
+				//			{
+				//				"columns":[],
+				//				"data":[]			<-- contains a rest and a nested self object with the location
+				//			}
+				//		],
+				//		"transaction":
+				//			{
+				//				"expires":"Wed, 03 Dec 2014 16:20:03 +0000"
+				//			},
+				//		"errors":[]
+				//	}
+/*
+				try {
+					// try for CREATE node
+					nodeLocation = new URI(
+											(String)(
+													(JSONObject)(
+															(JSONArray)(
+																	(JSONObject)(
+																			(JSONArray)(
+																					(JSONObject)(
+																							(JSONArray)jsonResponseObj.get("results")
+																					).get(0)
+																			).get("data")
+																	).get(0)
+															).get("rest")
+													).get(0)
+											).get("self")
+										);
+					logger.trace("nodeLocation is {}", nodeLocation);
+				} catch (Exception e) {
+					e.printStackTrace();
+					try {
+						// try for MATCH and CREATE relationship
+						//								{
+						//										"errors":[],
+						//										"results":[
+						//													{
+						//														"data":[],
+						//														"columns":["p"]		<-- contains the location
+						//													}
+						//										],
+						//										"transaction":{
+						//											"expires":"Wed, 03 Dec 2014 16:20:03 +0000"
+						//										},
+						//										"commit":"http:\/\/localhost:7474\/db\/data\/transaction\/16\/commit"
+						//								}
+						nodeLocation = new URI(
+												(String)(
+														(JSONObject)(
+																(JSONArray)(
+																		(JSONObject)(
+																				(JSONArray)(
+																						(JSONObject)(
+																								(JSONArray)jsonResponseObj.values() //.get("results")
+																						).get(0)
+																				).get("p")
+																		).get(0)
+																).get("columns")
+														).get(0)
+												).get("results")
+											);
+						logger.trace("nodeLocation is {}", nodeLocation);
+					} catch (Exception e1) {
+						e1.printStackTrace();
+						logger.warn("{} statement did not return a self object, returning null -- error was {}", payload.substring(32, 38), e1.getMessage());
+						nodeLocation = null;
+					}
+				}
+*/
+				/*
+				JSONArray errors = (JSONArray)jsonResponseObj.get("errors");
+				logger.trace("errors is {}", errors.toString());
+				if (errors.size() > 0) {
+					JSONObject error = (JSONObject) errors.get(0);
+					logger.debug("error-object: {}", error.toString());
+				}
+				
+				// if the error array has only the [] brackets, it's ok
+				if (errors.size() <= 2 && self != null) {
+					logger.debug("{} cypher statement executed successfully at location {}, returning {}", payload.substring(32, 38), finalUrl, self);
+					nodeLocation = new URI(self);
+				} else {
+					if (errors.size() > 2) {
+						logger.error("ERROR :: {} - could not execute {} cypher statement at location {}", errors, payload.substring(32, 38), finalUrl);
+					} else {
+						logger.debug("{} returned no error, but also no node found, returning null", payload.substring(32, 38));
+						nodeLocation = null;
+					}
+				}
+				*/
+			}
+			response.close();
+			
 		} catch(Exception e) {
-			logger.error("EXCEPTION :: Creating connection of type " + relationshipType + " between node ( " + fromNodeUri + ") and node (" + toNodeUri + ")  " + e.getMessage());
+			logger.error("EXCEPTION :: failed to create node - {}", e.getMessage());
+			e.printStackTrace();
+		}
+		return nodeLocation;
+	}
+	
+	
+	
+	
+	
+	/**
+	 * 
+	 * @description checks if a given relationship between two node exists and if not, creates it
+	 * 
+	 * @param 		sourceJsonMatch - the json string fragment to identify the source node
+	 * @param 		targetJsonMatch	- the json string fragment to identify the target node 
+	 * @param 		relType			- the type of the relationship as provided in the enum
+	 * @param 		targetUri		- the URI of an open transaction
+	 * @return		URI				- the URI of a new relationship or null
+	 * 
+	 */
+	public URI matchAndMergeRelationshipTransactional(String sourceJsonMatch, String targetJsonMatch, GraphRelationshipTypes relType, URI transactLoc){
+		URI relationshipLocation = null;
+		try {
+			// MATCH (a:Person {name: "Bob"}), (b:Person {name: "Susan"}) 
+			// MERGE (a)-[r:knows]->(b)
+			
+			// MATCH  (a:"+sourceJsonMatch+"), (b:"+targetJsonMatch+") 
+			// MERGE (a)-[r:"+relType+"]->(b) 
+			String cypherAscii = "MATCH (a: "+sourceJsonMatch+")-[r:"+relType+"]->(b: "+targetJsonMatch+")";
+			String cypherStatement = "\""
+									+ "MATCH (a:"+sourceJsonMatch+"), "
+									+ "(b:"+targetJsonMatch+") "
+									+ "MERGE (a)-[r:"+relType+"]->(b)"
+									+ "\"";
+			
+			logger.trace("query if relationship {} exists and if not, create it", cypherAscii);
+			relationshipLocation = sendTransactionalCypherStatement(cypherStatement, transactLoc);
+			
+		} catch (Exception e) {
+			logger.error("EXCEPTION :: failed to execute query - {}", e.getMessage());
+			e.printStackTrace();
+		}
+		return relationshipLocation;
+	}
+	
+	/**
+	 * 
+	 * @param cypherStatement
+	 * @param endpointLoc
+	 * @return
+	 */
+	public URI getNodeLocationTransactional(String cypherStatement, URI endpointLoc){
+		URI nodeLocation = null;
+		String self = null;
+		try {
+			//+ "MATCH (n {" + field + " : " + id + ", type : \"" + type + "\" }) RETURN n"
+			String payload = "{\"statements\": "
+					+ "[ "
+						+ "{\"statement\": "
+							+ cypherStatement
+							+ ", \"resultDataContents\":[\"REST\"]"
+						+ "} "
+					+ "] "
+				+ "}";
+			
+			
+			logger.debug("sending {} cypher {} ", payload.substring(32, 38), payload);
+			logger.trace("    endpoint {}", endpointLoc);
+			WebResource resource = Client.create().resource( endpointLoc );
+			
+			ClientResponse response = resource
+					.accept( MediaType.APPLICATION_JSON )
+	                .type( MediaType.APPLICATION_JSON )
+			        .entity( payload )
+			        .get(ClientResponse.class);
+			        //.post( ClientResponse.class );
+			
+			String responseEntity = response.getEntity(String.class).toString();
+			int responseStatus = response.getStatus();
+			logger.trace("GET to {} returned status code {}, returned data: {}",
+					endpointLoc, responseStatus,
+			        responseEntity);
+			
+			// first check if the http code was ok
+			HttpStatusCodes httpStatusCodes = HttpStatusCodes.getHttpStatusCode(responseStatus);
+			if (!httpStatusCodes.isOk()){
+				if (httpStatusCodes == HttpStatusCodes.FORBIDDEN){
+					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
+				} else {
+					logger.error("Error {} sending data to {}: {} ", response.getStatus(), endpointLoc, HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
+				}
+			} else {
+				// now do the check on json details within the returned JSON object
+				JSONParser reponseParser = new JSONParser();
+				Object responseObj = reponseParser.parse(responseEntity);
+				JSONObject jsonResponseObj = responseObj instanceof JSONObject ?(JSONObject) responseObj : null;
+				if(jsonResponseObj == null)
+					throw new ParseException(0, "returned json object is null");
+				
+				logger.trace("returned response {}", jsonResponseObj.toString());
+				
+				try {
+					nodeLocation = new URI((String)((JSONObject)((JSONArray)((JSONObject)((JSONArray)((JSONObject)((JSONArray)jsonResponseObj.get("results")).get(0)).get("data")).get(0)).get("rest")).get(0)).get("self"));
+				} catch (Exception e) {
+					logger.warn("{} statement did not return a self object, returning null -- error was {}", payload.substring(32, 38), e.getMessage());
+					nodeLocation = null;
+				}
+				
+				/*
+				JSONArray errors = (JSONArray)jsonResponseObj.get("errors");
+				logger.trace("errors is {}", errors.toString());
+				if (errors.size() > 0) {
+					JSONObject error = (JSONObject) errors.get(0);
+					logger.debug("error-object: {}", error.toString());
+				}
+				
+				
+				// if the error array has only the [] brackets, it's ok
+				if (errors.size() <= 2 && self != null) {
+					logger.debug("{} cypher statement executed successfully at location {}, returning {}", payload.substring(32, 38), endpointLoc, self);
+					nodeLocation = new URI(self);
+				} else {
+					if (errors.size() > 2) {
+						logger.error("ERROR :: {} - could not execute {} cypher statement at location {}", errors, payload.substring(32, 38), endpointLoc);
+					} else {
+						logger.debug("{} returned no error, but also no node found, returning null", payload.substring(32, 38));
+						nodeLocation = null;
+					}
+				}
+				*/
+			}
+		} catch (Exception e) {
+			logger.error("EXCEPTION :: failed to execute query - {}", e.getMessage());
+			e.printStackTrace();
+		}
+		return nodeLocation;
+	}
+	
+	
+	
+	/**
+	 * 
+	 * @param cypherStatement
+	 * @param endpointLoc
+	 * @return
+	 */
+	public JSONObject getNodeObjectTransactional(String cypherStatement, URI endpointLoc){
+		JSONObject node = new JSONObject();
+		try {
+			//+ "MATCH (n {" + field + " : " + id + ", type : \"" + type + "\" }) RETURN n"
+			String payload = "{\"statements\": "
+					+ "[ "
+						+ "{\"statement\": "
+							+ cypherStatement
+							+ ", \"resultDataContents\":[\"REST\"]"
+						+ "} "
+					+ "] "
+				+ "}";
+			
+			
+			logger.debug("sending {} cypher {} ", payload.substring(32, 38), payload);
+			logger.trace("    endpoint {}", endpointLoc);
+			WebResource resource = Client.create().resource( endpointLoc );
+			
+			ClientResponse response = resource
+					.accept( MediaType.APPLICATION_JSON )
+	                .type( MediaType.APPLICATION_JSON )
+			        .entity( payload )
+			        .get(ClientResponse.class);
+			        //.post( ClientResponse.class );
+			
+			String responseEntity = response.getEntity(String.class).toString();
+			int responseStatus = response.getStatus();
+			logger.trace("GET to {} returned status code {}, returned data: {}",
+					endpointLoc, responseStatus,
+			        responseEntity);
+			
+			// first check if the http code was ok
+			HttpStatusCodes httpStatusCodes = HttpStatusCodes.getHttpStatusCode(responseStatus);
+			if (!httpStatusCodes.isOk()){
+				if (httpStatusCodes == HttpStatusCodes.FORBIDDEN){
+					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
+				} else {
+					logger.error("Error {} sending data to {}: {} ", response.getStatus(), endpointLoc, HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
+				}
+			} else {
+				// now do the check on json details within the returned JSON object
+				JSONParser reponseParser = new JSONParser();
+				Object responseObj = reponseParser.parse(responseEntity);
+				JSONObject jsonResponseObj = responseObj instanceof JSONObject ?(JSONObject) responseObj : null;
+				if(jsonResponseObj == null)
+					throw new ParseException(0, "returned json object is null");
+				
+				logger.trace("returned response {}", jsonResponseObj.toString());
+				
+				node = jsonResponseObj;
+			}
+		} catch (Exception e) {
+			logger.error("EXCEPTION :: failed to execute query - {}", e.getMessage());
+			e.printStackTrace();
+		}
+		return node;
+	}
+	
+	
+	
+	/**
+	 * 
+	 * @description traverses the graph. Given a starting node, it follows all relationships off
+	 * 				of this node that have the given type up to the maximum number of hops
+	 * 				
+	 * @param 		URI of the starting node
+	 * @param 		GraphRelationshipType 
+	 * @param		int maximum number of hops from each given node
+	 * @returns		JSONObject with the urls of all nodes found
+	 * 
+	 * @throws 		URISyntaxException
+	 * 
+	 */
+	public JSONObject traverseGraph(URI startNode, GraphRelationshipTypes relation, int maxTraverseDepth)
+			throws URISyntaxException{
+		JSONObject resultObj = new JSONObject();
+	
+		// TraversalDefinition turns into JSON to send to the Server
+		TraversalDefinition t = new TraversalDefinition();
+		t.setOrder(TraversalDefinition.DEPTH_FIRST);
+		t.setUniqueness(TraversalDefinition.NODE);
+		t.setMaxDepth(maxTraverseDepth);
+		t.setReturnFilter(TraversalDefinition.ALL);
+		t.setRelationships(new Relation(relation.toString(), Relation.OUT));
+		
+		URI traverserUri = new URI( startNode.toString() + "/traverse/node" );
+		WebResource resource = Client.create()
+								.resource(traverserUri);
+		String jsonTraverserPayload = t.toJson();
+		ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
+				.type( MediaType.APPLICATION_JSON )
+				.entity( jsonTraverserPayload )
+				.post( ClientResponse.class );
+		
+		//String temp = response.getEntityInputStream().toString();
+		
+		logger.debug("POST [{}] to [{}], status code [{}], returned data: {}",
+					jsonTraverserPayload, 
+					traverserUri, 
+					response.getStatus(),
+					response.getEntity( String.class)) ;
+		response.close();
+	
+		return resultObj;
+    }
+	
+	
+	/**
+	 * 
+	 * @description	starts a new transaction and returns the end point to it
+	 * 				this method must be executed first when interacting with the neo4j 
+	 * 				graph database in a transactional way
+	 * 
+	 * @return		URI new transaction endpoint
+	 * 
+	 */
+	private URI startTransaction(){
+		URI transactionLocation=null;
+		
+		try{
+			dbServerUrl = nco.getProtocol() + "://" + nco.getHost() + ":" + nco.getPort();
+			transactionUrl = dbServerUrl + "/db/data" + "/transaction";
+			String finalUrl = transactionUrl;
+			
+			//String payload = "";
+				    
+			logger.debug("opening transaction at endpoint {}", finalUrl);
+			WebResource resource = Client.create().resource( finalUrl );
+			
+			ClientResponse response = resource
+					.accept( MediaType.APPLICATION_JSON )
+	                .type( MediaType.APPLICATION_JSON )
+			        //.entity( payload )
+			        .post( ClientResponse.class );
+			
+			transactionLocation = response.getLocation();
+			logger.trace("opened transaction is at location {}", transactionLocation);
+			
+			response.close();
+			
+		} catch(Exception e) {
+			logger.error("EXCEPTION :: failed to open transaction - {}", e.getMessage());
+			e.printStackTrace();
+		}
+		
+		return transactionLocation;
+	}
+	
+	
+	/**
+	 * 
+	 * @description commits the transaction at the given endpoint
+	 * @param 		URI transaction location
+	 * 
+	 */
+	private void commitTransaction(URI transactLoc) {
+		try{
+			String finalUrl = transactLoc + "/commit";
+				    
+			logger.debug("committing transaction at endpoint {}", finalUrl);
+			WebResource resource = Client.create().resource( finalUrl );
+			
+			ClientResponse response = resource
+					.accept( MediaType.APPLICATION_JSON )
+	                .type( MediaType.APPLICATION_JSON )
+			        //.entity( payload )
+			        .post( ClientResponse.class );
+			
+			response.close();
+			
+		} catch(Exception e) {
+			logger.error("EXCEPTION :: failed to commit transaction - {}", e.getMessage());
+			e.printStackTrace();
 		}
 	}
+	
 	
 	/**
 	 * @description receives a geoLocation URL and returns the ID
@@ -363,391 +1193,308 @@ public class Neo4JPersistence implements IPersistenceManager {
 	 * @param toNodeLocationUri
 	 * @return toNodeId
 	 */
-	private long getNodeIdFromLocation(String nodeLocationUri) {
-		assert nodeLocationUri != null : "ERROR :: toNodeLocationUri must not be null";
-		
-		String nodeIdAsString = "";
-		int pos = (nodeLocationUri.toString().lastIndexOf('/') + 1);
-		
-		nodeIdAsString = nodeLocationUri.toString().substring(pos);
-		logger.trace("The URL " + nodeLocationUri + 
-				" contains the node id " + nodeIdAsString + 
-				" from position " + pos + " till the end of the string"
-				);
-		
-		return Long.parseLong(nodeIdAsString);
+	private long getNodeIdFromLocation(URI nodeLocationUri) {
+		//assert nodeLocationUri != null : "ERROR :: nodeLocationUri must not be null";
+		if (nodeLocationUri != null){
+			try { 
+				String nodeIdAsString = "";
+				int pos = (nodeLocationUri.toString().lastIndexOf('/') + 1);
+				
+				nodeIdAsString = nodeLocationUri.toString().substring(pos);
+				return Long.parseLong(nodeIdAsString);
+			} catch (Exception e) {
+				return 0;
+			}
+		} else {
+			return 0;
+		}
 	}
 	
-	/**
-	 * @description accepts a field name and an id (as long) and returns the nodeLocationUri (if this object exists) or null
-	 * @param string
-	 * @param id
-	 * @return
-	 */
-	private String findNodeByIdAndLabel(String field, String id, String label) {
-		
-		String output = null;
-		HttpClient client = new HttpClient();
-		PostMethod mPost = new PostMethod(nodePointUrl); // + CYPHERENDPOINT_LOC);
+	
+	// get/set the config file
+	public String getConfigDb() {return configDb;}
+	public void setConfigDb(String configDb) {this.configDb = configDb;}
 
-		// set header
-		Header mtHeader = new Header();
-		mtHeader.setName("content-type");
-		mtHeader.setValue("application/json");
-		mtHeader.setName("accept");
-		mtHeader.setValue("application/json");
-		mPost.addRequestHeader(mtHeader);
-		
-		// this cryptic string is passed along as part of a StringRequestEntity 
-		String r = "{ \"query\" : "
-				//+ "MATCH (n {" + field + " : " + id + ", type : \"" + type + "\" }) RETURN n"
-				+ "MATCH (n:"+label+" {" + field + " : " + id + "}) RETURN n"
-				//+ "\"params\" : {}"
-				+" }";
-		
-		logger.trace("About to use the following string to query for the node: " + r);
-				
-		StringRequestEntity requestEntity = null;
-		try {
-			requestEntity = new StringRequestEntity(r.toString(),
-													"application/json",
-													"UTF-8");
-		} catch (UnsupportedEncodingException e1) {
-			logger.error("EXCEPTION :: malformed StringRequestEntity " + e1.getMessage());
-			e1.printStackTrace();
-		}
-		
-		try {	
-			mPost.setRequestEntity(requestEntity);
-			int status = client.executeMethod(mPost);
-			HttpStatusCodes statusCode = HttpStatusCodes.getHttpStatusCode(status);
-			
-			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
-			if (!statusCode.isOk()){
-				logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
-			} else {
-				output = mPost.getResponseBodyAsString();
-				Header locationHeader =  mPost.getResponseHeader("geoLocation");
-				mPost.releaseConnection( );
-				
-				logger.debug("SUCCESS :: found the node at geoLocation " + locationHeader.getValue());
-				logger.trace("status = " + status + " / geoLocation = " + locationHeader.getValue() + " \n output = " + output);
-				
-				return locationHeader.getValue();
-			}
-		} catch(Exception e) {
-			logger.error("EXCEPTION :: searching the graph for node " + e.getMessage());
-		}
-		
+	
+	public URI createRelationship(GraphNodeTypes sourceType, URI sourceNode,
+			GraphNodeTypes targetType, URI targetNode,
+			GraphRelationshipTypes relationshipType, String[] jsonAttributes) {
+		// Auto-generated method stub
 		return null;
 	}
-	
-	/**
-	 * @description add label to a node
-	 * 
-	 */
-	public void addLabelToNode(String nodeUri, String label){
-
-		String output = null;
-		HttpClient client = new HttpClient();
-		PostMethod mPost = new PostMethod(nodeUri + Neo4JConstants.LABEL_LOC);
-
-		// set header
-		Header mtHeader = new Header();
-		mtHeader.setName("content-type");
-		mtHeader.setValue("application/json");
-		mtHeader.setName("accept");
-		mtHeader.setValue("application/json");
-		mPost.addRequestHeader(mtHeader);
-		
-		// this cryptic string is passed along as part of a StringRequestEntity 
-		String r = "{ Label : " + label + " }";
-		
-		logger.trace("About to use the following string to add the label " + label + " to the node " + nodeUri + Neo4JConstants.LABEL_LOC + ": " + r);
-				
-		StringRequestEntity requestEntity = null;
-		try {
-			requestEntity = new StringRequestEntity(r.toString(),
-													"application/json",
-													"UTF-8");
-		} catch (UnsupportedEncodingException e1) {
-			logger.error("EXCEPTION :: malformed StringRequestEntity " + e1.getMessage());
-			e1.printStackTrace();
-		}
-		
-		try {	
-			mPost.setRequestEntity(requestEntity);
-			int status = client.executeMethod(mPost);
-			HttpStatusCodes statusCode = HttpStatusCodes.getHttpStatusCode(status);
-			
-			// in case everything is fine, neo4j should return 200, 201 or 202. any other case needs to be investigated
-			if (!statusCode.isOk()){
-				logger.error(HttpErrorMessages.getHttpErrorText(statusCode.getErrorCode()));
-			} else {
-				output = mPost.getResponseBodyAsString();
-				Header locationHeader =  mPost.getResponseHeader("geoLocation");
-				mPost.releaseConnection( );
-				
-				logger.info("SUCCESS :: added label " + label + " to the node " + nodeUri + Neo4JConstants.LABEL_LOC);
-				logger.trace("status = " + status + " / geoLocation = " + locationHeader.getValue() + " \n output = " + output);
-			}
-		} catch(Exception e) {
-			logger.error("EXCEPTION :: adding label to the node: " + e.getMessage());
-		}
-	}
-	
-	/**
-     * @description Adds property to a node whose url is passed
-     * 
-     * @param 		nodeURI 		- URI of node to which the property is to be added
-     * @param 		propertyName 	- name of property which we want to add
-     * @param 		propertyValue 	- Value of above property
-     */
-    public void addProperty(String nodeURI,
-                            String propertyName,
-                            String propertyValue){
-        String output = null;
-
-        try{
-            String nodePointUrl = nodeURI + Neo4JConstants.PROPERTY_LOC + propertyName;
-            HttpClient client = new HttpClient();
-            PutMethod mPut = new PutMethod(nodePointUrl);
-
-            /**
-             * set headers
-             */
-            Header mtHeader = new Header();
-            mtHeader.setName("content-type");
-            mtHeader.setValue("application/json");
-            mtHeader.setName("accept");
-            mtHeader.setValue("application/json");
-            mPut.addRequestHeader(mtHeader);
-
-            /**
-             * set json payload
-             */
-            String jsonString = "\"" + propertyValue + "\"";
-            StringRequestEntity requestEntity = new StringRequestEntity(jsonString,
-                                                                        "application/json",
-                                                                        "UTF-8");
-            mPut.setRequestEntity(requestEntity);
-            int status = client.executeMethod(mPut);
-            output = mPut.getResponseBodyAsString( );
-
-            mPut.releaseConnection( );
-            logger.trace("status = " + status + " / output = " + output);
-			
-        }catch(Exception e){
-             logger.error("EXVCEPTION :: adding the property " + propertyName + " to the node: " + e);
-        }
-    }
-    
-    
-    /**
-     * @description adds property to a created relationship
-     * @param relationshipUri
-     * @param propertyName
-     * @param propertyValue
-     
-    private void addPropertyToRelation( String relationshipUri,
-                                        String propertyName,
-                                        String propertyValue ){
-
-        String output = null;
-
-        try{
-            String relPropUrl = relationshipUri + PROPERTY_LOC;
-            HttpClient client = new HttpClient();
-            PutMethod mPut = new PutMethod(relPropUrl);
-            
-            // set headers
-            Header mtHeader = new Header();
-            mtHeader.setName("content-type");
-            mtHeader.setValue("application/json");
-            mtHeader.setName("accept");
-            mtHeader.setValue("application/json");
-            mPut.addRequestHeader(mtHeader);
-            
-            // set json payload
-            String jsonString = toJsonNameValuePairCollection(propertyName,propertyValue );
-            StringRequestEntity requestEntity = new StringRequestEntity(jsonString,
-                                                                        "application/json",
-                                                                        "UTF-8");
-            mPut.setRequestEntity(requestEntity);
-            int status = client.executeMethod(mPut);
-            output = mPut.getResponseBodyAsString( );
-
-            mPut.releaseConnection( );
-            logger.trace("status = " + status + " / output = " + output);
-        }catch(Exception e){
-             logger.error("EXCEPTION :: adding the property " + propertyName + " to the relationship: " + e);
-        }
-    }
-    */
-    
-    /**
-     * @description generates json payload to be passed to relationship property web service
-     * @param name
-     * @param value
-     * @return
-     
-    private String toJsonNameValuePairCollection(String name, String value) {
-        return String.format("{ \"%s\" : \"%s\" }", name, value);
-    }
-    */
-    
-    /**
-     * @description Performs traversal from a source node
-     * @param nodeURI
-     * @param relationShip - relationship used for traversal
-     * @return
-     */
-    public String searchDatabase(String nodeURI, String relationShip){
-        String output = null;
-
-        try{
-            TraversalDefinition t = new TraversalDefinition();
-            t.setOrder( TraversalDefinition.DEPTH_FIRST );
-            t.setUniqueness( TraversalDefinition.NODE );
-            t.setMaxDepth( 10 );
-            t.setReturnFilter( TraversalDefinition.ALL );
-            t.setRelationships( new Relation( relationShip, Relation.OUT ) );
-            
-            logger.debug("Traversal is " + t.toString());
-            HttpClient client = new HttpClient();
-            PostMethod mPost = new PostMethod(nodeURI+"/traverse/node");
-
-
-            /**
-             * set headers
-             */
-            Header mtHeader = new Header();
-            mtHeader.setName("content-type");
-            mtHeader.setValue("application/json");
-            mtHeader.setName("accept");
-            mtHeader.setValue("application/json");
-            mPost.addRequestHeader(mtHeader);
-
-            /**
-             * set json payload
-             */
-            StringRequestEntity requestEntity = new StringRequestEntity(t.toJson(),
-                                                                        "application/json",
-                                                                        "UTF-8");
-            mPost.setRequestEntity(requestEntity);
-            int status = client.executeMethod(mPost);
-            output = mPost.getResponseBodyAsString( );
-            mPost.releaseConnection( );
-            logger.debug("status : " + status + " / output : " + output);
-        }catch(Exception e){
-             System.out.println("Exception in creating node in neo4j : " + e);
-        }
-
-        return output;
-    }
-    
-    
-	/**
-	 * @description returns the server status
-	 */
-	public HttpStatusCodes getServerStatus(){
-		dbServerUrl = this.protocol + "://" + this.host + ":" + this.port;
-		nodePointUrl = dbServerUrl + this.location + Neo4JConstants.NODE_LOC;
-
-		// initialize the return value and whether this is acceptable or not.
-		HttpStatusCodes status = HttpStatusCodes.UNKNOWN;
-
-        try{
-	        HttpClient client = new HttpClient();
-	        GetMethod mGet =   new GetMethod(dbServerUrl);
-	        status = HttpStatusCodes.getHttpStatusCode(client.executeMethod(mGet));
-	        
-	        if (!status.isOk()){
-	        	logger.warn(HttpErrorMessages.getHttpErrorText(status.getErrorCode()));
-	        } else {
-	        	logger.debug("Return code " + status + " (" + status.getErrorCode() + ") everything should be fine");
-	        }
-	        
-	        mGet.releaseConnection();
-	    }catch(Exception e){
-	    	logger.error("EXCEPTION :: " + e.getLocalizedMessage());
-	    }
-        
-	    return status;
-	}
-
-	
-	/**
-	 * @description deletes all graph-db files on file system, thus essentially wiping out the entire DB
-	 */
-	@SuppressWarnings("unused")
-	private void clearDbPath() {
-        try { deleteRecursively( new File( db_path) ); }
-        catch ( IOException e ) { throw new RuntimeException( e ); }
-    }
-	
-	
-	// standard getter and setter
-	public String getHost() {
-		return host;
-	}
-	public void setHost(String host) {
-		this.host = host;
-	}
-	
-	public String getLocation() {
-		return location;
-	}
-	public void setLocation(String location) {
-		this.location = location;
-	}
-	
-	public String getServiceUserEndpoint() {
-		return serviceUserEndpoint;
-	}
-	public void setServiceUserEndpoint(String serviceUserEndpoint) {
-		this.serviceUserEndpoint = serviceUserEndpoint;
-	}
-	
-	public String getServicePostEndpoint() {
-		return servicePostEndpoint;
-	}
-	public void setServicePostEndpoint(String servicePostEndpoint) {
-		this.servicePostEndpoint = servicePostEndpoint;
-	}
-	
-	public String getUser() {
-		return user;
-	}
-	public void setUser(String user) {
-		this.user = user;
-	}
-	
-	public String getPass() {
-		return pass;
-	}
-	public void setPass(String pass) {
-		this.pass = pass;
-	}
-	
-	public String getPort() {
-		return port;
-	}
-	public void setPort(String port) {
-		this.port = port;
-	}
-	
-	public String getProtocol() {
-		return protocol;
-	}
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
-	}
-	
-	public String getDB_PATH() {
-		return db_path;
-	}
-	public void setDB_PATH(String dB_PATH) {
-		this.db_path = dB_PATH;
-	}
 }
+
+
+
+// 
+// OLD STUFF
+//
+/*
+
+
+	
+	@Override
+	public URI createRelationship(GraphNodeTypes sourceType, URI sourceNode, 
+								GraphNodeTypes targetType, URI targetNode,
+			GraphRelationshipTypes relationshipType, String[] jsonAttributes) {
+		URI relationShipLocation = null;
+		
+		String cypherArt = getNodeIdFromLocation(sourceNode)+"-[:"+relationshipType+"]->"+getNodeIdFromLocation(targetNode);
+		
+		logger.info("creating relationship ({}:{}) -[:{}]-> ({}:{})", 
+										sourceType,
+										getNodeIdFromLocation(sourceNode), 
+										relationshipType,
+										targetType,
+										getNodeIdFromLocation(targetNode));
+		
+		try {
+			URI finalUrl = new URI( sourceNode.toString() + "/relationships" );
+			String cypherStatement = generateJsonRelationship( targetNode,
+																relationshipType, 
+																jsonAttributes );
+			logger.debug("creating relationship {}", cypherArt);
+			logger.trace("    using statement {}", cypherStatement);
+			
+			// direct call
+			logger.debug("sending {} cypher {} ", payload.substring(32, 38), payload);
+			logger.trace("    endpoint {}", finalUrl);
+			WebResource resource = Client.create().resource( finalUrl );
+			
+			ClientResponse response = resource
+					.accept( MediaType.APPLICATION_JSON )
+	                .type( MediaType.APPLICATION_JSON )
+			        .entity( cypherStatement )
+			        .post( ClientResponse.class );
+			
+			String responseEntity = response.getEntity(String.class).toString();
+			int responseStatus = response.getStatus();
+			
+			logger.trace("POST to {} returned status code {}, returned data: {}",
+					finalUrl, responseStatus,
+			        responseEntity);
+			
+			// first check if the http code was ok
+			HttpStatusCodes httpStatusCodes = HttpStatusCodes.getHttpStatusCode(responseStatus);
+			if (!httpStatusCodes.isOk()){
+				if (httpStatusCodes == HttpStatusCodes.FORBIDDEN){
+					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
+				} else {
+					logger.error("Error {} sending data to {}: {} ", response.getStatus(), finalUrl, HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
+				}
+			} else {
+				JSONParser reponseParser = new JSONParser();
+				Object responseObj = reponseParser.parse(responseEntity);
+				JSONObject jsonResponseObj = responseObj instanceof JSONObject ?(JSONObject) responseObj : null;
+				if(jsonResponseObj == null)
+					throw new ParseException(0, "returned json object is null");
+				
+				try {
+					//new URI((String)((JSONObject)((JSONArray)((JSONObject)((JSONArray)((JSONObject)((JSONArray)jsonResponseObj.get("results")).get(0)).get("data")).get(0)).get("rest")).get(0)).get("self"));
+					relationShipLocation = new URI((String) jsonResponseObj.get("self"));
+				} catch (Exception e) {
+					logger.warn("CREATE RELATIONSHIP statement did not return a self object, returning null -- error was {}", e.getMessage());
+					relationShipLocation = null;
+				}
+			}
+		} catch (Exception e) {
+			logger.error("could not create relationship ");
+		}
+        return relationShipLocation;
+    }
+	private static String generateJsonRelationship( URI endNode,
+            GraphRelationshipTypes relationshipType, String[] jsonAttributes ) {
+        StringBuilder sb = new StringBuilder();
+        sb.append( "{ \"to\" : \"" );
+        sb.append( endNode.toString() );
+        sb.append( "\", " );
+
+        sb.append( "\"type\" : \"" );
+        sb.append( relationshipType.toString() );
+        if ( jsonAttributes == null || jsonAttributes.length < 1 ){
+            sb.append( "\"" );
+        } else {
+            sb.append( "\", \"data\" : " );
+            for ( int i = 0; i < jsonAttributes.length; i++ ) {
+                sb.append( jsonAttributes[i] );
+                if ( i < jsonAttributes.length - 1 ){
+                	// Miss off the final comma
+                    sb.append( ", " );
+                }
+            }
+        }
+
+        sb.append( " }" );
+        return sb.toString();
+    }
+	public URI haveRelationship(URI sourceNode, URI targetNode, GraphRelationshipTypes relType){
+		URI relationshipLocation = null;
+		try {
+			//MATCH (martin { name:'Martin Sheen' })-[r]->(movie) RETURN r
+			String cypherStatement = "MATCH (r {'"+sourceNode+"'})-["+relType+"]->('"+targetNode+"') RETURN r";
+			
+			logger.trace("querying if relationship of type {} exists between node {} and node {}", relType, sourceNode, targetNode);
+			WebResource resource = Client.create().resource( sourceNode );
+			
+			ClientResponse response = resource
+					.accept( MediaType.APPLICATION_JSON )
+	                .type( MediaType.APPLICATION_JSON )
+			        .entity( cypherStatement )
+			        .get(ClientResponse.class);
+			
+			String responseEntity = response.getEntity(String.class).toString();
+			int responseStatus = response.getStatus();
+			logger.trace("GET to {} returned status code {}, returned data: {}",
+					sourceNode, responseStatus,
+			        responseEntity);
+			
+			// first check if the http code was ok
+			HttpStatusCodes httpStatusCodes = HttpStatusCodes.getHttpStatusCode(responseStatus);
+			if (!httpStatusCodes.isOk()){
+				if (httpStatusCodes == HttpStatusCodes.FORBIDDEN){
+					logger.error(HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
+				} else {
+					logger.error("Error {} sending data to {}: {} ", response.getStatus(), sourceNode, HttpErrorMessages.getHttpErrorText(httpStatusCodes.getErrorCode()));
+				}
+			} else {
+				// now do the check on json details within the returned JSON object
+				JSONParser reponseParser = new JSONParser();
+				Object responseObj = reponseParser.parse(responseEntity);
+				JSONObject jsonResponseObj = responseObj instanceof JSONObject ?(JSONObject) responseObj : null;
+				if(jsonResponseObj == null)
+					throw new ParseException(0, "returned json object is null");
+				
+				logger.trace("returned response {}", jsonResponseObj.toString());
+				
+				try {
+					relationshipLocation = new URI((String)((JSONObject)((JSONArray)((JSONObject)((JSONArray)((JSONObject)((JSONArray)jsonResponseObj.get("results")).get(0)).get("data")).get(0)).get("rest")).get(0)).get("self"));
+					logger.debug("found relationship at location {}", relationshipLocation);
+				} catch (Exception e) {
+					logger.warn("QUERY statement did not return a self object, returning null -- error was {}", e.getMessage());
+					relationshipLocation = null;
+				}
+			}
+		} catch (Exception e) {
+			logger.error("EXCEPTION :: failed to execute query - {}", e.getMessage());
+			e.printStackTrace();
+		}
+		return relationshipLocation;
+	}
+	
+	
+
+	private void addProperty(URI nodeUri, String propertyName,
+            String propertyValue ){
+        // START SNIPPET: addProp
+        String propertyUri = nodeUri.toString() + "/properties/" + propertyName;
+        // http://localhost:7474/db/data/node/{node_id}/properties/{property_name}
+
+        WebResource resource = Client.create()
+                .resource( propertyUri );
+        ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
+                .type( MediaType.APPLICATION_JSON )
+                .entity( "\"" + propertyValue + "\"" )
+                .put( ClientResponse.class );
+
+        logger.debug("PUT to [{}], status code [{}]",
+                propertyUri, response.getStatus());
+        response.close();
+        // END SNIPPET: addProp
+    }
+	
+	
+	
+	private void addMetadataToProperty( URI relationshipUri,
+            String name, String value ) throws URISyntaxException{
+        URI propertyUri = new URI( relationshipUri.toString() + "/properties" );
+        String entity = toJsonNameValuePairCollection( name, value );
+        WebResource resource = Client.create()
+                .resource( propertyUri );
+        ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
+                .type( MediaType.APPLICATION_JSON )
+                .entity( entity )
+                .put( ClientResponse.class );
+
+        logger.debug("PUT [%s] to [%s], status code [%d]", entity, propertyUri,
+                response.getStatus() );
+        response.close();
+    }
+	
+	
+	private static String toJsonNameValuePairCollection( String name, String value ){
+        return String.format( "{ \"%s\" : \"%s\" }", name, value );
+    }
+	
+
+ */
+
+// after all nodes have been created or, in case they were already there, their respective links
+/* are retrieved, we create the relationship(s) between the nodes
+String[] jsonAttributes = null;
+URI relLoc = null;
+if (userNodeLocation != null && postNodeLocation != null) {
+	// check if relationship exists:
+	relLoc = haveRelationship(userNodeLocation, postNodeLocation, GraphRelationshipTypes.WROTE);
+	if (relLoc != null)
+		createRelationship(GraphNodeTypes.USER, userNodeLocation, GraphNodeTypes.POST, postNodeLocation, GraphRelationshipTypes.WROTE, jsonAttributes);
+}
+
+if (postNodeLocation != null && socialNetworkNodeLocation != null) {
+	// check if relationship exists:
+	relLoc = haveRelationship(postNodeLocation, socialNetworkNodeLocation, GraphRelationshipTypes.BELONGS_TO);
+	if (relLoc != null)
+		createRelationship(GraphNodeTypes.POST, postNodeLocation, GraphNodeTypes.SOCIALNETWORK, socialNetworkNodeLocation, GraphRelationshipTypes.BELONGS_TO, jsonAttributes);
+}
+
+if (postNodeLocation != null && domainNodeLocation != null) { 
+	// check if relationship exists:
+	relLoc = haveRelationship(postNodeLocation, domainNodeLocation, GraphRelationshipTypes.BELONGS_TO);
+	if (relLoc != null)
+		createRelationship(GraphNodeTypes.POST, postNodeLocation, GraphNodeTypes.DOMAIN, domainNodeLocation, GraphRelationshipTypes.BELONGS_TO, jsonAttributes);
+}
+
+if (postNodeLocation != null && customerNodeLocation != null) {
+	// check if relationship exists:
+	relLoc = haveRelationship(postNodeLocation, customerNodeLocation, GraphRelationshipTypes.BELONGS_TO);
+	if (relLoc != null)
+		createRelationship(GraphNodeTypes.POST, postNodeLocation, GraphNodeTypes.CUSTOMER, customerNodeLocation, GraphRelationshipTypes.BELONGS_TO, jsonAttributes);
+}
+
+if (customerNodeLocation != null && domainNodeLocation != null) {
+	// check if relationship exists:
+	relLoc = haveRelationship(customerNodeLocation, domainNodeLocation, GraphRelationshipTypes.BELONGS_TO);
+	if (relLoc != null)
+		createRelationship(GraphNodeTypes.CUSTOMER, customerNodeLocation, GraphNodeTypes.DOMAIN, domainNodeLocation, GraphRelationshipTypes.BELONGS_TO, jsonAttributes);
+}
+
+ 		//rel: POST-[BELONGS_TO]->DOMAIN
+		logger.debug("create relationship: POST-[BELONGS_TO]->DOMAIN");
+		sourceLabel = GraphNodeTypes.POST;
+		sourceSnId = postSnId;
+		sourceId = postId;
+		targetLabel = GraphNodeTypes.DOMAIN;
+		targetSnId = domainName;
+		relType = GraphRelationshipTypes.BELONGS_TO;
+		
+		// execute MATCH & MERGE
+		sourceJsonMatch = sourceLabel+" {sn_id: '"+sourceSnId+"', id: '"+sourceId+"'}";
+		targetJsonMatch = targetLabel+" {name: '"+targetSnId+"'}";
+		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
+		
+		
+		
+		// rel: POST-[BELONGS_TO]->CUSTOMER
+		logger.debug("create relationship: POST-[BELONGS_TO]->CUSTOMER");
+		sourceLabel = GraphNodeTypes.POST;
+		sourceSnId = postSnId;
+		sourceId = postId;
+		targetLabel = GraphNodeTypes.CUSTOMER;
+		targetSnId = customerName;
+		relType = GraphRelationshipTypes.BELONGS_TO;
+		
+		// execute MATCH & MERGE
+		sourceJsonMatch = sourceLabel+" {sn_id: '"+sourceSnId+"', id: '"+sourceId+"'}";
+		targetJsonMatch = targetLabel+" {name: '"+targetSnId+"'}";
+		relLoc = matchAndMergeRelationshipTransactional(sourceJsonMatch, targetJsonMatch, relType, transactLoc);
+		
+*/

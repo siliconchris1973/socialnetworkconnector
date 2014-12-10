@@ -1,83 +1,116 @@
 package de.comlineag.snc.handler;
 
-import org.json.simple.JSONObject;
+import java.util.ArrayList;
 
+import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.comlineag.snc.data.CustomerData;
+import de.comlineag.snc.data.DomainData;
 import de.comlineag.snc.data.FacebookPostingData;
+import de.comlineag.snc.data.FacebookUserData;
+import de.comlineag.snc.data.SocialNetworkData;
 
 /**
  * 
  * @author 		Christian Guenther
- * @category 	Parser
- * @version		0.1
- * @status		not implemented
+ * @category 	Handler
+ * @version		0.3				- 28.11.2014
+ * @status		productive
  * 
  * @description Implementation of the facebook posting manager - extends
  *              GenericDataManager This handler is used to save a new post or
  *              update an existing one. FacebookPostingManager is called after a
  *              posting with all relevant information about the posting (the
- *              original as well as the reposted one) is decoded by
- *              FacebookParser.
+ *              original as well as the reposted one) is decoded by FacebookParser.
+ *              
+ *              The handler also provides a method to get the underlying data object 
+ *              as a json structure (getJson) and a method to add an embedded user-
+ *              object to the post object - addEmbeddedUserData(UserData). 
+ *              These last two methods are needed for neo4j, the graph database. 
+ *              Neo4j, in contrast to the HANA db, expects all data of a post, including 
+ *              the user, domain, customer, social network and keyword, to be passed 
+ *              along in one json structure.
  * 
  * 				The data type facebook posting consists of these elements
- *	            	id						Long 
- *					created_at				String 
- *					text					String 
+ *	            	sn_id					String
+ *					id						String 
+ *					created_at				String
+ *					source					String
+ *            		lang					String 
+ *					text					String
+ *					raw_text				String
+ *					subject					String
+ *					teaser					String
  *					source					String
  *            		truncated				Boolean 
  *            		in_reply_to_status_id	Long
  *            		in_reply_to_user_id		Long 
  *            		in_reply_to_screen_name	String
- *            		coordinates				List 
  *            		geoLocation				List 
- *            		lang					String 
- *            		hashtags				List
- *            		symbols					List
  *            		user_mentions			List
+ *            		USER					embedded UserData object
+ *            		DOMAIN					embedded domain of interest object
+ *            		CUSTOMER				embedded customer object
+ *            		SOCIALNETWORK			embedded social network object
+ *            		KEYWORD					embedded object with list of keywords
  * 
  * @param <FacebookPosting>
  * 
  * @changelog	0.1 (Chris)		copy from TwitterPosting
+ * 				0.2				added getJson() and addEmbeddedUserData method
+ * 				0.3				added call to graph database
  * 
- * TODO implement real code
  */
 
 public class FacebookPosting extends GenericDataManager<FacebookPostingData> {
-	/*
-	 * Die nachfolgenden Elemente des Posts sollen weiter verarbeitet und
-	 * gespeichert werden
-	 * 
-	 * key="cl_postID" 					value="id" 
-	 * key="cl_postTime" 				value="created_at"
-	 * key="cl_posting" 				value="text" 
-	 * key="cl_postClient" 				value="source"
-	 * key="cl_postTruncated" 			value="truncated" 
-	 * key="cl_postInReplyTo" 			value="in_reply_to_status_id" 
-	 * key="cl_postInReplyToUserID" 	value="in_reply_to_user_id" 
-	 * key="cl_postInReplyToScreenName"	value="in_reply_to_screen_name" 
-	 * key="cl_postGeoLocation"			value="coordinates" 
-	 * key="cl_postPlace"				value="geoLocation" 
-	 * key="cl_postLang" 				value="lang" 
-	 * key="cl_postHashtags" 			value="hashtags" 
-	 * key="cl_postSymbols" 			value="symbols"
-	 * key="cl_userMentions" 			value="mentions"
-	 */
-
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+	
 	private FacebookPostingData data;
-
-	//private final Logger logger = Logger.getLogger(getClass().getName());
-
-	/**
-	 * Baut aus dem JSON String ein FacebookPostingData Objekt
-	 * 
-	 * @param jsonObject
-	 */
+	
 	public FacebookPosting(JSONObject jsonObject) {
 		data = new FacebookPostingData(jsonObject);
 	}
 
 	@Override
-	// public void save(List<FacebookPosting> posting){
 	public void save() {
-		persistenceManager.savePosts(data);
+		try {
+			persistenceManager.savePosts(data);
+		} catch (Exception e) {
+			logger.error("ERROR :: during call of persistence layer {}", e.getLocalizedMessage());
+			e.printStackTrace();
+		}
 	}
+	
+	public void saveInGraph(){
+		try {
+			JSONObject bigJson=new JSONObject(data.getJson());
+			logger.trace("this is the big json with all entities {}", bigJson.toJSONString());
+			
+			logger.info("calling graph database for {}-{} ", bigJson.get("sn_id").toString(), bigJson.get("id").toString());
+			graphPersistenceManager.createNodeObject(bigJson);
+		} catch (Exception e) {
+			logger.error("ERROR :: during call of graph-db layer {}", e.getLocalizedMessage());
+			e.printStackTrace();
+		}
+	}
+	
+	public JSONObject getJson(){return(data.getJson());}
+	public JSONObject getUserAsJson(){return(data.getUserData().getJson());}
+	
+	public void setUserObject(FacebookUserData userData){ data.setUserData(userData);}
+	public FacebookUserData getUserObject(){return((FacebookUserData) data.getUserData());}
+	
+	public void setDomainObject(DomainData domData){ data.setDomainObject(domData);}
+	public DomainData getDomainObject(){return((DomainData) data.getDomainObject());}
+	
+	public void setCustomerObject(CustomerData subData){ data.setCustomerObject(subData);}
+	public CustomerData getCustomerObject(){return((CustomerData) data.getCustomerObject());}
+	
+	public void setSocialNetworkObject(SocialNetworkData socData){ data.setSocialNetworkObject(socData);}
+	public SocialNetworkData getSocialNetworkObject(){return((SocialNetworkData) data.getSocialNetworkObject());}
+	
+	public void setTrackTerms(ArrayList<String> tTerms){ data.setTrackTerms(tTerms);}
+	public ArrayList<String> getTrackTerms(){return((ArrayList<String>) data.getTrackTerms());}
 }

@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.comlineag.snc.handler.WebPosting;
 import de.comlineag.snc.helper.UniqueIdServices;
@@ -24,6 +26,9 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * @description GenericWebParser is the abstract base class for web site parsing. It is derived from
  * 				generic parser and defines one new, abstract method parse with parameters for the
  * 				content, the url and the searched terms.
+ * 				
+ * 				The web parser creates a web-page data object and an embedded user object within
+ * 				the web page object.
  * 
  * @changelog	0.1 (Chris)		first version
  * 				0.2				added method to return list of indices for the needle in the haystack
@@ -35,6 +40,7 @@ import de.comlineag.snc.helper.UniqueIdServices;
  * 
  */
 public abstract class GenericWebParser extends GenericParser implements IWebParser {
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	
 	public GenericWebParser() {}
 
@@ -172,7 +178,7 @@ public abstract class GenericWebParser extends GenericParser implements IWebPars
 		pageJson.put("lang", lang);
 		pageJson.put("truncated", truncated);
 		pageJson.put("created_at", created_at);
-		pageJson.put("raw_text", page);
+		//pageJson.put("raw_text", page);
 		pageJson.put("text", text);
 		
 		JSONObject userJson = new JSONObject();
@@ -182,7 +188,8 @@ public abstract class GenericWebParser extends GenericParser implements IWebPars
 		userJson.put("screen_name", screen_name);
 		userJson.put("lang", user_lang);
 		
-		pageJson.put("user", userJson);
+		pageJson.put("USER", userJson);
+		logger.trace("*** generated pageJson: {}", pageJson.toString());
 		
 		return pageJson;
 	}

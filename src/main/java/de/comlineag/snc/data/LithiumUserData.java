@@ -1,8 +1,9 @@
 package de.comlineag.snc.data;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -84,12 +85,9 @@ import de.comlineag.snc.constants.SocialNetworks;
 			$ : false
  *
  */
-public final class LithiumUserData extends UserData {
+public final class LithiumUserData extends UserData implements ISncDataObject{
 
-	// we use simple org.apache.log4j.Logger for lgging
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
 	
 	public LithiumUserData() {}
 	
@@ -106,6 +104,7 @@ public final class LithiumUserData extends UserData {
 		
 		// alles auf Null und die SocialNetworkID schon mal parken
 		initialize();
+		String s; // helper var to cast from long to string
 		
 		try {
 			JSONParser parser = new JSONParser();
@@ -119,9 +118,10 @@ public final class LithiumUserData extends UserData {
 			obj = parser.parse(jsonObject.get("id").toString());
 			JSONObject jsonObjId = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			setId((String) jsonObjId.get("$"));
+			s = Objects.toString(jsonObjId.get("$"), null);
+			setId(s);
 			
-			// username / login and nickname, all the same at lithium
+			// user_name / login and nickname, all the same at lithium
 			// Structure
 			//	{}login
 			//		type : "string"
@@ -129,7 +129,7 @@ public final class LithiumUserData extends UserData {
 			obj = parser.parse(jsonObject.get("login").toString());
 			JSONObject jsonObjLogin = obj instanceof JSONObject ?(JSONObject) obj : null;
 			
-			setUsername((String) jsonObjLogin.get("$"));
+			setUserName((String) jsonObjLogin.get("$"));
 			setScreenName((String) jsonObjLogin.get("$"));
 			
 			// we are using the geoLocation field for the user profile icon
@@ -158,7 +158,8 @@ public final class LithiumUserData extends UserData {
 				}
 			}
 			
-			setLang((String) jsonObject.get("lang"));
+			if (jsonObject.containsKey("lang"))
+				setLang((String) jsonObject.get("lang"));
 			
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: during parsing of json Lithium user-object " + e.getLocalizedMessage());
@@ -166,10 +167,19 @@ public final class LithiumUserData extends UserData {
 	}
 	
 	private void initialize(){
-		id 						= "0";
-		//sn_id 					= SocialNetworks.LITHIUM.getValue();
-		sn_id 					= SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM");
-		username 				= null;
+		// first setup the internal json objct
+		internalJson = new JSONObject();
+		
+		// setting everything to 0 or null default value.
+		id = "0";
+		setObjectStatus("new");
+		
+		// set the internal fields and embedded json objects for domain, customer and social network
+		setSnId(SocialNetworks.getSocialNetworkConfigElement("code", "LITHIUM"));
+		setDomain(new CrawlerConfiguration<String>().getDomain());
+		setCustomer(new CrawlerConfiguration<String>().getCustomer());
+		
+		user_name 				= null;
 		screen_name 			= null;
 		geoLocation 			= "";
 		followers_count 		= 0;
@@ -177,9 +187,6 @@ public final class LithiumUserData extends UserData {
 		postings_count 			= 0;
 		favorites_count 		= 0;
 		lists_and_groups_count	= 0;
-		lang 					= "de";
-		objectStatus = "new";
-		domain = new CrawlerConfiguration<String>().getDomain();
-		customer = new CrawlerConfiguration<String>().getCustomer();
+		lang 					= "DE";
 	}
 }

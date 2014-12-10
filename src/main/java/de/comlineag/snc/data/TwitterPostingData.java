@@ -1,11 +1,16 @@
 package de.comlineag.snc.data;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONObject;
 
 import de.comlineag.snc.appstate.CrawlerConfiguration;
@@ -44,6 +49,11 @@ import de.comlineag.snc.helper.DateTimeServices;
  *            "hashtags" List
  *            "symbols" List
  *            "mentions" List
+ *            "KEYWORDS" ArrayList
+ *            "DOMAIN" JSONObject
+ *            "CUSTOMER" JSONObject
+ *            "SOCIALNETWORK" JSONObject
+ *            "USER" UserData
  * 
  * @changelog	0.1 (Chris)		class created
  * 				0.2 (Magnus)	added all simple fields
@@ -65,12 +75,17 @@ import de.comlineag.snc.helper.DateTimeServices;
  * @TODO 3. create code for mentions
  */
 
-public final class TwitterPostingData extends PostingData {
-
-	// we use simple org.apache.log4j.Logger for lgging
+public final class TwitterPostingData extends PostingData implements ISncDataObject{
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
-	// in case you want a log-manager use this line and change the import above
-	//private final Logger logger = LogManager.getLogger(getClass().getName());
+	
+	UserData userObject = new UserData();
+	DomainData domainObject = new DomainData();
+	CustomerData customerObject = new CustomerData();
+	SocialNetworkData socialNetworkObject = new SocialNetworkData();
+	ArrayList<String> keywords = new ArrayList<String>();
+	
+	
+	public TwitterPostingData(){}
 	
 	/**
 	 * Constructor, based on the JSONObject sent from Twitter the Data Object is prepared
@@ -81,20 +96,29 @@ public final class TwitterPostingData extends PostingData {
 	public TwitterPostingData(JSONObject jsonObject) {
 		// set all values to zero
 		initialize();
+		String s; // helper var to cast from long to string
+		
+		
+		ArrayList<String> mentionedUsers = new ArrayList<String>(getUserMentions(jsonObject.get("text").toString()));
 		
 		try {
 			// posting ID - is either id or post_id
-			if (jsonObject.get("id")==null)
-				setId((String) jsonObject.get("post_id"));
-			else 
-				setId((String) jsonObject.get("id"));
+			if (jsonObject.get("id")==null) {
+				s = Objects.toString(jsonObject.get("post_id"), null);
+			} else {
+				s = Objects.toString(jsonObject.get("id"), null);
+			}
+			setId(s);
+			
 			
 			// log the startup message
 			logger.debug("constructing new subset of data of tweet (TW-"  + id + ") from twitter post-object");
 			
+			
 			// User ID
 			JSONObject user = (JSONObject) jsonObject.get("user");
-			setUserId((String) user.get("id"));
+			s = Objects.toString(user.get("id"), null);
+			setUserId(s);
 			
 			
 			// langauge
@@ -234,17 +258,52 @@ public final class TwitterPostingData extends PostingData {
 			 * 
 			 */
 			// TODO implement proper handling of hashtags, symbols and mentions - this currently kills the parser
-			//setHashtags((List<?>)jsonObject.get("hashtags"));
-			//setSymbols((List<?>)jsonObject.get("symbols"));
-			//setMentions((List<?>)jsonObject.get("user_mentions"));
+			if (jsonObject.containsKey("entities")){
+				JSONObject entityObject = new JSONObject((JSONObject) jsonObject.get("entities"));
+				logger.trace("the entity-object contains: {}", entityObject.toString());
+				
+				//setHashtags((List<?>)jsonObject.get("hashtags"));
+				//setSymbols((List<?>)jsonObject.get("symbols"));
+				//setMentions((List<?>)jsonObject.get("user_mentions"));
+			}
 		} catch (Exception e) {
 			logger.error("EXCEPTION :: during parsing of json twitter post-object " + e.getLocalizedMessage());
 			e.printStackTrace();
 		}
 	}
 	
+
+	private ArrayList<String> getUserMentions(String tweet){
+		// Search for Users
+		String patternStr = "(?:\\s|\\A)[@]+([A-Za-z0-9-_]+)";
+		Pattern pattern = Pattern.compile(patternStr);
+		Matcher matcher = pattern.matcher(tweet);
+		ArrayList<String> resultArray = new ArrayList<String>();
+		String result = "";
+		String rawName ="";
+		
+		try {
+			while (matcher.find()) {
+				logger.trace("found mentioned user");
+				result = matcher.group();
+				result = result.replace(" ", "");
+				logger.trace("found mentioned user {}", result);
+				
+				rawName = result.replace("@", "");
+				String userURI="http://twitter.com/"+rawName;
+				resultArray.add(userURI);
+			}
+		} catch (Exception e) {
+			logger.error("ERROR :: could not parse tweet for user mentions {}", rawName);
+			e.printStackTrace();
+		}
+		
+		logger.trace("returning array of {} number of users mentioned in tweet", resultArray.size());
+		return resultArray;
+	}
 	
-	public void setMentions(List<?> listOfMentions) {
+	
+	public void setMentions(List<String> listOfMentions) {
 		// TODO Implement proper algorithm to deal with user mentions
 		logger.trace("List of mentioned users received, creating something different from it");
 		Iterator<?> itr = listOfMentions.iterator();
@@ -253,7 +312,7 @@ public final class TwitterPostingData extends PostingData {
 		}
 	}
 	
-	public void setSymbols(List<?> listOfSymbols) {
+	public void setSymbols(List<String> listOfSymbols) {
 		// TODO Implement proper algorithm to deal with symbols
 		logger.trace("List of symbols received, creating something different from it");
 		Iterator<?> itr = listOfSymbols.iterator();
@@ -262,7 +321,7 @@ public final class TwitterPostingData extends PostingData {
 		}
 	}
 	
-	public void setHashtags(List<?> listOfHashtags) {
+	public void setHashtags(List<String> listOfHashtags) {
 		// TODO Implement proper algorithm to deal with hashtags
 		logger.trace("List of Hashtags received, creating something different from it");
 		Iterator<?> itr = listOfHashtags.iterator();
@@ -274,18 +333,44 @@ public final class TwitterPostingData extends PostingData {
 	/**
 	 * setup the Object with NULL
 	 */
+	@SuppressWarnings("unchecked")
 	private void initialize() {
+		// first setup the internal json objct
+		internalJson = new JSONObject();
+		
 		// setting everything to 0 or null default value.
-		// so I can check on initialized or not initialized values for the
-		// posting
 		id = "0";
+		setObjectStatus("new");
 		
-		objectStatus = "new";
-		domain = new CrawlerConfiguration<String>().getDomain();
-		customer = new CrawlerConfiguration<String>().getCustomer();
+		// set the internal fields and embedded json objects for domain, customer and social network
+		setSnId(SocialNetworks.getSocialNetworkConfigElement("code", "TWITTER"));
+		setDomain(new CrawlerConfiguration<String>().getDomain());
+		setCustomer(new CrawlerConfiguration<String>().getCustomer());
 		
-		//sn_id = SocialNetworks.TWITTER.getValue();
-		sn_id = SocialNetworks.getSocialNetworkConfigElement("code", "TWITTER");
+		// create the embedded social network json
+		JSONObject tJson = new JSONObject();
+		tJson.put("sn_id", sn_id);
+		tJson.put("name", SocialNetworks.getSocialNetworkConfigElementByCode("name", sn_id).toString());
+		tJson.put("domain", SocialNetworks.getSocialNetworkConfigElementByCode("domain", sn_id).toString());
+		tJson.put("description", SocialNetworks.getSocialNetworkConfigElementByCode("description", sn_id).toString());
+		SocialNetworkData socData = new SocialNetworkData(tJson.toJSONString());
+		logger.trace("storing created social network object {} as embedded object {}", socData.getName(), socData.toJsonString());
+		setSocialNetworkData(socData.getJson());
+		
+		// create the embedded domain json
+		tJson = new JSONObject();
+		tJson.put("name", domain);
+		DomainData domData = new DomainData(tJson.toJSONString());
+		logger.trace("storing created domain object {} as embedded object {}", domData.getName(), domData.toJsonString());
+		setDomainData(domData.getJson());
+		
+		// create the embedded customer json
+		tJson = new JSONObject();
+		tJson.put("name", customer);
+		CustomerData subData = new CustomerData(tJson.toJSONString());
+		logger.trace("storing created customer object {} as embedded object {}", subData.getName(), subData.toJsonString());
+		setCustomerData(subData.getJson());
+		
 		
 		text = null;
 		raw_text = null;
@@ -315,4 +400,17 @@ public final class TwitterPostingData extends PostingData {
 		symbols = null;
 		mentions = null;
 	}
+	
+	// new methods to get and set the user, domain, customer and social network object within the page object
+	public void setUserObject(UserData userJson){this.userObject = userJson;}
+	public UserData getUserObject(){return userObject;}
+	
+	public void setDomainObject(DomainData domJson){this.domainObject = domJson;}
+	public DomainData getDomainObject(){return domainObject;}
+	
+	public void setCustomerObject(CustomerData subJson){this.customerObject = subJson;}
+	public CustomerData getCustomerObject(){return customerObject;}
+	
+	public void setSocialNetworkObject(SocialNetworkData socJson){this.socialNetworkObject = socJson;}
+	public SocialNetworkData getSocialNetworkObject(){return socialNetworkObject;}
 }
