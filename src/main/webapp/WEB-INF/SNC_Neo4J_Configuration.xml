@@ -29,7 +29,7 @@
 		</param>
 		<param name="DbConnectionHost">
 			<type>String</type>
-			<value>localhost</value>
+			<value>192.168.89.4</value>
 			<constant>DB_CONNECTION_HOST</constant>
 		</param>
 		<param name="DbConnectionPort">

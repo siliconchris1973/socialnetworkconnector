@@ -672,7 +672,7 @@
 	<!-- N E O 4 J    P E R S I S T E N C E    (IN DEVELOPMENT) -->
 	<bean id="graphPersistenceManager" class="de.comlineag.snc.persistence.Neo4JPersistence"/>
 	
-	<!-- N E O 4 J    E M B E D D E D    P E R S I S T E N C E    (IN DEVELOPMENT) -->
+	<!-- N E O 4 J    E M B E D D E D    P E R S I S T E N C E    (SKELETON ONLY) -->
 	<!-- <bean id="graphPersistenceManager" class="de.comlineag.snc.persistence.Neo4JEmbeddedPersistence" /> --> 
 	
 	<!-- H A N A    P E R S I S T E N C E    (DOES NOT WORK - NO GRAPH SUPPORT IN HANA YET)  -->

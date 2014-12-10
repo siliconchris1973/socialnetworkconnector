@@ -63,7 +63,7 @@ public final class Neo4JConfiguration {
 	private String HASHTAG_LABEL = "HASHTAG";
 	private String KEYWORD_LABEL = "KEYWORD";
 	private String DOMAIN_LABEL = "DOMAIN";
-	private String CUSTOMER_LABEL = "KEYWORD";
+	private String CUSTOMER_LABEL = "CUSTOMER";
 	private String SOCIAL_NETWORK_LABEL = "SOCIALNETWORK";
 	
 	// extension to the URI of a node to store relationships
