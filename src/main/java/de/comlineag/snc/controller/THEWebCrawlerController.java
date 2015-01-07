@@ -107,8 +107,10 @@ public class THEWebCrawlerController extends GenericCrawlerController implements
 		// the lock file is created below the crawlStorageFolder directory
 		// for each web crawler with the following name structure: 
 		//		<DOMAIN>_<CUSTOMER>_<SN_ID_CODE>_[optional extra data].lck
+		// after creation, see below, the current date and time is added to the file
 		String lockFilePath = crawlStorageFolder + File.separatorChar + curDomain +"_"+ curCustomer +"-"+ sn_id +".lck";
 		isRunning = lockFileExists(lockFilePath);
+		logger.debug("runstate of the crawler is {}", isRunning);
 		
 		// check if the crawler is deactivated from within the crawler configuration
 		// or is already running (indicated by the boolean state of isRunning)
