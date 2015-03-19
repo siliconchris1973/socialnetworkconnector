@@ -6,6 +6,19 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+/**
+ *
+ * @author 		Christian Guenther
+ * @category 	abstract controller class
+ * @version		0.1				- 06.01.2015
+ * @status		productive
+ *
+ * @description This is the abstract controller class for all crawler controller. It provides
+ * 				3 methods to work with lock files for crawler controller. 
+ *
+ * @changelog	0.1 (Chris)		class created
+ * 
+ */
 public abstract class GenericCrawlerController {
 	
 	/**
