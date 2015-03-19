@@ -22,10 +22,10 @@
 	
 	<groupId>de.comlineag.snc</groupId>
 	<artifactId>SocialNetworkConnector</artifactId>
-	<version>0.9.3-Beta</version>
+	<version>0.9.4-Beta</version>
 	
 	<name>Social Network Connector</name>
-	<url>https://clsbm.comlineag.de</url>
+	<url>https://clsbm.comlineag.de/snc</url>
 	
 	<organization>
 		<name>COMLINE AG</name>

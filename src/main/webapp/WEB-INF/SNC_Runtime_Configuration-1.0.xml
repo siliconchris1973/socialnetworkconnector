@@ -336,12 +336,12 @@
 			 before the crawler starts. In effect the crawler will start it's crawl with all given
 			 seed pages and will possibly crawl already fetched pages again. 
 			 Consequently, if set to false, the crawler will only crawl those pages, that where not 
-			 finished when called last time. At the moment it is advisable to leave ths to true.
+			 finished when called last time. At the moment it is advisable to leave this to false.
 			 This setting only affects THEWebCrawler and not the SimpleWebCrawler -->
 		<option>
 			<name>WcClearFinishedPagesOnStartup</name>
 			<type>boolean</type>
-			<value>true</value>
+			<value>false</value>
 			<constant>WC_CLEAR_FINISHED_PAGES_ON_STARTUP</constant>
 		</option>
 		

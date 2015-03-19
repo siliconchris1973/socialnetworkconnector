@@ -1,6 +1,8 @@
 package de.comlineag.snc.crawler;
 
 import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -15,9 +17,9 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 
 
@@ -62,6 +64,7 @@ public abstract class GenericCrawler implements Job {
 
 	// every crawler must implement a method execute
 	public abstract void execute(JobExecutionContext arg0) throws JobExecutionException;
+	
 	
 	/**
 	 * 

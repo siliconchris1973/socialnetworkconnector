@@ -169,8 +169,7 @@ public final class WebPostingData extends PostingData implements ISncDataObject{
 			
 			// User ID
 			if (jsonObject.containsKey("USER")){
-				JSONObject tempUsr = (JSONObject) jsonObject.get("USER");
-				userObject = new UserData(tempUsr);
+				userObject = new UserData((JSONObject) jsonObject.get("USER"));
 				setUserId((String) userObject.getId());
 				logger.debug("found embedded user object {}", getUserId());
 				logger.trace("    {}", userObject.toString());

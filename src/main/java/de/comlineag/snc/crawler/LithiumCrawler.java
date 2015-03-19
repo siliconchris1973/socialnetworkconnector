@@ -334,7 +334,7 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 									// TODO check if this is the right spot to add the track terms to the posting
 									ArrayList<String> keywords = new ArrayList<String>();
 									for (String keyword : tTerms){
-										if (containsWord(litPost.getJson().get("text").toString(), keyword)) {
+										if (findTheNeedle(litPost.getJson().get("text").toString(), keyword)) {
 											logger.trace("adding trackterm {} to list of tracked keywords", keyword);
 											keywords.add(keyword);
 										}
@@ -550,22 +550,18 @@ public class LithiumCrawler extends GenericCrawler implements Job {
 	
 	
 	/**
-	 * @description 	checks if the given token is found in the given text
-	 * 					this check is done a second time in the parser, after all irrelevant content
-	 * 					like advertisement and the like has been stripped off the page.
-	 * @param 			text
-	 * @param 			token
-	 * @return 			true if any of the tokens was found, otherwise false
+	 * @description 	seeks to find the needle (only one at a time) in the haystack
+	 * @param 			haystack
+	 * @param 			needle
+	 * @return 			true if the needle was found in the haystack, otherwise false
 	 */
-	private boolean containsWord(String text, String token){
-		String patternString = "\\b(" + StringUtils.join(token, "|") + ")\\b";
+	private boolean findTheNeedle(String haystack, String needle){
+		String patternString = ".*"+needle+".*";
 		Pattern pattern = Pattern.compile(patternString);
-		Matcher matcher = pattern.matcher(text);
+		Matcher matcher = pattern.matcher(haystack);
 
-		while (matcher.find()) {
+		while (matcher.find())
 		    return true;
-		}
-		
 		return false;
 	}
 	

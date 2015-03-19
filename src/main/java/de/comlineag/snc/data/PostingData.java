@@ -1,6 +1,5 @@
 package de.comlineag.snc.data;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +70,7 @@ public class PostingData implements ISncDataObject{
 	protected ArrayList<String> trackterms = new ArrayList<String>();
 	
 	/*
-	 * 
+	 * all users (list should be build like this: <sn_id>-<id>) mentioned in the post
 	 */
 	ArrayList<String> mentionedUsers = new ArrayList<String>();
 			
