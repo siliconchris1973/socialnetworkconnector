@@ -2,7 +2,7 @@
 <!-- 
 	This is the xml configuration file for the social network connector. 
 	
-	- CORTAL - CONSORS - CORTAL - CONSORS - CORTAL - CONSORS - CORTAL -
+	- Deutsche Bahn     Deutsche Bahn    Deutsche Bahn   Deutsche Bahn  -
 	
 	The XML can be used to setup either customer or domain specific configurations or  
 	a combination of the two. For any combination (domain and customer) you can always 
@@ -60,9 +60,9 @@
 		 applicationContext.xml -->
 	<configuration scope="CrawlerRun">
 		<crawler name="TWITTER">true</crawler>
-		<crawler name="LITHIUM">true</crawler>
+		<crawler name="LITHIUM">false</crawler>
 		<crawler name="FACEBOOK">false</crawler>
-		<crawler name="WEBCRAWLER">true</crawler>
+		<crawler name="WEBCRAWLER">false</crawler>
 	</configuration>
 	
 	<!-- 
@@ -72,10 +72,10 @@
 	-->
 	<configuration scope="domainStructure">
 		<domainStructure>
-			<domain name="Banking">
-				<name>Banking</name>
+			<domain name="Bahn">
+				<name>Bahn</name>
 				<type>String</type>
-				<value>Banking</value>
+				<value>Bahn</value>
 				
 				<!-- set to false in case no domain/customer specific setup is needed -->
 				<isActive>
@@ -88,10 +88,10 @@
 				</priority>
 				
 				<!-- customer entries within domain -->
-				<customer name="CortalConsors">
-					<name>Cortal Consors</name>
+				<customer name="Bahn">
+					<name>Bahn</name>
 					<type>String</type>
-					<value>CortalConsors</value>
+					<value>Bahn</value>
 					<isActive>
 						<type>boolean</type>
 						<value>true</value>
@@ -109,11 +109,11 @@
 	<!-- this section can be used to setup crawler configurations for customer -->
 	<configuration scope="customer">
 		<!-- Cortal Consors -->
-		<customer name="CortalConsors">
+		<customer name="Bahn">
 			<!-- CUSTOMER SETUP -->
 			<name>
 				<type>String</type>
-				<value>Cortal Consors</value>
+				<value>Bahn</value>
 			</name>
 			<category>
 				<type>String</type>
@@ -126,30 +126,11 @@
 			<constraints scope="ALL">
 				<!-- DO NOT TRACK POSTS WITH THESE KEYWORDS -->
 				<constraint>
-					<blockedterm>
-						<type>String</type>
-						<value>Home Depot</value>
-					</blockedterm>
-					<blockedterm>
-						<type>String</type>
-						<value>HomeDepot</value>
-					</blockedterm>
-					<blockedterm>
-						<type>String</type>
-						<value>Begleitservice</value>
-					</blockedterm>
-					<blockedterm>
-						<type>String</type>
-						<value>Escort</value>
-					</blockedterm>
-					<blockedterm>
-						<type>String</type>
-						<value>Pokémon</value>
-					</blockedterm>
-					<blockedterm>
+					
+					<!--   blockedterm>
 						<type>String</type>
 						<value>Trading Card Game</value>
-					</blockedterm>
+					</blockedterm -->
 				</constraint>
 				
 				<!-- track only messages (aka posts) with specific keywords -->
@@ -272,114 +253,69 @@
 				<constraint>
 					<term>
 						<type>String</type>
-						<value>Aktien</value>
+						<value>Bahn</value>
 					</term>
 					<term>
 						<type>String</type>
-						<value>Tagesgeld</value>
+						<value>Deutsche Bahn</value>
 					</term>
 					<term>
 						<type>String</type>
-						<value>Depot</value>
+						<value>Bahnhof</value>
 					</term>
 					<term>
 						<type>String</type>
-						<value>Wertpapier</value>
+						<value>Zug</value>
 					</term>
 					<term>
 						<type>String</type>
-						<value>Börse</value>
+						<value>Züge</value>
 					</term>
 					<term>
 						<type>String</type>
-						<value>Wertpapierhandel</value>
+						<value>ICE</value>
 					</term>
 					<term>
 						<type>String</type>
-						<value>Trading</value>
+						<value>Intercity</value>
 					</term>
 					<term>
 						<type>String</type>
-						<value>Broker</value>
+						<value>Regionalbahn</value>
 					</term>
 					<term>
 						<type>String</type>
-						<value>Finanzmarkt</value>
+						<value>S-Bahn</value>
 					</term>
 					<term>
 						<type>String</type>
-						<value>Aktienanleihe</value>
+						<value>Strecke</value>
 					</term>
 					<term>
 						<type>String</type>
-						<value>Fonds</value>
+						<value>Bahngleis</value>
 					</term>
 					<term>
 						<type>String</type>
-						<value>Geldanlage</value>
+						<value>Signalanlage</value>
 					</term>
 					<term>
 						<type>String</type>
-						<value>Girokonto</value>
+						<value>Stellwerk</value>
 					</term>
 					<term>
 						<type>String</type>
-						<value>Kreditkarte</value>
+						<value>Stellwerkstörung</value>
 					</term>
 					<term>
 						<type>String</type>
-						<value>Sparkarte</value>
+						<value>Weichenstörung</value>
 					</term>
 					<term>
 						<type>String</type>
-						<value>Girocard</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Maestro</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Visacard</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Mastercard</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>American Express</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>HBCI</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Währung</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Devisen</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Jahreszins</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Sollzins</value>
-					</term>
-					<term>
-						<type>String</type>
-						<value>Direktbank</value>
+						<value>Weiche</value>
 					</term>
 					
-					
-					<term>
-						<type>String</type>
-						<value>Cortal Consors</value>
-					</term>
 				</constraint>
 				 
 				

@@ -427,14 +427,16 @@ public class TwitterCrawler extends GenericCrawler implements Job {
 	 * @return 			true if any of the tokens was found, otherwise false
 	 */
 	private boolean containsWord(String text, List<String> tokens){
-		String patternString = "\\b(" + StringUtils.join(tokens, "|") + ")\\b";
-		Pattern pattern = Pattern.compile(patternString);
-		Matcher matcher = pattern.matcher(text);
+		if(tokens.size() > 0)
+		{
+			String patternString = "\\b(" + StringUtils.join(tokens, "|") + ")\\b";
+			Pattern pattern = Pattern.compile(patternString);
+			Matcher matcher = pattern.matcher(text);
 
-		while (matcher.find()) {
-		    return true;
+			while (matcher.find()) {
+				return true;
+			}
 		}
-		
 		return false;
 	}
 	

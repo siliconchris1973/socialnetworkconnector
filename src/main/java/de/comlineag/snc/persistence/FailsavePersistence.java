@@ -53,6 +53,7 @@ public class FailsavePersistence implements IPersistenceManager {
 	
 	public FailsavePersistence() {
 		File f = new File(savePoint);
+		logger.trace("storage directory "+f.getAbsolutePath());
 		if (!f.isDirectory()) {
 			// create the json diretory
 			f.mkdir();

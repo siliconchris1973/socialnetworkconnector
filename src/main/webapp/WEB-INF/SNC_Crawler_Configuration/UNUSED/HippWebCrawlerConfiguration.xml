@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+	This is the xml configuration file for the social network connector. 
+	
+	- HIPP - HIPP - HIPP - HIPP - HIPP - HIPP - HIPP -
+	
+	Every configuration file also has a very small section at the end, in which the file
+	type is specified. This type needs to correspond to the chosen configuration persistence
+	manager and you should therefore leave it as is. You must also make sure to copy and
+	edit the xml files in accordance with the chosen manager - otherwise the crawler will
+	bail out and you receive an error.
+	
+	
+		<configuration scope=webpage>
+			<name>
+		</configuration>
+	</configurations>
+-->
+<configurations>
+	<configuration scope="webpage">
+		<page>
+			<name>rundumsbaby</name>
+			<url>http://www.rund-ums-baby.de</url>
+			<max_depth>20</max_depth>
+			<stay_on_domain>true</stay_on_domain>
+			<!-- if you need authentication put it in here using the ctrypto provider as configured
+				 in applicationContext.xml section configurationCryptoProvider 
+			<user></user>
+			<passwd></passwd>
+			-->
+		</page>
+		<page>
+			<name>netmoms.de</name>
+			<url>http://www.netmoms.de</url>
+			<max_depth>20</max_depth>
+			<stay_on_domain>true</stay_on_domain>
+			<!-- if you need authentication put it in here using the ctrypto provider as configured
+				 in applicationContext.xml section configurationCryptoProvider 
+			<user></user>
+			<passwd></passwd>
+			-->
+		</page>
+		<page>
+			<name>babynahrung.de</name>
+			<url>http://www.babynahrung.de</url>
+			<max_depth>20</max_depth>
+			<stay_on_domain>true</stay_on_domain>
+			<!-- if you need authentication put it in here using the ctrypto provider as configured
+				 in applicationContext.xml section configurationCryptoProvider 
+			<user></user>
+			<passwd></passwd>
+			-->
+		</page>
+		<page>
+			<name>windeln.de</name>
+			<url>http://www.windeln.de</url>
+			<max_depth>20</max_depth>
+			<stay_on_domain>true</stay_on_domain>
+			<!-- if you need authentication put it in here using the ctrypto provider as configured
+				 in applicationContext.xml section configurationCryptoProvider 
+			<user></user>
+			<passwd></passwd>
+			-->
+		</page>
+	</configuration>
+	
+	<!-- = = = DO NOT, I REPEAT DO NOT EDIT OR DELETE THIS ENTRY = = =
+	 
+		 I MEAN IT, UNDER NO CIRCUMSTANCES CHANGE ANYTHING BELOW THIS LINE
+		 IF YOU CHANGE THIS, THE SNC WILL BREAK, THE HANA WILL BREAK AND
+		 FINALLY THE INTERNET WILL STOP WORKING. AFTER THAT MADNESS -->
+	<configuration scope="configFileType">
+		<type>MultiWebCrawler</type>
+	</configuration>
+</configurations>

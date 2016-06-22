@@ -153,21 +153,27 @@ public class HANAPersistence implements IPersistenceManager {
 			if (theData == null) {
 				try{
 					// first try to save the data via jdbc, we do this by tryng to load the jdbc driver
+					logger.debug("HANAPersistence::savePosts::insert::tryJDBC");
 					Class.forName(this.dbDriver);
+					logger.debug("HANAPersistence::savePosts::insert Treiber gefunden!");
 					insertPostWithSQL(postingData);
 				} catch (java.lang.ClassNotFoundException le) {
 					// in case the jdbc library is not available, fall back to OData to save the post
+					logger.debug("HANAPersistence::savePosts::insert Treiber NICHT gefunden versuche ODATA!");
 					insertPostWithOData(postingData);
 				} 
 			// if record exists, update it...
 			} else {
 				//logger.trace(theData.getEntityKey().toKeyStringWithoutParentheses());
 				try{
+					logger.debug("HANAPersistence::savePosts::update::tryJDBC");
 					// first try to update the data via jdbc
 					Class.forName(this.dbDriver);
+					logger.debug("HANAPersistence::savePosts::update Treiber gefunden!");
 					updatePostWithSQL(postingData);
 				} catch (java.lang.ClassNotFoundException le) {
 					// in case the jdbc library is not available, fall back to OData to save the post
+					logger.debug("HANAPersistence::savePosts::update Treiber NICHT gefunden versuche ODATA!");
 					updatePostWithOData(postingData, theData);
 				} 
 			}
@@ -420,9 +426,11 @@ public class HANAPersistence implements IPersistenceManager {
             java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
 			
             // prepare the SQL statement
-			String sql="INSERT INTO \""+hco.getSCHEMA_NAME()+"\".\""+hco.getPATH_TO_TABLES()+"::"+hco.getPOSTS_TABLE()+"\" "
+			//String sql="INSERT INTO \""+hco.getSCHEMA_NAME()+"\".\""+hco.getPATH_TO_TABLES()+"::"+hco.getPOSTS_TABLE()+"\" "
+            String sql="INSERT INTO \"CL_SAA\".\"comline.saa.data.tables::posts\" "
 					+ "("
-					+ "     \"sn_id\" "
+					+ "     \"domain\" "
+					+ ",	\"customer\" "
 					+ ",	\"sn_id\" "
 					+ ",	\"post_id\" "
 					+ ",	\"user_id\" "
@@ -447,36 +455,37 @@ public class HANAPersistence implements IPersistenceManager {
 					+ ",	\"plAround_longitude\" "
 					+ ",	\"plAround_latitude\" "
 					+ ") "
-					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?"
-					+ ")";
+					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )";
 			
+			logger.debug("    SQL: "+sql);
 			PreparedStatement stmt = conn.prepareStatement(sql);
-			logger.trace("    SQL: "+sql);
+			logger.debug("    SQL: "+sql);
 			
 			stmt.setString(1, postingData.getDomain());
-			stmt.setString(2, postingData.getSnId());
-			stmt.setLong(3, new Long(postingData.getId()));
-			stmt.setLong(4,new Long(postingData.getUserId()));
-			stmt.setTimestamp(5,new Timestamp((postingData.getTimestamp().toDateTime(DateTimeZone.UTC)).getMillis() ));
-			stmt.setString(6, postingData.getLang());
-			stmt.setString(7, dataCryptoProvider.encryptValue(postingData.getText()));
-			stmt.setString(8, dataCryptoProvider.encryptValue(postingData.getRawText()));
-			stmt.setString(9, dataCryptoProvider.encryptValue(postingData.getTeaser()));
-			stmt.setString(10, dataCryptoProvider.encryptValue(postingData.getSubject()));
-			stmt.setLong(11, postingData.getViewCount());
-			stmt.setLong(12, postingData.getFavoriteCount());
-			stmt.setString(13, postingData.getClient());
-			stmt.setInt(14, truncated);
-			stmt.setLong(15, postingData.getInReplyTo());
-			stmt.setLong(16, postingData.getInReplyToUser());
-			stmt.setString(17, postingData.getInReplyToUserScreenName());
-			stmt.setString(18, postingData.getGeoLongitude());
-			stmt.setString(19, postingData.getGeoLatitude());
-			stmt.setString(20, postingData.getGeoPlaceId());
-			stmt.setString(21, postingData.getGeoPlaceName());
-			stmt.setString(22, postingData.getGeoPlaceCountry());
-			stmt.setString(23, postingData.getGeoAroundLongitude());
-			stmt.setString(24, postingData.getGeoAroundLatitude());
+			stmt.setString(2, postingData.getCustomer());
+			stmt.setString(3, postingData.getSnId());
+			stmt.setLong(4, new Long(postingData.getId()));
+			stmt.setLong(5,new Long(postingData.getUserId()));
+			stmt.setTimestamp(6,new Timestamp((postingData.getTimestamp().toDateTime(DateTimeZone.UTC)).getMillis() ));
+			stmt.setString(7, postingData.getLang());
+			stmt.setString(8, dataCryptoProvider.encryptValue(postingData.getText()));
+			stmt.setString(9, dataCryptoProvider.encryptValue(postingData.getRawText()));
+			stmt.setString(10, dataCryptoProvider.encryptValue(postingData.getTeaser()));
+			stmt.setString(11, dataCryptoProvider.encryptValue(postingData.getSubject()));
+			stmt.setLong(12, postingData.getViewCount());
+			stmt.setLong(13, postingData.getFavoriteCount());
+			stmt.setString(14, postingData.getClient());
+			stmt.setInt(15, truncated);
+			stmt.setLong(16, postingData.getInReplyTo());
+			stmt.setLong(17, postingData.getInReplyToUser());
+			stmt.setString(18, postingData.getInReplyToUserScreenName());
+			stmt.setString(19, postingData.getGeoLongitude());
+			stmt.setString(20, postingData.getGeoLatitude());
+			stmt.setString(21, postingData.getGeoPlaceId());
+			stmt.setString(22, postingData.getGeoPlaceName());
+			stmt.setString(23, postingData.getGeoPlaceCountry());
+			stmt.setString(24, postingData.getGeoAroundLongitude());
+			stmt.setString(25, postingData.getGeoAroundLatitude());
 			
 			@SuppressWarnings("unused")
 			int rowCount = stmt.executeUpdate();
@@ -644,7 +653,8 @@ public class HANAPersistence implements IPersistenceManager {
             logger.debug("trying to insert data with jdbc url="+url+" user="+user);
             
             java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
-            String sql="INSERT INTO \""+hco.getSCHEMA_NAME()+"\".\""+hco.getPATH_TO_TABLES()+"::"+hco.getUSERS_TABLE()+"\" "
+           // String sql="INSERT INTO \""+hco.getSCHEMA_NAME()+"\".\""+hco.getPATH_TO_TABLES()+"::"+hco.getUSERS_TABLE()+"\" "
+            String sql="INSERT INTO \"CL_SAA\".\"comline.saa.data.tables::users\" "
             		+ "("
             		+ "		\"sn_id\" "
             		+ ",	\"user_id\" "
@@ -660,6 +670,7 @@ public class HANAPersistence implements IPersistenceManager {
             		+ ") "
             		+ "VALUES (?,?,?,?,?,?,?,?,?,?)"; // add a ? to the end of the line, after activating geoLocation 
 			 
+            logger.debug("HANA insert User::sql "+sql);
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			stmt.setString(1, userData.getSnId());
 			stmt.setString(2, userData.getId());
@@ -694,6 +705,7 @@ public class HANAPersistence implements IPersistenceManager {
 			le.printStackTrace();
 			/*
 			if (rtc.getBooleanValue("CREATE_USER_JSON_ON_ERROR()){
+			:1
 				userData.setObjectStatus("fail");
 				
 				// now instantiate a new JsonJilePersistence class with the data object and store the failed object on disk
@@ -822,10 +834,11 @@ public class HANAPersistence implements IPersistenceManager {
             java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
 			
             // prepare the SQL statement
-            String sql="UPDATE \""+hco.getSCHEMA_NAME()+"\".\""+hco.getPATH_TO_TABLES()+"::"+hco.getPOSTS_TABLE()+"\" "
-					+ " SET ("
+            //String sql="UPDATE \""+hco.getSCHEMA_NAME()+"\".\""+hco.getPATH_TO_TABLES()+"::"+hco.getPOSTS_TABLE()+"\" "
+            String sql="UPDATE \"CL_SAA\".\"comline.saa.data.tables::posts\" "	
+					+ " SET "
 					+ "\"domain\" = ? "
-					+ "\"user_id\" = ? "
+					+ ",\"user_id\" = ? "
 					+ ",\"timestamp\" = ? "
 					+ ",\"postLang\" = ? "
 					+ ",\"text\" = ? "
@@ -846,9 +859,10 @@ public class HANAPersistence implements IPersistenceManager {
 					+ ",\"plCountry\" = ? "
 					+ ",\"plAround_longitude\" = ? "
 					+ ",\"plAround_latitude\" = ? "
-					+ ") "
-					+ "WHERE (\"sn_id\" = ? AND \"post_id\" = ?)";					
-			PreparedStatement stmt = conn.prepareStatement(sql);
+					+ " WHERE (\"sn_id\" = ? AND \"post_id\" = ?)";					
+			
+            logger.trace("SQL: "+sql);
+            PreparedStatement stmt = conn.prepareStatement(sql);
 			
 			stmt.setString(1, postingData.getDomain());
 			stmt.setLong(2,new Long(postingData.getUserId()));
@@ -875,7 +889,7 @@ public class HANAPersistence implements IPersistenceManager {
 			stmt.setString(23, postingData.getSnId());
 			stmt.setLong(24, new Long(postingData.getId()));
 			
-			logger.trace("SQL: "+sql);
+			
 			
 			@SuppressWarnings("unused")
 			int rowCount = stmt.executeUpdate();
@@ -1053,9 +1067,10 @@ public class HANAPersistence implements IPersistenceManager {
             logger.debug("trying to update user "+SN+"-"+Id+" with jdbc url="+url+" user="+user);
             
             java.sql.Connection conn = java.sql.DriverManager.getConnection(url, user, password);
-            String sql="UPDATE \""+hco.getSCHEMA_NAME()+"\".\""+hco.getPATH_TO_TABLES()+"::"+hco.getUSERS_TABLE()+"\" "
-            		+ " SET ("
-            		+ ",\"userName\" = ? "
+            //String sql="UPDATE \""+hco.getSCHEMA_NAME()+"\".\""+hco.getPATH_TO_TABLES()+"::"+hco.getUSERS_TABLE()+"\" "
+            String sql="UPDATE \"CL_SAA\".\"comline.saa.data.tables::users\" "
+            		+ " SET "
+            		+ " \"userName\" = ? "
             		+ ",\"nickName\" = ? "
             		+ ",\"userLang\" = ? "
             		+ ",\"follower\" = ? "
@@ -1064,9 +1079,9 @@ public class HANAPersistence implements IPersistenceManager {
             		+ ",\"favoritesCount\" = ? "
             		+ ",\"listsAndGroupsCount\" = ? "
             		//+ ",\"geoLocation\" = ? "
-            		+ ") "
-            		+ "WHERE (\"sn_id\" = ? AND \"user_id\" = ?)";
+            		+ " WHERE (\"sn_id\" = ? AND \"user_id\" = ?)";
 			 
+            logger.debug("HAHAPersistence::UpdateUserWithSQL:sql "+sql);
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			stmt.setString(1, dataCryptoProvider.encryptValue(userData.getUserName()));
 			stmt.setString(2, dataCryptoProvider.encryptValue(userData.getScreenName()));
@@ -1078,8 +1093,8 @@ public class HANAPersistence implements IPersistenceManager {
 			stmt.setLong(8, userData.getListsAndGroupsCount());
 			stmt.setString(9, userData.getSnId());
 			//stmt.setString(10, userData.getGeoLocation()); // activate above and this geoLocation and increase numbers below by one
-			stmt.setString(10, userData.getSnId());
-			stmt.setString(11, userData.getId());
+			//stmt.setString(10, userData.getSnId());
+			stmt.setString(10, userData.getId());
 			
 			@SuppressWarnings("unused")
 			int rowCount = stmt.executeUpdate();
